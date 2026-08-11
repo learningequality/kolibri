@@ -463,10 +463,12 @@ class ExamViewset(ValuesViewset):
         return Exam.objects.all()
 
     def serialize_draft(self, queryset):
-        # Derive the values to fetch for DraftExam from the serializer-derived _values.
+        # Derive the values to fetch for DraftExam from the serializer-derived _engine.values.
         # Exclude Exam-only fields not present on DraftExam, and the assignment_collections
         # annotation (not available for DraftExam). Add DraftExam-specific JSONFields.
-        draft_values = tuple(v for v in self._values if v not in _EXAM_ONLY_FIELDS) + (
+        draft_values = tuple(
+            v for v in self._engine.values if v not in _EXAM_ONLY_FIELDS
+        ) + (
             "assignments",
             "learner_ids",
         )

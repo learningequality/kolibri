@@ -11,21 +11,24 @@ Overview
 
 ``ValuesViewset`` is the **preferred pattern for all API endpoints in Kolibri** unless there's a compelling reason to use a standard DRF viewset. It uses Django's ``.values()`` queryset method to fetch only needed fields in a single database query, avoiding the overhead of model instantiation and providing better performance.
 
-**Performance benefits:**
+Performance benefits
+^^^^^^^^^^^^^^^^^^^^
 
 - **Avoids N+1 queries** when traversing foreign key lookups (which happens easily with DRF Serializers using method fields)
 - **Reduces memory usage** for large querysets by not instantiating model objects that aren't needed for read operations
 - Single database query with only needed fields (vs. fetching all model fields)
 - Efficient handling of foreign key lookups using ``__`` notation
 
-**When to use ValuesViewset (default):**
+When to use ValuesViewset (default)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Use ValuesViewset for **all API endpoints** as the standard pattern
 - Works for both read and write operations (uses ModelSerializer for write operations)
 - Particularly important for endpoints that traverse foreign key relationships
 - Essential for list endpoints with many objects
 
-**When a standard ModelViewSet might be needed:**
+When a standard ModelViewSet might be needed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Very rare - ValuesViewset should be the default choice
 - Only if there's a specific technical limitation that requires standard DRF patterns
@@ -80,9 +83,9 @@ The viewset introspects the serializer's fields to build the values tuple and fi
    * - ``field = CharField(write_only=True)``
      - Skip (not in read output)
    * - ``nested = NestedSerializer(many=True)``
-     - Flatten nested fields with prefix, auto-consolidate child rows into a list per parent
+     - List of child dicts per parent
    * - ``nested = NestedSerializer()``
-     - Flatten nested fields with prefix, extract as dict per row
+     - Nested dict, or ``None`` when the FK is null
    * - Custom field with ``to_representation()``
      - Custom transformation applied automatically
    * - ``field = ValuesMethodField(sources=(...))``
@@ -140,71 +143,28 @@ A plain ``SerializerMethodField`` is rejected at viewset init — the viewset ca
 Nested Serializers
 ~~~~~~~~~~~~~~~~~~
 
-Nested serializers can be handled in two ways: **joined** (default) or **deferred**.
-
-Joined (Default) — Auto-Consolidated
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When a nested serializer is not listed in ``deferred_fields``, its fields are included in the main ``values()`` call with a prefix. The resulting flat rows are automatically consolidated back into nested structures:
+Every nested serializer relation — forward FK, OneToOne either direction, reverse FK, M2M — is fetched automatically in a follow-up query and assembled onto its parents. So is a field whose source crosses a to-many relation (e.g. ``books.title``).
 
 .. code-block:: python
 
-  class RoleSerializer(serializers.ModelSerializer):
+  class PublisherSerializer(serializers.ModelSerializer):
       class Meta:
-          model = Role
-          fields = ("id", "kind", "collection")
+          model = Publisher
+          fields = ("id", "name")
 
-  class UserSerializer(serializers.ModelSerializer):
-      roles = RoleSerializer(many=True, read_only=True)
+  class BookSerializer(serializers.ModelSerializer):
+      publisher = PublisherSerializer(read_only=True)
 
       class Meta:
-          model = FacilityUser
-          fields = ("id", "username", "roles")
+          model = Book
+          fields = ("id", "title", "publisher")
 
-  class UserViewSet(ReadOnlyValuesViewset):
-      serializer_class = UserSerializer
-      queryset = FacilityUser.objects.all()
+The viewset fetches ``("id", "title", "publisher_id")``, then one ``Publisher.objects.filter(pk__in=...)`` over the distinct publisher ids. A null FK yields ``None``.
 
-The viewset fetches ``("id", "username", "roles__id", "roles__kind", "roles__collection")`` and auto-consolidates:
+Custom fetch logic with deferred_fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: python
-
-  # Raw values() output (multiple rows per user due to LEFT JOIN):
-  [
-      {"id": "user1", "username": "alice", "roles__id": "r1", "roles__kind": "admin", ...},
-      {"id": "user1", "username": "alice", "roles__id": "r2", "roles__kind": "coach", ...},
-      {"id": "user2", "username": "bob",   "roles__id": "r3", "roles__kind": "learner", ...},
-  ]
-
-  # After auto-consolidation (grouped by primary key):
-  [
-      {"id": "user1", "username": "alice", "roles": [
-          {"id": "r1", "kind": "admin", ...},
-          {"id": "r2", "kind": "coach", ...},
-      ]},
-      {"id": "user2", "username": "bob", "roles": [
-          {"id": "r3", "kind": "learner", ...},
-      ]},
-  ]
-
-Auto-consolidation handles:
-
-- Grouping rows by parent primary key
-- Deduplicating nested items (e.g., from annotation JOINs)
-- NULL handling for LEFT JOINs (null FK → ``None`` for single nested, empty list for ``many=True``)
-- Preserving original queryset ordering
-
-**Constraints:**
-
-- Only one ``many=True`` nested serializer may be joined per viewset (multiple would create a cartesian product). Additional ``many=True`` fields must be deferred.
-- Deep nesting (nested serializers within nested serializers) is not supported for joined fields. Use ``deferred_fields`` and a custom ``consolidate()`` method instead.
-
-These constraints are checked at viewset instantiation time when ``DEBUG=True``.
-
-Deferred — Fetched Separately in consolidate()
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For nested data that should be fetched with separate queries (for performance reasons, to avoid cartesian products, or when the relation is complex), list the field in ``deferred_fields`` and use ``serialize_queryset()`` in ``consolidate()``:
+Listing a field in ``deferred_fields`` opts it out of the automatic fetch — do that when the fetch needs annotations, filtering, or other custom logic, then build the field yourself in ``consolidate()``:
 
 .. code-block:: python
 
@@ -250,7 +210,16 @@ For nested data that should be fetched with separate queries (for performance re
 
           return items
 
-The ``serialize_queryset()`` method applies the values pattern using the nested serializer's field definitions. It accepts a ``group_by`` parameter to return a dict mapping group keys to item lists, which is convenient for mapping back to parent items.
+``serialize_queryset()`` serializes with the nested serializer's fields. ``group_by`` returns ``{key: [items]}``.
+
+Things to watch
+^^^^^^^^^^^^^^^
+
+- A nested list's order comes from its own query, so give the child model an ``ordering`` in its ``Meta`` — ordering the parent queryset across the relation no longer reaches it.
+- ``?ordering=`` takes the FK column (``?ordering=publisher``), not the child columns a join exposed (``?ordering=publisher__name``).
+- DRF's ``OrderingFilter`` drops unrecognized terms without erroring, so a client sending the old form silently gets the default ordering.
+- A forward FK resolves through the target's ``_base_manager`` with no filter backend, so a nested serializer will not hide a target.
+- Reverse-FK, M2M and to-many fetches filter by parent pks, so they inherit the parent queryset's scope.
 
 Dev-Mode Validation
 ~~~~~~~~~~~~~~~~~~~~
@@ -399,7 +368,7 @@ Best Practices
 
 2. **Use source for renames**: Use ``source`` on serializer fields rather than ``field_map`` for renaming.
 
-3. **Defer wisely**: Use ``deferred_fields`` for ``many=True`` relations that would create large cartesian products, or for relations that require complex queries. Keep simple FK lookups as joined.
+3. **Rely on auto-deferral for relations**: Use explicit ``deferred_fields`` only when you need ORM annotations or custom filtering in ``consolidate()``.
 
 4. **Batch related queries in consolidate**: Fetch deferred data efficiently using ``serialize_queryset()`` with ``group_by`` and ``__in`` lookups on IDs from already-fetched items.
 
@@ -410,56 +379,8 @@ Best Practices
 Common Pitfalls
 ~~~~~~~~~~~~~~~
 
-**Multiple many=True nested serializers without deferring**
-
-.. code-block:: python
-
-  # Wrong: cartesian product — two many=True JOINs multiply rows
-  class UserSerializer(serializers.ModelSerializer):
-      roles = RoleSerializer(many=True)
-      groups = GroupSerializer(many=True)
-
-      class Meta:
-          model = FacilityUser
-          fields = ("id", "roles", "groups")
-
-  class UserViewSet(ReadOnlyValuesViewset):
-      serializer_class = UserSerializer  # Raises TypeError in DEBUG
-
-  # Correct: defer one of them
-  class UserViewSet(ReadOnlyValuesViewset):
-      serializer_class = UserSerializer
-      deferred_fields = ("groups",)
-
-      def consolidate(self, items, queryset):
-          # Fetch groups separately
-          ...
-
-**Deep nesting without deferring**
-
-.. code-block:: python
-
-  # Wrong: nested serializer within nested serializer
-  class GrandchildSerializer(serializers.ModelSerializer):
-      class Meta:
-          fields = ("id", "name")
-
-  class ChildSerializer(serializers.ModelSerializer):
-      grandchildren = GrandchildSerializer(many=True)
-      class Meta:
-          fields = ("id", "grandchildren")
-
-  class ParentSerializer(serializers.ModelSerializer):
-      children = ChildSerializer(many=True)
-      class Meta:
-          fields = ("id", "children")
-
-  # Correct: defer deeply nested fields
-  class ParentViewSet(ReadOnlyValuesViewset):
-      serializer_class = ParentSerializer
-      deferred_fields = ("children",)  # Fetch children (and grandchildren) in consolidate
-
-**Forgetting to return items from consolidate**
+Forgetting to return items from consolidate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -528,7 +449,7 @@ Existing viewsets that use explicit ``values`` tuples and ``field_map`` dicts co
 
 5. **Convert manual consolidation** of nested data:
 
-   - If the viewset manually does ``groupby`` to build nested lists, define a nested serializer with ``many=True`` and let auto-consolidation handle it
+   - If the viewset manually does ``groupby`` to build nested lists, define a nested serializer with ``many=True`` and let auto-deferral handle it
    - If the nested data is fetched separately, add it to ``deferred_fields`` and use ``serialize_queryset()``
 
 6. **Remove** the explicit ``values`` tuple and ``field_map`` dict.

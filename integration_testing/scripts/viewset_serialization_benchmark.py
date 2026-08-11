@@ -31,18 +31,26 @@ import statistics
 import sys
 import time
 import tracemalloc
+import uuid
+from collections import defaultdict
 from datetime import datetime
-from unittest.mock import MagicMock
 
 # Must import kolibri before Django to apply compat patches (e.g. cgi module on Python 3.13+)
 from kolibri.utils.main import initialize  # isort: skip
 
 from django.conf import settings
 from django.db import connection
-from rest_framework import serializers as drf_serializers
+from django.test.utils import CaptureQueriesContext
+from rest_framework import serializers
 from rest_framework.request import Request
 
 logger = logging.getLogger(__name__)
+
+# Bump whenever a fixture or report field changes shape, so --compare against a
+# baseline from before the change warns instead of reporting a bogus delta.
+# 2: the synthetic serializer dropped its nested fields — they are auto-deferred
+# now, and the mock queryset can't serve the follow-up fetches.
+SCHEMA_VERSION = 2
 
 
 def parse_args():
@@ -58,8 +66,14 @@ def parse_args():
     parser.add_argument(
         "--synthetic",
         action="store_true",
-        help="Run with a synthetic viewset and mock data (no DB needed). "
-        "Autoscales at sizes 10, 20, 50, 100.",
+        help="Run with a synthetic viewset over generated fixtures in a "
+        "throwaway test database. Autoscales at sizes 10, 20, 50, 100.",
+    )
+    parser.add_argument(
+        "--compare-autodefer",
+        action="store_true",
+        help="Compare auto-deferred derived vs explicit values+consolidate() over "
+        "generated fixtures in a throwaway test database, sweeping reverse-FK fan-out.",
     )
     parser.add_argument(
         "-o",
@@ -116,11 +130,15 @@ def parse_args():
     return parser.parse_args()
 
 
-def setup_kolibri(inherit_kolibri_home=False):
-    if not inherit_kolibri_home:
+def setup_kolibri(args):
+    if not args.inherit_kolibri_home:
         os.environ.setdefault("KOLIBRI_HOME", "/tmp/kolibri_benchmark")
 
     initialize()
+    # initialize() installs Kolibri's own logging config, resetting the root
+    # level; re-assert --quiet on this module's logger, which that config leaves
+    # alone.
+    logger.setLevel(logging.ERROR if args.quiet else logging.INFO)
 
 
 def import_viewset_class(dotted_path):
@@ -197,86 +215,72 @@ def get_queryset_for_viewset(viewset_class):
 
 
 def _build_synthetic_viewset():
-    """Build a viewset class with a serializer exercising all serialization paths."""
+    """
+    Build a viewset covering both halves of the pipeline: the flat paths
+    (passthrough, source rename, method field over multiple sources) and the
+    auto-deferred ones (reverse FK, and a forward-FK chain two levels deep).
 
+    Built lazily on the test-only models, so the test app registry and database
+    must be set up first.
+    """
     from kolibri.core.api import BaseValuesViewset
     from kolibri.core.api import ListModelMixin
     from kolibri.core.api import ValuesMethodField
+    from kolibri.core.test.test_app.models import Author
+    from kolibri.core.test.test_app.models import Book
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
 
-    class TagSerializer(drf_serializers.Serializer):
-        id = drf_serializers.CharField()
-        label = drf_serializers.CharField()
+    class CountrySerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Country
+            fields = ("id", "name")
 
-    class DepartmentSerializer(drf_serializers.Serializer):
-        id = drf_serializers.CharField()
-        name = drf_serializers.CharField()
+    class PublisherSerializer(serializers.ModelSerializer):
+        country = CountrySerializer(allow_null=True)
 
-    class SyntheticSerializer(drf_serializers.Serializer):
-        id = drf_serializers.CharField()
-        # Flat field with rename (exercises simple_renames path)
-        display_name = drf_serializers.CharField(source="full_name")
-        email = drf_serializers.CharField()
-        score = drf_serializers.IntegerField()
-        # many=True nested (exercises _auto_consolidate groupby)
-        tags = TagSerializer(many=True, source="tag_set")
-        # Single nested FK (exercises _joined_single dict consolidation)
-        department = DepartmentSerializer(source="dept")
-        # Method field over multiple sources (exercises _SourcesProxy +
-        # invoker callable in field_map).
-        contact_label = ValuesMethodField(sources=("full_name", "email"))
+        class Meta:
+            model = Publisher
+            fields = ("id", "name", "country")
+
+    class BookSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Book
+            fields = ("id", "title")
+
+    class SyntheticSerializer(serializers.ModelSerializer):
+        # rename: exercises the simple_renames path
+        display_name = serializers.CharField(source="name")
+        # method field over multiple sources, one of them shared with a rename:
+        # exercises _SourcesProxy, the field_map invoker, and the refcount that
+        # keeps a shared column out of rename promotion
+        contact_label = ValuesMethodField(sources=("name", "email"))
+        # auto-deferred: reverse FK, and forward FK carrying its own forward FK
+        books = BookSerializer(many=True)
+        publisher = PublisherSerializer(allow_null=True)
+
+        class Meta:
+            model = Author
+            fields = (
+                "id",
+                "display_name",
+                "email",
+                "contact_label",
+                "books",
+                "publisher",
+            )
 
         def get_contact_label(self, row):
-            return "{} <{}>".format(row.full_name, row.email)
+            return "{} <{}>".format(row.name, row.email)
 
     class SyntheticViewset(BaseValuesViewset, ListModelMixin):
         serializer_class = SyntheticSerializer
+        queryset = Author.objects.all().order_by("name")
 
     return SyntheticViewset
 
 
 SYNTHETIC_SIZES = (10, 20, 50, 100)
-
-
-def _generate_synthetic_data(n):
-    """
-    Generate n parent records as flat dicts simulating QuerySet.values() output.
-
-    Each parent has 2 tags (many=True join) and 1 department (FK join).
-    The flat output has n*2 rows because of the tag join expansion.
-    """
-    rows = []
-    for i in range(n):
-        for t in range(2):
-            rows.append(
-                {
-                    "id": f"user-{i:04d}",
-                    "full_name": f"User {i}",
-                    "email": f"user{i}@example.com",
-                    "score": 100 + i,
-                    "tag_set__id": f"tag-{i}-{t}",
-                    "tag_set__label": f"label-{i}-{t}",
-                    "dept__id": f"dept-{i % 5:04d}",
-                    "dept__name": f"Department {i % 5}",
-                }
-            )
-    return rows
-
-
-def _make_synthetic_queryset(flat_items):
-    """Wrap flat dict list in a mock queryset compatible with serialize()."""
-
-    class StubMeta:
-        class pk:
-            name = "id"
-
-    class StubModel:
-        _meta = StubMeta()
-
-    mock_qs = MagicMock()
-    mock_qs.model = StubModel
-    mock_qs.values.side_effect = lambda *a, **kw: [item.copy() for item in flat_items]
-    mock_qs.count.return_value = len(set(row["id"] for row in flat_items))
-    return mock_qs
 
 
 def _make_viewset(viewset_class, queryset, user=None):
@@ -474,10 +478,13 @@ def build_report(
     has_explicit_values = "values" in viewset_class.__dict__ and isinstance(
         viewset_class.__dict__["values"], tuple
     )
-    has_derived = viewset_class._cached_serializer is not None
+    has_derived = (
+        not has_explicit_values
+        and getattr(viewset_class, "serializer_class", None) is not None
+    )
 
     return {
-        "schema_version": 1,
+        "schema_version": SCHEMA_VERSION,
         "metadata": {
             "viewset_class": dotted_path,
             "has_explicit_values": has_explicit_values,
@@ -524,10 +531,13 @@ def write_report(report, path):
 def load_report(path):
     with open(path) as f:
         report = json.load(f)
-    if report.get("schema_version") != 1:
+    if report.get("schema_version") != SCHEMA_VERSION:
         logger.warning(
-            "Baseline report has schema_version=%s, expected 1",
+            "Baseline report has schema_version=%s, expected %s — the fixtures "
+            "differ, so any timing delta against it is meaningless. Re-record "
+            "the baseline with this version of the script.",
             report.get("schema_version"),
+            SCHEMA_VERSION,
         )
     return report
 
@@ -700,54 +710,31 @@ def print_comparison(baseline, current, verdict):
 
 def _run_synthetic(args):
     """Run benchmark with synthetic viewset at multiple data sizes."""
-    setup_kolibri(inherit_kolibri_home=args.inherit_kolibri_home)
+    from django.test.utils import setup_test_environment
+    from django.test.utils import teardown_test_environment
 
-    viewset_class = _build_synthetic_viewset()
-    sizes_report = {}
+    setup_kolibri(args)
 
-    for size in SYNTHETIC_SIZES:
-        if not args.quiet:
-            logger.info("\n--- Size: %d ---", size)
-        flat_items = _generate_synthetic_data(size)
-        mock_qs = _make_synthetic_queryset(flat_items)
+    # Register the test-only app so its tables are created in the test DB.
+    import kolibri.core.test  # noqa: F401
 
-        if not args.quiet:
-            logger.info("Running timing benchmark...")
-        timing = benchmark_timing(viewset_class, mock_qs, args.iterations, args.warmup)
+    # DB-backed: each iteration hits the DB, so cap well below the in-memory default.
+    iterations = min(args.iterations, 50)
+    memory_iterations = min(args.memory_iterations, 20)
 
-        if not args.quiet:
-            logger.info("Running memory benchmark...")
-        memory = benchmark_memory(
-            viewset_class, mock_qs, args.memory_iterations, args.warmup
-        )
-
-        if not args.quiet:
-            logger.info("Capturing data snapshot...")
-        data_snapshot = capture_data_snapshot(viewset_class, mock_qs)
-
-        sizes_report[str(size)] = build_report(
-            viewset_class=viewset_class,
-            dotted_path="<synthetic>",
-            record_count=size,
-            iterations=args.iterations,
-            memory_iterations=args.memory_iterations,
-            warmup=args.warmup,
-            timing=timing,
-            memory=memory,
-            queries=None,
-            data_snapshot=data_snapshot,
-            time_threshold=args.time_threshold,
-            memory_threshold=args.memory_threshold,
-        )
-
-        if not args.quiet:
-            r = sizes_report[str(size)]
-            logger.info("  Time: %.3f ms (mean)", r["timing"]["mean_ms"])
-            logger.info("  Memory: %s (mean)", _fmt_bytes(r["memory"]["mean_bytes"]))
-            logger.info("  Data hash: %s...", r["data"]["output_hash"][:30])
+    setup_test_environment()
+    old_config = connection.creation.create_test_db(verbosity=0, autoclobber=True)
+    try:
+        sizes_report = {
+            str(size): _synthetic_size_report(size, args, iterations, memory_iterations)
+            for size in SYNTHETIC_SIZES
+        }
+    finally:
+        connection.creation.destroy_test_db(old_config, verbosity=0)
+        teardown_test_environment()
 
     report = {
-        "schema_version": 1,
+        "schema_version": SCHEMA_VERSION,
         "synthetic": True,
         "sizes": sizes_report,
     }
@@ -755,14 +742,57 @@ def _run_synthetic(args):
     output_path = args.output or "synthetic_benchmark.json"
     write_report(report, output_path)
 
-    if not args.quiet:
-        logger.info("\nReport written to: %s", output_path)
+    logger.info("\nReport written to: %s", output_path)
 
     if args.compare:
         baseline = load_report(args.compare)
         return _compare_synthetic(baseline, report, args)
 
     return 0
+
+
+def _synthetic_size_report(size, args, iterations, memory_iterations):
+    """Benchmark the synthetic viewset over ``size`` authors on a clean DB."""
+    from kolibri.core.test.test_app.models import Author
+
+    logger.info("\n--- Size: %d ---", size)
+
+    Author.objects.all().delete()
+    _build_autodefer_fixtures(size)
+
+    viewset_class = _build_synthetic_viewset()
+    queryset = viewset_class.queryset
+
+    logger.info("Running timing benchmark...")
+    timing = benchmark_timing(viewset_class, queryset, iterations, args.warmup)
+
+    logger.info("Running memory benchmark...")
+    memory = benchmark_memory(viewset_class, queryset, memory_iterations, args.warmup)
+
+    logger.info("Capturing data snapshot...")
+    data_snapshot = capture_data_snapshot(viewset_class, queryset)
+
+    report = build_report(
+        viewset_class=viewset_class,
+        dotted_path="<synthetic>",
+        record_count=size,
+        iterations=iterations,
+        memory_iterations=memory_iterations,
+        warmup=args.warmup,
+        timing=timing,
+        memory=memory,
+        queries=count_queries(viewset_class, queryset),
+        data_snapshot=data_snapshot,
+        time_threshold=args.time_threshold,
+        memory_threshold=args.memory_threshold,
+    )
+
+    logger.info("  Time: %.3f ms (mean)", report["timing"]["mean_ms"])
+    logger.info("  Memory: %s (mean)", _fmt_bytes(report["memory"]["mean_bytes"]))
+    logger.info("  Queries: %s", report["queries"]["count"])
+    logger.info("  Data hash: %s...", report["data"]["output_hash"][:30])
+
+    return report
 
 
 def _compare_synthetic(baseline, current, args):
@@ -772,21 +802,18 @@ def _compare_synthetic(baseline, current, args):
     for size in SYNTHETIC_SIZES:
         key = str(size)
         if key not in baseline.get("sizes", {}):
-            if not args.quiet:
-                logger.warning("Size %d not in baseline, skipping", size)
+            logger.warning("Size %d not in baseline, skipping", size)
             continue
         if key not in current.get("sizes", {}):
-            if not args.quiet:
-                logger.warning("Size %d not in current, skipping", size)
+            logger.warning("Size %d not in current, skipping", size)
             continue
 
         b = baseline["sizes"][key]
         c = current["sizes"][key]
         verdict = compare_reports(b, c, args.time_threshold, args.memory_threshold)
 
-        if not args.quiet:
-            logger.info("\n--- Size: %d ---", size)
-            print_comparison(b, c, verdict)
+        logger.info("\n--- Size: %d ---", size)
+        print_comparison(b, c, verdict)
 
         if not verdict["overall_pass"]:
             overall_pass = False
@@ -796,7 +823,7 @@ def _compare_synthetic(baseline, current, args):
 
 def _run_real_viewset(args):
     """Run benchmark against a real viewset with database data."""
-    setup_kolibri(inherit_kolibri_home=args.inherit_kolibri_home)
+    setup_kolibri(args)
 
     viewset_class = import_viewset_class(args.viewset)
 
@@ -813,39 +840,37 @@ def _run_real_viewset(args):
     has_explicit = "values" in viewset_class.__dict__ and isinstance(
         viewset_class.__dict__["values"], tuple
     )
-    has_derived = viewset_class._cached_serializer is not None
+    has_derived = (
+        not has_explicit
+        and getattr(viewset_class, "serializer_class", None) is not None
+    )
     pattern = "derived" if has_derived else ("explicit" if has_explicit else "unknown")
 
-    if not args.quiet:
-        logger.info("Viewset: %s", args.viewset)
-        logger.info("  Pattern: %s", pattern)
-        logger.info("  Records: %d", record_count)
-        logger.info(
-            "  Iterations: %d (timing), %d (memory)",
-            args.iterations,
-            args.memory_iterations,
-        )
-        logger.info("  Warmup: %d", args.warmup)
+    logger.info("Viewset: %s", args.viewset)
+    logger.info("  Pattern: %s", pattern)
+    logger.info("  Records: %d", record_count)
+    logger.info(
+        "  Iterations: %d (timing), %d (memory)",
+        args.iterations,
+        args.memory_iterations,
+    )
+    logger.info("  Warmup: %d", args.warmup)
 
     # Benchmarks
-    if not args.quiet:
-        logger.info("Running timing benchmark...")
+    logger.info("Running timing benchmark...")
     timing = benchmark_timing(
         viewset_class, queryset, args.iterations, args.warmup, user=user
     )
 
-    if not args.quiet:
-        logger.info("Running memory benchmark...")
+    logger.info("Running memory benchmark...")
     memory = benchmark_memory(
         viewset_class, queryset, args.memory_iterations, args.warmup, user=user
     )
 
-    if not args.quiet:
-        logger.info("Counting queries...")
+    logger.info("Counting queries...")
     queries = count_queries(viewset_class, queryset, user=user)
 
-    if not args.quiet:
-        logger.info("Capturing data snapshot...")
+    logger.info("Capturing data snapshot...")
     data_snapshot = capture_data_snapshot(viewset_class, queryset, user=user)
 
     report = build_report(
@@ -866,28 +891,657 @@ def _run_real_viewset(args):
     output_path = args.output or f"{viewset_class.__name__}_benchmark.json"
     write_report(report, output_path)
 
-    if not args.quiet:
-        logger.info("\nReport written to: %s", output_path)
-        logger.info("  Time: %.3f ms (mean)", report["timing"]["mean_ms"])
-        logger.info("  Memory: %s (mean)", _fmt_bytes(report["memory"]["mean_bytes"]))
-        logger.info("  Queries: %s", report["queries"]["count"])
-        logger.info("  JSON size: %d bytes", report["timing"]["json_size_bytes"])
-        logger.info("  Data hash: %s...", report["data"]["output_hash"][:30])
+    logger.info("\nReport written to: %s", output_path)
+    logger.info("  Time: %.3f ms (mean)", report["timing"]["mean_ms"])
+    logger.info("  Memory: %s (mean)", _fmt_bytes(report["memory"]["mean_bytes"]))
+    logger.info("  Queries: %s", report["queries"]["count"])
+    logger.info("  JSON size: %d bytes", report["timing"]["json_size_bytes"])
+    logger.info("  Data hash: %s...", report["data"]["output_hash"][:30])
 
     if args.compare:
         baseline = load_report(args.compare)
         verdict = compare_reports(
             baseline, report, args.time_threshold, args.memory_threshold
         )
-        if not args.quiet:
-            print_comparison(baseline, report, verdict)
+        print_comparison(baseline, report, verdict)
         return 0 if verdict["overall_pass"] else 1
 
     return 0
 
 
+def _mean_ms(fn, warmup, iterations):
+    """Mean wall-clock ms over ``iterations`` calls, after ``warmup`` calls."""
+    for _ in range(warmup):
+        fn()
+    gc.collect()
+    gc.disable()
+    try:
+        times = []
+        for _ in range(iterations):
+            start = time.perf_counter()
+            fn()
+            times.append(time.perf_counter() - start)
+    finally:
+        gc.enable()
+    return statistics.mean(times) * 1000
+
+
+def _query_count(fn):
+    """Number of DB queries issued by a single ``fn()`` call."""
+    with CaptureQueriesContext(connection) as ctx:
+        fn()
+    return len(ctx)
+
+
+def _measure_strategy(serialize, warmup, iterations):
+    return {
+        "queries": _query_count(serialize),
+        "mean_ms": _mean_ms(serialize, warmup, iterations),
+    }
+
+
+def _autodefer_author_queryset():
+    from kolibri.core.test.test_app.models import Author
+
+    return Author.objects.all().order_by("name")
+
+
+def _build_autodefer_fixtures(author_count, books_per_author=3, awards_per_author=2):
+    """Create N authors, each with M books and K awards, sharing one publisher.
+
+    Every third author has no publisher, exercising null forward-FK targets.
+    Author pks are derived from the index rather than random, so the output hash
+    is stable across runs and ``--compare`` can detect real output drift.
+    """
+    from kolibri.core.test.test_app.models import Author
+    from kolibri.core.test.test_app.models import Award
+    from kolibri.core.test.test_app.models import Book
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
+
+    country = Country.objects.create(name="Testland")
+    publisher = Publisher.objects.create(name="Test House", country=country)
+
+    authors = []
+    for i in range(author_count):
+        pub = publisher if i % 3 != 0 else None
+        author = Author.objects.create(
+            id=uuid.UUID(int=i),
+            name="Author {:03d}".format(i),
+            email="author{}@example.com".format(i),
+            publisher=pub,
+        )
+        authors.append(author)
+        for j in range(books_per_author):
+            Book.objects.create(author=author, title="Book {}-{}".format(i, j))
+        for j in range(awards_per_author):
+            Award.objects.create(author=author, name="Award {}-{}".format(i, j))
+    return authors
+
+
+def _explicit_author_consolidate(items):
+    """
+    Hand-written reverse/forward-FK assembly — the pre-auto-defer baseline the
+    derived viewset is benchmarked against.
+
+    The bucketing below duplicates ``serialize_queryset(..., group_by=...)`` on
+    purpose: calling that would run the engine this arm exists to measure against.
+    """
+    from kolibri.core.test.test_app.models import Award
+    from kolibri.core.test.test_app.models import Book
+
+    author_pks = [item["id"] for item in items]
+
+    # --- books (reverse FK, one query) ---
+    book_rows = list(
+        Book.objects.filter(author_id__in=author_pks).values("id", "title", "author_id")
+    )
+    books_by_author = defaultdict(list)
+    for row in book_rows:
+        books_by_author[str(row["author_id"])].append(
+            {"id": row["id"], "title": row["title"]}
+        )
+
+    # --- awards (reverse FK, one query) ---
+    award_rows = list(
+        Award.objects.filter(author_id__in=author_pks).values("id", "name", "author_id")
+    )
+    awards_by_author = defaultdict(list)
+    for row in award_rows:
+        awards_by_author[str(row["author_id"])].append(
+            {"id": row["id"], "name": row["name"]}
+        )
+
+    # --- publishers + countries (forward FK, one query each) ---
+    publisher_ids = {item["publisher_id"] for item in items if item["publisher_id"]}
+    publishers_by_id = _build_publishers_by_id(publisher_ids)
+
+    for item in items:
+        item["books"] = books_by_author.get(str(item["id"]), [])
+        item["awards"] = awards_by_author.get(str(item["id"]), [])
+        pid = item.pop("publisher_id")
+        item["publisher"] = publishers_by_id.get(str(pid)) if pid else None
+
+    return items
+
+
+def _build_publishers_by_id(publisher_ids):
+    """``{publisher_pk: {id, name, country}}`` for the given pks, with country
+    nested via a single follow-up query."""
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
+
+    if not publisher_ids:
+        return {}
+
+    pub_rows = list(
+        Publisher.objects.filter(pk__in=publisher_ids).values(
+            "id", "name", "country_id"
+        )
+    )
+    country_ids = {row["country_id"] for row in pub_rows if row["country_id"]}
+    country_rows = Country.objects.filter(pk__in=country_ids).values("id", "name")
+    countries_by_id = {
+        str(row["id"]): {"id": row["id"], "name": row["name"]} for row in country_rows
+    }
+
+    publishers_by_id = {}
+    for row in pub_rows:
+        cid = row["country_id"]
+        publishers_by_id[str(row["id"])] = {
+            "id": row["id"],
+            "name": row["name"],
+            "country": countries_by_id.get(str(cid)) if cid else None,
+        }
+    return publishers_by_id
+
+
+def _build_autodefer_viewsets():
+    """The derived and explicit Author viewsets, built lazily: their serializer
+    and queryset class attributes import test-only models, which requires the
+    test app registry and database to be set up first."""
+    from kolibri.core.api import BaseValuesViewset
+    from kolibri.core.api import ListModelMixin
+    from kolibri.core.test.test_app.models import Author
+    from kolibri.core.test.test_app.models import Award
+    from kolibri.core.test.test_app.models import Book
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
+
+    class CountrySerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Country
+            fields = ("id", "name")
+
+    class PublisherSerializer(serializers.ModelSerializer):
+        country = CountrySerializer(allow_null=True)
+
+        class Meta:
+            model = Publisher
+            fields = ("id", "name", "country")
+
+    class AwardSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Award
+            fields = ("id", "name")
+
+    class BookSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Book
+            fields = ("id", "title")
+
+    class AuthorSerializer(serializers.ModelSerializer):
+        """Two many=True relations + a deep forward-FK chain (publisher→country)."""
+
+        books = BookSerializer(many=True)
+        awards = AwardSerializer(many=True)
+        publisher = PublisherSerializer(allow_null=True)
+
+        class Meta:
+            model = Author
+            fields = ("id", "name", "books", "awards", "publisher")
+
+    class DerivedAuthorViewset(BaseValuesViewset, ListModelMixin):
+        """Serializer-derived — auto-defers books, awards, publisher, country."""
+
+        serializer_class = AuthorSerializer
+        queryset = Author.objects.all().order_by("name")
+
+    class ExplicitAuthorViewset(BaseValuesViewset, ListModelMixin):
+        """Explicit values tuple + hand-written consolidate() — the pre-auto-defer pattern."""
+
+        queryset = Author.objects.all().order_by("name")
+
+        # Flat Author columns only — no joins to many-sided relations.
+        values = ("id", "name", "publisher_id")
+
+        field_map = {}
+
+        def consolidate(self, items, queryset):
+            return _explicit_author_consolidate(items)
+
+    return DerivedAuthorViewset, ExplicitAuthorViewset
+
+
+def _build_to_one_fixtures(author_count, shared_publisher):
+    """Authors with a ``publisher → country`` chain and no to-many relations.
+
+    ``shared_publisher`` decides whether every author points at one publisher (the
+    case batching wins) or each at its own (the case it can't help).
+    """
+    from kolibri.core.test.test_app.models import Author
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
+
+    Author.objects.all().delete()
+    Publisher.objects.all().delete()
+    Country.objects.all().delete()
+
+    country = Country.objects.create(name="Testland")
+    shared = (
+        Publisher.objects.create(name="Test House", country=country)
+        if shared_publisher
+        else None
+    )
+    for i in range(author_count):
+        publisher = shared or Publisher.objects.create(
+            name="House {:04d}".format(i), country=country
+        )
+        Author.objects.create(
+            id=uuid.UUID(int=i),
+            name="Author {:04d}".format(i),
+            email="author{}@example.com".format(i),
+            publisher=publisher,
+        )
+
+
+def _nest_joined_to_one(item):
+    """Reshape one flat joined row into the nested dicts the serializer declares."""
+    country_id = item.pop("publisher__country__id")
+    publisher_id = item.pop("publisher__id")
+    item["publisher"] = (
+        None
+        if publisher_id is None
+        else {
+            "id": publisher_id,
+            "name": item.pop("publisher__name"),
+            "country": (
+                None
+                if country_id is None
+                else {"id": country_id, "name": item.pop("publisher__country__name")}
+            ),
+        }
+    )
+    item.pop("publisher__name", None)
+    item.pop("publisher__country__name", None)
+    return item
+
+
+def _nest_joined_publisher(item):
+    """Single-hop variant of ``_nest_joined_to_one``: publisher, no country."""
+    publisher_id = item.pop("publisher__id")
+    name = item.pop("publisher__name")
+    item["publisher"] = (
+        None if publisher_id is None else {"id": publisher_id, "name": name}
+    )
+    return item
+
+
+def _build_to_one_viewsets():
+    """The two to-one strategies for the same output: auto-deferred follow-up
+    queries, versus the joined columns they replaced.
+
+    The main sweep can't show this trade-off — its baseline ``consolidate()``
+    defers too. The joined arm is the removed path: the target's columns ride
+    along on the parent query and are reshaped in Python.
+    """
+    from kolibri.core.api import BaseValuesViewset
+    from kolibri.core.api import ListModelMixin
+    from kolibri.core.test.test_app.models import Author
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
+
+    class CountrySerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Country
+            fields = ("id", "name")
+
+    class PublisherSerializer(serializers.ModelSerializer):
+        country = CountrySerializer(allow_null=True)
+
+        class Meta:
+            model = Publisher
+            fields = ("id", "name", "country")
+
+    class ChainAuthorSerializer(serializers.ModelSerializer):
+        """Two to-one hops: author → publisher → country."""
+
+        publisher = PublisherSerializer(allow_null=True)
+
+        class Meta:
+            model = Author
+            fields = ("id", "name", "publisher")
+
+    class FlatPublisherSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Publisher
+            fields = ("id", "name")
+
+    class SingleHopAuthorSerializer(serializers.ModelSerializer):
+        """One to-one hop — the common production shape (e.g. ``Lesson.classroom``)."""
+
+        publisher = FlatPublisherSerializer(allow_null=True)
+
+        class Meta:
+            model = Author
+            fields = ("id", "name", "publisher")
+
+    class DeferredChainViewset(BaseValuesViewset, ListModelMixin):
+        serializer_class = ChainAuthorSerializer
+        queryset = Author.objects.all().order_by("name")
+
+    class JoinedChainViewset(BaseValuesViewset, ListModelMixin):
+        queryset = Author.objects.all().order_by("name")
+
+        values = (
+            "id",
+            "name",
+            "publisher__id",
+            "publisher__name",
+            "publisher__country__id",
+            "publisher__country__name",
+        )
+
+        field_map = {}
+
+        def consolidate(self, items, queryset):
+            return [_nest_joined_to_one(item) for item in items]
+
+    class DeferredSingleHopViewset(BaseValuesViewset, ListModelMixin):
+        serializer_class = SingleHopAuthorSerializer
+        queryset = Author.objects.all().order_by("name")
+
+    class JoinedSingleHopViewset(BaseValuesViewset, ListModelMixin):
+        queryset = Author.objects.all().order_by("name")
+
+        values = ("id", "name", "publisher__id", "publisher__name")
+
+        field_map = {}
+
+        def consolidate(self, items, queryset):
+            return [_nest_joined_publisher(item) for item in items]
+
+    return {
+        "1 hop": (DeferredSingleHopViewset, JoinedSingleHopViewset),
+        "2 hops": (DeferredChainViewset, JoinedChainViewset),
+    }
+
+
+# A whole serialize() call here is well under a millisecond, so one batch cannot
+# separate a strategy difference from scheduler noise — an earlier read that
+# deferring *won* for shared targets came from a cell whose spread was several
+# times its delta.
+_TO_ONE_REPEATS = 3
+
+
+def _repeat_measure(serialize, warmup, iterations):
+    """
+    Median and half-spread of ``_TO_ONE_REPEATS`` independent measurements.
+
+    Median rather than mean: a run that collides with GC or CPU migration lands
+    far above the others, and the deltas measured here are small enough that one
+    such outlier would dominate a mean over three runs.
+    """
+    runs = [
+        _measure_strategy(serialize, warmup, iterations) for _ in range(_TO_ONE_REPEATS)
+    ]
+    times = [run["mean_ms"] for run in runs]
+    return {
+        "queries": runs[0]["queries"],
+        "median_ms": statistics.median(times),
+        "spread_ms": (max(times) - min(times)) / 2,
+    }
+
+
+def _to_one_size_report(
+    to_one_viewsets, depth, author_count, shared_publisher, warmup, iterations
+):
+    deferred_cls, joined_cls = to_one_viewsets[depth]
+    _build_to_one_fixtures(author_count, shared_publisher)
+    qs = _autodefer_author_queryset
+    deferred = deferred_cls()
+    joined = joined_cls()
+
+    return {
+        "depth": depth,
+        "authors": author_count,
+        "shared_publisher": shared_publisher,
+        "output_equal": _normalise(deferred.serialize(qs()))
+        == _normalise(joined.serialize(qs())),
+        "deferred": _repeat_measure(
+            lambda: deferred.serialize(qs()), warmup, iterations
+        ),
+        "joined": _repeat_measure(lambda: joined.serialize(qs()), warmup, iterations),
+    }
+
+
+def _print_to_one_report(sizes):
+    """Report the isolated cost of deferring a to-one against joining it.
+
+    ``noise`` is the larger arm spread over the delta. Above ~0.5 the two arms
+    are indistinguishable at that point and the percentage means nothing.
+    """
+    logger.info("\n=== to-one: deferred vs joined (isolated) ===")
+    for size in sizes:
+        d, j = size["deferred"], size["joined"]
+        delta = d["median_ms"] - j["median_ms"]
+        noise = (
+            max(d["spread_ms"], j["spread_ms"]) / abs(delta) if delta else float("inf")
+        )
+        logger.info(
+            "%-7s %4d authors  %-8s  output_equal=%s  queries %d/%d  "
+            "ms %.3f+-%.3f/%.3f+-%.3f  deferred %+.1f%%  noise %.2f%s",
+            size["depth"],
+            size["authors"],
+            "shared" if size["shared_publisher"] else "distinct",
+            size["output_equal"],
+            d["queries"],
+            j["queries"],
+            d["median_ms"],
+            d["spread_ms"],
+            j["median_ms"],
+            j["spread_ms"],
+            delta / j["median_ms"] * 100,
+            noise,
+            "  (INDISTINGUISHABLE)" if noise > 0.5 else "",
+        )
+    logger.info(
+        "Isolated cost only — these viewsets do nothing but the to-one, so the "
+        "round trip is most of the measurement. On real viewsets it costs "
+        "0-0.15ms."
+    )
+
+
+def _sort_key(obj):
+    """Stable sort key for a JSON-compatible value (dict/list/scalar)."""
+    if isinstance(obj, dict):
+        return repr(sorted((k, _sort_key(v)) for k, v in obj.items()))
+    if isinstance(obj, list):
+        return repr([_sort_key(x) for x in obj])
+    return repr(obj)
+
+
+def _normalise_item(item):
+    """Recursively sort list fields so ordering doesn't affect equality. Scalars
+    are kept typed — both paths read through ``.values()``, so equivalent output
+    is identically typed; stringifying would mask a real type divergence (e.g.
+    ``id: 1`` vs ``id: "1"``) between the two strategies."""
+    result = {}
+    for k, v in item.items():
+        if isinstance(v, list):
+            result[k] = sorted(
+                [_normalise_item(x) if isinstance(x, dict) else x for x in v],
+                key=_sort_key,
+            )
+        elif isinstance(v, dict):
+            result[k] = _normalise_item(v)
+        else:
+            result[k] = v
+    return result
+
+
+def _normalise(items):
+    """Return a sorted, normalised representation of a serialized list."""
+    return sorted((_normalise_item(item) for item in items), key=_sort_key)
+
+
+def _autodefer_size_report(
+    derived_cls, explicit_cls, author_count, books_per_author, warmup, iterations
+):
+    """Compare the auto-deferred derived path to hand-written explicit
+    consolidate() at one (authors, books-per-author) point. Books-per-author is
+    the reverse-FK fan-out."""
+    from kolibri.core.test.test_app.models import Author
+    from kolibri.core.test.test_app.models import Country
+    from kolibri.core.test.test_app.models import Publisher
+
+    # Clean slate so sizes don't accumulate (cascades to books/awards).
+    Author.objects.all().delete()
+    Publisher.objects.all().delete()
+    Country.objects.all().delete()
+    _build_autodefer_fixtures(author_count, books_per_author=books_per_author)
+
+    qs = _autodefer_author_queryset
+    derived = derived_cls()
+    explicit = explicit_cls()
+
+    derived_out = _normalise(derived.serialize(qs()))
+    explicit_out = _normalise(explicit.serialize(qs()))
+
+    return {
+        "authors": author_count,
+        "books_per_author": books_per_author,
+        "output_equal": derived_out == explicit_out,
+        "derived": _measure_strategy(
+            lambda: derived.serialize(qs()), warmup, iterations
+        ),
+        "explicit": _measure_strategy(
+            lambda: explicit.serialize(qs()), warmup, iterations
+        ),
+    }
+
+
+def _print_autodefer_report(report):
+    for size in report["sizes"]:
+        logger.info(
+            "\n=== %d authors x %d books ===",
+            size["authors"],
+            size["books_per_author"],
+        )
+        d, e = size["derived"], size["explicit"]
+        logger.info(
+            "derived vs explicit: output_equal=%s  queries %d/%d  ms %.3f/%.3f",
+            size["output_equal"],
+            d["queries"],
+            e["queries"],
+            d["mean_ms"],
+            e["mean_ms"],
+        )
+    logger.info(
+        "\nderived query count fixed across fan-out: %s",
+        report["derived_queries_fixed"],
+    )
+    _print_to_one_report(report["to_one_sizes"])
+
+
+def _run_autodefer_compare(args):
+    """In-process derived-vs-explicit comparison over a throwaway test database.
+
+    Confirms the auto-deferred serializer-derived path produces identical output
+    to a hand-written explicit consolidate(), and that its query count stays
+    fixed as the reverse-FK fan-out grows — the derived path avoids joins, so it
+    issues a fixed number of extra queries (an accepted trade-off), never one
+    that scales with row count. Records each path's timing across the sweep; the
+    derived path is expected to run more queries than the join-using baseline.
+    """
+    from django.test.utils import setup_test_environment
+    from django.test.utils import teardown_test_environment
+
+    setup_kolibri(args)
+
+    # Register the test-only app so its tables are created in the test DB.
+    import kolibri.core.test  # noqa: F401
+
+    # (authors, books_per_author): sweep reverse-FK fan-out.
+    sizes = [(100, 3), (100, 10), (100, 30), (100, 100), (100, 300)]
+    # (authors, shared_publisher): sweep the to-one trade-off over page size and
+    # target cardinality — deferring is one extra round trip to stop repeating the
+    # target's columns per parent row, so it should win when targets are shared and
+    # lose as distinct targets approach the parent count.
+    to_one_sizes = [
+        (depth, n, shared)
+        for depth in ("1 hop", "2 hops")
+        for n in (25, 100, 500)
+        for shared in (True, False)
+    ]
+    # DB-backed: each iteration hits the DB, so cap well below the in-memory default.
+    iterations = min(args.iterations, 50)
+
+    setup_test_environment()
+    old_config = connection.creation.create_test_db(verbosity=0, autoclobber=True)
+    try:
+        derived_cls, explicit_cls = _build_autodefer_viewsets()
+        to_one_viewsets = _build_to_one_viewsets()
+
+        report = {
+            "mode": "autodefer-compare",
+            "sizes": [
+                _autodefer_size_report(
+                    derived_cls, explicit_cls, n, books, args.warmup, iterations
+                )
+                for n, books in sizes
+            ],
+            "to_one_sizes": [
+                _to_one_size_report(
+                    to_one_viewsets, depth, n, shared, args.warmup, iterations
+                )
+                for depth, n, shared in to_one_sizes
+            ],
+        }
+    finally:
+        connection.creation.destroy_test_db(old_config, verbosity=0)
+        teardown_test_environment()
+
+    # The derived path's query count must not grow with fan-out. Authors are
+    # held at 100 while books-per-author sweeps, so a constant derived count
+    # across sizes is the fixed-not-N-based guarantee.
+    derived_query_counts = {s["derived"]["queries"] for s in report["sizes"]}
+    report["derived_queries_fixed"] = len(derived_query_counts) == 1
+    report["passed"] = (
+        all(s["output_equal"] for s in report["sizes"])
+        and all(s["output_equal"] for s in report["to_one_sizes"])
+        and report["derived_queries_fixed"]
+    )
+
+    _print_autodefer_report(report)
+
+    output_path = args.output or "autodefer_benchmark.json"
+    write_report(report, output_path)
+    logger.info("\nReport written to: %s", output_path)
+    return 0 if report["passed"] else 1
+
+
 def main():
     args = parse_args()
+    # Every progress and comparison line goes through logging, so the level is
+    # the whole of --quiet.
+    logging.basicConfig(
+        level=logging.ERROR if args.quiet else logging.INFO, format="%(message)s"
+    )
+
+    if args.compare_autodefer:
+        return _run_autodefer_compare(args)
+
     if not args.viewset and not args.synthetic:
         logger.error("Provide a viewset path or use --synthetic")
         return 1
@@ -899,5 +1553,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
     sys.exit(main())

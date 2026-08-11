@@ -35,8 +35,8 @@ class ResourceSerializer(Serializer):
 
 
 class ClassroomSerializer(ModelSerializer):
-    # Use the FK attname column (a UUID) rather than "parent" to avoid
-    # traversing the relation — ValuesViewset fetches "collection__parent_id" directly.
+    # Use the FK attname column (a UUID) rather than "parent" to avoid traversing
+    # the relation, which would auto-defer into a further Collection query.
     parent = CharField(source="parent_id", read_only=True)
 
     class Meta:
@@ -56,8 +56,6 @@ class LessonSerializer(ModelSerializer):
     # Read path: default [] overwritten by consolidate() with adhoc-group member IDs.
     # Write path: popped in to_internal_value and validated with a temporary field.
     learner_ids = ValuesMethodField(sources=())
-    # source="collection" prefixes child values with "collection__" in the values() query,
-    # so ClassroomSerializer's parent_id becomes "collection__parent_id".
     classroom = ClassroomSerializer(source="collection", read_only=True)
 
     class Meta:

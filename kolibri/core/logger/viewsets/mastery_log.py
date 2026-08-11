@@ -91,7 +91,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
         tries = list(
             self.annotate_queryset(self.filter_queryset(self.get_queryset())).values(
-                *self._values
+                *self._engine.values
             )[back : back + 2]
         )
 
