@@ -31,6 +31,11 @@ Plugin.prototype.apply = function (compiler) {
 
 module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
+  resolve: {
+    fallback: {
+      stream: require.resolve('web-streams-polyfill/es5'),
+    },
+  },
   output: {
     filename: 'sandbox-[contenthash].js',
     chunkFilename: 'sandbox-[name]-[contenthash].bundle.js',

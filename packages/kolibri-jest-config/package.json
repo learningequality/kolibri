@@ -27,7 +27,8 @@
     "vue": "catalog:",
     "vue-meta": "catalog:",
     "vue-router": "catalog:",
-    "vuex": "catalog:"
+    "vuex": "catalog:",
+    "web-streams-polyfill": "catalog:"
   },
   "devDependencies": {
     "jest-fail-on-console": "^3.3.4"

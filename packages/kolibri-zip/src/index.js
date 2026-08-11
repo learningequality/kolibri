@@ -1,6 +1,5 @@
 // Polyfills for Node.js and older browsers
 import 'fastestsmallesttextencoderdecoder';
-import 'web-streams-polyfill/polyfill';
 import { configure, ZipReader, Uint8ArrayWriter, getMimeType } from '@zip.js/zip.js';
 import isPlainObject from 'lodash/isPlainObject';
 import AdaptiveHttpReader from './AdaptiveHttpReader';

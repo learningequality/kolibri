@@ -21,7 +21,7 @@
     "uuid": "^11.1.0",
     "vue": "catalog:",
     "vue-focus-lock": "^1.4.1",
-    "web-streams-polyfill": "^4.2.0",
+    "web-streams-polyfill": "catalog:",
     "xmldom": "^0.6.0"
   },
   "devDependencies": {

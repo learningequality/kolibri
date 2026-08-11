@@ -10,7 +10,8 @@
         "kolibri-viewer": "workspace:*",
         "kolibri-zip": "workspace:*",
         "lodash": "catalog:",
-        "vue": "catalog:"
+        "vue": "catalog:",
+        "web-streams-polyfill": "catalog:"
     },
     "devDependencies": {
         "@testing-library/vue": "catalog:"

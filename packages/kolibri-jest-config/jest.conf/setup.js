@@ -12,9 +12,16 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import { ReadableStream, WritableStream, TransformStream } from 'web-streams-polyfill';
 import logging from 'kolibri-logging';
 import { i18nSetup } from 'kolibri/utils/i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
+
+Object.assign(globalThis, {
+  ReadableStream,
+  WritableStream,
+  TransformStream,
+});
 
 if (typeof globalThis.structuredClone === 'undefined') {
   globalThis.structuredClone = val => JSON.parse(JSON.stringify(val));
