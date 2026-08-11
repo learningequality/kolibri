@@ -39,13 +39,6 @@ clean-whl:
 install-whl:
 	rm -rf kolibrisrc
 	uv pip install ${whl} -t kolibrisrc/
-	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
-	# Manually install the sqlalchemy version
-	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibrisrc/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
-	uv pip install sqlalchemy==$$version --no-binary :all:
-	# Delete sqlalchemy from the dist folder
-	rm -rf kolibrisrc/kolibri/dist/sqlalchemy
-	rm -rf kolibrisrc/kolibri/dist/SQLAlchemy*
 	# Cleanup the py2only folder
 	rm -rf kolibrisrc/kolibri/dist/py2only
 	# Delete cextensions folder
