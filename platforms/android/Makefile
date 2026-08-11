@@ -112,7 +112,7 @@ kolibri.aab:
 # Upload the AAB to the Play Store
 .PHONY: playstore-upload
 playstore-upload:
-	python3 scripts/play_store_api.py upload
+	uv run python scripts/play_store_api.py upload
 
 # Install debug APK to connected device
 .PHONY: install

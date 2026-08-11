@@ -69,7 +69,6 @@ jobs:
           enable-cache: true
           cache-python: true
           python-version: "3.10"
-          cache-dependency-path: ${{ github.workspace }}/uv.lock
       - name: Install build dependencies
         run: make dependencies
       - name: Install wget and Inno Setup

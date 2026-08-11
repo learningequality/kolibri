@@ -78,7 +78,6 @@ jobs:
           enable-cache: true
           cache-python: true
           python-version: "3.10"
-          cache-dependency-path: ${{ github.workspace }}/uv.lock
       - name: Install dependencies
         run: make dependencies
       - name: Download the whlfile from URL and install
