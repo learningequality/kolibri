@@ -12,36 +12,38 @@ export const SetupWizardResource = new Resource({
   name: 'setupwizard',
   namespace: 'kolibri.plugins.setup_wizard',
 
-  createuseronremote({ facility_id, username, password, full_name, baseurl }) {
-    return this.postListEndpoint('createuseronremote', {
-      facility_id,
-      username,
-      password,
-      full_name,
-      baseurl,
+  async createuseronremote({ facility_id, username, password, full_name, baseurl }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'createuseronremote',
+      data: { facility_id, username, password, full_name, baseurl },
     });
+    return response.data;
   },
 });
 
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
   namespace: 'kolibri.plugins.setup_wizard',
-  grantsuperuserpermissions({ user_id, password }) {
-    return this.postListEndpoint('grantsuperuserpermissions', { user_id, password });
-  },
-  createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
-    return this.postListEndpoint('createsuperuser', {
-      username,
-      full_name,
-      password,
-      extra_fields,
-      facility_name,
+  async grantsuperuserpermissions({ user_id, password }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'grantsuperuserpermissions',
+      data: { user_id, password },
     });
+    return response.data;
   },
-  facilityadmins() {
-    return this.getListEndpoint('facilityadmins').then(response => {
-      return response.data;
+  async createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'createsuperuser',
+      data: { username, full_name, password, extra_fields, facility_name },
     });
+    return response.data;
+  },
+  async facilityadmins() {
+    const response = await this.request({ action: 'facilityadmins' });
+    return response.data;
   },
   async listfacilitylearners(params) {
     const { data } = await client({
