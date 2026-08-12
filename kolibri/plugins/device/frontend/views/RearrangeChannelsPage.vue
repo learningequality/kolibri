@@ -15,21 +15,16 @@
       </p>
 
       <template v-else>
-        <DragContainer
-          class="container"
+        <DraggableRegion
           :items="channels"
-          @sort="handleOrderChange"
+          @update:items="handleOrderChange"
         >
-          <transition-group
-            tag="div"
-            name="list"
-            class="wrapper"
-          >
-            <Draggable
+          <div class="container">
+            <DraggableItem
               v-for="(channel, index) in channels"
               :key="channel.id"
             >
-              <DragHandle>
+              <DraggableHandle>
                 <div
                   :class="$computedClass(itemClass)"
                   class="item"
@@ -49,10 +44,10 @@
                     {{ channel.name }}
                   </div>
                 </div>
-              </DragHandle>
-            </Draggable>
-          </transition-group>
-        </DragContainer>
+              </DraggableHandle>
+            </DraggableItem>
+          </div>
+        </DraggableRegion>
       </template>
     </KPageContainer>
   </ImmersivePage>
@@ -62,10 +57,10 @@
 
 <script>
 
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -86,9 +81,9 @@
     },
     components: {
       DragSortWidget,
-      DragContainer,
-      DragHandle,
-      Draggable,
+      DraggableRegion,
+      DraggableHandle,
+      DraggableItem,
       ImmersivePage,
     },
     setup() {
@@ -149,15 +144,14 @@
         const adjacentItem = newArray[index + delta];
         newArray[index + delta] = newArray[index];
         newArray[index] = adjacentItem;
-        // This mimicks the object emitted by @sort event
-        this.handleOrderChange({ newArray });
+        this.handleOrderChange(newArray);
       },
-      handleOrderChange(event) {
+      handleOrderChange(newArray) {
         const oldArray = [...this.channels];
         // NOTE: have to update channels before POST because doing it after
         // causes a brief 'pick-up' animation after item is dropped.
-        this.channels = [...event.newArray];
-        this.postNewOrder(event.newArray.map(x => x.id))
+        this.channels = [...newArray];
+        this.postNewOrder(newArray.map(x => x.id))
           .then(() => {
             this.createSnackbar(this.$tr('successNotification'));
           })

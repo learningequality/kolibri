@@ -5,10 +5,10 @@
   import { computed, h, inject, watch } from 'vue';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
@@ -144,7 +144,7 @@
         { immediate: true },
       );
 
-      function handleSort({ newArray }) {
+      function handleSort(newArray) {
         if (!interactive.value) {
           return;
         }
@@ -229,60 +229,51 @@
         return h('div', [
           ...nonChoiceContent,
           h(AnswerGuide, { props: { text: orderGuideText.value } }),
-          h(
-            DragContainer,
-            {
-              props: {
-                items,
+          h(DraggableRegion, { props: { items }, on: { 'update:items': handleSort } }, [
+            h(
+              'ul',
+              {
+                attrs: { 'aria-label': orderListLabel$() },
+                class: listClasses(),
               },
-              on: { sort: handleSort },
-            },
-            [
-              h(
-                'ul',
-                {
-                  attrs: { 'aria-label': orderListLabel$() },
-                  class: listClasses(),
-                },
-                items.map((item, index) =>
-                  h(Draggable, { key: item.identifier }, [
-                    h(
-                      'li',
-                      { class: 'qti-order-row-wrapper' },
-                      [
-                        // Label sits outside the card, updates reactively
-                        renderLabel(index),
-                        h('div', { class: 'qti-order-row', style: rowStyle }, [
-                          h(DragHandle, [
-                            h(DragSortWidget, {
-                              props: {
-                                isFirst: index === 0,
-                                isLast: index === items.length - 1,
-                                horizontal: isHorizontal.value,
-                                itemLabel: textByIdentifier[item.identifier],
-                                position: index + 1,
-                                total: items.length,
-                              },
-                              on: {
-                                moveUp: () => moveItem(item.identifier, -1),
-                                moveDown: () => moveItem(item.identifier, 1),
-                                mousedown: e => e.preventDefault(),
-                              },
-                            }),
-                          ]),
-                          h(
-                            'div',
-                            { class: 'qti-order-row-content' },
-                            contentByIdentifier[item.identifier],
-                          ),
+              items.map((item, index) =>
+                h(DraggableItem, { key: item.identifier }, [
+                  h(
+                    'li',
+                    { class: 'qti-order-row-wrapper' },
+                    [
+                      // Label sits outside the card, updates reactively
+                      renderLabel(index),
+                      h('div', { class: 'qti-order-row', style: rowStyle }, [
+                        h(DraggableHandle, [
+                          h(DragSortWidget, {
+                            props: {
+                              isFirst: index === 0,
+                              isLast: index === items.length - 1,
+                              horizontal: isHorizontal.value,
+                              itemLabel: textByIdentifier[item.identifier],
+                              position: index + 1,
+                              total: items.length,
+                            },
+                            on: {
+                              moveUp: () => moveItem(item.identifier, -1),
+                              moveDown: () => moveItem(item.identifier, 1),
+                              mousedown: e => e.preventDefault(),
+                            },
+                          }),
                         ]),
-                      ].filter(Boolean),
-                    ),
-                  ]),
-                ),
+                        h(
+                          'div',
+                          { class: 'qti-order-row-content' },
+                          contentByIdentifier[item.identifier],
+                        ),
+                      ]),
+                    ].filter(Boolean),
+                  ),
+                ]),
               ),
-            ],
-          ),
+            ),
+          ]),
         ]);
       };
     },

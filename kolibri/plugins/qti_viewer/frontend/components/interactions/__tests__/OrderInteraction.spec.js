@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/vue';
-import { dragSortStrings } from 'kolibri-common/components/sortable/dragSortStrings';
+import { dragSortStrings } from 'kolibri-common/components/draggable/dragSortStrings';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';

@@ -8,22 +8,19 @@
       <td v-if="editable"><!-- Actions --></td>
     </template>
     <template #tbody>
-      <DragContainer
+      <DraggableRegion
         :items="entries"
-        @sort="handleResourcesOrderChange"
+        @update:items="handleResourcesOrderChange"
       >
-        <transition-group
-          tag="tbody"
-          name="list"
-        >
-          <Draggable
+        <tbody>
+          <DraggableItem
             v-for="(tableRow, index) in entries"
             :key="tableRow.node_id"
           >
             <tr :style="{ backgroundColor: $themeTokens.surface }">
               <td>
                 <div class="resource-title">
-                  <DragHandle v-if="editable">
+                  <DraggableHandle v-if="editable">
                     <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
@@ -36,7 +33,7 @@
                       @moveDown="moveDownOne(index)"
                       @mousedown.prevent
                     />
-                  </DragHandle>
+                  </DraggableHandle>
                   <KIcon
                     :icon="tableRow.kind"
                     :color="tableRow.link ? $themeTokens.link : null"
@@ -77,9 +74,9 @@
                 </div>
               </td>
             </tr>
-          </Draggable>
-        </transition-group>
-      </DragContainer>
+          </DraggableItem>
+        </tbody>
+      </DraggableRegion>
     </template>
   </CoreTable>
 
@@ -92,10 +89,10 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import { coachStrings } from '../../../common/commonCoachStrings';
   import CSVExporter from '../../../../csv/exporter';
   import * as csvFields from '../../../../csv/fields';
@@ -107,10 +104,10 @@
       CoreTable,
       StatusSummary,
       TimeDuration,
-      DragContainer,
-      DragHandle,
+      DraggableRegion,
+      DraggableHandle,
       DragSortWidget,
-      Draggable,
+      DraggableItem,
     },
     setup() {
       const { resourcesLabel$, removeAction$, progressLabel$ } = coreStrings;
@@ -146,12 +143,12 @@
       },
     },
     methods: {
-      handleResourcesOrderChange({ newArray }) {
+      handleResourcesOrderChange(newArray) {
         this.$emit('change', { newArray });
       },
       handleRemoveEntry(entry) {
         const newArray = this.entries.filter(({ node_id }) => node_id !== entry.node_id);
-        this.handleResourcesOrderChange({ newArray });
+        this.handleResourcesOrderChange(newArray);
       },
       moveUpOne(oldIndex) {
         this.swap(oldIndex, oldIndex - 1);
@@ -165,7 +162,7 @@
         newArray[newIndex] = newArray[oldIndex];
         newArray[oldIndex] = oldResource;
 
-        this.handleResourcesOrderChange({ newArray });
+        this.handleResourcesOrderChange(newArray);
       },
       /**
        * Triggers a CSV download of the resource progress data currently displayed in the table.
@@ -200,7 +197,7 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .sortable-item--mirror {
+  /deep/ .draggable-item--mirror {
     /* Styles to fix styles errors for having a draggable tr with fixed position */
     height: auto !important;
 

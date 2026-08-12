@@ -34,17 +34,15 @@
       </div>
     </template>
 
-    <DragContainer
+    <DraggableRegion
       key="drag-container"
       :items="questions"
-      @sort="handleQuestionOrderChange"
-      @dragStart="handleDragStart"
+      @update:items="handleQuestionOrderChange"
+      @dragstart="handleDragStart"
+      @dragend="handleDragEnd"
     >
-      <transition-group
-        tag="div"
-        name="list"
-      >
-        <Draggable
+      <div>
+        <DraggableItem
           v-for="(question, index) in questions"
           :key="`drag-${question.item}`"
           tabindex="-1"
@@ -61,7 +59,7 @@
             }"
           >
             <template #leading-actions>
-              <DragHandle v-if="isSortable">
+              <DraggableHandle v-if="isSortable">
                 <div>
                   <DragSortWidget
                     :isFirst="index === 0"
@@ -75,7 +73,7 @@
                     @moveDown="() => handleKeyboardDragDown(index)"
                   />
                 </div>
-              </DragHandle>
+              </DraggableHandle>
               <KCheckbox
                 v-if="isSelectable"
                 class="accordion-item-checkbox"
@@ -127,9 +125,9 @@
               </div>
             </template>
           </AccordionItem>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
+        </DraggableItem>
+      </div>
+    </DraggableRegion>
   </AccordionContainer>
 
 </template>
@@ -139,10 +137,10 @@
 
   import { computed, ref } from 'vue';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
@@ -151,9 +149,9 @@
   export default {
     name: 'QuestionsAccordion',
     components: {
-      Draggable,
-      DragHandle,
-      DragContainer,
+      DraggableItem,
+      DraggableHandle,
+      DraggableRegion,
       DragSortWidget,
       AccordionItem,
       AccordionContainer,
@@ -319,17 +317,21 @@
         // Used to mitigate the issue of text being selected while dragging
         this.dragActive = true;
       },
-      handleQuestionOrderChange({ newArray }) {
-        this.$emit('sort', { newArray });
+      handleDragEnd() {
+        // Reset on drag end (not only on a reorder) so a drag that changes nothing
+        // still re-enables text selection.
         this.dragActive = false;
+      },
+      handleQuestionOrderChange(newArray) {
+        this.$emit('sort', { newArray });
       },
       handleKeyboardDragDown(oldIndex) {
         const newArray = this.moveDownOne(oldIndex, this.questions);
-        this.handleQuestionOrderChange({ newArray });
+        this.handleQuestionOrderChange(newArray);
       },
       handleKeyboardDragUp(oldIndex) {
         const newArray = this.moveUpOne(oldIndex, this.questions);
-        this.handleQuestionOrderChange({ newArray });
+        this.handleQuestionOrderChange(newArray);
       },
       handleQuestionCheckboxChange(questionItem, value, $event) {
         $event.stopPropagation();

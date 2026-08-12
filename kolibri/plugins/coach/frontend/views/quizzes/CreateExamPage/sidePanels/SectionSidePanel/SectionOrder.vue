@@ -4,58 +4,61 @@
     v-if="activeSection"
     class="section-settings-content"
   >
-    <DragContainer
+    <DraggableRegion
       v-if="sectionOrderList.length > 0"
       :items="sectionOrderList"
-      @sort="handleSectionSort"
+      @update:items="handleSectionSort"
     >
-      <transition-group>
-        <Draggable
+      <div>
+        <DraggableItem
           v-for="(section, index) in sectionOrderList"
           :key="section.section_id"
-          :style="draggableStyle"
         >
-          <DragHandle>
-            <div
-              :style="
-                activeSection.section_id === section.section_id ? activeSectionStyles : borderStyle
-              "
-              class="section-order-list"
-            >
-              <DragSortWidget
-                class="drag-title"
-                :isFirst="index === 0"
-                :isLast="index === sectionOrderList.length - 1"
-                :itemLabel="sectionOrderingTitle(section)"
-                :position="index + 1"
-                :total="sectionOrderList.length"
-                @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
-                @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
-              />
-              <span
-                class="drag-title"
-                style="flex: 1"
+          <div :style="draggableStyle">
+            <DraggableHandle>
+              <div
+                :style="
+                  activeSection.section_id === section.section_id
+                    ? activeSectionStyles
+                    : borderStyle
+                "
+                class="section-order-list"
               >
-                {{ sectionOrderingTitle(section) }}
-              </span>
-              <span
-                v-if="section.description"
-                class="current-section-style"
-                style="flex: 2; text-overflow: ellipsis"
-              >
-                {{ section.description }}
-              </span>
-              <span
-                v-if="section.section_id === activeSection.section_id"
-                class="current-section-text"
-              >
-                ({{ currentSection$() }})
-              </span>
-            </div>
-          </DragHandle>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
+                <DragSortWidget
+                  class="drag-title"
+                  :isFirst="index === 0"
+                  :isLast="index === sectionOrderList.length - 1"
+                  :itemLabel="sectionOrderingTitle(section)"
+                  :position="index + 1"
+                  :total="sectionOrderList.length"
+                  @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
+                  @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
+                />
+                <span
+                  class="drag-title"
+                  style="flex: 1"
+                >
+                  {{ sectionOrderingTitle(section) }}
+                </span>
+                <span
+                  v-if="section.description"
+                  class="current-section-style"
+                  style="flex: 2; text-overflow: ellipsis"
+                >
+                  {{ section.description }}
+                </span>
+                <span
+                  v-if="section.section_id === activeSection.section_id"
+                  class="current-section-text"
+                >
+                  ({{ currentSection$() }})
+                </span>
+              </div>
+            </DraggableHandle>
+          </div>
+        </DraggableItem>
+      </div>
+    </DraggableRegion>
 
     <div class="bottom-buttons-style">
       <KButton
@@ -89,10 +92,10 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import { PageNames } from '../../../../../constants/index';
   import { coachStrings } from '../../../../common/commonCoachStrings.js';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation.js';
@@ -101,9 +104,9 @@
   export default {
     name: 'SectionOrder',
     components: {
-      Draggable,
-      DragContainer,
-      DragHandle,
+      DraggableItem,
+      DraggableRegion,
+      DraggableHandle,
       DragSortWidget,
     },
     mixins: [commonCoreStrings],
@@ -190,8 +193,8 @@
       }
     },
     methods: {
-      handleSectionSort(e) {
-        this.sectionOrderList = e.newArray;
+      handleSectionSort(newArray) {
+        this.sectionOrderList = newArray;
         const reorderedId = this.allSections[this.activeSectionIndex].section_id;
         this.reorderedSectionIndex = this.sectionOrderList.findIndex(
           section => section.section_id === reorderedId,
