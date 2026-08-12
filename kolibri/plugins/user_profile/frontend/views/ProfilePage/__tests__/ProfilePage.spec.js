@@ -18,7 +18,6 @@ import useOnMyOwnSetup, {
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 
-jest.mock('kolibri-common/apiResources/FacilityUserResource');
 jest.mock('../../../composables/useOnMyOwnSetup');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri/composables/useUser');
@@ -29,7 +28,7 @@ jest.mock('kolibri-common/composables/useFacility');
 const { fullNameLabel$ } = coreStrings;
 const { changePasswordPrompt$ } = createTranslator(ProfilePage.name, ProfilePage.$trs);
 
-FacilityUserResource.fetchModel = jest.fn().mockResolvedValue({});
+jest.spyOn(FacilityUserResource, 'retrieve').mockResolvedValue({});
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -102,9 +101,7 @@ describe('picture password row', () => {
         }),
       }),
     );
-    FacilityUserResource.fetchModel = jest
-      .fn()
-      .mockResolvedValue({ picture_password: picturePassword });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: picturePassword });
 
     const localRouter = new VueRouter();
     localRouter.getRoute = () => '/';
