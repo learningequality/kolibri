@@ -205,6 +205,49 @@ describe('candidatesFor', () => {
   });
 });
 
+describe('isPlaceable', () => {
+  it('is false once the target has no uses left', () => {
+    const { isPlaceable, place } = setup({ matchMax: { ...MATCH_MAX, M: 1 } });
+    place('M', 0, 0);
+
+    expect(isPlaceable('M')).toBe(false);
+    expect(isPlaceable('R')).toBe(true);
+  });
+
+  it('stays true at max-associations while a pairing could be replaced', () => {
+    // Replacing does not add a pair, so the cap does not strand the target
+    const { isPlaceable, place } = setup({ maxAssociations: 2 });
+    place('M', 0, 0);
+    place('R', 1, 0);
+
+    expect(isPlaceable('T')).toBe(true);
+  });
+
+  it('is false once every row already holds that target', () => {
+    const { isPlaceable, place } = setup({
+      sourceIds: ['r1', 'r2'],
+      targetIds: ['h1'],
+      matchMax: { r1: 0, r2: 0, h1: 2 },
+    });
+    place('h1', 0, 0);
+    place('h1', 1, 0);
+
+    expect(isPlaceable('h1')).toBe(false);
+  });
+
+  it('stays true while a full row could still have a target replaced', () => {
+    const { isPlaceable, place } = setup();
+    // every source is match-max="1", so all rows fill up
+    place('M', 0, 0);
+    place('M', 1, 0);
+    place('M', 2, 0);
+    place('M', 3, 0);
+
+    // R can still replace M in any of them
+    expect(isPlaceable('R')).toBe(true);
+  });
+});
+
 describe('canPlace while moving between rows', () => {
   it('discounts the use held by the row the target is leaving', () => {
     const { canPlace, place } = setup({ matchMax: { ...MATCH_MAX, M: 1 } });

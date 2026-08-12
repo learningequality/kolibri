@@ -9,6 +9,19 @@ function countPairs(rows) {
 }
 
 /**
+ * Why a placement was refused. The rules live in one place so the explanation
+ * a learner is shown can never drift from the decision that produced it.
+ */
+export const PROBLEM = Object.freeze({
+  UNKNOWN: 'unknown',
+  ALREADY_HERE: 'alreadyHere',
+  ALREADY_IN_ROW: 'alreadyInRow',
+  ROW_FULL: 'rowFull',
+  MAX_ASSOCIATIONS: 'maxAssociations',
+  NO_USES_LEFT: 'noUsesLeft',
+});
+
+/**
  * Track which targets are paired with each source, and the limits on doing so.
  * @param {object} options - The interaction's choices and limits
  * @param {import('vue').Ref<string[]>|string[]} options.sourceIds - First set,
@@ -97,31 +110,52 @@ export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAsso
    * report that it cannot be moved to a row it is about to have room in.
    * @returns {boolean} True when the placement is allowed
    */
-  function canPlace(identifier, rowIndex, entryIndex, { fromRow = null } = {}) {
+  function placementProblem(identifier, rowIndex, entryIndex, { fromRow = null } = {}) {
     const row = rows.value[rowIndex];
     if (!row || !targets().includes(identifier)) {
-      return false;
+      return PROBLEM.UNKNOWN;
     }
     const current = currentValue(rowIndex, entryIndex);
     if (current === identifier) {
-      return false;
+      return PROBLEM.ALREADY_HERE;
     }
     // A directed pair is unique: a source is never paired with the same target twice
     if (row.includes(identifier)) {
-      return false;
+      return PROBLEM.ALREADY_IN_ROW;
     }
     const movingOut =
       fromRow !== null && fromRow !== rowIndex && (rows.value[fromRow] || []).includes(identifier);
     const appending = current === null;
     if (appending && row.length >= rowCapacity(rowIndex)) {
-      return false;
+      return PROBLEM.ROW_FULL;
     }
     if (appending && !movingOut && countPairs(rows.value) >= maxPairs()) {
-      return false;
+      return PROBLEM.MAX_ASSOCIATIONS;
     }
     // Replacing frees the use the displaced target was holding, and so does
     // moving the target out of the row it currently sits in
-    return remainingOf(identifier) + (movingOut ? 1 : 0) > 0;
+    if (remainingOf(identifier) + (movingOut ? 1 : 0) <= 0) {
+      return PROBLEM.NO_USES_LEFT;
+    }
+    return null;
+  }
+
+  function canPlace(identifier, rowIndex, entryIndex, options) {
+    return placementProblem(identifier, rowIndex, entryIndex, options) === null;
+  }
+
+  /**
+   * Whether this target has any legal destination left. A target can be spent
+   * by its own match-max, but it can just as well be stranded by
+   * max-associations or by every row already holding it, so the pool asks this
+   * rather than counting uses alone.
+   * @param {string} identifier - A target identifier
+   * @returns {boolean} True while some entry would still accept it
+   */
+  function isPlaceable(identifier) {
+    return rows.value.some((row, rowIndex) =>
+      entriesFor(rowIndex).some((_, entryIndex) => canPlace(identifier, rowIndex, entryIndex)),
+    );
   }
 
   function place(identifier, rowIndex, entryIndex) {
@@ -215,7 +249,9 @@ export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAsso
     currentValue,
     remainingOf,
     isExhausted,
+    isPlaceable,
     canPlace,
+    placementProblem,
     place,
     clear,
     remove,

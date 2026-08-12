@@ -12,7 +12,7 @@
   import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
-  import useMatchRows from '../../composables/useMatchRows';
+  import useMatchRows, { PROBLEM } from '../../composables/useMatchRows';
   import useSlotListbox from '../../composables/useSlotListbox';
 
   const SET_TAG = 'qti-simple-match-set';
@@ -42,10 +42,40 @@
       message: 'Responses matched with {source}',
       context: 'Accessible label for the group of answers a learner has matched with one item',
     },
+    refusedAlreadyInRow: {
+      message: '{response} is already matched with {source}.',
+      context:
+        'Explains why a response the learner tried to place was not accepted: that pairing already exists',
+    },
+    refusedRowFull: {
+      message: '{source} already has as many responses as it can take.',
+      context:
+        'Explains why a response the learner tried to place was not accepted: the item being matched has reached its limit',
+    },
+    refusedNoUsesLeft: {
+      message: '{response} has already been matched as many times as it can be.',
+      context:
+        'Explains why a response the learner tried to place was not accepted: that response has reached its own limit',
+    },
+    refusedMaxAssociations: {
+      message:
+        'You can make {count, number} {count, plural, one {match} other {matches}} in this question. Remove one to make a different match.',
+      context:
+        'Explains why a response the learner tried to place was not accepted: the question has a limit on the total number of matches',
+    },
   });
 
-  const { responsePoolLabel$, emptyEntryPlaceholder$, entryEmpty$, entryFilled$, rowLabel$ } =
-    matchStrings;
+  const {
+    responsePoolLabel$,
+    emptyEntryPlaceholder$,
+    entryEmpty$,
+    entryFilled$,
+    rowLabel$,
+    refusedAlreadyInRow$,
+    refusedRowFull$,
+    refusedNoUsesLeft$,
+    refusedMaxAssociations$,
+  } = matchStrings;
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
@@ -118,8 +148,9 @@
         pairs,
         entriesFor,
         currentValue,
-        isExhausted,
+        isPlaceable,
         canPlace,
+        placementProblem,
         place,
         clear,
         remove,
@@ -148,6 +179,42 @@
         activeEntry.value = null;
       }
 
+      // Why the last attempted placement was refused. A refusal is otherwise
+      // silent: the response simply springs back, with nothing to say which of
+      // the item's limits stopped it.
+      const refusal = ref(null);
+
+      function explain(problem, identifier, rowIndex) {
+        const response = labelFor(identifier);
+        const source = labelFor(sourceIds.value[rowIndex]);
+        if (problem === PROBLEM.ALREADY_IN_ROW) {
+          return refusedAlreadyInRow$({ response, source });
+        }
+        if (problem === PROBLEM.ROW_FULL) {
+          return refusedRowFull$({ source });
+        }
+        if (problem === PROBLEM.NO_USES_LEFT) {
+          return refusedNoUsesLeft$({ response });
+        }
+        if (problem === PROBLEM.MAX_ASSOCIATIONS) {
+          return refusedMaxAssociations$({ count: typedProps.maxAssociations.value });
+        }
+        // ALREADY_HERE and UNKNOWN are not worth interrupting a learner over
+        return null;
+      }
+
+      // The single way a placement is attempted, so no path can refuse silently
+      function attemptPlace(identifier, rowIndex, entryIndex) {
+        const problem = placementProblem(identifier, rowIndex, entryIndex);
+        if (problem) {
+          refusal.value = explain(problem, identifier, rowIndex);
+          return false;
+        }
+        refusal.value = null;
+        place(identifier, rowIndex, entryIndex);
+        return true;
+      }
+
       function isActiveEntry(rowIndex, entryIndex) {
         return (
           activeEntry.value?.rowIndex === rowIndex && activeEntry.value?.entryIndex === entryIndex
@@ -155,11 +222,11 @@
       }
 
       function selectResponse(identifier) {
-        if (!interactive.value || isExhausted(identifier)) {
+        if (!interactive.value || !isPlaceable(identifier)) {
           return;
         }
         if (activeEntry.value) {
-          place(identifier, activeEntry.value.rowIndex, activeEntry.value.entryIndex);
+          attemptPlace(identifier, activeEntry.value.rowIndex, activeEntry.value.entryIndex);
           clearSelection();
           return;
         }
@@ -172,7 +239,7 @@
           return;
         }
         if (selectedIdentifier.value) {
-          place(selectedIdentifier.value, rowIndex, entryIndex);
+          attemptPlace(selectedIdentifier.value, rowIndex, entryIndex);
           clearSelection();
           return;
         }
@@ -196,7 +263,7 @@
       const listbox = useSlotListbox({
         candidatesFor,
         currentValue,
-        commit: place,
+        commit: attemptPlace,
         clear,
         labelFor,
         disabled: computed(() => !interactive.value),
@@ -221,7 +288,16 @@
           if (dragOriginRow !== null && dragOriginRow !== rowIndex) {
             remove(arrived, dragOriginRow);
           }
-          place(arrived, rowIndex, rows.value[rowIndex].length);
+          // Prefer the row's free position. A row with none is not a dead end:
+          // dropping on it replaces the pairing nearest where it landed, which
+          // is the only reading of the gesture that is not a silent no-op.
+          const positions = entriesFor(rowIndex);
+          const freeIndex = positions.indexOf(null);
+          const entryIndex =
+            freeIndex === -1
+              ? Math.min(identifiers.indexOf(arrived), positions.length - 1)
+              : freeIndex;
+          attemptPlace(arrived, rowIndex, entryIndex);
           return;
         }
 
@@ -253,7 +329,16 @@
         variable.value.value = value.map(pair => [...pair]);
       });
 
-      watch(interactive, clearSelection);
+      watch(interactive, () => {
+        clearSelection();
+        refusal.value = null;
+      });
+
+      // A refusal explains one attempt, not the state of the question: once the
+      // rows change the learner has moved on and it is stale.
+      watch(rows, () => {
+        refusal.value = null;
+      });
 
       const poolStyles = computed(() => ({
         backgroundColor: $themePalette.grey.v_100,
@@ -456,7 +541,7 @@
                 // Exhausted chips stay visible but are not draggable, so they
                 // are left out of the region's items to keep its indexes aligned
                 items: pool.value
-                  .filter(identifier => !isExhausted(identifier))
+                  .filter(identifier => isPlaceable(identifier))
                   .map(identifier => ({ identifier })),
                 sortable: false,
                 disabled: !interactive.value,
@@ -471,7 +556,7 @@
               },
             },
             pool.value.map(identifier => {
-              const exhausted = isExhausted(identifier);
+              const exhausted = !isPlaceable(identifier);
               const chip = renderChip(identifier, {
                 exhausted,
                 draggable: !exhausted,
@@ -494,6 +579,24 @@
             }),
           ),
         ]);
+      }
+
+      // role="status" is a live region, so the explanation is announced as well
+      // as shown — a screen reader user gets no springing-back chip to notice.
+      function renderRefusal() {
+        return h(
+          'p',
+          {
+            class: 'qti-match-refusal',
+            style: {
+              color: $themeTokens.text,
+              backgroundColor: $themePalette.grey.v_100,
+              borderColor: $themeTokens.fineLine,
+            },
+            attrs: { role: 'status' },
+          },
+          refusal.value ? [h('KIcon', { props: { icon: 'infoOutline' } }), refusal.value] : [],
+        );
       }
 
       function renderRows() {
@@ -571,7 +674,7 @@
               ],
               style: interactionCSSVars,
             },
-            [renderPool(), renderRows()],
+            [renderPool(), renderRows(), renderRefusal()],
           ),
         ]);
       };
@@ -593,7 +696,7 @@
      the item body's SafeHTML render and so carry a different scope id. -->
 <style lang="scss">
 
-  $chip-max-size: 100px;
+  $chip-max-size: 150px;
   $chip-padding-block: 8px;
   $chip-padding-inline: 12px;
   $chip-border-width: 1px;
@@ -762,6 +865,18 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }
+
+  // Reserves no space while empty, so the rows do not jump as it comes and goes
+  .qti-match-refusal:not(:empty) {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0.75rem 1.125rem;
+    margin: 1rem 0 0;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
   }
 
 </style>

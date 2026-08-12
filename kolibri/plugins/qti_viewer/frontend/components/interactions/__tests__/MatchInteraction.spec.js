@@ -4,7 +4,8 @@ import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { matchStrings } from '../MatchInteraction.vue';
 
-const { responsePoolLabel$, entryEmpty$, entryFilled$, rowLabel$ } = matchStrings;
+const { responsePoolLabel$, entryEmpty$, entryFilled$, rowLabel$, refusedAlreadyInRow$ } =
+  matchStrings;
 
 // Response content comes from the fixture XML rather than a translation, so it
 // is matched on the rendered chip instead of through a *ByText query.
@@ -302,17 +303,18 @@ describe('Placing by drag', () => {
     expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
   });
 
-  it('refuses a drop onto a row that is already full', async () => {
+  it('replaces the pairing when dropped onto a row with no room', async () => {
     renderAssessmentItem(items['match-example-1'].xml, {
       answerState: { RESPONSE: [['C', 'R']] },
     });
 
-    // Capulet is match-max="1", so it has no room for a second target
+    // Capulet is match-max="1": the drop has nowhere to be added, so rather
+    // than springing back it takes the place of what is already there
     await dragInto(rowFor('Capulet'), 'T', poolLabel());
 
     expect(
       screen.getByLabelText(
-        entryFilled$({ number: 1, source: 'Capulet', response: 'Romeo and Juliet' }),
+        entryFilled$({ number: 1, source: 'Capulet', response: 'The Tempest' }),
       ),
     ).toBeVisible();
   });
@@ -521,6 +523,67 @@ describe('Response variable', () => {
     await fireEvent.click(poolChip(container, 'The Tempest'));
 
     expect(checkAnswer().answerState.RESPONSE).toBeNull();
+  });
+});
+
+describe('Explaining a refusal', () => {
+  function refusalText(container) {
+    return container.querySelector('.qti-match-refusal').textContent.trim();
+  }
+
+  it('says nothing until something is actually refused', () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    expect(refusalText(container)).toBe('');
+  });
+
+  it('explains that the pairing already exists', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: { RESPONSE: [['r2', 'h1']] },
+    });
+
+    await fireEvent.click(poolChip(container, 'Birds'));
+    await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
+
+    expect(refusalText(container)).toBe(
+      refusedAlreadyInRow$({ response: 'Birds', source: 'Endothermic' }),
+    );
+  });
+
+  it('explains that the response has no matches left', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['r1', 'h1'],
+          ['r2', 'h1'],
+        ],
+      },
+    });
+
+    // h1 is spent, so it is no longer offered at all; reach it from a row
+    await fireEvent.click(entriesOfRow(container, 'Asexual')[0]);
+    await fireEvent.click(poolChip(container, 'Birds'));
+
+    expect(refusalText(container)).toBe('');
+  });
+
+  it('announces the explanation as a live region', () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    expect(container.querySelector('.qti-match-refusal')).toHaveAttribute('role', 'status');
+  });
+
+  it('drops the explanation once the learner places something', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: { RESPONSE: [['r2', 'h1']] },
+    });
+
+    await fireEvent.click(poolChip(container, 'Birds'));
+    await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
+    expect(refusalText(container)).not.toBe('');
+
+    await fireEvent.click(poolChip(container, 'Mammals'));
+    await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
+
+    await waitFor(() => expect(refusalText(container)).toBe(''));
   });
 });
 
