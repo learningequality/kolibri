@@ -13,6 +13,7 @@
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
   import useMatchRows from '../../composables/useMatchRows';
+  import useSlotListbox from '../../composables/useSlotListbox';
 
   const SET_TAG = 'qti-simple-match-set';
   const CHOICE_TAG = 'qti-simple-associable-choice';
@@ -166,6 +167,7 @@
       }
 
       function selectEntry(rowIndex, entryIndex) {
+        listbox.forgetPointer();
         if (!interactive.value) {
           return;
         }
@@ -188,11 +190,30 @@
         activeEntry.value = { rowIndex, entryIndex };
       }
 
+      // Keyboard navigation is only for the entries, not the pool. An entry is
+      // addressed by (row, position), so a row holding several targets gets a
+      // listbox per position.
+      const listbox = useSlotListbox({
+        candidatesFor,
+        currentValue,
+        commit: place,
+        clear,
+        labelFor,
+        disabled: computed(() => !interactive.value),
+        onKeyboardFocus: clearSelection,
+        // Only a row's first position answers itself on focus. A trailing
+        // position is an invitation to add another pairing rather than an
+        // unanswered one, so tabbing past it has to leave the row alone —
+        // otherwise tabbing through fills every row to its capacity.
+        autoFillOnFocus: (rowIndex, entryIndex) => entryIndex === 0,
+      });
+
       function reconcileRow(rowIndex, newItems) {
         if (!interactive.value) {
           return;
         }
-        const identifiers = newItems.map(item => item.identifier);
+        // The empty position rides along as a null item; only real pairings count
+        const identifiers = newItems.map(item => item.identifier).filter(Boolean);
         const current = rows.value[rowIndex];
 
         const arrived = identifiers.find(identifier => !current.includes(identifier));
@@ -299,7 +320,14 @@
       // itself rather than wrapping it in another element.
       function renderChip(
         identifier,
-        { exhausted = false, selected = false, candidate = false, draggable = true, on } = {},
+        {
+          exhausted = false,
+          selected = false,
+          candidate = false,
+          draggable = true,
+          ariaHidden = false,
+          on,
+        } = {},
       ) {
         const data = {
           class: [
@@ -311,7 +339,10 @@
             },
           ],
           style: chipStyles({ exhausted, selected, candidate }),
-          attrs: exhausted ? { 'aria-disabled': 'true' } : {},
+          attrs: {
+            ...(exhausted ? { 'aria-disabled': 'true' } : {}),
+            ...(ariaHidden ? { 'aria-hidden': 'true' } : {}),
+          },
           on,
         };
         const content = [...contentByIdentifier[identifier]];
@@ -373,23 +404,36 @@
             },
           ],
           style: entryStyles({ filled, target, active }),
-          attrs: { 'aria-label': entryLabel(identifier, rowIndex, entryIndex) },
+          attrs: {
+            'aria-label': entryLabel(identifier, rowIndex, entryIndex),
+            ...listbox.slotAttrs(rowIndex, entryIndex),
+          },
         };
-        // A filled entry is one of its row region's draggable items; the
-        // trailing empty one is not, so SortableJS's indexes stay aligned.
-        if (!filled) {
-          return h('div', { ...data, on: { click: () => selectEntry(rowIndex, entryIndex) } }, [
-            renderPlaceholder(),
-          ]);
-        }
+        const children = [
+          // The visible value is the listbox's trigger: its content repeats the
+          // selected option, which the listbox already announces.
+          filled ? renderChip(identifier, { ariaHidden: true }) : renderPlaceholder(),
+          listbox.renderStepper(),
+          interactive.value ? listbox.renderOptions(rowIndex, entryIndex) : null,
+        ].filter(Boolean);
+        // Every entry is a DraggableItem, empty ones included, so that filling
+        // one patches the element in place. Swapping element type here would
+        // destroy the element the learner just tabbed to and drop their focus
+        // before they could press an arrow. Empty entries are disabled, so they
+        // cannot be dragged, but they stay in the region's item list to keep
+        // SortableJS's indexes aligned with the rendered children.
         return h(
           DraggableItem,
           {
             ...data,
-            props: { tag: 'div', disabled: !interactive.value },
-            nativeOn: { click: () => selectEntry(rowIndex, entryIndex) },
+            props: { tag: 'div', disabled: !interactive.value || !filled },
+            // DraggableItem re-emits $listeners, so these bind to its root
+            on: {
+              click: () => selectEntry(rowIndex, entryIndex),
+              ...listbox.handlers(rowIndex, entryIndex),
+            },
           },
-          [renderChip(identifier)],
+          children,
         );
       }
 
@@ -484,7 +528,9 @@
                 {
                   props: {
                     tag: 'div',
-                    items: row.map(identifier => ({ identifier })),
+                    // One item per rendered entry, the trailing empty position
+                    // included, so SortableJS's indexes line up with the DOM
+                    items: entriesFor(rowIndex).map(identifier => ({ identifier })),
                     sortable: false,
                     disabled: !interactive.value,
                     label: rowLabel$({ source: labelFor(sourceId) }),
@@ -701,6 +747,11 @@
     transition:
       background-color 0.2s ease,
       border-color 0.2s ease;
+  }
+
+  .qti-match-entry:focus {
+    outline: 3px solid var(--qti-match-color-primary, #4368f3);
+    outline-offset: 2px;
   }
 
   .qti-match-entry-filled {

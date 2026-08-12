@@ -27,6 +27,7 @@ export default function useSlotListbox({
   labelFor,
   disabled,
   onKeyboardFocus,
+  autoFillOnFocus = () => true,
 }) {
   listboxCounter += 1;
   const idPrefix = `qti-slot-listbox-${listboxCounter}`;
@@ -67,6 +68,11 @@ export default function useSlotListbox({
     }
     if (onKeyboardFocus) {
       onKeyboardFocus(...address);
+    }
+    // An interaction whose slots grow on demand refuses this for its trailing
+    // "add another" position: tabbing through would otherwise answer every one.
+    if (!autoFillOnFocus(...address)) {
+      return;
     }
     const candidates = candidatesFor(...address);
     if (candidates.length && !currentValue(...address)) {

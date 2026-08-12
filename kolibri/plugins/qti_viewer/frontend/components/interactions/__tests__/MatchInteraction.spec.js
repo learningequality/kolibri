@@ -173,7 +173,11 @@ describe('Restoring an answer', () => {
     const filled = entriesOfRow(container, 'Endothermic').filter(entry =>
       entry.classList.contains('qti-match-entry-filled'),
     );
-    expect(filled.map(entry => entry.textContent.trim())).toEqual(['Birds', 'Mammals']);
+    // the visible chip, not the entry, which also carries the hidden listbox options
+    expect(filled.map(entry => entry.querySelector('.qti-match-chip').textContent.trim())).toEqual([
+      'Birds',
+      'Mammals',
+    ]);
   });
 
   it('re-renders when the answer state changes', async () => {
@@ -517,6 +521,167 @@ describe('Response variable', () => {
     await fireEvent.click(poolChip(container, 'The Tempest'));
 
     expect(checkAnswer().answerState.RESPONSE).toBeNull();
+  });
+});
+
+describe('Keyboard', () => {
+  function optionsOf(entry) {
+    return Array.from(entry.querySelectorAll('[role="option"]')).map(option => ({
+      text: option.textContent.trim(),
+      selected: option.getAttribute('aria-selected'),
+    }));
+  }
+
+  function activeOptionText(entry) {
+    const id = entry.getAttribute('aria-activedescendant');
+    return entry.querySelector(`#${id}`).textContent.trim();
+  }
+
+  it('exposes every entry as a listbox that tab can reach', () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    container.querySelectorAll('.qti-match-entry').forEach(entry => {
+      expect(entry).toHaveAttribute('role', 'listbox');
+      expect(entry).toHaveAttribute('tabindex', '0');
+    });
+  });
+
+  it('keeps the response pool out of the tab order', () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    const pool = container.querySelector('.qti-match-pool');
+
+    expect(pool.querySelectorAll('[tabindex="0"]')).toHaveLength(0);
+  });
+
+  it('offers only the targets still available for that row', () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['r1', 'h1'],
+          ['r2', 'h1'],
+        ],
+      },
+    });
+
+    // h1 is spent at match-max="2", so no other row may take it
+    const texts = optionsOf(entriesOfRow(container, 'Possess Gills')[0]).map(option => option.text);
+    expect(texts).toEqual(['Reptiles', 'Mammals']);
+  });
+
+  it("keeps an entry's own target among its options", () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    const options = optionsOf(entriesOfRow(container, 'Capulet')[0]);
+    expect(options.map(option => option.text)).toContain('Romeo and Juliet');
+    expect(options.filter(option => option.selected === 'true')).toHaveLength(1);
+  });
+
+  it("answers a row's first entry when it is tabbed to", async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    const entry = entriesOfRow(container, 'Capulet')[0];
+    const first = optionsOf(entry)[0].text;
+
+    await fireEvent.focus(entry);
+
+    expect(entriesOfRow(container, 'Capulet')[0]).toHaveAttribute(
+      'aria-label',
+      entryFilled$({ number: 1, source: 'Capulet', response: first }),
+    );
+  });
+
+  it('leaves the add-another position alone when it is tabbed to', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: { RESPONSE: [['r2', 'h1']] },
+    });
+
+    // r2 is match-max="0", so its row offers a trailing empty position
+    await fireEvent.focus(entriesOfRow(container, 'Endothermic')[1]);
+
+    expect(
+      entriesOfRow(container, 'Endothermic').filter(entry =>
+        entry.classList.contains('qti-match-entry-filled'),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('does not answer an entry a pointer press focused', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    const entry = entriesOfRow(container, 'Capulet')[0];
+
+    await fireEvent.mouseDown(entry);
+    await fireEvent.focus(entry);
+
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
+  });
+
+  it('cycles the value in place with the arrow keys', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    const candidates = optionsOf(entriesOfRow(container, 'Capulet')[0]).map(o => o.text);
+
+    await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[0]);
+
+    await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'ArrowDown' });
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[1]);
+
+    await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'ArrowUp' });
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[0]);
+  });
+
+  it('jumps to the ends with Home and End', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    const candidates = optionsOf(entriesOfRow(container, 'Capulet')[0]).map(o => o.text);
+
+    await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);
+    await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'End' });
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(
+      candidates[candidates.length - 1],
+    );
+
+    await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'Home' });
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[0]);
+  });
+
+  it('takes the pairing back out on Escape', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'Escape' });
+
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
+  });
+
+  it('records the pairing built with the keyboard in the response variable', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toHaveLength(1);
+      expect(checkAnswer().answerState.RESPONSE[0][0]).toBe('C');
+    });
+  });
+
+  it('shows the stepper affordance on an operable entry', () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    expect(entriesOfRow(container, 'Capulet')[0].querySelector('.qti-slot-stepper')).not.toBeNull();
+  });
+
+  it('is not reachable or operable in review mode', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      interactive: false,
+    });
+    const entry = entriesOfRow(container, 'Capulet')[0];
+
+    expect(entry).not.toHaveAttribute('tabindex');
+    expect(entry.querySelectorAll('[role="option"]')).toHaveLength(0);
+    expect(entry.querySelector('.qti-slot-stepper')).toBeNull();
+
+    await fireEvent.focus(entry);
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
   });
 });
 
