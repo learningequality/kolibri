@@ -4,6 +4,7 @@ from django.db.models import Case
 from django.db.models import When
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -14,7 +15,6 @@ from kolibri.core.content.api import ChannelMetadataFilter
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.serializers import ChannelMetadataSerializer
 from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
@@ -26,7 +26,47 @@ from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.cache import process_cache
 
 
-class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
+class DeviceChannelMetadataSerializer(serializers.ModelSerializer):
+    root = serializers.PrimaryKeyRelatedField(read_only=True)
+    lang_code = serializers.SerializerMethodField()
+    lang_name = serializers.SerializerMethodField()
+    available = serializers.SerializerMethodField()
+    num_coach_contents = serializers.IntegerField(source="root.num_coach_contents")
+
+    def get_lang_code(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_code
+
+    def get_lang_name(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_name
+
+    def get_available(self, instance):
+        return instance.root.available
+
+    class Meta:
+        model = ChannelMetadata
+        fields = (
+            "author",
+            "description",
+            "tagline",
+            "id",
+            "last_updated",
+            "lang_code",
+            "lang_name",
+            "name",
+            "root",
+            "thumbnail",
+            "version",
+            "available",
+            "num_coach_contents",
+            "public",
+        )
+
     def to_representation(self, instance):
         value = super().to_representation(instance)
 
