@@ -209,17 +209,8 @@
           const userIdsStr = userIds.join(',');
 
           const [membershipsData, coachRoles] = await Promise.all([
-            MembershipResource.fetchCollection({
-              getParams: { user_ids: userIdsStr },
-              force: true,
-            }),
-            RoleResource.fetchCollection({
-              getParams: {
-                user_ids: userIdsStr,
-                kind: UserKinds.COACH,
-              },
-              force: true,
-            }),
+            MembershipResource.list({ user_ids: userIdsStr }),
+            RoleResource.list({ user_ids: userIdsStr, kind: UserKinds.COACH }),
           ]);
 
           membershipsByUser.value = groupBy(membershipsData, 'user');
@@ -249,12 +240,8 @@
 
         try {
           await Promise.all([
-            enrollments.length
-              ? MembershipResource.saveCollection({ data: enrollments })
-              : Promise.resolve(),
-            assignments.length
-              ? RoleResource.saveCollection({ data: assignments })
-              : Promise.resolve(),
+            enrollments.length ? MembershipResource.bulkCreate(enrollments) : Promise.resolve(),
+            assignments.length ? RoleResource.bulkCreate(assignments) : Promise.resolve(),
           ]);
         } catch (_) {
           createSnackbar(defaultErrorMessage$());
@@ -282,7 +269,7 @@
         async function removeItems(resource, items) {
           if (items.length) {
             const ids = items.map(item => item.id).join(',');
-            await resource.deleteCollection({ by_ids: ids });
+            await resource.bulkDelete({ by_ids: ids });
           }
         }
         try {

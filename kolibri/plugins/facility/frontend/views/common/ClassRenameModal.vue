@@ -94,7 +94,7 @@
         if (this.formIsValid) {
           try {
             this.submitting = true;
-            await this.updateClass({ id: this.classid, updateData: { name: this.name } });
+            await this.updateClass({ id: this.classid, name: this.name });
 
             const updatedClasses = this.classes.map(c => {
               if (c.id === this.classid) {

@@ -88,7 +88,7 @@ async function renderPage({
     }),
   );
 
-  FacilityUserResource.fetchModel.mockResolvedValue(user);
+  FacilityUserResource.retrieve.mockResolvedValue(user);
 
   const router = createRouter();
   const store = makeStore();

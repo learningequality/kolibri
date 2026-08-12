@@ -8,10 +8,7 @@ export function showClassesPage(store) {
   store.commit('classManagement/SET_STATE', { dataLoading: true });
   const { facilityId } = useFacility();
 
-  return ClassroomResource.fetchCollection({
-    getParams: { parent: facilityId.value },
-    force: true,
-  })
+  return ClassroomResource.list({ parent: facilityId.value })
     .then(classrooms => {
       store.commit('classManagement/SET_STATE', {
         modalShown: false,

@@ -173,10 +173,8 @@
           return;
         }
         loading.value = true;
-        const users = await FacilityUserResource.fetchCollection({
-          getParams: {
-            by_ids: Array.from(props.selectedUsers).join(','),
-          },
+        const users = await FacilityUserResource.list({
+          by_ids: Array.from(props.selectedUsers).join(','),
         });
         facilityUsers.value = users.map(_userState);
         loading.value = false;
@@ -220,9 +218,8 @@
       async function setClassUsers() {
         loading.value = true;
         try {
-          const classMemberships = await MembershipResource.fetchCollection({
-            getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
-            force: true,
+          const classMemberships = await MembershipResource.list({
+            user_ids: Array.from(props.selectedUsers).join(','),
           });
           classMembershipsByUser.value = groupBy(classMemberships, 'user');
           classLearners.value = Object.keys(classMembershipsByUser.value);
@@ -244,7 +241,7 @@
         });
         if (enrollments.length > 0) {
           try {
-            const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
+            const newMemberships = await MembershipResource.bulkCreate(enrollments);
             createdMemberships.value = newMemberships;
           } catch (error) {
             handleApiError({ error });
@@ -279,7 +276,7 @@
       async function handleUndoEnrollments() {
         if (createdMemberships.value?.length > 0) {
           const ids = createdMemberships.value.map(m => m.id).join(',');
-          await MembershipResource.deleteCollection({ by_ids: ids });
+          await MembershipResource.bulkDelete({ by_ids: ids });
           props.onChange({
             affectedClasses: selectedOptions.value,
           });

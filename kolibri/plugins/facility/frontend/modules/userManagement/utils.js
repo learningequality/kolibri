@@ -20,12 +20,10 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   // Currently, we assume only ONE Facility-Level Role per user
   const currentFacilityRole = find(roles, { collection: facility });
   const createFacilityRole = () =>
-    RoleResource.saveModel({
-      data: {
-        user: id,
-        collection: facility,
-        kind: newRoleKind,
-      },
+    RoleResource.create({
+      user: id,
+      collection: facility,
+      kind: newRoleKind,
     });
 
   // When FacilityUser is only a Learner or New User (i.e. no current Role)
@@ -43,14 +41,12 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
 
   // Downgrading Role to LEARNER
   if (newRoleKind === UserKinds.LEARNER) {
-    return RoleResource.deleteCollection({ user: id });
+    return RoleResource.bulkDelete({ user: id });
   }
 
   // Changing from one Facility-Level Role to another. Any Classroom-Level Roles
   // are left untouched
   if (FACILITY_ROLES.includes(newRoleKind)) {
-    return createFacilityRole().then(() =>
-      RoleResource.deleteModel({ id: currentFacilityRole.id }),
-    );
+    return createFacilityRole().then(() => RoleResource.delete(currentFacilityRole.id));
   }
 }

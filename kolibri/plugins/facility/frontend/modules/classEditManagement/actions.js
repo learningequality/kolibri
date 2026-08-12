@@ -9,7 +9,7 @@ export function removeClassLearner(store, { classId, userId }) {
     return;
   }
   // fetch the membership model with this classId and userId.
-  return MembershipResource.deleteCollection({
+  return MembershipResource.bulkDelete({
     user: userId,
     collection: classId,
   }).then(
@@ -31,7 +31,7 @@ export function removeClassCoach(store, { classId, userId }) {
   }
   // TODO use a getModel with role id? should be available. Might have to undo mappers
   // fetch the membership model with this classId and userId.
-  return RoleResource.deleteCollection({
+  return RoleResource.bulkDelete({
     user: userId,
     collection: classId,
   }).then(
@@ -46,22 +46,19 @@ export function removeClassCoach(store, { classId, userId }) {
 }
 
 /**
- * Updates a class with the given data and commits the change to the store.
+ * Renames a class and commits the change to the store.
+ * `name` is the only class field this action can change, so the payload is already the diff.
  * @param {object} store - The Vuex store instance.
  * @param {object} payload - Payload object.
  * @param {string} payload.id - The ID of the class to update.
- * @param {object} payload.updateData - The data to update on the class.
+ * @param {string} payload.name - The new class name.
  * @returns {Promise<void>|void} Resolves when the class has been updated.
  */
-export function updateClass(store, { id, updateData }) {
-  if (!id || Object.keys(updateData).length === 0) {
-    // if no id or empty updateData passed, abort the function
+export function updateClass(store, { id, name }) {
+  if (!id || !name) {
     return;
   }
-  return ClassroomResource.saveModel({
-    id,
-    data: updateData,
-  }).then(
+  return ClassroomResource.update(id, { name }).then(
     updatedClass => {
       store.commit('UPDATE_CLASS', { id, updatedClass });
       store.dispatch('displayModal', false);

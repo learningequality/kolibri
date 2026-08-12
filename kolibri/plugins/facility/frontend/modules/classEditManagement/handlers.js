@@ -17,9 +17,9 @@ export function showClassEditPage(store, classId) {
   const { facilityId } = useFacility();
 
   const promises = [
-    FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
-    ClassroomResource.fetchModel({ id: classId, force: true }),
-    ClassroomResource.fetchCollection({ getParams: { parent: facilityId.value }, force: true }),
+    FacilityUserResource.list({ member_of: classId }),
+    ClassroomResource.retrieve(classId),
+    ClassroomResource.list({ parent: facilityId.value }),
   ];
   store.commit('classEditManagement/SET_DATA_LOADING', true);
   Promise.all(promises)

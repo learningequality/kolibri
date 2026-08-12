@@ -15,8 +15,8 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   }
 
   // facility users that are not enrolled in this class
-  const userPromise = FacilityUserResource.fetchCollection({
-    getParams: pickBy({
+  const userPromise = FacilityUserResource.list(
+    pickBy({
       member_of: facilityId.value,
       page: toRoute.query.page || 1,
       page_size: toRoute.query.page_size || 30,
@@ -24,10 +24,9 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
       exclude_member_of: id,
       exclude_coach_for: id,
     }),
-    force: true,
-  });
+  );
   // current class
-  const classPromise = ClassroomResource.fetchModel({ id });
+  const classPromise = ClassroomResource.retrieve(id);
   const shouldResolve = samePageCheckGenerator(toRoute);
   return Promise.all([userPromise, classPromise]).then(
     ([facilityUsers, classroom]) => {
@@ -58,20 +57,17 @@ export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
     pageLoading.value = true;
   }
   // all users in facility eligible to be a coach that is not already a coach
-  const userPromise = FacilityUserResource.fetchCollection({
-    getParams: {
-      member_of: facilityId.value,
-      exclude_member_of: id,
-      exclude_user_type: 'learner',
-      exclude_coach_for: id,
-      page: toRoute.query.page || 1,
-      page_size: toRoute.query.page_size || 30,
-      search: toRoute.query.search && toRoute.query.search.trim(),
-    },
-    force: true,
+  const userPromise = FacilityUserResource.list({
+    member_of: facilityId.value,
+    exclude_member_of: id,
+    exclude_user_type: 'learner',
+    exclude_coach_for: id,
+    page: toRoute.query.page || 1,
+    page_size: toRoute.query.page_size || 30,
+    search: toRoute.query.search && toRoute.query.search.trim(),
   });
   // current class
-  const classPromise = ClassroomResource.fetchModel({ id, force: true });
+  const classPromise = ClassroomResource.retrieve(id);
   const shouldResolve = samePageCheckGenerator(toRoute);
   return Promise.all([userPromise, classPromise]).then(
     ([facilityUsers, classroom]) => {
