@@ -12,10 +12,10 @@ jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 jest.mock('kolibri/utils/redirectBrowser');
 jest.mock('kolibri/apiResources/TaskResource', () => ({
-  fetchModel: jest.fn(),
-  fetchCollection: jest.fn(),
+  retrieve: jest.fn(),
+  list: jest.fn(),
   startTask: jest.fn(),
-  clear: jest.fn(),
+  clear_v2: jest.fn(),
 }));
 
 const TARGET_FACILITY_NAME = 'Test Facility';
@@ -70,7 +70,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   beforeEach(() => {
     jest.clearAllMocks();
     sessionStorage.clear();
-    TaskResource.fetchModel.mockResolvedValue(task);
+    TaskResource.retrieve.mockResolvedValue(task);
     setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(() => 0);
   });
 
@@ -84,7 +84,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   });
 
   it(`finish button does not appear if the task is not completed`, async () => {
-    TaskResource.fetchModel.mockResolvedValue(incompleteTask);
+    TaskResource.retrieve.mockResolvedValue(incompleteTask);
 
     renderComponent();
     await flushUi();
@@ -92,7 +92,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   });
 
   it(`when the task is completed, finish button appears`, async () => {
-    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    TaskResource.retrieve.mockResolvedValue(completedTask);
 
     renderComponent();
     await flushUi();
@@ -103,7 +103,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   });
 
   it(`clicking finish button sends the finish event to the state machine`, async () => {
-    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    TaskResource.retrieve.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
     renderComponent();
 
@@ -118,7 +118,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   });
 
   it('stores picture password in sessionStorage and redirects when picture password is assigned', async () => {
-    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    TaskResource.retrieve.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: '3.7.12' } });
     renderComponent({
       targetFacility: {
@@ -140,7 +140,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   // The facility has picture_password_settings but the user's picture_password hasn't synced yet;
   // the flag must stay set so the modal can appear after the next sync.
   it('stores picture password pending in sessionStorage when picture passwords are enabled but not yet synced', async () => {
-    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    TaskResource.retrieve.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
     renderComponent({
       targetFacility: {
@@ -158,7 +158,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   });
 
   it('redirects without storing in sessionStorage when picture password is null and picture passwords are not enabled', async () => {
-    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    TaskResource.retrieve.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
     renderComponent();
     await flushUi();
@@ -169,7 +169,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   });
 
   it(`clicking retry button sends the task error event to the state machine`, async () => {
-    TaskResource.fetchCollection.mockResolvedValue([]);
+    TaskResource.list.mockResolvedValue([]);
     TaskResource.startTask.mockRejectedValue({
       response: { status: 400, data: [{ metadata: { message: 'USERNAME_ALREADY_EXISTS' } }] },
     });
