@@ -28,6 +28,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.device.models import DeviceSettings
@@ -229,6 +230,73 @@ class PublicAPITestCase(APITestCase):
     def test_public_channel_lookup_no_channel(self):
         response = self.client.get(get_channel_lookup_url(identifier=uuid.uuid4().hex))
         self.assertEqual(response.status_code, 404)
+
+    def _public_channel_v2_list(self):
+        return self.client.get(reverse("kolibri:core:publicchannel-list")).json()
+
+    def _public_channel_v2_item(self, channel_id):
+        return next(
+            channel
+            for channel in self._public_channel_v2_list()
+            if channel["id"] == channel_id
+        )
+
+    def test_public_channel_v2_response_fields(self):
+        self.assertEqual(
+            set(self._public_channel_v2_item(self.channel_id2).keys()),
+            CHANNEL_METADATA_FIELDS,
+        )
+
+    def test_public_channel_v2_thumbnail_is_the_raw_column(self):
+        thumbnail = "data:image/png;base64,abcd"
+        ChannelMetadata.objects.filter(id=self.channel_id2).update(thumbnail=thumbnail)
+
+        self.assertEqual(
+            self._public_channel_v2_item(self.channel_id2)["thumbnail"], thumbnail
+        )
+
+    def test_public_channel_v2_included_languages_are_flat_ids(self):
+        channel = ChannelMetadata.objects.get(id=self.channel_id2)
+        channel.included_languages.clear()
+
+        self.assertEqual(
+            self._public_channel_v2_item(self.channel_id2)["included_languages"], []
+        )
+
+        channel.included_languages.add(
+            Language.objects.create(id="sw", lang_code="sw"),
+            Language.objects.create(id="ar", lang_code="ar"),
+        )
+
+        self.assertEqual(
+            set(self._public_channel_v2_item(self.channel_id2)["included_languages"]),
+            set(["sw", "ar"]),
+        )
+
+    def test_public_channel_v2_excludes_unlisted_channels(self):
+        set_device_settings(allow_peer_unlisted_channel_import=False)
+        self.assertEqual(
+            [channel["id"] for channel in self._public_channel_v2_list()],
+            [self.channel_id2],
+        )
+
+        set_device_settings(allow_peer_unlisted_channel_import=True)
+        self.assertEqual(
+            set(channel["id"] for channel in self._public_channel_v2_list()),
+            set([self.channel_id1, self.channel_id2]),
+        )
+
+    def test_public_channel_v2_list_is_ordered_by_order_column(self):
+        set_device_settings(allow_peer_unlisted_channel_import=True)
+        # "math" sorts before "science" by name, so a fallback to name ordering
+        # does not satisfy the assertion by coincidence.
+        ChannelMetadata.objects.filter(id=self.channel_id1).update(order=2)
+        ChannelMetadata.objects.filter(id=self.channel_id2).update(order=1)
+
+        self.assertEqual(
+            [channel["id"] for channel in self._public_channel_v2_list()],
+            [self.channel_id2, self.channel_id1],
+        )
 
     def test_public_checksum_lookup_no_checksums(self):
         response = self.client.post(

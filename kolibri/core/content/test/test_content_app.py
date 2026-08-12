@@ -9,6 +9,7 @@ import uuid
 from base64 import urlsafe_b64decode
 
 import mock
+import pytz
 from django.conf import settings
 from django.core.cache import cache
 from django.test import LiveServerTestCase
@@ -29,6 +30,7 @@ from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.content.api import NUM_CHILDREN
+from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.device.models import ContentCacheKey
@@ -1289,6 +1291,98 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(response.data["lang_code"], None)
         self.assertEqual(response.data["lang_name"], None)
+
+    def _channel_list_item(self, channel_id):
+        response = self.client.get(reverse("kolibri:core:channel-list"))
+        return next(
+            channel for channel in response.json() if channel["id"] == channel_id
+        )
+
+    def test_channelmetadata_included_label_fields_split_to_lists(self):
+        channel = content.ChannelMetadata.objects.get(id=self.the_channel_id)
+        channel.included_categories = "cat1,cat2"
+        channel.included_grade_levels = ""
+        channel.save()
+
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(data["included_categories"], ["cat1", "cat2"])
+        self.assertEqual(data["included_grade_levels"], [])
+
+        channel.included_categories = None
+        channel.included_grade_levels = None
+        channel.save()
+
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(data["included_categories"], [])
+        self.assertEqual(data["included_grade_levels"], [])
+
+    def test_channelmetadata_included_languages_are_flat_ids_in_added_order(self):
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(data["included_languages"], [])
+
+        channel = content.ChannelMetadata.objects.get(id=self.the_channel_id)
+        # Neither alphabetical nor primary key order, so that only the order
+        # the languages were added in satisfies the assertion.
+        for lang_id in ["sw", "ar", "en"]:
+            channel.included_languages.add(
+                content.Language.objects.create(id=lang_id, lang_code=lang_id)
+            )
+
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(data["included_languages"], ["sw", "ar", "en"])
+
+    def test_channelmetadata_last_published_matches_last_updated(self):
+        channel = content.ChannelMetadata.objects.get(id=self.the_channel_id)
+        channel.last_updated = pytz.timezone("America/New_York").localize(
+            datetime.datetime(2023, 4, 5, 6, 7, 8)
+        )
+        channel.save()
+        stored = content.ChannelMetadata.objects.get(
+            id=self.the_channel_id
+        ).last_updated
+
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(data["last_updated"], stored.isoformat())
+        self.assertEqual(data["last_published"], data["last_updated"])
+
+    def test_channelmetadata_list_is_ordered_by_order_column(self):
+        channel = content.ChannelMetadata.objects.get(id=self.the_channel_id)
+        second_channel = content.ChannelMetadata.objects.create(
+            id=uuid.uuid4().hex,
+            # Sorts after the fixture channel's "testing" by name, so a fallback
+            # to name ordering does not satisfy the assertion by coincidence.
+            name="zzz",
+            min_schema_version=1,
+            root=channel.root,
+        )
+        channel.order = 2
+        channel.save()
+        second_channel.order = 1
+        second_channel.save()
+
+        response = self.client.get(reverse("kolibri:core:channel-list"))
+        self.assertEqual(
+            [item["id"] for item in response.json()],
+            [second_channel.id, self.the_channel_id],
+        )
+
+    def test_channelmetadata_thumbnail_is_a_url(self):
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(data["thumbnail"], "")
+
+        channel = content.ChannelMetadata.objects.get(id=self.the_channel_id)
+        channel.thumbnail = "data:image/png;base64,abcd"
+        channel.save()
+
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(
+            data["thumbnail"],
+            reverse("kolibri:core:channel-thumbnail", args=[self.the_channel_id]),
+        )
+
+    def test_channelmetadata_response_fields(self):
+        data = self._channel_list_item(self.the_channel_id)
+        self.assertEqual(set(data.keys()), CHANNEL_METADATA_FIELDS)
 
     def test_channelmetadata_content_available_param_filter_lowercase_true(self):
         response = self.client.get(
