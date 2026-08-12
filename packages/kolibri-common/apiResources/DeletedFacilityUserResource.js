@@ -1,16 +1,12 @@
 import { Resource } from 'kolibri/apiResource';
-import client from 'kolibri/client';
 
 export default new Resource({
   name: 'deletedfacilityuser',
-  restoreCollection(getParams) {
-    if (!getParams) {
-      throw new Error('You must provide a getParams object to restore deleted users.');
+  async restoreCollection(params = {}) {
+    if (!Object.keys(params).length) {
+      throw TypeError('Params must be specified to narrow what is being restored');
     }
-    return client({
-      url: this.getUrlFunction('restore')(),
-      method: 'POST',
-      params: getParams,
-    });
+    const response = await this.request({ method: 'POST', action: 'restore', params });
+    return response.data;
   },
 });

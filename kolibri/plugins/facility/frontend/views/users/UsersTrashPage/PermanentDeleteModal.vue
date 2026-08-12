@@ -59,7 +59,7 @@
         loading.value = true;
         sendPoliteMessage(deletingLabel$());
         try {
-          await DeletedFacilityUserResource.deleteCollection({
+          await DeletedFacilityUserResource.bulkDelete({
             by_ids: Array.from(props.selectedUsers).join(','),
           });
           createSnackbar(usersDeletedNotice$());
