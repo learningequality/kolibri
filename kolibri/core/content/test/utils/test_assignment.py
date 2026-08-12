@@ -1,8 +1,11 @@
 import uuid
 
 import mock
+from django.db.models.functions import NullIf
 from django.test import TestCase
+from morango.models import Store
 
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -65,6 +68,7 @@ class ContentAssignmentManagerTestCase(TestCase):
     ):
         store_qs = mock.MagicMock()
         get_modified_store_mock.return_value = store_qs
+        store_qs.annotate.return_value = store_qs
         store_qs.exclude.return_value = store_qs
 
         store_ids = [uuid.uuid4().hex for _ in range(1)]
@@ -80,10 +84,14 @@ class ContentAssignmentManagerTestCase(TestCase):
             self.assertEqual(assignment, self.assignment)
 
         self.assertEqual(count, 1)
+        # empty deserialization errors are normalized to NULL so that they compare the same as
+        # the NULL written by `Store.unset_deserialization_error`
+        annotation = store_qs.annotate.call_args[1]["_deserialization_error"]
+        self.assertIsInstance(annotation, NullIf)
         exclude_q = store_qs.exclude.call_args[0][0]
         self.assertEqual(
             str(exclude_q),
-            "(OR: ('deleted', True), ('hard_deleted', True), (NOT (AND: ('deserialization_error', ''))))",
+            "(OR: ('deleted', True), ('hard_deleted', True), ('_deserialization_error__isnull', False))",
         )
 
         qs = self.model.objects.all.return_value
@@ -624,3 +632,139 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
             assignments[0].source_model, IndividualSyncableExam.morango_model_name
         )
         self.assertEqual(assignments[0].metadata, None)
+
+
+class FindDownloadableAssignmentsStoreFilterTestCase(TestCase):
+    """
+    Exercises the `Store` filtering that `find_downloadable_assignments` applies when scoped to a
+    transfer session, against the database rather than a mocked queryset. The SQL semantics of the
+    filter are the point here: `deserialization_error` is nullable, and morango writes NULL to it
+    (via `Store.unset_deserialization_error`) for records that deserialized cleanly, so a
+    comparison against the empty string alone silently drops every valid record.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        provision_device()
+        cls.facility = Facility.objects.create(name="My Facility")
+        cls.classroom = Classroom.objects.create(
+            name="My Classroom", parent=cls.facility
+        )
+        cls.admin_user = FacilityUser.objects.create(
+            username="admin", facility=cls.facility
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.transfer_session_id = uuid.uuid4().hex
+
+    def _create_lesson(self, is_active=True):
+        """
+        Creates a lesson with a single, uniquely identified resource
+        """
+        lesson = Lesson(
+            title="My Lesson",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=is_active,
+            resources=[
+                {
+                    "contentnode_id": uuid.uuid4().hex,
+                    "content_id": uuid.uuid4().hex,
+                    "channel_id": uuid.uuid4().hex,
+                }
+            ],
+        )
+        lesson.save()
+        return lesson
+
+    def _create_store(self, lesson, **overrides):
+        """
+        Creates the `Store` record that a sync would have written for `lesson`
+        """
+        defaults = dict(
+            id=lesson.id,
+            profile=PROFILE_FACILITY_DATA,
+            serialized="",
+            deleted=False,
+            hard_deleted=False,
+            last_saved_instance=uuid.uuid4().hex,
+            last_saved_counter=1,
+            partition="{}:allusers-ro".format(self.facility.dataset_id),
+            source_id=lesson.id,
+            model_name=Lesson.morango_model_name,
+            # morango nulls this field out when deserialization succeeds
+            deserialization_error=None,
+            last_transfer_session_id=self.transfer_session_id,
+        )
+        defaults.update(overrides)
+        return Store.objects.create(**defaults)
+
+    def _downloadable_source_ids(self):
+        return set(
+            assignment.source_id
+            for assignment in Lesson.content_assignments.find_downloadable_assignments(
+                transfer_session_id=self.transfer_session_id
+            )
+        )
+
+    def test_deserialized_without_error(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson)
+        self.assertEqual(self._downloadable_source_ids(), {lesson.id})
+
+    def test_deserialization_error_is_blank(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson, deserialization_error="")
+        self.assertEqual(self._downloadable_source_ids(), {lesson.id})
+
+    def test_deserialization_error_is_set(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson, deserialization_error="UNIQUE constraint failed")
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_deleted(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson, deleted=True)
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_hard_deleted(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson, hard_deleted=True)
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_other_transfer_session(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson, last_transfer_session_id=uuid.uuid4().hex)
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_other_model_name(self):
+        lesson = self._create_lesson()
+        self._create_store(lesson, model_name=Exam.morango_model_name)
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_model_filters_still_apply(self):
+        lesson = self._create_lesson(is_active=False)
+        self._create_store(lesson)
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_only_valid_records_of_a_mixed_transfer_session(self):
+        clean = self._create_lesson()
+        self._create_store(clean)
+        blank_error = self._create_lesson()
+        self._create_store(blank_error, deserialization_error="")
+
+        errored = self._create_lesson()
+        self._create_store(errored, deserialization_error="ValidationError")
+        deleted = self._create_lesson()
+        self._create_store(deleted, deleted=True)
+        hard_deleted = self._create_lesson()
+        self._create_store(hard_deleted, hard_deleted=True)
+        inactive = self._create_lesson(is_active=False)
+        self._create_store(inactive)
+
+        self.assertEqual(self._downloadable_source_ids(), {clean.id, blank_error.id})
