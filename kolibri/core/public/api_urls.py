@@ -24,12 +24,12 @@ from kolibri.core.content.public_api import ImportMetadataViewset
 from ..auth.viewsets.facility import PublicFacilityViewSet
 from ..auth.viewsets.facility_user import PublicFacilityUserViewSet
 from ..auth.viewsets.signup import PublicSignUpViewSet
+from ..content.viewsets.channel_metadata import PublicChannelMetadataViewSet
 from .api import FacilitySearchUsernameViewSet
 from .api import get_public_channel_list
 from .api import get_public_channel_lookup
 from .api import get_public_file_checksums
 from .api import InfoViewSet
-from .api import PublicChannelMetadataViewSet
 from .api import PublicContentNodeTreeViewSet
 from .api import PublicContentNodeViewSet
 from .api import SyncQueueAPIView

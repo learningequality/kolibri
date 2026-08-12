@@ -11,7 +11,6 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
-from kolibri.core.content.api import ChannelMetadataFilter
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.permissions import CanManageContent
@@ -22,6 +21,7 @@ from kolibri.core.content.utils.content_types_tools import (
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.upgrade import CHANNEL_UPDATE_STATS_CACHE_KEY
+from kolibri.core.content.viewsets.channel_metadata import ChannelMetadataFilter
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.cache import process_cache
 

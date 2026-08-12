@@ -3,7 +3,6 @@ from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
-from .api import ChannelMetadataViewSet
 from .api import ChannelThumbnailView
 from .api import ContentNodeBookmarksViewset
 from .api import ContentNodeGranularViewset
@@ -15,6 +14,7 @@ from .api import FileViewset
 from .api import RemoteChannelViewSet
 from .api import ShareFileView
 from .api import UserContentNodeViewset
+from .viewsets.channel_metadata import ChannelMetadataViewSet
 
 router = routers.SimpleRouter()
 router.register("channel", ChannelMetadataViewSet, basename="channel")

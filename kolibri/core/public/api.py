@@ -29,7 +29,6 @@ from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.content.api import BaseChannelMetadataMixin
 from kolibri.core.content.api import BaseContentNodeMixin
 from kolibri.core.content.api import BaseContentNodeTreeViewset
 from kolibri.core.content.api import PublicContentNodePagination
@@ -110,15 +109,6 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
-
-
-@method_decorator(public_metadata_cache, name="dispatch")
-class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if allow_peer_unlisted_channel_import():
-            return queryset
-        return queryset.filter(public=True)
 
 
 def filter_public_channel_nodes(queryset):
