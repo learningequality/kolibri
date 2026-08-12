@@ -1,7 +1,9 @@
 import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 import pluginData from 'kolibri-plugin-data';
 import themeConfig from 'kolibri/styles/themeConfig';
+import { validateObject } from 'kolibri/utils/objectSpecs';
 import initializeTheme from '../initializeTheme';
+import themeSpec from '../themeSpec';
 
 jest.mock('kolibri-plugin-data', () => ({ __esModule: true, default: {} }));
 
@@ -60,6 +62,7 @@ describe('initializeTheme', () => {
 
     expect(themeConfig.signIn.showTitle).toBe(true);
     expect(themeConfig.signIn.scrimOpacity).toBe(0.2);
+    expect(themeConfig.signIn.titleStyle).toBe(null);
     expect(themeConfig.sideNav.showKolibriFooterLogo).toBe(true);
     expect(themeConfig.appBar.background).toBe(themeTokens().appBar);
   });
@@ -85,5 +88,13 @@ describe('initializeTheme', () => {
 
     expect(themeConfig.sideNav.showKolibriFooterLogo).toBe(true);
     expect(themeConfig.appBar.textColor).toBe(themeTokens().text);
+  });
+});
+
+describe('themeSpec', () => {
+  // Nothing else catches signIn.titleStyle specced as a String: objectWithDefaults
+  // does not type-check, and validateObject's complaint only reaches a silenced logger.
+  it('validates the bundled default theme', () => {
+    expect(validateObject(initializedThemeHookTheme(), themeSpec)).toBe(true);
   });
 });
