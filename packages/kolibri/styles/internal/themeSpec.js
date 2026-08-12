@@ -127,6 +127,10 @@ export default {
         type: String,
         default: null,
       },
+      titleStyle: {
+        type: Object,
+        default: null,
+      },
       title: {
         type: String,
         default: null,

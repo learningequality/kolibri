@@ -1,38 +1,11 @@
 import Vue from 'vue';
 
+// themeSpec.js is the field list; restating it here only lets the two drift.
+// `{}` not `null`: tests mount components that dereference these without initializeTheme().
 const themeConfig = Vue.observable({
-  appBar: {
-    background: null,
-    textColor: null,
-    topLogo: {
-      src: null,
-      alt: null,
-      style: null,
-    },
-  },
-  signIn: {
-    topLogo: {
-      src: null,
-      alt: null,
-      style: null,
-    },
-    title: null,
-    showTitle: null,
-    titleStyle: null,
-    showPoweredBy: null,
-    poweredByStyle: null,
-    showKolibriFooterLogo: null,
-    background: null,
-  },
-  sideNav: {
-    topLogo: {
-      src: null,
-      alt: null,
-      style: null,
-    },
-    brandedFooter: {},
-    showKFooterLogo: true,
-  },
+  appBar: {},
+  signIn: {},
+  sideNav: {},
 });
 
 export default themeConfig;
