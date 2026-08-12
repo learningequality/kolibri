@@ -9,9 +9,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.utils import timezone
-from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
-from django.utils.http import http_date
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from django_filters.rest_framework import DjangoFilterBackend
@@ -29,18 +27,17 @@ from rest_framework.views import APIView
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.api import BaseChannelMetadataMixin
 from kolibri.core.content.api import BaseContentNodeMixin
 from kolibri.core.content.api import BaseContentNodeTreeViewset
-from kolibri.core.content.api import metadata_cache
 from kolibri.core.content.api import PublicContentNodePagination
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
+from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.file_availability import checksum_regex
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device import soud
@@ -113,21 +110,6 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
-
-
-def public_metadata_cache(view_func):
-    view_func = metadata_cache(view_func)
-
-    def wrapped_view(*args, **kwargs):
-        response = view_func(*args, **kwargs)
-        # Matches the cache headers Studio sets on the same endpoints (#11464).
-        patch_cache_control(
-            response, max_age=300, stale_while_revalidate=100, public=True
-        )
-        response.headers["Expires"] = http_date(time.time() + 300)
-        return response
-
-    return session_exempt(wrapped_view)
 
 
 @method_decorator(public_metadata_cache, name="dispatch")
