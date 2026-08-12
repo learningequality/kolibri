@@ -272,9 +272,9 @@ export default function useLearnerResources() {
   }
 
   /**
-   * Build a router target for a classroom course page.
+   * Build a router target for a classroom course's welcome page.
    * @param {object} course - Course record from the classroom payload
-   * @returns {object} vue-router link to a course page (placeholder)
+   * @returns {object} vue-router link to the course welcome page
    * @public
    */
   function getClassCourseLink(course) {
@@ -282,9 +282,9 @@ export default function useLearnerResources() {
       return undefined;
     }
     return {
-      name: PageNames.COURSE_CONTENT__COURSE,
+      name: PageNames.COURSE_WELCOME,
       params: {
-        courseId: course.id,
+        courseSessionId: course.id,
       },
     };
   }
