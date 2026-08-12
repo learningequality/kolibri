@@ -211,12 +211,12 @@
           });
       },
       retryImport() {
-        TaskResource.restart(this.loadingTask.id).catch(error => {
+        TaskResource.restart_v2(this.loadingTask.id).catch(error => {
           this.handleApiError({ error });
         });
       },
       cancelTask() {
-        return TaskResource.cancel(this.loadingTask.id);
+        return TaskResource.cancel_v2(this.loadingTask.id);
       },
       startOver() {
         this.isPolling = false;
@@ -225,7 +225,7 @@
         });
       },
       clearTasks() {
-        return TaskResource.clearAll(this.queue);
+        return TaskResource.clearAll_v2(this.queue);
       },
       handleClickContinue() {
         this.isPolling = false;

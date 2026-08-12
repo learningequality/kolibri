@@ -261,7 +261,7 @@
             });
             if (isFailingTasks) {
               this.createSnackbar(this.importUserError$());
-              TaskResource.clearAll(SoudQueue);
+              TaskResource.clearAll_v2(SoudQueue);
             }
           }
         });

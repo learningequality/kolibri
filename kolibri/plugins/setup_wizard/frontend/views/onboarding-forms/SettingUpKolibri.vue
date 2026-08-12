@@ -277,7 +277,7 @@
         Lockr.rm('savedState'); // Clear out saved state machine
       },
       clearPollingTasks() {
-        TaskResource.clearAll(PROVISION_TASK_QUEUE);
+        TaskResource.clearAll_v2(PROVISION_TASK_QUEUE);
       },
     },
     $trs: {
