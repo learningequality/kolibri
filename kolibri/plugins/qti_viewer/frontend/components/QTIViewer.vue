@@ -42,6 +42,7 @@
         answerState,
         userId,
         interactive,
+        lang,
         reportLoadingError,
         registerAssessmentApi,
       } = useContentViewer(context);
@@ -215,9 +216,11 @@
               environmentIdentifier: __version,
             },
         ),
-        'lang',
-        computed(() => props.lang),
       );
+
+      // The content's language, used to render numerals in the content's own numeral system
+      // (keypad glyphs, and report-mode redisplay of numeric responses).
+      provide('lang', lang);
 
       provide(
         'answerState',
