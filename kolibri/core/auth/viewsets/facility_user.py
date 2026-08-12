@@ -5,6 +5,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from django.db.models import Exists
+from django.db.models import OuterRef
 from django.db.models import Q
 from django.http import Http404
 from django.utils.timezone import now
@@ -42,6 +44,7 @@ from ..errors import NoAvailableSequences
 from ..models import Collection
 from ..models import Facility
 from ..models import FacilityUser
+from ..models import Membership
 from ..models import Role
 from ..models import validate_username_allowed_chars
 from ..models import validate_username_max_length
@@ -63,6 +66,17 @@ class ModelChoiceInFilter(BaseInFilter, ModelChoiceFilter):
 
 class ChoiceInFilter(BaseInFilter, ChoiceFilter):
     pass
+
+
+def _user_has(model, **filters):
+    """
+    Q matching users with a related `model` row, as a correlated subquery.
+
+    Memberships and roles are multi-valued, so OR-ing one into a `filter()` LEFT JOINs the
+    relation and returns a user once per related row. `exclude()` already subqueries, so the
+    `filter_exclude_*` methods need no wrapper.
+    """
+    return Q(Exists(model.objects.filter(user_id=OuterRef("id"), **filters)))
 
 
 class FacilityUserFilter(FilterSet):
@@ -109,7 +123,9 @@ class FacilityUserFilter(FilterSet):
     by_ids = UUIDInFilter(field_name="id")
 
     def filter_member_of(self, queryset, name, value):
-        return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
+        return queryset.filter(
+            _user_has(Membership, collection=value) | Q(facility=value)
+        )
 
     def filter_related_to__in(self, queryset, name, value):
         """
@@ -117,9 +133,9 @@ class FacilityUserFilter(FilterSet):
         memberships, facility, or roles.
         """
         return queryset.filter(
-            Q(memberships__collection__in=value)
+            _user_has(Membership, collection__in=value)
             | Q(facility__in=value)
-            | Q(roles__collection__in=value)
+            | _user_has(Role, collection__in=value)
         )
 
     def filter_user_type(self, queryset, name, value):
@@ -129,24 +145,19 @@ class FacilityUserFilter(FilterSet):
         user_type_filter = Q()
 
         if "learner" in value:
-            user_type_filter |= Q(roles__isnull=True)
+            user_type_filter |= ~_user_has(Role)
 
-        if "coach" in value:
-            # Return users with either coach or classroom assignable coach roles
-            user_type_filter |= Q(roles__kind=role_kinds.COACH) | Q(
-                roles__kind=role_kinds.ASSIGNABLE_COACH
-            )
         if "superuser" in value:
             user_type_filter |= Q(devicepermissions__is_superuser=True)
 
-        rest_filters = [
-            user_type_value
-            for user_type_value in value
-            if user_type_value not in ["learner", "coach", "superuser"]
-        ]
+        # "coach" covers both the coach and the classroom-assignable coach role; every other
+        # value is already a role kind.
+        kinds = set(value) - {"learner", "coach", "superuser"}
+        if "coach" in value:
+            kinds |= {role_kinds.COACH, role_kinds.ASSIGNABLE_COACH}
 
-        if rest_filters:
-            user_type_filter |= Q(roles__kind__in=rest_filters)
+        if kinds:
+            user_type_filter |= _user_has(Role, kind__in=sorted(kinds))
 
         return queryset.filter(user_type_filter)
 

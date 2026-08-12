@@ -1821,6 +1821,39 @@ class FacilityUserFilterTestCase(APITestCase):
         self.assertEqual(data[1]["id"], self.admin_1.id)
         self.assertEqual(data[2]["id"], self.user_1.id)
 
+    def test_user_member_of_filter_returns_multiply_enrolled_user_once(self):
+        for _ in range(2):
+            ClassroomFactory.create(parent=self.facility_1).add_member(self.user_1)
+
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list"), {"member_of": self.facility_1.id}
+        )
+        ids = [user["id"] for user in response.data]
+        self.assertEqual(ids.count(self.user_1.id), 1)
+
+    def test_user_related_to_in_filter_returns_multiply_enrolled_user_once(self):
+        classrooms = [ClassroomFactory.create(parent=self.facility_1) for _ in range(2)]
+        for classroom in classrooms:
+            classroom.add_member(self.user_1)
+
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list"),
+            {"related_to__in": ",".join(str(c.id) for c in classrooms)},
+        )
+        ids = [user["id"] for user in response.data]
+        self.assertEqual(ids.count(self.user_1.id), 1)
+
+    def test_user_type_in_filter_returns_each_matching_user_once(self):
+        for _ in range(2):
+            ClassroomFactory.create(parent=self.facility_2).add_coach(self.admin_2)
+
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list"),
+            {"user_type__in": "learner,coach", "member_of": self.facility_2.id},
+        )
+        ids = [user["id"] for user in response.data]
+        self.assertCountEqual(ids, [self.user_2.id, self.admin_2.id])
+
 
 class LoginLogoutTestCase(APITestCase):
     databases = "__all__"
