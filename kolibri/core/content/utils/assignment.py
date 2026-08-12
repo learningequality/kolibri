@@ -2,7 +2,11 @@ from collections import namedtuple
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.db.models import F
 from django.db.models import Q
+from django.db.models import TextField
+from django.db.models import Value
+from django.db.models.functions import NullIf
 from django.dispatch import receiver
 from morango.models.core import Store
 
@@ -306,8 +310,18 @@ class ContentAssignmentManager:
 
         model_qs = self.model.objects.all()
         if transfer_session_id:
-            modified_store = self._get_modified_store(transfer_session_id).exclude(
-                Q(deleted=True) | Q(hard_deleted=True) | ~Q(deserialization_error="")
+            modified_store = (
+                self._get_modified_store(transfer_session_id)
+                .annotate(
+                    _deserialization_error=NullIf(
+                        F("deserialization_error"), Value(""), output_field=TextField()
+                    )
+                )
+                .exclude(
+                    Q(deleted=True)
+                    | Q(hard_deleted=True)
+                    | Q(_deserialization_error__isnull=False)
+                )
             )
             model_qs = model_qs.filter(
                 pk__in=modified_store.values_list("id", flat=True)
