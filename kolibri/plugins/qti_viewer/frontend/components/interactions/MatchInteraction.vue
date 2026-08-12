@@ -376,17 +376,15 @@
         };
       }
 
-      function entryStyles({ filled, target, active }) {
+      // The whole answer field is the drop area, so it carries the highlight
+      function fieldStyles({ target, active }) {
         if (target || active) {
           return {
             backgroundColor: $themeBrand.primary.v_50,
             borderColor: $themeTokens.primary,
           };
         }
-        return {
-          backgroundColor: filled ? $themePalette.grey.v_100 : 'transparent',
-          borderColor: $themeTokens.fineLine,
-        };
+        return { backgroundColor: 'transparent', borderColor: $themeTokens.fineLine };
       }
 
       function entryLabel(identifier, rowIndex, entryIndex) {
@@ -469,26 +467,24 @@
         return isDragging.value ? draggedItem.value?.identifier : null;
       }
 
+      // The answer field takes the highlight when any of its positions would
+      // accept what is being offered — including a filled one, since a response
+      // there can be replaced.
+      function isFieldTarget(rowIndex) {
+        const offered = offeredIdentifier();
+        if (!offered) {
+          return false;
+        }
+        return entriesFor(rowIndex).some((_, entryIndex) =>
+          canPlace(offered, rowIndex, entryIndex, { fromRow: dragOriginRow }),
+        );
+      }
+
       function renderEntry(identifier, rowIndex, entryIndex) {
         const filled = Boolean(identifier);
-        const active = isActiveEntry(rowIndex, entryIndex);
-        const offered = offeredIdentifier();
-        // A filled position is still a valid target here, because a target may
-        // be replaced — so unlike associate, filled positions do highlight.
-        const target = Boolean(
-          offered && canPlace(offered, rowIndex, entryIndex, { fromRow: dragOriginRow }),
-        );
         const data = {
           key: `${rowIndex}-${entryIndex}`,
-          class: [
-            'qti-match-entry',
-            {
-              'qti-match-entry-filled': filled,
-              'qti-match-entry-target': target,
-              'qti-match-entry-active': active,
-            },
-          ],
-          style: entryStyles({ filled, target, active }),
+          class: ['qti-match-entry', { 'qti-match-entry-filled': filled }],
           attrs: {
             'aria-label': entryLabel(identifier, rowIndex, entryIndex),
             ...listbox.slotAttrs(rowIndex, entryIndex),
@@ -638,7 +634,17 @@
                     disabled: !interactive.value,
                     label: rowLabel$({ source: labelFor(sourceId) }),
                   },
-                  class: 'qti-match-entries',
+                  class: [
+                    'qti-match-field',
+                    {
+                      'qti-match-field-target': isFieldTarget(rowIndex),
+                      'qti-match-field-active': activeEntry.value?.rowIndex === rowIndex,
+                    },
+                  ],
+                  style: fieldStyles({
+                    target: isFieldTarget(rowIndex),
+                    active: activeEntry.value?.rowIndex === rowIndex,
+                  }),
                   attrs: { 'aria-label': rowLabel$({ source: labelFor(sourceId) }) },
                   on: {
                     dragstart: () => {
@@ -829,21 +835,14 @@
     flex-shrink: 0;
   }
 
-  .qti-match-entries {
+  .qti-match-field {
     display: flex;
     flex: 1;
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
     min-height: 56px;
-  }
-
-  .qti-match-entry {
-    display: flex;
-    align-items: center;
-    min-height: 40px;
     padding: 8px;
-    cursor: pointer;
     border-style: dashed;
     border-width: 1px;
     border-radius: 8px;
@@ -852,13 +851,17 @@
       border-color 0.2s ease;
   }
 
-  .qti-match-entry:focus {
-    outline: 3px solid var(--qti-match-color-primary, #4368f3);
-    outline-offset: 2px;
+  .qti-match-entry {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    cursor: pointer;
+    border-radius: 8px;
   }
 
-  .qti-match-entry-filled {
-    border-style: solid;
+  .qti-match-entry:focus {
+    outline: 3px solid var(--qti-match-color-primary, #4368f3);
+    outline-offset: 1px;
   }
 
   .qti-match-placeholder {

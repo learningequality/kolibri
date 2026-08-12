@@ -27,6 +27,14 @@ function sourceLabels(container) {
   );
 }
 
+// The whole answer field is the drop area, so it is what highlights
+function fieldOfRow(container, sourceText) {
+  const row = Array.from(container.querySelectorAll('.qti-match-row')).find(
+    candidate => candidate.querySelector('.qti-match-source').textContent.trim() === sourceText,
+  );
+  return row.querySelector('.qti-match-field');
+}
+
 function entriesOfRow(container, sourceText) {
   const row = Array.from(container.querySelectorAll('.qti-match-row')).find(
     candidate => candidate.querySelector('.qti-match-source').textContent.trim() === sourceText,
@@ -378,37 +386,38 @@ describe('Placing by click', () => {
     ).toBeVisible();
   });
 
-  it('highlights every entry a selected response could go in', async () => {
+  it('highlights every answer field a selected response could go in', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);
-    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(0);
+    expect(container.querySelectorAll('.qti-match-field-target')).toHaveLength(0);
 
     await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
 
-    // one empty entry per source, and the target has four uses
-    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(4);
+    // one field per source, and the response has four uses
+    expect(container.querySelectorAll('.qti-match-field-target')).toHaveLength(4);
     expect(poolChip(container, 'Romeo and Juliet')).toHaveClass('qti-match-chip-selected');
   });
 
-  it('highlights a filled entry too, since a response can be replaced', async () => {
+  it('highlights a filled field too, since a response can be replaced', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
       answerState: { RESPONSE: [['C', 'R']] },
     });
 
     await fireEvent.click(poolChip(container, 'The Tempest'));
 
-    const filled = entriesOfRow(container, 'Capulet')[0];
-    expect(filled).toHaveClass('qti-match-entry-filled');
-    expect(filled).toHaveClass('qti-match-entry-target');
+    expect(entriesOfRow(container, 'Capulet')[0]).toHaveClass('qti-match-entry-filled');
+    expect(fieldOfRow(container, 'Capulet')).toHaveClass('qti-match-field-target');
   });
 
-  it('does not highlight an entry already holding that response', async () => {
+  it('does not highlight a field already holding that response', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
       answerState: { RESPONSE: [['C', 'R']] },
     });
 
     await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
 
-    expect(entriesOfRow(container, 'Capulet')[0]).not.toHaveClass('qti-match-entry-target');
+    // Capulet takes one response and already has this one
+    expect(fieldOfRow(container, 'Capulet')).not.toHaveClass('qti-match-field-target');
+    expect(fieldOfRow(container, 'Demetrius')).toHaveClass('qti-match-field-target');
   });
 
   it('highlights the pool once an entry is selected', async () => {
@@ -425,7 +434,7 @@ describe('Placing by click', () => {
     await fireEvent.click(poolChip(container, 'The Tempest'));
     await fireEvent.click(poolChip(container, 'The Tempest'));
 
-    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(0);
+    expect(container.querySelectorAll('.qti-match-field-target')).toHaveLength(0);
   });
 
   it('takes a pairing back out when its entry is clicked', async () => {
@@ -450,7 +459,7 @@ describe('Placing by click', () => {
 
     await fireEvent.click(poolChip(container, 'Birds'));
 
-    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(0);
+    expect(container.querySelectorAll('.qti-match-field-target')).toHaveLength(0);
   });
 
   it('ignores clicks in review mode', async () => {
