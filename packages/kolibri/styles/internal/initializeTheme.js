@@ -15,11 +15,13 @@ export function setThemeConfig(theme) {
   });
 }
 
-// Default matching ThemeHook.get_theme() in kolibri/core/theme_hook.py
-const DEFAULT_THEME = { signIn: {}, tokenMapping: {}, sideNav: {}, appBar: {} };
-
 export default function initializeTheme() {
-  const themeData = plugin_data.kolibriTheme || DEFAULT_THEME;
+  const themeData = { ...plugin_data.kolibriTheme };
+  // objectWithDefaults recurses into a section's sub-spec only when the section is
+  // truthy, so a section a theme hook omits would reach components as null.
+  Object.keys(themeConfig).forEach(section => {
+    themeData[section] = themeData[section] || {};
+  });
   validateObject(themeData, themeSpec);
   const theme = objectWithDefaults(themeData, themeSpec);
   if (theme.brandColors) {
