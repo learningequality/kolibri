@@ -208,18 +208,18 @@
         }
       },
       handleClickClear(task) {
-        TaskResource.clear(task.id).catch(() => {
+        TaskResource.clear_v2(task.id).catch(() => {
           // error silently
         });
       },
       handleClickCancel(task) {
-        TaskResource.cancel(task.id);
+        TaskResource.cancel_v2(task.id);
       },
       restartTask(task) {
-        TaskResource.restart(task.id);
+        TaskResource.restart_v2(task.id);
       },
       handleClickClearAll() {
-        TaskResource.clearAll();
+        TaskResource.clearAll_v2();
       },
       handleRedirectToImportPage() {
         this.$router.push(

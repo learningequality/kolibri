@@ -6,16 +6,11 @@ import { ContentWizardErrors } from '../../constants';
 export function getAvailableChannelsOnPeerServer(store, addressId) {
   const { channelList } = store.state.manageContent;
   return new Promise((resolve, reject) => {
-    NetworkLocationResource.fetchModel({ id: addressId })
+    NetworkLocationResource.retrieve(addressId)
       .then(networkLocation => {
         if (networkLocation.available) {
           store.commit('manageContent/wizard/SET_SELECTED_PEER', networkLocation);
-          RemoteChannelResource.fetchCollection({
-            getParams: {
-              baseurl: networkLocation.base_url,
-            },
-            force: true,
-          })
+          RemoteChannelResource.list({ baseurl: networkLocation.base_url })
             .then(remoteChannels => {
               const availableChannels = remoteChannels
                 .filter(({ total_resources }) => total_resources > 0)
@@ -47,16 +42,12 @@ export function getAvailableChannelsOnPeerServer(store, addressId) {
 
 export function getTransferredChannelOnPeerServer(store, { addressId, channelId }) {
   return new Promise((resolve, reject) => {
-    NetworkLocationResource.fetchModel({ id: addressId })
+    NetworkLocationResource.retrieve(addressId)
       .then(networkLocation => {
         if (networkLocation.available) {
           store.commit('manageContent/wizard/SET_SELECTED_PEER', networkLocation);
-          RemoteChannelResource.fetchModel({
-            id: channelId,
-            getParams: {
-              baseurl: networkLocation.base_url,
-            },
-            force: true,
+          RemoteChannelResource.retrieve(channelId, {
+            params: { baseurl: networkLocation.base_url },
           })
             .then(channel => {
               resolve(channel);

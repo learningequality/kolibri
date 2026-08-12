@@ -6,8 +6,6 @@ import { defaultChannel } from '../../../../__tests__/utils/data';
 import { makeSelectContentPageStore } from '../../../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/apiResources/TaskResource');
-jest.mock('kolibri-common/apiResources/ChannelResource');
-jest.createMockFromModule('../../../../apiResources/deviceChannel');
 
 // Have store suddenly add a Task to the store so the task waiting step
 // resolves successfully
@@ -21,7 +19,7 @@ describe('loadChannelMetadata action', () => {
   let store;
 
   beforeAll(() => {
-    ChannelResource.fetchModel = jest.fn();
+    ChannelResource.retrieve = jest.fn();
   });
 
   beforeEach(() => {
@@ -33,14 +31,14 @@ describe('loadChannelMetadata action', () => {
     hackStoreWatcher(store);
     const taskEntity = { data: { id: 'task_1' } };
     TaskResource.startTask.mockResolvedValue(taskEntity);
-    ChannelResource.fetchModel.mockResolvedValue({
+    ChannelResource.retrieve.mockResolvedValue({
       name: 'Channel One',
       root: 'channel_1_root',
     });
   });
 
   afterEach(() => {
-    ChannelResource.fetchModel.mockReset();
+    ChannelResource.retrieve.mockReset();
     TaskResource.startTask.mockReset();
   });
 

@@ -195,6 +195,7 @@
 
 <script>
 
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
@@ -250,10 +251,22 @@
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       const { createSnackbar } = useSnackbar();
+      const {
+        data: facilitiesData,
+        loading,
+        fetchData: fetchFacilites,
+      } = FacilityResource.useList();
+      const facilities = computed(() => facilitiesData.value || []);
+      // `CoreTable` unmounts its rows while `dataLoading`, so only the first fetch may show it -
+      // a refetch triggered by a completed sync must not blank the rows already on screen.
+      const loadingFacilities = computed(() => loading.value && facilitiesData.value === null);
       return {
         windowIsSmall,
         createSnackbar,
         pageLoading,
+        facilities,
+        loadingFacilities,
+        fetchFacilites,
       };
     },
     data() {
@@ -261,13 +274,11 @@
         showSyncAllModal: false,
         showImportModal: false,
         showCreateFacilityModal: false,
-        facilities: [],
         facilityForSync: null,
         facilityForRemoval: null,
         facilityForRegister: null,
         kdpProject: null, // { name, token }
         taskIdsToWatch: [],
-        loadingFacilities: true, // We're fetching in beforeMount so should make it true
       };
     },
     computed: {
@@ -321,9 +332,7 @@
       },
     },
     beforeMount() {
-      this.fetchFacilites()
-        .then(() => (this.loadingFacilities = false))
-        .catch(() => (this.loadingFacilities = false));
+      this.fetchFacilites();
     },
     methods: {
       isRepeatingTaskCompleted(task, prevTasks) {
@@ -359,11 +368,6 @@
           const route = this.manageSync(facility.id);
           this.$router.push(route);
         }
-      },
-      fetchFacilites() {
-        return FacilityResource.fetchCollection({ force: true }).then(facilities => {
-          this.facilities = [...facilities];
-        });
       },
       handleClickClearAll() {
         Promise.all([this.fetchFacilites(), this.clearCompletedFacilityTasks()]);

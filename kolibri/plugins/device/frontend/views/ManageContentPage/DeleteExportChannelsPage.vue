@@ -142,17 +142,12 @@
     },
     methods: {
       fetchData() {
-        return DeviceChannelResource.fetchCollection({
-          getParams: {
-            include_fields: 'on_device_file_size',
+        return DeviceChannelResource.list({ include_fields: 'on_device_file_size' }).then(
+          channels => {
+            this.allChannels = channels.filter(c => c.available && !this.channelIsBeingDeleted(c));
+            this.loading = false;
           },
-          force: true,
-        }).then(channels => {
-          this.allChannels = [
-            ...channels.filter(c => c.available && !this.channelIsBeingDeleted(c)),
-          ];
-          this.loading = false;
-        });
+        );
       },
       deleteChannels() {
         const selectedCopy = [...this.selectedChannels];

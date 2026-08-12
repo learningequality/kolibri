@@ -18,10 +18,10 @@ export function cancelTask(store, taskId) {
         TaskStatuses.CANCELED,
       () => {
         cancelWatch();
-        TaskResource.clear(taskId).then(resolve);
+        TaskResource.clear_v2(taskId).then(resolve);
       },
     );
-    TaskResource.cancel(taskId);
+    TaskResource.cancel_v2(taskId);
   });
 }
 

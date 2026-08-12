@@ -118,7 +118,7 @@
         const success = await removeUser(userId);
         userIdToRemove.value = null;
         if (success) {
-          await fetchUsers({ force: true });
+          await fetchUsers();
         }
       };
 

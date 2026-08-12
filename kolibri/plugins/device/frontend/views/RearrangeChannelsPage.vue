@@ -142,12 +142,7 @@
         });
       },
       fetchChannels() {
-        return DeviceChannelResource.fetchCollection({
-          force: true,
-          getParams: {
-            available: true,
-          },
-        });
+        return DeviceChannelResource.list({ available: true });
       },
       shiftOne(index, delta) {
         const newArray = [...this.channels];

@@ -4,10 +4,7 @@ import * as taskActions from './taskActions';
 
 function refreshChannelList(store) {
   store.commit('SET_CHANNEL_LIST_LOADING', true);
-  return ChannelResource.fetchCollection({
-    getParams: { include_fields: 'on_device_file_size' },
-    force: true,
-  })
+  return ChannelResource.list({ include_fields: 'on_device_file_size' })
     .then(channels => {
       store.commit('SET_CHANNEL_LIST', [...channels]);
       store.commit('SET_CHANNEL_LIST_LOADING', false);

@@ -60,8 +60,8 @@
       setTimeout(() => {
         this.initialDelay = false;
       }, 1000);
-      RemoteChannelResource.getKolibriStudioStatus().then(({ data }) => {
-        if (data.status === 'offline') {
+      RemoteChannelResource.getKolibriStudioStatus_v2().then(studioStatus => {
+        if (studioStatus.status === 'offline') {
           this.source = ContentSources.PEER_KOLIBRI_SERVER;
           this.kolibriStudioIsOffline = true;
         }

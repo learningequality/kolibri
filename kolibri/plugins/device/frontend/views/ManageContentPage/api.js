@@ -25,14 +25,10 @@ function getChannelOnDrive(driveId, channelId) {
 }
 
 function getChannelOnPeer(peerId, channelId) {
-  return NetworkLocationResource.fetchModel({ id: peerId })
+  return NetworkLocationResource.retrieve(peerId)
     .then(location => {
-      return RemoteChannelResource.fetchModel({
-        id: channelId,
-        getParams: {
-          baseurl: location.base_url,
-        },
-        force: true,
+      return RemoteChannelResource.retrieve(channelId, {
+        params: { baseurl: location.base_url },
       }).then(channel => {
         return {
           ...channel,
@@ -46,17 +42,15 @@ function getChannelOnPeer(peerId, channelId) {
 }
 
 function getChannelOnStudio(channelId, token) {
-  return RemoteChannelResource.fetchModel({
-    id: channelId,
-    getParams: token ? { token } : undefined,
-    force: true,
+  return RemoteChannelResource.retrieve(channelId, {
+    params: token ? { token } : undefined,
   }).catch(() => {
     return Promise.reject('CHANNEL_NOT_ON_STUDIO');
   });
 }
 
 function getInstalledChannel(channelId) {
-  return ChannelResource.fetchModel({ id: channelId }).catch(() => {
+  return ChannelResource.retrieve(channelId).catch(() => {
     return Promise.reject('CHANNEL_NOT_INSTALLED');
   });
 }

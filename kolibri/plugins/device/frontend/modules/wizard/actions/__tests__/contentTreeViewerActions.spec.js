@@ -305,8 +305,6 @@ describe('contentTreeViewer actions', () => {
 });
 
 describe('updateTreeViewTopic action', () => {
-  // There are integration tests in showSelectContentPage spec covers that CNG.getModel
-  // is correctly called
   let store;
   const cngPayload = contentNodeGranularPayload();
   const topic_1 = { id: 'topic_1', title: 'Topic One' };
@@ -320,7 +318,7 @@ describe('updateTreeViewTopic action', () => {
   topic_4.path = [...topic_3.path, topic_3];
 
   beforeAll(() => {
-    ContentNodeGranularResource.fetchModel.mockResolvedValue(cngPayload);
+    ContentNodeGranularResource.retrieve.mockResolvedValue(cngPayload);
   });
 
   beforeEach(() => {
