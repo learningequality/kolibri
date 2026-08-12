@@ -120,6 +120,7 @@ def public_metadata_cache(view_func):
 
     def wrapped_view(*args, **kwargs):
         response = view_func(*args, **kwargs)
+        # Matches the cache headers Studio sets on the same endpoints (#11464).
         patch_cache_control(
             response, max_age=300, stale_while_revalidate=100, public=True
         )
@@ -132,11 +133,10 @@ def public_metadata_cache(view_func):
 @method_decorator(public_metadata_cache, name="dispatch")
 class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
     def get_queryset(self):
-        return (
-            ChannelMetadata.objects.all()
-            if allow_peer_unlisted_channel_import()
-            else ChannelMetadata.objects.filter(public=True)
-        )
+        queryset = super().get_queryset()
+        if allow_peer_unlisted_channel_import():
+            return queryset
+        return queryset.filter(public=True)
 
 
 def filter_public_channel_nodes(queryset):

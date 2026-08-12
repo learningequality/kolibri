@@ -47,7 +47,10 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
+from rest_framework.serializers import IntegerField
+from rest_framework.serializers import ListField
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
@@ -57,6 +60,7 @@ from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import CreateModelMixin
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.auth.permissions import KolibriAuthPermissions
@@ -105,6 +109,9 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.query import SQSum
+from kolibri.core.serializers import DateTimeTzField
+from kolibri.core.serializers import KolibriModelSerializer
+from kolibri.core.serializers import SplitTextField
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
@@ -351,59 +358,83 @@ def _split_text_field(text):
     return text.split(",") if text else []
 
 
+class BaseChannelMetadataSerializer(KolibriModelSerializer):
+    root = PrimaryKeyRelatedField(read_only=True)
+    available = BooleanField(source="root.available")
+    num_coach_contents = IntegerField(source="root.num_coach_contents")
+    lang_code = CharField(source="root.lang.lang_code")
+    lang_name = CharField(source="root.lang.lang_name")
+    # v2 must be a superset of the v1 public endpoint, which names this field
+    # last_published (#9381).
+    last_published = DateTimeTzField(source="last_updated")
+    included_categories = SplitTextField()
+    included_grade_levels = SplitTextField()
+    included_languages = ListField(child=CharField(), read_only=True)
+
+    class Meta:
+        model = models.ChannelMetadata
+        fields = (
+            "author",
+            "available",
+            "description",
+            "id",
+            "included_categories",
+            "included_grade_levels",
+            "included_languages",
+            "lang_code",
+            "lang_name",
+            "last_published",
+            "last_updated",
+            "name",
+            "num_coach_contents",
+            "public",
+            "published_size",
+            "root",
+            "tagline",
+            "thumbnail",
+            "total_resource_count",
+            "version",
+        )
+
+
+def _create_channel_thumbnail_url(channel_id):
+    return reverse("kolibri:core:channel-thumbnail", args=[channel_id])
+
+
+class ChannelMetadataSerializer(BaseChannelMetadataSerializer):
+    # A URL: the base64 column inflated the library payload to 1.6MB (#12502).
+    thumbnail = ValuesMethodField(sources=("id", "thumbnail"))
+
+    def get_thumbnail(self, obj):
+        return _create_channel_thumbnail_url(obj.id) if obj.thumbnail else ""
+
+
 class BaseChannelMetadataMixin:
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChannelMetadataFilter
 
-    values = (
-        "author",
-        "description",
-        "tagline",
-        "id",
-        "last_updated",
-        "root__lang__lang_code",
-        "root__lang__lang_name",
-        "name",
-        "root",
-        "thumbnail",
-        "version",
-        "root__available",
-        "root__num_coach_contents",
-        "public",
-        "total_resource_count",
-        "published_size",
-        "included_categories",
-        "included_grade_levels",
-    )
+    serializer_class = BaseChannelMetadataSerializer
 
-    field_map = {
-        "num_coach_contents": "root__num_coach_contents",
-        "available": "root__available",
-        "lang_code": "root__lang__lang_code",
-        "lang_name": "root__lang__lang_name",
-        "included_categories": lambda x: _split_text_field(x["included_categories"]),
-        "included_grade_levels": lambda x: _split_text_field(
-            x["included_grade_levels"]
-        ),
-    }
+    # No SQL array aggregate preserves the SortedManyToManyField order, which
+    # calculate_included_languages fills in descending content-node count.
+    deferred_fields = ("included_languages",)
 
     def get_queryset(self):
         return models.ChannelMetadata.objects.all()
 
     def consolidate(self, items, queryset):
-        included_languages = {}
-        for (
-            channel_id,
-            language_id,
-        ) in models.ChannelMetadata.included_languages.through.objects.filter(
-            channelmetadata__in=queryset
-        ).values_list("channelmetadata_id", "language_id"):
-            if channel_id not in included_languages:
-                included_languages[channel_id] = []
+        channel_languages = (
+            models.ChannelMetadata.included_languages.through.objects.filter(
+                channelmetadata__in=queryset
+            )
+            .order_by("sort_value")
+            .values_list("channelmetadata_id", "language_id")
+        )
+        included_languages = defaultdict(list)
+        for channel_id, language_id in channel_languages:
             included_languages[channel_id].append(language_id)
         for item in items:
-            item["included_languages"] = included_languages.get(item["id"], [])
-            item["last_published"] = item["last_updated"]
+            item["included_languages"] = included_languages[item["id"]]
         return items
 
     @action(detail=False)
@@ -437,21 +468,9 @@ class BaseChannelMetadataMixin:
         return Response(data)
 
 
-def _create_channel_thumbnail_url(item):
-    return (
-        reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
-        if item["thumbnail"]
-        else ""
-    )
-
-
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    field_map = {
-        "thumbnail": _create_channel_thumbnail_url,
-    }
-
-    field_map.update(BaseChannelMetadataMixin.field_map)
+    serializer_class = ChannelMetadataSerializer
 
 
 MODALITIES = set(["QUIZ"])
