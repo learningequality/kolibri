@@ -122,7 +122,7 @@
       const fetchDeviceFacilities = useMemoize(
         async device => {
           try {
-            const { facilities } = await NetworkLocationResource.fetchFacilities(device.id);
+            const { facilities } = await NetworkLocationResource.fetchFacilities_v2(device.id);
 
             return facilities.map(facility => {
               return {
