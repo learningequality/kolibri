@@ -230,6 +230,22 @@
         type: Object,
         default: () => ({}),
       },
+      progress: {
+        type: Number,
+        default: 0,
+      },
+      userId: {
+        type: String,
+        default: null,
+      },
+      userFullName: {
+        type: String,
+        default: null,
+      },
+      timeSpent: {
+        type: Number,
+        default: null,
+      },
       pastattempts: {
         type: Array,
         default: () => [],

@@ -1,6 +1,3 @@
-// Polyfills for Node.js/jsdom environment - must run BEFORE any module imports
-// web-streams-polyfill/polyfill patches globals as a side effect
-import 'web-streams-polyfill/polyfill';
 // Use Node.js built-in TextEncoder/TextDecoder (available since Node 11)
 import { TextEncoder, TextDecoder } from 'node:util';
 

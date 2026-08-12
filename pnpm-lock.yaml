@@ -45,6 +45,9 @@ catalogs:
     vuex:
       specifier: ^3.6.2
       version: 3.6.2
+    web-streams-polyfill:
+      specifier: ^4.2.0
+      version: 4.2.0
     xhr-mock:
       specifier: ^2.5.1
       version: 2.5.1
@@ -365,7 +368,7 @@ importers:
         specifier: ^1.4.1
         version: 1.4.1(vue@2.7.16)
       web-streams-polyfill:
-        specifier: ^4.2.0
+        specifier: 'catalog:'
         version: 4.2.0
       xmldom:
         specifier: ^0.6.0
@@ -618,7 +621,7 @@ importers:
         specifier: 1.1.2
         version: 1.1.2(vue@2.7.16)
       web-streams-polyfill:
-        specifier: ^4.2.0
+        specifier: 'catalog:'
         version: 4.2.0
     devDependencies:
       '@testing-library/vue':
@@ -798,6 +801,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      web-streams-polyfill:
+        specifier: 'catalog:'
+        version: 4.2.0
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
@@ -862,6 +868,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      web-streams-polyfill:
+        specifier: 'catalog:'
+        version: 4.2.0
       xspattern:
         specifier: 3.1.0
         version: 3.1.0
@@ -893,6 +902,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      web-streams-polyfill:
+        specifier: 'catalog:'
+        version: 4.2.0
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
@@ -1620,6 +1632,9 @@ importers:
       vuex:
         specifier: 'catalog:'
         version: 3.6.2(vue@2.7.16)
+      web-streams-polyfill:
+        specifier: 'catalog:'
+        version: 4.2.0
     devDependencies:
       jest-fail-on-console:
         specifier: ^3.3.4
@@ -1671,6 +1686,9 @@ importers:
       uuid:
         specifier: ^14.0.1
         version: 14.0.1
+      web-streams-polyfill:
+        specifier: 'catalog:'
+        version: 4.2.0
     devDependencies:
       '@babel/core':
         specifier: ^8.0.0
@@ -1741,9 +1759,6 @@ importers:
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
-      web-streams-polyfill:
-        specifier: ^4.2.0
-        version: 4.2.0
     devDependencies:
       fflate:
         specifier: ^0.8.2

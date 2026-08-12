@@ -57,6 +57,9 @@ module.exports = {
         // reference them via ~mathjax-fonts/... in CSS.
         'mathjax-fonts': mathjaxFontsSource,
       },
+      fallback: {
+        stream: require.resolve('web-streams-polyfill/es5'),
+      },
     },
     module: {
       rules: [

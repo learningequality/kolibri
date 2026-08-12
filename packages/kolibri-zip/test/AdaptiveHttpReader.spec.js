@@ -1,6 +1,5 @@
 // Polyfills must be imported FIRST before any zip.js imports
 import 'fastestsmallesttextencoderdecoder';
-import 'web-streams-polyfill/polyfill';
 
 import xhrMock from 'xhr-mock';
 import AdaptiveHttpReader from '../src/AdaptiveHttpReader';

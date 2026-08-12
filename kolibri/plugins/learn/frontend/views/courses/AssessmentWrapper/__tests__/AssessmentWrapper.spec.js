@@ -82,6 +82,20 @@ function makeContentViewerStub({ checkAnswerFn, availableHints = 0, totalHints =
       'userFullName',
       'timeSpent',
     ],
+    computed: {
+      userIdDisplay() {
+        return JSON.stringify(this.userId);
+      },
+      userFullNameDisplay() {
+        return JSON.stringify(this.userFullName);
+      },
+      progressDisplay() {
+        return JSON.stringify(this.progress);
+      },
+      timeSpentDisplay() {
+        return JSON.stringify(this.timeSpent);
+      },
+    },
     data() {
       return {
         availableHints,
@@ -99,6 +113,10 @@ function makeContentViewerStub({ checkAnswerFn, availableHints = 0, totalHints =
     template: `
       <div data-testid="content-viewer">
         <span data-testid="content-viewer-item-id">{{ itemId }}</span>
+        <span data-testid="content-viewer-user-id">{{ userIdDisplay }}</span>
+        <span data-testid="content-viewer-user-full-name">{{ userFullNameDisplay }}</span>
+        <span data-testid="content-viewer-progress">{{ progressDisplay }}</span>
+        <span data-testid="content-viewer-time-spent">{{ timeSpentDisplay }}</span>
         <button data-testid="trigger-start-tracking" @click="$emit('startTracking')">start-tracking</button>
         <button data-testid="trigger-stop-tracking" @click="$emit('stopTracking')">stop-tracking</button>
         <button data-testid="trigger-update-progress" @click="$emit('updateProgress', 0.5)">update-progress</button>
@@ -191,6 +209,21 @@ describe('AssessmentWrapper', () => {
       renderComponent();
       // totalattempts=0, not randomized → index=0 → 'item-1'
       expect(getDisplayedItemId()).toBe('item-1');
+    });
+
+    it('passes userId, userFullName, progress, and timeSpent through to the content viewer', () => {
+      renderComponent({
+        userId: 'user-1',
+        userFullName: 'Learner One',
+        progress: 0.4,
+        timeSpent: 120,
+      });
+      expect(screen.getByTestId('content-viewer-user-id')).toHaveTextContent('"user-1"');
+      expect(screen.getByTestId('content-viewer-user-full-name')).toHaveTextContent(
+        '"Learner One"',
+      );
+      expect(screen.getByTestId('content-viewer-progress')).toHaveTextContent('0.4');
+      expect(screen.getByTestId('content-viewer-time-spent')).toHaveTextContent('120');
     });
 
     it('renders the completed label when mastered', () => {

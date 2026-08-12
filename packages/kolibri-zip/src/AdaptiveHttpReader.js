@@ -1,6 +1,5 @@
-// Polyfills for Node.js and older browsers (must be before zip.js import)
+// Polyfills for Node.js and older browsers
 import 'fastestsmallesttextencoderdecoder';
-import 'web-streams-polyfill/polyfill';
 import { Reader, getMimeType } from '@zip.js/zip.js';
 
 const DEFAULT_MAX_FULL_LOAD_SIZE = 2.5 * 1024 * 1024; // 2.5MB

@@ -23,6 +23,7 @@ catalog:
   vue-meta: ^2.4.0
   vue-router: ^3.6.5
   vuex: ^3.6.2
+  web-streams-polyfill: ^4.2.0
   xstate: ^4.38.3
 onlyBuiltDependencies:
   - core-js

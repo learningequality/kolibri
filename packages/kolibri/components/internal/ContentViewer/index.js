@@ -366,6 +366,7 @@ export default {
       // Error boundary - catches uncaught errors from child renderer components
       error.value = err;
       context.emit('error', err);
+      return false;
     });
 
     return () => {

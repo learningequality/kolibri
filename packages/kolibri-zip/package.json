@@ -10,8 +10,7 @@
     "core-js": "catalog:",
     "lodash": "catalog:",
     "@zip.js/zip.js": "^2.8.11",
-    "fastestsmallesttextencoderdecoder": "^1.0.22",
-    "web-streams-polyfill": "^4.2.0"
+    "fastestsmallesttextencoderdecoder": "^1.0.22"
   },
   "devDependencies": {
     "fflate": "^0.8.2",

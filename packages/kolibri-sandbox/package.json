@@ -40,7 +40,8 @@
     "kolibri-zip": "workspace:*",
     "lodash": "catalog:",
     "toposort-class": "^1.0.1",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.1",
+    "web-streams-polyfill": "catalog:"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
