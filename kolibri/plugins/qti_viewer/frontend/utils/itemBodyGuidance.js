@@ -1,19 +1,29 @@
 import InlineChoiceInteraction from '../components/interactions/InlineChoiceInteraction.vue';
+import TextEntryInteraction from '../components/interactions/TextEntryInteraction.vue';
 import { answerGuideStrings } from '../components/AnswerGuide.vue';
 
 // Guides for inlines only, block interactions handle their own
-// Each entry: { tag, guide? } where `guide` (optional) takes the number of gaps that
+// Each entry: { tag, guide?, numbered? } where `guide` (optional) takes the number of gaps that
 // interaction contributes to the passage — the guide wording is pluralised on it — and
 // returns the translated string to hoist above the passage when that interaction is present.
+// `numbered` opts the interaction into passage gap numbering, for gaps that name their own
+// position to the learner.
 const INLINE_INTERACTIONS = [
   {
     tag: InlineChoiceInteraction.tag,
     guide: count => answerGuideStrings.inlineChoice$({ count }),
+    numbered: true,
+  },
+  {
+    tag: TextEntryInteraction.tag,
+    guide: () => answerGuideStrings.shortAnswer$(),
   },
 ];
 
-// A single selector matching every inline gap, so gaps are numbered across interaction types
-const GAP_SELECTOR = INLINE_INTERACTIONS.map(interaction => interaction.tag).join(',');
+// A single selector matching every numbered gap, so gaps are numbered across interaction types
+const GAP_SELECTOR = INLINE_INTERACTIONS.filter(interaction => interaction.numbered)
+  .map(interaction => interaction.tag)
+  .join(',');
 
 /**
  * The guide(s) to render once above an item body's passage, based on the inline interactions
@@ -28,6 +38,24 @@ export function getItemBodyGuides(itemBodyNode) {
   return INLINE_INTERACTIONS.filter(
     interaction => interaction.guide && itemBodyNode.querySelector(interaction.tag),
   ).map(interaction => interaction.guide(itemBodyNode.querySelectorAll(interaction.tag).length));
+}
+
+/**
+ * Serialize an XML element's children as HTML.
+ *
+ * The item body is parsed as XML but the markup we return is re-parsed by SafeHTML with the
+ * HTML parser. XML serialization self-closes any empty element — `<qti-text-entry-interaction/>`
+ * — and to the HTML parser that is a start tag with no end, so everything after it in the
+ * passage is swallowed into the gap as child content and lost. Round-tripping through an HTML
+ * document emits explicit end tags for those elements instead, keeping the sentence around an
+ * inline gap intact.
+ * @param {Element} node - The element whose children to serialize.
+ * @returns {string} The children as HTML markup.
+ */
+function serializeChildrenAsHTML(node) {
+  const htmlDoc = document.implementation.createHTMLDocument('');
+  const imported = htmlDoc.importNode(node, true);
+  return imported.innerHTML;
 }
 
 /**
@@ -51,5 +79,5 @@ export function numberPassageGaps(itemBodyNode) {
     gap.setAttribute('data-gap-number', String(index + 1));
     gap.setAttribute('data-gap-count', String(gaps.length));
   });
-  return clone.innerHTML;
+  return serializeChildrenAsHTML(clone);
 }

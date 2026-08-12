@@ -1,7 +1,6 @@
 <template>
 
-  <div class="qti-text-entry-interaction-wrapper">
-    <AnswerGuide :text="answerGuideText" />
+  <span class="qti-text-entry-interaction-wrapper">
     <template v-if="interactive">
       <input
         ref="inputEl"
@@ -27,7 +26,7 @@
         @focus="onFocus"
         @blur="onBlur"
       >
-      <p
+      <span
         v-if="patternErrorId"
         :id="patternErrorId"
         class="qti-text-entry-interaction-error"
@@ -38,16 +37,16 @@
           :color="$themeTokens.error"
         />
         {{ patternMaskMessage }}
-      </p>
+      </span>
     </template>
-    <div
+    <span
       v-else
       :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
       :style="widthStyle"
     >
       {{ reportDisplayValue || placeholder }}
-    </div>
-  </div>
+    </span>
+  </span>
 
 </template>
 
@@ -70,7 +69,6 @@
     FormatProp,
   } from '../../utils/props';
   import { BASE_TYPE } from '../../constants';
-  import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
 
   const logging = logger.getLogger(__filename);
 
@@ -104,9 +102,6 @@
   export default {
     name: 'TextEntryInteraction',
     tag: 'qti-text-entry-interaction',
-    components: {
-      AnswerGuide,
-    },
     inheritAttrs: false,
 
     setup(props, context) {
@@ -193,7 +188,10 @@
           // expected-length is only a hint at the answer's size, so it just sets a floor
           const expected =
             props.expectedLength == null ? DEFAULT_WIDTH_CHARS : typedProps.expectedLength.value;
-          return { minWidth: `${Math.min(expected, DEFAULT_WIDTH_CHARS)}ch` };
+          return {
+            minWidth: `${Math.min(expected, DEFAULT_WIDTH_CHARS)}ch`,
+            maxWidth: '100%',
+          };
         }
         // The character count is the room for the text, so the box-sizing chrome sits outside it.
         return {
@@ -400,7 +398,6 @@
       return {
         $themeTokens,
         textEntryLabel$,
-        answerGuideText: answerGuideStrings.shortAnswer$(),
         rawValue,
         reportDisplayValue,
         placeholder: typedProps.placeholderText,
@@ -437,24 +434,29 @@
 
 <style scoped>
 
+  .qti-text-entry-interaction-wrapper {
+    display: inline;
+  }
+
   .qti-text-entry-interaction {
     box-sizing: border-box;
     display: inline-block;
-    width: 100%;
     padding: 4px 8px;
+    vertical-align: baseline;
     border-radius: 4px;
   }
 
+  /* Sits beside the field rather than under it, so showing it cannot reflow the sentence. */
   .qti-text-entry-interaction-error {
-    display: flex;
+    display: inline-flex;
     gap: 4px;
     align-items: center;
-    margin: 4px 0 0;
+    margin-left: 4px;
     font-size: 12px;
+    vertical-align: middle;
   }
 
   .qti-text-entry-interaction-report {
-    width: 100%;
     min-height: 1.5em;
     padding: 8px;
     word-wrap: break-word;
