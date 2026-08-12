@@ -1,16 +1,8 @@
-<template>
-
-  <component :is="tag">
-    <slot></slot>
-  </component>
-
-</template>
-
-
 <script>
 
   import { watch } from 'vue';
   import useDraggableUniverse from './useDraggableUniverse';
+  import renderSlotRoot from './renderSlotRoot';
 
   export default {
     name: 'DraggableUniverse',
@@ -24,11 +16,6 @@
       );
     },
     props: {
-      // Element to render as the universe root
-      tag: {
-        type: String,
-        default: 'div',
-      },
       // Explicit SortableJS group name shared by this universe's regions.
       // Applied when the universe is created; later changes are ignored.
       name: {
@@ -40,6 +27,12 @@
         type: Number,
         default: 250,
       },
+    },
+    // Renders the one element the consumer wrote around its regions. A consumer whose
+    // regions have no common element can call `useDraggableUniverse()` from its own
+    // `setup()` instead of using this component.
+    render() {
+      return renderSlotRoot(this);
     },
   };
 

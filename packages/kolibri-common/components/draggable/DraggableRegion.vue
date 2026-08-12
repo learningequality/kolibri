@@ -1,36 +1,21 @@
-<template>
-
-  <component
-    :is="tag"
-    ref="root"
-  >
-    <slot></slot>
-  </component>
-
-</template>
-
-
 <script>
 
-  import { ref } from 'vue';
+  import { getCurrentInstance } from 'vue';
   import useDraggableRegion from './useDraggableRegion';
+  import renderSlotRoot from './renderSlotRoot';
 
   export default {
     name: 'DraggableRegion',
     setup(props, { emit }) {
-      const root = ref(null);
-      useDraggableRegion(props, emit, root);
-      return { root };
+      const instance = getCurrentInstance();
+      // the element the consumer wrote as the region's root: the list SortableJS sorts
+      useDraggableRegion(props, emit, () => instance.proxy.$el);
     },
     props: {
       /* eslint-disable vue/no-unused-properties */
       items: {
         type: Array,
         required: true,
-      },
-      tag: {
-        type: String,
-        default: 'div',
       },
       capacity: {
         type: Number,
@@ -62,6 +47,9 @@
         default: null,
       },
       /* eslint-enable vue/no-unused-properties */
+    },
+    render() {
+      return renderSlotRoot(this);
     },
   };
 

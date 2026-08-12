@@ -41,90 +41,92 @@
       @dragstart="handleDragStart"
       @dragend="handleDragEnd"
     >
-      <DraggableItem
-        v-for="(question, index) in questions"
-        :key="`drag-${question.item}`"
-        tabindex="-1"
-        :style="{
-          background: $themeTokens.surface,
-        }"
-      >
-        <AccordionItem
-          :title="getDisplayQuestionTitle(question, getQuestionContent(question)?.title)"
-          :disabledTitle="questionItemsToReplace?.includes(question.item)"
-          :aria-selected="questionIsChecked(question)"
-          :headerAppearanceOverrides="{
-            userSelect: dragActive ? 'none !important' : 'text',
+      <div>
+        <DraggableItem
+          v-for="(question, index) in questions"
+          :key="`drag-${question.item}`"
+          tabindex="-1"
+          :style="{
+            background: $themeTokens.surface,
           }"
         >
-          <template #leading-actions>
-            <DraggableHandle v-if="isSortable">
-              <div>
-                <DragSortWidget
-                  :isFirst="index === 0"
-                  :isLast="index === questions.length - 1"
-                  :itemLabel="
-                    getDisplayQuestionTitle(question, getQuestionContent(question)?.title)
-                  "
-                  :position="index + 1"
-                  :total="questions.length"
-                  @moveUp="() => handleKeyboardDragUp(index)"
-                  @moveDown="() => handleKeyboardDragDown(index)"
-                />
-              </div>
-            </DraggableHandle>
-            <KCheckbox
-              v-if="isSelectable"
-              class="accordion-item-checkbox"
-              :checked="questionIsChecked(question)"
-              :disabled="questionCheckboxDisabled(question)"
-              @change="
-                (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
-              "
-            />
-          </template>
-          <template #trailing-actions>
-            <span v-if="questionItemsToReplace?.includes(question.item)">
-              {{ replacingThisQuestionLabel$() }}
-            </span>
-            <slot
-              name="question-trailing-actions"
-              :question="question"
-            ></slot>
-          </template>
-          <template #content>
-            <div
-              :id="`question-panel-${question.item}`"
-              :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
-            >
-              <ContentViewer
-                v-if="questionContentExists(question)"
-                :ref="`contentRenderer-${question.item}`"
-                :contentNode="getQuestionContent(question)"
-                :itemId="question.question_id"
-                :allowHints="false"
-                :interactive="false"
-                :showCorrectAnswer="true"
-                @interaction="() => null"
-                @updateProgress="() => null"
-                @updateContentState="() => null"
-                @error="err => $emit('error', err)"
+          <AccordionItem
+            :title="getDisplayQuestionTitle(question, getQuestionContent(question)?.title)"
+            :disabledTitle="questionItemsToReplace?.includes(question.item)"
+            :aria-selected="questionIsChecked(question)"
+            :headerAppearanceOverrides="{
+              userSelect: dragActive ? 'none !important' : 'text',
+            }"
+          >
+            <template #leading-actions>
+              <DraggableHandle v-if="isSortable">
+                <div>
+                  <DragSortWidget
+                    :isFirst="index === 0"
+                    :isLast="index === questions.length - 1"
+                    :itemLabel="
+                      getDisplayQuestionTitle(question, getQuestionContent(question)?.title)
+                    "
+                    :position="index + 1"
+                    :total="questions.length"
+                    @moveUp="() => handleKeyboardDragUp(index)"
+                    @moveDown="() => handleKeyboardDragDown(index)"
+                  />
+                </div>
+              </DraggableHandle>
+              <KCheckbox
+                v-if="isSelectable"
+                class="accordion-item-checkbox"
+                :checked="questionIsChecked(question)"
+                :disabled="questionCheckboxDisabled(question)"
+                @change="
+                  (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
+                "
               />
-              <div v-else>
-                <KIcon
-                  icon="warning"
-                  :style="{ fill: $themePalette.yellow.v_600 }"
-                />
-                {{ coreString('resourceNotFoundOnDevice') }}
-              </div>
+            </template>
+            <template #trailing-actions>
+              <span v-if="questionItemsToReplace?.includes(question.item)">
+                {{ replacingThisQuestionLabel$() }}
+              </span>
               <slot
-                name="questionExtraContent"
+                name="question-trailing-actions"
                 :question="question"
               ></slot>
-            </div>
-          </template>
-        </AccordionItem>
-      </DraggableItem>
+            </template>
+            <template #content>
+              <div
+                :id="`question-panel-${question.item}`"
+                :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
+              >
+                <ContentViewer
+                  v-if="questionContentExists(question)"
+                  :ref="`contentRenderer-${question.item}`"
+                  :contentNode="getQuestionContent(question)"
+                  :itemId="question.question_id"
+                  :allowHints="false"
+                  :interactive="false"
+                  :showCorrectAnswer="true"
+                  @interaction="() => null"
+                  @updateProgress="() => null"
+                  @updateContentState="() => null"
+                  @error="err => $emit('error', err)"
+                />
+                <div v-else>
+                  <KIcon
+                    icon="warning"
+                    :style="{ fill: $themePalette.yellow.v_600 }"
+                  />
+                  {{ coreString('resourceNotFoundOnDevice') }}
+                </div>
+                <slot
+                  name="questionExtraContent"
+                  :question="question"
+                ></slot>
+              </div>
+            </template>
+          </AccordionItem>
+        </DraggableItem>
+      </div>
     </DraggableRegion>
   </AccordionContainer>
 

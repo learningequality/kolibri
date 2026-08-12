@@ -9,72 +9,73 @@
     </template>
     <template #tbody>
       <DraggableRegion
-        tag="tbody"
         :items="entries"
         @update:items="handleResourcesOrderChange"
       >
-        <DraggableItem
-          v-for="(tableRow, index) in entries"
-          :key="tableRow.node_id"
-          tag="tr"
-          :style="{ backgroundColor: $themeTokens.surface }"
-        >
-          <td>
-            <div class="resource-title">
-              <DraggableHandle v-if="editable">
-                <!-- Mousedown.prevent is needed to avoid user selection -->
-                <DragSortWidget
-                  class="sort-widget"
-                  :isFirst="index === 0"
-                  :isLast="index === entries.length - 1"
-                  :itemLabel="tableRow.title"
-                  :position="index + 1"
-                  :total="entries.length"
-                  @moveUp="moveUpOne(index)"
-                  @moveDown="moveDownOne(index)"
-                  @mousedown.prevent
+        <tbody>
+          <DraggableItem
+            v-for="(tableRow, index) in entries"
+            :key="tableRow.node_id"
+          >
+            <tr :style="{ backgroundColor: $themeTokens.surface }">
+              <td>
+                <div class="resource-title">
+                  <DraggableHandle v-if="editable">
+                    <!-- Mousedown.prevent is needed to avoid user selection -->
+                    <DragSortWidget
+                      class="sort-widget"
+                      :isFirst="index === 0"
+                      :isLast="index === entries.length - 1"
+                      :itemLabel="tableRow.title"
+                      :position="index + 1"
+                      :total="entries.length"
+                      @moveUp="moveUpOne(index)"
+                      @moveDown="moveDownOne(index)"
+                      @mousedown.prevent
+                    />
+                  </DraggableHandle>
+                  <KIcon
+                    :icon="tableRow.kind"
+                    :color="tableRow.link ? $themeTokens.link : null"
+                    class="resource-icon"
+                  />
+                  <KRouterLink
+                    v-if="tableRow.link"
+                    :text="tableRow.title"
+                    :to="tableRow.link"
+                  />
+                  <span v-else>
+                    {{ tableRow.title }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <StatusSummary
+                  v-if="tableRow.tally"
+                  :tally="tableRow.tally"
+                  :verbose="true"
                 />
-              </DraggableHandle>
-              <KIcon
-                :icon="tableRow.kind"
-                :color="tableRow.link ? $themeTokens.link : null"
-                class="resource-icon"
-              />
-              <KRouterLink
-                v-if="tableRow.link"
-                :text="tableRow.title"
-                :to="tableRow.link"
-              />
-              <span v-else>
-                {{ tableRow.title }}
-              </span>
-            </div>
-          </td>
-          <td>
-            <StatusSummary
-              v-if="tableRow.tally"
-              :tally="tableRow.tally"
-              :verbose="true"
-            />
-            <KEmptyPlaceholder v-else />
-          </td>
-          <td>
-            <TimeDuration
-              v-if="tableRow.tally"
-              :seconds="tableRow.avgTimeSpent"
-            />
-            <KEmptyPlaceholder v-else />
-          </td>
-          <td v-if="editable">
-            <div class="actions">
-              <KIconButton
-                icon="clear"
-                :ariaLabel="removeAction$()"
-                @click="() => handleRemoveEntry(tableRow)"
-              />
-            </div>
-          </td>
-        </DraggableItem>
+                <KEmptyPlaceholder v-else />
+              </td>
+              <td>
+                <TimeDuration
+                  v-if="tableRow.tally"
+                  :seconds="tableRow.avgTimeSpent"
+                />
+                <KEmptyPlaceholder v-else />
+              </td>
+              <td v-if="editable">
+                <div class="actions">
+                  <KIconButton
+                    icon="clear"
+                    :ariaLabel="removeAction$()"
+                    @click="() => handleRemoveEntry(tableRow)"
+                  />
+                </div>
+              </td>
+            </tr>
+          </DraggableItem>
+        </tbody>
       </DraggableRegion>
     </template>
   </CoreTable>

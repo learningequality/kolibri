@@ -1,41 +1,15 @@
-<template>
-
-  <component
-    :is="tag"
-    :class="handleClass"
-    v-on="$listeners"
-  >
-    <slot></slot>
-  </component>
-
-</template>
-
-
 <script>
 
   import { HANDLE_CLASS } from './classDefinitions';
+  import renderSlotRoot from './renderSlotRoot';
 
   export default {
     name: 'DraggableHandle',
-    setup() {
-      // The class SortableJS matches as its drag handle
-      return { handleClass: HANDLE_CLASS };
-    },
-    props: {
-      tag: {
-        type: String,
-        default: 'div',
-      },
+    // marks the element the consumer wrote as the drag handle SortableJS matches,
+    // rather than wrapping it in one of its own
+    render() {
+      return renderSlotRoot(this, HANDLE_CLASS);
     },
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .draggable-handle {
-    cursor: grab;
-  }
-
-</style>

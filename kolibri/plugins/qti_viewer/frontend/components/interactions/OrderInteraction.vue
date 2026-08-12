@@ -229,52 +229,51 @@
         return h('div', [
           ...nonChoiceContent,
           h(AnswerGuide, { props: { text: orderGuideText.value } }),
-          h(
-            DraggableRegion,
-            {
-              props: {
-                items,
-                tag: 'ul',
+          h(DraggableRegion, { props: { items }, on: { 'update:items': handleSort } }, [
+            h(
+              'ul',
+              {
+                attrs: { 'aria-label': orderListLabel$() },
+                class: listClasses(),
               },
-              attrs: { 'aria-label': orderListLabel$() },
-              class: listClasses(),
-              on: { 'update:items': handleSort },
-            },
-            items.map((item, index) =>
-              h(
-                DraggableItem,
-                { props: { tag: 'li' }, key: item.identifier, class: 'qti-order-row-wrapper' },
-                [
-                  // Label sits outside the card, updates reactively
-                  renderLabel(index),
-                  h('div', { class: 'qti-order-row', style: rowStyle }, [
-                    h(DraggableHandle, [
-                      h(DragSortWidget, {
-                        props: {
-                          isFirst: index === 0,
-                          isLast: index === items.length - 1,
-                          horizontal: isHorizontal.value,
-                          itemLabel: textByIdentifier[item.identifier],
-                          position: index + 1,
-                          total: items.length,
-                        },
-                        on: {
-                          moveUp: () => moveItem(item.identifier, -1),
-                          moveDown: () => moveItem(item.identifier, 1),
-                          mousedown: e => e.preventDefault(),
-                        },
-                      }),
-                    ]),
-                    h(
-                      'div',
-                      { class: 'qti-order-row-content' },
-                      contentByIdentifier[item.identifier],
-                    ),
-                  ]),
-                ].filter(Boolean),
+              items.map((item, index) =>
+                h(DraggableItem, { key: item.identifier }, [
+                  h(
+                    'li',
+                    { class: 'qti-order-row-wrapper' },
+                    [
+                      // Label sits outside the card, updates reactively
+                      renderLabel(index),
+                      h('div', { class: 'qti-order-row', style: rowStyle }, [
+                        h(DraggableHandle, [
+                          h(DragSortWidget, {
+                            props: {
+                              isFirst: index === 0,
+                              isLast: index === items.length - 1,
+                              horizontal: isHorizontal.value,
+                              itemLabel: textByIdentifier[item.identifier],
+                              position: index + 1,
+                              total: items.length,
+                            },
+                            on: {
+                              moveUp: () => moveItem(item.identifier, -1),
+                              moveDown: () => moveItem(item.identifier, 1),
+                              mousedown: e => e.preventDefault(),
+                            },
+                          }),
+                        ]),
+                        h(
+                          'div',
+                          { class: 'qti-order-row-content' },
+                          contentByIdentifier[item.identifier],
+                        ),
+                      ]),
+                    ].filter(Boolean),
+                  ),
+                ]),
               ),
             ),
-          ),
+          ]),
         ]);
       };
     },

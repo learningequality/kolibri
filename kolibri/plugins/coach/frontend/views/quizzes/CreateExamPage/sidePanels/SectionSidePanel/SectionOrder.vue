@@ -9,48 +9,55 @@
       :items="sectionOrderList"
       @update:items="handleSectionSort"
     >
-      <DraggableItem
-        v-for="(section, index) in sectionOrderList"
-        :key="section.section_id"
-        :style="draggableStyle"
-      >
-        <DraggableHandle
-          :style="
-            activeSection.section_id === section.section_id ? activeSectionStyles : borderStyle
-          "
-          class="section-order-list"
+      <div>
+        <DraggableItem
+          v-for="(section, index) in sectionOrderList"
+          :key="section.section_id"
         >
-          <DragSortWidget
-            class="drag-title"
-            :isFirst="index === 0"
-            :isLast="index === sectionOrderList.length - 1"
-            :itemLabel="sectionOrderingTitle(section)"
-            :position="index + 1"
-            :total="sectionOrderList.length"
-            @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
-            @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
-          />
-          <span
-            class="drag-title"
-            style="flex: 1"
-          >
-            {{ sectionOrderingTitle(section) }}
-          </span>
-          <span
-            v-if="section.description"
-            class="current-section-style"
-            style="flex: 2; text-overflow: ellipsis"
-          >
-            {{ section.description }}
-          </span>
-          <span
-            v-if="section.section_id === activeSection.section_id"
-            class="current-section-text"
-          >
-            ({{ currentSection$() }})
-          </span>
-        </DraggableHandle>
-      </DraggableItem>
+          <div :style="draggableStyle">
+            <DraggableHandle>
+              <div
+                :style="
+                  activeSection.section_id === section.section_id
+                    ? activeSectionStyles
+                    : borderStyle
+                "
+                class="section-order-list"
+              >
+                <DragSortWidget
+                  class="drag-title"
+                  :isFirst="index === 0"
+                  :isLast="index === sectionOrderList.length - 1"
+                  :itemLabel="sectionOrderingTitle(section)"
+                  :position="index + 1"
+                  :total="sectionOrderList.length"
+                  @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
+                  @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
+                />
+                <span
+                  class="drag-title"
+                  style="flex: 1"
+                >
+                  {{ sectionOrderingTitle(section) }}
+                </span>
+                <span
+                  v-if="section.description"
+                  class="current-section-style"
+                  style="flex: 2; text-overflow: ellipsis"
+                >
+                  {{ section.description }}
+                </span>
+                <span
+                  v-if="section.section_id === activeSection.section_id"
+                  class="current-section-text"
+                >
+                  ({{ currentSection$() }})
+                </span>
+              </div>
+            </DraggableHandle>
+          </div>
+        </DraggableItem>
+      </div>
     </DraggableRegion>
 
     <div class="bottom-buttons-style">

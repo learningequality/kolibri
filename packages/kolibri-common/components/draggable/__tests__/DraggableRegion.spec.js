@@ -37,16 +37,24 @@ describe('DraggableRegion', () => {
     document.hasFocus = jest.fn(() => true);
   });
 
-  // Mounts a lone region and returns its captured Sortable options.
+  // Mounts a lone region and returns its captured Sortable options. The region marks
+  // the element written inside it rather than rendering one of its own.
   async function mountRegion(propsData = {}, mountOptions = {}) {
     const wrapper = mount(DraggableRegion, {
       propsData: { items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }], ...propsData },
+      slots: { default: '<div />' },
       ...mountOptions,
     });
     await wrapper.vm.$nextTick();
     const instance = mockInstances[mockInstances.length - 1];
     return { wrapper, options: instance.options, sortable: instance };
   }
+
+  it('sorts the element written inside it, rather than one of its own', async () => {
+    const { wrapper, sortable } = await mountRegion({}, { slots: { default: '<ul />' } });
+    expect(wrapper.element.tagName).toBe('UL');
+    expect(sortable.el).toBe(wrapper.element);
+  });
 
   describe('capacity (group.put)', () => {
     it('accepts a drop while below capacity and rejects it once full', async () => {
@@ -103,7 +111,9 @@ describe('DraggableRegion', () => {
         },
         template: `
           <DraggableUniverse :delay="delay">
-            <DraggableRegion :items="items" />
+            <div>
+              <DraggableRegion :items="items"><div /></DraggableRegion>
+            </div>
           </DraggableUniverse>
         `,
       });
@@ -185,8 +195,14 @@ describe('DraggableRegion', () => {
       },
       template: `
         <DraggableUniverse>
-          <DraggableRegion :items="source" v-bind="sourceProps" @update:items="source = $event" />
-          <DraggableRegion :items="target" v-bind="targetProps" @update:items="target = $event" />
+          <div>
+            <DraggableRegion :items="source" v-bind="sourceProps" @update:items="source = $event">
+              <div />
+            </DraggableRegion>
+            <DraggableRegion :items="target" v-bind="targetProps" @update:items="target = $event">
+              <div />
+            </DraggableRegion>
+          </div>
         </DraggableUniverse>
       `,
     });

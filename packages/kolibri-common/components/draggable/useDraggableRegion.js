@@ -15,17 +15,21 @@ const shallowClone = original => ({ ...original });
  * `setup()` of DraggableRegion.
  * @param {object} props - the DraggableRegion props (reactive)
  * @param {(event: string, ...args: unknown[]) => void} emit - the component's emit
- * @param {import('vue').Ref<HTMLElement>} rootElRef - ref to the region's root element
+ * @param {() => HTMLElement} getRootEl - returns the region's root element; called once
+ * the component is mounted, since the region renders its consumer's element rather than
+ * one of its own
  * @returns {{ handleStart: Function, handleEnd: Function, canAccept: Function }} the
  * drag lifecycle callbacks, exposed for unit tests
  */
-export default function useDraggableRegion(props, emit, rootElRef) {
+export default function useDraggableRegion(props, emit, getRootEl) {
   // Regions grouped for cross-region drops share a <DraggableUniverse>
   const universe = injectDraggableUniverse() || createDraggableUniverse();
 
   const { currentOrder$, itemMovedToRegion$ } = dragSortStrings;
 
   let sortable = null;
+
+  let rootEl = null;
 
   // frame handle for the deferred focus-exit announcement, null when none is queued
   let pendingAnnouncement = null;
@@ -179,7 +183,7 @@ export default function useDraggableRegion(props, emit, rootElRef) {
       return;
     }
     // focus moved to another row inside this region: not a list-exit, don't announce
-    if (event.relatedTarget && rootElRef.value.contains(event.relatedTarget)) {
+    if (event.relatedTarget && rootEl.contains(event.relatedTarget)) {
       return;
     }
     // A keyboard move re-renders the region, which detaches the moved row and blurs
@@ -189,8 +193,7 @@ export default function useDraggableRegion(props, emit, rootElRef) {
     cancelPendingAnnouncement();
     pendingAnnouncement = requestAnimationFrame(() => {
       pendingAnnouncement = null;
-      const el = rootElRef.value;
-      if (!el || !document.hasFocus() || el.contains(document.activeElement)) {
+      if (!rootEl || !document.hasFocus() || rootEl.contains(document.activeElement)) {
         return;
       }
       announceOrder();
@@ -213,11 +216,11 @@ export default function useDraggableRegion(props, emit, rootElRef) {
   });
 
   onMounted(() => {
-    const el = rootElRef.value;
-    universe.registerRegion(el, regionApi);
-    el.addEventListener('focusout', handleFocusOut);
+    rootEl = getRootEl();
+    universe.registerRegion(rootEl, regionApi);
+    rootEl.addEventListener('focusout', handleFocusOut);
 
-    sortable = new Sortable(el, {
+    sortable = new Sortable(rootEl, {
       ...universe.sortableDefaults,
       delay: universe.delay.value,
       sort: props.sortable,
@@ -229,15 +232,15 @@ export default function useDraggableRegion(props, emit, rootElRef) {
   });
 
   onBeforeUnmount(() => {
-    const el = rootElRef.value;
     cancelPendingAnnouncement();
     if (sortable) {
       sortable.destroy();
       sortable = null;
     }
-    if (el) {
-      el.removeEventListener('focusout', handleFocusOut);
-      universe.unregisterRegion(el);
+    if (rootEl) {
+      rootEl.removeEventListener('focusout', handleFocusOut);
+      universe.unregisterRegion(rootEl);
+      rootEl = null;
     }
   });
 

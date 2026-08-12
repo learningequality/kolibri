@@ -16,34 +16,37 @@
 
       <template v-else>
         <DraggableRegion
-          class="container"
           :items="channels"
           @update:items="handleOrderChange"
         >
-          <DraggableItem
-            v-for="(channel, index) in channels"
-            :key="channel.id"
-          >
-            <DraggableHandle
-              :class="$computedClass(itemClass)"
-              class="item"
-              :style="{ backgroundColor: $themeTokens.surface }"
+          <div class="container">
+            <DraggableItem
+              v-for="(channel, index) in channels"
+              :key="channel.id"
             >
-              <DragSortWidget
-                class="sort-widget"
-                :itemLabel="channel.name"
-                :position="index + 1"
-                :total="channels.length"
-                :isFirst="index === 0"
-                :isLast="index === channels.length - 1"
-                @moveUp="shiftOne(index, -1)"
-                @moveDown="shiftOne(index, +1)"
-              />
-              <div class="title">
-                {{ channel.name }}
-              </div>
-            </DraggableHandle>
-          </DraggableItem>
+              <DraggableHandle>
+                <div
+                  :class="$computedClass(itemClass)"
+                  class="item"
+                  :style="{ backgroundColor: $themeTokens.surface }"
+                >
+                  <DragSortWidget
+                    class="sort-widget"
+                    :itemLabel="channel.name"
+                    :position="index + 1"
+                    :total="channels.length"
+                    :isFirst="index === 0"
+                    :isLast="index === channels.length - 1"
+                    @moveUp="shiftOne(index, -1)"
+                    @moveDown="shiftOne(index, +1)"
+                  />
+                  <div class="title">
+                    {{ channel.name }}
+                  </div>
+                </div>
+              </DraggableHandle>
+            </DraggableItem>
+          </div>
         </DraggableRegion>
       </template>
     </KPageContainer>

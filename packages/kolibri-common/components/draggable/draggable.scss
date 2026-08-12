@@ -1,5 +1,11 @@
 @import '~kolibri-design-system/lib/styles/definitions';
 
+// here rather than in DraggableHandle because the handle marks an element the
+// consumer owns, which is outside the reach of a scoped style there
+.draggable-handle {
+  cursor: grab;
+}
+
 .draggable-item--mirror {
   @extend %dropshadow-6dp;
 

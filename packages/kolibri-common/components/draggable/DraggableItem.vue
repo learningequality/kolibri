@@ -1,20 +1,8 @@
-<template>
-
-  <component
-    :is="tag"
-    :class="itemClasses"
-    v-on="$listeners"
-  >
-    <slot></slot>
-  </component>
-
-</template>
-
-
 <script>
 
   import { computed } from 'vue';
   import { ITEM_CLASS, DISABLED_CLASS } from './classDefinitions';
+  import renderSlotRoot from './renderSlotRoot';
 
   export default {
     name: 'DraggableItem',
@@ -24,15 +12,15 @@
       return { itemClasses };
     },
     props: {
-      tag: {
-        type: String,
-        default: 'div',
-      },
       // When true, this item can't be dragged
       disabled: {
         type: Boolean,
         default: false,
       },
+    },
+    // marks the element the consumer wrote, rather than wrapping it in one of its own
+    render() {
+      return renderSlotRoot(this, this.itemClasses);
     },
   };
 
