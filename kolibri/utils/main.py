@@ -34,6 +34,8 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.database import sqlite_check_foreign_keys
 from kolibri.utils.debian_check import check_debian_user
 from kolibri.utils.logger import get_base_logging_config
+from kolibri.utils.migration_lock import migration_lock
+from kolibri.utils.migration_lock import MigrationLockTimeout
 from kolibri.utils.sanity_checks import check_content_directory_exists_and_writable
 from kolibri.utils.sanity_checks import check_database_is_migrated
 from kolibri.utils.sanity_checks import check_default_options_exist
@@ -255,6 +257,45 @@ def set_django_settings_and_python_path(django_settings, pythonpath):
         sys.path.insert(0, pythonpath)
 
 
+def _run_updates(updated, version):
+    if updated:
+        conditional_backup(kolibri.__version__, version)
+
+        if version:
+            logger.info("Version was %s, new version: %s", version, kolibri.__version__)
+        else:
+            logger.info("New install, version: %s", kolibri.__version__)
+        update(version, kolibri.__version__)
+
+    # Run any plugin specific updates here in case they were missed by
+    # our Kolibri version based update logic.
+    run_plugin_updates()
+
+    check_django_stack_ready()
+
+    try:
+        check_database_is_migrated()
+    except DatabaseNotMigrated:
+        try:
+            _migrate_databases()
+        except Exception as e:
+            logger.error(
+                "The database was not fully migrated. Tried to "
+                "migrate the database and an error occurred: "
+                "%s",
+                e,
+            )
+            raise
+    except DatabaseInaccessible as e:
+        logger.error(
+            "Tried to check that the database was accessible and an error occurred: %s",
+            e,
+        )
+        raise
+
+    _upgrades_after_django_setup(updated, version)
+
+
 def initialize(
     skip_update=False,
     settings=None,
@@ -273,57 +314,27 @@ def initialize(
 
     set_django_settings_and_python_path(settings, pythonpath)
 
-    version = get_version()
-
-    updated = version_updated(kolibri.__version__, version)
-
-    if not skip_update:
-        _upgrades_before_django_setup(updated, version)
-
-    _setup_django()
-
-    _post_django_initialization()
-
-    if updated and not skip_update:
-        conditional_backup(kolibri.__version__, version)
-
-        if version:
-            logger.info("Version was %s, new version: %s", version, kolibri.__version__)
-        else:
-            logger.info("New install, version: %s", kolibri.__version__)
-        update(version, kolibri.__version__)
+    if skip_update:
+        _setup_django()
+        _post_django_initialization()
+    else:
+        try:
+            with migration_lock():
+                version = get_version()
+                updated = version_updated(kolibri.__version__, version)
+                _upgrades_before_django_setup(updated, version)
+                _setup_django()
+                _post_django_initialization()
+                _run_updates(updated, version)
+        except MigrationLockTimeout as e:
+            logger.error(
+                "Another Kolibri process has held the update lock at %s for too "
+                "long. Stop it, or wait for it to finish, and start Kolibri again.",
+                e.args[0],
+            )
+            sys.exit(1)
 
     check_content_directory_exists_and_writable()
-
-    if not skip_update:
-        # Run any plugin specific updates here in case they were missed by
-        # our Kolibri version based update logic.
-        run_plugin_updates()
-
-        check_django_stack_ready()
-
-        try:
-            check_database_is_migrated()
-        except DatabaseNotMigrated:
-            try:
-                _migrate_databases()
-            except Exception as e:
-                logger.error(
-                    "The database was not fully migrated. Tried to "
-                    "migrate the database and an error occurred: "
-                    "%s",
-                    e,
-                )
-                raise
-        except DatabaseInaccessible as e:
-            logger.error(
-                "Tried to check that the database was accessible "
-                "and an error occurred: %s",
-                e,
-            )
-            raise
-
-        _upgrades_after_django_setup(updated, version)
 
 
 def update(old_version, new_version):
