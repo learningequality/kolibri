@@ -552,6 +552,14 @@ base_option_spec = {
             "default": "",
             "description": "Path to the SSL certificate authority (CA) file for verifying the server certificate (maps to sslrootcert), Postgresql only.",
         },
+        "MIGRATION_LOCK_TIMEOUT": {
+            "type": "integer",
+            "default": 30 * 60,
+            "description": """
+                How many seconds a starting Kolibri process waits for another process to finish updating the database before giving up.
+                Raise this on hosts where upgrading a large database takes longer.
+            """,
+        },
     },
     "Server": {
         "CHERRYPY_START": {
