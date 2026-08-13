@@ -82,7 +82,7 @@ FRONTEND_DEPENDENCIES = {
     CONTENT_VIEWER: {
         "kolibri": "^0.18.0",
         "kolibri-common": "^1.0.0",
-        "kolibri-design-system": "^5.7.0",
+        "kolibri-design-system": "^5.9.0",
         "kolibri-viewer": "^1.0.0",
         "vue": "^2.7.16",
     },
@@ -90,7 +90,7 @@ FRONTEND_DEPENDENCIES = {
         "kolibri": "^0.18.0",
         "kolibri-app": "^1.0.2",
         "kolibri-common": "^1.0.0",
-        "kolibri-design-system": "^5.7.0",
+        "kolibri-design-system": "^5.9.0",
         "vue": "^2.7.16",
         "vue-router": "^3.6.5",
     },

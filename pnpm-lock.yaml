@@ -28,8 +28,8 @@ catalogs:
       specifier: 0.2.16
       version: 0.2.16
     kolibri-design-system:
-      specifier: 5.7.0
-      version: 5.7.0
+      specifier: 5.9.0
+      version: 5.9.0
     lodash:
       specifier: ^4.17.23
       version: 4.17.23
@@ -184,7 +184,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
@@ -220,7 +220,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -278,7 +278,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -336,7 +336,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -406,7 +406,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -446,7 +446,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
@@ -485,7 +485,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -549,7 +549,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -592,7 +592,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -752,7 +752,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -828,7 +828,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../../packages/kolibri-plugin-data
@@ -852,7 +852,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -889,7 +889,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -926,7 +926,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -975,7 +975,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -1005,7 +1005,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../../packages/kolibri-plugin-data
@@ -1051,7 +1051,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
@@ -1130,7 +1130,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1332,7 +1332,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1613,7 +1613,7 @@ importers:
         version: link:../kolibri
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.7.0
+        version: 5.9.0
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -7185,8 +7185,8 @@ packages:
   kolibri-constants@0.2.16:
     resolution: {integrity: sha512-z2tH+Sl8vBX1Y7O3BYTfwQs33Ozp6QRKZIHhl66A8sZkxUVBFFKOR+SgGOt0U0Q7pT/PH4yfCZ5mu6u8J641zQ==}
 
-  kolibri-design-system@5.7.0:
-    resolution: {integrity: sha512-+ol8VBIfTbSbLGmSvtGehZUhEFejWJDAzGNujRL62DHs9NhDjpmjBGehvk/y7BV13FwxFR4tOFhW9RxnYx7eBg==}
+  kolibri-design-system@5.9.0:
+    resolution: {integrity: sha512-/2Nr7q23kQgQcTk4ylU9x0qe5HDqgk/Mq+WZPIeGm22oAkrozPO7TxLT4yaUfOWgPVICWBGky1jZuBDsPCQbDQ==}
 
   launch-editor-middleware@2.14.1:
     resolution: {integrity: sha512-Y8rM8ujxag67bXKCML5RLK5neOwj9rcgYlhgPAG0roa3sM6gjBjq7Bl/mE63XcdAmjMMsPtJhd1ry8+wstwQew==}
@@ -16867,7 +16867,7 @@ snapshots:
 
   kolibri-constants@0.2.16: {}
 
-  kolibri-design-system@5.7.0:
+  kolibri-design-system@5.9.0:
     dependencies:
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       autosize: 3.0.21

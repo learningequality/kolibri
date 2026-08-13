@@ -219,6 +219,10 @@
     border-bottom: 1px solid;
   }
 
+  .select-all {
+    padding-left: 6px;
+  }
+
   .option {
     padding-top: 6px;
     padding-bottom: 6px;
