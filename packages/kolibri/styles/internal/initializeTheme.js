@@ -27,7 +27,9 @@ export default function initializeTheme() {
   if (theme.brandColors) {
     setBrandColors(theme.brandColors);
   }
-  setTokenMapping(theme.tokenMapping);
+  if (theme.tokenMapping) {
+    setTokenMapping(theme.tokenMapping);
+  }
   setThemeConfig(theme);
   generateGlobalStyles();
   trackInputModality();
