@@ -138,13 +138,22 @@ jobs:
   test_pypi_upload:
     name: Upload to TestPyPi
     needs: [whl]
-    uses: ./.github/workflows/pypi_upload.yml
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
-    with:
-      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      test: true
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.tar-file-name }}
+          path: dist
+      - name: Publish to TestPyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
   gcs_upload:
     name: Upload to Google Cloud Storage for LE Downloads
     runs-on: ubuntu-latest
@@ -222,13 +231,20 @@ jobs:
     name: Upload to PyPi
     if: ${{ !github.event.release.prerelease }}
     needs: [whl, block_release_step]
-    uses: ./.github/workflows/pypi_upload.yml
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
-    with:
-      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      test: false
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.tar-file-name }}
+          path: dist
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
   android_release:
     name: Release Android App
     if: ${{ !github.event.release.prerelease }}
