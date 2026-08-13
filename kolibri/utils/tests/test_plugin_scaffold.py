@@ -302,5 +302,5 @@ def test_package_json_falls_back_to_pins_outside_a_workspace(tmp_path):
     deps = json.loads((outer / "package.json").read_text())["dependencies"]
     assert deps["kolibri"] == "^0.18.0"
     assert deps["kolibri-viewer"] == "^1.0.0"
-    assert deps["kolibri-design-system"] == "^5.7.0"
+    assert deps["kolibri-design-system"] == "^5.9.0"
     assert deps["vue"] == "^2.7.16"
