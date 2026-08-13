@@ -76,9 +76,16 @@ def get_latest_version_code():
     return versionCode
 
 
-def upload_dist_aab():
-    from version import apk_version
+def _aab_name(aab_path):
+    """
+    Gradle stamps the version name into the AAB filename (base.archivesName in
+    app/build.gradle), giving kolibri-<version>-<build type>-release.aab. The
+    Play API never returns a version name, so recover it from the filename.
+    """
+    return os.path.splitext(os.path.basename(aab_path))[0]
 
+
+def upload_dist_aab():
     service = _get_service()
     edit_id = _create_edit(service)
     aabs = glob.glob(
@@ -92,6 +99,7 @@ def upload_dist_aab():
             "Expected exactly one aab file in dist, found {}".format(len(aabs))
         )
     aab_path = aabs[0]
+    aab_name = _aab_name(aab_path)
 
     print("Uploading AAB: {}".format(aab_path))
 
@@ -117,7 +125,7 @@ def upload_dist_aab():
             body={
                 "releases": [
                     {
-                        "name": apk_version(),
+                        "name": aab_name,
                         "versionCodes": [versionCode],
                         "status": "completed",
                     }
@@ -181,7 +189,7 @@ def upload_dist_aab():
                 downloadId=universal_apk_id,
             )
 
-            filename = "kolibri-{}-release-universal.apk".format(apk_version())
+            filename = "{}-universal.apk".format(aab_name)
 
             filepath = os.path.join(
                 os.path.dirname(__file__), "../dist", filename
