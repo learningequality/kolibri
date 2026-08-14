@@ -213,6 +213,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Resume Course',
     context: 'Action label for button to resume a course',
   },
+  reviewCourseAction: {
+    message: 'Review Course',
+    context: 'Action label for button to review a course',
+  },
   previewAction: {
     message: 'Preview',
     context: 'Action label for button to preview course resources before starting or assigning.',

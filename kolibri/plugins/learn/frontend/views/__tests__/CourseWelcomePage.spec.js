@@ -6,7 +6,7 @@ import { PageNames } from '../../constants';
 import CourseWelcomePage from '../CourseWelcomePage.vue';
 import useLearnerResources from '../../composables/useLearnerResources';
 
-const { startCourseAction$, resumeCourseAction$ } = coursesStrings;
+const { startCourseAction$, resumeCourseAction$, reviewCourseAction$ } = coursesStrings;
 
 jest.mock('../../composables/useLearnerResources');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow', () => ({
@@ -96,14 +96,17 @@ describe('CourseWelcomePage', () => {
     started = false,
     resume_position = null,
     active_test = null,
+    completed = false,
   } = {}) => ({
     fetchCourse: jest.fn().mockResolvedValue({
       course: mockCourse,
       content: mockCourseContent,
-      progress: { started, resume_position, active_test },
+      progress: { started, resume_position, active_test, completed },
     }),
     getCourseContent: jest.fn().mockReturnValue(mockCourseContent),
-    getCourseProgress: jest.fn().mockReturnValue({ started, resume_position, active_test }),
+    getCourseProgress: jest
+      .fn()
+      .mockReturnValue({ started, resume_position, active_test, completed }),
     getCourseUnits: jest.fn().mockReturnValue(mockUnits),
     isUnitTestAvailable: jest.fn((courseId, unitId, testType) => {
       if (!active_test) return false;
@@ -214,6 +217,32 @@ describe('CourseWelcomePage', () => {
         }),
       );
     });
+  });
+
+  it('labels the action Review when the course is completed', async () => {
+    useResources({
+      started: true,
+      completed: true,
+      resume_position: { unit_id: 'unit-2', lesson_id: null, resource_id: null },
+    });
+    const wrapper = renderComponent();
+
+    await wrapper.findByRole('link', { name: reviewCourseAction$() });
+    expect(wrapper.queryByRole('link', { name: resumeCourseAction$() })).not.toBeInTheDocument();
+  });
+
+  it('labels the action Resume when the last unit is done but the course is not', async () => {
+    // The post-test the learner is waiting on is coach-activated, so this
+    // state is indistinguishable from completion in resume_position alone.
+    useResources({
+      started: true,
+      completed: false,
+      resume_position: { unit_id: 'unit-2', lesson_id: null, resource_id: null },
+    });
+    const wrapper = renderComponent();
+
+    await wrapper.findByRole('link', { name: resumeCourseAction$() });
+    expect(wrapper.queryByRole('link', { name: reviewCourseAction$() })).not.toBeInTheDocument();
   });
 
   it('locks all unit lessons when the course has not started', async () => {

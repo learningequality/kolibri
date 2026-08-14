@@ -338,6 +338,7 @@
         postTestLabel$,
         startCourseAction$,
         resumeCourseAction$,
+        reviewCourseAction$,
       } = coursesStrings;
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
@@ -364,6 +365,9 @@
 
         if (onFirstPreTest) {
           return startCourseAction$();
+        }
+        if (progress.completed) {
+          return reviewCourseAction$();
         }
         return resumeCourseAction$();
       });
