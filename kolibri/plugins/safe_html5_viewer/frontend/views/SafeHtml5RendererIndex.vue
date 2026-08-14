@@ -121,22 +121,9 @@
         wrapper.removeEventListener('scroll', this.debouncedHandleScroll);
       }
 
-      window.removeEventListener('resize', this.applyTabIndexes);
       this.$emit('stopTracking');
     },
     methods: {
-      applyTabIndexes() {
-        const tableContainers = this.$el.querySelectorAll('.table-container');
-        tableContainers.forEach(container => {
-          const scrollable = container.scrollWidth > container.clientWidth;
-          if (scrollable) {
-            container.setAttribute('tabindex', '0');
-          } else {
-            container.removeAttribute('tabindex');
-          }
-        });
-      },
-
       // Handle startTracking from embedded viewers
       handleViewerStartTracking(viewerId) {
         if (viewerId && !this.embeddedViewers[viewerId]) {
@@ -236,9 +223,8 @@
       },
       async safeHtmlDomReadyHandler() {
         if (!this.loading) {
+          // setupScrollListener needs $refs.safeHtmlWrapper to exist.
           await this.$nextTick();
-          this.applyTabIndexes();
-          window.addEventListener('resize', this.applyTabIndexes);
           this.setupScrollListener();
         }
       },

@@ -46,21 +46,6 @@ const renderComponent = (dataOverrides = {}) => {
   });
 };
 
-async function setupTableContainer(scrollWidth, clientWidth) {
-  let tableContainer;
-  await waitFor(() => {
-    tableContainer = document.querySelector('.table-container');
-    expect(tableContainer).toBeInTheDocument();
-  });
-
-  Object.defineProperties(tableContainer, {
-    scrollWidth: { get: () => scrollWidth },
-    clientWidth: { get: () => clientWidth },
-  });
-
-  return tableContainer;
-}
-
 describe('SafeHtml5RendererIndex', () => {
   beforeEach(() => {
     useContentViewer.mockImplementation(() =>
@@ -94,24 +79,6 @@ describe('SafeHtml5RendererIndex', () => {
         expect(screen.getByText(TABLE_CAPTION).tagName).toBe('CAPTION');
         CELLS.forEach(cell => screen.getByRole('cell', { name: cell }));
       });
-    });
-  });
-
-  describe("table's tabindex", () => {
-    it("a table has tabindex='0' when scrollable", async () => {
-      renderComponent();
-      const tableContainer = await setupTableContainer(600, 500); // scrollWidth > clientWidth
-      window.dispatchEvent(new Event('resize')); // Resize to trigger `applyTabIndexes`
-
-      expect(tableContainer).toHaveAttribute('tabindex', '0');
-    });
-
-    it("a table doesn't have tabindex='0' when non-scrollable", async () => {
-      renderComponent();
-      const tableContainer = await setupTableContainer(600, 800); // scrollWidth < clientWidth
-      window.dispatchEvent(new Event('resize'));
-
-      expect(tableContainer).not.toHaveAttribute('tabindex', '0');
     });
   });
 

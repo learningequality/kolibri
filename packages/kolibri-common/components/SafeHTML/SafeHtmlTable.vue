@@ -1,9 +1,11 @@
 <template>
 
   <div
+    ref="container"
     class="table-container"
     data-testid="table-container"
-    :style="{ '--table-focus-outline': $themeTokens.focusOutline }"
+    :tabindex="overflowing ? 0 : null"
+    :style="containerStyle"
   >
     <table
       class="safe-html"
@@ -19,11 +21,35 @@
 
 <script>
 
+  import { onMounted, onUpdated, ref } from 'vue';
+  import { useEventListener, useResizeObserver } from '@vueuse/core';
   import parseStyleString from './parseStyleString';
 
   export default {
     name: 'SafeHtmlTable',
     inheritAttrs: false,
+
+    setup() {
+      const container = ref(null);
+      const overflowing = ref(false);
+
+      function measure() {
+        if (container.value) {
+          overflowing.value = container.value.scrollWidth > container.value.clientWidth;
+        }
+      }
+
+      onMounted(measure);
+      // Slot content can change the table's width without the container resizing.
+      onUpdated(measure);
+      // Both auto-dispose on unmount. The observer catches a container narrowed
+      // without a window resize; the listener covers the browserslist targets
+      // that predate ResizeObserver.
+      useResizeObserver(container, measure);
+      useEventListener(window, 'resize', measure);
+
+      return { container, overflowing };
+    },
 
     props: {
       node: {
@@ -33,6 +59,12 @@
     },
 
     computed: {
+      containerStyle() {
+        return {
+          '--table-focus-outline': this.$themeTokens.focusOutline,
+          '--table-caption-align': this.overflowing ? 'start' : 'center',
+        };
+      },
       // The allowlisted style carried through from the sanitized <table>. Merged
       // ahead of tableStyle so the component's own width/border win on any future
       // key overlap while the carried alignment/colour still apply.
@@ -125,10 +157,7 @@
   /deep/ caption.safe-html {
     margin: 0 auto 12px;
     font-weight: 600;
-  }
-
-  /deep/ caption.safe-html.small-window {
-    text-align: start;
+    text-align: var(--table-caption-align);
   }
 
   /deep/ thead.safe-html {
