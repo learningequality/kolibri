@@ -56,6 +56,11 @@ describe('DraggableRegion', () => {
     expect(sortable.el).toBe(wrapper.element);
   });
 
+  it('confines the press-and-hold delay to touch, so a mouse drag is not swallowed', async () => {
+    const { options } = await mountRegion();
+    expect(options.delayOnTouchOnly).toBe(true);
+  });
+
   describe('capacity (group.put)', () => {
     it('accepts a drop while below capacity and rejects it once full', async () => {
       const { options } = await mountRegion({ items: [{ id: 'a' }], capacity: 2 });

@@ -22,7 +22,7 @@
         type: String,
         default: null,
       },
-      // Press-and-hold delay (ms) before a drag begins
+      // Press-and-hold delay (ms) before a drag begins (touch input only)
       delay: {
         type: Number,
         default: 250,

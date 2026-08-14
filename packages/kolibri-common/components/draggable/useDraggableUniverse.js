@@ -22,7 +22,8 @@ const DraggableUniverseSymbol = Symbol('draggableUniverse');
  * group name it was created with for its whole lifetime. Regions cannot be moved
  * between groups after mount.
  * @param {number} [options.delay] - initial press-and-hold delay (ms) before a drag
- * begins; set `delay.value` on the returned context to change it afterwards
+ * begins, touch input only; set `delay.value` on the returned context to change it
+ * afterwards
  * @returns {object} the universe context
  */
 export function createDraggableUniverse({ name, delay } = {}) {
@@ -50,6 +51,9 @@ export function createDraggableUniverse({ name, delay } = {}) {
     fallbackOnBody: false, // keep the clone inside the region subtree so overrides still match
     draggable: `.${ITEM_CLASS}`,
     handle: `.${HANDLE_CLASS}`,
+    // A delayed mouse drag is cancelled when the pointer moves, so the delay must
+    // only apply to touch input.
+    delayOnTouchOnly: true,
     fallbackClass: MIRROR_CLASS,
     ghostClass: GHOST_CLASS,
     chosenClass: CHOSEN_CLASS,
