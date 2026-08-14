@@ -1,8 +1,10 @@
 import logging
 import os
+import time
 from logging.handlers import QueueHandler
 from logging.handlers import QueueListener
 from logging.handlers import TimedRotatingFileHandler
+from queue import Full
 from queue import Queue
 from typing import Dict
 from typing import List
@@ -13,6 +15,24 @@ DO_ROLLOVER = "doRollover"
 
 NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
 DISABLE_REQUEST_LOGGING = os.environ.get("KOLIBRI_DISABLE_REQUEST_LOGGING", False)
+
+DEFAULT_LOG_QUEUE_MAX_SIZE = 10000
+
+
+def _log_queue_max_size() -> int:
+    try:
+        size = int(
+            os.environ.get("KOLIBRI_LOG_QUEUE_MAX_SIZE", DEFAULT_LOG_QUEUE_MAX_SIZE)
+        )
+    except ValueError:
+        # This module is imported before logging is configured, so a typo here
+        # could only be reported as a traceback that does not name the variable.
+        return DEFAULT_LOG_QUEUE_MAX_SIZE
+    # Queue treats any maxsize <= 0 as unbounded, which is what this bounds.
+    return size if size > 0 else DEFAULT_LOG_QUEUE_MAX_SIZE
+
+
+LOG_QUEUE_MAX_SIZE = _log_queue_max_size()
 
 LOG_COLORS = {
     "DEBUG": "blue",
@@ -43,6 +63,17 @@ class LoggerAwareQueueHandler(QueueHandler):
         record._logger_name = self.logger_name
         return record
 
+    def enqueue(self, record: logging.LogRecord) -> None:
+        """
+        Drop the record if the queue is full, rather than reporting the failure.
+        The default report goes to stderr, which the desktop app feeds back into
+        logging (learningequality/kolibri#15150).
+        """
+        try:
+            self.queue.put_nowait(record)
+        except Full:
+            pass
+
 
 class LoggerAwareQueueListener(QueueListener):
     """A QueueListener that routes records to their original logger's handlers"""
@@ -50,6 +81,13 @@ class LoggerAwareQueueListener(QueueListener):
     def __init__(self, queue, logger_handlers: LoggerHandlerMap):
         super().__init__(queue)
         self.logger_handlers = logger_handlers
+
+    def enqueue_sentinel(self) -> None:
+        """
+        Wait for room rather than using the base class' put_nowait, which raises
+        on the bounded queue and would leave stop() without a thread to join.
+        """
+        self.queue.put(self._sentinel)
 
     def handle(self, record: logging.LogRecord) -> None:
         """Handle a record by sending it to the original logger's handlers"""
@@ -144,15 +182,37 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         be renamed from KOLIBRI_HOME/logs/kolibri.txt.YYYY-MM-DD to
         KOLIBRI_HOME/logs/archive/KOLIBRI-YYYY-MM-DD.txt.
         """
-        super().doRollover()
+        try:
+            super().doRollover()
+        except OSError:
+            # Windows will not rename a file another process holds open. Leaving
+            # rolloverAt in the past makes every subsequent record retry, and the
+            # retries' own error output can feed back into the log
+            # (learningequality/kolibri#15150).
+            self._postpone_rollover()
+            return
+
         filenames = os.listdir(self.dirname)
         prefix = self.basename + "."
 
         # Find all the rotation files in the KOLIBRI_HOME/logs directory and rename
         # them.
-        if not os.path.exists(self.archive_dir):
-            os.mkdir(self.archive_dir)
+        # exist_ok because the desktop app rotates two log files in this
+        # directory from two processes.
+        os.makedirs(self.archive_dir, exist_ok=True)
         self._rotation_files(filenames, prefix)
+
+    def _postpone_rollover(self):
+        """
+        Schedule the next rollover attempt an interval from now, so a rotation
+        that could not complete costs one attempt rather than one per record.
+        """
+        # The failed rollover closed the stream; FileHandler.emit reopens it.
+        current_time = int(time.time())
+        rollover_at = self.computeRollover(current_time)
+        while rollover_at <= current_time:
+            rollover_at += self.interval
+        self.rolloverAt = rollover_at
 
     def _rotation_files(self, filenames, prefix, func=DO_ROLLOVER):
         result = []
@@ -407,7 +467,7 @@ def setup_queue_logging() -> LoggerAwareQueueListener:
     Sets up queue-based logging for the main process.
     Returns the queue listener which can be used to stop logging and clean up.
     """
-    log_queue = Queue()
+    log_queue = Queue(maxsize=LOG_QUEUE_MAX_SIZE)
 
     # Replace handlers and get original configurations
     logger_handlers = _replace_handlers_with_queue(log_queue)

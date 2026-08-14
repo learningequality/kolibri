@@ -25,6 +25,13 @@ ENVIRONMENT_VARIABLES = {
     "KOLIBRI_NO_FILE_BASED_LOGGING": {
         "description": "Disable file-based logging.",
     },
+    "KOLIBRI_LOG_QUEUE_MAX_SIZE": {
+        "description": """
+            Maximum number of records held in the logging queue. Records logged
+            once the queue is full are dropped. Values below 1, and values that
+            are not integers, fall back to the default of 10000.
+        """,
+    },
     "KOLIBRI_APK_VERSION_NAME": {
         "description": "Version name for the Kolibri APK (Android Installer)",
     },
