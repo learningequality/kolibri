@@ -46,6 +46,8 @@ export function createFacilityUser(store, payload) {
  * Updates a facility user's details, and their facility-level role when it changed.
  * `updates.facilityUserUpdates` is already diff-only — `UserEditPage.getUpdates` picks just the
  * fields that differ from the fetched user — so no baseline is passed to `update`.
+ * `updateFacilityLevelRoles` needs the user's current roles, so a role-only change reads the user
+ * back rather than writing an empty patch.
  * @param {object} store - The Vuex store instance.
  * @param {object} payload - Payload object.
  * @param {string} payload.userId - The ID of the user to update.
@@ -57,7 +59,10 @@ export function updateFacilityUserDetails(store, { userId, updates }) {
   if (isEmpty(facilityUserUpdates) && !roleUpdates) {
     return Promise.resolve();
   }
-  return FacilityUserResource.update(userId, facilityUserUpdates).then(user => {
+  const userPromise = isEmpty(facilityUserUpdates)
+    ? FacilityUserResource.retrieve(userId)
+    : FacilityUserResource.update(userId, facilityUserUpdates);
+  return userPromise.then(user => {
     if (roleUpdates) {
       return updateFacilityLevelRoles(user, roleUpdates.kind);
     }
