@@ -63,11 +63,15 @@
         return {
           '--table-focus-outline': this.$themeTokens.focusOutline,
           '--table-caption-align': this.overflowing ? 'start' : 'center',
+          '--table-caption-color': this.$themeBrand.primary.v_500,
+          '--table-head-background': this.$themeBrand.primary.v_100,
+          '--table-foot-background': this.$themePalette.grey.v_100,
+          '--table-border': `1px solid ${this.$themePalette.grey.v_300}`,
         };
       },
       // The allowlisted style carried through from the sanitized <table>. Merged
-      // ahead of tableStyle so the component's own width/border win on any future
-      // key overlap while the carried alignment/colour still apply.
+      // ahead of tableStyle so the component's own width wins on any future key
+      // overlap while the carried alignment/colour still apply.
       contentStyle() {
         return parseStyleString(this.$attrs.style);
       },
@@ -75,54 +79,9 @@
         const firstRow = this.node.querySelector('tr');
         const colCount = firstRow ? firstRow.children.length : 0;
 
-        const styles = {
-          border: `1px solid ${this.$themePalette.grey.v_300}`,
+        return {
+          width: colCount <= 3 ? '640px' : `${colCount * 200}px`,
         };
-
-        if (colCount <= 3) {
-          styles.width = '640px';
-        } else {
-          styles.width = `${colCount * 200}px`;
-        }
-
-        return styles;
-      },
-    },
-
-    mounted() {
-      this.applyThemeColors();
-    },
-
-    updated() {
-      this.applyThemeColors();
-    },
-
-    methods: {
-      applyThemeColors() {
-        if (!this.$el) return;
-
-        const table = this.$el.querySelector('table');
-        if (!table) return;
-
-        const captions = table.querySelectorAll('caption.safe-html');
-        captions.forEach(caption => {
-          caption.style.color = this.$themeBrand.primary.v_500;
-        });
-
-        const theads = table.querySelectorAll('thead.safe-html');
-        theads.forEach(thead => {
-          thead.style.backgroundColor = this.$themeBrand.primary.v_100;
-        });
-
-        const tfoots = table.querySelectorAll('tfoot.safe-html');
-        tfoots.forEach(tfoot => {
-          tfoot.style.backgroundColor = this.$themePalette.grey.v_100;
-        });
-
-        const cells = table.querySelectorAll('th.safe-html, td.safe-html');
-        cells.forEach(cell => {
-          cell.style.border = `1px solid ${this.$themePalette.grey.v_300}`;
-        });
       },
     },
   };
@@ -151,17 +110,24 @@
     font-size: 16px;
     table-layout: fixed;
     border-collapse: collapse;
+    border: var(--table-border);
   }
 
   /* Slot content carries the parent's scope id, not this component's. */
   /deep/ caption.safe-html {
     margin: 0 auto 12px;
     font-weight: 600;
+    color: var(--table-caption-color);
     text-align: var(--table-caption-align);
   }
 
   /deep/ thead.safe-html {
     font-weight: 600;
+    background-color: var(--table-head-background);
+  }
+
+  /deep/ tfoot.safe-html {
+    background-color: var(--table-foot-background);
   }
 
   /deep/ th.safe-html {
@@ -173,6 +139,7 @@
   /deep/ td.safe-html {
     min-width: 200px;
     padding: 16px;
+    border: var(--table-border);
   }
 
 </style>
