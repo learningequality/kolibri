@@ -82,6 +82,9 @@ describe('useFacilityEditor', () => {
     urls['kolibri:core:facilitydataset_update_pin'] = jest
       .fn()
       .mockReturnValue('/api/facility_dataset/update_pin/');
+    urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
+      .fn()
+      .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
   });
 
   describe('initialization', () => {
@@ -577,15 +580,23 @@ describe('useFacilityEditor', () => {
       expect(savedData).toHaveProperty('id');
     });
 
-    it('diffs the config against the snapshot last synced with the server', async () => {
-      const { saveFacilityConfig, copySettings, settings, settingsCopy, facilityDatasetId } =
-        useFacilityEditor();
-      settings.value = { ...mockFacilityConfig };
+    it('diffs against the pre-save snapshot, which saving the login settings leaves alone', async () => {
+      client.mockResolvedValue({ status: 200, data: {} });
+      const {
+        saveFacilityConfig,
+        saveFacilityLoginSettings,
+        copySettings,
+        settings,
+        settingsCopy,
+        facilityDatasetId,
+      } = useFacilityEditor();
+      settings.value = { ...mockFacilityConfig, learner_can_edit_username: true };
       facilityDatasetId.value = mockDatasetId;
       copySettings();
       const snapshot = { ...settingsCopy.value };
       settings.value = { ...settings.value, learner_can_edit_username: false };
 
+      await saveFacilityLoginSettings();
       await saveFacilityConfig();
 
       const [, , options] = FacilityDatasetResource.update.mock.calls.at(-1);
@@ -649,12 +660,6 @@ describe('useFacilityEditor', () => {
   });
 
   describe('saveFacilityLoginSettings', () => {
-    beforeEach(() => {
-      urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
-        .fn()
-        .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
-    });
-
     it('calls the save-facility-login-settings endpoint via PATCH with login fields', async () => {
       client.mockResolvedValue({ data: {} });
 

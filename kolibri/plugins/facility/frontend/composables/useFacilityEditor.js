@@ -257,7 +257,9 @@ export default function useFacilityEditor() {
     if (response.status === 202 && response.data.task?.id) {
       pictureLoginTaskId.value = response.data.task.id;
     }
-    copySettings();
+    // No `copySettings()` here: `saveFacilityConfig` runs straight after and diffs against
+    // `settingsCopy`, so re-snapshotting now would make every other edited setting look
+    // unchanged and be dropped. It takes the snapshot once both halves are saved.
     return response.data;
   }
 
