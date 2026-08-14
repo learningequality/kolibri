@@ -285,8 +285,8 @@
         return response ? secondSlotFilled$({ number, response }) : secondSlotEmpty$({ number });
       }
 
-      // The whole chip is the drag handle, so DraggableHandle renders the chip
-      // itself rather than wrapping it in another element.
+      // The whole chip is the drag handle, so DraggableHandle marks the chip itself
+      // rather than wrapping it in another element.
       function renderChipBody(identifier, { disabled = false, candidate = false, on } = {}) {
         const selected = !disabled && selectedIdentifier.value === identifier;
         const data = {
@@ -306,23 +306,23 @@
         if (disabled) {
           return h('div', { ...data, attrs: { 'aria-disabled': 'true' } }, content);
         }
-        return h(DraggableHandle, { ...data, props: { tag: 'div' }, on }, content);
+        return h(DraggableHandle, [h('div', { ...data, on }, content)]);
       }
 
       function renderChip(
         identifier,
         { tag = 'div', itemClass, candidate = false, ariaHidden = false, on } = {},
       ) {
-        return h(
-          DraggableItem,
-          {
-            props: { tag, disabled: !interactive.value },
-            key: identifier,
-            class: itemClass,
-            attrs: ariaHidden ? { 'aria-hidden': 'true' } : {},
-          },
-          [renderChipBody(identifier, { candidate, on })],
-        );
+        return h(DraggableItem, { key: identifier, props: { disabled: !interactive.value } }, [
+          h(
+            tag,
+            {
+              class: itemClass,
+              attrs: ariaHidden ? { 'aria-hidden': 'true' } : {},
+            },
+            [renderChipBody(identifier, { candidate, on })],
+          ),
+        ]);
       }
 
       function renderPlacedPoolEntry(identifier) {
@@ -358,37 +358,41 @@
           {
             key: `${rowIndex}-${side}`,
             props: {
-              tag: 'div',
               items: filled ? [{ identifier }] : [],
               sortable: false,
               disabled: !interactive.value,
               label,
             },
-            class: [
-              'qti-associate-slot',
-              {
-                'qti-associate-slot-filled': filled,
-                'qti-associate-slot-target': target,
-                'qti-associate-slot-active': active,
-              },
-            ],
-            style: slotStyles({ filled, target, active }),
-            attrs: { 'aria-label': label, ...listbox.slotAttrs(rowIndex, side) },
-            // DraggableRegion does not re-emit $listeners, so these have to be
-            // bound natively.
-            nativeOn: {
-              click: () => selectSlot(rowIndex, side),
-              ...listbox.handlers(rowIndex, side),
-            },
             on: { 'update:items': newItems => reconcileSlot(rowIndex, side, newItems) },
           },
           [
-            // The visible value is the listbox's trigger: its content repeats
-            // the selected option, which the listbox already announces.
-            identifier ? renderChip(identifier, { ariaHidden: true }) : renderPlaceholder(),
-            listbox.renderStepper(),
-            interactive.value ? listbox.renderOptions(rowIndex, side) : null,
-          ].filter(Boolean),
+            h(
+              'div',
+              {
+                class: [
+                  'qti-associate-slot',
+                  {
+                    'qti-associate-slot-filled': filled,
+                    'qti-associate-slot-target': target,
+                    'qti-associate-slot-active': active,
+                  },
+                ],
+                style: slotStyles({ filled, target, active }),
+                attrs: { 'aria-label': label, ...listbox.slotAttrs(rowIndex, side) },
+                on: {
+                  click: () => selectSlot(rowIndex, side),
+                  ...listbox.handlers(rowIndex, side),
+                },
+              },
+              [
+                // The visible value is the listbox's trigger: its content repeats
+                // the selected option, which the listbox already announces.
+                identifier ? renderChip(identifier, { ariaHidden: true }) : renderPlaceholder(),
+                listbox.renderStepper(),
+                interactive.value ? listbox.renderOptions(rowIndex, side) : null,
+              ].filter(Boolean),
+            ),
+          ],
         );
       }
 
@@ -407,26 +411,32 @@
             DraggableRegion,
             {
               props: {
-                tag: 'ul',
                 items: pool.value.map(identifier => ({ identifier })),
                 sortable: false,
                 disabled: !interactive.value,
                 label: responsePoolLabel$(),
               },
-              class: 'qti-associate-pool-items',
-              attrs: { 'aria-label': responsePoolLabel$() },
               on: { 'update:items': reconcilePool },
             },
-            orderedIdentifiers.value.map(identifier =>
-              placed.value.has(identifier)
-                ? renderPlacedPoolEntry(identifier)
-                : renderChip(identifier, {
-                  tag: 'li',
-                  itemClass: 'qti-associate-pool-entry',
-                  candidate: Boolean(activeSlot.value),
-                  on: { click: () => selectResponse(identifier) },
-                }),
-            ),
+            [
+              h(
+                'ul',
+                {
+                  class: 'qti-associate-pool-items',
+                  attrs: { 'aria-label': responsePoolLabel$() },
+                },
+                orderedIdentifiers.value.map(identifier =>
+                  placed.value.has(identifier)
+                    ? renderPlacedPoolEntry(identifier)
+                    : renderChip(identifier, {
+                      tag: 'li',
+                      itemClass: 'qti-associate-pool-entry',
+                      candidate: Boolean(activeSlot.value),
+                      on: { click: () => selectResponse(identifier) },
+                    }),
+                ),
+              ),
+            ],
           ),
         ]);
       }

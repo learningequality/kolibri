@@ -399,8 +399,8 @@
         });
       }
 
-      // The whole chip is the drag handle, so DraggableHandle renders the chip
-      // itself rather than wrapping it in another element.
+      // The whole chip is the drag handle, so DraggableHandle marks the chip itself
+      // rather than wrapping it in another element.
       function renderChip(
         identifier,
         {
@@ -432,7 +432,7 @@
         if (!draggable) {
           return h('div', data, content);
         }
-        return h(DraggableHandle, { ...data, props: { tag: 'div' } }, content);
+        return h(DraggableHandle, [h('div', data, content)]);
       }
 
       function renderPlaceholder() {
@@ -483,11 +483,14 @@
       function renderEntry(identifier, rowIndex, entryIndex) {
         const filled = Boolean(identifier);
         const data = {
-          key: `${rowIndex}-${entryIndex}`,
           class: ['qti-match-entry', { 'qti-match-entry-filled': filled }],
           attrs: {
             'aria-label': entryLabel(identifier, rowIndex, entryIndex),
             ...listbox.slotAttrs(rowIndex, entryIndex),
+          },
+          on: {
+            click: () => selectEntry(rowIndex, entryIndex),
+            ...listbox.handlers(rowIndex, entryIndex),
           },
         };
         const children = [
@@ -506,15 +509,10 @@
         return h(
           DraggableItem,
           {
-            ...data,
-            props: { tag: 'div', disabled: !interactive.value || !filled },
-            // DraggableItem re-emits $listeners, so these bind to its root
-            on: {
-              click: () => selectEntry(rowIndex, entryIndex),
-              ...listbox.handlers(rowIndex, entryIndex),
-            },
+            key: `${rowIndex}-${entryIndex}`,
+            props: { disabled: !interactive.value || !filled },
           },
-          children,
+          [h('div', data, children)],
         );
       }
 
@@ -533,7 +531,6 @@
             DraggableRegion,
             {
               props: {
-                tag: 'ul',
                 // Exhausted chips stay visible but are not draggable, so they
                 // are left out of the region's items to keep its indexes aligned
                 items: pool.value
@@ -543,36 +540,39 @@
                 disabled: !interactive.value,
                 label: responsePoolLabel$(),
               },
-              class: 'qti-match-pool-items',
-              attrs: { 'aria-label': responsePoolLabel$() },
               on: {
                 dragstart: () => {
                   dragOriginRow = null;
                 },
               },
             },
-            pool.value.map(identifier => {
-              const exhausted = !isPlaceable(identifier);
-              const chip = renderChip(identifier, {
-                exhausted,
-                draggable: !exhausted,
-                selected: selectedIdentifier.value === identifier,
-                candidate: isCandidateForActiveEntry(identifier),
-                on: { click: () => selectResponse(identifier) },
-              });
-              if (exhausted) {
-                return h('li', { key: identifier, class: 'qti-match-pool-entry' }, [chip]);
-              }
-              return h(
-                DraggableItem,
+            [
+              h(
+                'ul',
                 {
-                  key: identifier,
-                  class: 'qti-match-pool-entry',
-                  props: { tag: 'li', disabled: !interactive.value },
+                  class: 'qti-match-pool-items',
+                  attrs: { 'aria-label': responsePoolLabel$() },
                 },
-                [chip],
-              );
-            }),
+                pool.value.map(identifier => {
+                  const exhausted = !isPlaceable(identifier);
+                  const chip = renderChip(identifier, {
+                    exhausted,
+                    draggable: !exhausted,
+                    selected: selectedIdentifier.value === identifier,
+                    candidate: isCandidateForActiveEntry(identifier),
+                    on: { click: () => selectResponse(identifier) },
+                  });
+                  if (exhausted) {
+                    return h('li', { key: identifier, class: 'qti-match-pool-entry' }, [chip]);
+                  }
+                  return h(
+                    DraggableItem,
+                    { key: identifier, props: { disabled: !interactive.value } },
+                    [h('li', { class: 'qti-match-pool-entry' }, [chip])],
+                  );
+                }),
+              ),
+            ],
           ),
         ]);
       }
@@ -626,7 +626,6 @@
                 DraggableRegion,
                 {
                   props: {
-                    tag: 'div',
                     // One item per rendered entry, the trailing empty position
                     // included, so SortableJS's indexes line up with the DOM
                     items: entriesFor(rowIndex).map(identifier => ({ identifier })),
@@ -634,18 +633,6 @@
                     disabled: !interactive.value,
                     label: rowLabel$({ source: labelFor(sourceId) }),
                   },
-                  class: [
-                    'qti-match-field',
-                    {
-                      'qti-match-field-target': isFieldTarget(rowIndex),
-                      'qti-match-field-active': activeEntry.value?.rowIndex === rowIndex,
-                    },
-                  ],
-                  style: fieldStyles({
-                    target: isFieldTarget(rowIndex),
-                    active: activeEntry.value?.rowIndex === rowIndex,
-                  }),
-                  attrs: { 'aria-label': rowLabel$({ source: labelFor(sourceId) }) },
                   on: {
                     dragstart: () => {
                       dragOriginRow = rowIndex;
@@ -653,9 +640,28 @@
                     'update:items': newItems => reconcileRow(rowIndex, newItems),
                   },
                 },
-                entriesFor(rowIndex).map((identifier, entryIndex) =>
-                  renderEntry(identifier, rowIndex, entryIndex),
-                ),
+                [
+                  h(
+                    'div',
+                    {
+                      class: [
+                        'qti-match-field',
+                        {
+                          'qti-match-field-target': isFieldTarget(rowIndex),
+                          'qti-match-field-active': activeEntry.value?.rowIndex === rowIndex,
+                        },
+                      ],
+                      style: fieldStyles({
+                        target: isFieldTarget(rowIndex),
+                        active: activeEntry.value?.rowIndex === rowIndex,
+                      }),
+                      attrs: { 'aria-label': rowLabel$({ source: labelFor(sourceId) }) },
+                    },
+                    entriesFor(rowIndex).map((identifier, entryIndex) =>
+                      renderEntry(identifier, rowIndex, entryIndex),
+                    ),
+                  ),
+                ],
               ),
             ]);
           }),
