@@ -44,6 +44,10 @@
       context:
         'Tells the learner to complete the passage by choosing an option in each inline dropdown gap',
     },
+    shortAnswer: {
+      message: 'Short answer only:',
+      context: 'Tells the learner to type their answer in a text entry interaction',
+    },
   });
 
   export default {

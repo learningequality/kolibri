@@ -449,6 +449,10 @@ export default [
             identifier: 'q20-textentry-sv-1',
             title: 'Richard III',
           },
+          {
+            identifier: 'q20-textentry-sv-1a',
+            title: 'Richard III - MathML',
+          },
         ],
       },
       {

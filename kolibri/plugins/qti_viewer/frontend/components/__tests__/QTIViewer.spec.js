@@ -26,10 +26,10 @@ const IMAGE_ALT = 'Never leave luggage unattended';
 // them on its own instance — so the integration test drives hints through it.
 let registeredApi;
 
-function mockViewer(xml) {
+function mockViewer(xml, overrides = {}) {
   registeredApi = null;
   useContentViewer.mockImplementation(() => ({
-    ...useContentViewerMock({ itemData: xml }),
+    ...useContentViewerMock({ itemData: xml, ...overrides }),
     registerAssessmentApi: api => {
       registeredApi = api;
     },
