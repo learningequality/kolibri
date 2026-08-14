@@ -8,14 +8,30 @@
  * `aria-activedescendant` naming the current one, so a screen reader announces
  * the value without focus ever leaving the slot.
  *
+ * The options lead with an empty one, so undoing an answer is a step like any
+ * other rather than a shortcut a learner has to know about.
+ *
  * A slot is addressed by however many parts the interaction needs — associate
  * uses (row, side), match uses (row, entry) — and those parts are passed
  * straight back to the callbacks.
  * @module useSlotListbox
  */
 import { h, ref, unref } from 'vue';
+import { createTranslator } from 'kolibri/utils/i18n';
+
+export const slotListboxStrings = createTranslator('SlotListboxStrings', {
+  emptyOption: {
+    message: 'No response',
+    context:
+      'The option a learner steps to with the arrow keys to take their answer back out of a slot, leaving it empty',
+  },
+});
+
+const { emptyOption$ } = slotListboxStrings;
 
 const ARROW_OFFSETS = { ArrowDown: 1, ArrowUp: -1 };
+
+const EMPTY = null;
 
 let listboxCounter = 0;
 
@@ -44,12 +60,24 @@ export default function useSlotListbox({
   const keyOf = address => address.join('-');
   const optionId = (address, index) => `${idPrefix}-${keyOf(address)}-${index}`;
 
+  function optionsFor(address) {
+    return [EMPTY, ...candidatesFor(...address)];
+  }
+
   function activeIndex(address) {
-    const current = currentValue(...address);
-    if (!current) {
-      return 0;
+    const current = currentValue(...address) || EMPTY;
+    return Math.max(0, optionsFor(address).indexOf(current));
+  }
+
+  // Stepping is one operation over the options, whichever of them is landed on
+  function chooseAt(address, index) {
+    const options = optionsFor(address);
+    const chosen = options[Math.min(Math.max(index, 0), options.length - 1)];
+    if (chosen === EMPTY) {
+      clear(...address);
+      return;
     }
-    return Math.max(0, candidatesFor(...address).indexOf(current));
+    commit(chosen, ...address);
   }
 
   function notePointerDown() {
@@ -95,8 +123,8 @@ export default function useSlotListbox({
       clear(...address);
       return;
     }
-    const candidates = candidatesFor(...address);
-    if (!candidates.length) {
+    const options = optionsFor(address);
+    if (options.length < 2) {
       return;
     }
     let next;
@@ -105,12 +133,12 @@ export default function useSlotListbox({
     } else if (event.key === 'Home') {
       next = 0;
     } else if (event.key === 'End') {
-      next = candidates.length - 1;
+      next = options.length - 1;
     } else {
       return;
     }
     event.preventDefault();
-    commit(candidates[Math.min(Math.max(next, 0), candidates.length - 1)], ...address);
+    chooseAt(address, next);
   }
 
   return {
@@ -176,22 +204,22 @@ export default function useSlotListbox({
      * @returns {object} The vnode for the slot's option list
      */
     renderOptions(...address) {
-      const current = currentValue(...address);
+      const current = currentValue(...address) || EMPTY;
       return h(
         'ul',
         { class: 'qti-visually-hidden', attrs: { role: 'presentation' } },
-        candidatesFor(...address).map((identifier, index) =>
+        optionsFor(address).map((identifier, index) =>
           h(
             'li',
             {
-              key: identifier,
+              key: identifier || 'empty',
               attrs: {
                 id: optionId(address, index),
                 role: 'option',
                 'aria-selected': String(identifier === current),
               },
             },
-            labelFor(identifier),
+            identifier === EMPTY ? emptyOption$() : labelFor(identifier),
           ),
         ),
       );

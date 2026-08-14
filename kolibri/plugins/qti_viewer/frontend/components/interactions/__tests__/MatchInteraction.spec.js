@@ -2,10 +2,13 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/vue';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
+import { slotListboxStrings } from '../../../composables/useSlotListbox';
 import { matchStrings } from '../MatchInteraction.vue';
 
 const { responsePoolLabel$, entryEmpty$, entryFilled$, rowLabel$, refusedAlreadyInRow$ } =
   matchStrings;
+
+const { emptyOption$ } = slotListboxStrings;
 
 // Response content comes from the fixture XML rather than a translation, so it
 // is matched on the rendered chip instead of through a *ByText query.
@@ -604,6 +607,11 @@ describe('Keyboard', () => {
     }));
   }
 
+  // The responses alone, without the empty option that leads them
+  function responsesOf(entry) {
+    return optionsOf(entry).slice(1);
+  }
+
   function activeOptionText(entry) {
     const id = entry.getAttribute('aria-activedescendant');
     return entry.querySelector(`#${id}`).textContent.trim();
@@ -636,7 +644,9 @@ describe('Keyboard', () => {
     });
 
     // h1 is spent at match-max="2", so no other row may take it
-    const texts = optionsOf(entriesOfRow(container, 'Possess Gills')[0]).map(option => option.text);
+    const texts = responsesOf(entriesOfRow(container, 'Possess Gills')[0]).map(
+      option => option.text,
+    );
     expect(texts).toEqual(['Reptiles', 'Mammals']);
   });
 
@@ -653,7 +663,7 @@ describe('Keyboard', () => {
   it("answers a row's first entry when it is tabbed to", async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);
     const entry = entriesOfRow(container, 'Capulet')[0];
-    const first = optionsOf(entry)[0].text;
+    const first = responsesOf(entry)[0].text;
 
     await fireEvent.focus(entry);
 
@@ -690,20 +700,44 @@ describe('Keyboard', () => {
 
   it('cycles the value in place with the arrow keys', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);
-    const candidates = optionsOf(entriesOfRow(container, 'Capulet')[0]).map(o => o.text);
+    const responses = responsesOf(entriesOfRow(container, 'Capulet')[0]).map(o => o.text);
 
     await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);
-    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[0]);
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(responses[0]);
 
     await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'ArrowDown' });
-    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[1]);
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(responses[1]);
 
     await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'ArrowUp' });
-    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(candidates[0]);
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(responses[0]);
+  });
+
+  it('takes the pairing back out by stepping past the first response', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);
+    await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'ArrowUp' });
+
+    expect(activeOptionText(entriesOfRow(container, 'Capulet')[0])).toBe(emptyOption$());
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
+  });
+
+  it('starts the add-another position on the empty option', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: { RESPONSE: [['r2', 'h1']] },
+    });
+
+    // r2 is match-max="0", so its row offers a trailing position that tabbing to
+    // leaves unanswered
+    await fireEvent.focus(entriesOfRow(container, 'Endothermic')[1]);
+
+    expect(optionsOf(entriesOfRow(container, 'Endothermic')[1])[0].text).toBe(emptyOption$());
+    expect(activeOptionText(entriesOfRow(container, 'Endothermic')[1])).toBe(emptyOption$());
   });
 
   it('jumps to the ends with Home and End', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    // the empty option included: Home lands on it, End on the last response
     const candidates = optionsOf(entriesOfRow(container, 'Capulet')[0]).map(o => o.text);
 
     await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);

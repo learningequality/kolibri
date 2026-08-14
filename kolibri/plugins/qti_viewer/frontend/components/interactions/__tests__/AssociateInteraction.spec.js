@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/vue';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
+import { slotListboxStrings } from '../../../composables/useSlotListbox';
 import { associateStrings } from '../AssociateInteraction.vue';
 
 const {
@@ -11,6 +12,8 @@ const {
   firstSlotFilled$,
   secondSlotFilled$,
 } = associateStrings;
+
+const { emptyOption$ } = slotListboxStrings;
 
 // Container-scoped: the fixtures shuffle, so pool order is seeded and only
 // membership is stable. Tests that care about order say so explicitly.
@@ -508,6 +511,11 @@ describe('Keyboard', () => {
     }));
   }
 
+  // The responses alone, without the empty option that leads them
+  function responsesOf(slot) {
+    return optionsOf(slot).slice(1);
+  }
+
   function activeOptionText(slot) {
     const id = slot.getAttribute('aria-activedescendant');
     return slot.querySelector(`#${id}`).textContent.trim();
@@ -555,13 +563,14 @@ describe('Keyboard', () => {
     const slot = slotAt(container, 0);
 
     expect(slot.querySelector('[role="option"]').closest('.qti-visually-hidden')).not.toBeNull();
-    expect(optionsOf(slot)).toHaveLength(6);
+    // the six responses, led by the empty option
+    expect(optionsOf(slot)).toHaveLength(7);
   });
 
   it('fills the slot with the first valid response when focused', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
     const slot = slotAt(container, 0);
-    const firstCandidate = optionsOf(slot)[0].text;
+    const firstCandidate = responsesOf(slot)[0].text;
 
     await fireEvent.focus(slot);
 
@@ -584,20 +593,44 @@ describe('Keyboard', () => {
 
   it('cycles the value in place with the arrow keys', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
-    const candidates = optionsOf(slotAt(container, 0)).map(option => option.text);
+    const responses = responsesOf(slotAt(container, 0)).map(option => option.text);
 
     await fireEvent.focus(slotAt(container, 0));
-    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[0]);
+    expect(activeOptionText(slotAt(container, 0))).toBe(responses[0]);
 
     await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowDown' });
-    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[1]);
+    expect(activeOptionText(slotAt(container, 0))).toBe(responses[1]);
 
     await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowUp' });
-    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[0]);
+    expect(activeOptionText(slotAt(container, 0))).toBe(responses[0]);
+  });
+
+  it('empties the slot by stepping back past the first response', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    await fireEvent.focus(slotAt(container, 0));
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowUp' });
+
+    expect(activeOptionText(slotAt(container, 0))).toBe(emptyOption$());
+    expect(slotAt(container, 0)).toHaveAttribute('aria-label', firstSlotEmpty$({ number: 1 }));
+  });
+
+  it('offers the empty option first, so an unanswered slot starts on it', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const slot = slotAt(container, 0);
+
+    // A pointer press focuses without answering, which is how a slot comes to be
+    // focused and still empty
+    await fireEvent.mouseDown(slot);
+    await fireEvent.focus(slot);
+
+    expect(optionsOf(slot)[0].text).toBe(emptyOption$());
+    expect(activeOptionText(slotAt(container, 0))).toBe(emptyOption$());
   });
 
   it('clamps at the ends and jumps with Home and End', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    // the empty option included: Home lands on it, End on the last response
     const candidates = optionsOf(slotAt(container, 0)).map(option => option.text);
 
     await fireEvent.focus(slotAt(container, 0));
@@ -622,7 +655,8 @@ describe('Keyboard', () => {
 
     const options = optionsOf(slotAt(container, 0));
     expect(options.filter(option => option.selected === 'true')).toHaveLength(1);
-    expect(options[1].selected).toBe('true');
+    // the second response, since the empty option leads the list
+    expect(options[2].selected).toBe('true');
   });
 
   it('keeps the slot own response among its candidates so cycling is reversible', async () => {
