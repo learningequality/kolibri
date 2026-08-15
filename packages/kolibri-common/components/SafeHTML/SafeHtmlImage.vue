@@ -99,9 +99,27 @@
       opacity 0.15s;
   }
 
+  .image-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 16px auto;
+  }
+
   .img-wrapper {
+    position: relative;
+    display: inline-block;
     max-width: 900px;
-    max-height: 584px;
+    transition: box-shadow 0.15s;
+  }
+
+  // The only height cap — a second one on the wrapper is what #14110 was.
+  img.safe-html {
+    display: block;
+    max-width: 100%;
+    max-height: 80vh;
+    margin: 0 auto;
   }
 
   .img-button {

@@ -88,34 +88,13 @@ b.safe-html {
 }
 
 // Table styles live in SafeHtmlTable, which renders them.
-
-.image-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  max-height: 80vh;
-  margin: 16px auto;
-}
-
-.img-wrapper {
-  position: relative;
-  display: inline-block;
-  transition: box-shadow 0.15s;
-}
+// Image layout styles live in SafeHtmlImage, which renders them.
 
 .img-wrapper:hover {
   cursor: pointer;
   box-shadow:
     3px 0 8px 1px rgba(16, 24, 40, 0.1),
     -3px 6px 8px 1px rgba(16, 24, 40, 0.1);
-}
-
-img.safe-html {
-  display: block;
-  max-width: 100%;
-  max-height: 80vh;
-  margin: 0 auto;
 }
 
 .expand-btn {
