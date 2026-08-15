@@ -280,7 +280,7 @@ class ContentNodeAPIBase:
                 ]
             }
 
-    def _assert_node(self, actual, expected):
+    def _assert_node(self, actual, expected, with_admin_imported=True):
         assessmentmetadata = (
             expected.assessmentmetadata.all()
             .values(
@@ -328,75 +328,72 @@ class ContentNodeAPIBase:
                     thumbnail += "?baseurl={}".format(self.baseurl)
         files = sorted(files, key=lambda x: x["id"])
         actual["files"] = sorted(actual["files"], key=lambda x: x["id"])
-        self.assertEqual(
-            actual,
-            {
-                "id": expected.id,
-                "available": expected.available,
-                "author": expected.author,
-                "channel_id": expected.channel_id,
-                "coach_content": expected.coach_content,
-                "content_id": expected.content_id,
-                "description": expected.description,
-                "duration": expected.duration,
-                "learning_activities": (
-                    expected.learning_activities.split(",")
-                    if expected.learning_activities
-                    else []
-                ),
-                "learner_needs": (
-                    expected.learner_needs.split(",") if expected.learner_needs else []
-                ),
-                "grade_levels": (
-                    expected.grade_levels.split(",") if expected.grade_levels else []
-                ),
-                "resource_types": (
-                    expected.resource_types.split(",")
-                    if expected.resource_types
-                    else []
-                ),
-                "accessibility_labels": (
-                    expected.accessibility_labels.split(",")
-                    if expected.accessibility_labels
-                    else []
-                ),
-                "categories": (
-                    expected.categories.split(",") if expected.categories else []
-                ),
-                "kind": expected.kind,
-                "lang": self.map_language(expected.lang),
-                "license_description": expected.license_description,
-                "license_name": expected.license_name,
-                "license_owner": expected.license_owner,
-                "num_coach_contents": expected.num_coach_contents,
-                "on_device_resources": expected.on_device_resources,
-                "options": expected.options,
-                "parent": expected.parent_id,
-                "sort_order": expected.sort_order,
-                "title": expected.title,
-                "lft": expected.lft,
-                "rght": expected.rght,
-                "tree_id": expected.tree_id,
-                "ancestors": [],
-                "tags": list(
-                    expected.tags.all()
-                    .order_by("tag_name")
-                    .values_list("tag_name", flat=True)
-                ),
-                "thumbnail": thumbnail,
-                "assessmentmetadata": assessmentmetadata,
-                "is_leaf": expected.kind != "topic",
-                "files": files,
-                "admin_imported": bool(expected.admin_imported),
-                "modality": expected.modality,
-            },
-        )
+        expected_data = {
+            "id": expected.id,
+            "available": expected.available,
+            "author": expected.author,
+            "channel_id": expected.channel_id,
+            "coach_content": expected.coach_content,
+            "content_id": expected.content_id,
+            "description": expected.description,
+            "duration": expected.duration,
+            "learning_activities": (
+                expected.learning_activities.split(",")
+                if expected.learning_activities
+                else []
+            ),
+            "learner_needs": (
+                expected.learner_needs.split(",") if expected.learner_needs else []
+            ),
+            "grade_levels": (
+                expected.grade_levels.split(",") if expected.grade_levels else []
+            ),
+            "resource_types": (
+                expected.resource_types.split(",") if expected.resource_types else []
+            ),
+            "accessibility_labels": (
+                expected.accessibility_labels.split(",")
+                if expected.accessibility_labels
+                else []
+            ),
+            "categories": (
+                expected.categories.split(",") if expected.categories else []
+            ),
+            "kind": expected.kind,
+            "lang": self.map_language(expected.lang),
+            "license_description": expected.license_description,
+            "license_name": expected.license_name,
+            "license_owner": expected.license_owner,
+            "num_coach_contents": expected.num_coach_contents,
+            "on_device_resources": expected.on_device_resources,
+            "options": expected.options,
+            "parent": expected.parent_id,
+            "sort_order": expected.sort_order,
+            "title": expected.title,
+            "lft": expected.lft,
+            "rght": expected.rght,
+            "tree_id": expected.tree_id,
+            "ancestors": [],
+            "tags": list(
+                expected.tags.all()
+                .order_by("tag_name")
+                .values_list("tag_name", flat=True)
+            ),
+            "thumbnail": thumbnail,
+            "assessmentmetadata": assessmentmetadata,
+            "is_leaf": expected.kind != "topic",
+            "files": files,
+            "modality": expected.modality,
+        }
+        if with_admin_imported:
+            expected_data["admin_imported"] = bool(expected.admin_imported)
+        self.assertEqual(actual, expected_data)
 
-    def _assert_nodes(self, data, nodes):
+    def _assert_nodes(self, data, nodes, with_admin_imported=True):
         for actual, expected in zip(
             sorted(data, key=lambda x: x["id"]), sorted(nodes, key=lambda x: x.id)
         ):
-            self._assert_node(actual, expected)
+            self._assert_node(actual, expected, with_admin_imported=with_admin_imported)
 
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
@@ -1918,6 +1915,22 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             reverse("kolibri:core:contentnode-list"), data={"search": "!?,"}
         )
         self.assertEqual(len(response.data), len(unfiltered.data))
+
+    def test_publiccontentnode_list(self):
+        # The public payload is the internal one minus admin_imported, which is
+        # device-local state a peer has no business seeing.
+        root = content.ContentNode.objects.get(title="root")
+        nodes = root.get_descendants(include_self=True).filter(available=True)
+        response = self.client.get(reverse("kolibri:core:publiccontentnode-list"))
+        self.assertEqual(len(response.data), len(nodes))
+        self._assert_nodes(response.data, nodes, with_admin_imported=False)
+
+    def test_publiccontentnode_retrieve(self):
+        node = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:publiccontentnode-detail", kwargs={"pk": node.id})
+        )
+        self._assert_node(response.data, node, with_admin_imported=False)
 
     def test_publiccontentnode_list_search(self):
         # The search filter lives on BaseContentNodeMixin so the public endpoint
