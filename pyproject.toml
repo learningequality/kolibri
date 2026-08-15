@@ -219,4 +219,4 @@ exclude_lines = [
 [tool.kolibri.i18n]
 project = "kolibri"
 locale_data_folder = "kolibri/locale"
-ignore = "**/node_modules/**,**/static/**"
+ignore = "**/node_modules/**,**/static/**,**/__tests__/**"
