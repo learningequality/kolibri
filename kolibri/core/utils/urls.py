@@ -1,3 +1,4 @@
+from functools import lru_cache
 from urllib.parse import urljoin
 
 from django.urls import reverse
@@ -5,6 +6,9 @@ from django.urls import reverse
 from kolibri.utils.conf import OPTIONS
 
 
+# Pure, and the content endpoints join the same two or three URLs once per file
+# in a page — urljoin parses both sides on every call.
+@lru_cache(maxsize=256)
 def join_url(baseurl, url):
     # Join the URL to baseurl, but remove any leading "/" to ensure that if there is a path prefix on baseurl
     # it doesn't get ignored by the urljoin (which it would if the reversed_url had a leading '/',
