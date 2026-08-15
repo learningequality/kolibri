@@ -90,25 +90,6 @@ b.safe-html {
 // Table styles live in SafeHtmlTable, which renders them.
 // Image layout styles live in SafeHtmlImage, which renders them.
 
-.img-wrapper:hover {
-  cursor: pointer;
-  box-shadow:
-    3px 0 8px 1px rgba(16, 24, 40, 0.1),
-    -3px 6px 8px 1px rgba(16, 24, 40, 0.1);
-}
-
-.expand-btn {
-  position: absolute;
-  top: 13px;
-  right: 13px;
-  opacity: 0;
-}
-
-.img-wrapper:hover .expand-btn,
-.expand-btn:focus {
-  opacity: 1;
-}
-
 .embedded-content-viewer {
   max-width: 960px;
   margin: 40px auto;
