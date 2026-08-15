@@ -540,6 +540,19 @@ export default [
     ],
   },
   {
+    title: 'Images',
+    items: [
+      {
+        identifier: 'image-rendering',
+        title: 'Sizing & Expand Control',
+      },
+      {
+        identifier: 'image-order-interaction',
+        title: 'Images In A Draggable Order',
+      },
+    ],
+  },
+  {
     title: 'Media',
     items: [
       {
