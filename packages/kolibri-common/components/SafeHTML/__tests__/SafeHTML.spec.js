@@ -28,6 +28,9 @@ const SafeHTML = createSafeHTML();
 
 const HELLO_WORLD_TEXT = 'Hello World';
 const CONTENT_TEXT = 'Content';
+const FIRST_TEXT = 'First paragraph';
+const SECOND_TEXT = 'Second paragraph';
+const PROBE_HTML = '<probe-element></probe-element>';
 
 // MIME types a viewer hook registers an object[type="..."] selector for.
 const HANDLED_OBJECT_TYPES = ['application/pdf', 'video/mp4'];
@@ -528,6 +531,97 @@ describe('SafeHTML', () => {
       // Check that semantics tag is in the rendered output
       expect(container.innerHTML).toContain('semantics');
       expect(container.innerHTML).toContain('<mi');
+    });
+  });
+
+  describe('re-render memoisation', () => {
+    // Re-sanitising yields a fresh DOM node, so a second entry means `html` was
+    // sanitised again.
+    let probeNodes;
+    let probeVm;
+    const probed = jest.fn();
+
+    const Probe = {
+      name: 'ProbeElement',
+      props: { node: { type: null, default: null } },
+      created() {
+        probeNodes.push(this.node);
+        probeVm = this;
+      },
+      watch: {
+        node(value) {
+          probeNodes.push(value);
+        },
+      },
+      render(h) {
+        return h('span');
+      },
+    };
+
+    const SafeHTMLWithProbe = createSafeHTML({ 'probe-element': Probe });
+
+    // `tick` is captured per render, so a stale value means the probe reached a
+    // handler captured at mount rather than SafeHTML's emit.
+    const Parent = {
+      name: 'MemoParent',
+      props: {
+        html: { type: String, default: '' },
+        tick: { type: Number, default: 0 },
+      },
+      render(h) {
+        const tick = this.tick;
+        return h('div', [
+          String(tick),
+          h(SafeHTMLWithProbe, {
+            props: { html: this.html },
+            on: { probed: () => probed(tick) },
+          }),
+        ]);
+      },
+    };
+
+    beforeEach(() => {
+      probeNodes = [];
+      probeVm = null;
+    });
+
+    it('leaves the rendered DOM in place while html is unchanged', async () => {
+      const html = `<p>${FIRST_TEXT}</p>${PROBE_HTML}`;
+      const { updateProps } = render(Parent, { props: { html, tick: 0 } });
+      const paragraph = screen.getByText(FIRST_TEXT);
+      expect(probeNodes).toHaveLength(1);
+      await updateProps({ tick: 1 });
+      // A parent re-render alone leaves an instance with an unchanged prop
+      // untouched; forcing the render is what reaches the memoised fragment.
+      probeVm.$parent.$forceUpdate();
+      await Vue.nextTick();
+      expect(probeNodes).toHaveLength(1);
+      expect(screen.getByText(FIRST_TEXT)).toBe(paragraph);
+    });
+
+    it('renders the new content when html changes', async () => {
+      const { updateProps } = render(Parent, { props: { html: `<p>${FIRST_TEXT}</p>` } });
+      expect(screen.getByText(FIRST_TEXT)).toBeInTheDocument();
+      await updateProps({ html: `<p>${SECOND_TEXT}</p>` });
+      expect(screen.queryByText(FIRST_TEXT)).not.toBeInTheDocument();
+      expect(screen.getByText(SECOND_TEXT)).toBeInTheDocument();
+    });
+
+    it('forwards a component event to the listener from the latest parent render', async () => {
+      const { updateProps } = render(Parent, { props: { html: PROBE_HTML, tick: 0 } });
+      await updateProps({ tick: 1 });
+      probeVm.$emit('probed');
+      expect(probed).toHaveBeenCalledWith(1);
+    });
+
+    it('forwards a listener registered under a modifier prefix', () => {
+      // `~` is how the template compiler spells `@probed.once` in vnode `on` data.
+      render(SafeHTMLWithProbe, {
+        props: { html: PROBE_HTML },
+        listeners: { '~probed': probed },
+      });
+      probeVm.$emit('probed');
+      expect(probed).toHaveBeenCalledTimes(1);
     });
   });
 });

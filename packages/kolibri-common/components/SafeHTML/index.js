@@ -1,3 +1,4 @@
+import { computed, getCurrentInstance, h } from 'vue';
 import DOMPurify from 'dompurify';
 import kebabCase from 'lodash/kebabCase';
 import kolibri from 'kolibri';
@@ -95,29 +96,50 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
 
   return {
     name: 'SafeHTML',
-    functional: true,
     props: {
       html: {
         required: true,
       },
     },
-    render(h, context) {
-      const docFragment = purifier.sanitize(context.props.html, {
-        ADD_ATTR,
-        ADD_TAGS,
-        FORBID_TAGS,
-        ALLOWED_URI_REGEXP,
-        FORBID_ATTR,
-        KEEP_CONTENT: false,
-        CUSTOM_ELEMENT_HANDLING: {
-          tagNameCheck: tagName => Boolean(customComponents[tagName.toLowerCase()]),
-          attributeNameCheck: attrName => Boolean(validProps[attrName]),
-          allowCustomizedBuiltInElements: true,
-        },
-        RETURN_DOM_FRAGMENT: true,
-      });
+    setup(props, { emit, listeners }) {
+      // Vue 2 exposes text vnode creation only as the internal `_v` render helper;
+      // switch to the exported `createTextVNode` on the Vue 3 upgrade.
+      const { _v } = getCurrentInstance().proxy;
 
-      function mapNode(node) {
+      // Only a change to `html` re-renders this component, so a handler captured
+      // into a child vnode goes stale the next time the parent re-renders. Re-emit
+      // instead — emit resolves the current handler at call time.
+      const forwardedListeners = Object.fromEntries(
+        Object.keys(listeners).map(event => {
+          // Keys carry v-on modifier prefixes (`&`, `~`, `!`) that $emit does not
+          // match; the modifiers are the parent's to apply.
+          const name = event.replace(/^[&~!]+/, '');
+          return [name, (...args) => emit(name, ...args)];
+        }),
+      );
+
+      // Sanitising is the expensive step, so it is memoised on `html`.
+      const docFragment = computed(() =>
+        purifier.sanitize(props.html, {
+          ADD_ATTR,
+          ADD_TAGS,
+          FORBID_TAGS,
+          ALLOWED_URI_REGEXP,
+          FORBID_ATTR,
+          KEEP_CONTENT: false,
+          CUSTOM_ELEMENT_HANDLING: {
+            tagNameCheck: tagName => Boolean(customComponents[tagName.toLowerCase()]),
+            attributeNameCheck: attrName => Boolean(validProps[attrName]),
+            allowCustomizedBuiltInElements: true,
+          },
+          RETURN_DOM_FRAGMENT: true,
+        }),
+      );
+
+      // `key` is the node's index among its siblings, counted before the
+      // whitespace-only nodes are dropped, so patch pairs each vnode with the
+      // node that held its position.
+      function mapNode(node, key) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const tagName = node.tagName.toLowerCase();
 
@@ -130,14 +152,14 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
 
           // Extract attributes and convert to props
           const attrs = {};
-          const props = {
+          const nodeProps = {
             node,
           };
 
           for (const attr of node.attributes) {
             attrs[attr.name] = attr.value;
             const propName = attr.name.replace(/-[a-z]/g, g => g[1].toUpperCase());
-            props[propName] = attr.value;
+            nodeProps[propName] = attr.value;
           }
 
           // Check if this is a custom element
@@ -149,7 +171,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
           if (component) {
             // Components opt into safe-html themselves; setting it here would
             // overwrite the class they render on their own root.
-            const childProps = { ...props };
+            const childProps = { ...nodeProps };
             // ContentViewer expects the DOM element as `element`, not `node`
             if (component === 'ContentViewer') {
               delete childProps.node;
@@ -159,25 +181,26 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
             const childVNode = h(
               component,
               {
+                key,
                 props: childProps,
                 attrs,
-                on: context.listeners,
+                on: forwardedListeners,
               },
               mapChildren(node.childNodes),
             );
             // Wrap embedded ContentViewers in a layout container
             if (component === 'ContentViewer') {
-              return h('div', { class: 'embedded-content-viewer' }, [childVNode]);
+              return h('div', { key, class: 'embedded-content-viewer' }, [childVNode]);
             }
             return childVNode;
           }
 
           attrs.class = attrs.class ? `${attrs.class} safe-html` : 'safe-html';
-          return h(tagName, { attrs }, mapChildren(node.childNodes));
+          return h(tagName, { key, attrs }, mapChildren(node.childNodes));
         }
 
         if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
-          return node.textContent;
+          return _v(node.textContent);
         }
         return null;
       }
@@ -186,7 +209,9 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
         return Array.from(childNodes).map(mapNode).filter(Boolean);
       }
 
-      return mapChildren(docFragment.childNodes);
+      // A render function returns one root, so consumers get this wrapper in
+      // place of the element they used to wrap SafeHTML in themselves.
+      return () => h('div', mapChildren(docFragment.value.childNodes));
     },
   };
 }
