@@ -45,7 +45,8 @@
 
 <script>
 
-  import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+  import { computed, getCurrentInstance, nextTick, ref } from 'vue';
+  import { useEventListener, useResizeObserver } from '@vueuse/core';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import Lightbox from './Lightbox.vue';
   import parseStyleString from './parseStyleString';
@@ -109,14 +110,12 @@
         nextTick(() => overlayRef.value?.focus());
       }
 
-      onMounted(() => {
-        // the 80vh cap makes rendered size viewport-dependent
-        window.addEventListener('resize', updateExpandAvailability);
-      });
-
-      onBeforeUnmount(() => {
-        window.removeEventListener('resize', updateExpandAvailability);
-      });
+      // Rendered size is viewport-dependent through the 80vh cap, and
+      // container-dependent besides. Both auto-dispose on unmount; the observer
+      // catches a container narrowed without a window resize, the listener
+      // covers the browserslist targets that predate ResizeObserver.
+      useResizeObserver(imgRef, updateExpandAvailability);
+      useEventListener(window, 'resize', updateExpandAvailability);
 
       return {
         canExpand,
