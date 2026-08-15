@@ -221,9 +221,6 @@ class ChannelThumbnailView(View):
         return HttpResponse(thumbnail, content_type=mimetype)
 
 
-MODALITIES = set(["QUIZ"])
-
-
 class UUIDInFilter(BaseInFilter, UUIDFilter):
     pass
 
@@ -397,6 +394,8 @@ class ContentNodeFilter(FilterSet):
 
     def filter_contains_quiz(self, queryset, name, value):
         if value:
+            # A correlated descendant subquery, not get_ancestors() over the
+            # quizzes: the latter made this filter unusably slow (#13267).
             quiz_descendants = models.ContentNode.objects.filter(
                 modality=modalities.QUIZ,
                 available=True,
@@ -738,6 +737,8 @@ class OptionalPagination(ValuesViewsetCursorPagination):
 
 
 class OptionalContentNodePagination(OptionalPagination):
+    # Local search no longer offers a channel filter, so the channels label set
+    # is dead weight here (#12842).
     use_deprecated_channels_labels = False
 
     def paginate_queryset(self, queryset, request, view=None):
@@ -782,6 +783,8 @@ class OptionalContentNodePagination(OptionalPagination):
 
 
 class PublicContentNodePagination(OptionalContentNodePagination):
+    # 0.17.x peers browsing this device remotely still offer that filter, so the
+    # public endpoint must keep emitting the labels (#12842).
     use_deprecated_channels_labels = True
 
 
@@ -837,6 +840,8 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                         kind=content_kinds.EXERCISE,
                         available=True,
                     )
+                    # Counts feed the coach quiz resource picker, which must not
+                    # offer surveys (#13631).
                     .exclude(modality=modalities.SURVEY)
                     .values_list(
                         "assessmentmetadata__number_of_assessments", flat=True
@@ -878,6 +883,8 @@ NUM_GRANDCHILDREN_PER_CHILD = 12
 class TreeQueryMixin:
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
+        # Named next__gt, not lft__gt: lft__gt is a contentnode_filter_fields
+        # entry, so the filterset would consume the cursor as a filter.
         next__gt = request.query_params.get("next__gt")
 
         try:
@@ -1496,17 +1503,6 @@ class UserContentNodeViewset(
             )
         )
         return queryset
-
-
-def mean(data):
-    n = 0
-    mean = 0.0
-
-    for x in data:
-        n += 1
-        mean += (x - mean) / n
-
-    return mean
 
 
 class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMixin):
