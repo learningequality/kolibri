@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
 import SafeHtmlTable from '../SafeHtmlTable.vue';
 import { createSafeHTML } from '../index';
 
@@ -111,6 +111,71 @@ describe('SafeHtmlTable', () => {
     it("table with > 3 columns has a 'n * 200px' width", () => {
       renderComponent(5, 4);
       expect(screen.getByRole('table')).toHaveStyle('width: 800px;');
+    });
+  });
+
+  describe('caption alignment and tab stop track container overflow', () => {
+    // toHaveStyle does not resolve custom properties, so read them off the element.
+    const captionAlign = container => container.style.getPropertyValue('--table-caption-align');
+
+    // jsdom lays nothing out, so both widths read 0 until stubbed. Stubbing the
+    // prototype through a mutable object covers the measurement on mount, before any
+    // element exists to stub, and restubbing partway through a journey.
+    const widths = { scrollWidth: 0, clientWidth: 0 };
+    const stubWidths = (scrollWidth, clientWidth) =>
+      Object.assign(widths, { scrollWidth, clientWidth });
+
+    beforeEach(() => {
+      stubWidths(0, 0);
+      jest
+        .spyOn(Element.prototype, 'scrollWidth', 'get')
+        .mockImplementation(() => widths.scrollWidth);
+      jest
+        .spyOn(Element.prototype, 'clientWidth', 'get')
+        .mockImplementation(() => widths.clientWidth);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('centres the caption and takes no tab stop when the table fits', () => {
+      renderComponent(3, 3);
+      const container = screen.getByTestId('table-container');
+
+      expect(captionAlign(container)).toBe('center');
+      expect(container).not.toHaveAttribute('tabindex');
+    });
+
+    it('aligns the caption to the start and takes a tab stop when the table overflows on mount', async () => {
+      stubWidths(1200, 900);
+
+      renderComponent(3, 3);
+      const container = screen.getByTestId('table-container');
+
+      await waitFor(() => {
+        expect(captionAlign(container)).toBe('start');
+      });
+      expect(container).toHaveAttribute('tabindex', '0');
+    });
+
+    it('follows the window being resized in either direction', async () => {
+      renderComponent(3, 3);
+      const container = screen.getByTestId('table-container');
+
+      stubWidths(1200, 900);
+      window.dispatchEvent(new Event('resize'));
+      await waitFor(() => {
+        expect(captionAlign(container)).toBe('start');
+      });
+      expect(container).toHaveAttribute('tabindex', '0');
+
+      stubWidths(600, 900);
+      window.dispatchEvent(new Event('resize'));
+      await waitFor(() => {
+        expect(captionAlign(container)).toBe('center');
+      });
+      expect(container).not.toHaveAttribute('tabindex');
     });
   });
 });
