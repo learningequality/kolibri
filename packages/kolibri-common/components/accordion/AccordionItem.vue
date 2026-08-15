@@ -195,6 +195,11 @@
   }
 
   .content {
+    // Accordion content is never drag content, so it opts back out of the
+    // suppression draggable.scss sets on `.draggable-item`. `initial` rather
+    // than the default, which stays written once, in the reader's `var()`.
+    --content-affordance-display: initial;
+
     padding: 10px;
   }
 

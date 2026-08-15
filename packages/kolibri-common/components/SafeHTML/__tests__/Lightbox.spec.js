@@ -152,6 +152,51 @@ describe('Lightbox', () => {
     });
   });
 
+  describe('pinching the image by touch', () => {
+    const twoFingers = gap => [
+      { clientX: 100 - gap / 2, clientY: 100 },
+      { clientX: 100 + gap / 2, clientY: 100 },
+    ];
+
+    async function pinch(target, fromGap, toGap) {
+      await fireEvent.touchStart(target, { touches: twoFingers(fromGap) });
+      await fireEvent.touchMove(target, { touches: twoFingers(toGap) });
+      await fireEvent.touchEnd(target, { touches: [] });
+    }
+
+    it('increases the scale when two fingers spread apart on the image', async () => {
+      const prevWidth = parseInt(img.style.width);
+      const prevHeight = parseInt(img.style.height);
+
+      await pinch(img, 100, 200);
+
+      expect(parseInt(img.style.width)).toBeGreaterThan(prevWidth);
+      expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
+    });
+
+    it('increases the scale when the fingers land on the backdrop rather than the image', async () => {
+      const prevWidth = parseInt(img.style.width);
+      const prevHeight = parseInt(img.style.height);
+
+      await pinch(lightboxDialog, 100, 200);
+
+      expect(parseInt(img.style.width)).toBeGreaterThan(prevWidth);
+      expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
+    });
+
+    it("disables the 'Zoom in' button when the fingers spread past the maximum scale", async () => {
+      await pinch(img, 100, 1000);
+      expect(zoomIn).toBeDisabled();
+    });
+
+    it("disables the 'Zoom out' button when the fingers close past the minimum scale", async () => {
+      await clickBtnNTimes(user, zoomIn, 4); // Zoom in so 'Zoom out' starts enabled
+
+      await pinch(img, 1000, 10);
+      expect(zoomOut).toBeDisabled();
+    });
+  });
+
   describe('panning the image', () => {
     it("moves the image when it's dragged by a mouse", async () => {
       await clickBtnNTimes(user, zoomIn, 12); // Zoom image to maximum scale
@@ -160,6 +205,16 @@ describe('Lightbox', () => {
       await fireEvent.mouseDown(img, { clientX: 100, clientY: 100 });
       await fireEvent.mouseMove(window, { clientX: 200, clientY: 200 });
       await fireEvent.mouseUp(window, { clientX: 200, clientY: 200 });
+      expect(img.style.transform).not.toEqual(prevTransform);
+    });
+
+    it("moves the image when it's dragged by one finger", async () => {
+      await clickBtnNTimes(user, zoomIn, 12);
+
+      const prevTransform = img.style.transform;
+      await fireEvent.touchStart(img, { touches: [{ clientX: 100, clientY: 100 }] });
+      await fireEvent.touchMove(img, { touches: [{ clientX: 200, clientY: 200 }] });
+      await fireEvent.touchEnd(img, { touches: [] });
       expect(img.style.transform).not.toEqual(prevTransform);
     });
 
