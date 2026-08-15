@@ -8,6 +8,10 @@
     class="lightbox-dialog"
     data-testid="lightbox-dialog"
     @close="closeLightbox"
+    @touchstart="onTouchStart"
+    @touchmove="onTouchMove"
+    @touchend="onTouchEnd"
+    @touchcancel="onTouchEnd"
   >
     <div
       role="presentation"
@@ -126,7 +130,13 @@
       const delta = reactive({ x: 0, y: 0 });
       const isDragging = ref(false);
 
-      let isDestroyed = false;
+      // Scratch state for the gesture handlers — nothing renders from it.
+      const origin = { x: 0, y: 0 };
+      const dragStart = { x: 0, y: 0 };
+      const backdropSize = { width: 0, height: 0 };
+      let backdropClickValid = false;
+      let pinchStartDistance = 0;
+      let pinchStartScale = MIN_SCALE;
 
       const imgStyle = computed(() => ({
         width: baseSize.width * scale.value + 'px',
@@ -198,33 +208,114 @@
         }
       }
 
-      function onMouseMove(e) {
+      function canDragFrom(target) {
+        return scale.value > MIN_SCALE && target === imageRef.value;
+      }
+
+      function startDrag(clientX, clientY) {
+        isDragging.value = true;
+        imageRef.value.classList.remove('with-transition');
+        dragStart.x = clientX;
+        dragStart.y = clientY;
+        origin.x = delta.x;
+        origin.y = delta.y;
+      }
+
+      function moveDrag(clientX, clientY) {
         if (!isDragging.value) return;
-        delta.x = origin.x + (e.clientX - dragStart.x);
-        delta.y = origin.y + (e.clientY - dragStart.y);
+        delta.x = origin.x + (clientX - dragStart.x);
+        delta.y = origin.y + (clientY - dragStart.y);
         clampDelta();
       }
 
-      function onMouseUp() {
+      function endDrag() {
         isDragging.value = false;
         if (imageRef.value) {
           imageRef.value.classList.add('with-transition');
         }
+      }
+
+      // Clamped because a pinch may be centred on the backdrop, off the image.
+      function centreOffset(clientX, clientY) {
+        const rect = imageRef.value.getBoundingClientRect();
+        return {
+          relX: clamp((clientX - rect.left) / rect.width - 0.5, -0.5, 0.5),
+          relY: clamp((clientY - rect.top) / rect.height - 0.5, -0.5, 0.5),
+        };
+      }
+
+      function onMouseMove(e) {
+        moveDrag(e.clientX, e.clientY);
+      }
+
+      function onMouseUp() {
+        endDrag();
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
       }
 
       function onMouseDown(e) {
-        if (scale.value <= 1 || !imageRef.value || e.target !== imageRef.value) return;
+        if (!canDragFrom(e.target)) return;
         e.preventDefault();
-        isDragging.value = true;
-        imageRef.value.classList.remove('with-transition');
-        dragStart.x = e.clientX;
-        dragStart.y = e.clientY;
-        origin.x = delta.x;
-        origin.y = delta.y;
+        startDrag(e.clientX, e.clientY);
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('mouseup', onMouseUp);
+      }
+
+      function touchDistance(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      // Touch Events, not Pointer Events: the browserslist floor (Safari 11.1 /
+      // iOS 10) predates Pointer Events.
+      // Bound on the dialog rather than `.lightbox-inner` beside the mouse
+      // handlers: `.lightbox-inner` shrink-wraps the image, so a pinch that
+      // starts on the backdrop targets the dialog.
+      function onTouchStart(e) {
+        if (e.touches.length === 2) {
+          // there is nothing to pinch until calculateSize has run
+          if (!imageRef.value || !baseSize.width) return;
+          pinchStartDistance = touchDistance(e.touches);
+          pinchStartScale = scale.value;
+          imageRef.value.classList.remove('with-transition');
+          return;
+        }
+        if (!canDragFrom(e.target)) return;
+        e.preventDefault();
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+
+      // Only cancel a move we are handling: cancelling the first touchmove of a
+      // sequence suppresses its compatibility click, which would kill the action
+      // bar buttons and backdrop-tap-to-close on any tap with finger jitter.
+      function onTouchMove(e) {
+        if (e.touches.length === 2) {
+          if (!pinchStartDistance || !imageRef.value) return;
+          e.preventDefault();
+          const { relX, relY } = centreOffset(
+            (e.touches[0].clientX + e.touches[1].clientX) / 2,
+            (e.touches[0].clientY + e.touches[1].clientY) / 2,
+          );
+          const pinchRatio = touchDistance(e.touches) / pinchStartDistance;
+          applyScale(clamp(pinchStartScale * pinchRatio, MIN_SCALE, MAX_SCALE), relX, relY);
+          return;
+        }
+
+        if (!isDragging.value) return;
+        e.preventDefault();
+        moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+
+      function onTouchEnd() {
+        // A bare tap before the image has loaded would otherwise add
+        // `with-transition` ahead of enableTransitionsAfterPaint, animating the
+        // first sizing up from 0px.
+        if (isDragging.value || pinchStartDistance) {
+          endDrag();
+        }
+        pinchStartDistance = 0;
       }
 
       function handleArrowKeys(e) {
@@ -282,16 +373,9 @@
         }
       }
 
-      function zoomImage(direction = 'in', relX = 0, relY = 0) {
+      // relX/relY mark the point held fixed while the scale changes.
+      function applyScale(newScale, relX, relY) {
         const prevScale = scale.value;
-        // Calculate new scale
-        let newScale = scale.value;
-        if (direction === 'in' && scale.value < MAX_SCALE) {
-          newScale = Math.min(scale.value + SCALE_STEP, MAX_SCALE);
-        } else if (direction === 'out' && scale.value > MIN_SCALE) {
-          newScale = Math.max(scale.value - SCALE_STEP, MIN_SCALE);
-        }
-        if (newScale === prevScale) return;
 
         // Calculate and clamp new delta values
         const { DeltaLimitX, DeltaLimitY } = getDeltaLimits(newScale);
@@ -309,13 +393,23 @@
         }
       }
 
+      function zoomImage(direction = 'in', relX = 0, relY = 0) {
+        // Calculate new scale
+        let newScale = scale.value;
+        if (direction === 'in' && scale.value < MAX_SCALE) {
+          newScale = Math.min(scale.value + SCALE_STEP, MAX_SCALE);
+        } else if (direction === 'out' && scale.value > MIN_SCALE) {
+          newScale = Math.max(scale.value - SCALE_STEP, MIN_SCALE);
+        }
+        if (newScale === scale.value) return;
+
+        applyScale(newScale, relX, relY);
+      }
+
       function onWheel(e) {
         e.preventDefault();
-        const img = imageRef.value;
-        if (!img) return;
-        const rect = img.getBoundingClientRect();
-        const relX = (e.clientX - rect.left) / rect.width - 0.5;
-        const relY = (e.clientY - rect.top) / rect.height - 0.5;
+        if (!imageRef.value) return;
+        const { relX, relY } = centreOffset(e.clientX, e.clientY);
         if (e.deltaY < 0) {
           zoomImage('in', relX, relY);
         } else {
@@ -409,6 +503,9 @@
         focusLastEl,
         onKeyDown,
         onMouseDown,
+        onTouchStart,
+        onTouchMove,
+        onTouchEnd,
         onWheel,
         zoomImage,
       };
@@ -466,6 +563,9 @@
     justify-content: center;
     padding: 0;
     overflow: visible;
+
+    /* claim pinch and pan before the browser takes them as page zoom */
+    touch-action: none;
     background: none;
     border: 0;
   }
