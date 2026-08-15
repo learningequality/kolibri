@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { render, screen } from '@testing-library/vue';
+import DOMPurify from 'dompurify';
 
 import kolibri from 'kolibri';
 import { createSafeHTML } from '../index';
@@ -185,6 +186,13 @@ describe('SafeHTML', () => {
         },
       });
       expect(container.querySelector('style')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('DOMPurify instance isolation', () => {
+    it('leaves the shared DOMPurify export unhooked', () => {
+      const sanitized = DOMPurify.sanitize('<div style="font-size: 12px;">x</div>');
+      expect(sanitized).toContain('font-size');
     });
   });
 

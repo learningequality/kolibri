@@ -42,11 +42,14 @@ function buildAllowedUriRegexp(allowedOrigins) {
   );
 }
 
+// addHook is global to the instance it is called on, so registering the style
+// filter on the shared default export would apply it to every other caller.
+const purifier = DOMPurify();
+
 // Filter each style= down to the allowlisted properties, re-parsing the value
 // through the CSSOM so the browser validates/normalises it and rejects malformed
-// input. Registered once at module level: addHook is global on the shared
-// DOMPurify singleton, and SafeHTML's sanitize call is the only one in the app.
-DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+// input.
+purifier.addHook('uponSanitizeAttribute', (node, data) => {
   if (data.attrName !== 'style') {
     return;
   }
@@ -99,7 +102,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
       },
     },
     render(h, context) {
-      const docFragment = DOMPurify.sanitize(context.props.html, {
+      const docFragment = purifier.sanitize(context.props.html, {
         ADD_ATTR,
         ADD_TAGS,
         FORBID_TAGS,
