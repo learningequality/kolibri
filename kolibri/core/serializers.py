@@ -8,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 from rest_framework.fields import SkipField
 from rest_framework.serializers import as_serializer_error
+from rest_framework.serializers import CharField
 from rest_framework.serializers import DateTimeField
 from rest_framework.serializers import get_error_detail
 from rest_framework.serializers import ModelSerializer
@@ -25,6 +26,17 @@ class DateTimeTzField(DateTimeField):
         if not data.tzinfo:
             data = timezone.make_aware(data, pytz.utc)
         return data.astimezone(tz)
+
+
+class SplitTextField(CharField):
+    def __init__(self, **kwargs):
+        # ValuesViewset substitutes default for a NULL column rather than
+        # calling to_representation.
+        kwargs.setdefault("default", [])
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        return value.split(",") if value else []
 
 
 serializer_field_mapping = {DjangoDateTimeTzField: DateTimeTzField}

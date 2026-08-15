@@ -31,48 +31,6 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(field_name)
 
 
-class ChannelMetadataSerializer(serializers.ModelSerializer):
-    root = serializers.PrimaryKeyRelatedField(read_only=True)
-    lang_code = serializers.SerializerMethodField()
-    lang_name = serializers.SerializerMethodField()
-    available = serializers.SerializerMethodField()
-    num_coach_contents = serializers.IntegerField(source="root.num_coach_contents")
-
-    def get_lang_code(self, instance):
-        if instance.root.lang is None:
-            return None
-
-        return instance.root.lang.lang_code
-
-    def get_lang_name(self, instance):
-        if instance.root.lang is None:
-            return None
-
-        return instance.root.lang.lang_name
-
-    def get_available(self, instance):
-        return instance.root.available
-
-    class Meta:
-        model = ChannelMetadata
-        fields = (
-            "author",
-            "description",
-            "tagline",
-            "id",
-            "last_updated",
-            "lang_code",
-            "lang_name",
-            "name",
-            "root",
-            "thumbnail",
-            "version",
-            "available",
-            "num_coach_contents",
-            "public",
-        )
-
-
 class PublicChannelSerializer(serializers.ModelSerializer):
     included_languages = serializers.SerializerMethodField()
     matching_tokens = serializers.SerializerMethodField("match_tokens")

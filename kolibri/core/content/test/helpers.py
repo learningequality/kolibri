@@ -32,6 +32,32 @@ logger = logging.getLogger(__name__)
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "..", "fixtures")
 
+# Both channel endpoints share a serializer base, so their field sets are identical.
+CHANNEL_METADATA_FIELDS = set(
+    [
+        "author",
+        "available",
+        "description",
+        "id",
+        "included_categories",
+        "included_grade_levels",
+        "included_languages",
+        "lang_code",
+        "lang_name",
+        "last_published",
+        "last_updated",
+        "name",
+        "num_coach_contents",
+        "public",
+        "published_size",
+        "root",
+        "tagline",
+        "thumbnail",
+        "total_resource_count",
+        "version",
+    ]
+)
+
 
 def to_dict(instance):
     opts = instance._meta

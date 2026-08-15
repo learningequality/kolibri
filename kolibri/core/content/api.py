@@ -1,4 +1,3 @@
-import hashlib
 import logging
 import re
 from base64 import urlsafe_b64decode
@@ -16,16 +15,11 @@ from django.db.models import Subquery
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.http import HttpResponse
-from django.urls import reverse
-from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_bytes
-from django.utils.encoding import iri_to_uri
 from django.utils.text import smart_split
 from django.utils.text import unescape_string_literal
 from django.views import View
 from django.views.decorators.cache import cache_page
-from django.views.decorators.cache import never_cache
 from django.views.decorators.http import etag
 from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import BooleanFilter
@@ -58,7 +52,6 @@ from kolibri.core.api import CreateModelMixin
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewsetOrderingFilter
-from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.bookmarks.models import Bookmark
@@ -72,6 +65,12 @@ from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.tasks import automatic_user_imported_resource_cleanup
+from kolibri.core.content.utils.cache import get_cache_key
+from kolibri.core.content.utils.cache import get_course_ids
+from kolibri.core.content.utils.cache import no_cache_on_method
+from kolibri.core.content.utils.cache import REMOTE_ETAG_CACHE_KEY
+from kolibri.core.content.utils.cache import remote_metadata_cache
+from kolibri.core.content.utils.cache import REMOTE_URL_PARAM
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -91,7 +90,6 @@ from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
-from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.permissions import FromAppContextPermission
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkClientError
@@ -112,93 +110,6 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.version import version_matches_range
 
 logger = logging.getLogger(__name__)
-
-
-REMOTE_ETAG_CACHE_KEY = "remote_content_etag_{}"
-
-REMOTE_URL_PARAM = "baseurl"
-
-
-def get_cache_key(*args, **kwargs):
-    return str(ContentCacheKey.get_cache_key())
-
-
-def get_course_ids():
-    cache_key = "COURSE_IDS_{}".format(get_cache_key())
-    cached_data = cache.get(cache_key)
-    if cached_data is not None:
-        return cached_data
-    updated_data = list(
-        ContentNode.objects.filter(
-            available=True, modality=modalities.COURSE
-        ).values_list("id", flat=True)
-    )
-    cache.set(cache_key, updated_data, 3600)
-    return updated_data
-
-
-def metadata_cache(view_func, cache_key_func=get_cache_key):
-    """
-    Decorator to apply an Etag sensitive page cache
-    """
-
-    @etag(cache_key_func)
-    def wrapper_func(*args, **kwargs):
-        try:
-            request = args[0]
-            request = kwargs.get("request", request)
-        except IndexError:
-            request = kwargs.get("request", None)
-        # Prevent the Django caching middleware from caching
-        # this response, as we want to cache it ourselves
-        request._cache_update_cache = False
-        key_prefix = cache_key_func(request)
-        url_key = hashlib.md5(
-            force_bytes(iri_to_uri(request.build_absolute_uri()))
-        ).hexdigest()
-        response = None
-        if key_prefix is not None:
-            cache_key = "{}:{}".format(key_prefix, url_key)
-            response = cache.get(cache_key)
-        if response is None:
-            response = view_func(*args, **kwargs)
-            if response.status_code == status.HTTP_200_OK:
-                if key_prefix is None:
-                    key_prefix = cache_key_func(request)
-                if (
-                    key_prefix is not None
-                    and hasattr(response, "render")
-                    and callable(response.render)
-                ):
-                    cache_key = "{}:{}".format(key_prefix, url_key)
-                    response.add_post_render_callback(
-                        lambda r: cache.set(cache_key, r, timeout=3600)
-                    )
-            else:
-                # Don't cache responses that returned an error code
-                add_never_cache_headers(response)
-        return response
-
-    return wrapper_func
-
-
-def get_remote_cache_key(request, *args, **kwargs):
-    if REMOTE_URL_PARAM in request.GET:
-        return cache.get(REMOTE_ETAG_CACHE_KEY.format(request.GET[REMOTE_URL_PARAM]))
-    return get_cache_key(*args, **kwargs)
-
-
-def remote_metadata_cache(view_func):
-    return session_exempt(
-        metadata_cache(view_func, cache_key_func=get_remote_cache_key)
-    )
-
-
-def no_cache_on_method(view_func):
-    """
-    Decorator to disable caching for a particular method
-    """
-    return method_decorator(never_cache, name="dispatch")(view_func)
 
 
 class RemoteMixin:
@@ -293,48 +204,6 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
         return super().list(request, *args, **kwargs)
 
 
-class ChannelMetadataFilter(FilterSet):
-    available = BooleanFilter(method="filter_available", label="Available")
-    contains_exercise = BooleanFilter(
-        method="filter_contains_exercise", label="Has exercises"
-    )
-    contains_quiz = BooleanFilter(method="filter_contains_quiz", label="Has quizzes")
-
-    class Meta:
-        model = models.ChannelMetadata
-        fields = ("available", "contains_exercise", "contains_quiz")
-
-    def filter_contains_exercise(self, queryset, name, value):
-        queryset = queryset.annotate(
-            contains_exercise=Exists(
-                models.ContentNode.objects.filter(
-                    kind=content_kinds.EXERCISE,
-                    available=True,
-                    channel_id=OuterRef("id"),
-                )
-            )
-        )
-
-        return queryset.filter(contains_exercise=True)
-
-    def filter_contains_quiz(self, queryset, name, value):
-        if value:
-            queryset = queryset.annotate(
-                contains_quiz=Exists(
-                    models.ContentNode.objects.filter(
-                        modality=modalities.QUIZ,
-                        available=True,
-                        channel_id=OuterRef("id"),
-                    )
-                )
-            )
-            return queryset.filter(contains_quiz=True)
-        return queryset
-
-    def filter_available(self, queryset, name, value):
-        return queryset.filter(root__available=value)
-
-
 class ChannelThumbnailView(View):
     def get(self, request, channel_id):
         channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
@@ -349,109 +218,6 @@ class ChannelThumbnailView(View):
 
 def _split_text_field(text):
     return text.split(",") if text else []
-
-
-class BaseChannelMetadataMixin:
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ChannelMetadataFilter
-
-    values = (
-        "author",
-        "description",
-        "tagline",
-        "id",
-        "last_updated",
-        "root__lang__lang_code",
-        "root__lang__lang_name",
-        "name",
-        "root",
-        "thumbnail",
-        "version",
-        "root__available",
-        "root__num_coach_contents",
-        "public",
-        "total_resource_count",
-        "published_size",
-        "included_categories",
-        "included_grade_levels",
-    )
-
-    field_map = {
-        "num_coach_contents": "root__num_coach_contents",
-        "available": "root__available",
-        "lang_code": "root__lang__lang_code",
-        "lang_name": "root__lang__lang_name",
-        "included_categories": lambda x: _split_text_field(x["included_categories"]),
-        "included_grade_levels": lambda x: _split_text_field(
-            x["included_grade_levels"]
-        ),
-    }
-
-    def get_queryset(self):
-        return models.ChannelMetadata.objects.all()
-
-    def consolidate(self, items, queryset):
-        included_languages = {}
-        for (
-            channel_id,
-            language_id,
-        ) in models.ChannelMetadata.included_languages.through.objects.filter(
-            channelmetadata__in=queryset
-        ).values_list("channelmetadata_id", "language_id"):
-            if channel_id not in included_languages:
-                included_languages[channel_id] = []
-            included_languages[channel_id].append(language_id)
-        for item in items:
-            item["included_languages"] = included_languages.get(item["id"], [])
-            item["last_published"] = item["last_updated"]
-        return items
-
-    @action(detail=False)
-    def filter_options(self, request, **kwargs):
-        channel_id = self.request.query_params.get("id")
-
-        nodes = models.ContentNode.objects.filter(channel_id=channel_id)
-        authors = (
-            nodes.exclude(author="")
-            .order_by("author")
-            .values_list("author")
-            .annotate(Count("author"))
-        )
-        kinds = nodes.order_by("kind").values_list("kind").annotate(Count("kind"))
-
-        tag_nodes = models.ContentTag.objects.filter(
-            tagged_content__channel_id=channel_id
-        )
-        tags = (
-            tag_nodes.order_by("tag_name")
-            .values_list("tag_name")
-            .annotate(Count("tag_name"))
-        )
-
-        data = {
-            "available_authors": dict(authors),
-            "available_kinds": dict(kinds),
-            "available_tags": dict(tags),
-        }
-
-        return Response(data)
-
-
-def _create_channel_thumbnail_url(item):
-    return (
-        reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
-        if item["thumbnail"]
-        else ""
-    )
-
-
-@method_decorator(remote_metadata_cache, name="dispatch")
-class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    field_map = {
-        "thumbnail": _create_channel_thumbnail_url,
-    }
-
-    field_map.update(BaseChannelMetadataMixin.field_map)
 
 
 MODALITIES = set(["QUIZ"])
