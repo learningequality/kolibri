@@ -6,23 +6,20 @@
       :delay="false"
       class="loader"
     />
-    <div
+    <SafeHTML
       v-else
-      ref="safeHtmlWrapper"
+      ref="safeHtml"
       data-testid="safe-html-wrapper"
       class="safe-html-wrapper"
       role="region"
       :aria-label="$tr('articleContent')"
-    >
-      <SafeHTML
-        :html="html"
-        @startTracking="handleViewerStartTracking"
-        @stopTracking="handleViewerStopTracking"
-        @updateProgress="handleViewerUpdateProgress"
-        @addProgress="handleViewerAddProgress"
-        @finished="handleViewerFinished"
-      />
-    </div>
+      :html="html"
+      @startTracking="handleViewerStartTracking"
+      @stopTracking="handleViewerStopTracking"
+      @updateProgress="handleViewerUpdateProgress"
+      @addProgress="handleViewerAddProgress"
+      @finished="handleViewerFinished"
+    />
   </div>
 
 </template>
@@ -116,7 +113,7 @@
         clearTimeout(this.timeout);
       }
 
-      const wrapper = this.$refs.safeHtmlWrapper;
+      const wrapper = this.scrollContainer();
       if (wrapper && this.debouncedHandleScroll) {
         wrapper.removeEventListener('scroll', this.debouncedHandleScroll);
       }
@@ -191,8 +188,11 @@
           this.recordProgress();
         }, 5000);
       },
+      scrollContainer() {
+        return this.$refs.safeHtml?.$el;
+      },
       handleScroll() {
-        const element = this.$refs.safeHtmlWrapper;
+        const element = this.scrollContainer();
         const scrollTop = element.scrollTop;
         const scrollHeight = element.scrollHeight;
         const clientHeight = element.clientHeight;
@@ -214,7 +214,7 @@
       setupScrollListener() {
         // Only set up scroll listener if we're using scroll-based progress
         if (!this.forceDurationBasedProgress) {
-          const wrapper = this.$refs.safeHtmlWrapper;
+          const wrapper = this.scrollContainer();
           if (wrapper) {
             this.debouncedHandleScroll = debounce(this.handleScroll, 150);
             wrapper.addEventListener('scroll', this.debouncedHandleScroll);
@@ -223,7 +223,7 @@
       },
       async safeHtmlDomReadyHandler() {
         if (!this.loading) {
-          // setupScrollListener needs $refs.safeHtmlWrapper to exist.
+          // setupScrollListener needs $refs.safeHtml to exist.
           await this.$nextTick();
           this.setupScrollListener();
         }
