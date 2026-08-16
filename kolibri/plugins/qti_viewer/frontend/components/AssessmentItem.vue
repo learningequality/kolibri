@@ -7,12 +7,11 @@
         :key="text"
         :text="text"
       />
-      <div
+      <SafeHTML
         :class="{ 'qti-passage': guides.length }"
         :style="passageStyles"
-      >
-        <SafeHTML :html="itemBodyMarkup" />
-      </div>
+        :html="itemBodyMarkup"
+      />
       <NumericKeypad :lang="lang" />
     </template>
   </div>
