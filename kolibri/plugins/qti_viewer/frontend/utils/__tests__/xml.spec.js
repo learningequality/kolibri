@@ -62,6 +62,7 @@ describe('loadQTIPackage', () => {
       identifier: 'item1',
       type: 'imsqti_item_xmlv3p0',
       href: 'item1.xml',
+      files: [],
     });
     expect(result.qtiPackage).toBeDefined();
     expect(typeof result.qtiPackage.getResponseProcessingNode).toBe('function');

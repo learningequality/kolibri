@@ -12,6 +12,8 @@ const domParser = new DOMParser();
  * zip by its manifest `uri`. Returns the cloned root element on hit, `null`
  * on miss (missing file, parse error). Results are cached per URI after
  * the first successful fetch.
+ * @property {(path: string) => Promise<import('kolibri-zip').ExtractedFile|undefined>} getFile
+ * Read a file from the package zip by its path, or `undefined` on a miss.
  */
 
 /**
@@ -19,6 +21,8 @@ const domParser = new DOMParser();
  * @property {string} identifier - The resource's manifest identifier
  * @property {string} type - MIME-style resource type from the IMS manifest
  * @property {string} href - Path to the resource inside the package zip
+ * @property {string[]} files - Hrefs of the resource's declared `<file>`
+ * dependencies, in document order
  */
 
 /**
@@ -52,6 +56,20 @@ export async function loadQTIPackage(file) {
   const manifestFile = await qtiZip.file('imsmanifest.xml');
   const manifestDoc = parseXML(manifestFile.toString());
 
+  // kolibri-zip rewrites every href in an extracted XML file to a URL serving
+  // that file, `<file>` declarations included, so the package paths are only
+  // readable from a second, unreplaced read of the manifest.
+  const declaredFilesDoc = parseXML(
+    (await qtiZip.file('imsmanifest.xml', { replacePaths: false })).toString(),
+  );
+  const declaredFiles = {};
+  for (const resource of declaredFilesDoc.querySelectorAll('manifest > resources > resource')) {
+    declaredFiles[resource.getAttribute('identifier')] = Array.from(
+      resource.querySelectorAll(':scope > file'),
+      fileNode => fileNode.getAttribute('href'),
+    );
+  }
+
   // Get all resources from manifest
   const resources = manifestDoc.querySelectorAll('manifest > resources > resource');
 
@@ -64,6 +82,7 @@ export async function loadQTIPackage(file) {
         identifier,
         type: resource.getAttribute('type'),
         href: resource.getAttribute('href'),
+        files: declaredFiles[identifier] || [],
       };
     }
   }
@@ -89,6 +108,9 @@ export async function loadQTIPackage(file) {
       } catch {
         return null;
       }
+    },
+    getFile(path) {
+      return qtiZip.file(path);
     },
   };
 
