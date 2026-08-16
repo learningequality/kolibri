@@ -21,13 +21,29 @@ fi
 # need to re-run `uv version` for packages already resolved during detection.
 TO_PUBLISH=()
 
+# PyPI rejects any distribution carrying a "Private ::" classifier, so a
+# workspace member opts out of publishing by declaring one.
+is_private() {
+  grep -q '"Private *::' "$1/pyproject.toml"
+}
+
 if [ $# -ge 1 ]; then
+  if is_private "python_packages/$1"; then
+    echo "Refusing to publish $1: marked Private :: Do Not Upload"
+    exit 1
+  fi
   TO_PUBLISH=("$1:$(uv version --package "$1" --short)")
   echo "Publishing $1"
 else
   for pkg_dir in python_packages/*/; do
     [ -f "$pkg_dir/pyproject.toml" ] || continue
     name=$(basename "$pkg_dir")
+
+    if is_private "$pkg_dir"; then
+      echo "Skipping $name (Private :: Do Not Upload)"
+      continue
+    fi
+
     repo_version=$(uv version --package "$name" --short)
 
     # Unlike scripts/npm_publish.sh, a 404 here is never skipped in CI: npm

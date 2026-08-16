@@ -1,8 +1,9 @@
-name: npm Package Version Check
+name: Package Version Check
 on:
   pull_request:
     paths:
       - 'packages/**'
+      - 'python_packages/**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -29,10 +30,10 @@ jobs:
             const fs = require('fs');
             const utils = require('./.github/githubUtils.js');
             const base = context.payload.pull_request.base.sha;
-            const data = utils.generateNpmVersionData(base);
-            fs.mkdirSync('npm_version_report', { recursive: true });
-            fs.writeFileSync('npm_version_report/data.json', JSON.stringify(data));
+            const data = utils.generatePackageVersionData(base);
+            fs.mkdirSync('package_version_report', { recursive: true });
+            fs.writeFileSync('package_version_report/data.json', JSON.stringify(data));
       - uses: actions/upload-artifact@v7
         with:
-          name: npm_version_report
-          path: npm_version_report/
+          name: package_version_report
+          path: package_version_report/
