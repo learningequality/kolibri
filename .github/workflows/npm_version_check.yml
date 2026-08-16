@@ -26,8 +26,8 @@ jobs:
           script: |
             const fs = require('fs');
             const utils = require('./.github/githubUtils.js');
-            const base = context.payload.pull_request.base.sha;
-            const data = utils.generateNpmVersionData(base);
+            const { base, head } = context.payload.pull_request;
+            const data = utils.generateNpmVersionData(base.sha, head.sha);
             fs.mkdirSync('npm_version_report', { recursive: true });
             fs.writeFileSync('npm_version_report/data.json', JSON.stringify(data));
       - uses: actions/upload-artifact@v7

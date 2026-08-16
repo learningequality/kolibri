@@ -176,14 +176,24 @@ async function uploadReleaseAsset(github, context, filePath, release_id) {
 const npmVersionsHeader = '**npm Package Versions**';
 
 /**
- * Generate structured version diff data for packages changed relative to baseSha.
+ * Generate structured version diff data for packages the PR itself changed.
  * Returns { packages: [{name, from, to}], warnings: [{name, version, changedFiles}] },
  * or null if no publishable packages were affected.
  * Runs in pull_request context (no write permissions needed).
  * `from` is null for new packages.
  */
-function generateNpmVersionData(baseSha) {
-  const allChanged = execSync(`git diff --name-only ${baseSha} -- packages/`)
+function generateNpmVersionData(baseSha, headSha) {
+  // A pull_request payload's base.sha is the base branch tip, not the fork
+  // point, so diffing straight from it reports the base's own changes back at
+  // a PR that is behind.
+  const mergeBase = execSync(`git merge-base ${baseSha} ${headSha}`).toString().trim();
+  const showFile = (sha, filePath) =>
+    execSync(`git show ${sha}:${filePath}`, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+
+  const allChanged = execSync(`git diff --name-only ${mergeBase} ${headSha} -- packages/`)
     .toString().trim().split('\n').filter(Boolean);
 
   const changedByPkg = {};
@@ -199,14 +209,19 @@ function generateNpmVersionData(baseSha) {
 
   for (const [pkgDir, fileCount] of Object.entries(changedByPkg)) {
     const pkgJsonPath = path.join(pkgDir, 'package.json');
-    if (!fs.existsSync(pkgJsonPath)) continue;
+    let newPkgContents;
+    try {
+      newPkgContents = showFile(headSha, pkgJsonPath);
+    } catch {
+      continue;
+    }
 
-    const newPkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+    const newPkg = JSON.parse(newPkgContents);
     if (newPkg.private === true || newPkg.private === 'true') continue;
 
     let oldPkg;
     try {
-      oldPkg = JSON.parse(execSync(`git show ${baseSha}:${pkgJsonPath}`, { encoding: 'utf8' }));
+      oldPkg = JSON.parse(showFile(mergeBase, pkgJsonPath));
     } catch {
       packages.push({ name: newPkg.name, from: null, to: newPkg.version });
       continue;
