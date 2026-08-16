@@ -143,8 +143,33 @@
       // AssessmentItem has registered its checkAnswer handler, and pair it
       // with a stopTracking on teardown. Follows the Kolibri content-viewer
       // convention (see docs/frontend_architecture/single_page_apps.rst).
-      onMounted(() => context.emit('startTracking'));
-      onBeforeUnmount(() => context.emit('stopTracking'));
+      let tracking = false;
+      const startTracking = () => {
+        if (tracking) {
+          return;
+        }
+        tracking = true;
+        context.emit('startTracking');
+      };
+      onMounted(() => {
+        if (!loading.value) {
+          startTracking();
+        }
+      });
+      watch(
+        loading,
+        isLoading => {
+          if (!isLoading) {
+            startTracking();
+          }
+        },
+        { flush: 'post' },
+      );
+      onBeforeUnmount(() => {
+        if (tracking) {
+          context.emit('stopTracking');
+        }
+      });
 
       /**
        * Registered checkAnswer handler; swapped in when an AssessmentItem mounts.
