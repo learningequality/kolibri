@@ -695,6 +695,19 @@ export default [
     ],
   },
   {
+    title: 'Perseus (mixed QTI)',
+    items: [
+      {
+        identifier: 'perseus-square-shape',
+        title: 'Nombra figuras — plain image',
+      },
+      {
+        identifier: 'perseus-classify-triangle',
+        title: 'Classify triangles — graphie',
+      },
+    ],
+  },
+  {
     title: 'Bootcamp Exercises',
     items: [
       {

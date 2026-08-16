@@ -66,9 +66,11 @@
         </div>
         <div class="qti-preview-container">
           <ContentViewer
-            v-if="selectedXml"
+            v-if="viewerReady"
             :ref="setViewer"
-            :itemData="selectedXml"
+            :itemData="perseusContentNode ? null : selectedXml"
+            :contentNode="perseusContentNode"
+            :itemId="perseusContentNode ? itemId : undefined"
             :interactive="interactive"
             :answerState="userAnswerState"
             preset="qti"
@@ -169,6 +171,7 @@
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import items from './__fixtures__/items';
   import structure from './__fixtures__/structure';
+  import perseusFixtures, { perseusPackageUrl } from './__fixtures__/perseus';
 
   /**
    * Parse a value typed into an answer-state input back into a seed value.
@@ -210,8 +213,11 @@
         outcomes: {},
         interactive: true,
         showSidePanel: false,
-        inputtedXml: '',
+        editedXml: null,
         structure,
+        perseusPackageObjectUrl: null,
+        perseusPackageItemId: null,
+        buildToken: 0,
         // Reactive handle to the current ContentViewer instance. $refs is not
         // reactive, so the setViewer ref callback assigns it here as the viewer
         // (un)mounts.
@@ -223,6 +229,38 @@
       itemId() {
         return this.$route.params.itemId || null;
       },
+      isPerseusItem() {
+        return Boolean(perseusFixtures[this.itemId]);
+      },
+      perseusContentNode() {
+        if (!this.isPerseusItem || !this.perseusPackageObjectUrl) {
+          return null;
+        }
+        return {
+          files: [
+            {
+              id: this.itemId,
+              storage_url: this.perseusPackageObjectUrl,
+              extension: 'zip',
+              available: true,
+              file_size: 0,
+              checksum: this.itemId,
+              preset: 'qti',
+              lang: null,
+              supplementary: false,
+              thumbnail: false,
+            },
+          ],
+        };
+      },
+      viewerReady() {
+        return (
+          Boolean(this.selectedXml) && (!this.isPerseusItem || Boolean(this.perseusContentNode))
+        );
+      },
+      perseusPackageSource() {
+        return this.isPerseusItem ? `${this.itemId}\n${this.selectedXml}` : null;
+      },
       availableHints() {
         return this.viewer?.availableHints || 0;
       },
@@ -231,13 +269,13 @@
       },
       selectedXml: {
         get() {
-          if (this.inputtedXml) {
-            return this.inputtedXml;
+          if (this.editedXml?.itemId === this.itemId && this.editedXml.xml) {
+            return this.editedXml.xml;
           }
           return items[this.itemId]?.xml || '';
         },
-        set(value) {
-          this.inputtedXml = value;
+        set(xml) {
+          this.editedXml = { itemId: this.itemId, xml };
         },
       },
     },
@@ -250,9 +288,43 @@
         await this.$nextTick();
         this.refreshOutcomes();
       },
+      perseusPackageSource: {
+        immediate: true,
+        handler() {
+          this.rebuildPerseusPackage();
+        },
+      },
+    },
+
+    beforeDestroy() {
+      this.releasePerseusPackage();
     },
 
     methods: {
+      async rebuildPerseusPackage() {
+        const itemId = this.itemId;
+        const token = (this.buildToken += 1);
+        if (itemId !== this.perseusPackageItemId) {
+          this.releasePerseusPackage();
+        }
+        const url = this.isPerseusItem ? await perseusPackageUrl(itemId, this.selectedXml) : null;
+        if (token !== this.buildToken) {
+          if (url) {
+            URL.revokeObjectURL(url);
+          }
+          return;
+        }
+        this.releasePerseusPackage();
+        this.perseusPackageObjectUrl = url;
+        this.perseusPackageItemId = itemId;
+      },
+      releasePerseusPackage() {
+        if (this.perseusPackageObjectUrl) {
+          URL.revokeObjectURL(this.perseusPackageObjectUrl);
+          this.perseusPackageObjectUrl = null;
+        }
+        this.perseusPackageItemId = null;
+      },
       // Stable ref callback so its identity does not change between renders.
       // An inline arrow function would be re-created each render, making Vue
       // remove (invoke with null) then re-add the ref on every update, toggling
@@ -265,7 +337,6 @@
       },
       selectItem(item) {
         if (item && items[item.identifier] && item.identifier !== this.itemId) {
-          this.inputtedXml = '';
           this.$router.push({ name: 'QTI_SANDBOX', params: { itemId: item.identifier } });
           this.showSidePanel = false;
         }
