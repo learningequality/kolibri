@@ -5,6 +5,8 @@ import isPlainObject from 'lodash/isPlainObject';
 import AdaptiveHttpReader from './AdaptiveHttpReader';
 import { getAbsoluteFilePath, defaultFilePathMappers } from './fileUtils';
 
+export { createZipBytes } from './write';
+
 // Overrides for MIME types that zip.js doesn't handle correctly
 const MIMETYPE_OVERRIDES = {
   vtt: 'text/vtt', // WebVTT subtitles - zip.js returns application/octet-stream
@@ -213,11 +215,13 @@ export default class ZipFile {
    * Extract a file from the zip by path
    * @param {object} entry - zip.js entry object
    * @param {object} visitedPaths - Paths already visited (for cycle detection)
+   * @param {boolean} [replacePaths=true] - Replace internal file references with URLs.
+   * When false the file is returned exactly as stored, and bypasses the cache.
    * @returns {Promise<ExtractedFile>} The cached or freshly extracted file
    */
-  async _extractFile(entry, visitedPaths = {}) {
+  async _extractFile(entry, visitedPaths = {}, replacePaths = true) {
     // Check cache first
-    if (this._extractedFileCache[entry.filename]) {
+    if (replacePaths && this._extractedFileCache[entry.filename]) {
       return this._extractedFileCache[entry.filename];
     }
 
@@ -232,10 +236,14 @@ export default class ZipFile {
       extractedFile = new ExtractedFile(entry.filename, data);
 
       // Replace file references (CSS url(), HTML src/href, etc.)
-      await this._replaceFiles(extractedFile, visitedPaths);
+      if (replacePaths) {
+        await this._replaceFiles(extractedFile, visitedPaths);
+      }
     }
 
-    this._extractedFileCache[entry.filename] = extractedFile;
+    if (replacePaths) {
+      this._extractedFileCache[entry.filename] = extractedFile;
+    }
     return extractedFile;
   }
 
@@ -321,9 +329,12 @@ export default class ZipFile {
   /**
    * Extract a single file by exact path.
    * @param {string} filename - Full path within the ZIP (e.g. 'assets/style.css')
+   * @param {object} [options] - Extraction options
+   * @param {boolean} [options.replacePaths=true] - Replace references to other files
+   * in the archive with URLs serving them. Pass false to read the file as stored.
    * @returns {Promise<ExtractedFile|undefined>} The extracted file, or undefined if not found
    */
-  async file(filename) {
+  async file(filename, { replacePaths = true } = {}) {
     await this._fileLoadingPromise;
 
     if (this._loadingError) {
@@ -331,7 +342,7 @@ export default class ZipFile {
     }
 
     // Check cache first
-    if (this._extractedFileCache[filename]) {
+    if (replacePaths && this._extractedFileCache[filename]) {
       return this._extractedFileCache[filename];
     }
 
@@ -340,7 +351,7 @@ export default class ZipFile {
       return undefined;
     }
 
-    return this._extractFile(entry);
+    return this._extractFile(entry, {}, replacePaths);
   }
 
   /**

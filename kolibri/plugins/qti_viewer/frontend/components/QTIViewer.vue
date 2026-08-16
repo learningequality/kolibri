@@ -18,6 +18,7 @@
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
   import useHints from '../composables/useHints';
+  import usePerseusItems from '../composables/usePerseusItems';
   import { resolveResponseProcessingNode } from '../utils/qti/declarations/templates';
   import { loadQTIPackage, parseXML } from '../utils/xml';
   import AssessmentItem from './AssessmentItem.vue';
@@ -97,11 +98,22 @@
         { immediate: true },
       );
 
+      const { perseusItems, loading: perseusLoading } = usePerseusItems(
+        xmlDoc,
+        qtiPackage,
+        currentResource,
+      );
+
       const loading = computed(() => {
         if (itemData.value) {
           return false;
         }
-        return packageLoading.value || resourceLoading.value || templateLoading.value;
+        return (
+          packageLoading.value ||
+          resourceLoading.value ||
+          templateLoading.value ||
+          perseusLoading.value
+        );
       });
 
       // Load and parse the QTI package
@@ -143,8 +155,33 @@
       // AssessmentItem has registered its checkAnswer handler, and pair it
       // with a stopTracking on teardown. Follows the Kolibri content-viewer
       // convention (see docs/frontend_architecture/single_page_apps.rst).
-      onMounted(() => context.emit('startTracking'));
-      onBeforeUnmount(() => context.emit('stopTracking'));
+      let tracking = false;
+      const startTracking = () => {
+        if (tracking) {
+          return;
+        }
+        tracking = true;
+        context.emit('startTracking');
+      };
+      onMounted(() => {
+        if (!loading.value) {
+          startTracking();
+        }
+      });
+      watch(
+        loading,
+        isLoading => {
+          if (!isLoading) {
+            startTracking();
+          }
+        },
+        { flush: 'post' },
+      );
+      onBeforeUnmount(() => {
+        if (tracking) {
+          context.emit('stopTracking');
+        }
+      });
 
       /**
        * Registered checkAnswer handler; swapped in when an AssessmentItem mounts.
@@ -232,6 +269,7 @@
       );
 
       provide('qtiPackage', qtiPackage);
+      provide('perseusItems', perseusItems);
 
       // The public assessment API (checkAnswer + progressive-reveal hints) is
       // registered above via registerAssessmentApi and re-exposed on the

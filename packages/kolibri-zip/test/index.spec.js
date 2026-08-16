@@ -329,6 +329,20 @@ describe('ZipFile public API', () => {
       expect(content).toMatch(/href=["']?blob:mock-/);
       expect(content).not.toContain('data/file.dat');
     });
+
+    it('replacePaths: false returns the file exactly as stored', async () => {
+      const zip = setupZip({
+        'content.xml': '<?xml version="1.0"?><root><link href="data/file.dat"/></root>',
+        'data/file.dat': 'DATA',
+      });
+
+      const rawFile = await zip.file('content.xml', { replacePaths: false });
+      expect(rawFile.toString()).toContain('href="data/file.dat"');
+
+      // The raw read neither serves nor poisons the cache of replaced files.
+      const replacedFile = await zip.file('content.xml');
+      expect(replacedFile.toString()).toMatch(/href=["']?blob:mock-/);
+    });
   });
 
   describe('Constructor options', () => {

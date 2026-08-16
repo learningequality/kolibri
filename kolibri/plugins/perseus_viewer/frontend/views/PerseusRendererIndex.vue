@@ -107,16 +107,22 @@
    */
   const globalPerseusFileRegistry = {};
 
+  function retainPerseusFile(key) {
+    if (globalPerseusFileRegistry[key]) {
+      globalPerseusFileRegistry[key].usageCounter += 1;
+      return false;
+    }
+    globalPerseusFileRegistry[key] = {
+      zipFile: null,
+      usageCounter: 1,
+      imageUrls: {},
+    };
+    return true;
+  }
+
   function setUpPerseusFile(defaultFile) {
     const perseusFileUrl = defaultFile.storage_url;
-    if (globalPerseusFileRegistry[perseusFileUrl]) {
-      globalPerseusFileRegistry[perseusFileUrl].usageCounter += 1;
-    } else {
-      globalPerseusFileRegistry[perseusFileUrl] = {
-        zipFile: null,
-        usageCounter: 1,
-        imageUrls: {},
-      };
+    if (retainPerseusFile(perseusFileUrl)) {
       class JSONMapper extends Mapper {
         getPaths() {
           return getImagePaths(this.file.toString());
@@ -141,19 +147,42 @@
     if (globalPerseusFileRegistry[perseusFileUrl]) {
       globalPerseusFileRegistry[perseusFileUrl].usageCounter -= 1;
       if (globalPerseusFileRegistry[perseusFileUrl].usageCounter === 0) {
-        globalPerseusFileRegistry[perseusFileUrl].zipFile.close();
+        const { zipFile } = globalPerseusFileRegistry[perseusFileUrl];
+        if (zipFile) {
+          zipFile.close();
+        }
         delete globalPerseusFileRegistry[perseusFileUrl];
       }
     }
   }
 
+  function basename(path) {
+    return path.slice(path.lastIndexOf('/') + 1);
+  }
+
+  // Perseus looks images up by the name the item JSON references them by, which
+  // in a QTI package differs from the packaged file path by its directory prefix.
+  function lookupImageUrl(imageUrls, key) {
+    if (imageUrls[key]) {
+      return imageUrls[key];
+    }
+    const keyBase = basename(key);
+    for (const mapKey in imageUrls) {
+      if (basename(mapKey) === keyBase) {
+        return imageUrls[mapKey];
+      }
+    }
+    return;
+  }
+
   function getImageUrl(key, zipFileUrl = null) {
     if (zipFileUrl !== null && globalPerseusFileRegistry[zipFileUrl]) {
-      return globalPerseusFileRegistry[zipFileUrl].imageUrls[key];
+      return lookupImageUrl(globalPerseusFileRegistry[zipFileUrl].imageUrls, key);
     }
     for (const file in globalPerseusFileRegistry) {
-      if (globalPerseusFileRegistry[file].imageUrls[key]) {
-        return globalPerseusFileRegistry[file].imageUrls[key];
+      const url = lookupImageUrl(globalPerseusFileRegistry[file].imageUrls, key);
+      if (url) {
+        return url;
       }
     }
     return;
@@ -340,7 +369,7 @@
         this.loadItemData();
       },
       itemData(newItemData) {
-        this.setItemData(newItemData);
+        this.resolveItemData(newItemData);
       },
       answerState(newState) {
         this.resetState(newState);
@@ -409,7 +438,7 @@
         if (this.defaultFile) {
           this.loadItemData();
         } else if (this.itemData) {
-          this.setItemData(this.itemData);
+          this.resolveItemData(this.itemData);
         }
         this.$emit('startTracking');
       });
@@ -730,6 +759,19 @@
               this.clearItemRenderer();
               this.$emit('itemError', reason);
             });
+        }
+      },
+      resolveItemData(itemData) {
+        if (itemData && itemData.perseusItemString) {
+          const { perseusItemString, packageFiles, sourceId } = itemData;
+          cleanUpPerseusFile(this.perseusFileUrl);
+          retainPerseusFile(sourceId);
+          this.perseusFileUrl = sourceId;
+          const substituted = replaceImageUrls(perseusItemString, sourceId, packageFiles);
+          this.setItemData(JSON.parse(substituted));
+          this.loading = false;
+        } else {
+          this.setItemData(itemData);
         }
       },
       setItemData(itemData) {

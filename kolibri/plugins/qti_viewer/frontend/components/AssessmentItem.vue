@@ -37,6 +37,7 @@
   import OrderInteraction from './interactions/OrderInteraction.vue';
   import InlineChoiceInteraction from './interactions/InlineChoiceInteraction.vue';
   import InlineChoice from './interactions/InlineChoice.vue';
+  import CustomInteraction from './interactions/CustomInteraction.vue';
 
   const $themeTokens = themeTokens();
 
@@ -48,6 +49,7 @@
     [OrderInteraction.tag]: OrderInteraction,
     [InlineChoiceInteraction.tag]: InlineChoiceInteraction,
     [InlineChoice.tag]: InlineChoice,
+    [CustomInteraction.tag]: CustomInteraction,
   });
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
