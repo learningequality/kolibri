@@ -18,6 +18,7 @@
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
   import useHints from '../composables/useHints';
+  import usePerseusItems from '../composables/usePerseusItems';
   import { resolveResponseProcessingNode } from '../utils/qti/declarations/templates';
   import { loadQTIPackage, parseXML } from '../utils/xml';
   import AssessmentItem from './AssessmentItem.vue';
@@ -97,11 +98,22 @@
         { immediate: true },
       );
 
+      const { perseusItems, loading: perseusLoading } = usePerseusItems(
+        xmlDoc,
+        qtiPackage,
+        currentResource,
+      );
+
       const loading = computed(() => {
         if (itemData.value) {
           return false;
         }
-        return packageLoading.value || resourceLoading.value || templateLoading.value;
+        return (
+          packageLoading.value ||
+          resourceLoading.value ||
+          templateLoading.value ||
+          perseusLoading.value
+        );
       });
 
       // Load and parse the QTI package
@@ -257,6 +269,7 @@
       );
 
       provide('qtiPackage', qtiPackage);
+      provide('perseusItems', perseusItems);
 
       // The public assessment API (checkAnswer + progressive-reveal hints) is
       // registered above via registerAssessmentApi and re-exposed on the

@@ -6,6 +6,7 @@ import client from 'kolibri/client';
 // eslint-disable-next-line import-x/named
 import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
 import items from '../__fixtures__/items';
+import perseusFixtures, { perseusZipEntries } from '../__fixtures__/perseus';
 import QTIViewer from '../QTIViewer.vue';
 
 jest.mock('kolibri/client');
@@ -97,5 +98,47 @@ describe('QTIViewer served a package zip', () => {
     await waitFor(() => expect(screen.getByText(CHOICE_TEXT)).toBeInTheDocument());
 
     expect(checksAtStartTracking).toEqual([expect.objectContaining({ outcomes: { SCORE: 0 } })]);
+  });
+});
+
+describe('QTIViewer served a package zip carrying a Perseus item', () => {
+  const capture = {};
+  const perseusStub = {
+    name: 'ContentViewer',
+    props: ['itemData', 'interactive', 'answerState', 'preset'],
+    created() {
+      capture.itemData = this.itemData;
+    },
+    template: '<div data-testid="perseus" />',
+  };
+
+  const ITEM = 'perseus-classify-triangle';
+  const fixture = perseusFixtures[ITEM];
+
+  beforeEach(async () => {
+    capture.itemData = undefined;
+    client.__setPayload(fixture.xml);
+    serveZip(await createZipBytes(perseusZipEntries(ITEM, fixture.xml)));
+    useContentViewer.mockImplementation(() =>
+      useContentViewerMock({
+        defaultFile: { storage_url: 'package.zip' },
+        itemId: ITEM,
+        interactive: true,
+      }),
+    );
+  });
+
+  it('extracts the item JSON and its declared assets before the interaction mounts', async () => {
+    // eslint-disable-next-line kolibri/tests-no-stubs
+    render(QTIViewer, { stubs: { ContentViewer: perseusStub } });
+
+    await waitFor(() => expect(screen.getByTestId('perseus')).toBeInTheDocument());
+
+    expect(capture.itemData.perseusItemString).toBe(fixture.files[fixture.perseusPath]);
+    expect(capture.itemData.perseusItemString).not.toContain('blob:');
+
+    const assetPaths = Object.keys(fixture.files).filter(path => path !== fixture.perseusPath);
+    expect(Object.keys(capture.itemData.packageFiles).sort()).toEqual(assetPaths.sort());
+    Object.values(capture.itemData.packageFiles).forEach(url => expect(url).toMatch(/^blob:/));
   });
 });
