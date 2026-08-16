@@ -1,10 +1,108 @@
 /* eslint-disable import-x/no-commonjs, import-x/no-amd */
 'use strict';
 
+const { execFileSync } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
 const {
+  generateNpmVersionData,
   validateNpmVersionData,
   renderNpmVersionMarkdown,
 } = require('../githubUtils.js');
+
+// ---- generateNpmVersionData ----
+
+function git(cwd, ...args) {
+  return execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
+}
+
+function writeFile(cwd, relPath, contents) {
+  fs.mkdirSync(path.join(cwd, path.dirname(relPath)), { recursive: true });
+  fs.writeFileSync(path.join(cwd, relPath), contents);
+}
+
+function packageJson(name, version, extra = {}) {
+  return JSON.stringify({ name, version, ...extra }, null, 2);
+}
+
+describe('generateNpmVersionData', () => {
+  let repo;
+  let originalCwd;
+  let baseSha;
+
+  beforeEach(() => {
+    originalCwd = process.cwd();
+    repo = fs.mkdtempSync(path.join(os.tmpdir(), 'version-check-'));
+    git(repo, 'init', '--quiet');
+    git(repo, 'config', 'user.email', 'test@example.com');
+    git(repo, 'config', 'user.name', 'Test');
+    git(repo, 'config', 'commit.gpgsign', 'false');
+
+    writeFile(repo, 'packages/widget/package.json', packageJson('widget', '1.0.0'));
+    writeFile(repo, 'packages/widget/index.js', 'module.exports = 1;\n');
+    writeFile(repo, 'packages/internal/package.json', packageJson('internal', '1.0.0', { private: true }));
+    git(repo, 'add', '.');
+    git(repo, 'commit', '--quiet', '--no-verify', '-m', 'fork point');
+
+    git(repo, 'branch', 'feature');
+
+    // The base branch moves on after the PR branched off it.
+    writeFile(repo, 'packages/widget/package.json', packageJson('widget', '2.0.0'));
+    git(repo, 'commit', '--quiet', '--no-verify', '-a', '-m', 'bump widget on base');
+    baseSha = git(repo, 'rev-parse', 'HEAD');
+
+    git(repo, 'checkout', '--quiet', 'feature');
+    process.chdir(repo);
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    fs.rmSync(repo, { recursive: true, force: true });
+  });
+
+  it('returns null when the PR changes no package', () => {
+    expect(generateNpmVersionData(baseSha)).toBeNull();
+  });
+
+  it('ignores version bumps the base branch made while the PR was behind', () => {
+    writeFile(repo, 'packages/widget/index.js', 'module.exports = 2;\n');
+    git(repo, 'commit', '--quiet', '--no-verify', '-a', '-m', 'edit widget');
+
+    const data = generateNpmVersionData(baseSha);
+
+    expect(data.packages).toEqual([]);
+    expect(data.warnings).toEqual([{ name: 'widget', version: '1.0.0', changedFiles: 1 }]);
+  });
+
+  it('reports a version bump made by the PR', () => {
+    writeFile(repo, 'packages/widget/package.json', packageJson('widget', '1.1.0'));
+    git(repo, 'commit', '--quiet', '--no-verify', '-a', '-m', 'bump widget on feature');
+
+    const data = generateNpmVersionData(baseSha);
+
+    expect(data.packages).toEqual([{ name: 'widget', from: '1.0.0', to: '1.1.0' }]);
+    expect(data.warnings).toEqual([]);
+  });
+
+  it('reports a new package with no previous version', () => {
+    writeFile(repo, 'packages/fresh/package.json', packageJson('fresh', '1.0.0'));
+    git(repo, 'add', '.');
+    git(repo, 'commit', '--quiet', '--no-verify', '-m', 'add fresh');
+
+    const data = generateNpmVersionData(baseSha);
+
+    expect(data.packages).toEqual([{ name: 'fresh', from: null, to: '1.0.0' }]);
+  });
+
+  it('ignores private packages', () => {
+    writeFile(repo, 'packages/internal/package.json', packageJson('internal', '1.1.0', { private: true }));
+    git(repo, 'commit', '--quiet', '--no-verify', '-a', '-m', 'bump internal');
+
+    expect(generateNpmVersionData(baseSha)).toBeNull();
+  });
+});
 
 // ---- validateNpmVersionData ----
 

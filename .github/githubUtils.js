@@ -170,14 +170,20 @@ async function uploadReleaseAsset(github, context, filePath, release_id) {
 const npmVersionsHeader = '**npm Package Versions**';
 
 /**
- * Generate structured version diff data for packages changed relative to baseSha.
+ * Generate structured version diff data for packages the PR itself changed.
  * Returns { packages: [{name, from, to}], warnings: [{name, version, changedFiles}] },
  * or null if no publishable packages were affected.
- * Runs in pull_request context (no write permissions needed).
+ * Runs in pull_request context (no write permissions needed), against a
+ * checkout of the PR head.
  * `from` is null for new packages.
  */
 function generateNpmVersionData(baseSha) {
-  const allChanged = execSync(`git diff --name-only ${baseSha} -- packages/`)
+  // A pull_request payload's base.sha is the base branch tip, not the fork
+  // point, so diffing straight from it reports the base's own changes back at
+  // a PR that is behind.
+  const mergeBase = execSync(`git merge-base ${baseSha} HEAD`).toString().trim();
+
+  const allChanged = execSync(`git diff --name-only ${mergeBase} -- packages/`)
     .toString().trim().split('\n').filter(Boolean);
 
   const changedByPkg = {};
@@ -200,7 +206,12 @@ function generateNpmVersionData(baseSha) {
 
     let oldPkg;
     try {
-      oldPkg = JSON.parse(execSync(`git show ${baseSha}:${pkgJsonPath}`, { encoding: 'utf8' }));
+      oldPkg = JSON.parse(
+        execSync(`git show ${mergeBase}:${pkgJsonPath}`, {
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'ignore'],
+        })
+      );
     } catch {
       packages.push({ name: newPkg.name, from: null, to: newPkg.version });
       continue;
