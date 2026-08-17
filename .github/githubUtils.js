@@ -167,49 +167,107 @@ async function uploadReleaseAsset(github, context, filePath, release_id) {
   });
 }
 
-const npmVersionsHeader = '**npm Package Versions**';
+const packageVersionsHeader = '**Package Versions**';
 
 /**
- * Generate structured version diff data for packages changed relative to baseSha.
- * Returns { packages: [{name, from, to}], warnings: [{name, version, changedFiles}] },
+ * Read name and version from an npm package.json.
+ * Returns null when the package is not publishable.
+ */
+function readPackageJson(contents) {
+  const pkg = JSON.parse(contents);
+  if (pkg.private === true || pkg.private === 'true') return null;
+  if (!pkg.name || !pkg.version) return null;
+  return { name: pkg.name, version: pkg.version };
+}
+
+/**
+ * Read name and version from a pyproject.toml's [project] table.
+ * Returns null when the package is not publishable — PyPI rejects any package
+ * carrying a `Private ::` classifier, which is how a workspace member opts out.
+ */
+function readPyproject(contents) {
+  const projectLines = [];
+  let inProject = false;
+  for (const line of contents.split('\n')) {
+    const header = line.match(/^\s*\[\[?([^[\]]+)\]\]?\s*$/);
+    if (header) {
+      inProject = header[1] === 'project';
+      continue;
+    }
+    if (inProject) projectLines.push(line);
+  }
+  const project = projectLines.join('\n');
+
+  const classifiers = project.match(/^\s*classifiers\s*=\s*\[([^\]]*)\]/m);
+  if (classifiers && /["']\s*Private\s*::/.test(classifiers[1])) return null;
+
+  const name = project.match(/^\s*name\s*=\s*["']([^"']+)["']/m);
+  const version = project.match(/^\s*version\s*=\s*["']([^"']+)["']/m);
+  if (!name || !version) return null;
+  return { name: name[1], version: version[1] };
+}
+
+const PACKAGE_ECOSYSTEMS = [
+  { registry: 'npm', root: 'packages', manifest: 'package.json', read: readPackageJson },
+  { registry: 'PyPI', root: 'python_packages', manifest: 'pyproject.toml', read: readPyproject },
+];
+
+/**
+ * Generate structured version diff data for packages the PR itself changed.
+ * Returns { packages: [{registry, name, from, to}],
+ *           warnings: [{registry, name, version, changedFiles}] },
  * or null if no publishable packages were affected.
- * Runs in pull_request context (no write permissions needed).
+ * Runs in pull_request context (no write permissions needed), against a
+ * checkout of the PR head.
  * `from` is null for new packages.
  */
-function generateNpmVersionData(baseSha) {
-  const allChanged = execSync(`git diff --name-only ${baseSha} -- packages/`)
-    .toString().trim().split('\n').filter(Boolean);
-
-  const changedByPkg = {};
-  for (const file of allChanged) {
-    const parts = file.split('/');
-    if (parts.length < 2) continue;
-    const pkgDir = parts.slice(0, 2).join('/');
-    changedByPkg[pkgDir] = (changedByPkg[pkgDir] || 0) + 1;
-  }
+function generatePackageVersionData(baseSha) {
+  // A pull_request payload's base.sha is the base branch tip, not the fork
+  // point, so diffing straight from it reports the base's own changes back at
+  // a PR that is behind.
+  const mergeBase = execSync(`git merge-base ${baseSha} HEAD`).toString().trim();
 
   const packages = [];
   const warnings = [];
 
-  for (const [pkgDir, fileCount] of Object.entries(changedByPkg)) {
-    const pkgJsonPath = path.join(pkgDir, 'package.json');
-    if (!fs.existsSync(pkgJsonPath)) continue;
+  for (const { registry, root, manifest, read } of PACKAGE_ECOSYSTEMS) {
+    const allChanged = execSync(`git diff --name-only ${mergeBase} -- ${root}/`)
+      .toString().trim().split('\n').filter(Boolean);
 
-    const newPkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-    if (newPkg.private === true || newPkg.private === 'true') continue;
-
-    let oldPkg;
-    try {
-      oldPkg = JSON.parse(execSync(`git show ${baseSha}:${pkgJsonPath}`, { encoding: 'utf8' }));
-    } catch {
-      packages.push({ name: newPkg.name, from: null, to: newPkg.version });
-      continue;
+    const changedByPkg = {};
+    for (const file of allChanged) {
+      const parts = file.split('/');
+      if (parts.length < 2) continue;
+      const pkgDir = parts.slice(0, 2).join('/');
+      changedByPkg[pkgDir] = (changedByPkg[pkgDir] || 0) + 1;
     }
 
-    if (oldPkg.version !== newPkg.version) {
-      packages.push({ name: newPkg.name, from: oldPkg.version, to: newPkg.version });
-    } else {
-      warnings.push({ name: newPkg.name, version: newPkg.version, changedFiles: fileCount });
+    for (const [pkgDir, changedFiles] of Object.entries(changedByPkg)) {
+      const manifestPath = path.join(pkgDir, manifest);
+      if (!fs.existsSync(manifestPath)) continue;
+
+      const current = read(fs.readFileSync(manifestPath, 'utf8'));
+      if (!current) continue;
+
+      let previous = null;
+      try {
+        previous = read(
+          execSync(`git show ${mergeBase}:${manifestPath}`, {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+          })
+        );
+      } catch {
+        previous = null;
+      }
+
+      if (!previous) {
+        packages.push({ registry, name: current.name, from: null, to: current.version });
+      } else if (previous.version !== current.version) {
+        packages.push({ registry, name: current.name, from: previous.version, to: current.version });
+      } else {
+        warnings.push({ registry, name: current.name, version: current.version, changedFiles });
+      }
     }
   }
 
@@ -224,7 +282,7 @@ function generateNpmVersionData(baseSha) {
  * Returns the parsed data object, or null if the JSON value is null (no packages changed).
  * Throws an Error with a descriptive message on any malformed input.
  */
-function validateNpmVersionData(raw) {
+function validatePackageVersionData(raw) {
   const data = JSON.parse(raw);
   if (data === null) return null;
   if (typeof data !== 'object' || Array.isArray(data)) {
@@ -233,6 +291,7 @@ function validateNpmVersionData(raw) {
   if (!Array.isArray(data.packages)) throw new Error('packages must be an array');
   if (!Array.isArray(data.warnings)) throw new Error('warnings must be an array');
   for (const pkg of data.packages) {
+    if (typeof pkg.registry !== 'string') throw new Error('package.registry must be a string');
     if (typeof pkg.name !== 'string') throw new Error('package.name must be a string');
     if (pkg.from !== null && typeof pkg.from !== 'string') {
       throw new Error('package.from must be a string or null');
@@ -240,6 +299,7 @@ function validateNpmVersionData(raw) {
     if (typeof pkg.to !== 'string') throw new Error('package.to must be a string');
   }
   for (const w of data.warnings) {
+    if (typeof w.registry !== 'string') throw new Error('warning.registry must be a string');
     if (typeof w.name !== 'string') throw new Error('warning.name must be a string');
     if (typeof w.version !== 'string') throw new Error('warning.version must be a string');
     if (typeof w.changedFiles !== 'number') throw new Error('warning.changedFiles must be a number');
@@ -251,46 +311,46 @@ function validateNpmVersionData(raw) {
  * Render the markdown comment body from validated version diff data.
  * Returns the markdown string, or null if there is nothing to report.
  */
-function renderNpmVersionMarkdown(data) {
+function renderPackageVersionMarkdown(data) {
   const publishRows = data.packages.map(
-    pkg => `| ${pkg.name} | ${pkg.from === null ? '_new_' : pkg.from} | ${pkg.to} |`
+    pkg => `| ${pkg.name} | ${pkg.registry} | ${pkg.from === null ? '_new_' : pkg.from} | ${pkg.to} |`
   );
   const warningRows = data.warnings.map(
-    w => `| ${w.name} | ${w.version} | ${w.changedFiles} |`
+    w => `| ${w.name} | ${w.registry} | ${w.version} | ${w.changedFiles} |`
   );
 
   const sections = [];
   if (publishRows.length) {
     sections.push(
-      `Merging this PR will publish the following packages to npm:\n\n` +
-      `| Package | Current | New |\n|-|-|-|\n${publishRows.join('\n')}`
+      `Merging this PR will publish the following packages:\n\n` +
+      `| Package | Registry | Current | New |\n|-|-|-|-|\n${publishRows.join('\n')}`
     );
   }
   if (warningRows.length) {
     sections.push(
       `> [!WARNING]\n` +
       `> The following packages have changed files but no version bump:\n\n` +
-      `| Package | Version | Changed files |\n|-|-|-|\n${warningRows.join('\n')}\n\n` +
+      `| Package | Registry | Version | Changed files |\n|-|-|-|-|\n${warningRows.join('\n')}\n\n` +
       `If these changes affect published code, consider bumping the version.`
     );
   }
 
   if (sections.length) {
-    return `### ${npmVersionsHeader}\n\n${sections.join('\n\n')}`;
+    return `### ${packageVersionsHeader}\n\n${sections.join('\n\n')}`;
   }
   return null;
 }
 
 /**
- * Post or update the npm version check comment on a PR. Runs in
+ * Post or update the package version check comment on a PR. Runs in
  * workflow_run context (with write permissions). Pass body from
- * renderNpmVersionMarkdown, or null to delete any existing comment.
+ * renderPackageVersionMarkdown, or null to delete any existing comment.
  */
-async function postNpmVersionComment(github, context, prNumber, body) {
+async function postPackageVersionComment(github, context, prNumber, body) {
   if (body) {
-    await upsertComment(github, context, prNumber, npmVersionsHeader, body);
+    await upsertComment(github, context, prNumber, packageVersionsHeader, body);
   } else {
-    const commentId = await findComment(github, context, prNumber, npmVersionsHeader);
+    const commentId = await findComment(github, context, prNumber, packageVersionsHeader);
     if (commentId) {
       await github.rest.issues.deleteComment({
         owner: context.repo.owner,
@@ -345,10 +405,10 @@ module.exports = {
   findComment,
   findPrByHeadSha,
   generateAssetComment,
-  generateNpmVersionData,
-  validateNpmVersionData,
-  renderNpmVersionMarkdown,
-  postNpmVersionComment,
+  generatePackageVersionData,
+  validatePackageVersionData,
+  renderPackageVersionMarkdown,
+  postPackageVersionComment,
   uploadReleaseAsset,
   upsertComment,
 }

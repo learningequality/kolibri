@@ -1,7 +1,7 @@
-name: npm Package Version Comment
+name: Package Version Comment
 on:
   workflow_run:
-    workflows: [npm Package Version Check]
+    workflows: [Package Version Check]
     types:
       - completed
 permissions:
@@ -32,8 +32,8 @@ jobs:
         if: steps.find-pr.outputs.found == 'true'
         uses: actions/download-artifact@v8
         with:
-          name: npm_version_report
-          path: ${{ runner.temp }}/npm_version_report
+          name: package_version_report
+          path: ${{ runner.temp }}/package_version_report
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
@@ -42,7 +42,7 @@ jobs:
         uses: actions/github-script@v9
         env:
           PR_NUMBER: ${{ steps.find-pr.outputs.result }}
-          REPORT_DIR: ${{ runner.temp }}/npm_version_report
+          REPORT_DIR: ${{ runner.temp }}/package_version_report
         with:
           script: |
             const fs = require('fs');
@@ -51,11 +51,11 @@ jobs:
             const raw = fs.readFileSync(path.join(process.env.REPORT_DIR, 'data.json'), 'utf8');
             let data;
             try {
-              data = utils.validateNpmVersionData(raw);
+              data = utils.validatePackageVersionData(raw);
             } catch (e) {
               core.setFailed(`Invalid version data JSON: ${e.message}`);
               return;
             }
-            const body = data ? utils.renderNpmVersionMarkdown(data) : null;
+            const body = data ? utils.renderPackageVersionMarkdown(data) : null;
             const prNumber = Number(process.env.PR_NUMBER);
-            await utils.postNpmVersionComment(github, context, prNumber, body);
+            await utils.postPackageVersionComment(github, context, prNumber, body);
