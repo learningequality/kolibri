@@ -760,6 +760,7 @@
     padding-inline: $chip-padding-inline;
     overflow: hidden;
     cursor: pointer;
+    user-select: none;
     border-style: solid;
     border-width: $chip-border-width;
     border-radius: 8px;
