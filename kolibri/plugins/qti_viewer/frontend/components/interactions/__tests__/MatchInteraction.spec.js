@@ -5,8 +5,14 @@ import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { slotListboxStrings } from '../../../composables/useSlotListbox';
 import { matchStrings } from '../MatchInteraction.vue';
 
-const { responsePoolLabel$, entryEmpty$, entryFilled$, rowLabel$, refusedAlreadyInRow$ } =
-  matchStrings;
+const {
+  responsePoolLabel$,
+  entryEmpty$,
+  entryFilled$,
+  rowLabel$,
+  refusedAlreadyInRow$,
+  refusedMaxAssociations$,
+} = matchStrings;
 
 const { emptyOption$ } = slotListboxStrings;
 
@@ -538,14 +544,14 @@ describe('Response variable', () => {
   });
 });
 
-describe('Explaining a refusal', () => {
-  function refusalText(container) {
-    return container.querySelector('.qti-match-refusal').textContent.trim();
-  }
+function noticeText(container) {
+  return container.querySelector('.qti-match-notice').textContent.trim();
+}
 
+describe('Explaining a refusal', () => {
   it('says nothing until something is actually refused', () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);
-    expect(refusalText(container)).toBe('');
+    expect(noticeText(container)).toBe('');
   });
 
   it('explains that the pairing already exists', async () => {
@@ -556,7 +562,7 @@ describe('Explaining a refusal', () => {
     await fireEvent.click(poolChip(container, 'Birds'));
     await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
 
-    expect(refusalText(container)).toBe(
+    expect(noticeText(container)).toBe(
       refusedAlreadyInRow$({ response: 'Birds', source: 'Endothermic' }),
     );
   });
@@ -575,12 +581,12 @@ describe('Explaining a refusal', () => {
     await fireEvent.click(entriesOfRow(container, 'Asexual')[0]);
     await fireEvent.click(poolChip(container, 'Birds'));
 
-    expect(refusalText(container)).toBe('');
+    expect(noticeText(container)).toBe('');
   });
 
   it('announces the explanation as a live region', () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);
-    expect(container.querySelector('.qti-match-refusal')).toHaveAttribute('role', 'status');
+    expect(container.querySelector('.qti-match-notice')).toHaveAttribute('role', 'status');
   });
 
   it('drops the explanation once the learner places something', async () => {
@@ -590,12 +596,69 @@ describe('Explaining a refusal', () => {
 
     await fireEvent.click(poolChip(container, 'Birds'));
     await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
-    expect(refusalText(container)).not.toBe('');
+    expect(noticeText(container)).not.toBe('');
 
     await fireEvent.click(poolChip(container, 'Mammals'));
     await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
 
-    await waitFor(() => expect(refusalText(container)).toBe(''));
+    await waitFor(() => expect(noticeText(container)).toBe(''));
+  });
+});
+
+describe('Reaching max-associations', () => {
+  // match-example-2 caps the question at three matches
+  const atTheCap = {
+    RESPONSE: [
+      ['r1', 'h1'],
+      ['r2', 'h2'],
+      ['r3', 'h3'],
+    ],
+  };
+
+  it('says nothing while there is still room', () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: { RESPONSE: [['r1', 'h1']] },
+    });
+    expect(noticeText(container)).toBe('');
+  });
+
+  it('warns as soon as the last match is made, before anything is refused', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['r1', 'h1'],
+          ['r2', 'h2'],
+        ],
+      },
+    });
+    expect(noticeText(container)).toBe('');
+
+    await fireEvent.click(poolChip(container, 'Mammals'));
+    await fireEvent.click(entriesOfRow(container, 'Possess Gills')[0]);
+
+    await waitFor(() => expect(noticeText(container)).toBe(refusedMaxAssociations$({ count: 3 })));
+  });
+
+  it('keeps the warning up when a further placement is refused', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: atTheCap,
+    });
+
+    await fireEvent.click(poolChip(container, 'Reptiles'));
+    await fireEvent.click(entriesOfRow(container, 'Bear Live Young')[0]);
+
+    expect(noticeText(container)).toBe(refusedMaxAssociations$({ count: 3 }));
+  });
+
+  it('drops the warning once a match is taken back out', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: atTheCap,
+    });
+    expect(noticeText(container)).toBe(refusedMaxAssociations$({ count: 3 }));
+
+    await fireEvent.click(entriesOfRow(container, 'Asexual')[0]);
+
+    await waitFor(() => expect(noticeText(container)).toBe(''));
   });
 });
 

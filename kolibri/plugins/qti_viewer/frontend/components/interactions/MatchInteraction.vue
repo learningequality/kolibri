@@ -196,9 +196,6 @@
         if (problem === PROBLEM.NO_USES_LEFT) {
           return refusedNoUsesLeft$({ response });
         }
-        if (problem === PROBLEM.MAX_ASSOCIATIONS) {
-          return refusedMaxAssociations$({ count: typedProps.maxAssociations.value });
-        }
         // ALREADY_HERE and UNKNOWN are not worth interrupting a learner over
         return null;
       }
@@ -338,6 +335,21 @@
       // rows change the learner has moved on and it is stale.
       watch(rows, () => {
         refusal.value = null;
+      });
+
+      const atMaxAssociations = computed(() => {
+        const max = typedProps.maxAssociations.value;
+        return max > 0 && pairs.value.length >= max;
+      });
+
+      // A refusal is about what the learner just did, so it wins while it stands
+      const notice = computed(() => {
+        if (refusal.value) {
+          return refusal.value;
+        }
+        return atMaxAssociations.value
+          ? refusedMaxAssociations$({ count: typedProps.maxAssociations.value })
+          : null;
       });
 
       const poolStyles = computed(() => ({
@@ -577,13 +589,13 @@
         ]);
       }
 
-      // role="status" is a live region, so the explanation is announced as well
-      // as shown — a screen reader user gets no springing-back chip to notice.
-      function renderRefusal() {
+      // role="status" is a live region, so the notice is announced as well as
+      // shown — a screen reader user gets no springing-back chip to notice.
+      function renderNotice() {
         return h(
           'p',
           {
-            class: 'qti-match-refusal',
+            class: 'qti-match-notice',
             style: {
               color: $themeTokens.text,
               backgroundColor: $themePalette.grey.v_100,
@@ -591,7 +603,7 @@
             },
             attrs: { role: 'status' },
           },
-          refusal.value ? [h('KIcon', { props: { icon: 'infoOutline' } }), refusal.value] : [],
+          notice.value ? [h('KIcon', { props: { icon: 'infoOutline' } }), notice.value] : [],
         );
       }
 
@@ -686,7 +698,7 @@
               ],
               style: interactionCSSVars,
             },
-            [renderPool(), renderRows(), renderRefusal()],
+            [renderPool(), renderRows(), renderNotice()],
           ),
         ]);
       };
@@ -877,7 +889,7 @@
   }
 
   // Reserves no space while empty, so the rows do not jump as it comes and goes
-  .qti-match-refusal:not(:empty) {
+  .qti-match-notice:not(:empty) {
     display: flex;
     gap: 8px;
     align-items: center;
