@@ -27,10 +27,7 @@ const { pause, resume } = useTimeoutPoll(pollUserSyncStatusTask, timeoutInterval
 const usageCount = ref(0);
 
 export function fetchUserSyncStatus(params) {
-  return UserSyncStatusResource.fetchCollection({
-    force: true,
-    getParams: params,
-  }).then(
+  return UserSyncStatusResource.list(params).then(
     syncData => {
       return syncData;
     },
