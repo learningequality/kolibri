@@ -1,8 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import { UserKinds } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { error } from 'kolibri/utils/appError';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import NotificationsRoot from '../NotificationsRoot';
+import PingbackNotificationDismissedResource from '../NotificationsRoot/internal/PingbackNotificationDismissedResource';
+import PingbackNotificationResource from '../NotificationsRoot/internal/PingbackNotificationResource';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/utils/appError');
@@ -101,5 +106,33 @@ describe('NotificationsRoot', function () {
 
       expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeFalsy();
     });
+  });
+
+  it('an admin dismissing a fetched notification posts the dismissal and drops it from the list', async () => {
+    const NOTIFICATION = {
+      id: 'notification-1',
+      link_url: 'https://learningequality.org',
+      i18n: {
+        en: {
+          title: 'Upgrade available',
+          msg: 'A new version is available',
+          link_text: 'Download',
+        },
+      },
+    };
+    useUser.mockImplementation(() => useUserMock({ isAdmin: true, currentUserId: 'user-1' }));
+    PingbackNotificationResource.list.mockResolvedValue([NOTIFICATION]);
+
+    render(NotificationsRoot);
+
+    expect(await screen.findByText(NOTIFICATION.i18n.en.title)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: coreString('closeAction') }));
+
+    expect(PingbackNotificationDismissedResource.create).toHaveBeenCalledWith({
+      user: 'user-1',
+      notification: NOTIFICATION.id,
+    });
+    expect(screen.queryByText(NOTIFICATION.i18n.en.title)).not.toBeInTheDocument();
   });
 });
