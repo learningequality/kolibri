@@ -341,6 +341,13 @@ export default [
           pathGroupsExcludedImportTypes: [],
         },
       ],
+      // import-x/namespace is the single most expensive rule in the lint
+      // (~47% of all ESLint rule time): it deep-walks each imported module's
+      // export graph to validate `import * as ns` member access. That pattern
+      // is rare in our code, and the webpack build plus tests already catch
+      // bad namespace access — so the cost far outweighs the value. `named`
+      // (validating named imports) is kept; it is far cheaper and higher value.
+      'import-x/namespace': OFF,
       // Disable rules not present in eslint-plugin-import or with resolver issues
       'import-x/no-rename-default': OFF,
       // import-x/default doesn't handle CJS module.exports as default exports
