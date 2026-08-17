@@ -14,7 +14,7 @@ import { updateFacilityLevelRoles } from './utils';
 function setUserRole(user, role) {
   return updateFacilityLevelRoles(user, role.kind).then(() => {
     // Force refresh the User to get updated roles
-    return FacilityUserResource.fetchModel({ id: user.id, force: true });
+    return FacilityUserResource.retrieve(user.id);
   });
 }
 
@@ -26,17 +26,15 @@ function setUserRole(user, role) {
  * @returns {Promise<object|void>} Resolves when the user has been created.
  */
 export function createFacilityUser(store, payload) {
-  return FacilityUserResource.saveModel({
-    data: {
-      facility: selectedFacilityId.value,
-      username: payload.username,
-      full_name: payload.full_name,
-      password: payload.password,
-      id_number: payload.id_number,
-      gender: payload.gender,
-      birth_year: payload.birth_year,
-      extra_demographics: payload.extra_demographics,
-    },
+  return FacilityUserResource.create({
+    facility: selectedFacilityId.value,
+    username: payload.username,
+    full_name: payload.full_name,
+    password: payload.password,
+    id_number: payload.id_number,
+    gender: payload.gender,
+    birth_year: payload.birth_year,
+    extra_demographics: payload.extra_demographics,
   }).then(facilityUser => {
     if (payload.role.kind !== UserKinds.LEARNER) {
       return setUserRole(facilityUser, payload.role);
@@ -44,24 +42,37 @@ export function createFacilityUser(store, payload) {
   });
 }
 
+/**
+ * Updates a facility user's details, and their facility-level role when it changed.
+ * `updates.facilityUserUpdates` is already diff-only — `UserEditPage.getUpdates` picks just the
+ * fields that differ from the fetched user — so no baseline is passed to `update`.
+ * `updateFacilityLevelRoles` needs the user's current roles, so a role-only change reads the user
+ * back rather than writing an empty patch.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} payload - Payload object.
+ * @param {string} payload.userId - The ID of the user to update.
+ * @param {object} payload.updates - `{ facilityUserUpdates, roleUpdates }`.
+ * @returns {Promise<void>} Resolves when the user has been updated.
+ */
 export function updateFacilityUserDetails(store, { userId, updates }) {
   const { facilityUserUpdates, roleUpdates } = updates;
   if (isEmpty(facilityUserUpdates) && !roleUpdates) {
     return Promise.resolve();
   }
-  return FacilityUserResource.saveModel({ id: userId, data: { ...facilityUserUpdates } }).then(
-    user => {
-      if (roleUpdates) {
-        return updateFacilityLevelRoles(user, roleUpdates.kind);
-      }
-    },
-  );
+  const userPromise = isEmpty(facilityUserUpdates)
+    ? FacilityUserResource.retrieve(userId)
+    : FacilityUserResource.update(userId, facilityUserUpdates);
+  return userPromise.then(user => {
+    if (roleUpdates) {
+      return updateFacilityLevelRoles(user, roleUpdates.kind);
+    }
+  });
 }
 
 export function updateFacilityUserPassword(store, { userId, password }) {
-  return FacilityUserResource.saveModel({ id: userId, data: { password } });
+  return FacilityUserResource.update(userId, { password });
 }
 
 export function deleteFacilityUser(store, { userId }) {
-  return FacilityUserResource.deleteModel({ id: userId });
+  return FacilityUserResource.delete(userId);
 }

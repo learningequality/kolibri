@@ -112,34 +112,32 @@
       }
 
       async function createClass() {
-        const classroom = await ClassroomResource.saveModel({
-          data: {
-            name: copiedClassName.value.trim(),
-            parent: classToCopy.parent,
-          },
+        const classroom = await ClassroomResource.create({
+          name: copiedClassName.value.trim(),
+          parent: classToCopy.parent,
         });
         createdClass.value = classroom;
       }
 
       function assignCoachesToClass() {
         if (!copyAllCoaches.value || !classCoachesIds.value.length) return Promise.resolve();
-        return RoleResource.saveCollection({
-          data: classCoachesIds.value.map(coachId => ({
+        return RoleResource.bulkCreate(
+          classCoachesIds.value.map(coachId => ({
             user: coachId,
             kind: UserKinds.COACH,
             collection: createdClass.value.id,
           })),
-        });
+        );
       }
 
       function assignLearnersToClass() {
         if (!copyAllLearners.value || !classLearnerIds.value.length) return Promise.resolve();
-        return MembershipResource.saveCollection({
-          data: classLearnerIds.value.map(learnerId => ({
+        return MembershipResource.bulkCreate(
+          classLearnerIds.value.map(learnerId => ({
             user: learnerId,
             collection: createdClass.value.id,
           })),
-        });
+        );
       }
 
       async function copyClass() {
@@ -177,12 +175,9 @@
         try {
           copiedClassName.value = copyOfClass$({ class: classToCopy.name });
           classCoachesIds.value = classToCopy.coaches.map(coach => coach.id);
-          const classLearners = await FacilityUserResource.fetchCollection({
-            getParams: {
-              member_of: classToCopy.id,
-              exclude_coach_for: classToCopy.id,
-            },
-            force: true,
+          const classLearners = await FacilityUserResource.list({
+            member_of: classToCopy.id,
+            exclude_coach_for: classToCopy.id,
           });
           classLearnerIds.value = classLearners.map(learner => learner.id);
         } catch (error) {

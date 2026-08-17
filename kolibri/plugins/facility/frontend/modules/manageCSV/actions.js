@@ -18,10 +18,7 @@ function getFirstLogDate(store) {
 }
 
 function getCSVLogRequest(store, logType, facility) {
-  return GenerateCSVLogRequestResource.fetchCollection({
-    getParams: { log_type: logType, facility: facility },
-    force: true,
-  })
+  return GenerateCSVLogRequestResource.list({ log_type: logType, facility })
     .then(csvlogrequest => {
       if (logType == 'summary') {
         store.commit('SET_SUMMARY_LOG_REQUEST', csvlogrequest[0]);
@@ -110,7 +107,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
         store.commit(commitFinish, new Date());
         getExportedCSVsInfo(store);
       }
-      TaskResource.clear(taskId);
+      TaskResource.clear_v2(taskId);
     }
   } else {
     const running = myNewTasks.filter(task => {
@@ -139,12 +136,8 @@ function startExportUsers(store) {
 }
 
 function refreshTaskList(store) {
-  return Promise.all([
-    TaskResource.fetchCollection({
-      force: true,
-    }),
-  ])
-    .then(([newTasks]) => {
+  return TaskResource.list()
+    .then(newTasks => {
       checkTaskStatus(
         store,
         newTasks,

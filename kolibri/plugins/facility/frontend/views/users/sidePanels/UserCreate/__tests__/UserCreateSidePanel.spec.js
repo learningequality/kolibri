@@ -229,11 +229,11 @@ describe('UserCreateSidePanel', () => {
     ])(
       'creates $name with the correct role and password',
       async ({ setupOpts, kindLabel, facilityCoach, password, expectedRole }) => {
-        FacilityUserResource.saveModel.mockResolvedValue({
+        FacilityUserResource.create.mockResolvedValue({
           id: 'new-user-id',
           facility: 'fac-1',
         });
-        RoleResource.saveModel.mockResolvedValue({});
+        RoleResource.create.mockResolvedValue({});
         setup(setupOpts);
         await waitForFormReady();
         if (kindLabel) {
@@ -251,25 +251,21 @@ describe('UserCreateSidePanel', () => {
         await fireEvent.click(saveAndCloseButton());
 
         await waitFor(() => {
-          expect(FacilityUserResource.saveModel).toHaveBeenCalledTimes(1);
+          expect(FacilityUserResource.create).toHaveBeenCalledTimes(1);
         });
-        expect(FacilityUserResource.saveModel).toHaveBeenCalledWith(
+        expect(FacilityUserResource.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            data: expect.objectContaining({
-              username: 'testuser',
-              full_name: 'Test User',
-              password,
-            }),
+            username: 'testuser',
+            full_name: 'Test User',
+            password,
           }),
         );
         if (expectedRole === null) {
-          expect(RoleResource.saveModel).not.toHaveBeenCalled();
+          expect(RoleResource.create).not.toHaveBeenCalled();
         } else {
           await waitFor(() => {
-            expect(RoleResource.saveModel).toHaveBeenCalledWith(
-              expect.objectContaining({
-                data: expect.objectContaining({ kind: expectedRole }),
-              }),
+            expect(RoleResource.create).toHaveBeenCalledWith(
+              expect.objectContaining({ kind: expectedRole }),
             );
           });
         }
@@ -280,7 +276,7 @@ describe('UserCreateSidePanel', () => {
       setup();
       await waitForFormReady();
       await fireEvent.click(saveAndCloseButton());
-      expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
+      expect(FacilityUserResource.create).not.toHaveBeenCalled();
     });
 
     it('does not call FacilityUserResource when picture passwords are exhausted', async () => {
@@ -288,7 +284,7 @@ describe('UserCreateSidePanel', () => {
       await waitForFormReady();
       await fillRequired();
       await fireEvent.click(saveAndCloseButton());
-      expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
+      expect(FacilityUserResource.create).not.toHaveBeenCalled();
     });
   });
 
@@ -319,7 +315,7 @@ describe('UserCreateSidePanel', () => {
     });
 
     it('submits the form with the user-supplied password when the facility has picture passwords configured', async () => {
-      FacilityUserResource.saveModel.mockResolvedValue({ id: 'new-user-id', facility: 'fac-1' });
+      FacilityUserResource.create.mockResolvedValue({ id: 'new-user-id', facility: 'fac-1' });
       setup({ pictureLogin: true, pictureLoginFeatureEnabled: false });
       await waitForFormReady();
       await fillRequired();
@@ -327,12 +323,10 @@ describe('UserCreateSidePanel', () => {
       await fireEvent.click(saveAndCloseButton());
 
       await waitFor(() => {
-        expect(FacilityUserResource.saveModel).toHaveBeenCalledTimes(1);
+        expect(FacilityUserResource.create).toHaveBeenCalledTimes(1);
       });
-      expect(FacilityUserResource.saveModel).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ password: 'secret123' }),
-        }),
+      expect(FacilityUserResource.create).toHaveBeenCalledWith(
+        expect.objectContaining({ password: 'secret123' }),
       );
     });
   });

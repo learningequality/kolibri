@@ -87,10 +87,8 @@
       const loadData = async () => {
         loading.value = true;
         try {
-          const userModels = await FacilityUserResource.fetchCollection({
-            getParams: {
-              by_ids: Array.from(props.selectedUsers),
-            },
+          const userModels = await FacilityUserResource.list({
+            by_ids: Array.from(props.selectedUsers),
           });
           users.value = userModels.map(_userState);
         } finally {
@@ -106,7 +104,7 @@
         loading.value = true;
         sendPoliteMessage(movingToTrash$());
         try {
-          await FacilityUserResource.deleteCollection({
+          await FacilityUserResource.bulkDelete({
             by_ids: Array.from(props.selectedUsers).join(','),
           });
           createSnackbar(usersTrashedNotice$());

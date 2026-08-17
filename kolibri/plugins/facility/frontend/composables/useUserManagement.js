@@ -16,10 +16,6 @@ export default function useUserManagement({
   softDeletedUsers = false,
 } = {}) {
   const selectedUsers = ref(new Set());
-  const facilityUsers = ref([]);
-  const totalPages = ref(0);
-  const usersCount = ref(0);
-  const dataLoading = ref(false);
   const classes = ref([]);
   const router = useRouter();
   const route = useRoute();
@@ -38,44 +34,57 @@ export default function useUserManagement({
     selectedUsers.value = new Set();
   };
 
-  const fetchUsers = async () => {
-    dataLoading.value = true;
-    try {
-      const fetchResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
-      const resp = await fetchResource.fetchCollection({
-        getParams: pickBy({
-          member_of: activeFacilityId,
-          date_joined__gte: dateJoinedGt?.toISOString(),
-          page: page.value,
-          page_size: pageSize.value,
-          search: search.value?.trim() || null,
-          ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
-          ...getBackendFilters(),
-        }),
-        force: true,
-      });
-      facilityUsers.value = resp.results.map(_userState);
-      totalPages.value = resp.total_pages;
-      usersCount.value = resp.count;
-      dataLoading.value = false;
+  const userResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
+
+  // `useList` reads these at fetch time rather than watching them, so refetching is driven by
+  // the query-param watcher further down.
+  const userParams = () =>
+    pickBy({
+      member_of: activeFacilityId,
+      date_joined__gte: dateJoinedGt?.toISOString(),
+      page: page.value,
+      page_size: pageSize.value,
+      search: search.value?.trim() || null,
+      ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
+      ...getBackendFilters(),
+    });
+
+  const {
+    data: users,
+    loading: dataLoading,
+    error: usersError,
+    count,
+    totalPages: responseTotalPages,
+    fetchData: fetchUsers,
+  } = userResource.useList(userParams);
+
+  const facilityUsers = computed(() => (users.value || []).map(_userState));
+  const usersCount = computed(() => count.value ?? 0);
+  const totalPages = computed(() => responseTotalPages.value ?? 0);
+
+  // `useFetch` clears `loading` on success and on failure, and leaves it set for a superseded
+  // fetch, so this covers every path the page's spinner should stop for.
+  watch(dataLoading, isLoading => {
+    if (!isLoading) {
       pageLoading.value = false;
-    } catch (error) {
-      pageLoading.value = false;
-      // In case of 404 error because of stale pagination try loading users of page 1
-      if (error.status === 404 && page.value > 1) {
-        router.push({ ...route, query: { ...route.query, page: 1 } });
-      } else {
-        handleApiError({ error, reloadOnReconnect: true });
-      }
     }
-  };
+  });
+
+  watch(usersError, error => {
+    if (!error) {
+      return;
+    }
+    // A 404 here is a stale page number, outliving the filter change that shrank the result set.
+    if (error.status === 404 && page.value > 1) {
+      router.push({ ...route, query: { ...route.query, page: 1 } });
+    } else {
+      handleApiError({ error, reloadOnReconnect: true, shouldThrow: false });
+    }
+  });
 
   const fetchClasses = async () => {
     try {
-      const classList = await ClassroomResource.fetchCollection({
-        getParams: { parent: activeFacilityId },
-        force: true,
-      });
+      const classList = await ClassroomResource.list({ parent: activeFacilityId });
       classes.value = classList;
     } catch (error) {
       handleApiError({ error, reloadOnReconnect: true });

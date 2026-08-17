@@ -412,32 +412,30 @@
 
       const saveUserRole = (facilityUser, newRoleKind) => {
         const { id, facility } = facilityUser;
-        return RoleResource.saveModel({
-          data: {
-            user: id,
-            collection: facility,
-            kind: newRoleKind,
-          },
+        return RoleResource.create({
+          user: id,
+          collection: facility,
+          kind: newRoleKind,
         });
       };
 
       const enrollLearnerInClasses = (userId, classIds) => {
-        return MembershipResource.saveCollection({
-          data: classIds.map(classId => ({
+        return MembershipResource.bulkCreate(
+          classIds.map(classId => ({
             collection: classId,
             user: userId,
           })),
-        });
+        );
       };
 
       const assignCoachToClasses = (userId, classIds) => {
-        return RoleResource.saveCollection({
-          data: classIds.map(classId => ({
+        return RoleResource.bulkCreate(
+          classIds.map(classId => ({
             collection: classId,
             user: userId,
             kind: UserKinds.COACH,
           })),
-        });
+        );
       };
 
       const createFacilityUser = async () => {
@@ -445,17 +443,15 @@
         if (!showPasswordInput.value) {
           passwordValue = NOT_SPECIFIED;
         }
-        const facilityUser = await FacilityUserResource.saveModel({
-          data: {
-            facility: facilityId.value,
-            username: username.value,
-            full_name: fullName.value,
-            password: passwordValue,
-            id_number: idNumber.value,
-            gender: gender.value,
-            birth_year: birthYear.value,
-            extra_demographics: extraDemographics.value,
-          },
+        const facilityUser = await FacilityUserResource.create({
+          facility: facilityId.value,
+          username: username.value,
+          full_name: fullName.value,
+          password: passwordValue,
+          id_number: idNumber.value,
+          gender: gender.value,
+          birth_year: birthYear.value,
+          extra_demographics: extraDemographics.value,
         });
         if (newUserRole.value !== UserKinds.LEARNER) {
           await saveUserRole(facilityUser, newUserRole.value);

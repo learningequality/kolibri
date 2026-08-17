@@ -196,10 +196,7 @@ export default function useFacilityEditor() {
    * @returns {Promise<object>} Resolves with the updated facility model.
    */
   async function saveFacilityName(name) {
-    const facility = await FacilityResource.saveModel({
-      id: facilityId.value,
-      data: { name },
-    });
+    const facility = await FacilityResource.update(facilityId.value, { name });
 
     // Update facilities list
     await fetchFacility();
@@ -219,9 +216,9 @@ export default function useFacilityEditor() {
     for (const field of LOGIN_SETTINGS_FIELDS) {
       delete data[field];
     }
-    await FacilityDatasetResource.saveModel({
-      id: facilityDatasetId.value,
-      data,
+    // Diffing against the last server-synced snapshot sends only the edited settings.
+    await FacilityDatasetResource.update(facilityDatasetId.value, data, {
+      baseline: settingsCopy.value,
     });
     await fetchFacilityConfig();
     copySettings();
@@ -260,7 +257,9 @@ export default function useFacilityEditor() {
     if (response.status === 202 && response.data.task?.id) {
       pictureLoginTaskId.value = response.data.task.id;
     }
-    copySettings();
+    // No `copySettings()` here: `saveFacilityConfig` runs straight after and diffs against
+    // `settingsCopy`, so re-snapshotting now would make every other edited setting look
+    // unchanged and be dropped. It takes the snapshot once both halves are saved.
     return response.data;
   }
 

@@ -175,10 +175,8 @@
           return;
         }
         isLoading.value = true;
-        const users = await FacilityUserResource.fetchCollection({
-          getParams: {
-            by_ids: Array.from(props.selectedUsers).join(','),
-          },
+        const users = await FacilityUserResource.list({
+          by_ids: Array.from(props.selectedUsers).join(','),
         });
         facilityUsers.value = users.map(_userState);
         isLoading.value = false;
@@ -257,9 +255,7 @@
           })),
         );
 
-        const newRoles = await RoleResource.saveCollection({
-          data: roleData,
-        });
+        const newRoles = await RoleResource.bulkCreate(roleData);
 
         // Only add roles that were actually created (have an id)
         const actuallyCreatedRoles = newRoles.filter(role => role.id);
@@ -269,7 +265,7 @@
       async function handleUndoAssignments() {
         if (createdRoles.value.length > 0) {
           const roleIds = createdRoles.value.map(role => role.id);
-          await RoleResource.deleteCollection({ by_ids: roleIds });
+          await RoleResource.bulkDelete({ by_ids: roleIds });
           props.onChange({
             affectedClasses: selectedClasses.value,
           });

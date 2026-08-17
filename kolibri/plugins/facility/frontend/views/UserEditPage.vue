@@ -339,9 +339,7 @@
     },
     created() {
       const facilityConfigPromise = this.updateFacilityConfig();
-      const facilityUserPromise = FacilityUserResource.fetchModel({
-        id: this.$route.params.id,
-      }).then(user => {
+      const facilityUserPromise = FacilityUserResource.retrieve(this.userId).then(user => {
         this.username = user.username;
         this.fullName = user.full_name;
         this.idNumber = user.id_number;

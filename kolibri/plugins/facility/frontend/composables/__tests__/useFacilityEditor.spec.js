@@ -82,6 +82,9 @@ describe('useFacilityEditor', () => {
     urls['kolibri:core:facilitydataset_update_pin'] = jest
       .fn()
       .mockReturnValue('/api/facility_dataset/update_pin/');
+    urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
+      .fn()
+      .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
   });
 
   describe('initialization', () => {
@@ -546,16 +549,13 @@ describe('useFacilityEditor', () => {
   describe('saveFacilityName', () => {
     it('saves facility name and updates facilities list', async () => {
       const newName = 'New Facility Name';
-      FacilityResource.saveModel.mockResolvedValue({ id: mockFacilityId, name: newName });
+      FacilityResource.update.mockResolvedValue({ id: mockFacilityId, name: newName });
 
       const { saveFacilityName, facilityName } = useFacilityEditor();
 
       await saveFacilityName(newName);
 
-      expect(FacilityResource.saveModel).toHaveBeenCalledWith({
-        id: mockFacilityId,
-        data: { name: newName },
-      });
+      expect(FacilityResource.update).toHaveBeenCalledWith(mockFacilityId, { name: newName });
       expect(facilityName.value).toBe(newName);
     });
   });
@@ -571,12 +571,36 @@ describe('useFacilityEditor', () => {
 
       await saveFacilityConfig();
 
-      const savedData = FacilityDatasetResource.saveModel.mock.calls[0][0].data;
+      const [savedId, savedData] = FacilityDatasetResource.update.mock.calls[0];
+      expect(savedId).toBe(mockDatasetId);
       expect(savedData).not.toHaveProperty('picture_password_settings');
       expect(savedData).not.toHaveProperty('learner_can_login_with_no_password');
       expect(savedData).not.toHaveProperty('learner_can_edit_password');
       expect(savedData).toHaveProperty('learner_can_edit_username');
       expect(savedData).toHaveProperty('id');
+    });
+
+    it('diffs against the pre-save snapshot, which saving the login settings leaves alone', async () => {
+      client.mockResolvedValue({ status: 200, data: {} });
+      const {
+        saveFacilityConfig,
+        saveFacilityLoginSettings,
+        copySettings,
+        settings,
+        settingsCopy,
+        facilityDatasetId,
+      } = useFacilityEditor();
+      settings.value = { ...mockFacilityConfig, learner_can_edit_username: true };
+      facilityDatasetId.value = mockDatasetId;
+      copySettings();
+      const snapshot = { ...settingsCopy.value };
+      settings.value = { ...settings.value, learner_can_edit_username: false };
+
+      await saveFacilityLoginSettings();
+      await saveFacilityConfig();
+
+      const [, , options] = FacilityDatasetResource.update.mock.calls.at(-1);
+      expect(options.baseline).toEqual(snapshot);
     });
   });
 
@@ -597,7 +621,7 @@ describe('useFacilityEditor', () => {
         method: 'POST',
         data: mockPayload,
       });
-      expect(FacilityDatasetResource.saveModel).toHaveBeenCalled();
+      expect(FacilityDatasetResource.update).toHaveBeenCalled();
     });
   });
 
@@ -616,7 +640,7 @@ describe('useFacilityEditor', () => {
         url: '/api/facility_dataset/update_pin/',
         method: 'PATCH',
       });
-      expect(FacilityDatasetResource.saveModel).toHaveBeenCalled();
+      expect(FacilityDatasetResource.update).toHaveBeenCalled();
     });
   });
 
@@ -636,12 +660,6 @@ describe('useFacilityEditor', () => {
   });
 
   describe('saveFacilityLoginSettings', () => {
-    beforeEach(() => {
-      urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
-        .fn()
-        .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
-    });
-
     it('calls the save-facility-login-settings endpoint via PATCH with login fields', async () => {
       client.mockResolvedValue({ data: {} });
 

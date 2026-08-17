@@ -9,11 +9,9 @@ import { selectedFacilityId } from 'kolibri-common/composables/useFacility';
  * @returns {Promise<void>} Resolves when the class has been created.
  */
 export function createClass(store, name) {
-  return ClassroomResource.saveModel({
-    data: {
-      name,
-      parent: selectedFacilityId.value,
-    },
+  return ClassroomResource.create({
+    name,
+    parent: selectedFacilityId.value,
   }).then(
     classroom => {
       store.commit('ADD_CLASS', classroom);

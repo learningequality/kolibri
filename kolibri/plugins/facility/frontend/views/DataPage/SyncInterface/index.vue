@@ -223,14 +223,14 @@
       },
       pollSyncTask() {
         // Like facilityTaskQueue, just keep polling until component is destroyed
-        TaskResource.get(this.syncTaskId).then(task => {
+        TaskResource.retrieve(this.syncTaskId).then(task => {
           if (runEndedSince(task, this.syncTaskLastFinished)) {
             this.isSyncing = false;
             // Clearing a repeating row would delete the facility's sync
             // schedule, and it is briefly clearable between the run ending and
             // the re-schedule that requeues it.
             if (task.clearable && task.repeat === 0) {
-              TaskResource.clear(this.syncTaskId);
+              TaskResource.clear_v2(this.syncTaskId);
             }
             this.syncTaskId = '';
             const status = taskDisplayStatus(task);

@@ -25,7 +25,7 @@ export default function useDeleteClass(classroomProp) {
       return Promise.reject('No classId was provided');
     }
 
-    return ClassroomResource.deleteModel({ id: deleteId }).then(
+    return ClassroomResource.delete(deleteId).then(
       () => {
         $store.commit('classManagement/DELETE_CLASS', deleteId);
       },
