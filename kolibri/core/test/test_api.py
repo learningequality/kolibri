@@ -1791,6 +1791,30 @@ class TestDataSerialization(TestCase):
         self.assertEqual(set(result[0].keys()), {"id", "publisher_label"})
         self.assertEqual(result[0]["publisher_label"], "pub: Main House")
 
+    def test_method_field_source_naming_both_a_column_and_a_path(self):
+        """``sources=('publisher', 'publisher.name')`` resolves ``obj.publisher``
+        to the raw FK column, which cannot also carry the traversal."""
+
+        class S(serializers.ModelSerializer):
+            id = serializers.UUIDField()
+            publisher_label = ValuesMethodField(sources=("publisher", "publisher.name"))
+
+            def get_publisher_label(self, obj):
+                return "pub: {}".format(obj.publisher)
+
+            class Meta:
+                model = Author
+                fields = ("id", "publisher_label")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(
+            result[0]["publisher_label"], "pub: {}".format(self.alice.publisher_id)
+        )
+
     def test_method_field_reads_context_from_request(self):
         """The bound method's ``self.context`` is populated per-request from
         ``viewset.get_serializer_context()``."""

@@ -24,6 +24,7 @@ from django.db.models import Model
 from django.db.models import QuerySet
 
 from kolibri.core.utils.values_viewset.method_fields import _SourcesProxy
+from kolibri.core.utils.values_viewset.method_fields import compile_sources
 from kolibri.core.utils.values_viewset.method_fields import MethodContext
 
 # A row produced by ``queryset.values()`` — dict of flat path → value.
@@ -160,18 +161,21 @@ class MethodFieldEntry(FieldMapEntry):
     free of per-request state, so one engine serializes concurrent requests safely.
     """
 
-    __slots__ = ("method_func", "sources")
+    __slots__ = ("method_func", "sources", "spec")
 
     def __init__(self, method_func: Callable, sources: Tuple[str, ...]):
         self.method_func = method_func
         self.sources = sources
+        self.spec = compile_sources(sources)
 
     @property
     def read_columns(self) -> Tuple[str, ...]:
         return self.sources
 
     def extract(self, row: Row, method_context: Optional[MethodContext] = None) -> Any:
-        return self.method_func(method_context, _SourcesProxy(row, self.sources))
+        # method_context is never None here: the engine builds one whenever any
+        # level has a method field.
+        return self.method_func(method_context, _SourcesProxy(row, self.spec))
 
 
 FieldMap = Dict[str, FieldMapEntry]
