@@ -659,6 +659,55 @@ class TestDataSerialization(TestCase):
         titles = sorted(b["title"] for b in result[0]["books"])
         self.assertEqual(titles, ["Alice Book 1", "Alice Book 2", "Alice Book 3"])
 
+    def test_reverse_fk_single_nested(self):
+        """A reverse FK declared without many= renders one child, not a list —
+        the shape the serializer asked for, over a relation that can hold
+        several."""
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.bob.pk),
+            id=serializers.UUIDField(),
+            books=make_nested(
+                model=Book,
+                id=serializers.IntegerField(),
+                title=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["books"]["title"], "Bob Book 1")
+
+    def test_reverse_fk_single_nested_null_without_children(self):
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.carol.pk),
+            id=serializers.UUIDField(),
+            books=make_nested(
+                model=Book,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                title=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertIsNone(result[0]["books"])
+
+    def test_reverse_fk_single_excludes_hidden_via_default_manager(self):
+        """The manager follows the relation, not the declared output shape: a
+        reverse FK rendered singly still hides what its related manager hides."""
+        owner = HideableOwner.objects.create(name="owner")
+        Hideable.objects.create(name="secret", hidden=True, owner=owner)
+        viewset = make_viewset(
+            model=HideableOwner,
+            queryset=HideableOwner.objects.filter(pk=owner.pk),
+            id=serializers.IntegerField(),
+            hideables=make_nested(
+                model=Hideable,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertIsNone(result[0]["hideables"])
+
     def test_m2m_direct_forward_many_nested(self):
         viewset = make_viewset(
             model=Book,

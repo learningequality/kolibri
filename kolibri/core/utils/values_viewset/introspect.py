@@ -315,7 +315,7 @@ def _introspect_nested_field(
             "Auto-defer requires a Meta.model on the parent serializer to "
             "resolve the fetch relation for '{}'.".format(field_name)
         )
-    info = _resolve_auto_fetch_info(parent_model, field, field_name)
+    info = _resolve_auto_fetch_info(parent_model, field, field_name, is_many)
     auto_fetch = make_auto_fetch(
         is_forward=info.is_forward,
         field_name=field_name,
@@ -324,6 +324,7 @@ def _introspect_nested_field(
         is_many=info.is_many,
         child_path=field_name,
         shares_parents=info.shares_parents,
+        to_one_relation=info.to_one_relation,
     )
     # A forward fetch keys on the target pk, so the parent must fetch that column.
     forward_value = info.link if info.is_forward else None
@@ -344,13 +345,24 @@ class AutoFetchInfo(NamedTuple):
     # M2M only — one child can appear under several parents, so its link pairs
     # need deduping.
     shares_parents: bool
+    # The relation is to-one, which selects the target's base manager.
+    to_one_relation: bool
 
 
 def _resolve_auto_fetch_info(
-    parent_model: Type[Model], field: DrfField, field_name: str
+    parent_model: Type[Model],
+    field: DrfField,
+    field_name: str,
+    declared_many: bool,
 ) -> AutoFetchInfo:
     """
     Resolve how to fetch children for an auto-deferred nested field.
+
+    Over a to-many relation the serializer chooses the output shape:
+    ``many=True`` renders every child, and a plain nested serializer renders the
+    first child or ``None`` — the model may only be able to express the FK as
+    reverse-many (a versioned schema, say) while the API has always presented a
+    single object.
 
     Raises ``TypeError`` when the source isn't a resolvable relation on
     ``parent_model``.
@@ -372,8 +384,9 @@ def _resolve_auto_fetch_info(
             is_forward=False,
             target_model=relation.related_model,
             link=_reverse_link(relation),
-            is_many=True,
+            is_many=declared_many,
             shares_parents=False,
+            to_one_relation=False,
         )
     if isinstance(relation, ForeignObjectRel) and getattr(
         relation, "one_to_one", False
@@ -384,14 +397,16 @@ def _resolve_auto_fetch_info(
             link=_reverse_link(relation),
             is_many=False,
             shares_parents=False,
+            to_one_relation=True,
         )
     if getattr(relation, "many_to_many", False):
         return AutoFetchInfo(
             is_forward=False,
             target_model=relation.related_model,
             link=_reverse_link(relation),
-            is_many=True,
+            is_many=declared_many,
             shares_parents=True,
+            to_one_relation=False,
         )
     if getattr(relation, "many_to_one", False) or getattr(
         relation, "one_to_one", False
@@ -402,6 +417,7 @@ def _resolve_auto_fetch_info(
             link=relation.name,
             is_many=False,
             shares_parents=False,
+            to_one_relation=True,
         )
 
     raise TypeError(

@@ -85,7 +85,7 @@ The viewset introspects the serializer's fields to build the values tuple and fi
    * - ``nested = NestedSerializer(many=True)``
      - List of child dicts per parent
    * - ``nested = NestedSerializer()``
-     - Nested dict, or ``None`` when the FK is null
+     - Nested dict, or ``None`` when there is no related row. Over a reverse FK or M2M the first child is rendered and the rest dropped - note that this is not supported behaviour in regular DRF, but is a useful enhancement that we have included for own usage.
    * - Custom field with ``to_representation()``
      - Custom transformation applied automatically
    * - ``field = ValuesMethodField(sources=(...))``
