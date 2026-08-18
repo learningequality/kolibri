@@ -15,7 +15,7 @@ from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 
 
-class OptionalPagination(ValuesViewsetCursorPagination):
+class ImportMetadataPagination(ValuesViewsetCursorPagination):
     # Every node in a request comes from one channel, so lft is already unique
     # and needs no id tie-break (#14363).
     ordering = ("lft",)
@@ -24,7 +24,7 @@ class OptionalPagination(ValuesViewsetCursorPagination):
 
 class ImportMetadataViewset(GenericViewSet):
     queryset = models.ContentNode.objects.all()
-    pagination_class = OptionalPagination
+    pagination_class = ImportMetadataPagination
 
     def get_serializer_class(self):
         """
