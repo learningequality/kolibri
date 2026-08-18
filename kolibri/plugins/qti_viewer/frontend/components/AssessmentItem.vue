@@ -42,6 +42,10 @@
   import SimpleAssociableChoice from './interactions/SimpleAssociableChoice.vue';
   import MatchInteraction from './interactions/MatchInteraction.vue';
   import SimpleMatchSet from './interactions/SimpleMatchSet.vue';
+  import GapMatchInteraction from './interactions/GapMatchInteraction.vue';
+  import Gap from './interactions/Gap.vue';
+  import GapText from './interactions/GapText.vue';
+  import GapImg from './interactions/GapImg.vue';
 
   const $themeTokens = themeTokens();
 
@@ -58,6 +62,10 @@
     [SimpleAssociableChoice.tag]: SimpleAssociableChoice,
     [MatchInteraction.tag]: MatchInteraction,
     [SimpleMatchSet.tag]: SimpleMatchSet,
+    [GapMatchInteraction.tag]: GapMatchInteraction,
+    [Gap.tag]: Gap,
+    [GapText.tag]: GapText,
+    [GapImg.tag]: GapImg,
   });
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
