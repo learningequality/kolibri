@@ -71,7 +71,7 @@ try:
             Overwrite the set method to not return a value, in line with the Django cache interface
             This causes particular issues for Django's caching middleware, which expects the set method to return None
             as it invokes it directly in a lambda in the response.add_post_render_callback method
-            We use a similar pattern in our own caching decorator in kolibri/core/content/api.py and saw errors
+            We use a similar pattern in our own caching decorator in kolibri/core/content/utils/cache.py and saw errors
             due to the fact if the lambda returns a value, it is interpreted as a replacement for the response object.
             """
             super().set(*args, **kwargs)

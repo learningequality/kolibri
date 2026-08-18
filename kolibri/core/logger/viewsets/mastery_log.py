@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
-from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.decorators import query_params_required
+from kolibri.core.utils.pagination import OptionalPageNumberPagination
 
 from ..evaluation import attempts_diff
 from ..evaluation import LOG_ORDER_BY

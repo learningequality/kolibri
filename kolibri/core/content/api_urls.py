@@ -3,7 +3,7 @@ from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
-from .api import ChannelThumbnailView
+from .views import ChannelThumbnailView
 from .viewsets.channel_metadata import ChannelMetadataViewSet
 from .viewsets.content_request import ContentRequestViewset
 from .viewsets.contentnode.base import ContentNodeViewset
