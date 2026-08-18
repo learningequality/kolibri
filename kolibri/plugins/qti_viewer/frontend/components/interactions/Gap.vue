@@ -1,11 +1,12 @@
 <script>
 
   import { computed, h, inject } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { QTIIdentifierProp, StringProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
+  const $themeBrand = themeBrand();
 
   export default {
     name: 'Gap',
@@ -28,11 +29,20 @@
         index.value === -1 ? null : gapMatch.currentValue(index.value),
       );
       const filled = computed(() => Boolean(identifier.value));
+      const active = computed(() => index.value !== -1 && gapMatch.isActive(index.value));
 
-      const styles = computed(() => ({
-        backgroundColor: filled.value ? $themePalette.grey.v_100 : 'transparent',
-        borderColor: $themeTokens.fineLine,
-      }));
+      const styles = computed(() => {
+        if (active.value) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+          };
+        }
+        return {
+          backgroundColor: filled.value ? $themePalette.grey.v_100 : 'transparent',
+          borderColor: $themeTokens.fineLine,
+        };
+      });
 
       return () => {
         if (!gapMatch || index.value === -1) {
@@ -41,9 +51,18 @@
         return h(
           'span',
           {
-            class: ['qti-gap', attrs.class || '', { 'qti-gap-filled': filled.value }],
+            class: [
+              'qti-gap',
+              attrs.class || '',
+              {
+                'qti-gap-filled': filled.value,
+                'qti-gap-active': active.value,
+                'qti-gap-readonly': !gapMatch.interactive.value,
+              },
+            ],
             style: styles.value,
             attrs: { 'aria-label': gapMatch.gapLabel(index.value) },
+            on: { click: () => gapMatch.selectGap(index.value) },
           },
           filled.value ? [gapMatch.renderChip(identifier.value)] : [],
         );
@@ -76,6 +95,7 @@
     min-height: 2.25em;
     padding: 2px 6px;
     vertical-align: middle;
+    cursor: pointer;
     border-style: dashed;
     border-width: 1px;
     border-radius: 6px;
@@ -86,6 +106,10 @@
 
   .qti-gap-filled {
     border-style: solid;
+  }
+
+  .qti-gap-readonly {
+    cursor: default;
   }
 
 </style>

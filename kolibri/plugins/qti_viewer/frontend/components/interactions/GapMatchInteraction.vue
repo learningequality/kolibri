@@ -1,8 +1,8 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import { computed, h, inject, provide, watch } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { computed, h, inject, provide, ref, watch } from 'vue';
+  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import {
@@ -42,6 +42,10 @@
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
+  const $themeBrand = themeBrand();
+
+  // Exposed as a custom property so the :focus rule below can use a theme colour
+  const interactionCSSVars = { '--qti-gap-match-color-primary': $themeTokens.primary };
 
   export default {
     name: 'QtiGapMatchInteraction',
@@ -103,15 +107,71 @@
       // Every gap is a row that holds one choice; the pool is the whole choice
       // set. A gap match pair names the choice first, which is the one thing
       // that differs from a match interaction's rows.
-      const { pool, pairs, currentValue, isPlaceable, hydrate } = useMatchRows({
-        sourceIds: gapIds,
-        targetIds: choiceIds,
-        matchMaxOf,
-        maxAssociations: computed(() => typedProps.maxAssociations.value),
-        pairOrder: PAIR_ORDER.POOL_FIRST,
-      });
+      const { pool, pairs, currentValue, isPlaceable, place, clear, candidatesFor, hydrate } =
+        useMatchRows({
+          sourceIds: gapIds,
+          targetIds: choiceIds,
+          matchMaxOf,
+          maxAssociations: computed(() => typedProps.maxAssociations.value),
+          pairOrder: PAIR_ORDER.POOL_FIRST,
+        });
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
+
+      // Only one of these is ever set: the learner either picks a response and
+      // then a gap, or picks a gap and then a response.
+      const selectedIdentifier = ref(null);
+      const activeGap = ref(null);
+
+      function clearSelection() {
+        selectedIdentifier.value = null;
+        activeGap.value = null;
+      }
+
+      function selectResponse(identifier) {
+        if (!interactive.value || !isPlaceable(identifier)) {
+          return;
+        }
+        if (activeGap.value !== null) {
+          place(identifier, activeGap.value, 0);
+          clearSelection();
+          return;
+        }
+        selectedIdentifier.value = selectedIdentifier.value === identifier ? null : identifier;
+      }
+
+      function selectGap(gapIndex) {
+        if (!interactive.value) {
+          return;
+        }
+        if (selectedIdentifier.value) {
+          // place() refuses anything the item's limits forbid, so a refusal
+          // just leaves the gap as it was
+          place(selectedIdentifier.value, gapIndex, 0);
+          clearSelection();
+          return;
+        }
+        if (activeGap.value === gapIndex) {
+          clearSelection();
+          return;
+        }
+        // A choice can be reusable, so there is nothing to pick up and carry
+        // from a filled gap: clicking it takes the response back out instead.
+        if (currentValue(gapIndex, 0)) {
+          clear(gapIndex, 0);
+          clearSelection();
+          return;
+        }
+        activeGap.value = gapIndex;
+      }
+
+      // Whether the pool should offer this choice for the gap awaiting one
+      function isCandidateForActiveGap(identifier) {
+        if (activeGap.value === null) {
+          return false;
+        }
+        return candidatesFor(activeGap.value, 0).includes(identifier);
+      }
 
       // The variable is derived from the gaps, so ignore the change our own
       // write causes and only rebuild from a value that came from elsewhere.
@@ -133,6 +193,8 @@
         variable.value.value = value.map(pair => [...pair]);
       });
 
+      watch(interactive, clearSelection);
+
       const poolStyles = computed(() => ({
         backgroundColor: $themePalette.grey.v_100,
         borderColor: $themeTokens.fineLine,
@@ -143,12 +205,26 @@
         color: $themeTokens.text,
       }));
 
-      function chipStyles({ exhausted }) {
+      function chipStyles({ exhausted, selected, candidate }) {
         if (exhausted) {
           return {
             backgroundColor: $themeTokens.surface,
             borderColor: $themeTokens.fineLine,
             color: $themeTokens.annotation,
+          };
+        }
+        if (selected) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
+          };
+        }
+        if (candidate) {
+          return {
+            backgroundColor: $themeTokens.surface,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
           };
         }
         return {
@@ -158,13 +234,27 @@
         };
       }
 
-      function renderChip(identifier, { exhausted = false } = {}) {
+      function renderChip(
+        identifier,
+        { exhausted = false, selected = false, candidate = false, ariaHidden = false, on } = {},
+      ) {
         return h(
           'span',
           {
-            class: ['qti-gap-match-chip', { 'qti-gap-match-chip-exhausted': exhausted }],
-            style: chipStyles({ exhausted }),
-            attrs: exhausted ? { 'aria-disabled': 'true' } : {},
+            class: [
+              'qti-gap-match-chip',
+              {
+                'qti-gap-match-chip-exhausted': exhausted,
+                'qti-gap-match-chip-selected': selected,
+                'qti-gap-match-chip-candidate': candidate && !selected,
+              },
+            ],
+            style: chipStyles({ exhausted, selected, candidate }),
+            attrs: {
+              ...(exhausted ? { 'aria-disabled': 'true' } : {}),
+              ...(ariaHidden ? { 'aria-hidden': 'true' } : {}),
+            },
+            on,
           },
           [...contentByIdentifier[identifier]],
         );
@@ -186,7 +276,12 @@
         indexOf: identifier => gapIds.indexOf(identifier),
         currentValue: gapIndex => currentValue(gapIndex, 0),
         gapLabel,
-        renderChip,
+        // The chip a gap shows repeats a response the pool already names, so it
+        // is hidden from a screen reader in favour of the gap's own label.
+        renderChip: identifier => renderChip(identifier, { ariaHidden: true }),
+        isActive: gapIndex => activeGap.value === gapIndex,
+        selectGap,
+        interactive,
       });
 
       function renderPool() {
@@ -208,7 +303,12 @@
             },
             pool.value.map(identifier =>
               h('li', { key: identifier, class: 'qti-gap-match-pool-entry' }, [
-                renderChip(identifier, { exhausted: !isPlaceable(identifier) }),
+                renderChip(identifier, {
+                  exhausted: !isPlaceable(identifier),
+                  selected: selectedIdentifier.value === identifier,
+                  candidate: isCandidateForActiveGap(identifier),
+                  on: { click: () => selectResponse(identifier) },
+                }),
               ]),
             ),
           ),
@@ -231,6 +331,7 @@
                 'qti-gap-match-interaction',
                 { 'qti-gap-match-readonly': !interactive.value },
               ],
+              style: interactionCSSVars,
             },
             [
               renderPool(),
@@ -343,6 +444,10 @@
       max-height: none;
       object-fit: scale-down;
     }
+  }
+
+  .qti-gap-match-chip-selected {
+    font-weight: 600;
   }
 
   // Every use spent, so it can no longer fill a gap
