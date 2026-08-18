@@ -13,6 +13,7 @@ import pytz
 from django.conf import settings
 from django.core.cache import cache
 from django.test import LiveServerTestCase
+from django.test import override_settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -28,6 +29,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models as content
 from kolibri.core.content.api import NUM_CHILDREN
 from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
@@ -328,6 +330,7 @@ class ContentNodeAPIBase:
                     thumbnail += "?baseurl={}".format(self.baseurl)
         files = sorted(files, key=lambda x: x["id"])
         actual["files"] = sorted(actual["files"], key=lambda x: x["id"])
+        actual["tags"] = sorted(actual["tags"])
         expected_data = {
             "id": expected.id,
             "available": expected.available,
@@ -374,11 +377,8 @@ class ContentNodeAPIBase:
             "rght": expected.rght,
             "tree_id": expected.tree_id,
             "ancestors": [],
-            "tags": list(
-                expected.tags.all()
-                .order_by("tag_name")
-                .values_list("tag_name", flat=True)
-            ),
+            # ContentTag has no ordering, so neither does the rendered list.
+            "tags": sorted(expected.tags.all().values_list("tag_name", flat=True)),
             "thumbnail": thumbnail,
             "assessmentmetadata": assessmentmetadata,
             "is_leaf": expected.kind != "topic",
@@ -2793,6 +2793,40 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         """
         cache.clear()
         super().tearDown()
+
+
+class ContentNodeBookmarksAPITestCase(APITestCase):
+    fixtures = ["content_test.json"]
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="facility")
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.learner.set_password(DUMMY_PASSWORD)
+        cls.learner.save()
+        cls.node = content.ContentNode.objects.filter(available=True).first()
+        cls.bookmark = Bookmark.objects.create(
+            contentnode_id=cls.node.id,
+            content_id=cls.node.content_id,
+            channel_id=cls.node.channel_id,
+            user=cls.learner,
+        )
+
+    # DEBUG is what turns an output field the serializer does not declare into
+    # an error, so it is what fails if `bookmark` is dropped from the serializer.
+    @override_settings(DEBUG=True)
+    def test_bookmarks_list_carries_the_bookmark(self):
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:contentnode_bookmarks-list"))
+        self.assertEqual(len(response.data), 1)
+        result = response.data[0]
+        self.assertEqual(result["id"], self.node.id)
+        self.assertEqual(set(result["bookmark"]), {"id", "contentnode_id", "created"})
+        self.assertEqual(result["bookmark"]["id"], self.bookmark.id)
 
 
 class V2ChannelLookupUrlTestCase(TestCase):

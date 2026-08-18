@@ -41,7 +41,9 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
+from rest_framework.serializers import IntegerField
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
@@ -51,6 +53,7 @@ from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import CreateModelMixin
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
@@ -103,6 +106,8 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.query import SQSum
+from kolibri.core.serializers import KolibriModelSerializer
+from kolibri.core.serializers import SplitTextField
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
@@ -214,10 +219,6 @@ class ChannelThumbnailView(View):
             raise Http404("No thumbnail available")
         thumbnail = urlsafe_b64decode(b_64_thumbnail)
         return HttpResponse(thumbnail, content_type=mimetype)
-
-
-def _split_text_field(text):
-    return text.split(",") if text else []
 
 
 MODALITIES = set(["QUIZ"])
@@ -473,21 +474,6 @@ class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
     page_size_query_param = "page_size"
 
 
-def map_file(file):
-    file["checksum"] = file.pop("local_file__id")
-    file["available"] = file.pop("local_file__available")
-    file["file_size"] = file.pop("local_file__file_size")
-    file["extension"] = file.pop("local_file__extension")
-    file["storage_url"] = get_local_content_storage_file_url(
-        {
-            "available": file["available"],
-            "id": file["checksum"],
-            "extension": file["extension"],
-        }
-    )
-    return file
-
-
 # A map of fields that did not used to be in the BaseContentNodeMixin
 # but now are - the map gives a default value for these to be filled in with
 # if not present on an API request from a contentnode public API endpoint
@@ -512,6 +498,125 @@ contentnode_previously_renamed_params = {
 }
 
 
+class ContentNodeLanguageSerializer(KolibriModelSerializer):
+    class Meta:
+        model = models.Language
+        fields = ("id", "lang_code", "lang_subcode", "lang_name", "lang_direction")
+
+
+class ContentNodeFileSerializer(KolibriModelSerializer):
+    checksum = CharField(source="local_file.id")
+    available = BooleanField(source="local_file.available")
+    file_size = IntegerField(source="local_file.file_size")
+    extension = CharField(source="local_file.extension")
+    storage_url = ValuesMethodField(
+        sources=("local_file.id", "local_file.available", "local_file.extension")
+    )
+    lang = ContentNodeLanguageSerializer(read_only=True)
+
+    class Meta:
+        model = models.File
+        fields = (
+            "id",
+            "available",
+            "checksum",
+            "extension",
+            "file_size",
+            "lang",
+            "preset",
+            "priority",
+            "storage_url",
+            "supplementary",
+            "thumbnail",
+        )
+
+    def get_storage_url(self, obj):
+        return get_local_content_storage_file_url(obj.local_file)
+
+
+class AssessmentMetaDataSerializer(KolibriModelSerializer):
+    class Meta:
+        model = models.AssessmentMetaData
+        # No "id": the payload is the reverse relation's row, which never
+        # carried one.
+        fields = (
+            "assessment_item_ids",
+            "contentnode",
+            "is_manipulable",
+            "mastery_model",
+            "number_of_assessments",
+            "randomize",
+        )
+
+
+class BaseContentNodeSerializer(KolibriModelSerializer):
+    parent = PrimaryKeyRelatedField(read_only=True)
+    lang = ContentNodeLanguageSerializer(read_only=True)
+    files = ContentNodeFileSerializer(many=True, read_only=True)
+    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True)
+    tags = CharField(source="tags.tag_name", read_only=True)
+    thumbnail = CharField(read_only=True, allow_null=True)
+    is_leaf = ValuesMethodField(sources=("kind",))
+    accessibility_labels = SplitTextField()
+    categories = SplitTextField()
+    grade_levels = SplitTextField()
+    learner_needs = SplitTextField()
+    learning_activities = SplitTextField()
+    resource_types = SplitTextField()
+
+    class Meta:
+        model = models.ContentNode
+        fields = (
+            "accessibility_labels",
+            "ancestors",
+            "assessmentmetadata",
+            "author",
+            "available",
+            "categories",
+            "channel_id",
+            "coach_content",
+            "content_id",
+            "description",
+            "duration",
+            "files",
+            "grade_levels",
+            "id",
+            "is_leaf",
+            "kind",
+            "lang",
+            "learner_needs",
+            "learning_activities",
+            "license_description",
+            "license_name",
+            "license_owner",
+            "lft",
+            "modality",
+            "num_coach_contents",
+            "on_device_resources",
+            "options",
+            "parent",
+            "resource_types",
+            "rght",
+            "sort_order",
+            "tags",
+            "thumbnail",
+            "title",
+            "tree_id",
+        )
+
+    def get_is_leaf(self, obj):
+        return obj.kind != content_kinds.TOPIC
+
+
+class ContentNodeSerializer(BaseContentNodeSerializer):
+    # ContentNode.admin_imported is nullable pending its backfill upgrade step,
+    # but the API has always rendered it a boolean.
+    admin_imported = BooleanField(default=False)
+
+    class Meta(BaseContentNodeSerializer.Meta):
+        fields = BaseContentNodeSerializer.Meta.fields + ("admin_imported",)
+
+
 class BaseContentNodeMixin:
     """
     A base mixin for viewsets that need to return the same format of data
@@ -522,151 +627,23 @@ class BaseContentNodeMixin:
     filter_backends = (DjangoFilterBackend, ContentNodeSearchFilter)
     filterset_class = ContentNodeFilter
 
-    values = (
-        "id",
-        "author",
-        "available",
-        "channel_id",
-        "coach_content",
-        "content_id",
-        "description",
-        "kind",
-        "lang_id",
-        "license_description",
-        "license_name",
-        "license_owner",
-        "num_coach_contents",
-        "on_device_resources",
-        "options",
-        "parent",
-        "sort_order",
-        "title",
-        "lft",
-        "rght",
-        "tree_id",
-        "learning_activities",
-        "grade_levels",
-        "resource_types",
-        "accessibility_labels",
-        "learner_needs",
-        "categories",
-        "duration",
-        "ancestors",
-        "modality",
-    )
+    serializer_class = BaseContentNodeSerializer
 
-    field_map = {
-        "learning_activities": lambda x: _split_text_field(x["learning_activities"]),
-        "grade_levels": lambda x: _split_text_field(x["grade_levels"]),
-        "resource_types": lambda x: _split_text_field(x["resource_types"]),
-        "accessibility_labels": lambda x: _split_text_field(x["accessibility_labels"]),
-        "categories": lambda x: _split_text_field(x["categories"]),
-        "learner_needs": lambda x: _split_text_field(x["learner_needs"]),
-    }
+    # thumbnail is derived from the assembled files list, so it cannot be
+    # auto-fetched.
+    deferred_fields = ("thumbnail",)
 
     def get_queryset(self):
         if self.request.GET.get("no_available_filtering", False):
             return models.ContentNode.objects.all()
         return models.ContentNode.objects.filter(available=True)
 
-    def get_related_data_maps(self, items, queryset):
-        # items is already the materialized page from this queryset, so filter
-        # the related tables by its content-node ids directly. Passing the live
-        # annotated queryset here would re-execute it (including its correlated
-        # subqueries) once per related-data query.
-        content_node_ids = [item["id"] for item in items]
-        assessmentmetadata_map = {
-            a["contentnode"]: a
-            for a in models.AssessmentMetaData.objects.filter(
-                contentnode__in=content_node_ids
-            ).values(
-                "assessment_item_ids",
-                "number_of_assessments",
-                "mastery_model",
-                "randomize",
-                "is_manipulable",
-                "contentnode",
-            )
-        }
-
-        files_map = {}
-
-        files = list(
-            models.File.objects.filter(contentnode__in=content_node_ids).values(
-                "id",
-                "contentnode",
-                "local_file__id",
-                "priority",
-                "local_file__available",
-                "local_file__file_size",
-                "local_file__extension",
-                "preset",
-                "lang_id",
-                "supplementary",
-                "thumbnail",
-            )
-        )
-
-        lang_ids = set([obj["lang_id"] for obj in items + files])
-
-        languages_map = {
-            lang["id"]: lang
-            for lang in models.Language.objects.filter(id__in=lang_ids).values(
-                "id", "lang_code", "lang_subcode", "lang_name", "lang_direction"
-            )
-        }
-
-        for f in files:
-            contentnode_id = f.pop("contentnode")
-            if contentnode_id not in files_map:
-                files_map[contentnode_id] = []
-            lang_id = f.pop("lang_id")
-            f["lang"] = languages_map.get(lang_id)
-            files_map[contentnode_id].append(map_file(f))
-
-        tags_map = {}
-
-        for t in (
-            models.ContentTag.objects.filter(tagged_content__in=content_node_ids)
-            .values(
-                "tag_name",
-                "tagged_content",
-            )
-            .order_by("tag_name")
-        ):
-            if t["tagged_content"] not in tags_map:
-                tags_map[t["tagged_content"]] = [t["tag_name"]]
-            else:
-                tags_map[t["tagged_content"]].append(t["tag_name"])
-
-        return assessmentmetadata_map, files_map, languages_map, tags_map
-
     def consolidate(self, items, queryset):
-        output = []
-        if items:
-            (
-                assessmentmetadata,
-                files_map,
-                languages_map,
-                tags,
-            ) = self.get_related_data_maps(items, queryset)
-            for item in items:
-                item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
-                item["tags"] = tags.get(item["id"], [])
-                item["files"] = files_map.get(item["id"], [])
-                thumb_file = next(
-                    iter(filter(lambda f: f["thumbnail"] is True, item["files"])),
-                    None,
-                )
-                if thumb_file:
-                    item["thumbnail"] = thumb_file["storage_url"]
-                else:
-                    item["thumbnail"] = None
-                lang_id = item.pop("lang_id")
-                item["lang"] = languages_map.get(lang_id)
-                item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
-                output.append(item)
-        return output
+        for item in items:
+            item["thumbnail"] = next(
+                (f["storage_url"] for f in item["files"] if f["thumbnail"]), None
+            )
+        return items
 
 
 class InternalContentNodeMixin(BaseContentNodeMixin):
@@ -675,11 +652,7 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
     for public API endpoints also.
     """
 
-    values = BaseContentNodeMixin.values + ("admin_imported",)
-
-    field_map = BaseContentNodeMixin.field_map.copy()
-
-    field_map["admin_imported"] = lambda x: bool(x["admin_imported"])
+    serializer_class = ContentNodeSerializer
 
     def update_data(self, response_data, baseurl):
         if type(response_data) is dict:
@@ -1154,9 +1127,28 @@ class BookmarkFilter(FilterSet):
         return queryset.filter(available=value)
 
 
+class BookmarkSerializer(KolibriModelSerializer):
+    class Meta:
+        model = Bookmark
+        fields = ("id", "contentnode_id", "created")
+
+
+class ContentNodeBookmarkSerializer(ContentNodeSerializer):
+    bookmark = BookmarkSerializer(read_only=True)
+
+    class Meta(ContentNodeSerializer.Meta):
+        fields = ContentNodeSerializer.Meta.fields + ("bookmark",)
+
+
 class ContentNodeBookmarksViewset(
     InternalContentNodeMixin, BaseValuesViewset, ListModelMixin
 ):
+    serializer_class = ContentNodeBookmarkSerializer
+
+    # Not a relation on ContentNode, so auto-deferral cannot reach it: the
+    # bookmark rows are the queryset this viewset serializes nodes for.
+    deferred_fields = InternalContentNodeMixin.deferred_fields + ("bookmark",)
+
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
         KolibriAuthPermissionsFilter,
