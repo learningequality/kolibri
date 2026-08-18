@@ -3370,7 +3370,7 @@ class ShareFileViewTestCase(APITestCase):
             "kolibri.core.device.permissions.valid_app_key_on_request",
             return_value=True,
         ), mock.patch(
-            "kolibri.core.content.api.ShareFileHook.execute_file_share",
+            "kolibri.core.content.viewsets.share_file.ShareFileHook.execute_file_share",
             side_effect=Exception("internal server path /secrets/file"),
         ):
             response = self.client.post(
@@ -3389,7 +3389,7 @@ class ShareFileViewTestCase(APITestCase):
             "kolibri.core.device.permissions.valid_app_key_on_request",
             return_value=True,
         ), mock.patch(
-            "kolibri.core.content.api.ShareFileHook.execute_file_share",
+            "kolibri.core.content.viewsets.share_file.ShareFileHook.execute_file_share",
         ):
             response = self.client.post(
                 reverse("kolibri:core:sharefile"),
