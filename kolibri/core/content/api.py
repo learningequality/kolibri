@@ -119,6 +119,9 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
         )
 
     def annotate_queryset(self, queryset):
+        # A sync-initiated removal must not hide a user-initiated download
+        # (#11426).
+        # A failed removal took nothing away (#10574).
         return queryset.annotate(
             has_removal=Exists(
                 ContentRemovalRequest.objects.filter(
@@ -402,6 +405,8 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             raise Http404
         return Response(channels[0])
 
+    # Under the class-level cache_page, the UI stayed on "Disconnected" after the
+    # network came back (#11459).
     @action(detail=False)
     @no_cache_on_method
     def kolibri_studio_status(self, request, **kwargs):
@@ -448,6 +453,8 @@ class ShareFileView(APIView):
         try:
             ShareFileHook.execute_file_share(filepath, message)
         except Exception:
+            # The hook is plugin-provided and its message could disclose local
+            # paths, so it stays out of the response (#14717).
             logger.exception("file share hook failed")
             return Response(
                 {"error": {"id": error_constants.SHARE_FILE_FAILED}},

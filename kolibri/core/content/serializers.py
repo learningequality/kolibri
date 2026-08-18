@@ -86,6 +86,8 @@ class LowerCaseField(serializers.CharField):
 
 
 class LanguageSerializer(serializers.ModelSerializer):
+    # le_utils ids carry uppercase region subtags (en-GB, pt-BR); the frontend
+    # keys its language lookups by the lowercase id (#1869).
     id = LowerCaseField(max_length=14)
     lang_code = LowerCaseField(max_length=3)
     lang_subcode = LowerCaseField(max_length=10)

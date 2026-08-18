@@ -16,6 +16,8 @@ from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 
 
 class OptionalPagination(ValuesViewsetCursorPagination):
+    # Every node in a request comes from one channel, so lft is already unique
+    # and needs no id tie-break (#14363).
     ordering = ("lft",)
     page_size_query_param = "max_results"
 
