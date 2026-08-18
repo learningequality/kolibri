@@ -390,3 +390,134 @@ describe('Response variable', () => {
     });
   });
 });
+
+// SortableJS cannot be driven in jsdom, so a drag is exercised the way the
+// abstraction reports it: handleStart announces the source region, then
+// handleEnd inserts into the destination region and emits the source's
+// remaining items.
+function findRegions() {
+  const mounted = Array.from(document.body.querySelectorAll('*')).find(el => el.__vue__);
+  const regions = [];
+  const walk = vm => {
+    if (!vm) {
+      return;
+    }
+    if (vm.$options.name === 'DraggableRegion') {
+      regions.push(vm);
+    }
+    (vm.$children || []).forEach(walk);
+  };
+  walk(mounted && mounted.__vue__.$root);
+  return regions;
+}
+
+// A gap's label changes as it fills, so regions are found by the element they
+// render rather than by their label.
+function regionOfEl(el) {
+  return findRegions().find(region => region.$el === el);
+}
+
+const gapRegion = (container, index) => regionOfEl(gaps(container)[index]);
+const poolRegion = container => regionOfEl(container.querySelector('.qti-gap-match-pool-items'));
+
+async function drag(source, target, identifier) {
+  const sourceItemsBeforeDrag = source.items;
+  source.$emit('dragstart');
+  target.$emit('update:items', [...target.items, { identifier }]);
+  source.$emit(
+    'update:items',
+    sourceItemsBeforeDrag.filter(item => item.identifier !== identifier),
+  );
+  await target.$nextTick();
+}
+
+describe('Placing by drag', () => {
+  it('fills a gap dragged onto from the pool', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    await drag(poolRegion(container), gapRegion(container, 0), 'W');
+
+    expect(gapTexts(container)).toEqual(['winter', '']);
+  });
+
+  it('leaves out a response with no uses left', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    // An exhausted chip is still shown, but it is not something to pick up
+    expect(poolRegion(container).items.map(item => item.identifier)).not.toContain('W');
+  });
+
+  it('empties the gap a response is dragged out of', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    await drag(gapRegion(container, 0), poolRegion(container), 'W');
+
+    expect(gapTexts(container)).toEqual(['', '']);
+  });
+
+  it('moves a response from one gap to another', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-3'].xml, {
+      answerState: { RESPONSE: [['s1', 't1']] },
+    });
+
+    await drag(gapRegion(container, 0), gapRegion(container, 1), 's1');
+
+    expect(gapTexts(container).slice(0, 2)).toEqual(['', 'Earth']);
+  });
+
+  it('moves a response on its last use to another gap', async () => {
+    // Every choice in example-1 is match-max="1", so the destination can only
+    // take it once the origin has given it up
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    await drag(gapRegion(container, 0), gapRegion(container, 1), 'W');
+
+    expect(gapTexts(container)).toEqual(['', 'winter']);
+  });
+
+  it('replaces what a filled gap holds', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    await drag(poolRegion(container), gapRegion(container, 0), 'Su');
+
+    expect(gapTexts(container)).toEqual(['summer', '']);
+  });
+
+  it('reports a dragged placement on the response variable', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    await drag(poolRegion(container), gapRegion(container, 0), 'W');
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toEqual([['W', 'G1']]);
+    });
+  });
+
+  it('disables every region in review mode', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      interactive: false,
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    expect(poolRegion(container).disabled).toBe(true);
+    expect(gapRegion(container, 0).disabled).toBe(true);
+  });
+
+  it('places nothing dropped in review mode', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      interactive: false,
+    });
+
+    await drag(poolRegion(container), gapRegion(container, 0), 'W');
+
+    expect(gapTexts(container)).toEqual(['', '']);
+  });
+});

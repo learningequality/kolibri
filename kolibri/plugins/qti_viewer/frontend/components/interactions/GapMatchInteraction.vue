@@ -4,6 +4,10 @@
   import { computed, h, inject, provide, ref, watch } from 'vue';
   import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import useDraggableUniverse from 'kolibri-common/components/draggable/useDraggableUniverse';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import {
     choiceText,
@@ -107,14 +111,27 @@
       // Every gap is a row that holds one choice; the pool is the whole choice
       // set. A gap match pair names the choice first, which is the one thing
       // that differs from a match interaction's rows.
-      const { pool, pairs, currentValue, isPlaceable, place, clear, candidatesFor, hydrate } =
-        useMatchRows({
-          sourceIds: gapIds,
-          targetIds: choiceIds,
-          matchMaxOf,
-          maxAssociations: computed(() => typedProps.maxAssociations.value),
-          pairOrder: PAIR_ORDER.POOL_FIRST,
-        });
+      const {
+        pool,
+        pairs,
+        currentValue,
+        isPlaceable,
+        place,
+        clear,
+        remove,
+        candidatesFor,
+        hydrate,
+      } = useMatchRows({
+        sourceIds: gapIds,
+        targetIds: choiceIds,
+        matchMaxOf,
+        maxAssociations: computed(() => typedProps.maxAssociations.value),
+        pairOrder: PAIR_ORDER.POOL_FIRST,
+      });
+
+      useDraggableUniverse();
+
+      let dragOriginGap = null;
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
 
@@ -171,6 +188,29 @@
           return false;
         }
         return candidatesFor(activeGap.value, 0).includes(identifier);
+      }
+
+      // A drop is reported as a new item list rather than as a placement, so
+      // work out what changed rather than trusting the list.
+      function reconcileGap(gapIndex, newItems) {
+        if (!interactive.value) {
+          return;
+        }
+        const identifiers = newItems.map(item => item.identifier).filter(Boolean);
+        const current = currentValue(gapIndex, 0);
+
+        const arrived = identifiers.find(identifier => identifier !== current);
+        if (arrived) {
+          if (dragOriginGap !== null && dragOriginGap !== gapIndex) {
+            remove(arrived, dragOriginGap);
+          }
+          place(arrived, gapIndex, 0);
+          return;
+        }
+
+        if (!identifiers.length && current) {
+          remove(current, gapIndex);
+        }
       }
 
       // The variable is derived from the gaps, so ignore the change our own
@@ -234,11 +274,20 @@
         };
       }
 
+      // The whole chip is the drag handle, so DraggableHandle marks the chip
+      // itself rather than wrapping it in another element.
       function renderChip(
         identifier,
-        { exhausted = false, selected = false, candidate = false, ariaHidden = false, on } = {},
+        {
+          exhausted = false,
+          selected = false,
+          candidate = false,
+          ariaHidden = false,
+          draggable = false,
+          on,
+        } = {},
       ) {
-        return h(
+        const chip = h(
           'span',
           {
             class: [
@@ -258,6 +307,7 @@
           },
           [...contentByIdentifier[identifier]],
         );
+        return draggable && interactive.value ? h(DraggableHandle, [chip]) : chip;
       }
 
       function gapLabel(gapIndex) {
@@ -278,9 +328,13 @@
         gapLabel,
         // The chip a gap shows repeats a response the pool already names, so it
         // is hidden from a screen reader in favour of the gap's own label.
-        renderChip: identifier => renderChip(identifier, { ariaHidden: true }),
+        renderChip: identifier => renderChip(identifier, { ariaHidden: true, draggable: true }),
         isActive: gapIndex => activeGap.value === gapIndex,
         selectGap,
+        reconcileGap,
+        noteDragOrigin: gapIndex => {
+          dragOriginGap = gapIndex;
+        },
         interactive,
       });
 
@@ -296,21 +350,52 @@
             responsePoolLabel$(),
           ),
           h(
-            'ul',
+            DraggableRegion,
             {
-              class: 'qti-gap-match-pool-items',
-              attrs: { 'aria-label': responsePoolLabel$() },
+              props: {
+                // Exhausted chips stay visible but are not draggable, so they
+                // are left out of the region's items to keep its indexes
+                // aligned with the rendered children
+                items: pool.value
+                  .filter(identifier => isPlaceable(identifier))
+                  .map(identifier => ({ identifier })),
+                sortable: false,
+                disabled: !interactive.value,
+                label: responsePoolLabel$(),
+              },
+              on: {
+                dragstart: () => {
+                  dragOriginGap = null;
+                },
+              },
             },
-            pool.value.map(identifier =>
-              h('li', { key: identifier, class: 'qti-gap-match-pool-entry' }, [
-                renderChip(identifier, {
-                  exhausted: !isPlaceable(identifier),
-                  selected: selectedIdentifier.value === identifier,
-                  candidate: isCandidateForActiveGap(identifier),
-                  on: { click: () => selectResponse(identifier) },
+            [
+              h(
+                'ul',
+                {
+                  class: 'qti-gap-match-pool-items',
+                  attrs: { 'aria-label': responsePoolLabel$() },
+                },
+                pool.value.map(identifier => {
+                  const exhausted = !isPlaceable(identifier);
+                  const chip = renderChip(identifier, {
+                    exhausted,
+                    draggable: !exhausted,
+                    selected: selectedIdentifier.value === identifier,
+                    candidate: isCandidateForActiveGap(identifier),
+                    on: { click: () => selectResponse(identifier) },
+                  });
+                  if (exhausted) {
+                    return h('li', { key: identifier, class: 'qti-gap-match-pool-entry' }, [chip]);
+                  }
+                  return h(
+                    DraggableItem,
+                    { key: identifier, props: { disabled: !interactive.value } },
+                    [h('li', { class: 'qti-gap-match-pool-entry' }, [chip])],
+                  );
                 }),
-              ]),
-            ),
+              ),
+            ],
           ),
         ]);
       }

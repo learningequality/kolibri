@@ -2,6 +2,8 @@
 
   import { computed, h, inject } from 'vue';
   import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import { QTIIdentifierProp, StringProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
@@ -48,7 +50,8 @@
         if (!gapMatch || index.value === -1) {
           return null;
         }
-        return h(
+        const label = gapMatch.gapLabel(index.value);
+        const gap = h(
           'span',
           {
             class: [
@@ -61,10 +64,32 @@
               },
             ],
             style: styles.value,
-            attrs: { 'aria-label': gapMatch.gapLabel(index.value) },
+            attrs: { 'aria-label': label },
             on: { click: () => gapMatch.selectGap(index.value) },
           },
-          filled.value ? [gapMatch.renderChip(identifier.value)] : [],
+          filled.value
+            ? [
+              h(DraggableItem, { props: { disabled: !gapMatch.interactive.value } }, [
+                gapMatch.renderChip(identifier.value),
+              ]),
+            ]
+            : [],
+        );
+        return h(
+          DraggableRegion,
+          {
+            props: {
+              items: filled.value ? [{ identifier: identifier.value }] : [],
+              sortable: false,
+              disabled: !gapMatch.interactive.value,
+              label,
+            },
+            on: {
+              dragstart: () => gapMatch.noteDragOrigin(index.value),
+              'update:items': newItems => gapMatch.reconcileGap(index.value, newItems),
+            },
+          },
+          [gap],
         );
       };
     },
