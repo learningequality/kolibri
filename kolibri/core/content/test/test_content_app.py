@@ -31,10 +31,10 @@ from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models as content
-from kolibri.core.content.api import NUM_CHILDREN
 from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
@@ -1969,7 +1969,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(response.data), 1)
 
     @mock.patch(
-        "kolibri.core.public.api.allow_peer_unlisted_channel_import",
+        "kolibri.core.content.viewsets.contentnode.base.allow_peer_unlisted_channel_import",
         return_value=True,
     )
     def test_publiccontentnode_list_includes_unlisted_when_allowed(self, _mock):

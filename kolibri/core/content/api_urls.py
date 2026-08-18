@@ -4,17 +4,17 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .api import ChannelThumbnailView
-from .api import ContentNodeBookmarksViewset
 from .api import ContentNodeGranularViewset
-from .api import ContentNodeProgressViewset
-from .api import ContentNodeTreeViewset
-from .api import ContentNodeViewset
 from .api import ContentRequestViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
 from .api import ShareFileView
-from .api import UserContentNodeViewset
 from .viewsets.channel_metadata import ChannelMetadataViewSet
+from .viewsets.contentnode.base import ContentNodeViewset
+from .viewsets.contentnode.bookmarks import ContentNodeBookmarksViewset
+from .viewsets.contentnode.progress import ContentNodeProgressViewset
+from .viewsets.contentnode.tree import ContentNodeTreeViewset
+from .viewsets.contentnode.user import UserContentNodeViewset
 
 router = routers.SimpleRouter()
 router.register("channel", ChannelMetadataViewSet, basename="channel")
