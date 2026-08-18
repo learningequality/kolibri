@@ -353,12 +353,18 @@ class SyncQueueAPIView(APIView):
         return Response(self.get_response_data(queue_object))
 
 
+class FacilitySearchUsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityUser
+        fields = ("id", "username")
+
+
 class FacilitySearchUsernameViewSet(BaseValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_fields = ("facility",)
     search_fields = ("^username",)
 
-    values = ("id", "username")
+    serializer_class = FacilitySearchUsernameSerializer
 
     def list(self, request, *args, **kwargs):
         facility_id = request.query_params.get("facility", None)
