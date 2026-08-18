@@ -42,7 +42,9 @@ jobs:
       - name: Download the debfile from URL and install
         if: ${{ inputs.deb-url }}
         working-directory: platforms/raspberry-pi
-        run: make get-deb deb=${{ inputs.deb-url }}
+        env:
+          DEB_URL: ${{ inputs.deb-url }}
+        run: make get-deb deb="$DEB_URL"
       - name: Download the debfile from artifacts
         if: ${{ inputs.deb-file-name }}
         uses: actions/download-artifact@v8
