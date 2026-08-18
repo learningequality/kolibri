@@ -1922,6 +1922,12 @@ class FacilitySearchUsernameTestCase(APITestCase):
         response = self._search(facility="not-a-uuid")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_blank_facility_returns_404(self):
+        # A blank value clears the facility filter rather than failing it, so it
+        # needs the same guard as an unknown one.
+        response = self._search(facility="")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class LoginLogoutTestCase(APITestCase):
     databases = "__all__"

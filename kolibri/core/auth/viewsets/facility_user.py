@@ -217,6 +217,12 @@ class FacilityUserFilter(FilterSet):
         ]
 
 
+class FacilitySearchUsernameFilter(FilterSet):
+    class Meta:
+        model = FacilityUser
+        fields = ("facility",)
+
+
 class FacilityUserRoleSerializer(serializers.ModelSerializer):
     """Read-only role serializer for FacilityUser API responses.
 
@@ -403,43 +409,39 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
 
 class FacilitySearchUsernameViewSet(BaseValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_fields = ("facility",)
+    filterset_class = FacilitySearchUsernameFilter
     search_fields = ("^username",)
 
     serializer_class = FacilitySearchUsernameSerializer
 
     def list(self, request, *args, **kwargs):
-        facility_id = request.query_params.get("facility", None)
-        if facility_id is None:
+        if "facility" not in request.query_params:
             content = "Missing parameter: facility is required"
             return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
-        try:
-            facility = Facility.objects.get(id=facility_id)
-        # A malformed facility UUID raises ValueError, not DoesNotExist (#11735).
-        except (AttributeError, Facility.DoesNotExist, ValueError):
+
+        filterset = self.filterset_class(
+            request.query_params, queryset=self.get_queryset(), request=request
+        )
+        # Resolving the id through the filter turns an unknown or malformed one into a
+        # validation failure; querying it directly raises ValueError instead (#11735).
+        facility = (
+            filterset.form.cleaned_data["facility"] if filterset.is_valid() else None
+        )
+        if facility is None:
             content = "The facility does not exist in this device"
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         if facility.dataset.learner_can_login_with_no_password:
             queryset = self.filter_queryset(self.get_queryset())
             return Response(self.serialize(queryset))
-        else:
-            # A facility that requires a password must not disclose user ids, nor
-            # let a prefix search enumerate its usernames (#9512).
-            username = request.query_params.get("search", None)
-            queryset = self.get_queryset().filter(
-                facility=facility_id,
-                # Usernames are unique case-insensitively (#11739).
-                username__iexact=username,
-            )
-            response = (
-                [
-                    {"username": username, "id": None},
-                ]
-                if queryset
-                else []
-            )
-            return Response(response)
+
+        # A facility that requires a password must not disclose user ids, nor
+        # let a prefix search enumerate its usernames (#9512).
+        username = request.query_params.get("search", None)
+        # Usernames are unique case-insensitively (#11739).
+        if filterset.qs.filter(username__iexact=username).exists():
+            return Response([{"username": username, "id": None}])
+        return Response([])
 
     def get_queryset(self):
         # Learners only; the isnull arm catches users with no DevicePermissions
