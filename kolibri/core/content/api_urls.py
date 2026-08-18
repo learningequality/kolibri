@@ -4,7 +4,6 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .api import ChannelThumbnailView
-from .api import FileViewset
 from .api import RemoteChannelViewSet
 from .api import ShareFileView
 from .viewsets.channel_metadata import ChannelMetadataViewSet
@@ -29,7 +28,6 @@ router.register(
     ContentNodeBookmarksViewset,
     basename="contentnode_bookmarks",
 )
-router.register(r"file", FileViewset, basename="file")
 router.register(
     r"contentnodeprogress", ContentNodeProgressViewset, basename="contentnodeprogress"
 )

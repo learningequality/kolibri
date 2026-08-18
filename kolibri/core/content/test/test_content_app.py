@@ -1627,19 +1627,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertIn(quiz_channel_id, baseline_ids)
         self.assertIn(no_quiz_channel_id, baseline_ids)
 
-    def test_file_list(self):
-        response = self.client.get(reverse("kolibri:core:file-list"))
-        self.assertEqual(len(response.data), 10)
-
-    def test_file_retrieve(self):
-        response = self.client.get(
-            reverse(
-                "kolibri:core:file-detail",
-                kwargs={"pk": "6bdfea4a01830fdd4a585181c0b8068c"},
-            )
-        )
-        self.assertEqual(response.data["preset"], "high_res_video")
-
     def test_modality_filter(self):
         # Create a node with a specific modality
         lesson_topic = content.ContentNode.objects.filter(

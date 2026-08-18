@@ -22,7 +22,6 @@ from rest_framework.views import APIView
 
 from kolibri.core import error_constants
 from kolibri.core.content import models
-from kolibri.core.content import serializers
 from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.cache import no_cache_on_method
@@ -62,14 +61,6 @@ class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
 
     page_size = None
     page_size_query_param = "page_size"
-
-
-class FileViewset(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.FileSerializer
-    pagination_class = OptionalPageNumberPagination
-
-    def get_queryset(self):
-        return models.File.objects.all()
 
 
 @method_decorator(cache_page(60 * 5), name="dispatch")
