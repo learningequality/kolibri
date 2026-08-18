@@ -2471,7 +2471,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(response.data[0]["content_id"], node.content_id)
 
     def test_remote_content_node_missing_attributes(self):
-        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+        with mock.patch("kolibri.core.content.viewsets.remote.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
             mock_response.status_code = 200
@@ -2594,7 +2594,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             self.assertEqual(response.data["modality"], modalities.COURSE)
 
     def test_remote_content_node_missing_modality(self):
-        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+        with mock.patch("kolibri.core.content.viewsets.remote.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
             mock_response.status_code = 200
@@ -2717,7 +2717,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     def _proxied_search_params(self, device_info, query_param="search"):
         # Issue a proxied search to a remote with the given device_info and
         # return the query params we actually forwarded to it.
-        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+        with mock.patch("kolibri.core.content.viewsets.remote.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
             mock_response.status_code = 200
