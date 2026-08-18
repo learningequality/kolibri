@@ -15,23 +15,6 @@ from kolibri.core.fields import create_timezonestamp
 from kolibri.core.serializers import KolibriModelSerializer
 
 
-class DynamicFieldsModelSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        # Instantiate the superclass normally
-        super().__init__(*args, **kwargs)
-
-        # enable dynamic fields specification!
-        if "request" in self.context and self.context["request"].GET.get(
-            "fields", None
-        ):
-            fields = self.context["request"].GET["fields"].split(",")
-            # Drop any fields that are not specified in the `fields` argument.
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
-
-
 class PublicChannelSerializer(serializers.ModelSerializer):
     included_languages = serializers.SerializerMethodField()
     matching_tokens = serializers.SerializerMethodField("match_tokens")
