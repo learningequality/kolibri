@@ -1,10 +1,12 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/vue';
+import { slotListboxStrings } from '../../../composables/useSlotListbox';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { gapMatchStrings } from '../GapMatchInteraction.vue';
 
 const { responsePoolLabel$, gapEmpty$, gapFilled$ } = gapMatchStrings;
+const { emptyOption$ } = slotListboxStrings;
 
 // Choice content comes from the fixture XML rather than a translation, so it is
 // matched on the rendered chip instead of through a *ByText query.
@@ -24,7 +26,14 @@ function poolChip(container, text) {
   ).find(chip => chip.textContent.trim() === text);
 }
 
-const gapTexts = container => gaps(container).map(gap => gap.textContent.trim());
+// A gap owns a visually hidden option list for its listbox, so what it holds is
+// read off the chip rather than the gap's own text.
+function gapText(gap) {
+  const chip = gap.querySelector('.qti-gap-match-chip');
+  return chip ? chip.textContent.trim() : '';
+}
+
+const gapTexts = container => gaps(container).map(gapText);
 
 describe('Smoke', () => {
   it('renders the prompt', () => {
@@ -111,7 +120,7 @@ describe('Restoring an answer', () => {
       answerState: { RESPONSE: [['W', 'G1']] },
     });
     const [first] = gaps(container);
-    expect(first.textContent.trim()).toBe('winter');
+    expect(gapText(first)).toBe('winter');
   });
 
   it('names the filled gap for a screen reader', () => {
@@ -128,7 +137,7 @@ describe('Restoring an answer', () => {
     const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
       answerState: { RESPONSE: [['Su', 'G2']] },
     });
-    expect(gaps(container)[1].textContent.trim()).toBe('summer');
+    expect(gapText(gaps(container)[1])).toBe('summer');
   });
 
   it('spends the use of a restored response', () => {
@@ -163,7 +172,7 @@ describe('Restoring an answer', () => {
     const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
       answerState: { RESPONSE: [['W', 'nope']] },
     });
-    expect(gaps(container).map(gap => gap.textContent.trim())).toEqual(['', '']);
+    expect(gapTexts(container)).toEqual(['', '']);
   });
 
   it('ignores a pair written the wrong way round', () => {
@@ -171,7 +180,7 @@ describe('Restoring an answer', () => {
     const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
       answerState: { RESPONSE: [['G1', 'W']] },
     });
-    expect(gaps(container).map(gap => gap.textContent.trim())).toEqual(['', '']);
+    expect(gapTexts(container)).toEqual(['', '']);
   });
 });
 
@@ -519,5 +528,180 @@ describe('Placing by drag', () => {
     await drag(poolRegion(container), gapRegion(container, 0), 'W');
 
     expect(gapTexts(container)).toEqual(['', '']);
+  });
+});
+
+describe('Keyboard', () => {
+  function optionsOf(gap) {
+    return Array.from(gap.querySelectorAll('[role="option"]')).map(option => ({
+      text: option.textContent.trim(),
+      selected: option.getAttribute('aria-selected'),
+    }));
+  }
+
+  // The responses alone, without the empty option that leads them
+  const responsesOf = gap => optionsOf(gap).slice(1);
+
+  function activeOptionText(gap) {
+    const id = gap.getAttribute('aria-activedescendant');
+    return gap.querySelector(`#${id}`).textContent.trim();
+  }
+
+  it('exposes every gap as a listbox that tab can reach', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    gaps(container).forEach(gap => {
+      expect(gap).toHaveAttribute('role', 'listbox');
+      expect(gap).toHaveAttribute('tabindex', '0');
+    });
+  });
+
+  it('keeps the response pool out of the tab order', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    const pool = container.querySelector('.qti-gap-match-pool');
+
+    expect(pool.querySelectorAll('[tabindex="0"]')).toHaveLength(0);
+  });
+
+  it('leads the options with an empty one, so an answer can be taken back out', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    expect(optionsOf(gaps(container)[0])[0].text).toBe(emptyOption$());
+  });
+
+  it('offers every response a gap could take', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    expect(responsesOf(gaps(container)[0]).map(option => option.text)).toEqual([
+      'winter',
+      'spring',
+      'summer',
+      'autumn',
+    ]);
+  });
+
+  it('leaves out a response that has no use left', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    // W is match-max="1" and spent, so the other gap cannot take it
+    expect(responsesOf(gaps(container)[1]).map(option => option.text)).toEqual([
+      'spring',
+      'summer',
+      'autumn',
+    ]);
+  });
+
+  it("keeps a gap's own response among its options", () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    const options = optionsOf(gaps(container)[0]);
+    expect(options.map(option => option.text)).toContain('winter');
+    expect(options.filter(option => option.selected === 'true')).toHaveLength(1);
+  });
+
+  it('answers a gap when it is tabbed to', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    await fireEvent.focus(gaps(container)[0]);
+
+    expect(gapTexts(container)).toEqual(['winter', '']);
+  });
+
+  it('does not answer a gap a pointer press moved focus to', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    const gap = gaps(container)[0];
+
+    await fireEvent.mouseDown(gap);
+    await fireEvent.focus(gap);
+
+    expect(gapTexts(container)).toEqual(['', '']);
+  });
+
+  it('puts down a carried response when the keyboard takes over', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    await fireEvent.click(poolChip(container, 'spring'));
+    await fireEvent.focus(gaps(container)[0]);
+
+    // The gap answers itself on focus, so a response still held from a pointer
+    // click would leave the learner carrying something they never placed
+    expect(poolChip(container, 'spring')).not.toHaveClass('qti-gap-match-chip-selected');
+  });
+
+  it('steps to the next response with the down arrow', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    const gap = gaps(container)[0];
+
+    await fireEvent.focus(gap);
+    await fireEvent.keyDown(gap, { key: 'ArrowDown' });
+
+    expect(gapTexts(container)).toEqual(['spring', '']);
+  });
+
+  it('steps back to the empty option with the up arrow', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    const gap = gaps(container)[0];
+
+    await fireEvent.focus(gap);
+    await fireEvent.keyDown(gap, { key: 'ArrowUp' });
+
+    expect(gapTexts(container)).toEqual(['', '']);
+  });
+
+  it('jumps to the last response with End', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    const gap = gaps(container)[0];
+
+    await fireEvent.focus(gap);
+    await fireEvent.keyDown(gap, { key: 'End' });
+
+    expect(gapTexts(container)).toEqual(['autumn', '']);
+  });
+
+  it('empties the gap with Escape', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+    const gap = gaps(container)[0];
+
+    await fireEvent.keyDown(gap, { key: 'Escape' });
+
+    expect(gapTexts(container)).toEqual(['', '']);
+  });
+
+  it('names the option a gap is resting on', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    const gap = gaps(container)[0];
+
+    await fireEvent.focus(gap);
+
+    expect(activeOptionText(gaps(container)[0])).toBe('winter');
+  });
+
+  it('fills nothing on focus once max-associations is reached', async () => {
+    // sv-3's second interaction takes QTI's default of one association
+    const { container } = renderAssessmentItem(items['q6-gap-match-interaction-sv-3'].xml);
+    const second = container.querySelectorAll('.qti-gap-match-interaction')[1];
+
+    await fireEvent.focus(gaps(second)[0]);
+    await fireEvent.focus(gaps(second)[1]);
+
+    // Tabbing through must not raise a refusal on every gap it passes
+    expect(gapTexts(second)).toEqual(['winter', '']);
+  });
+
+  it('is not a listbox in review mode', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      interactive: false,
+    });
+
+    gaps(container).forEach(gap => {
+      expect(gap).not.toHaveAttribute('role');
+      expect(gap).not.toHaveAttribute('tabindex');
+    });
   });
 });

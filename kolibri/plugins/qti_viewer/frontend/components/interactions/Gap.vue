@@ -51,6 +51,7 @@
           return null;
         }
         const label = gapMatch.gapLabel(index.value);
+        const { listbox } = gapMatch;
         const gap = h(
           'span',
           {
@@ -64,16 +65,23 @@
               },
             ],
             style: styles.value,
-            attrs: { 'aria-label': label },
-            on: { click: () => gapMatch.selectGap(index.value) },
+            attrs: { 'aria-label': label, ...listbox.slotAttrs(index.value) },
+            on: {
+              click: () => gapMatch.selectGap(index.value),
+              ...listbox.handlers(index.value),
+            },
           },
-          filled.value
-            ? [
-              h(DraggableItem, { props: { disabled: !gapMatch.interactive.value } }, [
+          [
+            // The visible value is the listbox's trigger: its content repeats
+            // the selected option, which the listbox already announces.
+            filled.value
+              ? h(DraggableItem, { props: { disabled: !gapMatch.interactive.value } }, [
                 gapMatch.renderChip(identifier.value),
-              ]),
-            ]
-            : [],
+              ])
+              : null,
+            listbox.renderStepper(),
+            gapMatch.interactive.value ? listbox.renderOptions(index.value) : null,
+          ].filter(Boolean),
         );
         return h(
           DraggableRegion,
@@ -133,6 +141,12 @@
     border-style: solid;
   }
 
+  .qti-gap:focus {
+    outline: 3px solid var(--qti-gap-match-color-primary, #4368f3);
+    outline-offset: 1px;
+  }
+
+  // Review mode has nothing to click
   .qti-gap-readonly {
     cursor: default;
   }

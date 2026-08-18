@@ -19,6 +19,7 @@
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
   import useMatchRows, { PAIR_ORDER } from '../../composables/useMatchRows';
+  import useSlotListbox from '../../composables/useSlotListbox';
 
   const PROMPT_TAG = 'qti-prompt';
   const GAP_TAG = 'qti-gap';
@@ -158,6 +159,7 @@
       }
 
       function selectGap(gapIndex) {
+        listbox.forgetPointer();
         if (!interactive.value) {
           return;
         }
@@ -189,6 +191,19 @@
         }
         return candidatesFor(activeGap.value, 0).includes(identifier);
       }
+
+      // Keyboard navigation is for the gaps, not the pool. A gap is one slot
+      // holding one response, so it is addressed by its position alone and the
+      // row's single entry is filled in here.
+      const listbox = useSlotListbox({
+        candidatesFor: gapIndex => candidatesFor(gapIndex, 0),
+        currentValue: gapIndex => currentValue(gapIndex, 0),
+        commit: (identifier, gapIndex) => place(identifier, gapIndex, 0),
+        clear: gapIndex => clear(gapIndex, 0),
+        labelFor,
+        disabled: computed(() => !interactive.value),
+        onKeyboardFocus: clearSelection,
+      });
 
       // A drop is reported as a new item list rather than as a placement, so
       // work out what changed rather than trusting the list.
@@ -330,6 +345,7 @@
         // is hidden from a screen reader in favour of the gap's own label.
         renderChip: identifier => renderChip(identifier, { ariaHidden: true, draggable: true }),
         isActive: gapIndex => activeGap.value === gapIndex,
+        listbox,
         selectGap,
         reconcileGap,
         noteDragOrigin: gapIndex => {
