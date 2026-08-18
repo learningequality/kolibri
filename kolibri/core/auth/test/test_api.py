@@ -1855,6 +1855,74 @@ class FacilityUserFilterTestCase(APITestCase):
         self.assertCountEqual(ids, [self.user_2.id, self.admin_2.id])
 
 
+class FacilitySearchUsernameTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.learner_1 = FacilityUserFactory.create(
+            facility=cls.facility, username="learner_1"
+        )
+        cls.learner_2 = FacilityUserFactory.create(
+            facility=cls.facility, username="learner_2"
+        )
+        # Admin and superuser usernames share the searched prefix, so only the
+        # role and device permission filters can keep them out of the results.
+        admin = FacilityUserFactory.create(
+            facility=cls.facility, username="learner_admin"
+        )
+        cls.facility.add_admin(admin)
+        create_superuser(cls.facility, username="learner_superuser")
+
+        # Duplicate username in a second facility, so only the facility filter
+        # can keep it out of the results.
+        other_facility = FacilityFactory.create()
+        FacilityUserFactory.create(facility=other_facility, username="learner_1")
+
+    def _search(self, **params):
+        return self.client.get(reverse("kolibri:core:publicsearchuser-list"), params)
+
+    def test_passwordless_facility_returns_id_and_username(self):
+        disable_picture_password(self.facility, passwordless=True)
+        response = self._search(facility=self.facility.id, search="learner")
+        self.assertCountEqual(
+            response.data,
+            [
+                {"id": self.learner_1.id, "username": "learner_1"},
+                {"id": self.learner_2.id, "username": "learner_2"},
+            ],
+        )
+
+    def test_passwordless_facility_narrows_results_by_search(self):
+        disable_picture_password(self.facility, passwordless=True)
+        response = self._search(facility=self.facility.id, search="learner_2")
+        self.assertEqual(
+            response.data, [{"id": self.learner_2.id, "username": "learner_2"}]
+        )
+
+    def test_password_facility_exact_match_returns_null_id(self):
+        response = self._search(facility=self.facility.id, search="LEARNER_1")
+        self.assertEqual(response.data, [{"username": "LEARNER_1", "id": None}])
+
+    def test_password_facility_prefix_match_returns_empty(self):
+        response = self._search(facility=self.facility.id, search="learner")
+        self.assertEqual(response.data, [])
+
+    def test_missing_facility_returns_412(self):
+        response = self._search(search="learner")
+        self.assertEqual(response.status_code, status.HTTP_412_PRECONDITION_FAILED)
+
+    def test_unknown_facility_returns_404(self):
+        response = self._search(facility=uuid.uuid4().hex)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_malformed_facility_returns_404(self):
+        response = self._search(facility="not-a-uuid")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
 class LoginLogoutTestCase(APITestCase):
     databases = "__all__"
 
