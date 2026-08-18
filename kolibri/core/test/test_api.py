@@ -1695,6 +1695,30 @@ class TestDataSerialization(TestCase):
         self.assertEqual(result[0]["name"], "Alice")
         self.assertEqual(result[0]["label"], "label: Alice")
 
+    def test_field_reading_a_column_another_field_writes_sees_it_raw(self):
+        """``label`` reads the ``email`` column, which the ``email`` field
+        overwrites with ``name`` — the read must still see the raw column."""
+
+        class S(serializers.ModelSerializer):
+            id = serializers.UUIDField()
+            email = serializers.CharField(source="name")
+            label = ValuesMethodField(sources=("email",))
+
+            def get_label(self, obj):
+                return "label: {}".format(obj.email)
+
+            class Meta:
+                model = Author
+                fields = ("id", "email", "label")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["email"], self.alice.name)
+        self.assertEqual(result[0]["label"], "label: {}".format(self.alice.email))
+
     def test_method_field_source_shared_with_renamed_field(self):
         """A source read by both a rename and a method field is not promoted to
         a SQL alias: that would drop the column the method still reads."""
@@ -1718,6 +1742,31 @@ class TestDataSerialization(TestCase):
         result = self._run(viewset)
         self.assertEqual(result[0]["display_name"], "Alice")
         self.assertEqual(result[0]["label"], "label: Alice")
+
+    def test_declared_field_named_for_the_pk_survives_projection(self):
+        """A deferred fetch adds the pk column to ``values()`` for keying. When
+        a declared field already carries that name, the mapped value stays."""
+
+        class P(serializers.ModelSerializer):
+            class Meta:
+                model = Publisher
+                fields = ("name",)
+
+        class S(serializers.ModelSerializer):
+            id = serializers.CharField(source="email")
+            publisher = P(read_only=True)
+
+            class Meta:
+                model = Author
+                fields = ("id", "publisher")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["id"], self.alice.email)
+        self.assertEqual(result[0]["publisher"]["name"], self.alice.publisher.name)
 
     def test_method_field_reads_dotted_source_from_fk(self):
         """``sources=('publisher.name',)`` fetches ``publisher__name`` and the

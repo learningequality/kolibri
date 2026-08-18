@@ -81,16 +81,16 @@ class LevelFetch(ABC):
     field_name: str
     target_model: Type[Model]
 
-    # True when resolve() reads the parent raw rows; the engine only
-    # materializes raw_by_pk for a level that needs it.
-    needs_raw_by_pk = False
+    # Parent columns resolve() reads: the engine collects these off the parent
+    # rows, and projects them out of the output when they aren't declared fields.
+    link_columns: Tuple[str, ...] = ()
 
     @abstractmethod
     def resolve(
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         """Compute this relation's contribution, without mutating the items."""
@@ -158,7 +158,7 @@ class ScalarFetchEntry(ScalarFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         rows = filter_in(self.target_model._default_manager, self.link, pks).values(
@@ -197,7 +197,7 @@ class ParentPathScalarFetch(ScalarFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         rows = filter_in(
@@ -282,7 +282,7 @@ class ReverseAutoFetch(AutoFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         # Mirror Django's relation descriptors: a reverse OneToOne (to-one) loads
@@ -332,8 +332,9 @@ class ForwardAutoFetch(AutoFetch):
 
     __slots__ = ("field_name", "target_model", "link", "child_path")
 
-    # resolve() reads the parent's FK column out of the raw row.
-    needs_raw_by_pk = True
+    @property
+    def link_columns(self) -> Tuple[str, ...]:
+        return (self.link,)
 
     def __init__(
         self,
@@ -360,15 +361,14 @@ class ForwardAutoFetch(AutoFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         # Seed every field to None; the engine raises a need for each non-null
         # target and fills it in once the batched forward query runs. Strict:
-        # _make_plan guarantees the link is fetched, so a missing key is a plan
+        # _make_plan guarantees the link is collected, so a missing key is a plan
         # bug, not a null FK.
-        targets = [raw_by_pk[pk][self.link] for pk in pks]
-        return [None] * len(pks), [], targets
+        return [None] * len(pks), [], forward_values[self.link]
 
 
 def make_auto_fetch(

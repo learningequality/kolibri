@@ -183,6 +183,10 @@ class _BaseFieldMap(dict, metaclass=ABCMeta):
     # Set by finalize(): True when every entry is a trivial passthrough.
     is_noop = False
 
+    # Set by finalize(): columns read only to produce other fields, which
+    # map_row drops itself. The engine leaves these out of its keying columns.
+    dropped_columns: Tuple[str, ...] = ()
+
     def finalize(self) -> None:
         """Precompute ``is_noop`` after all entries are added."""
         self.is_noop = all(
@@ -240,15 +244,60 @@ class _FieldMap(_BaseFieldMap):
     """
     Serializer-introspected field map covering every declared output field.
 
-    ``map_row`` builds a fresh dict without mutating the input row, so method-field
-    sources pulled in for invocation never leak into output (they aren't keys).
+    ``map_row`` writes the mapped fields over the raw row wherever that is
+    equivalent to rebuilding it, then drops the columns read only to produce
+    them, so method-field sources never leak into output.
     ``_sql_renames`` holds F() aliases for plain renames, applied to SQL by
     ``annotate_queryset``.
     """
 
+    # Set by finalize().
+    _column_renames: Tuple[Tuple[str, str], ...] = ()
+    _column_transforms: Tuple[Tuple[str, str, Callable], ...] = ()
+    _computed_fields: Tuple[Tuple[str, FieldMapEntry], ...] = ()
+    _in_place = False
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._sql_renames: Dict[str, F] = {}
+
+    def finalize(self) -> None:
+        super().finalize()
+        keys = set(self.keys())
+        # Split the entries by how map_row must produce them, so the per-row
+        # loops carry no per-field type dispatch. A passthrough appears in none
+        # of them: the row already holds it under its own name.
+        renames = []
+        transforms = []
+        computed = []
+        written = set()
+        for key, entry in self.items():
+            if not isinstance(entry, SourceFieldEntry):
+                computed.append((key, entry))
+            elif entry.to_repr is not None:
+                transforms.append((key, entry.source, entry._represent))
+            elif entry.source != key:
+                renames.append((key, entry.source))
+            else:
+                continue
+            written.add(key)
+        self._column_renames = tuple(renames)
+        self._column_transforms = tuple(transforms)
+        self._computed_fields = tuple(computed)
+        self.dropped_columns = tuple(
+            {column for entry in self.values() for column in entry.read_columns} - keys
+        )
+        # Writing an output field over the row it was read from is only
+        # equivalent to building a fresh dict while no *other* entry reads that
+        # column: otherwise the entry that ran second would see the mapped value
+        # in place of the raw one. Reading a column an entry writes under its own
+        # name is fine — the read happens before the write.
+        self._in_place = not any(
+            column in written
+            for key, entry in self.items()
+            for column in entry.read_columns
+            if column != key
+        )
 
     def map_row(
         self,
@@ -257,10 +306,25 @@ class _FieldMap(_BaseFieldMap):
         extra_cols: Tuple[str, ...] = (),
     ) -> Row:
         if self.is_noop:
-            # Project to declared keys when the engine added keying columns; else
-            # the raw row is already the output.
-            return row if not extra_cols else {key: row[key] for key in self}
-        return {key: entry.extract(row, method_context) for key, entry in self.items()}
+            for column in extra_cols:
+                del row[column]
+            return row
+        # Write the mapped fields over the row rather than rebuilding it: a wide
+        # row is mostly passthrough, and rebuilding costs a lookup and a store
+        # per column of every row. Drops run last so an entry still reads its
+        # raw source.
+        output = row if self._in_place else dict(row)
+        for key, source in self._column_renames:
+            output[key] = row[source]
+        for key, source, represent in self._column_transforms:
+            output[key] = represent(row[source])
+        for key, entry in self._computed_fields:
+            output[key] = entry.extract(row, method_context)
+        for column in self.dropped_columns:
+            del output[column]
+        for column in extra_cols:
+            del output[column]
+        return output
 
     def db_column_map(self) -> Dict[str, str]:
         """

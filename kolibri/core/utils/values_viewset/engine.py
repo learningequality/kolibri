@@ -43,7 +43,7 @@ LinkPair = Tuple[Pk, Pk]
 
 class ExpandResult(NamedTuple):
     """
-    One level's expanded rows. ``pks``, ``link_pairs`` and ``raw_by_pk`` are
+    One level's expanded rows. ``pks``, ``link_pairs`` and ``forward_values`` are
     empty unless the level keys by them — each specialized worker below fills
     only the ones its level needs.
     """
@@ -52,7 +52,9 @@ class ExpandResult(NamedTuple):
     pks: List[Pk]
     # Index-aligned with ``items`` — ReverseAutoFetch zips the two positionally.
     link_pairs: List[LinkPair]
-    raw_by_pk: Dict[Pk, Row]
+    # {FK column: value per row}, index-aligned with ``pks``. Only the columns a
+    # forward fetch reads are kept, so a level does not retain its raw rows.
+    forward_values: Dict[str, List[Pk]]
 
 
 # Maps one raw row to output shape, projecting out ``extra_cols``.
@@ -111,13 +113,13 @@ class _LevelExpander:
     """
     Expands one level's raw rows, filling only the keying that level asks for:
     ``pks`` once it has fetches, ``link_pairs`` for a reverse-fetched child
-    (``r[link]`` being the parent pk it buckets onto), and ``raw_by_pk`` when a
-    forward fetch reads its FK column back out.
+    (``r[link]`` being the parent pk it buckets onto), and the FK column values a
+    forward fetch reads back out.
 
     The keying is fixed for every row, so it is bound once here.
     """
 
-    __slots__ = ("_map_row", "_extra_cols", "_raw_pk_name", "_link", "_needs_raw")
+    __slots__ = ("_map_row", "_extra_cols", "_raw_pk_name", "_link", "_forward_links")
 
     def __init__(
         self,
@@ -125,38 +127,42 @@ class _LevelExpander:
         extra_cols: Tuple[str, ...],
         raw_pk_name: Optional[str],
         link: Optional[str],
-        needs_raw_by_pk: bool,
+        forward_links: Tuple[str, ...],
     ):
         self._map_row = field_map.map_row
         self._extra_cols = extra_cols
         self._raw_pk_name = raw_pk_name
         self._link = link
-        self._needs_raw = needs_raw_by_pk
+        self._forward_links = forward_links
 
     def __call__(
         self, raw_rows: Iterable[Row], mc: Optional[MethodContext]
     ) -> ExpandResult:
-        # Read to locals once: the loop below runs per row, attribute lookups
-        # would not.
-        map_row = self._map_row
         extra_cols = self._extra_cols
         raw_pk_name = self._raw_pk_name
-        link = self._link
-        needs_raw = self._needs_raw
+        map_row = self._map_row
 
-        items, pks, link_pairs = [], [], []
-        raw_by_pk: Dict[Pk, Row] = {}
-        for r in raw_rows:
-            items.append(map_row(r, mc, extra_cols))
-            if raw_pk_name is None:
-                continue
-            pk = r[raw_pk_name]
-            pks.append(pk)
-            if needs_raw:
-                raw_by_pk.setdefault(pk, r)
-            if link is not None:
-                link_pairs.append((pk, r[link]))
-        return ExpandResult(items, pks, link_pairs, raw_by_pk)
+        if raw_pk_name is None:
+            return ExpandResult(
+                [map_row(r, mc, extra_cols) for r in raw_rows], [], [], {}
+            )
+
+        # Read the keying columns off every row before mapping any of them:
+        # map_row may write its output over the row it was handed, and projects
+        # the keying columns out.
+        rows = list(raw_rows)
+        pks = [r[raw_pk_name] for r in rows]
+        link = self._link
+        link_pairs = [] if link is None else [(pk, r[link]) for pk, r in zip(pks, rows)]
+        forward_values = {
+            column: [r[column] for r in rows] for column in self._forward_links
+        }
+        return ExpandResult(
+            [map_row(r, mc, extra_cols) for r in rows],
+            pks,
+            link_pairs,
+            forward_values,
+        )
 
 
 class ValuesEngine:
@@ -254,23 +260,26 @@ class ValuesEngine:
         raw_pk_name = model._meta.pk.name if (carry_pk and model is not None) else None
         fetch_values = list(values)
         extra_cols = []
-        if link is not None and link not in fetch_values:
-            fetch_values.append(link)
-            extra_cols.append(link)
-        if raw_pk_name is not None and raw_pk_name not in fetch_values:
-            fetch_values.append(raw_pk_name)
-            extra_cols.append(raw_pk_name)
+        # ``not in field_map``: a keying column whose name is also a declared
+        # field holds that field's mapped value by the time map_row projects.
+        for keying_column in (link, raw_pk_name):
+            if keying_column is None or keying_column in fetch_values:
+                continue
+            fetch_values.append(keying_column)
+            if keying_column not in field_map:
+                extra_cols.append(keying_column)
         # A forward FK's source column is fetched only to key its deferred fetch.
         # When the serializer doesn't also declare it as a field, it's a keying
         # column, not output — mark it so map_row projects it out instead of
         # leaking it (the all-passthrough noop path would otherwise keep it).
+        forward_links = []
         for entry in auto_fetch:
-            if (
-                isinstance(entry, ForwardAutoFetch)
-                and entry.link not in field_map
-                and entry.link not in extra_cols
-            ):
-                extra_cols.append(entry.link)
+            for column in entry.link_columns:
+                if column in forward_links:
+                    continue
+                forward_links.append(column)
+                if column not in field_map and column not in extra_cols:
+                    extra_cols.append(column)
         return _LevelPlan(
             fetch_values=tuple(fetch_values),
             scalar_fetch=scalar_fetch,
@@ -279,10 +288,11 @@ class ValuesEngine:
             sql_renames=field_map.sql_renames(),
             expand_rows=_LevelExpander(
                 field_map,
-                tuple(extra_cols),
+                # A column the map drops itself needs no second pass in map_row.
+                tuple(c for c in extra_cols if c not in field_map.dropped_columns),
                 raw_pk_name,
                 link,
-                needs_raw_by_pk=any(f.needs_raw_by_pk for f in auto_fetch),
+                forward_links=tuple(forward_links),
             ),
             is_fetched_child=is_fetched_child,
         )
@@ -432,7 +442,9 @@ class ValuesEngine:
         a model's shared fetch; ``expand_level`` uses it after its own
         ``.values()`` call.
         """
-        items, pks, link_pairs, raw_by_pk = plan.expand_rows(raw_rows, method_context)
+        items, pks, link_pairs, forward_values = plan.expand_rows(
+            raw_rows, method_context
+        )
         if plan.is_fetched_child and settings.DEBUG:
             items = [FrozenRow(item) for item in items]
 
@@ -441,7 +453,7 @@ class ValuesEngine:
         deferred_forward_refs = []
         for entry in (*plan.scalar_fetch, *plan.auto_fetch):
             values, nested_forward_refs, forward_targets = entry.resolve(
-                self, pks, raw_by_pk, method_context
+                self, pks, forward_values, method_context
             )
             for item, value in zip(items, values):
                 dict.__setitem__(item, entry.field_name, value)
