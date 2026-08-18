@@ -373,6 +373,7 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
             return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
         try:
             facility = Facility.objects.get(id=facility_id)
+        # A malformed facility UUID raises ValueError, not DoesNotExist (#11735).
         except (AttributeError, Facility.DoesNotExist, ValueError):
             content = "The facility does not exist in this device"
             return Response(content, status=status.HTTP_404_NOT_FOUND)
@@ -381,9 +382,13 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
             queryset = self.filter_queryset(self.get_queryset())
             return Response(self.serialize(queryset))
         else:
+            # A facility that requires a password must not disclose user ids, nor
+            # let a prefix search enumerate its usernames (#9512).
             username = request.query_params.get("search", None)
             queryset = self.get_queryset().filter(
-                facility=facility_id, username__iexact=username
+                facility=facility_id,
+                # Usernames are unique case-insensitively (#11739).
+                username__iexact=username,
             )
             response = (
                 [
@@ -395,6 +400,8 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
             return Response(response)
 
     def get_queryset(self):
+        # Learners only; the isnull arm catches users with no DevicePermissions
+        # row at all, which the is_superuser=False arm never matches (#9512).
         return FacilityUser.objects.filter(roles=None).filter(
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
         )
