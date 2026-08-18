@@ -13,6 +13,7 @@ import pytz
 from django.conf import settings
 from django.core.cache import cache
 from django.test import LiveServerTestCase
+from django.test import override_settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -28,11 +29,12 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models as content
-from kolibri.core.content.api import NUM_CHILDREN
 from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
@@ -280,7 +282,7 @@ class ContentNodeAPIBase:
                 ]
             }
 
-    def _assert_node(self, actual, expected):
+    def _assert_node(self, actual, expected, with_admin_imported=True):
         assessmentmetadata = (
             expected.assessmentmetadata.all()
             .values(
@@ -328,75 +330,70 @@ class ContentNodeAPIBase:
                     thumbnail += "?baseurl={}".format(self.baseurl)
         files = sorted(files, key=lambda x: x["id"])
         actual["files"] = sorted(actual["files"], key=lambda x: x["id"])
-        self.assertEqual(
-            actual,
-            {
-                "id": expected.id,
-                "available": expected.available,
-                "author": expected.author,
-                "channel_id": expected.channel_id,
-                "coach_content": expected.coach_content,
-                "content_id": expected.content_id,
-                "description": expected.description,
-                "duration": expected.duration,
-                "learning_activities": (
-                    expected.learning_activities.split(",")
-                    if expected.learning_activities
-                    else []
-                ),
-                "learner_needs": (
-                    expected.learner_needs.split(",") if expected.learner_needs else []
-                ),
-                "grade_levels": (
-                    expected.grade_levels.split(",") if expected.grade_levels else []
-                ),
-                "resource_types": (
-                    expected.resource_types.split(",")
-                    if expected.resource_types
-                    else []
-                ),
-                "accessibility_labels": (
-                    expected.accessibility_labels.split(",")
-                    if expected.accessibility_labels
-                    else []
-                ),
-                "categories": (
-                    expected.categories.split(",") if expected.categories else []
-                ),
-                "kind": expected.kind,
-                "lang": self.map_language(expected.lang),
-                "license_description": expected.license_description,
-                "license_name": expected.license_name,
-                "license_owner": expected.license_owner,
-                "num_coach_contents": expected.num_coach_contents,
-                "on_device_resources": expected.on_device_resources,
-                "options": expected.options,
-                "parent": expected.parent_id,
-                "sort_order": expected.sort_order,
-                "title": expected.title,
-                "lft": expected.lft,
-                "rght": expected.rght,
-                "tree_id": expected.tree_id,
-                "ancestors": [],
-                "tags": list(
-                    expected.tags.all()
-                    .order_by("tag_name")
-                    .values_list("tag_name", flat=True)
-                ),
-                "thumbnail": thumbnail,
-                "assessmentmetadata": assessmentmetadata,
-                "is_leaf": expected.kind != "topic",
-                "files": files,
-                "admin_imported": bool(expected.admin_imported),
-                "modality": expected.modality,
-            },
-        )
+        actual["tags"] = sorted(actual["tags"])
+        expected_data = {
+            "id": expected.id,
+            "available": expected.available,
+            "author": expected.author,
+            "channel_id": expected.channel_id,
+            "coach_content": expected.coach_content,
+            "content_id": expected.content_id,
+            "description": expected.description,
+            "duration": expected.duration,
+            "learning_activities": (
+                expected.learning_activities.split(",")
+                if expected.learning_activities
+                else []
+            ),
+            "learner_needs": (
+                expected.learner_needs.split(",") if expected.learner_needs else []
+            ),
+            "grade_levels": (
+                expected.grade_levels.split(",") if expected.grade_levels else []
+            ),
+            "resource_types": (
+                expected.resource_types.split(",") if expected.resource_types else []
+            ),
+            "accessibility_labels": (
+                expected.accessibility_labels.split(",")
+                if expected.accessibility_labels
+                else []
+            ),
+            "categories": (
+                expected.categories.split(",") if expected.categories else []
+            ),
+            "kind": expected.kind,
+            "lang": self.map_language(expected.lang),
+            "license_description": expected.license_description,
+            "license_name": expected.license_name,
+            "license_owner": expected.license_owner,
+            "num_coach_contents": expected.num_coach_contents,
+            "on_device_resources": expected.on_device_resources,
+            "options": expected.options,
+            "parent": expected.parent_id,
+            "sort_order": expected.sort_order,
+            "title": expected.title,
+            "lft": expected.lft,
+            "rght": expected.rght,
+            "tree_id": expected.tree_id,
+            "ancestors": [],
+            # ContentTag has no ordering, so neither does the rendered list.
+            "tags": sorted(expected.tags.all().values_list("tag_name", flat=True)),
+            "thumbnail": thumbnail,
+            "assessmentmetadata": assessmentmetadata,
+            "is_leaf": expected.kind != "topic",
+            "files": files,
+            "modality": expected.modality,
+        }
+        if with_admin_imported:
+            expected_data["admin_imported"] = bool(expected.admin_imported)
+        self.assertEqual(actual, expected_data)
 
-    def _assert_nodes(self, data, nodes):
+    def _assert_nodes(self, data, nodes, with_admin_imported=True):
         for actual, expected in zip(
             sorted(data, key=lambda x: x["id"]), sorted(nodes, key=lambda x: x.id)
         ):
-            self._assert_node(actual, expected)
+            self._assert_node(actual, expected, with_admin_imported=with_admin_imported)
 
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
@@ -1919,6 +1916,22 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(len(response.data), len(unfiltered.data))
 
+    def test_publiccontentnode_list(self):
+        # The public payload is the internal one minus admin_imported, which is
+        # device-local state a peer has no business seeing.
+        root = content.ContentNode.objects.get(title="root")
+        nodes = root.get_descendants(include_self=True).filter(available=True)
+        response = self.client.get(reverse("kolibri:core:publiccontentnode-list"))
+        self.assertEqual(len(response.data), len(nodes))
+        self._assert_nodes(response.data, nodes, with_admin_imported=False)
+
+    def test_publiccontentnode_retrieve(self):
+        node = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:publiccontentnode-detail", kwargs={"pk": node.id})
+        )
+        self._assert_node(response.data, node, with_admin_imported=False)
+
     def test_publiccontentnode_list_search(self):
         # The search filter lives on BaseContentNodeMixin so the public endpoint
         # supports it too: remote peers proxy keyword search to this endpoint.
@@ -1956,7 +1969,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(response.data), 1)
 
     @mock.patch(
-        "kolibri.core.public.api.allow_peer_unlisted_channel_import",
+        "kolibri.core.content.viewsets.contentnode.base.allow_peer_unlisted_channel_import",
         return_value=True,
     )
     def test_publiccontentnode_list_includes_unlisted_when_allowed(self, _mock):
@@ -2458,7 +2471,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(response.data[0]["content_id"], node.content_id)
 
     def test_remote_content_node_missing_attributes(self):
-        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+        with mock.patch("kolibri.core.content.viewsets.remote.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
             mock_response.status_code = 200
@@ -2581,7 +2594,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             self.assertEqual(response.data["modality"], modalities.COURSE)
 
     def test_remote_content_node_missing_modality(self):
-        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+        with mock.patch("kolibri.core.content.viewsets.remote.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
             mock_response.status_code = 200
@@ -2704,7 +2717,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     def _proxied_search_params(self, device_info, query_param="search"):
         # Issue a proxied search to a remote with the given device_info and
         # return the query params we actually forwarded to it.
-        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+        with mock.patch("kolibri.core.content.viewsets.remote.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
             mock_response.status_code = 200
@@ -2780,6 +2793,40 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         """
         cache.clear()
         super().tearDown()
+
+
+class ContentNodeBookmarksAPITestCase(APITestCase):
+    fixtures = ["content_test.json"]
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="facility")
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.learner.set_password(DUMMY_PASSWORD)
+        cls.learner.save()
+        cls.node = content.ContentNode.objects.filter(available=True).first()
+        cls.bookmark = Bookmark.objects.create(
+            contentnode_id=cls.node.id,
+            content_id=cls.node.content_id,
+            channel_id=cls.node.channel_id,
+            user=cls.learner,
+        )
+
+    # DEBUG is what turns an output field the serializer does not declare into
+    # an error, so it is what fails if `bookmark` is dropped from the serializer.
+    @override_settings(DEBUG=True)
+    def test_bookmarks_list_carries_the_bookmark(self):
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:contentnode_bookmarks-list"))
+        self.assertEqual(len(response.data), 1)
+        result = response.data[0]
+        self.assertEqual(result["id"], self.node.id)
+        self.assertEqual(set(result["bookmark"]), {"id", "contentnode_id", "created"})
+        self.assertEqual(result["bookmark"]["id"], self.bookmark.id)
 
 
 class V2ChannelLookupUrlTestCase(TestCase):

@@ -81,16 +81,16 @@ class LevelFetch(ABC):
     field_name: str
     target_model: Type[Model]
 
-    # True when resolve() reads the parent raw rows; the engine only
-    # materializes raw_by_pk for a level that needs it.
-    needs_raw_by_pk = False
+    # Parent columns resolve() reads: the engine collects these off the parent
+    # rows, and projects them out of the output when they aren't declared fields.
+    link_columns: Tuple[str, ...] = ()
 
     @abstractmethod
     def resolve(
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         """Compute this relation's contribution, without mutating the items."""
@@ -158,7 +158,7 @@ class ScalarFetchEntry(ScalarFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         rows = filter_in(self.target_model._default_manager, self.link, pks).values(
@@ -197,7 +197,7 @@ class ParentPathScalarFetch(ScalarFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         rows = filter_in(
@@ -233,8 +233,9 @@ class AutoFetch(LevelFetch):
 
 class ReverseAutoFetch(AutoFetch):
     """
-    A reverse FK / M2M: one batched child query filtered by the parents' pks,
-    bucketed back onto each parent (a list when ``is_many``, else one object).
+    A reverse FK / O2O / M2M: one batched child query filtered by the parents'
+    pks, bucketed back onto each parent (a list when ``is_many``, else one
+    object).
     """
 
     __slots__ = (
@@ -244,6 +245,7 @@ class ReverseAutoFetch(AutoFetch):
         "is_many",
         "child_path",
         "shares_parents",
+        "to_one_relation",
     )
 
     def __init__(
@@ -254,6 +256,7 @@ class ReverseAutoFetch(AutoFetch):
         is_many: bool,
         child_path: str,
         shares_parents: bool,
+        to_one_relation: bool,
     ):
         self.field_name = field_name
         self.target_model = target_model
@@ -263,6 +266,7 @@ class ReverseAutoFetch(AutoFetch):
         # True only for M2M: a child can appear under several parents, so link
         # pairs need deduping. A reverse FK/1:1 child has exactly one parent.
         self.shares_parents = shares_parents
+        self.to_one_relation = to_one_relation
 
     @property
     def child_fetch_link(self) -> Optional[str]:
@@ -276,13 +280,14 @@ class ReverseAutoFetch(AutoFetch):
             self.is_many,
             child_path,
             self.shares_parents,
+            self.to_one_relation,
         )
 
     def resolve(
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         # Mirror Django's relation descriptors: a reverse OneToOne (to-one) loads
@@ -290,9 +295,9 @@ class ReverseAutoFetch(AutoFetch):
         # isn't nulled out; reverse FK / M2M (to-many) use the default manager,
         # so a filtered target model drops its hidden children.
         manager = (
-            self.target_model._default_manager
-            if self.is_many
-            else self.target_model._base_manager
+            self.target_model._base_manager
+            if self.to_one_relation
+            else self.target_model._default_manager
         )
         child_qs = filter_in(manager, self.link, pks)
         child_items, child_pks, link_pairs, nested_forward_refs = engine.expand_level(
@@ -332,8 +337,9 @@ class ForwardAutoFetch(AutoFetch):
 
     __slots__ = ("field_name", "target_model", "link", "child_path")
 
-    # resolve() reads the parent's FK column out of the raw row.
-    needs_raw_by_pk = True
+    @property
+    def link_columns(self) -> Tuple[str, ...]:
+        return (self.link,)
 
     def __init__(
         self,
@@ -360,15 +366,14 @@ class ForwardAutoFetch(AutoFetch):
         self,
         engine: "ValuesEngine",
         pks: Sequence[Pk],
-        raw_by_pk: Dict[Pk, Row],
+        forward_values: Dict[str, List[Pk]],
         method_context: Optional[MethodContext],
     ) -> ResolveResult:
         # Seed every field to None; the engine raises a need for each non-null
         # target and fills it in once the batched forward query runs. Strict:
-        # _make_plan guarantees the link is fetched, so a missing key is a plan
+        # _make_plan guarantees the link is collected, so a missing key is a plan
         # bug, not a null FK.
-        targets = [raw_by_pk[pk][self.link] for pk in pks]
-        return [None] * len(pks), [], targets
+        return [None] * len(pks), [], forward_values[self.link]
 
 
 def make_auto_fetch(
@@ -379,10 +384,17 @@ def make_auto_fetch(
     is_many: bool,
     child_path: str,
     shares_parents: bool,
+    to_one_relation: bool,
 ) -> AutoFetch:
     """Build the entry class matching the relation direction."""
     if is_forward:
         return ForwardAutoFetch(field_name, target_model, link, child_path)
     return ReverseAutoFetch(
-        field_name, target_model, link, is_many, child_path, shares_parents
+        field_name,
+        target_model,
+        link,
+        is_many,
+        child_path,
+        shares_parents,
+        to_one_relation,
     )

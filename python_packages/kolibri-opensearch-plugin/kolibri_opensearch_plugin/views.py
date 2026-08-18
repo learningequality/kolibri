@@ -5,8 +5,8 @@ from django.views.generic import View
 from feedgenerator.django.utils import feedgenerator
 from rest_framework.request import Request
 
-from kolibri.core.content.api import ContentNodeSearchFilter
-from kolibri.core.content.api import ContentNodeViewset
+from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
+from kolibri.core.content.viewsets.contentnode.filters import ContentNodeSearchFilter
 
 
 class Descriptor(View):

@@ -21,13 +21,14 @@ from rest_framework.serializers import PrimaryKeyRelatedField
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesMethodField
 from kolibri.core.content import models
-from kolibri.core.content.api import RemoteViewSet
 from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.cache import remote_metadata_cache
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 from kolibri.core.serializers import DateTimeTzField
 from kolibri.core.serializers import KolibriModelSerializer
 from kolibri.core.serializers import SplitTextField
+
+from .remote import RemoteViewSet
 
 
 class ChannelMetadataFilter(FilterSet):

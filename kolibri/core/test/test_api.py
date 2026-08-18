@@ -659,6 +659,55 @@ class TestDataSerialization(TestCase):
         titles = sorted(b["title"] for b in result[0]["books"])
         self.assertEqual(titles, ["Alice Book 1", "Alice Book 2", "Alice Book 3"])
 
+    def test_reverse_fk_single_nested(self):
+        """A reverse FK declared without many= renders one child, not a list —
+        the shape the serializer asked for, over a relation that can hold
+        several."""
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.bob.pk),
+            id=serializers.UUIDField(),
+            books=make_nested(
+                model=Book,
+                id=serializers.IntegerField(),
+                title=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["books"]["title"], "Bob Book 1")
+
+    def test_reverse_fk_single_nested_null_without_children(self):
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.carol.pk),
+            id=serializers.UUIDField(),
+            books=make_nested(
+                model=Book,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                title=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertIsNone(result[0]["books"])
+
+    def test_reverse_fk_single_excludes_hidden_via_default_manager(self):
+        """The manager follows the relation, not the declared output shape: a
+        reverse FK rendered singly still hides what its related manager hides."""
+        owner = HideableOwner.objects.create(name="owner")
+        Hideable.objects.create(name="secret", hidden=True, owner=owner)
+        viewset = make_viewset(
+            model=HideableOwner,
+            queryset=HideableOwner.objects.filter(pk=owner.pk),
+            id=serializers.IntegerField(),
+            hideables=make_nested(
+                model=Hideable,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertIsNone(result[0]["hideables"])
+
     def test_m2m_direct_forward_many_nested(self):
         viewset = make_viewset(
             model=Book,
@@ -1695,6 +1744,30 @@ class TestDataSerialization(TestCase):
         self.assertEqual(result[0]["name"], "Alice")
         self.assertEqual(result[0]["label"], "label: Alice")
 
+    def test_field_reading_a_column_another_field_writes_sees_it_raw(self):
+        """``label`` reads the ``email`` column, which the ``email`` field
+        overwrites with ``name`` — the read must still see the raw column."""
+
+        class S(serializers.ModelSerializer):
+            id = serializers.UUIDField()
+            email = serializers.CharField(source="name")
+            label = ValuesMethodField(sources=("email",))
+
+            def get_label(self, obj):
+                return "label: {}".format(obj.email)
+
+            class Meta:
+                model = Author
+                fields = ("id", "email", "label")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["email"], self.alice.name)
+        self.assertEqual(result[0]["label"], "label: {}".format(self.alice.email))
+
     def test_method_field_source_shared_with_renamed_field(self):
         """A source read by both a rename and a method field is not promoted to
         a SQL alias: that would drop the column the method still reads."""
@@ -1719,6 +1792,31 @@ class TestDataSerialization(TestCase):
         self.assertEqual(result[0]["display_name"], "Alice")
         self.assertEqual(result[0]["label"], "label: Alice")
 
+    def test_declared_field_named_for_the_pk_survives_projection(self):
+        """A deferred fetch adds the pk column to ``values()`` for keying. When
+        a declared field already carries that name, the mapped value stays."""
+
+        class P(serializers.ModelSerializer):
+            class Meta:
+                model = Publisher
+                fields = ("name",)
+
+        class S(serializers.ModelSerializer):
+            id = serializers.CharField(source="email")
+            publisher = P(read_only=True)
+
+            class Meta:
+                model = Author
+                fields = ("id", "publisher")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["id"], self.alice.email)
+        self.assertEqual(result[0]["publisher"]["name"], self.alice.publisher.name)
+
     def test_method_field_reads_dotted_source_from_fk(self):
         """``sources=('publisher.name',)`` fetches ``publisher__name`` and the
         proxy walks it as ``obj.publisher.name``."""
@@ -1741,6 +1839,30 @@ class TestDataSerialization(TestCase):
         result = self._run(viewset)
         self.assertEqual(set(result[0].keys()), {"id", "publisher_label"})
         self.assertEqual(result[0]["publisher_label"], "pub: Main House")
+
+    def test_method_field_source_naming_both_a_column_and_a_path(self):
+        """``sources=('publisher', 'publisher.name')`` resolves ``obj.publisher``
+        to the raw FK column, which cannot also carry the traversal."""
+
+        class S(serializers.ModelSerializer):
+            id = serializers.UUIDField()
+            publisher_label = ValuesMethodField(sources=("publisher", "publisher.name"))
+
+            def get_publisher_label(self, obj):
+                return "pub: {}".format(obj.publisher)
+
+            class Meta:
+                model = Author
+                fields = ("id", "publisher_label")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(
+            result[0]["publisher_label"], "pub: {}".format(self.alice.publisher_id)
+        )
 
     def test_method_field_reads_context_from_request(self):
         """The bound method's ``self.context`` is populated per-request from

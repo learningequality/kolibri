@@ -6,10 +6,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from kolibri.core.auth.models import Facility
-from kolibri.core.content.api import ContentNodeProgressViewset
-from kolibri.core.content.api import ContentNodeViewset
-from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
+from kolibri.core.content.viewsets.contentnode.progress import (
+    ContentNodeProgressViewset,
+)
+from kolibri.core.content.viewsets.contentnode.user import UserContentNodeViewset
 from kolibri.core.logger.models import ContentSummaryLog
 
 contentnode_progress_viewset = ContentNodeProgressViewset()

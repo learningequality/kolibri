@@ -9,7 +9,6 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from django_filters.rest_framework import DjangoFilterBackend
@@ -26,17 +25,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from kolibri.core.api import BaseValuesViewset
-from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.content.api import BaseContentNodeMixin
-from kolibri.core.content.api import BaseContentNodeTreeViewset
-from kolibri.core.content.api import PublicContentNodePagination
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
-from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.file_availability import checksum_regex
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device import soud
@@ -109,32 +103,6 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
-
-
-def filter_public_channel_nodes(queryset):
-    # Unlisted channels are hidden from the peer channel list unless unlisted
-    # import is allowed, so hide their nodes from the content endpoints too —
-    # otherwise a search surfaces resources from channels the peer cannot browse.
-    # Mirrors the channel visibility of PublicChannelMetadataViewSet.
-    if allow_peer_unlisted_channel_import():
-        return queryset
-    return queryset.filter(
-        channel_id__in=ChannelMetadata.objects.filter(public=True).values("id")
-    )
-
-
-@method_decorator(public_metadata_cache, name="dispatch")
-class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
-    pagination_class = PublicContentNodePagination
-
-    def get_queryset(self):
-        return filter_public_channel_nodes(super().get_queryset())
-
-
-@method_decorator(public_metadata_cache, name="dispatch")
-class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
-    def get_queryset(self):
-        return filter_public_channel_nodes(super().get_queryset())
 
 
 @api_view(["GET"])
