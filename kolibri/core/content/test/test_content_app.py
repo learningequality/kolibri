@@ -693,7 +693,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(response.data[0]["title"], "c2")
 
-    @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_studio"
+    )
     def test_contentnode_granular_network_import(self, stats_mock):
         c1 = content.ContentNode.objects.get(title="root")
         c1_id = c1.id
@@ -777,7 +779,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             },
         )
 
-    @mock.patch("kolibri.core.content.api.get_channel_stats_from_disk")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_disk"
+    )
     def test_contentnode_granular_local_import(self, stats_mock):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
@@ -860,7 +864,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             },
         )
 
-    @mock.patch("kolibri.core.content.api.get_channel_stats_from_peer")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_peer"
+    )
     def test_contentnode_granular_remote_import(self, stats_mock):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
@@ -1010,6 +1016,22 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             data={"for_export": True},
         )
         self.assertEqual(response.data["modality"], "COURSE")
+
+    def test_contentnode_granular_rejects_multiple_import_sources(self):
+        c1_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"importing_from_drive_id": "123", "for_export": "true"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_contentnode_granular_rejects_unknown_peer(self):
+        c1_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"importing_from_peer_id": "4d17b9f3d5a34c8f9e9ad1d9a4d4b4d1"},
+        )
+        self.assertEqual(response.status_code, 400)
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id

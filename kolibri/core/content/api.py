@@ -6,11 +6,9 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
-from django.views.decorators.http import etag
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from le_utils.constants import library as library_constants
-from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -27,21 +25,7 @@ from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.utils.cache import get_cache_key
 from kolibri.core.content.utils.cache import no_cache_on_method
-from kolibri.core.content.utils.content_types_tools import (
-    renderable_contentnodes_q_filter,
-)
-from kolibri.core.content.utils.file_availability import LocationError
-from kolibri.core.content.utils.importability_annotation import (
-    get_channel_stats_from_disk,
-)
-from kolibri.core.content.utils.importability_annotation import (
-    get_channel_stats_from_peer,
-)
-from kolibri.core.content.utils.importability_annotation import (
-    get_channel_stats_from_studio,
-)
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
@@ -78,67 +62,6 @@ class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
 
     page_size = None
     page_size_query_param = "page_size"
-
-
-@method_decorator(etag(get_cache_key), name="retrieve")
-class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    serializer_class = serializers.ContentNodeGranularSerializer
-
-    def get_queryset(self):
-        return (
-            models.ContentNode.objects.all()
-            .prefetch_related("files__local_file")
-            .filter(renderable_contentnodes_q_filter)
-            .distinct()
-        )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        if hasattr(self, "channel_stats"):
-            context.update({"channel_stats": self.channel_stats})
-        return context
-
-    def retrieve(self, request, pk):
-        queryset = self.get_queryset()
-        instance = get_object_or_404(queryset, pk=pk)
-        channel_id = instance.channel_id
-        drive_id = self.request.query_params.get("importing_from_drive_id", None)
-        peer_id = self.request.query_params.get("importing_from_peer_id", None)
-        for_export = self.request.query_params.get("for_export", None)
-        flag_count = sum(int(bool(flag)) for flag in (drive_id, peer_id, for_export))
-        if flag_count > 1:
-            raise serializers.ValidationError(
-                "Must specify at most one of importing_from_drive_id, importing_from_peer_id, and for_export"
-            )
-        if not flag_count:
-            self.channel_stats = get_channel_stats_from_studio(channel_id)
-        if for_export:
-            self.channel_stats = None
-        if drive_id:
-            try:
-                self.channel_stats = get_channel_stats_from_disk(channel_id, drive_id)
-            except LocationError:
-                raise serializers.ValidationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
-                )
-        if peer_id:
-            try:
-                self.channel_stats = get_channel_stats_from_peer(channel_id, peer_id)
-            except LocationError:
-                raise serializers.ValidationError(
-                    "The network location with the id {} does not exist".format(peer_id)
-                )
-        children = queryset.filter(parent=instance)
-        parent_serializer = self.get_serializer(instance)
-        parent_data = parent_serializer.data
-        child_serializer = self.get_serializer(children, many=True)
-        parent_data["children"] = child_serializer.data
-
-        parent_data["ancestors"] = list(instance.get_ancestors().values("id", "title"))
-
-        return Response(parent_data)
 
 
 class FileViewset(viewsets.ReadOnlyModelViewSet):

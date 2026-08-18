@@ -1,8 +1,6 @@
-from le_utils.constants import content_kinds
 from rest_framework import serializers
 
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.fields import create_timezonestamp
@@ -105,90 +103,3 @@ class FileSerializer(serializers.ModelSerializer):
             "supplementary",
             "thumbnail",
         )
-
-
-class ContentNodeGranularSerializer(serializers.ModelSerializer):
-    num_coach_contents = serializers.SerializerMethodField()
-    coach_content = serializers.SerializerMethodField()
-    total_resources = serializers.SerializerMethodField()
-    importable = serializers.SerializerMethodField()
-    new_resource = serializers.SerializerMethodField()
-    num_new_resources = serializers.SerializerMethodField()
-    updated_resource = serializers.SerializerMethodField()
-    is_leaf = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ContentNode
-        fields = (
-            "id",
-            "available",
-            "coach_content",
-            "importable",
-            "is_leaf",
-            "kind",
-            "modality",
-            "num_coach_contents",
-            "on_device_resources",
-            "title",
-            "total_resources",
-            "new_resource",
-            "num_new_resources",
-            "updated_resource",
-        )
-
-    @property
-    def channel_stats(self):
-        return self.context["channel_stats"]
-
-    def get_total_resources(self, instance):
-        # channel_stats is None for export
-        if self.channel_stats is None:
-            return instance.on_device_resources
-        return self.channel_stats.get(instance.id, {"total_resources": 0})[
-            "total_resources"
-        ]
-
-    def get_num_coach_contents(self, instance):
-        # If for exporting, only show what is available on server. For importing,
-        # show all of the coach contents in the topic.
-        if self.channel_stats is None:
-            return instance.num_coach_contents
-        return self.channel_stats.get(instance.id, {"num_coach_contents": 0})[
-            "num_coach_contents"
-        ]
-
-    def get_coach_content(self, instance):
-        # If for exporting, only show what is on server. For importing,
-        # show all of the coach contents in the topic.
-        if self.channel_stats is None:
-            return instance.coach_content
-        return self.channel_stats.get(instance.id, {"coach_content": False})[
-            "coach_content"
-        ]
-
-    def get_importable(self, instance):
-        # If for export, just return None
-        if self.channel_stats is None:
-            return None
-        return instance.id in self.channel_stats
-
-    def get_new_resource(self, instance):
-        # If for export, just return None
-        if self.channel_stats is None:
-            return None
-        return self.channel_stats.get(instance.id, {}).get("new_resource", False)
-
-    def get_num_new_resources(self, instance):
-        # If for export, just return None
-        if self.channel_stats is None:
-            return None
-        return self.channel_stats.get(instance.id, {}).get("num_new_resources", 0)
-
-    def get_updated_resource(self, instance):
-        # If for export, just return None
-        if self.channel_stats is None:
-            return None
-        return self.channel_stats.get(instance.id, {}).get("updated_resource", False)
-
-    def get_is_leaf(self, instance):
-        return instance.kind != content_kinds.TOPIC
