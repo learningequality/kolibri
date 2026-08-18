@@ -5,11 +5,11 @@ from rest_framework import routers
 
 from .api import ChannelThumbnailView
 from .api import ContentNodeGranularViewset
-from .api import ContentRequestViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
 from .api import ShareFileView
 from .viewsets.channel_metadata import ChannelMetadataViewSet
+from .viewsets.content_request import ContentRequestViewset
 from .viewsets.contentnode.base import ContentNodeViewset
 from .viewsets.contentnode.bookmarks import ContentNodeBookmarksViewset
 from .viewsets.contentnode.progress import ContentNodeProgressViewset

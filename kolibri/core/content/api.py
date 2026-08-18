@@ -1,18 +1,12 @@
 import logging
 from base64 import urlsafe_b64decode
 
-from django.db.models import Exists
-from django.db.models import OuterRef
 from django.http import Http404
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import etag
-from django_filters.rest_framework import BaseInFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from le_utils.constants import library as library_constants
@@ -29,17 +23,10 @@ from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 
 from kolibri.core import error_constants
-from kolibri.core.api import CreateModelMixin
-from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.hooks import ShareFileHook
-from kolibri.core.content.models import ContentDownloadRequest
-from kolibri.core.content.models import ContentRemovalRequest
-from kolibri.core.content.models import ContentRequestReason
-from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.tasks import automatic_user_imported_resource_cleanup
 from kolibri.core.content.utils.cache import get_cache_key
 from kolibri.core.content.utils.cache import no_cache_on_method
 from kolibri.core.content.utils.content_types_tools import (
@@ -82,10 +69,6 @@ class ChannelThumbnailView(View):
         return HttpResponse(thumbnail, content_type=mimetype)
 
 
-class UUIDInFilter(BaseInFilter, UUIDFilter):
-    pass
-
-
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
     """
     Pagination class that allows for page number-style pagination, when requested.
@@ -95,85 +78,6 @@ class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
 
     page_size = None
     page_size_query_param = "page_size"
-
-
-class ContentRequestFilter(FilterSet):
-    contentnode_id = UUIDFilter()
-    contentnode_id__in = UUIDInFilter(field_name="contentnode_id")
-
-    class Meta:
-        model = ContentDownloadRequest
-        fields = ("contentnode_id", "contentnode_id__in")
-
-
-class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
-    serializer_class = serializers.ContentDownloadRequestSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ContentRequestFilter
-    pagination_class = OptionalPageNumberPagination
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return ContentDownloadRequest.objects.filter(
-            source_id=self.request.user.id, reason=ContentRequestReason.UserInitiated
-        )
-
-    def annotate_queryset(self, queryset):
-        # A sync-initiated removal must not hide a user-initiated download
-        # (#11426).
-        # A failed removal took nothing away (#10574).
-        return queryset.annotate(
-            has_removal=Exists(
-                ContentRemovalRequest.objects.filter(
-                    source_model=OuterRef("source_model"),
-                    source_id=OuterRef("source_id"),
-                    contentnode_id=OuterRef("contentnode_id"),
-                    requested_at__gte=OuterRef("requested_at"),
-                    reason=OuterRef("reason"),
-                ).exclude(status=ContentRequestStatus.Failed)
-            )
-        ).filter(has_removal=False)
-
-    def delete(self, request, pk=None):
-        request_id = pk
-
-        if request_id is None:
-            return Response(
-                {"detail": "Request ID is required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        existing_download_request = (
-            self.get_queryset()
-            .filter(
-                id=request_id,
-            )
-            .first()
-        )
-
-        if existing_download_request is None:
-            return Response(
-                {"detail": "No existing download request found"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-
-        existing_deletion_request = ContentRemovalRequest.objects.filter(
-            contentnode_id=existing_download_request.contentnode_id,
-            reason=existing_download_request.reason,
-            source_id=request.user.id,
-        ).first()
-
-        if existing_deletion_request:
-            if existing_deletion_request.status == ContentRequestStatus.Failed:
-                existing_deletion_request.status = ContentRequestStatus.Pending
-                existing_deletion_request.save()
-        else:
-            content_request = ContentRemovalRequest.build_for_user(request.user)
-            content_request.contentnode_id = existing_download_request.contentnode_id
-            content_request.save()
-
-        automatic_user_imported_resource_cleanup.enqueue_if_not()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @method_decorator(etag(get_cache_key), name="retrieve")

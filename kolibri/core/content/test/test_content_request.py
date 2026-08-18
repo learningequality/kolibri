@@ -10,7 +10,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRequestStatus
 
-from ..serializers import ContentDownloadRequestSerializer
+from ..viewsets.content_request import ContentDownloadRequestSerializer
 
 
 class ContentDownloadRequestSerializerTestCase(TestCase):
