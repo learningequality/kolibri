@@ -108,6 +108,17 @@ class ContentDownloadRequestSerializerTestCase(TestCase):
         with self.assertRaisesRegex(exceptions.ValidationError, "Must be a valid UUID"):
             serializer.is_valid(raise_exception=True)
 
+    def test_create_content_download_request__with_invalid_metadata(self):
+        self.data["metadata"]["file_size"] = "a few"
+
+        serializer = ContentDownloadRequestSerializer(
+            data=self.data, context={"request": self.request}
+        )
+        with self.assertRaisesRegex(
+            exceptions.ValidationError, "A valid integer is required"
+        ):
+            serializer.is_valid(raise_exception=True)
+
 
 class ContentDownloadRequestViewsetTest(APITestCase):
     databases = "__all__"

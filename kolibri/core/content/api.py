@@ -113,17 +113,6 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     pagination_class = OptionalPageNumberPagination
     permission_classes = [IsAuthenticated]
 
-    values = (
-        "id",
-        "requested_at",
-        "reason",
-        "contentnode_id",
-        "metadata",
-        "status",
-        "facility",
-        "source_id",
-    )
-
     def get_queryset(self):
         return ContentDownloadRequest.objects.filter(
             source_id=self.request.user.id, reason=ContentRequestReason.UserInitiated

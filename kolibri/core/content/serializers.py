@@ -12,6 +12,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.fields import create_timezonestamp
+from kolibri.core.serializers import KolibriModelSerializer
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -223,13 +224,37 @@ class ContentDownloadRequestMetadataSerializer(serializers.Serializer):
     )
 
 
-class ContentDownloadRequestSerializer(serializers.ModelSerializer):
-    source_instance_id = serializers.UUIDField(required=False, allow_null=True)
-    metadata = ContentDownloadRequestMetadataSerializer()
+class ContentDownloadRequestSerializer(KolibriModelSerializer):
+    source_instance_id = serializers.UUIDField(
+        required=False, allow_null=True, write_only=True
+    )
+    metadata = serializers.JSONField()
 
     class Meta:
         model = ContentDownloadRequest
-        fields = ("id", "contentnode_id", "metadata", "source_instance_id")
+        fields = (
+            "id",
+            "requested_at",
+            "reason",
+            "contentnode_id",
+            "metadata",
+            "status",
+            "facility",
+            "source_id",
+            "source_instance_id",
+        )
+        read_only_fields = (
+            "requested_at",
+            "reason",
+            "status",
+            "facility",
+            "source_id",
+        )
+
+    def validate_metadata(self, value):
+        # metadata is a JSONField, not this serializer: read returns the column
+        # verbatim, including the progress keys update_progress adds.
+        return ContentDownloadRequestMetadataSerializer().run_validation(value)
 
     def create(self, validated_data):
         # if there is an existing deletion request, delete the deletion request
