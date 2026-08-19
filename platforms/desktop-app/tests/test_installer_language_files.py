@@ -88,7 +88,8 @@ def test_crowdin_messages_are_ignored_where_inno_translates_them(locale_dir):
 
 def test_inno_tag_matches_the_compiler_version_the_build_installs():
     version = re.search(
-        r"innosetup --version=(\S+)", BUILD_WORKFLOW.read_text(encoding="utf-8")
+        r"innosetup[^\n\d]*--version=([\d.]+)",
+        BUILD_WORKFLOW.read_text(encoding="utf-8"),
     ).group(1)
     assert INNO_TAG == f"is-{version.replace('.', '_')}"
 
