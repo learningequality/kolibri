@@ -9,7 +9,9 @@ from morango.registry import syncable_models
 from morango.sync.context import CompositeSessionContext
 from morango.sync.context import LocalSessionContext
 from morango.sync.context import NetworkSessionContext
+from rest_framework.exceptions import AuthenticationFailed
 
+from kolibri.core import error_constants
 from kolibri.core.auth.management import utils
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -23,6 +25,11 @@ from kolibri.core.auth.test.test_api import LearnerGroupFactory
 from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.auth.utils.migrate import fork_facility
 from kolibri.core.auth.utils.migrate import merge_users
+from kolibri.core.auth.utils.users import get_remote_user_info
+from kolibri.core.auth.utils.users import get_remote_users_info
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.logger import models as log_models
 from kolibri.core.test.model_factory import ModelFactory
 from kolibri.core.test.model_factory import sequence
@@ -750,8 +757,6 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
         self.user_id = "test-user-id"
 
     def _call(self):
-        from kolibri.core.auth.utils.users import get_remote_user_info
-
         return get_remote_user_info(
             self.client,
             self.facility_id,
@@ -761,22 +766,11 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
         )
 
     def test_connection_failure_raises_resource_gone(self):
-        from kolibri.core.discovery.utils.network.errors import (
-            NetworkLocationConnectionFailure,
-        )
-        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
-
         self.client.get.side_effect = NetworkLocationConnectionFailure("unreachable")
         with self.assertRaises(ResourceGoneError):
             self._call()
 
     def test_response_failure_401_raises_authentication_failed(self):
-        from rest_framework.exceptions import AuthenticationFailed
-
-        from kolibri.core.discovery.utils.network.errors import (
-            NetworkLocationResponseFailure,
-        )
-
         response = mock.Mock(status_code=401)
         self.client.get.side_effect = NetworkLocationResponseFailure(
             "auth failed", response=response
@@ -785,12 +779,6 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
             self._call()
 
     def test_response_failure_403_raises_authentication_failed(self):
-        from rest_framework.exceptions import AuthenticationFailed
-
-        from kolibri.core.discovery.utils.network.errors import (
-            NetworkLocationResponseFailure,
-        )
-
         response = mock.Mock(status_code=403)
         self.client.get.side_effect = NetworkLocationResponseFailure(
             "forbidden", response=response
@@ -799,11 +787,6 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
             self._call()
 
     def test_response_failure_500_raises_resource_gone(self):
-        from kolibri.core.discovery.utils.network.errors import (
-            NetworkLocationResponseFailure,
-        )
-        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
-
         response = mock.Mock(status_code=500)
         self.client.get.side_effect = NetworkLocationResponseFailure(
             "server error", response=response
@@ -812,8 +795,6 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
             self._call()
 
     def test_command_error_raises_resource_gone(self):
-        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
-
         self.client.get.side_effect = CommandError("command failed")
         with self.assertRaises(ResourceGoneError):
             self._call()
@@ -830,8 +811,6 @@ class GetRemoteUsersInfoErrorPathsTestCase(TestCase):
         self.username = "testuser"
 
     def _call(self, password="testpassword"):
-        from kolibri.core.auth.utils.users import get_remote_users_info
-
         return get_remote_users_info(
             "http://test.example.com",
             self.facility_id,
@@ -840,26 +819,49 @@ class GetRemoteUsersInfoErrorPathsTestCase(TestCase):
             client=self.client,
         )
 
-    def test_connection_failure_raises_resource_gone(self):
-        from kolibri.core.discovery.utils.network.errors import (
-            NetworkLocationConnectionFailure,
-        )
-        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+    def _remote_user(self, username):
+        return {
+            "id": uuid.uuid4().hex,
+            "username": username,
+            "full_name": username.title(),
+            "facility": uuid.uuid4().hex,
+            "is_superuser": False,
+            "id_number": "",
+            "gender": "",
+            "birth_year": "",
+            "roles": [],
+        }
 
+    def _set_response(self, payload):
+        self.client.get.return_value.json.return_value = payload
+
+    def test_connection_failure_raises_resource_gone(self):
         self.client.get.side_effect = NetworkLocationConnectionFailure("unreachable")
         with self.assertRaises(ResourceGoneError):
             self._call()
 
     def test_response_failure_with_password_raises_authentication_failed(self):
-        from rest_framework.exceptions import AuthenticationFailed
-
-        from kolibri.core.discovery.utils.network.errors import (
-            NetworkLocationResponseFailure,
-        )
-
         response = mock.Mock(status_code=401)
         self.client.get.side_effect = NetworkLocationResponseFailure(
             "auth failed", response=response
         )
         with self.assertRaises(AuthenticationFailed):
             self._call(password="wrongpassword")
+
+    def test_empty_remote_user_list_raises_authentication_failed(self):
+        self._set_response([])
+        with self.assertRaises(AuthenticationFailed) as cm:
+            self._call()
+        self.assertEqual(cm.exception.detail.code, error_constants.INVALID_USERNAME)
+
+    def test_username_is_matched_case_insensitively(self):
+        user = self._remote_user(self.username.upper())
+        self._set_response([user, self._remote_user("bob")])
+        self.assertEqual(self._call()["user"], user)
+
+    def test_invalid_entry_is_dropped_from_the_user_list(self):
+        user = self._remote_user(self.username)
+        self._set_response([user, "not a dict"])
+        info = self._call()
+        self.assertEqual(info["users"], [user])
+        self.assertEqual(info["user"], user)

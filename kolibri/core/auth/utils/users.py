@@ -12,6 +12,7 @@ from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+from kolibri.core.serializers import sanitize_remote_list
 from kolibri.core.utils.urls import reverse_path
 
 
@@ -94,12 +95,17 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                 detail="Authentication failed",
                 code=error_constants.AUTHENTICATION_FAILED,
             )
-    serializer = _RemoteFacilityUserSerializer(data=response.json(), many=True)
-    auth_info = serializer.data if serializer.is_valid() else []
-    if len(auth_info) > 1:
-        user_info = [u for u in auth_info if u["username"] == username][0]
-    else:
-        user_info = auth_info[0]
+    auth_info = sanitize_remote_list(_RemoteFacilityUserSerializer, response.json())
+    # The peer authenticated the request with username__iexact, so its entry for
+    # the typed username need not equal it exactly.
+    user_info = next(
+        (u for u in auth_info if u["username"].lower() == username.lower()), None
+    )
+    if user_info is None:
+        raise AuthenticationFailed(
+            detail="The username can not be found",
+            code=error_constants.INVALID_USERNAME,
+        )
     return {"user": user_info, "users": auth_info}
 
 
