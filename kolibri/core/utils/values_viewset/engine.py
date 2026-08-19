@@ -23,10 +23,9 @@ from kolibri.core.utils.values_viewset.fetch import ForwardAutoFetch
 from kolibri.core.utils.values_viewset.fetch import Pk
 from kolibri.core.utils.values_viewset.fetch import pk_key
 from kolibri.core.utils.values_viewset.fetch import ScalarFetch
-from kolibri.core.utils.values_viewset.field_map import _BaseFieldMap
+from kolibri.core.utils.values_viewset.field_map import _FieldMap
 from kolibri.core.utils.values_viewset.field_map import FrozenRow
 from kolibri.core.utils.values_viewset.field_map import MethodFieldEntry
-from kolibri.core.utils.values_viewset.field_map import normalize_field_map
 from kolibri.core.utils.values_viewset.field_map import Row
 from kolibri.core.utils.values_viewset.introspect import derive_values_from_serializer
 from kolibri.core.utils.values_viewset.introspect import ValidationSchema
@@ -123,7 +122,7 @@ class _LevelExpander:
 
     def __init__(
         self,
-        field_map: _BaseFieldMap,
+        field_map: _FieldMap,
         extra_cols: Tuple[str, ...],
         raw_pk_name: Optional[str],
         link: Optional[str],
@@ -170,9 +169,8 @@ class ValuesEngine:
     Turns a Django queryset into plain dicts via ``values()`` instead of DRF's
     per-instance serialization. ``serialize()`` is the entry point.
 
-    Built once per viewset by ``from_serializer()`` (derived) or
-    ``from_explicit()`` (legacy ``values``/``field_map``) and reused across
-    requests: instances carry no per-request state.
+    Built once per viewset from its serializer and reused across requests:
+    instances carry no per-request state.
 
     Each level fetches its joinable columns in one query and maps the raw rows
     to output shape; relations that can't be joined are handed to their fetch
@@ -180,9 +178,8 @@ class ValuesEngine:
     the output is validated against the serializer's schema.
     """
 
-    # Fixed instance shape — the two factories fill these in, nothing else is set.
+    # Fixed instance shape — ``__init__`` fills these in, nothing else is set.
     __slots__ = (
-        "_serializer_derived",
         "_values",
         "_field_map",
         "_scalar_fetch",
@@ -194,26 +191,11 @@ class ValuesEngine:
         "_plans",
     )
 
-    def __init__(self):
-        self._serializer_derived = False
-        self._values = ()
-        self._field_map = None
-        self._scalar_fetch = ()
-        self._auto_fetch = ()
-        self._nested_cache = {}
-        self._top_model = None
-        self._validation_schema = None
-        self._has_method_fields = False
-        self._plans = {}
-
-    @classmethod
-    def from_serializer(
-        cls,
+    def __init__(
+        self,
         serializer_class: Type[Serializer],
         deferred_fields: Sequence[str] = (),
-    ) -> "ValuesEngine":
-        self = cls()
-        self._serializer_derived = True
+    ):
         # Instantiate only for introspection (not retained); the result carries
         # everything the engine needs, so the serializer is never re-read.
         result = derive_values_from_serializer(
@@ -228,23 +210,11 @@ class ValuesEngine:
         self._validation_schema = result.validation_schema
         self._has_method_fields = self._check_has_method_fields()
         self._plans = self._compile_plans()
-        return self
-
-    @classmethod
-    def from_explicit(
-        cls, values: Sequence[str], field_map: Optional[Dict[str, Any]]
-    ) -> "ValuesEngine":
-        # TODO(#14302): remove with the legacy explicit values/field_map path.
-        self = cls()
-        self._values = tuple(values)
-        self._field_map = normalize_field_map(field_map or {})
-        self._plans = self._compile_plans()
-        return self
 
     def _make_plan(
         self,
         values: Sequence[str],
-        field_map: _BaseFieldMap,
+        field_map: _FieldMap,
         scalar_fetch: Tuple[ScalarFetch, ...],
         auto_fetch: Tuple[AutoFetch, ...],
         model: Optional[Type[Model]],
@@ -365,14 +335,8 @@ class ValuesEngine:
     def db_column_map(self) -> Dict[str, str]:
         return self._field_map.db_column_map()
 
-    @property
-    def plain_renames(self) -> Dict[str, str]:
-        return self._field_map.plain_renames()
-
     def validate_output(self, items: Sequence[Row]) -> None:
-        """No-op unless serializer-derived; validates output in DEBUG mode."""
-        if not items or not self._serializer_derived:
-            return
+        """Raise if items drift from the serializer's schema. Callers gate on DEBUG."""
         self._validate_items_against_schema(items, self._validation_schema)
 
     def serialize(

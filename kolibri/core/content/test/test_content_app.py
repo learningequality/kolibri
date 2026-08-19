@@ -1829,6 +1829,17 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
 
         self.assertEqual(get_progress_fraction(c2c1), 0.7)
 
+        self.assertEqual(
+            set(response.data[0].keys()),
+            {
+                "content_id",
+                "progress",
+                "num_question_answered",
+                "num_question_answered_correctly",
+                "total_questions",
+            },
+        )
+
     def test_filtering_coach_content_anon(self):
         response = self.client.get(
             reverse("kolibri:core:contentnode-list"),

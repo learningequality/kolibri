@@ -84,7 +84,6 @@ class MyViewSet(ReadOnlyValuesViewset):
     serializer_class = MySerializer
     queryset = MyModel.objects.all()
 ```
-Do **not** define explicit `values` tuples or `field_map` dicts on new viewsets — these are legacy patterns being migrated away.
 
 The model should define a default `ordering` in its `Meta`, or the viewset's `queryset` should set an explicit `order_by()` — response ordering (and pagination) is nondeterministic otherwise.
 

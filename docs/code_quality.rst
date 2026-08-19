@@ -39,7 +39,7 @@ Every public method needs justification. If something can be private, it must be
 
 In Kolibri:
 
-- Keep the ``values`` tuple in ``ValuesViewset`` minimal — only fetch fields that are actually needed
+- Keep a ``ValuesViewset``'s serializer minimal — only declare fields that are actually needed
 - Composables should return a focused public API — not expose every internal ref
 - A growing public surface area is a design smell; refactor to reduce it before continuing
 

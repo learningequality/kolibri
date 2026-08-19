@@ -75,7 +75,7 @@ Enqueuing tasks via the ``POST /api/tasks/tasks/`` API endpoint
 -----------------------------------------------------------------
 
 
-To enqueue a task that is registered with the ``@register_task`` decorator we use ``POST /api/tasks/tasks/`` endpoint method defined on ``kolibri.core.tasks.api.BaseViewSet.create``.
+To enqueue a task that is registered with the ``@register_task`` decorator we use ``POST /api/tasks/tasks/`` endpoint method defined on ``kolibri.core.tasks.viewsets.tasks.TasksViewSet.create``.
 
 The request payload for ``POST /api/tasks/tasks/`` API endpoint should have:
 

@@ -330,7 +330,7 @@ Test ValuesViewset endpoints the same way as standard DRF endpoints:
           self.assertEqual(len(response.data), 1)
 
           lesson_data = response.data[0]
-          # Verify field_map transformations
+          # Verify the serializer's source rename
           self.assertIn('active', lesson_data)  # Mapped from is_active
           self.assertEqual(lesson_data['active'], True)
           self.assertEqual(lesson_data['title'], 'Lesson 1')
