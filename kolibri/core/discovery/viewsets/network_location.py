@@ -6,7 +6,6 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from kolibri.core.api import BaseValuesViewset
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
@@ -170,10 +169,12 @@ class _RemoteFacilitySerializer(serializers.Serializer):
     )
 
 
-class NetworkLocationFacilitiesView(BaseValuesViewset):
+class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
     queryset = NetworkLocation.objects.all()
     permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
-    values = ("device_id", "instance_id", "device_name", "device_address", "facilities")
+    # Schema-generation stub. Not _RemoteFacilitySerializer: that describes one
+    # entry of retrieve()'s "facilities" list, not the response body.
+    serializer_class = serializers.Serializer
 
     def retrieve(self, request, pk=None):
         """
