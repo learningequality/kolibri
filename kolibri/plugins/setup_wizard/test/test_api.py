@@ -211,9 +211,12 @@ class CreateUserOnRemoteTestCase(APITestCase):
         response = self._post(500, {"detail": "leaked", "secret": "AKIA..."})
         self.assertEqual(response.data, {"status": 500, "errors": []})
 
-    def test_any_invalid_error_item_rejects_whole_response(self):
+    def test_invalid_error_item_is_dropped_and_valid_items_kept(self):
         response = self._post(400, [{"id": "USERNAME_ALREADY_EXISTS"}, "not a dict"])
-        self.assertEqual(response.data, {"status": 400, "errors": []})
+        self.assertEqual(
+            response.data,
+            {"status": 400, "errors": [{"id": "USERNAME_ALREADY_EXISTS"}]},
+        )
 
     def test_non_json_response_returns_empty_errors(self):
         response = self._post(500, None, json_raises=ValueError("not JSON"))
