@@ -217,6 +217,7 @@ def get_queryset_for_viewset(viewset_class):
         user = AnonymousUser()
 
     try:
+        from rest_framework.request import Request
         from rest_framework.test import APIRequestFactory
 
         factory = APIRequestFactory()
@@ -244,6 +245,8 @@ def _build_synthetic_viewset():
     Built lazily on the test-only models, so the test app registry and database
     must be set up first.
     """
+    from rest_framework import serializers
+
     from kolibri.core.api import BaseValuesViewset
     from kolibri.core.api import ListModelMixin
     from kolibri.core.api import ValuesMethodField
@@ -311,6 +314,7 @@ def _make_viewset(viewset_class, queryset, user=None):
     consolidate() runs with the same authentication context used when
     fetching the queryset.
     """
+    from rest_framework.request import Request
     from rest_framework.test import APIRequestFactory
 
     factory = APIRequestFactory()
@@ -447,6 +451,9 @@ def benchmark_memory(viewset_class, queryset, iterations, warmup, user=None):
 
 def count_queries(viewset_class, queryset, user=None):
     """Count the number of database queries for one serialize() call."""
+    from django.conf import settings
+    from django.db import connection
+
     viewset = _make_viewset(viewset_class, queryset, user=user)
 
     old_debug = settings.DEBUG
@@ -705,10 +712,11 @@ def print_comparison(baseline, current, verdict):
 
 def _run_synthetic(args):
     """Run benchmark with synthetic viewset at multiple data sizes."""
+    setup_kolibri(args)
+
+    from django.db import connection
     from django.test.utils import setup_test_environment
     from django.test.utils import teardown_test_environment
-
-    setup_kolibri(args)
 
     # Register the test-only app so its tables are created in the test DB.
     import kolibri.core.test  # noqa: F401
@@ -819,6 +827,8 @@ def _compare_synthetic(baseline, current, args):
 def _run_real_viewset(args):
     """Run benchmark against a real viewset with database data."""
     setup_kolibri(args)
+
+    from kolibri.utils.conf import KOLIBRI_HOME
 
     viewset_class = import_viewset_class(args.viewset)
 
@@ -1200,6 +1210,8 @@ def _build_to_one_viewsets():
     defers too. The joined arm declares the target's columns as scalar sourced
     fields, so they ride along on the parent query.
     """
+    from rest_framework import serializers
+
     from kolibri.core.api import BaseValuesViewset
     from kolibri.core.api import ListModelMixin
     from kolibri.core.test.test_app.models import Author
@@ -1488,10 +1500,11 @@ def _run_autodefer_compare(args):
     with row count. Records each path's timing across the sweep; the derived
     path is expected to run more queries than the join-using baseline.
     """
+    setup_kolibri(args)
+
+    from django.db import connection
     from django.test.utils import setup_test_environment
     from django.test.utils import teardown_test_environment
-
-    setup_kolibri(args)
 
     # Register the test-only app so its tables are created in the test DB.
     import kolibri.core.test  # noqa: F401
