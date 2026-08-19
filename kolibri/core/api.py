@@ -25,8 +25,6 @@ from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import UpdateModelMixin as BaseUpdateModelMixin
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
-from rest_framework.serializers import Serializer
 from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
@@ -189,25 +187,11 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     a single database query, rather than delegating serialization to a
     DRF ModelSerializer.
 
-    Values can be specified explicitly via the `values` attribute, or derived
-    automatically from the serializer_class field definitions.
-
-    To use serializer-derived values:
-    1. Define serializer_class with proper field source attributes
-    2. Do NOT define a `values` attribute (or set it to None)
-    3. Optionally set `deferred_fields` for nested serializers to fetch separately
+    ``serializer_class`` is the contract: its field definitions (and their
+    ``source`` attributes) are introspected on first instantiation to build the
+    columns to fetch and how to shape them. The resulting column list is
+    readable as the ``values`` property.
     """
-
-    # A tuple of values to get from the queryset.
-    # If not defined, values will be derived from serializer_class on first
-    # instantiation via _ensure_initialized.
-
-    # A map of target_key, source_key where target_key is the final target_key that will be set
-    # and source_key is the key on the object retrieved from the values call.
-    # Alternatively, the source_key can be a callable that will be passed the object and return
-    # the value for the target_key. This callable can also pop unwanted values from the obj
-    # to remove unneeded keys from the object as a side effect.
-    # For derived pattern, this is built automatically from serializer renames.
 
     # Tuple of nested serializer field names that should be fetched separately
     # rather than joined in the main query. These fields are handled in consolidate().
@@ -228,8 +212,8 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         """
         Get attr from this class's own dict, ignoring MRO inheritance.
 
-        Prevents dynamically cached class attributes (e.g. serializer_class
-        set by get_serializer_class()) from leaking to child classes.
+        Keeps a parent's initialization state from being read as the child's,
+        which would leave the child serializing with the parent's engine.
         """
         return cls.__dict__.get(attr, default)
 
@@ -256,21 +240,9 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
     @classmethod
     def _do_initialize(cls):
-        has_explicit_values = isinstance(getattr(cls, "values", None), tuple)
-        serializer_class = getattr(cls, "serializer_class", None)
-        if has_explicit_values:
-            # TODO(#14302): remove with the legacy explicit values/field_map path.
-            cls._engine = ValuesEngine.from_explicit(
-                cls.values, getattr(cls, "field_map", {})
-            )
-        elif serializer_class is not None:
-            cls._engine = ValuesEngine.from_serializer(
-                serializer_class, cls.deferred_fields
-            )
-        else:
-            raise TypeError(
-                "Either 'values' tuple or 'serializer_class' must be defined"
-            )
+        if cls.serializer_class is None:
+            raise TypeError(f"{cls.__name__} must define a serializer_class")
+        cls._engine = ValuesEngine(cls.serializer_class, cls.deferred_fields)
         cls._initialized = True
 
     def __init__(self, *args, **kwargs):
@@ -295,62 +267,6 @@ class BaseValuesViewset(viewsets.GenericViewSet):
             "view": self,
             "format": getattr(self, "format_kwarg", None),
         }
-
-    def generate_serializer(self):
-        queryset = getattr(self, "queryset", None)
-        if queryset is None:
-            try:
-                queryset = self.get_queryset()
-            except Exception:
-                pass
-        model = getattr(queryset, "model", None)
-        if model is None:
-            return Serializer
-        # {source: target} for plain renames, so values can be exposed
-        # under the declared name.
-        mapped_fields = self._engine.plain_renames
-        fields = []
-        extra_kwargs = {}
-        for value in self._engine.values:
-            try:
-                model._meta.get_field(value)
-                if value in mapped_fields:
-                    extra_kwargs[mapped_fields[value]] = {"source": value}
-                    value = mapped_fields[value]
-                fields.append(value)
-            except Exception:
-                pass
-
-        meta = type(
-            "Meta",
-            (object,),
-            {
-                "fields": fields,
-                "read_only_fields": fields,
-                "model": model,
-                "extra_kwargs": extra_kwargs,
-            },
-        )
-        CustomSerializer = type(
-            "{}Serializer".format(self.__class__.__name__),
-            (ModelSerializer,),
-            {"Meta": meta},
-        )
-
-        return CustomSerializer
-
-    def get_serializer_class(self):
-        if self.serializer_class is not None:
-            return self.serializer_class
-        # Generate a serializer for DRF schema/renderer compatibility.
-        # Cached on _generated_serializer_class (not serializer_class) to
-        # avoid leaking to child classes via MRO.
-        cls = self.__class__
-        generated = cls._get_own("_generated_serializer_class")
-        if generated is None:
-            generated = self.generate_serializer()
-            cls._generated_serializer_class = generated
-        return generated
 
     def _get_lookup_filter(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field

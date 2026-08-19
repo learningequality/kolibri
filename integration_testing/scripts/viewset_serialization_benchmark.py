@@ -496,20 +496,10 @@ def build_report(
     time_threshold,
     memory_threshold,
 ):
-    has_explicit_values = "values" in viewset_class.__dict__ and isinstance(
-        viewset_class.__dict__["values"], tuple
-    )
-    has_derived = (
-        not has_explicit_values
-        and getattr(viewset_class, "serializer_class", None) is not None
-    )
-
     return {
         "schema_version": SCHEMA_VERSION,
         "metadata": {
             "viewset_class": dotted_path,
-            "has_explicit_values": has_explicit_values,
-            "has_derived_field_info": has_derived,
             "timestamp": datetime.now().isoformat(timespec="seconds"),
             "python_version": platform.python_version(),
             "record_count": record_count,
@@ -616,14 +606,6 @@ def _fmt_bytes(b):
     return f"{b / 1024:.1f} KB"
 
 
-def _pattern_label(metadata):
-    if metadata.get("has_derived_field_info"):
-        return "derived"
-    elif metadata.get("has_explicit_values"):
-        return "explicit"
-    return "unknown"
-
-
 def print_comparison(baseline, current, verdict):
     """Print human-readable comparison table."""
     b = baseline
@@ -700,14 +682,6 @@ def print_comparison(baseline, current, verdict):
     b_rec = b["metadata"]["record_count"]
     c_rec = c["metadata"]["record_count"]
     row("Records", str(b_rec), str(c_rec), f"{c_rec - b_rec:+d}", "INFO")
-
-    row(
-        "Pattern",
-        _pattern_label(b["metadata"]),
-        _pattern_label(c["metadata"]),
-        "",
-        "INFO",
-    )
 
     logger.info("  %s", "-" * 66)
 

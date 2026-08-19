@@ -366,7 +366,7 @@ Best Practices
 
 1. **Serializer as source of truth**: Define the API shape in the serializer. Don't duplicate field definitions between serializer and viewset.
 
-2. **Use source for renames**: Use ``source`` on serializer fields rather than ``field_map`` for renaming.
+2. **Use source for renames**: Use ``source`` on serializer fields.
 
 3. **Rely on auto-deferral for relations**: Use explicit ``deferred_fields`` only when you need ORM annotations or custom filtering in ``consolidate()``.
 
@@ -374,7 +374,30 @@ Best Practices
 
 5. **Use annotate_queryset for aggregations**: Add computed fields via ``annotate_queryset`` rather than post-processing.
 
-6. **Test query performance**: Use Django Silk to profile your endpoints and verify query counts, execution time, and identify N+1 query issues.
+6. **Test query performance**: Use Django Silk to profile your endpoints and verify query counts, execution time, and identify N+1 query issues. To measure one viewset's serialization directly, see `Benchmarking Serialization`_.
+
+Benchmarking Serialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``integration_testing/scripts/viewset_serialization_benchmark.py`` times one viewset's serialization and records its memory, query count and an output hash.
+
+It serializes whatever rows are in your ``KOLIBRI_HOME``, so seed one first — an empty home reports ``No records found``. ``--kolibri-home PATH`` runs against another home instead:
+
+.. code-block:: bash
+
+  export KOLIBRI_HOME=~/.kolibri-benchmark
+  kolibri manage generateuserdata --no-onboarding   # users, classes, lessons, logs
+
+  script=integration_testing/scripts/viewset_serialization_benchmark.py
+  viewset=kolibri.core.auth.viewsets.facility_user.FacilityUserViewSet
+
+  python $script $viewset -o baseline.json
+  # make the change
+  python $script $viewset --compare baseline.json
+
+Seed enough rows for the measurement to mean something: timing deltas only fail once both runs exceed 2 ms, so a handful of rows reports ``SKIP`` and leaves query count and output hash as the only checks. A content viewset additionally needs imported content — see :doc:`/howtos/dev_data_setup`.
+
+``--compare`` exits non-zero on a timing, memory or query-count regression past the thresholds (default 5% timing, 10% memory), or on an output-hash mismatch. Both runs must see the same rows — seeding or importing between them changes the hash by itself. The 10000-iteration default takes minutes; lower it with ``--iterations``. Run both captures on an otherwise idle machine: an endpoint already down to a few hundred microseconds moves further under someone else's build than it does under most changes to it.
 
 Common Pitfalls
 ~~~~~~~~~~~~~~~
@@ -395,110 +418,6 @@ Forgetting to return items from consolidate
       for item in items:
           item["foo"] = "bar"
       return items
-
-Migrating from Explicit Values
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Existing viewsets that use explicit ``values`` tuples and ``field_map`` dicts continue to work. To migrate to the serializer-derived pattern:
-
-1. **Ensure API tests exist** for the viewset. Write them if missing — they must pass before and after migration.
-
-2. **Capture a performance baseline** before making any changes. The benchmark script measures serialization timing, memory usage, and query count:
-
-   .. code-block:: bash
-
-     python integration_testing/scripts/viewset_serialization_benchmark.py \
-         kolibri.core.auth.api.FacilityUserViewSet \
-         -o baseline.json
-
-   This saves timing, memory, query count, and a data hash to ``baseline.json``.
-
-3. **Update the serializer** to declare all read fields with correct ``source`` attributes:
-
-   .. code-block:: python
-
-     # Before: separate values/field_map
-     class MyViewSet(ValuesViewset):
-         serializer_class = MySerializer  # may be write-only
-         values = ("id", "full_name", "devicepermissions__is_superuser")
-         field_map = {
-             "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser")),
-         }
-
-     # After: serializer defines everything
-     class MySerializer(serializers.ModelSerializer):
-         is_superuser = serializers.BooleanField(
-             source="devicepermissions.is_superuser",
-             read_only=True,
-         )
-
-         class Meta:
-             model = FacilityUser
-             fields = ("id", "full_name", "is_superuser")
-
-     class MyViewSet(ValuesViewset):
-         serializer_class = MySerializer
-         # No values or field_map needed
-
-4. **Convert ``field_map`` callables** to one of:
-
-   - A serializer field with ``source`` (for simple renames)
-   - A custom field class with ``to_representation()`` (for transforms repeated across serializers)
-   - A ``ValuesMethodField(sources=(...))`` (for one-off computation from one or more columns)
-   - Deferred field handling in ``consolidate()`` (for complex restructuring)
-
-5. **Convert manual consolidation** of nested data:
-
-   - If the viewset manually does ``groupby`` to build nested lists, define a nested serializer with ``many=True`` and let auto-deferral handle it
-   - If the nested data is fetched separately, add it to ``deferred_fields`` and use ``serialize_queryset()``
-
-6. **Remove** the explicit ``values`` tuple and ``field_map`` dict.
-
-7. **Run tests** and verify output is identical.
-
-8. **Compare performance against the baseline**:
-
-   .. code-block:: bash
-
-     python integration_testing/scripts/viewset_serialization_benchmark.py \
-         kolibri.core.auth.api.FacilityUserViewSet \
-         --compare baseline.json
-
-   The script compares timing and memory against the baseline and flags regressions that exceed configurable thresholds (default: 5% timing, 10% memory). It also compares data hashes to confirm output equivalence.
-
-   If a regression is detected, investigate before proceeding — the serializer-derived path should be at least as fast as the explicit pattern. Common causes include unnecessary ``to_representation`` calls on fields that could use inferred types, or missing ``select_related``/``prefetch_related`` on the queryset.
-
-Explicit Values (Legacy)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-
-   The explicit ``values``/``field_map`` pattern described below is being replaced by the serializer-derived pattern above. Existing viewsets using this pattern continue to work, but new viewsets should use serializer derivation.
-
-A ``ValuesViewset`` can define an explicit ``values`` tuple and ``field_map`` dict:
-
-.. code-block:: python
-
-  class LessonViewset(ValuesViewset):
-      queryset = Lesson.objects.all()
-      values = ("id", "title", "is_active", "collection__name")
-      field_map = {
-          "active": "is_active",
-          "classroom": lambda x: x.pop("collection__name"),
-      }
-
-``values``
-^^^^^^^^^^^
-
-Tuple of database field names to fetch. Supports foreign key lookups using ``__`` notation.
-
-``field_map``
-^^^^^^^^^^^^^^
-
-Dictionary mapping output field names to either:
-
-- **String**: simple rename (``"api_name": "db_field"``)
-- **Callable**: transformation function receiving the item dict
 
 Related Documentation
 ~~~~~~~~~~~~~~~~~~~~~

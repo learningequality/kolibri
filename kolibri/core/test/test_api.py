@@ -2164,63 +2164,22 @@ class TestDataSerialization(TestCase):
         self.assertEqual(bob["enrollments"], [])
 
 
-class TestLegacyViewset(TestCase):
-    """Viewsets using the pre-serializer-derivation pattern (explicit
-    ``values`` tuple + ``field_map`` dict) must continue to work, including
-    inheritance semantics and MRO isolation between parent and child classes.
+class TestDerivationAndOrdering(TestCase):
+    """``serializer_class`` is the only contract, and derivation is per-class:
+    a parent's engine must never serve a child. The ordering filter reads the
+    columns that derivation produced.
     """
 
-    def test_explicit_values_and_string_field_map(self):
-        """Explicit values tuple + string field_map renames source → declared key."""
+    def test_viewset_without_serializer_class_raises(self):
+        """A viewset with no ``serializer_class`` has nothing to derive from,
+        and a stray ``values`` tuple is not a substitute."""
 
         class V(BaseValuesViewset, ListModelMixin):
             queryset = Author.objects.none()
             values = ("id", "name")
-            field_map = {"display_name": "name"}
 
-        result = _serialize(V(), [{"id": "a1", "name": "Alice"}])
-        self.assertEqual(result[0], {"id": "a1", "display_name": "Alice"})
-
-    def test_callable_field_map(self):
-        """Callable field_map entries receive the full item and can pop/transform."""
-
-        def upper(item):
-            return item.pop("name", "").upper()
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            values = ("id", "name")
-            field_map = {"loud_name": upper}
-
-        result = _serialize(V(), [{"id": "a1", "name": "alice"}])
-        self.assertEqual(result[0]["loud_name"], "ALICE")
-
-    def test_field_map_mutation_after_init_does_not_leak(self):
-        """Mutating the class-level field_map after init must not affect the instance."""
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            values = ("id", "name")
-            field_map = {"display_name": "name"}
-
-        inst = V()
-        V.field_map["injected"] = "id"  # post-init mutation
-        result = _serialize(inst, [{"id": "a1", "name": "Alice"}])
-        self.assertNotIn("injected", result[0])
-
-    def test_child_inherits_parent_explicit_values(self):
-        """A subclass without overrides serializes using parent's values + field_map."""
-
-        class Parent(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            values = ("id", "name")
-            field_map = {"display_name": "name"}
-
-        class Child(Parent):
-            pass
-
-        result = _serialize(Child(), [{"id": "a1", "name": "Alice"}])
-        self.assertEqual(result[0], {"id": "a1", "display_name": "Alice"})
+        with self.assertRaises(TypeError):
+            V()
 
     def test_subclass_serializer_does_not_reuse_parent_derived_info(self):
         """A subclass declaring its own serializer_class uses its own derived fields."""
@@ -2242,12 +2201,10 @@ class TestLegacyViewset(TestCase):
         self.assertIn("loud_name", result[0])
         self.assertNotIn("display_name", result[0])
 
-    def test_child_not_confused_by_parent_auto_derived_values(self):
-        """Parent's auto-derived ``values`` (set on the class during
-        ``_ensure_initialized`` to support the ordering filter) must not be
-        treated as explicit when a child subclasses it. Otherwise the child
-        falls into the explicit-values path and serializes with parent's
-        fields rather than deriving from its own ``serializer_class``.
+    def test_child_not_confused_by_initialized_parent(self):
+        """Initializing the parent first must not leak its ``_initialized`` /
+        ``_engine`` to a child through the MRO, which would leave the child
+        serializing with the parent's fields.
         """
         ParentSer = make_serializer(
             display_name=serializers.CharField(source="name"),
@@ -2260,7 +2217,7 @@ class TestLegacyViewset(TestCase):
             queryset = Author.objects.none()
             serializer_class = ParentSer
 
-        Parent()  # Force init so cls.values is auto-set on Parent
+        Parent()  # Initialize before the child class exists
 
         class Child(Parent):
             serializer_class = ChildSer
@@ -2268,48 +2225,6 @@ class TestLegacyViewset(TestCase):
         result = _serialize(Child(), [{"id": "a1", "name": "Alice"}])
         self.assertIn("loud_name", result[0])
         self.assertNotIn("display_name", result[0])
-
-    def test_child_not_confused_by_parent_generated_serializer_class(self):
-        """Parent's auto-generated serializer must not leak to the child.
-
-        generate_serializer() drops FK-traversal entries from values (they
-        aren't direct model fields), so re-deriving from a parent's cached
-        auto-generated serializer would lose those entries on the child.
-        The child must still serialize rows that include the FK traversal.
-        """
-
-        class Parent(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            values = ("id", "name", "publisher__name")
-            field_map = {
-                "display_name": "name",
-                "publisher_name": "publisher__name",
-            }
-
-        Parent().get_serializer_class()  # triggers the lossy auto-gen cache
-
-        class Child(Parent):
-            pass
-
-        result = _serialize(
-            Child(),
-            [{"id": "a1", "name": "Alice", "publisher__name": "Main House"}],
-        )
-        self.assertEqual(result[0]["display_name"], "Alice")
-        self.assertEqual(result[0]["publisher_name"], "Main House")
-
-    def test_ordering_filter_over_explicit_field_map(self):
-        """Ordering filter exposes explicit field_map keys as valid ordering fields."""
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.all()
-            values = ("id", "name")
-            field_map = {"display_name": "name"}
-
-        valid = ValuesViewsetOrderingFilter().get_default_valid_fields(
-            V().queryset, V()
-        )
-        self.assertIn(("display_name", "display_name"), valid)
 
     def test_ordering_filter_over_derived_field_map(self):
         """Ordering filter exposes declared serializer names when field_map is derived."""
@@ -2531,36 +2446,6 @@ class TestDevModeSafeguards(TestCase):
 
         result = _serialize(V(), [{"id": "a1"}])
         self.assertEqual(result[0]["book_titles"], ["B1", "B2"])
-
-    @override_settings(DEBUG=True)
-    def test_explicit_values_viewset_skips_output_validation(self):
-        """Legacy explicit-values viewsets often pair a write-oriented
-        serializer_class with a different read shape — DEBUG output
-        validation must not apply to them."""
-        Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            serializer_class = Ser
-            values = ("id",)
-
-        result = _serialize(V(), [{"id": "a1"}])
-        self.assertEqual(result[0], {"id": "a1"})
-
-    def test_explicit_values_viewset_skips_validation_fallback(self):
-        """Even with no cached schema (class initialized under DEBUG=False),
-        the runtime fallback must not validate explicit-values viewsets."""
-        Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            serializer_class = Ser
-            values = ("id",)
-
-        viewset = V()  # initialized with DEBUG=False — no cached schema
-        with override_settings(DEBUG=True):
-            result = _serialize(viewset, [{"id": "a1"}])
-        self.assertEqual(result[0], {"id": "a1"})
 
     @override_settings(DEBUG=False)
     def test_validation_skipped_when_debug_false(self):

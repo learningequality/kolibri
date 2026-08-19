@@ -1,13 +1,11 @@
 """
 Field-map data model: how one raw ``values()`` row becomes an output dict.
 
-A ``FieldMapEntry`` produces one output field's value. ``_FieldMap`` (serializer-
-derived) and ``_LegacyFieldMap`` (explicit ``values``/``field_map``) own the
+A ``FieldMapEntry`` produces one output field's value. ``_FieldMap`` owns the
 row → output mapping. Runtime module — imported per request, no compile-time logic.
 """
 
 from abc import ABC
-from abc import ABCMeta
 from abc import abstractmethod
 from collections import Counter
 from typing import Any
@@ -59,9 +57,8 @@ class FieldMapEntry(ABC):
     """
     Produces one output field's value from a raw ``values()`` row.
 
-    - ``source``: backing DB column, or ``None`` for computed (callable/method)
-      fields — source-introspecting consumers (ordering filter, serializer
-      generation) skip ``source is None`` entries.
+    - ``source``: backing DB column, or ``None`` for a method field — the
+      ordering filter skips ``source is None`` entries.
     - ``to_repr``: the raw-value transform, ``None`` for a passthrough.
     """
 
@@ -82,16 +79,6 @@ class FieldMapEntry(ABC):
     @abstractmethod
     def extract(self, row: Row, method_context: Optional[MethodContext] = None) -> Any:
         """Produce the output value, reading ``row`` without mutating it."""
-
-    def apply(
-        self, key: str, row: Row, method_context: Optional[MethodContext] = None
-    ) -> None:
-        """
-        Write ``extract``'s value under ``key``. Legacy maps drop consumed
-        source columns after mapping (see ``_LegacyFieldMap``); others don't
-        mutate the row.
-        """
-        row[key] = self.extract(row, method_context)
 
 
 class SourceFieldEntry(FieldMapEntry):
@@ -131,26 +118,6 @@ class SourceFieldEntry(FieldMapEntry):
         return self._represent(row[self.source])
 
 
-class _LegacyCallableFieldEntry(FieldMapEntry):
-    """
-    Legacy ``field_map`` callable reading only the row.
-
-    Invoked 1-arg to avoid a per-row wrapper frame on the hot explicit-values
-    path. ``source``/``to_repr`` stay ``None``, so source-introspecting consumers
-    skip it.
-
-    TODO(#14302): remove with the legacy explicit values/field_map path.
-    """
-
-    __slots__ = ("func",)
-
-    def __init__(self, func: Callable[[Row], Any]):
-        self.func = func
-
-    def extract(self, row: Row, method_context: Optional[MethodContext] = None) -> Any:
-        return self.func(row)
-
-
 class MethodFieldEntry(FieldMapEntry):
     """
     Invokes a ``ValuesMethodField``'s unbound ``get_*`` with a per-call
@@ -181,72 +148,9 @@ class MethodFieldEntry(FieldMapEntry):
 FieldMap = Dict[str, FieldMapEntry]
 
 
-class _BaseFieldMap(dict, metaclass=ABCMeta):
-    """Dict of output field name → entry; owns row mapping and source introspection."""
-
-    # Set by finalize(): True when every entry is a trivial passthrough.
-    is_noop = False
-
-    # Set by finalize(): columns read only to produce other fields, which
-    # map_row drops itself. The engine leaves these out of its keying columns.
-    dropped_columns: Tuple[str, ...] = ()
-
-    def finalize(self) -> None:
-        """Precompute ``is_noop`` after all entries are added."""
-        self.is_noop = all(
-            isinstance(entry, SourceFieldEntry)
-            and entry.source == key
-            and entry.to_repr is None
-            for key, entry in self.items()
-        )
-
-    @abstractmethod
-    def map_row(
-        self,
-        row: Row,
-        method_context: Optional[MethodContext] = None,
-        extra_cols: Tuple[str, ...] = (),
-    ) -> Row:
-        """
-        Produce the output row for a raw ``values()`` row, dropping the
-        engine's keying columns (``extra_cols``) that aren't declared output.
-        """
-
-    def plain_renames(self) -> Dict[str, str]:
-        """
-        ``{source: target}`` for plain renames (source set, no ``to_repr``),
-        exposing raw values under the declared name.
-        """
-        return {
-            entry.source: key
-            for key, entry in self.items()
-            if entry.source is not None and entry.to_repr is None
-        }
-
-    def db_column_map(self) -> Dict[str, str]:
-        """
-        ``{api_name: db_column}`` where they differ (passthroughs excluded).
-
-        Ordering filters use it to map API field names to DB columns.
-        """
-        return {
-            key: entry.source
-            for key, entry in self.items()
-            if entry.source is not None and entry.source != key
-        }
-
-    def annotate_queryset(self, queryset: QuerySet) -> QuerySet:
-        """No-op default: return queryset unchanged."""
-        return queryset
-
-    def sql_renames(self) -> Dict[str, F]:
-        """``{target: F(source)}`` aliases pushed to SQL; none by default."""
-        return {}
-
-
-class _FieldMap(_BaseFieldMap):
+class _FieldMap(dict):
     """
-    Serializer-introspected field map covering every declared output field.
+    Output field name → entry, for every field the serializer declares.
 
     ``map_row`` writes the mapped fields over the raw row wherever that is
     equivalent to rebuilding it, then drops the columns read only to produce
@@ -254,6 +158,13 @@ class _FieldMap(_BaseFieldMap):
     ``_sql_renames`` holds F() aliases for plain renames, applied to SQL by
     ``annotate_queryset``.
     """
+
+    # Set by finalize(): True when every entry is a trivial passthrough.
+    is_noop = False
+
+    # Set by finalize(): columns read only to produce other fields, which
+    # map_row drops itself. The engine leaves these out of its keying columns.
+    dropped_columns: Tuple[str, ...] = ()
 
     # Set by finalize().
     _column_renames: Tuple[Tuple[str, str], ...] = ()
@@ -266,7 +177,13 @@ class _FieldMap(_BaseFieldMap):
         self._sql_renames: Dict[str, F] = {}
 
     def finalize(self) -> None:
-        super().finalize()
+        """Precompute the per-row work after all entries are added."""
+        self.is_noop = all(
+            isinstance(entry, SourceFieldEntry)
+            and entry.source == key
+            and entry.to_repr is None
+            for key, entry in self.items()
+        )
         keys = set(self.keys())
         # Split the entries by how map_row must produce them, so the per-row
         # loops carry no per-field type dispatch. A passthrough appears in none
@@ -309,6 +226,10 @@ class _FieldMap(_BaseFieldMap):
         method_context: Optional[MethodContext] = None,
         extra_cols: Tuple[str, ...] = (),
     ) -> Row:
+        """
+        Produce the output row for a raw ``values()`` row, dropping the
+        engine's keying columns (``extra_cols``) that aren't declared output.
+        """
         if self.is_noop:
             for column in extra_cols:
                 del row[column]
@@ -332,11 +253,12 @@ class _FieldMap(_BaseFieldMap):
 
     def db_column_map(self) -> Dict[str, str]:
         """
-        ``{api_name: db_column}`` resolving SQL-rename aliases back to source.
+        ``{api_name: db_column}`` where they differ, resolving SQL-rename
+        aliases back to source. Ordering filters use it to map API field names
+        to DB columns.
 
-        - A promoted rename's entry is now a passthrough (source == key), so its
-          original column comes from ``_sql_renames``.
-        - Other renames and passthroughs fall back to the base.
+        A promoted rename's entry is now a passthrough (source == key), so its
+        original column comes from ``_sql_renames``.
         """
         result = {}
         for key, entry in self.items():
@@ -398,63 +320,3 @@ class _FieldMap(_BaseFieldMap):
             }
             return [promoted_sources.get(v, v) for v in values]
         return values
-
-
-class _LegacyFieldMap(_BaseFieldMap):
-    """
-    Field map normalized from a legacy explicit ``values``/``field_map`` viewset.
-
-    ``map_row`` mutates the row in place — writing each target, then dropping
-    rename-consumed source columns — so unclaimed ``values()`` keys pass through.
-    Required for back-compat with viewsets relying on that passthrough.
-
-    TODO(#14302): remove with the legacy explicit values/field_map path.
-    """
-
-    # Set by finalize(): rename sources to drop after mapping, minus output keys.
-    _drop_sources: Tuple[str, ...] = ()
-
-    def finalize(self) -> None:
-        super().finalize()
-        keys = set(self.keys())
-        self._drop_sources = tuple(
-            {
-                entry.source
-                for key, entry in self.items()
-                if entry.source is not None and entry.source != key
-            }
-            - keys
-        )
-
-    def map_row(
-        self,
-        row: Row,
-        method_context: Optional[MethodContext] = None,
-        extra_cols: Tuple[str, ...] = (),
-    ) -> Row:
-        # Legacy maps never receive engine keying columns.
-        for key, entry in self.items():
-            entry.apply(key, row, method_context)
-        for source in self._drop_sources:
-            row.pop(source, None)
-        return row
-
-
-def normalize_field_map(field_map: Dict[str, Any]) -> _LegacyFieldMap:
-    """
-    Normalize a user-written legacy field_map to canonical entry objects.
-
-    Str shorthand → ``SourceFieldEntry``; bare callable → ``_LegacyCallableFieldEntry``
-    (invoked with ``row`` only). Returns a fresh ``_LegacyFieldMap``; input untouched.
-
-    TODO(#14302): remove with the legacy explicit values/field_map path.
-    """
-
-    def wrap(value: Any) -> FieldMapEntry:
-        if isinstance(value, str):
-            return SourceFieldEntry(value)
-        return _LegacyCallableFieldEntry(value)
-
-    result = _LegacyFieldMap((key, wrap(value)) for key, value in field_map.items())
-    result.finalize()
-    return result
