@@ -28,6 +28,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from kolibri.core import error_constants
+from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.api import ValuesViewsetOrderingFilter
@@ -216,6 +217,12 @@ class FacilityUserFilter(FilterSet):
         ]
 
 
+class FacilitySearchUsernameFilter(FilterSet):
+    class Meta:
+        model = FacilityUser
+        fields = ("facility",)
+
+
 class FacilityUserRoleSerializer(serializers.ModelSerializer):
     """Read-only role serializer for FacilityUser API responses.
 
@@ -365,6 +372,12 @@ class PublicFacilityUserSerializer(serializers.ModelSerializer):
         )
 
 
+class FacilitySearchUsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityUser
+        fields = ("id", "username")
+
+
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all().order_by("id")
     serializer_class = PublicFacilityUserSerializer
@@ -392,6 +405,55 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
             queryset = queryset.filter(id=self.request.user.id)
 
         return queryset
+
+
+class FacilitySearchUsernameViewSet(BaseValuesViewset):
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = FacilitySearchUsernameFilter
+    search_fields = ("^username",)
+
+    serializer_class = FacilitySearchUsernameSerializer
+
+    def list(self, request, *args, **kwargs):
+        if "facility" not in request.query_params:
+            content = "Missing parameter: facility is required"
+            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
+
+        filterset = self.filterset_class(
+            request.query_params, queryset=self.get_queryset(), request=request
+        )
+        # Resolving the id through the filter turns an unknown or malformed one into a
+        # validation failure; querying it directly raises ValueError instead (#11735).
+        facility = (
+            filterset.form.cleaned_data["facility"] if filterset.is_valid() else None
+        )
+        if facility is None:
+            content = "The facility does not exist in this device"
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        if facility.dataset.learner_can_login_with_no_password:
+            queryset = self.filter_queryset(self.get_queryset())
+            return Response(self.serialize(queryset))
+
+        # A facility that requires a password must not disclose user ids, nor
+        # let a prefix search enumerate its usernames (#9512).
+        username = request.query_params.get("search", None)
+        # Usernames are unique case-insensitively (#11739).
+        if filterset.qs.filter(username__iexact=username).exists():
+            return Response([{"username": username, "id": None}])
+        return Response([])
+
+    def get_queryset(self):
+        # Learners only; the isnull arm catches users with no DevicePermissions
+        # row at all, which the is_superuser=False arm never matches (#9512).
+        return (
+            FacilityUser.objects.filter(roles=None)
+            .filter(
+                Q(devicepermissions__is_superuser=False)
+                | Q(devicepermissions__isnull=True)
+            )
+            .order_by("username")
+        )
 
 
 class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):

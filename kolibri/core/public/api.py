@@ -11,12 +11,10 @@ from django.http import HttpResponseNotFound
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
-from django_filters.rest_framework import DjangoFilterBackend
 from morango.models import DeletedModels
 from morango.models import HardDeletedModels
 from morango.models import Store
 from rest_framework import exceptions
-from rest_framework import filters
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
@@ -24,8 +22,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from kolibri.core.api import BaseValuesViewset
-from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -351,44 +347,3 @@ class SyncQueueAPIView(APIView):
     def post(self, request):
         queue_object = self.create_or_update(request)
         return Response(self.get_response_data(queue_object))
-
-
-class FacilitySearchUsernameViewSet(BaseValuesViewset):
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_fields = ("facility",)
-    search_fields = ("^username",)
-
-    values = ("id", "username")
-
-    def list(self, request, *args, **kwargs):
-        facility_id = request.query_params.get("facility", None)
-        if facility_id is None:
-            content = "Missing parameter: facility is required"
-            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
-        try:
-            facility = Facility.objects.get(id=facility_id)
-        except (AttributeError, Facility.DoesNotExist, ValueError):
-            content = "The facility does not exist in this device"
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        if facility.dataset.learner_can_login_with_no_password:
-            queryset = self.filter_queryset(self.get_queryset())
-            return Response(self.serialize(queryset))
-        else:
-            username = request.query_params.get("search", None)
-            queryset = self.get_queryset().filter(
-                facility=facility_id, username__iexact=username
-            )
-            response = (
-                [
-                    {"username": username, "id": None},
-                ]
-                if queryset
-                else []
-            )
-            return Response(response)
-
-    def get_queryset(self):
-        return FacilityUser.objects.filter(roles=None).filter(
-            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
-        )
