@@ -11,14 +11,20 @@ Usage:
 Examples:
     # Baseline run (uses existing data from KOLIBRI_HOME)
     python .../viewset_serialization_benchmark.py kolibri.core.auth.viewsets.facility_user.FacilityUserViewSet \\
-        --inherit-kolibri-home -o baseline.json
+        -o baseline.json
 
     # Comparison run
     python .../viewset_serialization_benchmark.py kolibri.core.auth.viewsets.facility_user.FacilityUserViewSet \\
-        --inherit-kolibri-home --compare baseline.json
+        --compare baseline.json
+
+Nothing from kolibri, Django or DRF is imported at module scope: kolibri.utils.conf
+snapshots ``os.environ["KOLIBRI_HOME"]`` when it is imported, and --kolibri-home has
+to be applied before that. Each of those imports sits in the function that uses it,
+all of which run after setup_kolibri().
 """
 
 import argparse
+import atexit
 import gc
 import hashlib
 import importlib
@@ -27,22 +33,15 @@ import logging
 import math
 import os
 import platform
+import shutil
 import statistics
 import sys
+import tempfile
 import time
 import tracemalloc
 import uuid
 from collections import defaultdict
 from datetime import datetime
-
-# Must import kolibri before Django to apply compat patches (e.g. cgi module on Python 3.13+)
-from kolibri.utils.main import initialize  # isort: skip
-
-from django.conf import settings
-from django.db import connection
-from django.test.utils import CaptureQueriesContext
-from rest_framework import serializers
-from rest_framework.request import Request
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +50,10 @@ logger = logging.getLogger(__name__)
 # 2: the synthetic serializer dropped its nested fields — they are auto-deferred
 # now, and the mock queryset can't serve the follow-up fetches.
 SCHEMA_VERSION = 2
+
+# --kolibri-home given with no PATH: benchmark a throwaway home instead of the
+# ambient one.
+_TEMPORARY_HOME = object()
 
 
 def parse_args():
@@ -118,9 +121,13 @@ def parse_args():
         help="Acceptable memory regression %% (default: 10.0)",
     )
     parser.add_argument(
-        "--inherit-kolibri-home",
-        action="store_true",
-        help="Use KOLIBRI_HOME from environment instead of /tmp/kolibri_benchmark",
+        "--kolibri-home",
+        nargs="?",
+        const=_TEMPORARY_HOME,
+        default=None,
+        metavar="PATH",
+        help="Benchmark against PATH instead of the ambient KOLIBRI_HOME; with "
+        "no PATH, against a throwaway home removed on exit",
     )
     parser.add_argument(
         "--quiet",
@@ -130,9 +137,23 @@ def parse_args():
     return parser.parse_args()
 
 
+def _apply_kolibri_home(args):
+    if args.kolibri_home is _TEMPORARY_HOME:
+        home = tempfile.mkdtemp(prefix="kolibri_benchmark_")
+        atexit.register(shutil.rmtree, home, True)
+    elif args.kolibri_home:
+        home = os.path.abspath(os.path.expanduser(args.kolibri_home))
+    else:
+        return
+    os.environ["KOLIBRI_HOME"] = home
+
+
 def setup_kolibri(args):
-    if not args.inherit_kolibri_home:
-        os.environ.setdefault("KOLIBRI_HOME", "/tmp/kolibri_benchmark")
+    _apply_kolibri_home(args)
+
+    # Importing kolibri also applies its compat patches (e.g. the cgi module on
+    # Python 3.13+), which Django and DRF need before they are imported.
+    from kolibri.utils.main import initialize
 
     initialize()
     # initialize() installs Kolibri's own logging config, resetting the root
@@ -832,9 +853,10 @@ def _run_real_viewset(args):
 
     if record_count == 0:
         logger.warning(
-            "No records found for %s. "
-            "Use --inherit-kolibri-home with a populated KOLIBRI_HOME.",
+            "No records found for %s. Seed the home it ran against (%s), or "
+            "point --kolibri-home at a seeded one.",
             viewset_class.__name__,
+            KOLIBRI_HOME,
         )
 
     logger.info("Viewset: %s", args.viewset)
