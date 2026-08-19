@@ -72,7 +72,7 @@ def parse_args():
     parser.add_argument(
         "--compare-autodefer",
         action="store_true",
-        help="Compare auto-deferred derived vs explicit values+consolidate() over "
+        help="Compare auto-deferred derived vs hand-written consolidate() over "
         "generated fixtures in a throwaway test database, sweeping reverse-FK fan-out.",
     )
     parser.add_argument(
@@ -837,17 +837,7 @@ def _run_real_viewset(args):
             viewset_class.__name__,
         )
 
-    has_explicit = "values" in viewset_class.__dict__ and isinstance(
-        viewset_class.__dict__["values"], tuple
-    )
-    has_derived = (
-        not has_explicit
-        and getattr(viewset_class, "serializer_class", None) is not None
-    )
-    pattern = "derived" if has_derived else ("explicit" if has_explicit else "unknown")
-
     logger.info("Viewset: %s", args.viewset)
-    logger.info("  Pattern: %s", pattern)
     logger.info("  Records: %d", record_count)
     logger.info(
         "  Iterations: %d (timing), %d (memory)",
@@ -927,7 +917,15 @@ def _mean_ms(fn, warmup, iterations):
 
 
 def _query_count(fn):
-    """Number of DB queries issued by a single ``fn()`` call."""
+    """Number of DB queries issued by a single ``fn()`` call.
+
+    ``CaptureQueriesContext`` flips the connection's debug cursor, not
+    ``settings.DEBUG`` — so the arms whose ``consolidate()`` reshapes output away
+    from their declared serializer fields are never output-validated here.
+    """
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
     with CaptureQueriesContext(connection) as ctx:
         fn()
     return len(ctx)
@@ -979,7 +977,7 @@ def _build_autodefer_fixtures(author_count, books_per_author=3, awards_per_autho
     return authors
 
 
-def _explicit_author_consolidate(items):
+def _manual_author_consolidate(items):
     """
     Hand-written reverse/forward-FK assembly — the pre-auto-defer baseline the
     derived viewset is benchmarked against.
@@ -1057,9 +1055,11 @@ def _build_publishers_by_id(publisher_ids):
 
 
 def _build_autodefer_viewsets():
-    """The derived and explicit Author viewsets, built lazily: their serializer
-    and queryset class attributes import test-only models, which requires the
-    test app registry and database to be set up first."""
+    """The derived and hand-consolidated Author viewsets, built lazily: their
+    serializer and queryset class attributes import test-only models, which
+    requires the test app registry and database to be set up first."""
+    from rest_framework import serializers
+
     from kolibri.core.api import BaseValuesViewset
     from kolibri.core.api import ListModelMixin
     from kolibri.core.test.test_app.models import Author
@@ -1107,20 +1107,31 @@ def _build_autodefer_viewsets():
         serializer_class = AuthorSerializer
         queryset = Author.objects.all().order_by("name")
 
-    class ExplicitAuthorViewset(BaseValuesViewset, ListModelMixin):
-        """Explicit values tuple + hand-written consolidate() — the pre-auto-defer pattern."""
+    class FlatAuthorSerializer(serializers.ModelSerializer):
+        """Flat Author columns only — no relations for the engine to fetch.
 
+        ``publisher_id`` is the FK attname, so it derives as an annotation and a
+        primitive field passes the raw pk through. A ``UUIDField`` would
+        hex-format it, and ``_manual_author_consolidate``'s ``str(pid)`` lookup
+        would then miss every row.
+        """
+
+        publisher_id = serializers.IntegerField(allow_null=True)
+
+        class Meta:
+            model = Author
+            fields = ("id", "name", "publisher_id")
+
+    class ManualAuthorViewset(BaseValuesViewset, ListModelMixin):
+        """Hand-written consolidate() — every relation assembled in Python."""
+
+        serializer_class = FlatAuthorSerializer
         queryset = Author.objects.all().order_by("name")
 
-        # Flat Author columns only — no joins to many-sided relations.
-        values = ("id", "name", "publisher_id")
-
-        field_map = {}
-
         def consolidate(self, items, queryset):
-            return _explicit_author_consolidate(items)
+            return _manual_author_consolidate(items)
 
-    return DerivedAuthorViewset, ExplicitAuthorViewset
+    return DerivedAuthorViewset, ManualAuthorViewset
 
 
 def _build_to_one_fixtures(author_count, shared_publisher):
@@ -1156,31 +1167,29 @@ def _build_to_one_fixtures(author_count, shared_publisher):
 
 
 def _nest_joined_to_one(item):
-    """Reshape one flat joined row into the nested dicts the serializer declares."""
-    country_id = item.pop("publisher__country__id")
-    publisher_id = item.pop("publisher__id")
+    """Reshape one flat joined row into the nested dicts the deferred arm returns."""
+    publisher_id = item.pop("pub_id")
+    publisher_name = item.pop("pub_name")
+    country_id = item.pop("country_id")
+    country_name = item.pop("country_name")
     item["publisher"] = (
         None
         if publisher_id is None
         else {
             "id": publisher_id,
-            "name": item.pop("publisher__name"),
+            "name": publisher_name,
             "country": (
-                None
-                if country_id is None
-                else {"id": country_id, "name": item.pop("publisher__country__name")}
+                None if country_id is None else {"id": country_id, "name": country_name}
             ),
         }
     )
-    item.pop("publisher__name", None)
-    item.pop("publisher__country__name", None)
     return item
 
 
 def _nest_joined_publisher(item):
     """Single-hop variant of ``_nest_joined_to_one``: publisher, no country."""
-    publisher_id = item.pop("publisher__id")
-    name = item.pop("publisher__name")
+    publisher_id = item.pop("pub_id")
+    name = item.pop("pub_name")
     item["publisher"] = (
         None if publisher_id is None else {"id": publisher_id, "name": name}
     )
@@ -1189,11 +1198,11 @@ def _nest_joined_publisher(item):
 
 def _build_to_one_viewsets():
     """The two to-one strategies for the same output: auto-deferred follow-up
-    queries, versus the joined columns they replaced.
+    queries, versus joined columns reshaped in Python.
 
     The main sweep can't show this trade-off — its baseline ``consolidate()``
-    defers too. The joined arm is the removed path: the target's columns ride
-    along on the parent query and are reshaped in Python.
+    defers too. The joined arm declares the target's columns as scalar sourced
+    fields, so they ride along on the parent query.
     """
     from kolibri.core.api import BaseValuesViewset
     from kolibri.core.api import ListModelMixin
@@ -1240,19 +1249,32 @@ def _build_to_one_viewsets():
         serializer_class = ChainAuthorSerializer
         queryset = Author.objects.all().order_by("name")
 
-    class JoinedChainViewset(BaseValuesViewset, ListModelMixin):
-        queryset = Author.objects.all().order_by("name")
+    class JoinedChainSerializer(serializers.ModelSerializer):
+        """The same two hops as scalar sourced fields, so they stay joined
+        columns on the parent query instead of auto-deferring.
 
-        values = (
-            "id",
-            "name",
-            "publisher__id",
-            "publisher__name",
-            "publisher__country__id",
-            "publisher__country__name",
+        The output names are deliberately not ``publisher_id`` /
+        ``publisher_name``: a plain rename is promoted to
+        ``annotate(target=F(source))``, and Django rejects an annotation whose
+        alias collides with the FK's own column.
+        """
+
+        pub_id = serializers.IntegerField(source="publisher.id", allow_null=True)
+        pub_name = serializers.CharField(source="publisher.name", allow_null=True)
+        country_id = serializers.IntegerField(
+            source="publisher.country.id", allow_null=True
+        )
+        country_name = serializers.CharField(
+            source="publisher.country.name", allow_null=True
         )
 
-        field_map = {}
+        class Meta:
+            model = Author
+            fields = ("id", "name", "pub_id", "pub_name", "country_id", "country_name")
+
+    class JoinedChainViewset(BaseValuesViewset, ListModelMixin):
+        serializer_class = JoinedChainSerializer
+        queryset = Author.objects.all().order_by("name")
 
         def consolidate(self, items, queryset):
             return [_nest_joined_to_one(item) for item in items]
@@ -1261,12 +1283,20 @@ def _build_to_one_viewsets():
         serializer_class = SingleHopAuthorSerializer
         queryset = Author.objects.all().order_by("name")
 
+    class JoinedSingleHopSerializer(serializers.ModelSerializer):
+        """One hop as scalar sourced fields — see ``JoinedChainSerializer`` on
+        why the output names avoid ``publisher_id``."""
+
+        pub_id = serializers.IntegerField(source="publisher.id", allow_null=True)
+        pub_name = serializers.CharField(source="publisher.name", allow_null=True)
+
+        class Meta:
+            model = Author
+            fields = ("id", "name", "pub_id", "pub_name")
+
     class JoinedSingleHopViewset(BaseValuesViewset, ListModelMixin):
+        serializer_class = JoinedSingleHopSerializer
         queryset = Author.objects.all().order_by("name")
-
-        values = ("id", "name", "publisher__id", "publisher__name")
-
-        field_map = {}
 
         def consolidate(self, items, queryset):
             return [_nest_joined_publisher(item) for item in items]
@@ -1396,9 +1426,9 @@ def _normalise(items):
 
 
 def _autodefer_size_report(
-    derived_cls, explicit_cls, author_count, books_per_author, warmup, iterations
+    derived_cls, manual_cls, author_count, books_per_author, warmup, iterations
 ):
-    """Compare the auto-deferred derived path to hand-written explicit
+    """Compare the auto-deferred derived path to a hand-written
     consolidate() at one (authors, books-per-author) point. Books-per-author is
     the reverse-FK fan-out."""
     from kolibri.core.test.test_app.models import Author
@@ -1413,21 +1443,19 @@ def _autodefer_size_report(
 
     qs = _autodefer_author_queryset
     derived = derived_cls()
-    explicit = explicit_cls()
+    manual = manual_cls()
 
     derived_out = _normalise(derived.serialize(qs()))
-    explicit_out = _normalise(explicit.serialize(qs()))
+    manual_out = _normalise(manual.serialize(qs()))
 
     return {
         "authors": author_count,
         "books_per_author": books_per_author,
-        "output_equal": derived_out == explicit_out,
+        "output_equal": derived_out == manual_out,
         "derived": _measure_strategy(
             lambda: derived.serialize(qs()), warmup, iterations
         ),
-        "explicit": _measure_strategy(
-            lambda: explicit.serialize(qs()), warmup, iterations
-        ),
+        "manual": _measure_strategy(lambda: manual.serialize(qs()), warmup, iterations),
     }
 
 
@@ -1438,14 +1466,14 @@ def _print_autodefer_report(report):
             size["authors"],
             size["books_per_author"],
         )
-        d, e = size["derived"], size["explicit"]
+        d, m = size["derived"], size["manual"]
         logger.info(
-            "derived vs explicit: output_equal=%s  queries %d/%d  ms %.3f/%.3f",
+            "derived vs manual: output_equal=%s  queries %d/%d  ms %.3f/%.3f",
             size["output_equal"],
             d["queries"],
-            e["queries"],
+            m["queries"],
             d["mean_ms"],
-            e["mean_ms"],
+            m["mean_ms"],
         )
     logger.info(
         "\nderived query count fixed across fan-out: %s",
@@ -1455,14 +1483,14 @@ def _print_autodefer_report(report):
 
 
 def _run_autodefer_compare(args):
-    """In-process derived-vs-explicit comparison over a throwaway test database.
+    """In-process comparison over a throwaway test database.
 
     Confirms the auto-deferred serializer-derived path produces identical output
-    to a hand-written explicit consolidate(), and that its query count stays
-    fixed as the reverse-FK fan-out grows — the derived path avoids joins, so it
-    issues a fixed number of extra queries (an accepted trade-off), never one
-    that scales with row count. Records each path's timing across the sweep; the
-    derived path is expected to run more queries than the join-using baseline.
+    to a hand-written consolidate(), and that its query count stays fixed as the
+    reverse-FK fan-out grows — the derived path avoids joins, so it issues a
+    fixed number of extra queries (an accepted trade-off), never one that scales
+    with row count. Records each path's timing across the sweep; the derived
+    path is expected to run more queries than the join-using baseline.
     """
     from django.test.utils import setup_test_environment
     from django.test.utils import teardown_test_environment
@@ -1490,14 +1518,14 @@ def _run_autodefer_compare(args):
     setup_test_environment()
     old_config = connection.creation.create_test_db(verbosity=0, autoclobber=True)
     try:
-        derived_cls, explicit_cls = _build_autodefer_viewsets()
+        derived_cls, manual_cls = _build_autodefer_viewsets()
         to_one_viewsets = _build_to_one_viewsets()
 
         report = {
             "mode": "autodefer-compare",
             "sizes": [
                 _autodefer_size_report(
-                    derived_cls, explicit_cls, n, books, args.warmup, iterations
+                    derived_cls, manual_cls, n, books, args.warmup, iterations
                 )
                 for n, books in sizes
             ],
