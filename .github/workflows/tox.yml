@@ -21,6 +21,7 @@ jobs:
   pre_job:
     name: Path match check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -35,6 +36,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -61,6 +63,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.11', '3.12', '3.13', '3.14']
@@ -89,6 +92,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: [3.6, 3.7]
@@ -145,6 +149,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     services:
       # Label used to access the service container
       postgres:
@@ -193,6 +198,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
         python-version: ['3.9', '3.14']
@@ -236,6 +242,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: macos-14
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ['3.10']
@@ -260,6 +267,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: windows-latest
+    timeout-minutes: 60
     strategy:
       matrix:
         python-version: [3.8]
@@ -289,6 +297,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -320,6 +329,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -354,6 +364,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -398,6 +409,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -423,6 +435,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Set up JDK 21
@@ -452,6 +465,7 @@ jobs:
       - unit_test_stage1
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Fail if any needed job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
@@ -478,6 +492,7 @@ jobs:
       - android_jvm_tests
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Fail if any needed job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

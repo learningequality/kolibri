@@ -17,6 +17,7 @@ jobs:
   build_whl:
     name: Build WHL
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}

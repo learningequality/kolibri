@@ -115,6 +115,7 @@ jobs:
     name: Android smoke test (API ${{ matrix.api-level }})
     needs: apk
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -268,6 +269,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         cext: [true, false]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
@@ -299,6 +301,7 @@ jobs:
         python-version: [3.6, 3.7]
         cext: [true, false]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     container:
       image: python:${{ matrix.python-version }}-buster
     steps:
@@ -324,6 +327,7 @@ jobs:
       - test_whl_file_no_uv
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Fail if any needed job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

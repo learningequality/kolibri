@@ -41,6 +41,7 @@ jobs:
   build_exe:
     name: Build EXE file
     runs-on: windows-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: platforms/desktop-app
