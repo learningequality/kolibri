@@ -99,13 +99,8 @@ jobs:
           echo "kolibri-server kolibri-server/port select ${KOLIBRI_SERVER_PORT}" | sudo debconf-set-selections
           echo "kolibri-server kolibri-server/zip_content_port select 8081" | sudo debconf-set-selections
       - name: Install the Kolibri and kolibri-server debs
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            "./debs/${{ needs.deb.outputs.deb-file-name }}" \
-            "./debs/${{ needs.server_deb.outputs.deb-file-name }}"
+        run: >-
+          .github/scripts/apt-install.sh "./debs/${{ needs.deb.outputs.deb-file-name }}" "./debs/${{ needs.server_deb.outputs.deb-file-name }}"
       - name: Start kolibri-server
         run: sudo service kolibri-server restart
       - name: Assert Kolibri is served through nginx

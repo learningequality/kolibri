@@ -21,14 +21,13 @@ jobs:
       whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
     steps:
-      - name: Install Ubuntu dependencies
-        run: |
-          sudo apt-get -y -qq update
-          sudo apt-get install -y gettext sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           lfs: true
+      - name: Install Ubuntu dependencies
+        run: >-
+          .github/scripts/apt-install.sh gettext sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:

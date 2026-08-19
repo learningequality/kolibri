@@ -139,9 +139,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -167,9 +165,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -193,9 +189,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -230,9 +224,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}

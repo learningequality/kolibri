@@ -45,9 +45,7 @@ jobs:
           DEB_URL: ${{ inputs.deb-url }}
         run: curl -fsSL --create-dirs --output-dir dist --remote-name "$DEB_URL"
       - name: Install reprepro and Debian packaging tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y reprepro dpkg-dev debhelper build-essential
+        run: .github/scripts/apt-install.sh reprepro dpkg-dev debhelper build-essential
       - name: Import the Debian repo signing key
         id: gpg
         run: |

@@ -105,9 +105,17 @@ jobs:
         run: |
           echo "deb http://archive.debian.org/debian-archive/debian/ buster main" > /etc/apt/sources.list
           echo "deb http://archive.debian.org/debian-archive/debian-security/ buster/updates main" >> /etc/apt/sources.list
-          echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive
-          apt-get -y -qq update
-          apt-get install -y git git-lfs
+          # archive.debian.org regularly stalls mid-transfer, and apt bounds a
+          # single stalled connection but never its own total runtime — long
+          # enough to hold the job open for hours rather than failing it.
+          cat > /etc/apt/apt.conf.d/99archive <<'EOF'
+          Acquire::Check-Valid-Until "false";
+          Acquire::Retries "3";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          EOF
+          timeout 300 apt-get -y -qq update
+          timeout 300 apt-get install -y git git-lfs
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
@@ -372,9 +380,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
       - name: Install system dependencies
         if: ${{ matrix.system-packages }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ matrix.system-packages }}
+        run: .github/scripts/apt-install.sh ${{ matrix.system-packages }}
       - name: Install dependencies
         # --all-packages keeps root kolibri's runtime deps in the shared venv;
         # see the sync_extras_plugin_tests note above.

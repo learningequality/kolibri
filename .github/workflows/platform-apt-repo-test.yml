@@ -27,9 +27,8 @@ jobs:
       - name: Install repo tooling
         # APT_REPO_TESTS_STRICT below turns a missing-tool SKIP into a failure,
         # so install everything the tests need (docker is preinstalled).
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends reprepro gnupg dpkg-dev rsync
+        run: >-
+          .github/scripts/apt-install.sh --no-install-recommends reprepro gnupg dpkg-dev rsync
       - name: Run the apt-repo tests
         env:
           APT_REPO_TESTS_STRICT: "1"
