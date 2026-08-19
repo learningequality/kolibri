@@ -136,7 +136,7 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         # All the fields of the model
         model_fields = {f.name for f in queryset.model._meta.get_fields()}
         # Loop through every value in the view's values tuple
-        for field in view._engine.values:
+        for field in view.values:
             # db_column_map() returns the true DB column for renamed fields; for
             # SQL-promoted renames _values holds the alias, so we resolve it back.
             db_source = db_columns.get(field, field)
@@ -276,6 +276,11 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__class__._ensure_initialized()
+
+    @property
+    def values(self):
+        """Columns the engine fetches, in order."""
+        return self._engine.values
 
     def get_serializer_context(self):
         """
