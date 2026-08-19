@@ -2657,20 +2657,22 @@ class TestDevModeSafeguards(TestCase):
         self.assertEqual(items[0]["books"][0]["title"], "Renamed")
 
     def test_missing_source_key_raises_key_error(self):
-        """A field_map entry pointing at a source absent from the row fails fast.
+        """A declared ``source`` missing from the fetched row raises KeyError.
 
-        Misconfigured mappings raise KeyError during serialize() rather than
-        silently producing None — so a typo in ``field_map`` surfaces at the
-        first request rather than propagating as bad output.
+        The failure surfaces on the first request rather than propagating as a
+        silent ``None`` — the shape a forgotten ``annotate_queryset`` column
+        would otherwise produce.
         """
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            values = ("id",)
-            field_map = {"display_name": "nonexistent"}
+        viewset = make_viewset(
+            queryset=Author.objects.none(),
+            id=serializers.CharField(),
+            # Target shadows a model field, so the rename stays in Python rather
+            # than being promoted to an SQL alias the row would then carry.
+            name=serializers.CharField(source="email"),
+        )
 
         with self.assertRaises(KeyError):
-            _serialize(V(), [{"id": "a1"}])
+            _serialize(viewset, [{"id": "a1"}])
 
 
 class TestAuxiliaryAPIs(TestCase):
@@ -2721,12 +2723,10 @@ class TestAuxiliaryAPIs(TestCase):
         result = V().serialize(V().get_queryset())
         self.assertEqual(sorted(result[0]["book_titles"]), ["B1", "B2"])
 
-    def test_serialize_queryset_raises_on_explicit_values_viewset(self):
-        """serialize_queryset on an explicit-values engine raises ValueError."""
-
-        class V(BaseValuesViewset, ListModelMixin):
-            queryset = Author.objects.none()
-            values = ("id", "name")
+    def test_serialize_queryset_raises_on_unknown_path(self):
+        """serialize_queryset on a path no serializer level declares raises
+        ValueError, rather than silently serializing under the top level."""
+        viewset = author_books_viewset(deferred=True)
 
         with self.assertRaises(ValueError):
-            V().serialize_queryset(Author.objects.none(), "somepath")
+            viewset.serialize_queryset(Author.objects.none(), "somepath")
