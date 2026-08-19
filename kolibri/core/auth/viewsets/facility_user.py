@@ -444,8 +444,13 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
     def get_queryset(self):
         # Learners only; the isnull arm catches users with no DevicePermissions
         # row at all, which the is_superuser=False arm never matches (#9512).
-        return FacilityUser.objects.filter(roles=None).filter(
-            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
+        return (
+            FacilityUser.objects.filter(roles=None)
+            .filter(
+                Q(devicepermissions__is_superuser=False)
+                | Q(devicepermissions__isnull=True)
+            )
+            .order_by("username")
         )
 
 
