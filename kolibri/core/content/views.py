@@ -1,11 +1,15 @@
 import logging
+from base64 import urlsafe_b64decode
 
 from django.http import Http404
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View
+from rest_framework.generics import get_object_or_404
 
 from kolibri.core.content.hooks import ContentNodeDisplayHook
 
+from .models import ChannelMetadata
 from .models import ContentNode
 
 logger = logging.getLogger(__name__)
@@ -74,3 +78,17 @@ class ContentPermalinkRedirect(View):
                 return HttpResponseRedirect(url)
 
         raise Http404
+
+
+class ChannelThumbnailView(View):
+    def get(self, request, channel_id):
+        # DRF's get_object_or_404, not Django's: an unparseable channel_id raises
+        # ValueError from the UUID field, which only DRF's turns into a 404.
+        channel = get_object_or_404(ChannelMetadata, id=channel_id)
+        try:
+            header, b_64_thumbnail = channel.thumbnail.split(",", 1)
+            mimetype = header.split(":")[1].split(";")[0]
+        except ValueError:
+            raise Http404("No thumbnail available")
+        thumbnail = urlsafe_b64decode(b_64_thumbnail)
+        return HttpResponse(thumbnail, content_type=mimetype)

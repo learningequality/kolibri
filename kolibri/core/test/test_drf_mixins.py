@@ -3,13 +3,19 @@ import json
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 
 from kolibri.core.content.models import Language
-from kolibri.core.content.serializers import LanguageSerializer
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = ("id", "lang_code", "lang_subcode", "lang_name", "lang_direction")
 
 
 class LanguageViewSet(ModelViewSet):

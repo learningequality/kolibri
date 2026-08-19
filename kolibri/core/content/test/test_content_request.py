@@ -10,7 +10,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRequestStatus
 
-from ..serializers import ContentDownloadRequestSerializer
+from ..viewsets.content_request import ContentDownloadRequestSerializer
 
 
 class ContentDownloadRequestSerializerTestCase(TestCase):
@@ -108,6 +108,17 @@ class ContentDownloadRequestSerializerTestCase(TestCase):
         with self.assertRaisesRegex(exceptions.ValidationError, "Must be a valid UUID"):
             serializer.is_valid(raise_exception=True)
 
+    def test_create_content_download_request__with_invalid_metadata(self):
+        self.data["metadata"]["file_size"] = "a few"
+
+        serializer = ContentDownloadRequestSerializer(
+            data=self.data, context={"request": self.request}
+        )
+        with self.assertRaisesRegex(
+            exceptions.ValidationError, "A valid integer is required"
+        ):
+            serializer.is_valid(raise_exception=True)
+
 
 class ContentDownloadRequestViewsetTest(APITestCase):
     databases = "__all__"
@@ -176,6 +187,31 @@ class ContentDownloadRequestViewsetTest(APITestCase):
         self.assertEqual(
             response.data[0]["metadata"]["title"], self.data["metadata"]["title"]
         )
+
+    def test_list_returns_the_read_contract(self):
+        download = ContentDownloadRequest.build_for_user(self.user)
+        download.contentnode_id = self.data["contentnode_id"]
+        download.metadata = self.data["metadata"]
+        download.update_progress(3, 10)
+
+        response = self.client.get(
+            reverse("kolibri:core:contentrequest-list"), format="json"
+        )
+
+        self.assertEqual(
+            set(response.data[0]),
+            {
+                "id",
+                "requested_at",
+                "reason",
+                "contentnode_id",
+                "metadata",
+                "status",
+                "facility",
+                "source_id",
+            },
+        )
+        self.assertEqual(response.data[0]["metadata"], download.metadata)
 
     def test_no_duplicate_creation_requests(self):
         # Send two identical creation requests

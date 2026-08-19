@@ -30,7 +30,6 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.serializers import PublicChannelSerializer
 from kolibri.core.content.utils.file_availability import checksum_regex
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device import soud
@@ -39,6 +38,7 @@ from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 from kolibri.core.device.utils import get_device_info
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.fields import create_timezonestamp
 from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
 from kolibri.core.serializers import HexOnlyUUIDField
@@ -103,6 +103,54 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
+
+
+class PublicChannelSerializer(serializers.ModelSerializer):
+    included_languages = serializers.SerializerMethodField()
+    matching_tokens = serializers.SerializerMethodField("match_tokens")
+    language = serializers.SerializerMethodField()
+    icon_encoding = serializers.SerializerMethodField()
+    last_published = serializers.SerializerMethodField()
+
+    def get_language(self, instance):
+        if instance.root.lang is None:
+            return None
+
+        return instance.root.lang.lang_code
+
+    def get_icon_encoding(self, instance):
+        return instance.thumbnail
+
+    def get_included_languages(self, instance):
+        return list(instance.included_languages.all().values_list("id", flat=True))
+
+    def get_last_published(self, instance):
+        return (
+            None
+            if not instance.last_updated
+            else create_timezonestamp(instance.last_updated)
+        )
+
+    def match_tokens(self, channel):
+        return []
+
+    class Meta:
+        model = ChannelMetadata
+        fields = (
+            "id",
+            "name",
+            "language",
+            "included_languages",
+            "description",
+            "tagline",
+            "total_resource_count",
+            "version",
+            "published_size",
+            "last_published",
+            "icon_encoding",
+            "matching_tokens",
+            "public",
+        )
 
 
 @api_view(["GET"])

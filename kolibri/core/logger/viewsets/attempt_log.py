@@ -6,7 +6,7 @@ from rest_framework import serializers
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
-from kolibri.core.content.api import OptionalPageNumberPagination
+from kolibri.core.utils.pagination import OptionalPageNumberPagination
 
 from ..models import AttemptLog
 from .filters import BaseLogFilter

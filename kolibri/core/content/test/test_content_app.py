@@ -693,7 +693,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(response.data[0]["title"], "c2")
 
-    @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_studio"
+    )
     def test_contentnode_granular_network_import(self, stats_mock):
         c1 = content.ContentNode.objects.get(title="root")
         c1_id = c1.id
@@ -777,7 +779,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             },
         )
 
-    @mock.patch("kolibri.core.content.api.get_channel_stats_from_disk")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_disk"
+    )
     def test_contentnode_granular_local_import(self, stats_mock):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
@@ -860,7 +864,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             },
         )
 
-    @mock.patch("kolibri.core.content.api.get_channel_stats_from_peer")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_peer"
+    )
     def test_contentnode_granular_remote_import(self, stats_mock):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
@@ -1010,6 +1016,22 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             data={"for_export": True},
         )
         self.assertEqual(response.data["modality"], "COURSE")
+
+    def test_contentnode_granular_rejects_multiple_import_sources(self):
+        c1_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"importing_from_drive_id": "123", "for_export": "true"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_contentnode_granular_rejects_unknown_peer(self):
+        c1_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"importing_from_peer_id": "4d17b9f3d5a34c8f9e9ad1d9a4d4b4d1"},
+        )
+        self.assertEqual(response.status_code, 400)
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -1604,19 +1626,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         # Check that both channels are in the unfiltered response
         self.assertIn(quiz_channel_id, baseline_ids)
         self.assertIn(no_quiz_channel_id, baseline_ids)
-
-    def test_file_list(self):
-        response = self.client.get(reverse("kolibri:core:file-list"))
-        self.assertEqual(len(response.data), 10)
-
-    def test_file_retrieve(self):
-        response = self.client.get(
-            reverse(
-                "kolibri:core:file-detail",
-                kwargs={"pk": "6bdfea4a01830fdd4a585181c0b8068c"},
-            )
-        )
-        self.assertEqual(response.data["preset"], "high_res_video")
 
     def test_modality_filter(self):
         # Create a node with a specific modality
@@ -3361,7 +3370,7 @@ class ShareFileViewTestCase(APITestCase):
             "kolibri.core.device.permissions.valid_app_key_on_request",
             return_value=True,
         ), mock.patch(
-            "kolibri.core.content.api.ShareFileHook.execute_file_share",
+            "kolibri.core.content.viewsets.share_file.ShareFileHook.execute_file_share",
             side_effect=Exception("internal server path /secrets/file"),
         ):
             response = self.client.post(
@@ -3380,7 +3389,7 @@ class ShareFileViewTestCase(APITestCase):
             "kolibri.core.device.permissions.valid_app_key_on_request",
             return_value=True,
         ), mock.patch(
-            "kolibri.core.content.api.ShareFileHook.execute_file_share",
+            "kolibri.core.content.viewsets.share_file.ShareFileHook.execute_file_share",
         ):
             response = self.client.post(
                 reverse("kolibri:core:sharefile"),

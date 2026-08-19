@@ -28,7 +28,6 @@ Finally, in the ``api_urls.py`` file, the ViewSets are given a name (through the
   router.register(
       r"contentnode_search", ContentNodeSearchViewset, basename="contentnode_search"
   )
-  router.register(r"file", FileViewset, basename="file")
   router.register(
       r"contentnodeprogress", ContentNodeProgressViewset, basename="contentnodeprogress"
   )

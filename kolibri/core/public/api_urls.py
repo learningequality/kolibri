@@ -19,14 +19,13 @@ from django.urls import include
 from django.urls import re_path
 from rest_framework import routers
 
-from kolibri.core.content.public_api import ImportMetadataViewset
-
 from ..auth.viewsets.facility import PublicFacilityViewSet
 from ..auth.viewsets.facility_user import PublicFacilityUserViewSet
 from ..auth.viewsets.signup import PublicSignUpViewSet
 from ..content.viewsets.channel_metadata import PublicChannelMetadataViewSet
 from ..content.viewsets.contentnode.base import PublicContentNodeViewSet
 from ..content.viewsets.contentnode.tree import PublicContentNodeTreeViewSet
+from ..content.viewsets.import_metadata import ImportMetadataViewset
 from .api import FacilitySearchUsernameViewSet
 from .api import get_public_channel_list
 from .api import get_public_channel_lookup
