@@ -10,11 +10,11 @@ Usage:
 
 Examples:
     # Baseline run (uses existing data from KOLIBRI_HOME)
-    python .../viewset_serialization_benchmark.py kolibri.core.auth.api.FacilityUserViewSet \\
+    python .../viewset_serialization_benchmark.py kolibri.core.auth.viewsets.facility_user.FacilityUserViewSet \\
         --inherit-kolibri-home -o baseline.json
 
     # Comparison run
-    python .../viewset_serialization_benchmark.py kolibri.core.auth.api.FacilityUserViewSet \\
+    python .../viewset_serialization_benchmark.py kolibri.core.auth.viewsets.facility_user.FacilityUserViewSet \\
         --inherit-kolibri-home --compare baseline.json
 """
 
@@ -61,7 +61,7 @@ def parse_args():
         "viewset",
         nargs="?",
         default=None,
-        help="Dotted import path (e.g. kolibri.core.auth.api.FacilityUserViewSet)",
+        help="Dotted import path (e.g. kolibri.core.auth.viewsets.facility_user.FacilityUserViewSet)",
     )
     parser.add_argument(
         "--synthetic",
