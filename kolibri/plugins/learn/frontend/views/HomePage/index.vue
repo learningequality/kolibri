@@ -230,7 +230,8 @@
       }
 
       fetchChannels().then(channels => {
-        if (!channels.length) {
+        // Library has no link to the class list, so an enrolled learner has to stay on Home.
+        if (!channels.length && !get(inClasses)) {
           router.replace({ name: PageNames.LIBRARY });
           return;
         }

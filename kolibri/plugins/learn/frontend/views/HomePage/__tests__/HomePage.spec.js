@@ -1,6 +1,9 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex, { Store } from 'vuex';
+import flushPromises from 'flush-promises';
+import { set } from '@vueuse/core';
+import client from 'kolibri/client';
 
 import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
@@ -9,6 +12,7 @@ import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useT
 import { ref } from 'vue';
 // eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
+import { inClasses } from '../../../composables/useCoreLearn';
 import { ClassesPageNames, PageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import-x/named */
@@ -69,6 +73,7 @@ function makeWrapper() {
   });
 
   router.push = jest.fn();
+  router.replace = jest.fn();
 
   return mount(HomePage, {
     localVue,
@@ -445,6 +450,45 @@ describe(`HomePage`, () => {
         const wrapper = makeWrapper();
         expect(getExploreChannelsSection(wrapper).exists()).toBe(true);
       });
+    });
+  });
+
+  describe(`when the device has no channels`, () => {
+    beforeEach(() => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      useChannels.mockImplementation(() =>
+        useChannelsMock({ fetchChannels: jest.fn(() => Promise.resolve([])) }),
+      );
+    });
+
+    afterEach(() => {
+      set(inClasses, false);
+      client.__reset();
+    });
+
+    it(`a learner enrolled in a class stays on the home page and sees the class`, async () => {
+      const enrolledClass = { id: 'class-1', name: 'Class 1' };
+      set(inClasses, true);
+      // Staying on Home means hydrateHomePage() now runs, and a malformed payload
+      // would be swallowed by the mocked handleApiError rather than fail the test.
+      client.__setPayload({
+        classrooms: [enrolledClass],
+        resumable_resources: [],
+        resumable_resources_progress: [],
+      });
+      useLearnerResources.mockImplementation(() =>
+        useLearnerResourcesMock({ classes: [enrolledClass] }),
+      );
+      const wrapper = makeWrapper();
+      await flushPromises();
+      expect(wrapper.vm.$router.replace).not.toHaveBeenCalled();
+      expect(getClassesSection(wrapper).text()).toContain(enrolledClass.name);
+    });
+
+    it(`a learner with no classes is redirected to the library`, async () => {
+      const wrapper = makeWrapper();
+      await flushPromises();
+      expect(wrapper.vm.$router.replace).toHaveBeenCalledWith({ name: PageNames.LIBRARY });
     });
   });
 });
