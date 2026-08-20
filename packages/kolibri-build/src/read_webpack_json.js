@@ -5,6 +5,31 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
+const VENV_PYTHON = process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'];
+
+// uv puts the project environment in `.venv` unless UV_PROJECT_ENVIRONMENT overrides it,
+// and resolves a relative override against the project root.
+const PROJECT_VENV = process.env.UV_PROJECT_ENVIRONMENT || '.venv';
+
+// webpack_json.py has to import the plugin modules, so it needs the interpreter they are
+// installed into. A bare `python` is the system interpreter whenever the build runs
+// outside an activated shell — CI calling `make`, an editor task runner — and there the
+// plugins are not importable at all.
+function resolvePython() {
+  if (process.env.VIRTUAL_ENV) {
+    return path.join(process.env.VIRTUAL_ENV, ...VENV_PYTHON);
+  }
+  for (let dir = process.cwd(); ; dir = path.dirname(dir)) {
+    const candidate = path.join(path.resolve(dir, PROJECT_VENV), ...VENV_PYTHON);
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+    if (path.dirname(dir) === dir) {
+      return 'python';
+    }
+  }
+}
+
 function parseConfig(buildConfig, pythonData, configPath, index = null) {
   // Set the bundleId by a concatenation of the Python module path
   // And the specified bundle_id that should be unique within this plugin.
@@ -42,7 +67,7 @@ function readPythonPlugins({ pluginFile, plugins, pluginPath }) {
       args.push('--plugin_path', pluginPath);
     }
   }
-  execFileSync('python', args);
+  execFileSync(resolvePython(), args);
 
   const result = fs.readFileSync(webpack_json_tempfile);
 
