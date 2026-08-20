@@ -5,3 +5,9 @@ paths:
   .github/workflows/tox.yml:
     ignore:
       - 'unexpected key "command" for "services" section'
+  .github/workflows/morango_integration.yml:
+    ignore:
+      - 'unexpected key "command" for "services" section'
+  .github/workflows/postgres.yml:
+    ignore:
+      - 'unexpected key "command" for "services" section'

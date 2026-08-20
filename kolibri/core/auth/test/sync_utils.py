@@ -1,3 +1,4 @@
+import atexit
 import json
 import os
 import shutil
@@ -35,7 +36,7 @@ class KolibriServer:
     def __init__(
         self,
         autostart=True,
-        settings="kolibri.deployment.default.settings.base",
+        settings="kolibri.deployment.default.settings.integration_test_server",
         db_name=None,
         kolibri_home=None,
         seeded_kolibri_home=None,
@@ -76,6 +77,19 @@ class KolibriServer:
         subprocess.call(
             ["kolibri", "manage"] + list(args),
             env=self.env,
+        )
+
+    def run_scenario(self, func, **kwargs):
+        """
+        Call `func` in this server's process, with kwargs passed as JSON. One
+        Django startup for a whole scenario, rather than one per model created.
+        `func` has to be importable there, so it lives in a module, not a test.
+        """
+        kwarg_text = json.dumps(kwargs, default=str)
+        self.pipe_shell(
+            'import json; from {module} import {name}; kwargs = json.loads("""{}"""); {name}(**kwargs)'.format(
+                kwarg_text, module=func.__module__, name=func.__name__
+            )
         )
 
     def create_model(self, model, **kwargs):
@@ -119,14 +133,16 @@ class KolibriServer:
         )
 
     def _wait_for_server_start(self, timeout=20):
-        for i in range(timeout * 2):
+        # At a 0.5s interval each of the suite's dozens of server starts waits a
+        # quarter second on average after the server is already up.
+        for i in range(timeout * 10):
             try:
                 resp = requests.get(self.baseurl + "api/public/info/", timeout=3)
                 if resp.status_code > 0:
                     return
             except RequestException:
                 pass
-            time.sleep(0.5)
+            time.sleep(0.1)
 
         raise Exception("Server did not start within {} seconds".format(timeout))
 
@@ -187,6 +203,33 @@ class KolibriServer:
         return facility, learner, staff
 
 
+# A migrated KOLIBRI_HOME depends only on the kwargs it was built with, and is
+# never written to afterwards — servers copy out of it. Build one per distinct
+# set of kwargs and reuse it, rather than paying a full migration per test.
+_preseeded_homes = {}
+
+
+def _get_preseeded_home(server_kwargs):
+    # A None kwarg means "use the default", so it cannot change the home built:
+    # keying on it would build a second identical one.
+    significant = {k: v for k, v in server_kwargs.items() if v is not None}
+    key = json.dumps(significant, sort_keys=True, default=repr)
+    if key not in _preseeded_homes:
+        override = os.environ.get("KOLIBRI_TEST_PRESEEDED_HOME")
+        tempserver = KolibriServer(
+            autostart=False, kolibri_home=override, **server_kwargs
+        )
+        tempserver.manage("migrate")
+        # Migrating creates a database ID. Every server copied from this home
+        # has to generate its own, or they all sync as the same instance.
+        tempserver.delete_model(DatabaseIDModel)
+        home = tempserver.env["KOLIBRI_HOME"]
+        if override is None:
+            atexit.register(shutil.rmtree, home, ignore_errors=True)
+        _preseeded_homes[key] = home
+    return _preseeded_homes[key]
+
+
 class multiple_kolibri_servers:
     def __init__(self, count=2, **server_kwargs):
         self.server_count = count
@@ -215,14 +258,7 @@ class multiple_kolibri_servers:
         self.servers = []
         # spin up the servers
         if "sqlite" in connection.vendor:
-            tempserver = KolibriServer(
-                autostart=False,
-                kolibri_home=os.environ.get("KOLIBRI_TEST_PRESEEDED_HOME"),
-                **self.server_kwargs[0],
-            )
-            tempserver.manage("migrate")
-            tempserver.delete_model(DatabaseIDModel)
-            preseeded_home = tempserver.env["KOLIBRI_HOME"]
+            preseeded_home = _get_preseeded_home(self.server_kwargs[0])
 
             for i in range(self.server_count):
                 # track before starting, so a failed start is still shut down

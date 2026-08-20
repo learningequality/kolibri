@@ -14,6 +14,9 @@ concurrency:
 permissions:
   contents: read
   actions: read
+env:
+  # Skips setuptools_scm's `git archive` file listing; see Makefile.
+  SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
   pre_job:
     name: Path match check
@@ -39,8 +42,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          # Don't cache, only saves 1-2s per run.
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -59,7 +62,6 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 5
       matrix:
         python-version: ['3.8', '3.9', '3.11', '3.12', '3.13', '3.14']
     steps:
@@ -69,8 +71,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -89,7 +90,6 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 5
       matrix:
         python-version: [3.6, 3.7]
     container:
@@ -118,7 +118,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
+          enable-cache: false
       - name: Install dependencies
         run: |
           uv pip install --system --group base --group test
@@ -153,6 +153,10 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
+        # This database is discarded when the job ends, so crash durability buys
+        # nothing, while every COMMIT costs an fsync. 3.2x on the content tests.
+        command: >-
+          -c fsync=off -c synchronous_commit=off -c full_page_writes=off
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -160,8 +164,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.9
         run: uv python install 3.9
       - name: Install dependencies
@@ -205,8 +208,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -227,7 +229,6 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: macos-14
     strategy:
-      max-parallel: 5
       matrix:
         python-version: ['3.10']
     steps:
@@ -237,8 +238,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -253,20 +253,21 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: windows-latest
     strategy:
-      max-parallel: 5
       matrix:
         python-version: [3.8]
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
+      # github.workspace is backslashed here but git reports forward slashes,
+      # and setuptools_scm compares the two as strings, so take git's own form.
+      - name: Set the ignored VCS root from git
+        shell: bash
+        run: echo "SETUPTOOLS_SCM_IGNORE_VCS_ROOTS=$(git rev-parse --show-toplevel)" >> "$GITHUB_ENV"
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          # cache-python breaks on Windows due to symlink/reparse point issues
-          # when restoring cached Python installations
-          cache-python: false
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -287,8 +288,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -319,8 +319,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -368,8 +367,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install system dependencies
@@ -401,8 +399,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -431,8 +428,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       # Chaquopy's buildPython (the workspace .venv) must match its embedded 3.10.
       - name: Provision Chaquopy buildPython (3.10)
         run: uv sync --package kolibri-installer-android --python 3.10
@@ -448,7 +444,6 @@ jobs:
     needs:
       - pre_job
       - unit_test_stage1
-      - postgres
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -456,10 +451,15 @@ jobs:
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: exit 1
   # Stage 2: rest of the Python version matrix plus per-member-package tests.
+  # `postgres` gates here, not stage 1: it runs ~3x longer than the sqlite suite,
+  # so gating stage 1 on it held every stage 2 job back by its own runtime. It
+  # still starts off `pre_job`, so it now runs alongside stage 2 rather than
+  # before it.
   stage2_required_checks:
     name: Python tests
     needs:
       - stage1_required_checks
+      - postgres
       - unit_test_stage2
       - unit_test_no_uv
       - postgres_ssl

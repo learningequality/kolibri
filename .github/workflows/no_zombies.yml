@@ -14,6 +14,9 @@ concurrency:
 permissions:
   contents: read
   actions: read
+env:
+  # Skips setuptools_scm's `git archive` file listing; see Makefile.
+  SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
   pre_job:
     name: Path match check
@@ -39,8 +42,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.11
         run: uv python install 3.11
       - name: Install dependencies

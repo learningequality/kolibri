@@ -26,11 +26,10 @@ if process_cache:
 TESTING = True
 
 # MD5 over the default PBKDF2: its many rounds dominate user creation and login
-# in tests for no benefit. The integration tests set passwords in-process but
-# verify them in a spawned server running base settings (PBKDF2), so an md5$
-# hash there fails to verify - leave the default hashers in that case.
-if not os.environ.get("INTEGRATION_TEST"):
-    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+# in tests for no benefit. The integration tests set passwords in-process and
+# verify them in a spawned server, which uses the same hasher via
+# settings.integration_test_server.
+PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 # Kolibri's default logging writes to rotating files on disk; in tests that
 # I/O happens on every log record across thousands of tests for no benefit.

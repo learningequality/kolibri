@@ -12,6 +12,9 @@ concurrency:
 permissions:
   contents: read
   actions: read
+env:
+  # Skips setuptools_scm's `git archive` file listing; see Makefile.
+  SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
   pre_job:
     name: Path match check
@@ -41,8 +44,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -86,7 +88,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
+          enable-cache: false
       - name: Install dependencies
         run: |
           uv pip install --system --group base --group test
@@ -123,6 +125,10 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
+        # Discarded at job end, so durability buys nothing and every COMMIT
+        # would otherwise cost an fsync.
+        command: >-
+          -c fsync=off -c synchronous_commit=off -c full_page_writes=off
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -130,8 +136,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.9
         run: uv python install 3.9
       - name: Install dependencies

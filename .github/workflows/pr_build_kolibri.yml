@@ -1,7 +1,14 @@
 name: Kolibri Build Assets for Pull Request
-on: pull_request
+# Also runs on push to develop, to save every cache this graph builds in the
+# default-branch scope — the only scope a fork PR can restore from.
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  # head_ref is empty on push; ref (not run_id) so develop pushes don't race.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -267,8 +274,9 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
+          # This job never checks out the repo, it only downloads the WHL.
+          ignore-empty-workdir: true
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - uses: actions/download-artifact@v8

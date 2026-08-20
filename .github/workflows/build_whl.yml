@@ -10,6 +10,9 @@ on:
         value: ${{ jobs.build_whl.outputs.tar-file-name }}
 permissions:
   contents: read
+env:
+  # Skips setuptools_scm's `git archive` file listing; see Makefile.
+  SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
   build_whl:
     name: Build WHL
@@ -29,8 +32,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          # Don't cache, only saves 1-2s per run.
+          enable-cache: false
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.9
       - name: Use Node.js
@@ -45,7 +48,7 @@ jobs:
       # Restore the webpack filesystem cache so PR builds only recompile their
       # own diff. The unique key always misses (forcing a fresh save at job end),
       # while restore-keys pulls the most recent cache for the same lockfile —
-      # primed on `develop` by warm_build_cache.yml so fork PRs get a hit too.
+      # primed on `develop` by pr_build_kolibri.yml so fork PRs get a hit too.
       - name: Cache webpack build
         uses: actions/cache@v6.1.0
         with:

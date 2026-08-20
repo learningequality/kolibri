@@ -6,6 +6,9 @@ CROWDIN_BRANCH := release
 # guessed version plus a `.d<date>` local segment instead of the tag. Overriding
 # just the `dirty` field leaves tag, distance and node coming from git.
 export SETUPTOOLS_SCM_PRETEND_METADATA_FOR_KOLIBRI := {dirty=false}
+# setuptools_scm's file finder streams `git archive HEAD` (69MB) to list files
+# on every build, and force-includes them over MANIFEST.in. This skips it.
+export SETUPTOOLS_SCM_IGNORE_VCS_ROOTS := $(CURDIR)
 
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
 .PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext strip-staticdeps writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-demoserver docker-devserver docker-envlist
