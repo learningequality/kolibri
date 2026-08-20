@@ -1,7 +1,8 @@
 #!/bin/sh
 # AC#1/#2/#3 harness for publish.sh — proves the read-modify-write publish
-# preserves prior packages, signs the Release, and serves pubkey.asc, using
-# only local tooling (no GCS).
+# preserves prior packages, signs the Release, and serves pubkey.asc. The bucket
+# is served by the fake `gcloud` from lib.sh, so this drives publish.sh's real
+# gs:// path with no GCS access.
 set -eu
 
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -12,6 +13,7 @@ require_tools reprepro gpg dpkg-deb rsync
 PUBLISH="$HERE/../publish.sh"
 
 setup_workdir
+fake_gcloud
 make_ephemeral_signing_key
 export REPREPRO_SIGN_KEY="$FPR"
 
@@ -19,10 +21,9 @@ export REPREPRO_SIGN_KEY="$FPR"
 build_min_deb aaa-test
 build_min_deb bbb-test
 
-# --- fake "bucket" = empty local dir ----------------------------------------
-BUCKET="$WORK/bucket"
-mkdir -p "$BUCKET"
-export KOLIBRI_APT_BUCKET="$BUCKET"
+# --- the repo root publish.sh derives from the bucket name ------------------
+export KOLIBRI_APT_BUCKET="fake-bucket"
+BUCKET="$FAKE_GCS_ROOT/fake-bucket/downloads/kolibri/apt"
 
 # --- two sequential publishes -----------------------------------------------
 bash "$PUBLISH" "$WORK/aaa-test_1.0_all.deb"

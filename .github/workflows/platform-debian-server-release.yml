@@ -14,6 +14,8 @@ on:
         required: true
       GPG_PASSPHRASE:
         required: true
+      DEBIAN_REPO_SIGNING_KEY:
+        required: true
       GH_UPLOADER_GCP_SA_CREDENTIALS:
         required: true
       KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET:
@@ -266,7 +268,6 @@ jobs:
     with:
       deb-artifact-name: ${{ inputs.deb-artifact-name }}
     secrets:
-      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
       GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
       KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
