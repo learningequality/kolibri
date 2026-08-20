@@ -33,6 +33,7 @@
       const filled = computed(() => Boolean(identifier.value));
       const active = computed(() => index.value !== -1 && gapMatch.isActive(index.value));
       const refusing = computed(() => index.value !== -1 && gapMatch.isRefusingDrag(index.value));
+      const target = computed(() => index.value !== -1 && gapMatch.isOfferTarget(index.value));
 
       const styles = computed(() => {
         if (refusing.value) {
@@ -41,7 +42,7 @@
             borderColor: $themeTokens.fineLine,
           };
         }
-        if (active.value) {
+        if (active.value || target.value) {
           return {
             backgroundColor: $themeBrand.primary.v_50,
             borderColor: $themeTokens.primary,
@@ -68,6 +69,7 @@
               {
                 'qti-gap-filled': filled.value,
                 'qti-gap-active': active.value,
+                'qti-gap-target': target.value,
                 'qti-gap-refusing': refusing.value,
                 'qti-gap-readonly': !gapMatch.interactive.value,
               },

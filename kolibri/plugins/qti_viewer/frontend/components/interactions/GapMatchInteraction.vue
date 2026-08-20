@@ -141,6 +141,7 @@
         pairs,
         currentValue,
         isPlaceable,
+        canPlace,
         place,
         clear,
         remove,
@@ -156,7 +157,7 @@
 
       const { isDragging, draggedItem } = useDraggableUniverse();
 
-      let dragOriginGap = null;
+      const dragOriginGap = ref(null);
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
 
@@ -242,6 +243,33 @@
         onKeyboardFocus: clearSelection,
       });
 
+      // What the learner is holding out to the gaps, however they picked it up
+      function offeredIdentifier() {
+        if (selectedIdentifier.value) {
+          return selectedIdentifier.value;
+        }
+        return isDragging.value ? draggedItem.value?.identifier : null;
+      }
+
+      function isOfferTarget(gapIndex) {
+        const offered = offeredIdentifier();
+        if (!offered || !isCompatible(gapIds[gapIndex], offered)) {
+          return false;
+        }
+        if (currentValue(gapIndex, 0)) {
+          return false;
+        }
+        const fromRow = isDragging.value ? dragOriginGap.value : null;
+        return canPlace(offered, gapIndex, 0, { fromRow });
+      }
+
+      function isRefusingDrag(gapIndex) {
+        if (!isDragging.value || !draggedItem.value) {
+          return false;
+        }
+        return !isCompatible(gapIds[gapIndex], draggedItem.value.identifier);
+      }
+
       // A drop is reported as a new item list rather than as a placement, so
       // work out what changed rather than trusting the list.
       function reconcileGap(gapIndex, newItems) {
@@ -253,8 +281,8 @@
 
         const arrived = identifiers.find(identifier => identifier !== current);
         if (arrived) {
-          if (dragOriginGap !== null && dragOriginGap !== gapIndex) {
-            remove(arrived, dragOriginGap);
+          if (dragOriginGap.value !== null && dragOriginGap.value !== gapIndex) {
+            remove(arrived, dragOriginGap.value);
           }
           placeInGap(arrived, gapIndex);
           return;
@@ -392,15 +420,13 @@
         renderChip: identifier => renderChip(identifier, { ariaHidden: true, draggable: true }),
         isActive: gapIndex => activeGap.value === gapIndex,
         accepts: (gapIndex, item) => isCompatible(gapIds[gapIndex], item?.identifier),
-        isRefusingDrag: gapIndex =>
-          isDragging.value &&
-          Boolean(draggedItem.value) &&
-          !isCompatible(gapIds[gapIndex], draggedItem.value.identifier),
+        isOfferTarget,
+        isRefusingDrag,
         listbox,
         selectGap,
         reconcileGap,
         noteDragOrigin: gapIndex => {
-          dragOriginGap = gapIndex;
+          dragOriginGap.value = gapIndex;
         },
         interactive,
       });
@@ -432,7 +458,7 @@
               },
               on: {
                 dragstart: () => {
-                  dragOriginGap = null;
+                  dragOriginGap.value = null;
                 },
               },
             },
