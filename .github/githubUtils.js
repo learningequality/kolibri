@@ -311,11 +311,15 @@ async function postNpmVersionComment(github, context, prNumber, body) {
  * (fork) repo for pull_request-triggered workflows, which is what we
  * need here.
  *
+ * The upstream workflows also run on push to develop, where head_branch is
+ * `develop` and the head filter matches long-merged develop -> release-*
+ * PRs, so restrict to pull_request runs and open PRs.
+ *
  * Returns the PR number, or null if no PR is found.
  */
 async function findPrByHeadSha(github, context) {
   const wr = context.payload.workflow_run;
-  if (!wr || !wr.head_repository || !wr.head_branch) {
+  if (!wr || wr.event !== 'pull_request' || !wr.head_repository || !wr.head_branch) {
     return null;
   }
 
@@ -327,7 +331,7 @@ async function findPrByHeadSha(github, context) {
     owner: context.repo.owner,
     repo: context.repo.repo,
     head: `${headOwner}:${headBranch}`,
-    state: 'all',
+    state: 'open',
     per_page: 100,
     sort: 'updated',
     direction: 'desc',
