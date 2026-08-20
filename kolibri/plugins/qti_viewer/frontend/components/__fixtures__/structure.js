@@ -404,6 +404,10 @@ export default [
         identifier: 'q6-gap-match-interaction-sv-4',
         title: 'Gap Match - Gap Widths',
       },
+      {
+        identifier: 'gap-match-distractor-pools',
+        title: 'Gap Match - Answer Specific Pools',
+      },
     ],
   },
   {

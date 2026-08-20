@@ -75,9 +75,8 @@
       // A gap sits wherever the author put it in the passage, so the gaps are
       // found by walking it. Document order is the order a learner reads them
       // in, which is what their numbering has to follow.
-      const gapIds = findVNodes(passageContent, [GAP_TAG]).map(
-        vnode => vnode.componentOptions.propsData.identifier,
-      );
+      const gapVNodes = findVNodes(passageContent, [GAP_TAG]);
+      const gapIds = gapVNodes.map(vnode => vnode.componentOptions.propsData.identifier);
 
       const choices = choiceVNodes.map(vnode => ({
         identifier: vnode.componentOptions.propsData.identifier,
@@ -87,12 +86,37 @@
       const contentByIdentifier = {};
       const textByIdentifier = {};
       const matchMaxByIdentifier = {};
+      // `match-group` is a list of the identifiers the element may be paired
+      // with, so an authored one is read as a set rather than as a name.
+      const matchGroupByIdentifier = {};
+      function readMatchGroup(vnode) {
+        const { identifier, matchGroup } = vnode.componentOptions.propsData;
+        matchGroupByIdentifier[identifier] = new Set(
+          String(matchGroup || '')
+            .split(/\s+/)
+            .filter(Boolean),
+        );
+      }
       choiceVNodes.forEach(vnode => {
         const { identifier, matchMax } = vnode.componentOptions.propsData;
         contentByIdentifier[identifier] = vnode.componentOptions.children || [];
         textByIdentifier[identifier] = choiceText(vnode);
         matchMaxByIdentifier[identifier] = matchMax === undefined ? 1 : Number(matchMax);
+        readMatchGroup(vnode);
       });
+      gapVNodes.forEach(readMatchGroup);
+
+      function isCompatible(gapId, choiceId) {
+        const gapGroup = matchGroupByIdentifier[gapId];
+        const choiceGroup = matchGroupByIdentifier[choiceId];
+        if (choiceGroup?.size && !choiceGroup.has(gapId)) {
+          return false;
+        }
+        if (gapGroup?.size && !gapGroup.has(choiceId)) {
+          return false;
+        }
+        return true;
+      }
       // A gap holds exactly one choice, which is the row capacity the rows
       // composable reads off its sources.
       gapIds.forEach(identifier => {
@@ -130,7 +154,7 @@
         pairOrder: PAIR_ORDER.POOL_FIRST,
       });
 
-      useDraggableUniverse();
+      const { isDragging, draggedItem } = useDraggableUniverse();
 
       let dragOriginGap = null;
 
@@ -146,12 +170,25 @@
         activeGap.value = null;
       }
 
+      function candidatesForGap(gapIndex) {
+        return candidatesFor(gapIndex, 0).filter(identifier =>
+          isCompatible(gapIds[gapIndex], identifier),
+        );
+      }
+
+      function placeInGap(identifier, gapIndex) {
+        if (!isCompatible(gapIds[gapIndex], identifier)) {
+          return;
+        }
+        place(identifier, gapIndex, 0);
+      }
+
       function selectResponse(identifier) {
         if (!interactive.value || !isPlaceable(identifier)) {
           return;
         }
         if (activeGap.value !== null) {
-          place(identifier, activeGap.value, 0);
+          placeInGap(identifier, activeGap.value);
           clearSelection();
           return;
         }
@@ -164,9 +201,9 @@
           return;
         }
         if (selectedIdentifier.value) {
-          // place() refuses anything the item's limits forbid, so a refusal
-          // just leaves the gap as it was
-          place(selectedIdentifier.value, gapIndex, 0);
+          // A refusal, by the item's limits or by match-group, just leaves the
+          // gap as it was
+          placeInGap(selectedIdentifier.value, gapIndex);
           clearSelection();
           return;
         }
@@ -189,16 +226,16 @@
         if (activeGap.value === null) {
           return false;
         }
-        return candidatesFor(activeGap.value, 0).includes(identifier);
+        return candidatesForGap(activeGap.value).includes(identifier);
       }
 
       // Keyboard navigation is for the gaps, not the pool. A gap is one slot
       // holding one response, so it is addressed by its position alone and the
       // row's single entry is filled in here.
       const listbox = useSlotListbox({
-        candidatesFor: gapIndex => candidatesFor(gapIndex, 0),
+        candidatesFor: candidatesForGap,
         currentValue: gapIndex => currentValue(gapIndex, 0),
-        commit: (identifier, gapIndex) => place(identifier, gapIndex, 0),
+        commit: placeInGap,
         clear: gapIndex => clear(gapIndex, 0),
         labelFor,
         disabled: computed(() => !interactive.value),
@@ -219,13 +256,22 @@
           if (dragOriginGap !== null && dragOriginGap !== gapIndex) {
             remove(arrived, dragOriginGap);
           }
-          place(arrived, gapIndex, 0);
+          placeInGap(arrived, gapIndex);
           return;
         }
 
         if (!identifiers.length && current) {
           remove(current, gapIndex);
         }
+      }
+
+      function admissible(value) {
+        if (!Array.isArray(value)) {
+          return value;
+        }
+        return value.filter(
+          pair => Array.isArray(pair) && pair.length === 2 && isCompatible(pair[1], pair[0]),
+        );
       }
 
       // The variable is derived from the gaps, so ignore the change our own
@@ -236,7 +282,7 @@
           if (isEqual(value, pairs.value)) {
             return;
           }
-          hydrate(value);
+          hydrate(admissible(value));
         },
         { immediate: true },
       );
@@ -345,6 +391,11 @@
         // is hidden from a screen reader in favour of the gap's own label.
         renderChip: identifier => renderChip(identifier, { ariaHidden: true, draggable: true }),
         isActive: gapIndex => activeGap.value === gapIndex,
+        accepts: (gapIndex, item) => isCompatible(gapIds[gapIndex], item?.identifier),
+        isRefusingDrag: gapIndex =>
+          isDragging.value &&
+          Boolean(draggedItem.value) &&
+          !isCompatible(gapIds[gapIndex], draggedItem.value.identifier),
         listbox,
         selectGap,
         reconcileGap,

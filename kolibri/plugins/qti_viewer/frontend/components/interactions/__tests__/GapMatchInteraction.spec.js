@@ -705,3 +705,204 @@ describe('Keyboard', () => {
     });
   });
 });
+
+// The second mode from the design board: a gap is fed by the responses its
+// match-group admits rather than by the whole pool. The fixture groups two
+// gaps from the choice side and one from the gap side, and holds one choice
+// that names no group at all.
+describe('Answer-specific distractor pools', () => {
+  const FIXTURE = 'gap-match-distractor-pools';
+
+  function optionTexts(gap) {
+    return Array.from(gap.querySelectorAll('[role="option"]'))
+      .map(option => option.textContent.trim())
+      .slice(1);
+  }
+
+  it('offers a gap only the responses grouped to it', () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    // kitten, lamb and kid name G1; cub names no group, so it is open to any
+    // gap that does not name a list of its own
+    expect(optionTexts(gaps(container)[0])).toEqual(['kitten', 'lamb', 'kid', 'cub']);
+  });
+
+  it("keeps another gap's responses out", () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    expect(optionTexts(gaps(container)[1])).toEqual(['puppy', 'foal', 'calf', 'cub']);
+  });
+
+  it('narrows a gap that names its own responses', () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    // The bird words name G3 themselves; what G3's own list adds is keeping out
+    // cub, the one choice that names no group and is otherwise open to any gap
+    expect(optionTexts(gaps(container)[2])).toEqual(['cygnet', 'duckling', 'gosling']);
+  });
+
+  it('highlights only the responses the chosen gap would take', async () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    await fireEvent.click(gaps(container)[0]);
+
+    expect(poolChip(container, 'kitten')).toHaveClass('qti-gap-match-chip-candidate');
+    expect(poolChip(container, 'cub')).toHaveClass('qti-gap-match-chip-candidate');
+    expect(poolChip(container, 'puppy')).not.toHaveClass('qti-gap-match-chip-candidate');
+    expect(poolChip(container, 'cygnet')).not.toHaveClass('qti-gap-match-chip-candidate');
+  });
+
+  it('refuses a response carried to a gap that excludes it', async () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    await fireEvent.click(poolChip(container, 'puppy'));
+    await fireEvent.click(gaps(container)[0]);
+
+    expect(gapTexts(container)).toEqual(['', '', '']);
+  });
+
+  it('refuses a gap chosen first and then an excluded response', async () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    await fireEvent.click(gaps(container)[0]);
+    await fireEvent.click(poolChip(container, 'puppy'));
+
+    expect(gapTexts(container)).toEqual(['', '', '']);
+  });
+
+  it('still takes a response the gap admits', async () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    await fireEvent.click(poolChip(container, 'kitten'));
+    await fireEvent.click(gaps(container)[0]);
+
+    expect(gapTexts(container)).toEqual(['kitten', '', '']);
+  });
+
+  it('takes the ungrouped response in a gap that names no list', async () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    await fireEvent.click(poolChip(container, 'cub'));
+    await fireEvent.click(gaps(container)[1]);
+
+    expect(gapTexts(container)).toEqual(['', 'cub', '']);
+  });
+
+  it('keeps the ungrouped response out of a gap whose list omits it', async () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    await fireEvent.click(poolChip(container, 'cub'));
+    await fireEvent.click(gaps(container)[2]);
+
+    expect(gapTexts(container)).toEqual(['', '', '']);
+  });
+
+  it('refuses a drop from an excluded response', () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml);
+
+    expect(gapRegion(container, 0).accepts({ identifier: 'puppy' })).toBe(false);
+    expect(gapRegion(container, 0).accepts({ identifier: 'cygnet' })).toBe(false);
+    expect(gapRegion(container, 0).accepts({ identifier: 'kitten' })).toBe(true);
+    expect(gapRegion(container, 0).accepts({ identifier: 'cub' })).toBe(true);
+    // G3 names its own list, which omits the otherwise open cub
+    expect(gapRegion(container, 2).accepts({ identifier: 'cub' })).toBe(false);
+    expect(gapRegion(container, 2).accepts({ identifier: 'cygnet' })).toBe(true);
+  });
+
+  it('ignores an excluded pair restored from an answer', () => {
+    const { container } = renderAssessmentItem(items[FIXTURE].xml, {
+      answerState: { RESPONSE: [['puppy', 'G1']] },
+    });
+
+    expect(gapTexts(container)).toEqual(['', '', '']);
+  });
+
+  it('scores through the mapping when each gap takes its own answer', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items[FIXTURE].xml);
+
+    const answers = [
+      ['kitten', 0],
+      ['puppy', 1],
+      ['cygnet', 2],
+    ];
+    for (const [text, index] of answers) {
+      await fireEvent.click(poolChip(container, text));
+      await fireEvent.click(gaps(container)[index]);
+    }
+
+    await waitFor(() => {
+      expect(checkAnswer().outcomes.SCORE).toBe(3);
+    });
+  });
+});
+
+describe('Refusing a drag', () => {
+  // The regions share a drag universe provided by the interaction. A drag in
+  // flight is simulated by putting that universe into the state handleStart
+  // would, since SortableJS itself cannot be driven in jsdom.
+  function draggableUniverse() {
+    let vm = findRegions()[0];
+    while (vm) {
+      const provided = vm._provided || {};
+      const found = Object.getOwnPropertySymbols(provided)
+        .map(symbol => provided[symbol])
+        .find(value => value && value.isDragging && value.draggedItem);
+      if (found) {
+        return found;
+      }
+      vm = vm.$parent;
+    }
+    return null;
+  }
+
+  async function carry(container, identifier) {
+    const universe = draggableUniverse();
+    universe.isDragging.value = true;
+    universe.draggedItem.value = { identifier };
+    await poolRegion(container).$nextTick();
+  }
+
+  it('marks the gaps that would refuse what is being carried', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await carry(container, 'puppy');
+
+    expect(gaps(container)[0]).toHaveClass('qti-gap-refusing');
+    expect(gaps(container)[2]).toHaveClass('qti-gap-refusing');
+  });
+
+  it('leaves the gaps that would take it alone', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await carry(container, 'puppy');
+
+    expect(gaps(container)[1]).not.toHaveClass('qti-gap-refusing');
+  });
+
+  it('tells a screen reader a refusing gap is unavailable', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await carry(container, 'puppy');
+
+    expect(gaps(container)[0]).toHaveAttribute('aria-disabled', 'true');
+    expect(gaps(container)[1]).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('marks only the gap whose list omits an otherwise open response', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await carry(container, 'cub');
+
+    expect(gaps(container)[0]).not.toHaveClass('qti-gap-refusing');
+    expect(gaps(container)[1]).not.toHaveClass('qti-gap-refusing');
+    expect(gaps(container)[2]).toHaveClass('qti-gap-refusing');
+  });
+
+  it('marks nothing in an item body with no match-group at all', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    await carry(container, 'W');
+
+    gaps(container).forEach(gap => expect(gap).not.toHaveClass('qti-gap-refusing'));
+  });
+});

@@ -32,8 +32,15 @@
       );
       const filled = computed(() => Boolean(identifier.value));
       const active = computed(() => index.value !== -1 && gapMatch.isActive(index.value));
+      const refusing = computed(() => index.value !== -1 && gapMatch.isRefusingDrag(index.value));
 
       const styles = computed(() => {
+        if (refusing.value) {
+          return {
+            backgroundColor: 'transparent',
+            borderColor: $themeTokens.fineLine,
+          };
+        }
         if (active.value) {
           return {
             backgroundColor: $themeBrand.primary.v_50,
@@ -61,11 +68,16 @@
               {
                 'qti-gap-filled': filled.value,
                 'qti-gap-active': active.value,
+                'qti-gap-refusing': refusing.value,
                 'qti-gap-readonly': !gapMatch.interactive.value,
               },
             ],
             style: styles.value,
-            attrs: { 'aria-label': label, ...listbox.slotAttrs(index.value) },
+            attrs: {
+              'aria-label': label,
+              ...(refusing.value ? { 'aria-disabled': 'true' } : {}),
+              ...listbox.slotAttrs(index.value),
+            },
             on: {
               click: () => gapMatch.selectGap(index.value),
               ...listbox.handlers(index.value),
@@ -90,6 +102,7 @@
               items: filled.value ? [{ identifier: identifier.value }] : [],
               sortable: false,
               disabled: !gapMatch.interactive.value,
+              accepts: item => gapMatch.accepts(index.value, item),
               label,
             },
             on: {
@@ -144,6 +157,11 @@
   .qti-gap:focus {
     outline: 3px solid var(--qti-gap-match-color-primary, #4368f3);
     outline-offset: 1px;
+  }
+
+  .qti-gap-refusing {
+    cursor: default;
+    opacity: 0.55;
   }
 
   // Review mode has nothing to click
