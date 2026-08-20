@@ -1,13 +1,12 @@
 <script>
 
   import { computed, h, inject } from 'vue';
-  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeBrand, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
   import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import { QTIIdentifierProp, StringProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
-  const $themePalette = themePalette();
   const $themeBrand = themeBrand();
 
   export default {
@@ -36,6 +35,12 @@
       const target = computed(() => index.value !== -1 && gapMatch.isOfferTarget(index.value));
 
       const styles = computed(() => {
+        if (filled.value) {
+          return {
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+          };
+        }
         if (refusing.value) {
           return {
             backgroundColor: 'transparent',
@@ -49,7 +54,7 @@
           };
         }
         return {
-          backgroundColor: filled.value ? $themePalette.grey.v_100 : 'transparent',
+          backgroundColor: 'transparent',
           borderColor: $themeTokens.fineLine,
         };
       });
@@ -152,15 +157,16 @@
       border-color 0.2s ease;
   }
 
-  .qti-gap-filled {
-    border-style: solid;
-  }
-
   // QTI shared vocabulary: qti-input-width-N sizes a gap to roughly N
   @each $width in 1, 2, 3, 4, 6, 10, 15, 20, 72 {
     .qti-gap.qti-input-width-#{$width} {
       min-width: #{$width}ch;
     }
+  }
+
+  .qti-gap.qti-gap-filled {
+    min-width: 0;
+    padding: 0;
   }
 
   .qti-gap:focus {
