@@ -2,9 +2,67 @@
 'use strict';
 
 const {
+  findPrByHeadSha,
   validateNpmVersionData,
   renderNpmVersionMarkdown,
 } = require('../githubUtils.js');
+
+// ---- findPrByHeadSha ----
+
+describe('findPrByHeadSha', () => {
+  function makeContext({ event = 'pull_request', branch = 'my-feature', sha = 'abc123' } = {}) {
+    return {
+      repo: { owner: 'learningequality', repo: 'kolibri' },
+      payload: {
+        workflow_run: {
+          event,
+          head_branch: branch,
+          head_sha: sha,
+          head_repository: { owner: { login: 'contributor' } },
+        },
+      },
+    };
+  }
+
+  function makeGithub(prs) {
+    const list = jest.fn().mockResolvedValue({ data: prs });
+    return { github: { rest: { pulls: { list } } }, list };
+  }
+
+  it('returns the PR whose head SHA matches', async () => {
+    const { github } = makeGithub([
+      { number: 10, head: { sha: 'other' } },
+      { number: 11, head: { sha: 'abc123' } },
+    ]);
+    expect(await findPrByHeadSha(github, makeContext())).toBe(11);
+  });
+
+  it('falls back to the most recently updated PR for the head branch', async () => {
+    const { github } = makeGithub([
+      { number: 12, head: { sha: 'rebased' } },
+      { number: 9, head: { sha: 'older' } },
+    ]);
+    expect(await findPrByHeadSha(github, makeContext())).toBe(12);
+  });
+
+  it('returns null for a push run rather than matching a same-named branch', async () => {
+    const { github, list } = makeGithub([{ number: 8496, head: { sha: 'ancient' } }]);
+    const context = makeContext({ event: 'push', branch: 'develop', sha: 'deadbeef' });
+    expect(await findPrByHeadSha(github, context)).toBeNull();
+    expect(list).not.toHaveBeenCalled();
+  });
+
+  it('only considers open PRs', async () => {
+    const { github, list } = makeGithub([]);
+    await findPrByHeadSha(github, makeContext());
+    expect(list).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
+  });
+
+  it('returns null when there are no matching PRs', async () => {
+    const { github } = makeGithub([]);
+    expect(await findPrByHeadSha(github, makeContext())).toBeNull();
+  });
+});
 
 // ---- validateNpmVersionData ----
 
