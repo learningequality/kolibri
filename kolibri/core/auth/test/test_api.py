@@ -4600,7 +4600,7 @@ class RemoteFacilityUserViewsetTestCase(
         response = self._call_with_payload(payload)
         self.assertEqual(response.data, payload)
 
-    def test_any_invalid_item_rejects_whole_response(self):
+    def test_invalid_item_is_dropped_and_valid_items_kept(self):
         valid_id = uuid.uuid4().hex
         response = self._call_with_payload(
             [
@@ -4609,9 +4609,9 @@ class RemoteFacilityUserViewsetTestCase(
             ]
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.data, [{"id": valid_id, "username": "alice"}])
 
-    def test_invalid_uuid_id_rejects_whole_response(self):
+    def test_invalid_uuid_id_is_dropped(self):
         response = self._call_with_payload([{"id": "not-a-uuid", "username": "alice"}])
         self.assertEqual(response.data, [])
 

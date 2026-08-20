@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
+from kolibri.core.serializers import sanitize_remote_list
 from kolibri.core.utils.urls import reverse_path
 
 from ..models import ConnectionStatus
@@ -162,10 +163,12 @@ class _RemoteFacilitySerializer(serializers.Serializer):
     dataset = serializers.UUIDField(format="hex")
     name = serializers.CharField()
     learner_can_login_with_no_password = serializers.BooleanField()
-    learner_can_sign_up = serializers.BooleanField()
-    on_my_own_setup = serializers.BooleanField()
+    # PublicFacilitySerializer only began emitting these in v0.16.0, v0.17.0 and
+    # v0.19.4 respectively (#15216).
+    learner_can_sign_up = serializers.BooleanField(default=False)
+    on_my_own_setup = serializers.BooleanField(default=False)
     picture_password_settings = _RemoteFacilityPicturePasswordSerializer(
-        allow_null=True
+        allow_null=True, default=None
     )
 
 
@@ -192,10 +195,9 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
                     response = client.get(
                         reverse_path("kolibri:core:publicfacility-list")
                     )
-                    serializer = _RemoteFacilitySerializer(
-                        data=response.json(), many=True
+                    facilities = sanitize_remote_list(
+                        _RemoteFacilitySerializer, response.json()
                     )
-                    facilities = serializer.data if serializer.is_valid() else []
         except (errors.NetworkClientError, NetworkLocation.DoesNotExist):
             raise NotFound()
 

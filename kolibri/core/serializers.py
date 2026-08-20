@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 from collections.abc import Mapping
 
@@ -17,6 +18,8 @@ from rest_framework.serializers import UUIDField as UUIDFieldBase
 from rest_framework.settings import api_settings
 
 from .fields import DateTimeTzField as DjangoDateTimeTzField
+
+logger = logging.getLogger(__name__)
 
 
 class DateTimeTzField(DateTimeField):
@@ -127,3 +130,43 @@ class HexOnlyUUIDField(UUIDFieldBase):
             # morango stores UUIDs as 32-char hex strings; pass through directly
             return value
         return value.hex
+
+
+def sanitize_remote_list(serializer_class, data):
+    """
+    A peer may run any Kolibri version, so an item this version cannot parse is
+    dropped rather than discarding the items that did validate.
+
+    :param serializer_class: a Serializer subclass, uninstantiated and not many=True
+    :param data: the decoded JSON body from a peer
+    :return: the data of each item that validated, in order; [] if data is not a list
+    """
+    if not isinstance(data, list):
+        logger.warning(
+            "Discarding non-list remote payload for %s", serializer_class.__name__
+        )
+        return []
+    # One serializer for the whole list, as many=True does: instantiating one per
+    # item deep-copies the declared fields every time, and a peer's user list can
+    # run to thousands of entries.
+    serializer = serializer_class()
+    sanitized = []
+    first_error = None
+    for item in data:
+        try:
+            value = serializer.run_validation(item)
+        except ValidationError as e:
+            # A version mismatch fails every entry the same way, so one is enough.
+            if first_error is None:
+                first_error = e.detail
+            continue
+        sanitized.append(serializer.to_representation(value))
+    if first_error is not None:
+        logger.warning(
+            "Discarding %s of %s remote %s entries, first: %s",
+            len(data) - len(sanitized),
+            len(data),
+            serializer_class.__name__,
+            first_error,
+        )
+    return sanitized

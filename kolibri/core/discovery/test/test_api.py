@@ -2,6 +2,7 @@ import uuid
 
 import mock
 import requests
+from django.db.utils import IntegrityError
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
@@ -209,8 +210,6 @@ class NetworkLocationAPITestCase(APITestCase):
         self.assert_network_location_list(None, expected_ids)
 
     def test_update_connection_status(self):
-        from django.db.utils import IntegrityError
-
         studio_non_reserved_location = models.NetworkLocation.objects.create(
             base_url=CENTRAL_CONTENT_BASE_URL,
         )
@@ -293,6 +292,21 @@ class NetworkLocationFacilitiesViewTestCase(APITestCase):
         response = self._retrieve(payload)
         self.assertEqual(response.data["facilities"], payload)
 
+    def test_facility_from_a_pre_0_16_peer_is_listed(self):
+        added_after_0_15 = {
+            "learner_can_sign_up": False,
+            "on_my_own_setup": False,
+            "picture_password_settings": None,
+        }
+        pre_0_16 = {
+            k: v for k, v in self.valid_facility.items() if k not in added_after_0_15
+        }
+        response = self._retrieve([pre_0_16])
+        self.assertEqual(
+            response.data["facilities"],
+            [dict(pre_0_16, **added_after_0_15)],
+        )
+
     def test_extra_keys_are_stripped(self):
         smuggled = dict(self.valid_facility, smuggled="AKIA...", token="leaked")
         response = self._retrieve([smuggled])
@@ -314,16 +328,16 @@ class NetworkLocationFacilitiesViewTestCase(APITestCase):
         response = self._retrieve({"my_secret": "AKIA..."})
         self.assertEqual(response.data["facilities"], [])
 
-    def test_any_invalid_item_rejects_whole_response(self):
+    def test_invalid_item_is_dropped_and_valid_items_kept(self):
         response = self._retrieve([self.valid_facility, "not a dict"])
-        self.assertEqual(response.data["facilities"], [])
+        self.assertEqual(response.data["facilities"], [self.valid_facility])
 
-    def test_invalid_uuid_id_rejects_whole_response(self):
+    def test_invalid_uuid_id_is_dropped(self):
         bad = dict(self.valid_facility, id="not-a-uuid")
         response = self._retrieve([bad])
         self.assertEqual(response.data["facilities"], [])
 
-    def test_invalid_picture_password_icon_style_rejects_whole_response(self):
+    def test_invalid_picture_password_icon_style_is_dropped(self):
         bad = dict(
             self.valid_facility,
             picture_password_settings={

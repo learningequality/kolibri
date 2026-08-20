@@ -17,6 +17,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.serializers import sanitize_remote_list
 
 
 # Basic class that makes these endpoints unusable if device is provisioned
@@ -73,9 +74,7 @@ class SetupWizardResource(ViewSet):
                 upstream = r.json()
             except ValueError:
                 upstream = None
-            serializer = _PublicSignupErrorSerializer(data=upstream, many=True)
-            if serializer.is_valid():
-                errors = serializer.data
+            errors = sanitize_remote_list(_PublicSignupErrorSerializer, upstream)
         return Response({"status": r.status_code, "errors": errors})
 
 

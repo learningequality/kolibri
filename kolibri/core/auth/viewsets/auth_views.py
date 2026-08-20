@@ -24,6 +24,7 @@ from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.serializers import HexOnlyUUIDField
+from kolibri.core.serializers import sanitize_remote_list
 from kolibri.core.utils.urls import reverse_path
 
 from ..models import Facility
@@ -170,11 +171,11 @@ class RemoteFacilityUserViewset(views.APIView):
             response = client.get(
                 url, params={"facility": facility, "search": username}
             )
-            serializer = _RemoteFacilityUserSearchSerializer(
-                data=response.json(), many=True
+            return Response(
+                sanitize_remote_list(
+                    _RemoteFacilityUserSearchSerializer, response.json()
+                )
             )
-            valid = serializer.is_valid()
-            return Response(serializer.data if valid else [])
         except NetworkLocationResponseFailure:
             return Response([])
         except Exception as e:
