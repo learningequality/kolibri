@@ -156,6 +156,13 @@
     border-style: solid;
   }
 
+  // QTI shared vocabulary: qti-input-width-N sizes a gap to roughly N
+  @each $width in 1, 2, 3, 4, 6, 10, 15, 20, 72 {
+    .qti-gap.qti-input-width-#{$width} {
+      min-width: #{$width}ch;
+    }
+  }
+
   .qti-gap:focus {
     outline: 3px solid var(--qti-gap-match-color-primary, #4368f3);
     outline-offset: 1px;

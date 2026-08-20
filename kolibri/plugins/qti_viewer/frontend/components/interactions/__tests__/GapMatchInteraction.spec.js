@@ -114,6 +114,30 @@ describe('Gaps in authored content', () => {
   });
 });
 
+describe('Gap widths', () => {
+  // The styling itself is CSS, so what is worth pinning here is that the
+  // authored class survives to the gap alongside the component's own — the
+  // width rule needs both, and an inherited attribute would have replaced one.
+  it('keeps the authored width class on the gap', () => {
+    const { container } = renderAssessmentItem(items['q6-gap-match-interaction-sv-4'].xml);
+    const widths = gaps(container);
+
+    expect(widths).toHaveLength(9);
+    expect(widths[0]).toHaveClass('qti-gap', 'qti-input-width-1');
+    expect(widths[2]).toHaveClass('qti-gap', 'qti-input-width-3');
+    expect(widths[8]).toHaveClass('qti-gap', 'qti-input-width-72');
+  });
+
+  it('still renders a gap the author gave no width', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+
+    gaps(container).forEach(gap => {
+      expect(gap).toHaveClass('qti-gap');
+      expect(gap.className).not.toMatch(/qti-input-width/);
+    });
+  });
+});
+
 describe('Restoring an answer', () => {
   it('shows a restored response in its gap', () => {
     const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
