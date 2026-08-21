@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from build_tools.i18n.generate_mapping import get_installer_excluded_languages
 from build_tools.i18n.generate_mapping import get_installer_language_mapping
 from build_tools.i18n.generate_mapping import get_language_mapping
 
@@ -52,8 +53,16 @@ def test_wxapp_entry_uses_underscore_anchor():
 
 
 def test_installer_entry_maps_to_intl_code_folders():
-    e = _entry("/installer/translations/locale/en/messages.po")
+    e = _entry("/installer/translations/locale/en/custom.isl")
     assert e["translation"] == (
-        "/platforms/desktop-app/installer/translations/locale/%locale%/messages.po"
+        "/platforms/desktop-app/installer/translations/locale/%locale%/custom.isl"
     )
     assert e["languages_mapping"]["locale"] == get_installer_language_mapping()
+
+
+def test_installer_messages_exclusions_track_definitions():
+    # definitions.py decides whether Inno or Crowdin supplies a language's [Messages];
+    # crowdin.yml has to be told separately, and a stale list either bills translators
+    # for 281 strings Inno already covers or leaves a language without any.
+    e = _entry("/installer/translations/locale/en/messages.isl")
+    assert sorted(e["excluded_target_languages"]) == get_installer_excluded_languages()

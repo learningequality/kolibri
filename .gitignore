@@ -154,6 +154,13 @@ SQLITE_MAX_VARIABLE_NUMBER.cache
 # static c extensions cache folder
 .cext_cache
 
+# Crowdin's in-context pseudo-language (ach) is a project-wide setting with no
+# per-file opt-out, so downloads deliver it into every tree we sync. Only Kolibri
+# itself and the plugins use it; drop it wherever it lands under platforms/.
+platforms/desktop-app/installer/translations/locale/ach-ug/
+platforms/desktop-app/src/kolibri_app/locales/ach_UG/
+platforms/android/app/src/main/res/values-ach-rUG/
+
 # ignore gzipped files
 *.gz
 # Ignore our special file size cache
