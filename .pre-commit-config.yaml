@@ -1,4 +1,6 @@
-exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex)
+# installer/translations/inno/ is vendored verbatim from issrc by
+# update_from_inno.py; reformatting it would make every re-fetch a diff.
+exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex|platforms/desktop-app/installer/translations/inno/)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
