@@ -1,6 +1,5 @@
 <script>
 
-  import get from 'lodash/get';
   import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, h, inject, watch } from 'vue';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
@@ -9,6 +8,7 @@
   import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
   import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import { choiceText, getComponentTag } from '../../utils/choices';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
@@ -25,10 +25,6 @@
   const { orderListLabel$ } = strings;
 
   const $themeTokens = themeTokens();
-
-  function getComponentTag(vnode) {
-    return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
-  }
 
   // qti-choices-top/bottom/left/right are intentional no-ops
   const LABEL_FNS = {
@@ -85,27 +81,9 @@
       const allIdentifiers = choiceVNodes.map(vnode => vnode.componentOptions.propsData.identifier);
 
       // Plain-text label per choice, used for move-button and full-order a11y announcements.
-      function vnodeToText(vnode) {
-        if (!vnode) {
-          return '';
-        }
-        if (vnode.text) {
-          return vnode.text.trim();
-        }
-        if (vnode.children) {
-          return vnode.children.map(vnodeToText).join(' ').trim();
-        }
-        return '';
-      }
-
       const textByIdentifier = {};
       choiceVNodes.forEach(vnode => {
-        const identifier = vnode.componentOptions.propsData.identifier;
-        textByIdentifier[identifier] = vnode.componentOptions.children
-          .map(vnodeToText)
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+        textByIdentifier[vnode.componentOptions.propsData.identifier] = choiceText(vnode);
       });
 
       function getVariable() {

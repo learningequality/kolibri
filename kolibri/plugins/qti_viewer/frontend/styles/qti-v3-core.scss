@@ -115,6 +115,30 @@ $container-lg: 1170px;
   border: 0;
 }
 
+/*
+* The up/down affordance on a slot listbox (see useSlotListbox). Only a learner
+* stepping the slot with the arrow keys needs it, so it is revealed on keyboard
+* focus alone: KDS's modality tracker sets body[modality=keyboard] when focus
+* arrives by key rather than by pointer. Hidden with `visibility` rather than
+* `display` so the slot's contents do not shift as focus moves along a row.
+ */
+.qti-slot-stepper {
+  display: inline-flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin-inline-start: 8px;
+  visibility: hidden;
+}
+
+body[modality='keyboard'] [role='listbox']:focus > .qti-slot-stepper {
+  visibility: visible;
+}
+
+.qti-slot-stepper-icon {
+  width: 12px;
+  height: 12px;
+}
+
 /* =============================
    Special flex styles
    ============================= */

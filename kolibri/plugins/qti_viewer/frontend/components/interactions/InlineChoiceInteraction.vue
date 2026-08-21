@@ -56,11 +56,10 @@
 
 <script>
 
-  import get from 'lodash/get';
-  import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, inject } from 'vue';
   import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
+  import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import {
     BooleanProp,
     NonNegativeIntProp,
@@ -100,10 +99,6 @@
 
   const $themeTokens = themeTokens();
 
-  function getComponentTag(vnode) {
-    return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
-  }
-
   export default {
     name: 'InlineChoiceInteraction',
     tag: 'qti-inline-choice-interaction',
@@ -120,32 +115,19 @@
         .filter(vnode => getComponentTag(vnode) === 'qti-inline-choice')
         .map(vnode => ({
           identifier: vnode.componentOptions.propsData.identifier,
-          // An inline choice is strictly plain text, so its children are only ever text vnodes.
-          text: (vnode.componentOptions.children || [])
-            .map(child => child.text || '')
-            .join(' ')
-            .replace(/\s+/g, ' ')
-            .trim(),
-          fixed:
-            vnode.componentOptions.propsData.fixed === 'true' ||
-            vnode.componentOptions.propsData.fixed === true,
+          text: choiceText(vnode),
+          fixed: isFixed(vnode),
         }));
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
       const selectedValue = computed(() => variable.value?.value ?? null);
 
-      const orderedChoices = computed(() => {
-        if (!typedProps.shuffle.value) {
-          return choices;
-        }
-        // Shuffle is seeded by the candidate so it is consistent for a given learner,
-        // and choices with fixed="true" keep their original positions.
-        const shuffleable = shuffled(
-          choices.filter(choice => !choice.fixed),
-          QTI_CONTEXT.value.candidateIdentifier,
-        );
-        return choices.map(choice => (choice.fixed ? choice : shuffleable.shift()));
-      });
+      const orderedChoices = computed(() =>
+        orderChoices(choices, {
+          shuffle: typedProps.shuffle.value,
+          seed: QTI_CONTEXT.value.candidateIdentifier,
+        }),
+      );
 
       const options = computed(() =>
         orderedChoices.value.map(choice => ({ label: choice.text, value: choice.identifier })),

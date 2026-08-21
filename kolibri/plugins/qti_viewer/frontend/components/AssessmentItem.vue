@@ -38,6 +38,10 @@
   import InlineChoiceInteraction from './interactions/InlineChoiceInteraction.vue';
   import InlineChoice from './interactions/InlineChoice.vue';
   import CustomInteraction from './interactions/CustomInteraction.vue';
+  import AssociateInteraction from './interactions/AssociateInteraction.vue';
+  import SimpleAssociableChoice from './interactions/SimpleAssociableChoice.vue';
+  import MatchInteraction from './interactions/MatchInteraction.vue';
+  import SimpleMatchSet from './interactions/SimpleMatchSet.vue';
 
   const $themeTokens = themeTokens();
 
@@ -50,6 +54,10 @@
     [InlineChoiceInteraction.tag]: InlineChoiceInteraction,
     [InlineChoice.tag]: InlineChoice,
     [CustomInteraction.tag]: CustomInteraction,
+    [AssociateInteraction.tag]: AssociateInteraction,
+    [SimpleAssociableChoice.tag]: SimpleAssociableChoice,
+    [MatchInteraction.tag]: MatchInteraction,
+    [SimpleMatchSet.tag]: SimpleMatchSet,
   });
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
