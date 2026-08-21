@@ -9,7 +9,7 @@ export default {
           Number.isInteger(value.started) &&
           Number.isInteger(value.notStarted) &&
           Number.isInteger(value.completed) &&
-          Number.isInteger(value.helpNeeded)
+          (value.helpNeeded === undefined || Number.isInteger(value.helpNeeded))
         );
       },
     },
@@ -22,7 +22,7 @@ export default {
       return this.tally.completed;
     },
     helpNeeded() {
-      return this.tally.helpNeeded;
+      return this.tally.helpNeeded || 0;
     },
     notStarted() {
       return this.tally.notStarted;
