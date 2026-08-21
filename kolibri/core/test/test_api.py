@@ -1,4 +1,5 @@
 import datetime
+import pickle
 import uuid
 from typing import Type
 from unittest.mock import MagicMock
@@ -2501,6 +2502,23 @@ class TestDevModeSafeguards(TestCase):
         # Replacing the field, rather than mutating it, stays allowed.
         items[0]["publisher"] = dict(items[0]["publisher"], name="Mutated")
         self.assertEqual(items[1]["publisher"]["name"], "Shared")
+
+    @override_settings(DEBUG=True)
+    def test_frozen_children_survive_a_pickle_round_trip(self):
+        """Cached API responses are pickled, and the guard must not break that."""
+        publisher = Publisher.objects.create(name="Shared")
+        Author.objects.create(name="A", email="a@e.com", publisher=publisher)
+        viewset = make_viewset(
+            queryset=Author.objects.all(),
+            id=serializers.UUIDField(),
+            publisher=PublisherSerializer(),
+        )
+
+        items = pickle.loads(pickle.dumps(viewset.serialize(viewset.get_queryset())))
+
+        self.assertEqual(items[0]["publisher"]["name"], "Shared")
+        with self.assertRaises(TypeError):
+            items[0]["publisher"]["name"] = "Mutated"
 
     @override_settings(DEBUG=False)
     def test_fetched_children_are_plain_dicts_when_debug_false(self):
