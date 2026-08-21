@@ -2,7 +2,9 @@ import os
 
 import pytest
 
+from build_tools.i18n.generate_mapping import get_installer_excluded_languages
 from build_tools.i18n.generate_mapping import get_installer_language_mapping
+from build_tools.i18n.generate_mapping import get_installer_locales
 from build_tools.i18n.generate_mapping import get_language_mapping
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,8 +54,25 @@ def test_wxapp_entry_uses_underscore_anchor():
 
 
 def test_installer_entry_maps_to_intl_code_folders():
-    e = _entry("/installer/translations/locale/en/messages.po")
+    e = _entry("/installer/translations/locale/en/custom.isl")
     assert e["translation"] == (
-        "/platforms/desktop-app/installer/translations/locale/%locale%/messages.po"
+        "/platforms/desktop-app/installer/translations/locale/%locale%/custom.isl"
     )
     assert e["languages_mapping"]["locale"] == get_installer_language_mapping()
+
+
+def test_installer_messages_exclusions_track_definitions():
+    # definitions.py decides whether Inno or Crowdin supplies a language's [Messages];
+    # crowdin.yml has to be told separately, and a stale list either bills translators
+    # for 281 strings Inno already covers or leaves a language without any.
+    e = _entry("/installer/translations/locale/en/messages.isl")
+    assert sorted(e["excluded_target_languages"]) == get_installer_excluded_languages()
+
+
+def test_every_crowdin_language_has_an_installer_definition():
+    # The exclusions are derived from definitions.py, so a language absent from it is
+    # not excluded either: translators are billed for Inno's boilerplate and the
+    # installer never gets a [Languages] entry for the language at all.
+    # ach is Crowdin's in-context pseudo-language, deliberately not an installer one.
+    targets = set(get_installer_language_mapping().values()) - {"ach-ug"}
+    assert get_installer_locales() == targets
