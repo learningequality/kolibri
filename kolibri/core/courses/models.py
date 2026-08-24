@@ -122,11 +122,13 @@ class CourseSession(AbstractFacilityDataModel):
             - started (bool)
             - active_test (dict with unit_id and test_type, or None)
             - resume_position (dict with unit_id, lesson_id, resource_id, or None)
+            - completed (bool)
         """
         result = {
             "started": False,
             "active_test": None,
             "resume_position": None,
+            "completed": False,
         }
 
         unit_test_assignments_qs = self.unit_test_assignments.filter(
@@ -199,7 +201,32 @@ class CourseSession(AbstractFacilityDataModel):
                 "resource_id": None,
             }
 
+        result["completed"] = self._is_completed(unit_test_assignments_qs)
+
         return result
+
+    def _is_completed(self, unit_test_assignments_qs):
+        """
+        Whether the course is marked as completed: determined by whether the
+        last unit's post-test has been assigned and closed.
+        """
+        last_unit = (
+            ContentNode.objects.filter(
+                parent_id=self.course,
+                modality=modalities.UNIT,
+            )
+            .order_by("-lft")
+            .values("id")
+            .first()
+        )
+        if not last_unit:
+            return False
+
+        return unit_test_assignments_qs.filter(
+            unit_contentnode_id=last_unit["id"],
+            test_type=TestType.Post,
+            closed=True,
+        ).exists()
 
     def _get_assigned_user(self):
         """

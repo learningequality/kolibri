@@ -50,6 +50,7 @@ class CourseSessionGetResumeDataTestCase(TestCase):
             content_id=uuid.uuid4().hex,
             available=True,
             title="Test Course",
+            modality=modalities.COURSE,
         )
 
         cls.unit_node = ContentNode.objects.create(
@@ -59,6 +60,7 @@ class CourseSessionGetResumeDataTestCase(TestCase):
             parent=cls.course_node,
             available=True,
             title="Test Unit",
+            modality=modalities.UNIT,
         )
 
         # A lesson node (child of unit)
@@ -69,6 +71,7 @@ class CourseSessionGetResumeDataTestCase(TestCase):
             parent=cls.unit_node,
             available=True,
             title="Test Lesson",
+            modality=modalities.LESSON,
         )
 
         # A resource node (child of lesson, grandchild of unit)
@@ -94,6 +97,7 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertFalse(result["started"])
         self.assertIsNone(result["active_test"])
         self.assertIsNone(result["resume_position"])
+        self.assertFalse(result["completed"])
 
     def test_active_test_returns_started_with_active_test(self):
         UnitTestAssignment.objects.create(
@@ -111,6 +115,7 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertEqual(result["active_test"]["unit_id"], self.unit_node.id)
         self.assertEqual(result["active_test"]["test_type"], TestType.Pre)
         self.assertIsNone(result["resume_position"])
+        self.assertFalse(result["completed"])
 
     def test_completed_pre_test_marks_started(self):
         UnitTestAssignment.objects.create(
@@ -273,6 +278,63 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         result = self.course_session.get_resume_data(self.learner)
 
         self.assertEqual(result["resume_position"]["resource_id"], next_incomplete.id)
+
+    def test_not_completed_when_post_test_never_taken(self):
+        """Finishing every resource in the last unit is not completion — the
+        post-test is coach-activated, so this is the ordinary state of a
+        learner waiting for it, not a learner who is done."""
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=self.resource_node.content_id,
+            channel_id=self.resource_node.channel_id,
+            kind="video",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        # Indistinguishable from completion in resume_position alone.
+        self.assertIsNone(result["resume_position"]["lesson_id"])
+        self.assertFalse(result["completed"])
+
+    def test_completed_even_with_resources_left_incomplete(self):
+        """A coach may run the post-test before every learner has worked
+        through all the resources, so leftover resources do not hold the
+        course open once that post-test is closed."""
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=True,
+            activated_by=self.coach,
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        # The learner still has somewhere to resume, and is still done.
+        self.assertEqual(
+            result["resume_position"]["resource_id"], self.resource_node.id
+        )
+        self.assertTrue(result["completed"])
 
     def test_unassigned_learner_returns_defaults(self):
         """A learner not in the classroom should see no active tests."""
