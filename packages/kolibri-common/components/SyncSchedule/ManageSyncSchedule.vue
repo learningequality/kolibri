@@ -217,7 +217,7 @@
     },
     methods: {
       fetchFacility() {
-        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+        FacilityResource.retrieve(this.facilityId).then(facility => {
           this.facility = { ...facility };
         });
       },

@@ -82,7 +82,7 @@ const contentNodes = map(QUESTION_IDS, (assessmentIds, nodeId) => {
 });
 
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
-ContentNodeResource.fetchCollection = jest.fn(() => Promise.resolve(contentNodes));
+ContentNodeResource.list = jest.fn(() => Promise.resolve(contentNodes));
 
 describe('exam utils', () => {
   describe('convertExamQuestionSources converting from any previous version to V3', () => {

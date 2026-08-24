@@ -317,7 +317,7 @@ export default function useBaseSearch({
         fetchContentNodeProgress?.(getParams);
       }
 
-      ContentNodeResource.fetchCollection({ getParams }).then(data => {
+      ContentNodeResource.list(getParams).then(data => {
         set(_results, data.results || []);
         set(more, data.more);
         _setAvailableLabels(data.labels);
@@ -327,7 +327,7 @@ export default function useBaseSearch({
     } else if (desc || filters) {
       const getParams = createBaseSearchGetParams();
       getParams.max_results = 1;
-      ContentNodeResource.fetchCollection({ getParams }).then(data => {
+      ContentNodeResource.list(getParams).then(data => {
         _setAvailableLabels(data.labels);
         set(more, null);
         set(scopedLabelsLoading, false);
@@ -348,7 +348,7 @@ export default function useBaseSearch({
       if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(get(more));
       }
-      return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
+      return ContentNodeResource.list(get(more)).then(data => {
         set(_results, [...get(_results), ...(data.results || [])]);
         set(more, data.more);
         _setAvailableLabels(data.labels);
@@ -369,7 +369,7 @@ export default function useBaseSearch({
       getParams.search = keywordsValue;
       getParams.max_results = 3;
       getParams.kind = 'content';
-      const data = await ContentNodeResource.fetchCollection({ getParams });
+      const data = await ContentNodeResource.list(getParams);
       if (requestId !== _suggestionsRequestId) {
         return;
       }
@@ -578,9 +578,7 @@ export default function useBaseSearch({
     // it is known and races the one the baseurl watcher starts. Either may land last,
     // so a response is only the current catalog if its baseurl is still the current one.
     const isStale = () => get(baseurl) !== currentBaseUrl;
-    ContentNodeResource.fetchCollection({
-      getParams: { max_results: 1, baseurl: currentBaseUrl },
-    })
+    ContentNodeResource.list({ max_results: 1, baseurl: currentBaseUrl })
       .then(data => {
         if (isStale()) {
           return;

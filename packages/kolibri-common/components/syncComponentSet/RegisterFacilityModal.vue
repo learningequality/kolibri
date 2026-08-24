@@ -88,10 +88,10 @@
         const strippedToken = this.token.replace('-', '');
         this.submitting = true;
         PortalResource.validateToken(strippedToken)
-          .then(response => {
+          .then(project => {
             this.submitting = false;
             this.$emit('success', {
-              name: response.data.name,
+              name: project.name,
               token: strippedToken,
             });
           })

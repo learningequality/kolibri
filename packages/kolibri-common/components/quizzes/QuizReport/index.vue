@@ -530,11 +530,9 @@
           });
       },
       loadAllTries() {
-        MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(
-          pastTries => {
-            this.pastTries = pastTries;
-          },
-        );
+        MasteryLogResource.list(this.getParams()).then(pastTries => {
+          this.pastTries = pastTries;
+        });
       },
       quizAttempts() {
         const mostRecentAttempts = sortBy(
