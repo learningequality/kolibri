@@ -212,6 +212,33 @@ describe(`useBaseSearch`, () => {
       expect(get(displayingSearchResults)).toBe(true);
     });
   });
+  describe('course search params', () => {
+    async function searchParams() {
+      const { mockRoute } = prep();
+      mockRoute.query = { categories: 'test1' };
+      await nextTick();
+      const call = ContentNodeResource.fetchCollection.mock.calls.find(
+        ([{ getParams }]) => getParams.categories,
+      );
+      return call[0].getParams;
+    }
+
+    it('includes courses for a user with a role', async () => {
+      useUser.mockImplementation(() => useUserMock({ hasRole: true }));
+      const params = await searchParams();
+      expect(params.exclude_modalities).toBeNull();
+      expect(params.exclude_course_ancestry).toBe(false);
+    });
+
+    it('excludes courses on a learn-only device, even for a user with a role', async () => {
+      useUser.mockImplementation(() => useUserMock({ hasRole: true, isLearnerOnlyImport: true }));
+      const params = await searchParams();
+      expect(params.exclude_modalities).toEqual(Modalities.COURSE);
+      expect(params.exclude_course_ancestry).toBe(true);
+      // Coach content is not gated on the device being a learn-only device.
+      expect(params.include_coach_content).toBe(true);
+    });
+  });
   describe('search method', () => {
     it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
       const { mockRoute } = prep();

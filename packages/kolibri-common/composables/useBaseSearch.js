@@ -204,7 +204,11 @@ export default function useBaseSearch({
   const labels = ref(null);
   const autoCompleteSuggestions = ref([]);
 
-  const { hasRole, isUserLoggedIn } = useUser();
+  const { hasRole, isLearnerOnlyImport, isUserLoggedIn } = useUser();
+
+  // On a learn-only device the learner is also the admin of their own device,
+  // so a role there does not mean courses should be surfaced to them.
+  const showCourses = computed(() => get(hasRole) && !get(isLearnerOnlyImport));
 
   const searchTerms = computed({
     get() {
@@ -269,9 +273,10 @@ export default function useBaseSearch({
 
   function createBaseSearchGetParams() {
     const role = get(hasRole);
+    const courses = get(showCourses);
     const getParams = {
-      exclude_modalities: role ? null : Modalities.COURSE,
-      exclude_course_ancestry: !role,
+      exclude_modalities: courses ? null : Modalities.COURSE,
+      exclude_course_ancestry: !courses,
       include_coach_content: role,
       baseurl: get(baseurl),
     };
