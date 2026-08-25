@@ -67,9 +67,7 @@
           facility_id: this.facility.id,
           baseurl: baseurl.slice(0, -1),
           ...user,
-        }).then(response => {
-          const { status, errors } = response.data;
-
+        }).then(({ status, errors }) => {
           if (status == 201) {
             const task_name = 'kolibri.core.auth.tasks.peeruserimport';
             const params = {

@@ -1,5 +1,3 @@
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
 import { Resource } from 'kolibri/apiResource';
 
 /**
@@ -12,50 +10,37 @@ export const SetupWizardResource = new Resource({
   name: 'setupwizard',
   namespace: 'kolibri.plugins.setup_wizard',
 
-  createuseronremote({ facility_id, username, password, full_name, baseurl }) {
-    return this.postListEndpoint('createuseronremote', {
-      facility_id,
-      username,
-      password,
-      full_name,
-      baseurl,
+  async createuseronremote({ facility_id, username, password, full_name, baseurl }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'createuseronremote',
+      data: { facility_id, username, password, full_name, baseurl },
     });
+    return response.data;
   },
 });
 
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
   namespace: 'kolibri.plugins.setup_wizard',
-  grantsuperuserpermissions({ user_id, password }) {
-    return this.postListEndpoint('grantsuperuserpermissions', { user_id, password });
-  },
-  createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
-    return this.postListEndpoint('createsuperuser', {
-      username,
-      full_name,
-      password,
-      extra_fields,
-      facility_name,
-    });
-  },
-  facilityadmins() {
-    return this.getListEndpoint('facilityadmins').then(response => {
-      return response.data;
-    });
-  },
-  async listfacilitylearners(params) {
-    const { data } = await client({
-      url: urls['kolibri:core:remotefacilityauthenticateduserinfo'](),
+  async grantsuperuserpermissions({ user_id, password }) {
+    const response = await this.request({
       method: 'POST',
-      data: params,
+      action: 'grantsuperuserpermissions',
+      data: { user_id, password },
     });
-
-    const admin = data.find(user => user.username === params.username);
-    const students = data.filter(user => !user.roles || !user.roles.length);
-
-    return {
-      admin,
-      students,
-    };
+    return response.data;
+  },
+  async createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'createsuperuser',
+      data: { username, full_name, password, extra_fields, facility_name },
+    });
+    return response.data;
+  },
+  async facilityadmins() {
+    const response = await this.request({ action: 'facilityadmins' });
+    return response.data;
   },
 });
