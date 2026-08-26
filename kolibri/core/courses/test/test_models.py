@@ -2,6 +2,7 @@ import uuid
 
 from django.test import TestCase
 from django.utils import timezone
+from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 
 from kolibri.core.auth.models import Classroom
@@ -15,6 +16,7 @@ from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 
 DUMMY_PASSWORD = "password"
 
@@ -114,8 +116,65 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertTrue(result["started"])
         self.assertEqual(result["active_test"]["unit_id"], self.unit_node.id)
         self.assertEqual(result["active_test"]["test_type"], TestType.Pre)
+        self.assertFalse(result["active_test"]["submitted"])
         self.assertIsNone(result["resume_position"])
         self.assertFalse(result["completed"])
+
+    def test_active_test_submitted_by_learner(self):
+        """A test stays open until a coach closes it, so a learner can have
+        submitted the test that is still active."""
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=get_synthetic_content_id(
+                self.course_session.id, self.unit_node.id, TestType.Pre
+            ),
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertTrue(result["active_test"]["submitted"])
+
+    def test_active_test_submitted_is_per_learner(self):
+        """Another learner's submission should not mark this learner's test
+        submitted, the synthetic content_id is shared across the class."""
+        other_learner = FacilityUser.objects.create(
+            username="other_submitter", facility=self.facility
+        )
+        self.classroom.add_member(other_learner)
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        ContentSummaryLog.objects.create(
+            user=other_learner,
+            content_id=get_synthetic_content_id(
+                self.course_session.id, self.unit_node.id, TestType.Pre
+            ),
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertFalse(result["active_test"]["submitted"])
 
     def test_completed_pre_test_marks_started(self):
         UnitTestAssignment.objects.create(
