@@ -12,6 +12,7 @@ import useCourses, { useCoursesMock } from '../../../composables/useCourses';
 // eslint-disable-next-line import-x/named
 import useClassSummary, { useClassSummaryMock } from '../../../composables/useClassSummary';
 import { coachStrings } from '../../common/commonCoachStrings';
+import { learnerProgressTranslators } from '../../common/status/statusStrings';
 
 const { courseDetailsAction$, editRecipientsAction$, preTestRunningLabel$, unitInProgressLabel$ } =
   coursesStrings;
@@ -200,12 +201,19 @@ describe('CoursesRootPage', () => {
       expect(screen.getByText('—')).toBeInTheDocument();
     });
 
-    it('shows learner progress data when test_learner_progress is provided', () => {
+    // The API omits helpNeeded, which tests have no signal for; the ratio
+    // denominator must not become NaN.
+    it('shows learner progress ratios when test_learner_progress is provided', () => {
       renderWithCourse({
         unit_phase: UnitPhase.PRE_TEST_ACTIVE,
         test_learner_progress: { completed: 1, started: 2, notStarted: 3, total: 6 },
       });
       expect(screen.queryByText('—')).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
+        ),
+      ).toBeInTheDocument();
     });
 
     it('shows entire class label in recipients column when course has group assignments', () => {
