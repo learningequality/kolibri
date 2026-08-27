@@ -217,10 +217,8 @@ describe(`useBaseSearch`, () => {
       const { mockRoute } = prep();
       mockRoute.query = { categories: 'test1' };
       await nextTick();
-      const call = ContentNodeResource.fetchCollection.mock.calls.find(
-        ([{ getParams }]) => getParams.categories,
-      );
-      return call[0].getParams;
+      const call = ContentNodeResource.list.mock.calls.find(([params]) => params.categories);
+      return call[0];
     }
 
     it('includes courses for a user with a role', async () => {
