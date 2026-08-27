@@ -293,14 +293,7 @@ const states = {
   },
   fetchSourceFacilityUsers: {
     invoke: {
-      src: context => {
-        return FacilityUserResource.fetchCollection({
-          getParams: { member_of: context.sourceFacility },
-          force: true,
-        }).then(users => {
-          return users;
-        });
-      },
+      src: context => FacilityUserResource.list({ member_of: context.sourceFacility }),
       onDone: {
         target: 'checkFacilityHasNoMoreUsers',
         actions: [setSourceFacilityUsers],

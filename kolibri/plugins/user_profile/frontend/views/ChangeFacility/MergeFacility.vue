@@ -169,7 +169,7 @@
       function pollTask() {
         if (taskId.value === null) {
           // first, try to see if there's already one running
-          TaskResource.fetchCollection()
+          TaskResource.list()
             .then(allTasks => {
               const tasks = allTasks.filter(
                 t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser',
@@ -236,13 +236,13 @@
               isPolling = false;
             });
         } else {
-          TaskResource.fetchModel({ id: taskId.value, force: true })
+          TaskResource.retrieve(taskId.value)
             .then(startedTask => {
               task.value = startedTask;
               if (startedTask.status == TaskStatuses.COMPLETED) {
                 isPolling = false;
               } else if (startedTask.status === TaskStatuses.FAILED) {
-                TaskResource.clear(taskId.value); // start a new one
+                TaskResource.clear_v2(taskId.value); // start a new one
                 isTaskRequested = false;
                 taskError.value = true;
               }
@@ -274,7 +274,7 @@
 
       function to_finish() {
         const token = task.value.extra_metadata.token;
-        TaskResource.clear(taskId.value);
+        TaskResource.clear_v2(taskId.value);
         changeFacilityService.send({ type: 'FINISH' });
         // use the token to login in the device using the new user in the target facility
         const params = {
@@ -302,7 +302,7 @@
 
       function to_retry() {
         if (taskId.value !== null) {
-          TaskResource.clear(taskId.value);
+          TaskResource.clear_v2(taskId.value);
         }
         taskError.value = false;
         changeFacilityService.send('TASKERROR');
