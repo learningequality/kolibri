@@ -17,6 +17,9 @@ import useBaseSearch, {
 /* eslint-enable import-x/named */
 // eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
+// eslint-disable-next-line import-x/named
+import useUser, { useUserMock } from 'kolibri/composables/useUser';
+import Modalities from 'kolibri-constants/Modalities';
 import makeStore from '../../__tests__/utils/makeStore';
 import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../constants';
@@ -138,7 +141,17 @@ describe('TopicsPage', () => {
       }),
     );
 
+    ContentNodeResource.fetchTree_v2.mockClear();
     ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC);
+
+    useUser.mockImplementation(() => useUserMock());
+
+    // Large-screen default; the small-screen tests override this.
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+      windowIsLarge: true,
+      windowBreakpoint: ref(4),
+    }));
 
     store = makeStore({});
     useDevicesWithFilter.mockReturnValue({
@@ -151,17 +164,36 @@ describe('TopicsPage', () => {
     });
   });
 
+  describe('excluding courses when fetching the topic tree', () => {
+    async function fetchedParams() {
+      shallowMount(TopicsPage, { store, localVue, router, propsData: { id: 'topic-id' } });
+      await flushPromises();
+      return ContentNodeResource.fetchTree_v2.mock.calls[0][0].params;
+    }
+
+    it('excludes courses for a user without a role', async () => {
+      expect((await fetchedParams()).exclude_modalities).toEqual(Modalities.COURSE);
+    });
+
+    it('includes courses for a user with a role', async () => {
+      useUser.mockImplementation(() => useUserMock({ hasRole: true }));
+      expect((await fetchedParams()).exclude_modalities).toBeNull();
+    });
+
+    it('excludes courses on a learn-only device, even for a user with a role', async () => {
+      useUser.mockImplementation(() => useUserMock({ hasRole: true, isLearnerOnlyImport: true }));
+      const params = await fetchedParams();
+      expect(params.exclude_modalities).toEqual(Modalities.COURSE);
+      // Coach content is not gated on the device being a learn-only device.
+      expect(params.include_coach_content).toBe(true);
+    });
+  });
+
   describe('When current topic modality is CUSTOM_NAVIGATION and custom channel nav is enabled', () => {
     it('renders a CustomContentRenderer', async () => {
       plugin_data.enableCustomChannelNav.mockImplementation(() => true);
 
       useBaseSearch.mockImplementation(() => useBaseSearchMock());
-
-      useKResponsiveWindow.mockImplementation(() => ({
-        windowIsSmall: false,
-        windowIsLarge: true,
-        windowBreakpoint: ref(4),
-      }));
 
       ContentNodeResource.fetchTree_v2.mockResolvedValue({
         ...DEFAULT_TOPIC,
@@ -180,11 +212,6 @@ describe('TopicsPage', () => {
 
   describe('Displaying the header', () => {
     it('displays breadcrumbs when not on a small screen', async () => {
-      useKResponsiveWindow.mockImplementation(() => ({
-        windowIsSmall: false,
-        windowIsLarge: true,
-        windowBreakpoint: ref(4),
-      }));
       const wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,
@@ -196,11 +223,6 @@ describe('TopicsPage', () => {
   });
 
   it('displays the header with tabs when not on a small screen', async () => {
-    useKResponsiveWindow.mockImplementation(() => ({
-      windowIsSmall: false,
-      windowIsLarge: true,
-      windowBreakpoint: ref(4),
-    }));
     const wrapper = shallowMount(TopicsPage, {
       store: store,
       localVue,
@@ -211,11 +233,6 @@ describe('TopicsPage', () => {
   });
 
   it('displays the topic title when page is not small', async () => {
-    useKResponsiveWindow.mockImplementation(() => ({
-      windowIsSmall: false,
-      windowIsLarge: true,
-      windowBreakpoint: ref(4),
-    }));
     const wrapper = mount(TopicsPage, {
       store: store,
       localVue,

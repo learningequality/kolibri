@@ -376,7 +376,7 @@
       const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
-      const { isUserLoggedIn, hasRole } = useUser();
+      const { isUserLoggedIn, hasRole, isLearnerOnlyImport } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
 
       const isRoot = ref(false);
@@ -433,8 +433,10 @@
         const skip = route.query && route.query.skip === 'true';
         const params = {
           include_coach_content: get(hasRole),
-          // Only hide COURSE from Learners in the library view
-          exclude_modalities: get(hasRole) ? null : Modalities.COURSE,
+          // Only hide COURSE from Learners in the library view. On a learn-only
+          // device the learner is also the admin of their own device, so a role
+          // there does not mean courses should be surfaced to them.
+          exclude_modalities: get(hasRole) && !get(isLearnerOnlyImport) ? null : Modalities.COURSE,
           baseurl,
         };
         if (get(isUserLoggedIn) && !baseurl) {
