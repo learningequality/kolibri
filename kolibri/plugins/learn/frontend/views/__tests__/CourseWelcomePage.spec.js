@@ -267,7 +267,7 @@ describe('CourseWelcomePage', () => {
   it('navigates to the pre-test when the Start link is clicked during an active test', async () => {
     useResources({
       started: true,
-      active_test: { unit_id: 'unit-1', test_type: 'pre', submitted: false },
+      active_test: { unit_id: 'unit-1', test_type: 'pre', opened: false },
       resume_position: null,
     });
     const wrapper = renderComponent();
@@ -285,12 +285,12 @@ describe('CourseWelcomePage', () => {
     });
   });
 
-  it('labels the action Resume when the first pre-test is submitted but still open', async () => {
-    // A test is only closed by a coach, so the learner can complete
+  it('labels the action Resume once the learner has opened the first pre-test', async () => {
+    // A test is only closed by a coach, so the learner can start or submit
     // the first pre-test while it is still the active test.
     useResources({
       started: true,
-      active_test: { unit_id: 'unit-1', test_type: 'pre', submitted: true },
+      active_test: { unit_id: 'unit-1', test_type: 'pre', opened: true },
       resume_position: null,
     });
     const wrapper = renderComponent();

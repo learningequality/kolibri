@@ -354,20 +354,20 @@
         }
         // `started` flips true as soon as the first pre-test becomes active,
         // so it alone mislabels the very first pre-test as "Resume". A test
-        // stays active until a coach closes it, so only an unsubmitted
+        // stays active until a coach closes it, so only an unopened
         // first-unit pre-test means the course has not been started by the learner.
         // When a later-unit pre-test is active, the backend wipes resume_position —
-        // so the only remaining signal that an earlier pre-test was submitted
-        // is an active test belonging to a non-first unit.
+        // so the only remaining signal that the learner has worked through an earlier
+        // unit is an active test belonging to a non-first unit.
         const firstUnitId = units.value?.[0]?.id;
         const activeTest = progress.active_test;
-        const onUnsubmittedFirstPreTest =
+        const onUnopenedFirstPreTest =
           activeTest?.test_type === TestType.PRE &&
           activeTest?.unit_id === firstUnitId &&
-          !activeTest?.submitted &&
+          !activeTest?.opened &&
           !progress.resume_position;
 
-        if (onUnsubmittedFirstPreTest) {
+        if (onUnopenedFirstPreTest) {
           return startCourseAction$();
         }
         if (progress.completed) {
