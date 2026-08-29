@@ -17,15 +17,7 @@ const { instructions$, noChannels$, successNotification$, failureNotification$ }
 
 jest.mock('../../composables/useContentTasks');
 jest.mock('kolibri-common/composables/usePageLoading');
-jest.mock(
-  'sortablejs',
-  () =>
-    jest.fn().mockImplementation((el, options) => ({
-      destroy: jest.fn(),
-      options,
-    })),
-  { virtual: true },
-);
+
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useSnackbar');
 
@@ -87,20 +79,14 @@ describe('RearrangeChannelsPage', () => {
   });
 
   it('handles a successful @sort event properly', async () => {
-    const Sortable = require('sortablejs');
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
-    // DragContainer creates the Sortable instance inside mounted() -> $nextTick(),
-    // which is one tick after the channel list itself renders. On a slow/busy CI
-    // machine this can still be pending when the line above resolves, so we wait
-    // for it explicitly instead of assuming it already happened.
-    await waitFor(() => {
-      expect(Sortable.mock.results.length).toBeGreaterThan(0);
+    // Move the first channel down using its accessible reorder button,
+    // instead of simulating a sortablejs drag-and-drop event.
+    const moveDownBtn = screen.getByRole('button', {
+      name: moveItemDownLabel$({ item: MOCK_CHANNELS[0].name }),
     });
-    // Simulate the drag ending by calling the onEnd callback SortableJS
-    // would normally call itself once the pointer is released.
-    const { onEnd } = Sortable.mock.results[0].value.options;
-    onEnd({ oldIndex: 0, newIndex: 1, item: document.createElement('div') });
+    await fireEvent.click(moveDownBtn);
     await waitFor(() => {
       expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
     });
@@ -109,7 +95,7 @@ describe('RearrangeChannelsPage', () => {
     const titles = screen.getAllByText(matchesChannelName).map(el => el.textContent.trim());
     expect(titles).toEqual([MOCK_CHANNELS[1].name, MOCK_CHANNELS[0].name]);
   });
-
+  
   it('handles a moveUp event properly', async () => {
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
@@ -129,20 +115,14 @@ describe('RearrangeChannelsPage', () => {
   });
 
   it('handles a failed @sort event properly', async () => {
-    const Sortable = require('sortablejs');
     RearrangeChannelsPage.methods.postNewOrder = () => Promise.reject();
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
 
-    // See comment in the "successful @sort event" test above — Sortable is
-    // constructed one tick after the channel list renders, so we wait for it
-    // explicitly to avoid a race on slow/busy CI machines.
-    await waitFor(() => {
-      expect(Sortable.mock.results.length).toBeGreaterThan(0);
+    const moveDownBtn = screen.getByRole('button', {
+      name: moveItemDownLabel$({ item: MOCK_CHANNELS[0].name }),
     });
-
-    const { onEnd } = Sortable.mock.results[0].value.options;
-    onEnd({ oldIndex: 0, newIndex: 1, item: document.createElement('div') });
+    await fireEvent.click(moveDownBtn);
 
     await waitFor(() => {
       expect(createSnackbar).toHaveBeenCalledWith(failureNotification$());
