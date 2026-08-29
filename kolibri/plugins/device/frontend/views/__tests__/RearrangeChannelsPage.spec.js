@@ -4,7 +4,10 @@ import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-di
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line import-x/named
 import { createTranslator } from 'kolibri/utils/i18n';
 import { dragSortStrings } from 'kolibri-common/components/sortable/dragSortStrings';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
+import DeviceChannelResource from '../../apiResources/deviceChannel';
 import makeStore from '../../__tests__/utils/makeStore';
 import { PageNames } from '../../constants';
 
@@ -20,6 +23,9 @@ jest.mock('kolibri-common/composables/usePageLoading');
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useSnackbar');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('../../apiResources/deviceChannel');
 
 function createRouter() {
   return new VueRouter({
@@ -51,8 +57,9 @@ describe('RearrangeChannelsPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    RearrangeChannelsPage.methods.fetchChannels = () => Promise.resolve(MOCK_CHANNELS);
-    RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
+    DeviceChannelResource.fetchCollection.mockResolvedValue(MOCK_CHANNELS);
+    urls.__setUrl('/fake/url/');
+    client.mockResolvedValue({});
   });
 
   it('loads the data on mount', async () => {
@@ -71,7 +78,7 @@ describe('RearrangeChannelsPage', () => {
   });
 
   it('shows a message when there are no channels', async () => {
-    RearrangeChannelsPage.methods.fetchChannels = () => Promise.resolve([]);
+    DeviceChannelResource.fetchCollection.mockResolvedValue([]);
     await renderComponent();
     await waitFor(() => {
       expect(screen.getByText(noChannels$())).toBeInTheDocument();
@@ -95,7 +102,7 @@ describe('RearrangeChannelsPage', () => {
     const titles = screen.getAllByText(matchesChannelName).map(el => el.textContent.trim());
     expect(titles).toEqual([MOCK_CHANNELS[1].name, MOCK_CHANNELS[0].name]);
   });
-  
+
   it('handles a moveUp event properly', async () => {
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
@@ -115,7 +122,7 @@ describe('RearrangeChannelsPage', () => {
   });
 
   it('handles a failed @sort event properly', async () => {
-    RearrangeChannelsPage.methods.postNewOrder = () => Promise.reject();
+    client.mockRejectedValue({});
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
 
