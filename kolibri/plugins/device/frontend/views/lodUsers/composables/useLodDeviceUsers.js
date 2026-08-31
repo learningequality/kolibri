@@ -186,7 +186,7 @@ export default function useLodDeviceUsers() {
           value: user.id,
         });
         needsRefetchUsers = true;
-        TaskResource.clear_v2(task.id);
+        TaskResource.clear(task.id);
       }
     }
 

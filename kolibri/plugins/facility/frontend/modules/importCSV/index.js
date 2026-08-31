@@ -86,14 +86,14 @@ export default {
       state.filename = task.extra_metadata.filename;
       state.users_report = task.extra_metadata.users;
       state.classes_report = task.extra_metadata.classes;
-      TaskResource.clear_v2(state.taskId);
+      TaskResource.clear(state.taskId);
       state.taskId = '';
     },
     SET_FAILED(state, task) {
       state.status = CSVImportStatuses.ERRORS;
       set(state, 'overall_error', task.extra_metadata.overall_error);
       set(state, 'per_line_errors', []);
-      TaskResource.clear_v2(state.taskId);
+      TaskResource.clear(state.taskId);
       state.taskId = '';
     },
   },
