@@ -82,14 +82,14 @@ describe('useAttendance', () => {
   });
 
   describe('fetchRecentSessions', () => {
-    it('should call AttendanceSessionResource.fetchRecentSessions_v2 with classId and limit', async () => {
+    it('should call AttendanceSessionResource.fetchRecentSessions with classId and limit', async () => {
       const mockRecent = [{ id: '1', present_count: 10, total_count: 15 }];
-      AttendanceSessionResource.fetchRecentSessions_v2.mockResolvedValue(mockRecent);
+      AttendanceSessionResource.fetchRecentSessions.mockResolvedValue(mockRecent);
 
       const { fetchRecentSessions, recentSessions } = useAttendance();
       await fetchRecentSessions('class-1', 3);
 
-      expect(AttendanceSessionResource.fetchRecentSessions_v2).toHaveBeenCalledWith({
+      expect(AttendanceSessionResource.fetchRecentSessions).toHaveBeenCalledWith({
         collection: 'class-1',
         limit: 3,
       });
@@ -97,19 +97,19 @@ describe('useAttendance', () => {
     });
 
     it('should default limit to 5', async () => {
-      AttendanceSessionResource.fetchRecentSessions_v2.mockResolvedValue([]);
+      AttendanceSessionResource.fetchRecentSessions.mockResolvedValue([]);
 
       const { fetchRecentSessions } = useAttendance();
       await fetchRecentSessions('class-1');
 
-      expect(AttendanceSessionResource.fetchRecentSessions_v2).toHaveBeenCalledWith({
+      expect(AttendanceSessionResource.fetchRecentSessions).toHaveBeenCalledWith({
         collection: 'class-1',
         limit: 5,
       });
     });
 
     it('should let errors propagate', async () => {
-      AttendanceSessionResource.fetchRecentSessions_v2.mockRejectedValue(new Error('Server error'));
+      AttendanceSessionResource.fetchRecentSessions.mockRejectedValue(new Error('Server error'));
 
       const { fetchRecentSessions } = useAttendance();
       await expect(fetchRecentSessions('class-1')).rejects.toThrow('Server error');

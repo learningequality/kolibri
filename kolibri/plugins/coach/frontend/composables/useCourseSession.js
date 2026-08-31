@@ -98,7 +98,7 @@ export default function useCourseSession(courseSessionId) {
       .then(courseData => {
         course.value = courseData;
         if (!courseData) return null;
-        return CourseSessionResource.lastUnitTest_v2({ id: courseSessionId.value });
+        return CourseSessionResource.lastUnitTest({ id: courseSessionId.value });
       })
       .then(testData => {
         lastUnitTest.value = testData;
@@ -203,7 +203,7 @@ export default function useCourseSession(courseSessionId) {
    */
   function activateTest(testType) {
     dataLoading.value = true;
-    return CourseSessionResource.activateTest_v2({
+    return CourseSessionResource.activateTest({
       id: courseSession.value.id,
       data: {
         unit_contentnode_id: activeUnit.value.id,
@@ -233,7 +233,7 @@ export default function useCourseSession(courseSessionId) {
    */
   function closeTest() {
     dataLoading.value = true;
-    return CourseSessionResource.closeTest_v2({
+    return CourseSessionResource.closeTest({
       id: courseSession.value.id,
       data: {
         unit_contentnode_id: activeTest.value.unit_contentnode_id,
