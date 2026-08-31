@@ -114,7 +114,7 @@
       async function loadTopicAndChildren(topicId) {
         _topicFetchId += 1;
         const fetchId = _topicFetchId;
-        const newTopic = await ContentNodeResource.fetchTree_v2({ id: topicId });
+        const newTopic = await ContentNodeResource.fetchTree({ id: topicId });
         if (fetchId === _topicFetchId) {
           topic.value = newTopic;
         }
@@ -132,7 +132,7 @@
       } = useFetch({
         fetchMethod: () => loadTopicAndChildren(currentTopicId.value),
         fetchMoreMethod: more =>
-          ContentNodeResource.fetchTree_v2({ id: currentTopicId.value, params: more.params }).then(
+          ContentNodeResource.fetchTree({ id: currentTopicId.value, params: more.params }).then(
             t => t.children || { results: [] },
           ),
       });

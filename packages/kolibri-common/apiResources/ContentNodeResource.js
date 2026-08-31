@@ -82,25 +82,15 @@ import urls from 'kolibri/urls';
 
 export default new Resource({
   name: 'contentnode',
-  fetchRandomCollection({ getParams: params }) {
-    return this.getListEndpoint('random', params);
-  },
-  // Unlike `fetchRandomCollection`, takes plain params and resolves with `response.data`.
-  async fetchRandomCollection_v2(params) {
+  async fetchRandomCollection(params) {
     const { data } = await this.request({ action: 'random', params });
     return data;
   },
-  fetchDescendantsAssessments(ids) {
-    return this.getListEndpoint('descendants_assessments', { ids });
-  },
-  async fetchDescendantsAssessments_v2(ids) {
+  async fetchDescendantsAssessments(ids) {
     const { data } = await this.request({ action: 'descendants_assessments', params: { ids } });
     return data;
   },
-  fetchRecommendationsFor(id, getParams) {
-    return this.fetchDetailCollection('recommendations_for', id, getParams);
-  },
-  async fetchRecommendationsFor_v2(id, params) {
+  async fetchRecommendationsFor(id, params) {
     const { data } = await this.request({ action: 'recommendations_for', routeParams: id, params });
     return data;
   },
@@ -133,16 +123,7 @@ export default new Resource({
     });
   },
   cache: {},
-  fetchModel({ id, getParams: params }) {
-    if (this.cache[id]) {
-      return Promise.resolve(cloneDeep(this.cache[id]));
-    }
-    return this.client({ url: this.modelUrl(id), params }).then(response => {
-      this.cacheData(response.data);
-      return response.data;
-    });
-  },
-  // As in `fetchModel` above, a cache hit ignores `params`.
+  // A cache hit ignores `params`.
   async retrieve(id, { params } = {}) {
     if (this.cache[id]) {
       return cloneDeep(this.cache[id]);
@@ -182,30 +163,10 @@ export default new Resource({
       }
     }
   },
-  fetchCollection({ getParams: params }) {
-    return this.client({ url: this.collectionUrl(), params }).then(response => {
-      this.cacheData(response.data);
-      return response.data;
-    });
-  },
-  fetchTree({ id, params }) {
-    const url = urls['kolibri:core:contentnode_tree_detail'](id);
-    return this.client({ url, params }).then(response => {
-      this.cacheData(response.data);
-      return response.data;
-    });
-  },
-  async fetchTree_v2({ id, params }) {
+  async fetchTree({ id, params }) {
     return this._requestAndCache({ action: 'tree_detail', routeParams: id, params });
   },
-  fetchBookmarks({ params }) {
-    const url = urls['kolibri:core:contentnode_bookmarks_list']();
-    return this.client({ url, params }).then(response => {
-      this.cacheData(response.data);
-      return response.data;
-    });
-  },
-  async fetchBookmarks_v2({ params }) {
+  async fetchBookmarks({ params }) {
     return this._requestAndCache({ action: 'bookmarks_list', params });
   },
 });
