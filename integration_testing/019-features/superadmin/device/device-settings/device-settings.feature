@@ -2,37 +2,48 @@ Feature: Device settings
 	The user needs to be able to change settings related to external devices, default landing page, download on metered connection, storage location, auto-download and enabled pages
 
   Background:
-    Given that the Kolibri installation was successful
-    	And I've set up the device
-    	And I am signed in
-    	And I am at *Device > Settings* page
+    Given I am signed in to Kolibri as a super admin
+    	And I am at the *Device > Settings* page
 
 	Scenario: Change the default language
 		When I click the *Change language* dropdown menu
-			And I select <language>
-			And I click *Save changes*
-		Then I see a *Settings have been updated* message
+			And I select a language
+			And I click the *Save changes* button
+		Then I see a *Settings have been updated* snackbar message
 		When I sign out and relaunch the app
-		Then I see that the Kolibri UI is displayed in <language> language
+		Then I see that the Kolibri UI is displayed in the selected language
 
-	Scenario: Allow external devices to download unlisted channels
+	Scenario: Allow external devices to view and import unlisted channels
 		Given I have at least one unlisted channel
-		When I click the checkbox *Allow other computers on this network to download my unlisted channels*
-		Then I see that the checkbox is checked
-		When I click *Save changes*
-			And I try to download an unlisted channel using another computer in the same network
+		When I check the checkbox *Allow other devices on this network to view and import my unlisted channels*
+			And I click the *Save changes* button
+		Then I see a *Settings have been updated* snackbar message
+		When I try to import an unlisted channel using another device in the same network
 		Then I can see the unlisted channel
-			And I can download the unlisted channel
+			And I can import the unlisted channel
+
+	Scenario: Allow others in the network to access Kolibri on this device using a browser
+		Given I'm using the Mac app
+			And *Allow others in the network to access Kolibri on this device using a browser* is unchecked
+	When I attempt to access Kolibri in a browser
+	Then I see the following message: *Access to Kolibri has been restricted for external devices. To change this, sign in as a super admin and update the Device network access settings.*
+	When I sign in in the Mac app
+		And I go to *Device > Settings*
+		And I check the *Allow others in the network to access Kolibri on this device using a browser* option
+		And I click the *Save changes* button
+	Then I see a *Settings have been updated* snackbar message
+		When I attempt to access Kolibri in a browser
+	Then I am at the sign in page
+		And I can access Kolibri
 
 	Scenario: Set the default landing page to *Learn page*
     When I select *Learn page* as the *Default landing page*
     Then I see that the *Sign-in page* option is no longer selected
     	And I see that the options *Allow users to access resources without signing in*, *Learners must sign-in to explore resources* and *Signed in learners should only see resources assigned to them in classes* are disabled (grayed out)
     When I click the *Save changes* button
-      And I sign out
+    Then I see a *Settings have been updated* snackbar message
+    When I sign out
     Then I see the *Learn > Library* page
-    When I sign-in as learner <username>
-    Then I also see the *Learn > Library* page
 
   Scenario: Set the default landing page to *Sign-in page - Allow users to access resources without signing in*
   	When I select *Sign-in page* as the *Default landing page*
@@ -59,7 +70,7 @@ Feature: Device settings
 			And I click the *Save changes* button
       And I sign out
     Then I see the *Sign-in* page
-    When I sign-in as learner <username>
+    When I sign-in as a learner
     Then I see the *Learn > Home* page
       And I don't see the *Library* or *Bookmarks* tabs
 

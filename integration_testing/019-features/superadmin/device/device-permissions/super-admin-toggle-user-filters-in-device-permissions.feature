@@ -1,63 +1,51 @@
-Feature: Toggle user filters in Device > Permissions
+Feature: Super admin can filter and search for users at Device > Permissions
   When there is more than one facility on the device, a super admin needs to be able to filter the users by facility and role from all facilities in the Device > Permissions users table.
 
   Background:
     Given I am signed in as a super admin
-    And I am on *Device > Permissions* page
+    	And there is only one facility on the device
+    	And there are created users of all types
 
-  Scenario: Permissions user table when there is more than one facility on the device
-    Given there is more than one facility on the device
-      And I see a *User type* filter
-      And I see a *Permission* dropdown filter
-      And I see a *Facility* dropdown filter
-      And I see a *Facility* column
+  Scenario: Super admin can see the Device permissions user table when there is only one facility on the device
+    When I go to the *Device > Permissions* page
+    Then I see the *Permissions* and *User type* filters
+    	And the default value of each filter is *All*
+      And I see a *Search for a user* field
+      And I see the users table with a *Full name* and a *Username* columns
+      And I see all of the available users
+      And I see a *View permissions* or an *Edit permissions* option for each user
 
-  Scenario: Permissions user table when there is only one facility on the device
-    Given there is only one facility on the device
-      And I see the *User type* filter
-      And I see a text filter
-      And I do not see a *Permission* dropdown filter
-      And I do not see a *Facility* dropdown filter
-      And I do not see a *Facility column*
+  Scenario: Super admin can see the Device permissions user table when there are multiple facilities on the device
+  	Given there are multiple facilities on the device
+  		And in each facility there are users of all types
+    When I go to the *Device > Permissions* page
+    Then I see the *Permissions*, *User type* and *Facility* filters
+    	And the default value of each filter is *All*
+      And I see a *Search for a user* field
+      And I see the users table with a *Full name*, *Username* and *Facility* columns
+      And I see all of the available users
+      And I see a *View permissions* or an *Edit permissions* option for each user
 
-  Scenario: Filter by facility
-    Given there is more than one facility on the device
-      And I see the *Facility* dropdown filter
-    When I click the *Facility* dropdown filter
-    Then I see a list of facilities on the device
-      And I see *All*
-    When I select a <facility>
-    Then I only see users of the <facility> in the users table
+  Scenario: Filter by each or combination of the available filters
+    Given there are multiple facilities on the device
+  		And in each facility there are users of all types
+    When I click on a filter
+    	And I select a value from the filter
+    Then I see only results matching the applied filter
+    When there are no results matching the applied filter
+    Then I see a *No users match the selected filter* message
+    When I apply a combination of filters
+    Then I see only results matching the applied filters
+    When there are no results matching the applied filters
+    Then I see a *No users match the selected filters* message
 
-  Scenario: Filter by user type
-    Given there is more than one facility on the device
-    When I click the *User type* filter
-    Then I see *All*, *Learners*, *Coaches*, and *Admins* as options to select
-      But I do not see *Super admins*
-    When I select *Admins*
-    Then I only see users who are *Admins*
-    When I click the *User type* filter
-      And I click *All*
-    Then I see all users in all facilities
-
-  Scenario: Filter by user type
-    Given there is more than one facility on the device
-    When I click the *Permission* filter
-    Then I see *All*, *Can manage content*, *Super admin*, and *No device permission* as options
-    When I select *Can manage content*
-    Then I only see users who have the permission *Can manage content*
-      And I also see super admin users
-    When I click the *Permission* dropdown
-      And I click *All*
-    Then I see all users in all facilities
-
-  Scenario: Filter with multiple filters at once
-    Given there is more than one facility on the device
-    # Filters should function as AND operations
-    When I select the *Permission* dropdown
-      And I select *Can manage content*
-    Then I only see users who have the permission *Can manage content*
-      And I also see super admin users
-    When I click the *User type* filter
-      And I select *Admin*
-    Then I see users who have both the permission *Can manage content* and are *Admin* users in all facilities
+  Scenario: Search for a user
+  	Given there are multiple facilities on the device
+  		And in each facility there are users of all types
+  	When I enter the name or the username of a user in the *Search for a user* field
+  	Then I see only results matching the entered keyword
+  	When there are no results matching the entered keyword
+  	Then I see a *No users match the selected filters* message
+  	When I click the *X* icon next to the entered keyword
+  	Then the keyword is cleared
+  		And I see the default state of the table with all of the available users

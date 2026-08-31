@@ -3,50 +3,49 @@ Feature: Super admin manages import network locations
 
   Background:
     Given I am signed in to Kolibri as a super admin user, or a user with device permissions to import content
-      And I am on the *Select network address* modal
-      And I see *There are no addresses yet*
+      And I am on the *Select device* modal
+      And I see *There are no devices yet*
       And the *Continue* button is disabled
 
-  Scenario: Adding an address
+  Scenario: Super admin can add a new device
     When I click the *Add new address* link
-    Then I see the *New address* modal
-    When I enter <network_address> in the *Full network address* field
-      And I enter <network_name> in the *Network name* field
+    Then I see the *New device* modal
+    When I enter a valid network address in the *Full network address* field
+      And I enter the network name in the *Network name* field
       And I press the *Add* button
-    Then the *New address* modal disappears
-      And I see the *Select network address*
-      And I see a snackbar alert *Successfully added address*
-      And I see a radio button with <network_name> as the label
-      And the radio button has <network_address> as the description
+    Then I see a Successfully added device* snackbar message
+      And I see a radio button with the device name as the label and the  network address as the description
 
-  Scenario: Removing an address
-    Given I have saved a network location for <network_name>
-    When I click the *Forget* link next to the radio button for <network_name>
-    Then the radio button for <network_name> disappears from the list
-      And I see a snackbar alert saying *Successfully removed address*
+  Scenario: Super admin can remove a device
+    Given I have already added a device
+    	And I am on the *Select device* modal
+    When I click the *Remove* link next to the radio button
+    Then the radio button for the device disappears from the list
+      And I see a snackbar alert saying *Successfully removed device*
 
-  Scenario: A saved address is available to import from
-    Given I have saved a network location for <network_name>
-      And <network_name> is available
-    Then the radio button for <network_name> is enabled
+  Scenario: A saved device is available to import from
+    Given I have already added a device
+      And the device is available in the network
+    Then I see that the radio button for the device is enabled
+    	And the *Continue* button is enabled
 
-  Scenario: A saved address is not available to import from
-    Given I have saved a network location for <network_name>
-      And <network_name> is not available
-    Then the radio button for <network_name> is disabled
+  Scenario: A saved device is not available to import from
+    Given I have already added a device
+      And the device is not available in the network
+    Then I see that the radio button for the device is disabled
+    	And the *Continue* button is disabled
 
   Scenario: Attempting to add an address with an invalid URL
-    Given I am on the *New address* modal
-      And <network_name> does not have a valid URL
-    When I enter <network_address> in the *Full network address* field
-      And I enter <network_name> in the *Network name* field
+    Given I am on the *New device* modal
+    When I enter and invalid network address in the *Full network address* field
+      And I enter a name in the *Network name* field
       And I press the *Add* button
-    Then I see *Please enter a valid IP address, URL, or hostname* error under the *Full network address* field
+    Then I see a *Could not connect to this device* error under the *Full network address* field
 
   Scenario: Attempting to add an address without a running Kolibri instance
-    Given I am on the *New address* modal
-      And <network_name> does not have a running Kolibri instance
-    When I enter <network_address> in the *Full network address* field
-      And I enter <network_name> in the *Network name* field
+    Given I am on the *New device* modal
+      And there isn't a running Kolibri instance in the network
+    When I enter the network address in the *Full network address* field
+      And I enter a name in the *Network name* field
       And I press the *Add* button
     Then I see *Could not connect to this network address* error under the *Full network address* field

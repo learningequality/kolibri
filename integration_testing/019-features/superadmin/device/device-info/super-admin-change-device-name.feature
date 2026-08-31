@@ -5,15 +5,14 @@ Feature: Change device name
     Given I am signed in as a super admin
       And I have never changed the device name before
 
-  Scenario: The default device name is same as the system device name
-    # If upgrading from a pre-0.14 device, device name might not exist
+  Scenario: The default device name is the same as the system device name # If upgrading from a pre-0.14 device, device name might not exist
     When I go to *Device > Info* page
-    Then the value in the *Device name* field is the same as the host name
+    Then I see that the value in the *Device name* field is the same as the host name
 
   Scenario: Change device name
     When I click *Edit* next to the device name
     Then I see the *Device name* modal
-    When I enter a new name
-    When I click *Save*
+    When I enter a new device name
+    	And I click *Save*
     Then I see the new device name
-      And I see a snackbar that says *Changes saved*
+      And I see a *Changes saved* snackbar message

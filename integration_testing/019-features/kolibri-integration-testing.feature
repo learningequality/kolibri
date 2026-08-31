@@ -367,7 +367,7 @@ Feature: Kolibri integration testing scenarios
   	Then I see the *Select a source* modal
   		And I see the *Kolibri Studio (online)* option selected by default
   	When I click *Continue*
-  	Then I am at *Select resources to import*
+  	Then I am at *Select resources for import*
   		And I see a list of available channels
   	When I click the *Select resources* button next to a channel
   	Then I see the channel page with logo, name, and version of the channel
@@ -386,6 +386,37 @@ Feature: Kolibri integration testing scenarios
   		And I do not see the progress bar anymore
   		And I see the *Clear* button for the finished task
   		And I see the *Clear completed* button
+  	When I close the *Task manager* page
+  	Then I am back at *Device > Channels*
+  		And I can see the imported channel
+
+  Scenario: Super admin imports new content channel using a token
+    Given I am at *Import from Kolibri Studio > Select resources for import*
+    When I click the *Import with token* button
+    Then I see the *Enter channel token* modal
+    When I enter the channel token
+      And I click *Continue*
+    Then the modal closes
+    	And I see a *Generating channel listing. This could take a few minutes* message
+			And I see the channel page with logo, name, and version of the channel
+  	  And I see the total number and size of the channel resources
+  	  And I see the list of folders for the channel
+  	  And I see that the *Import* button is disabled
+  	When I check the *Select all* checkbox
+  	Then I see the *Import* button is enabled
+  	When I click the *Import* button
+  	Then I am at the *Task manager* page
+  		And I see the *Import resources from <channel>* progress bar
+  		And I see the number and size of the resources being imported
+  		And I see the *Cancel* button
+  	When the import process concludes
+  	Then I see the task is labeled as *Finished*
+  		And I do not see the progress bar anymore
+  		And I see the *Clear* button for the finished task
+  		And I see the *Clear completed* button
+  	When I close the *Task manager* modal
+  	Then I am back at *Device > Channels*
+  		And I can see the imported channel
 
   Scenario: Super admin imports content from local network or attached drive
   	Given I am signed in to Kolibri as a super admin
@@ -450,14 +481,11 @@ Feature: Kolibri integration testing scenarios
   		And I see all of the imported channels
 
   Scenario: Super admin exports content to an attached drive
-  	Given I am signed in to Kolibri as a super admin
-  	  And I am at *Device > Channels*
-  	  And there is an attached drive or memory card to the device
   	When I click the *Options* drop-down
   		And I select the *Export channels* option
   	Then I see the *Export channels* modal
   		And I see all the channels on the device
-  	When I select a channel
+  	When I select a channel #or some resources
   		And I click the *Export* button
   	Then I see the *Select a drive* modal
   		And I see that the first available drive is pre-selected
@@ -471,6 +499,45 @@ Feature: Kolibri integration testing scenarios
   		And I do not see the progress bar anymore
   		And I see the *Clear* button for the finished task
   		And I see the *Clear completed* button
+  	When I open the drive
+    Then I see the *KOLIBRI_DATA* folder on the drive
+      And I see the *content* subfolder inside
+      And I see the *databases* and *storage* subfolders inside the *content* folder
+
+  Scenario: Super admin updates a channel and imports new content from Studio
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Device > Channels*
+  	  And there is an imported version of a channel on the device
+      And the same channel on Studio has been updated and republished
+    When I click *Manage* button for a channel
+    Then I see the "Generating channel listing. This could take a few minutes..." notification
+    When the channel listing is generated
+    Then I am at the *Manage '<channel>'* page
+      And I see a *Version N is available* message and a *View changes* link
+      And I see the channel page with logo, name, and the current version on the device
+      And I see the total number and size of channel resources
+      And I see the total number and size of resources on my device
+      And I see the list of folders for the channel
+		When I click the *View changes* button
+    Then I see the *Version N of '<channel>' is available* page
+      And I see list of changes of the resources (New resources available, resources that will be deleted, resources to be updated)
+      And I see the description of the latest version
+		When I click the *Update channel* button
+    Then I see *Update channel* modal asking for confirmation
+    When I click the *Continue* button
+    And I see green label with number of the new resources that can be imported on my device with this new channel version
+      And I see the *0 resources selected* and a disabled *Import* button at the bottom of the screen
+    When I select new resources or folders with resources
+    Then the *Import* button becomes enabled
+    When I click the *Import* button
+    Then I see *Device > Tasks* page with the *Update '<channel>' to version N* task in progress
+      And I see the progress bar with the percentage increasing
+      And I see the *Cancel* button
+    When the update process concludes
+    Then I see the task is labeled as *Finished*
+      And I do not see the progress bar anymore
+      And I see the *Clear* button for the finished task
+      And I see the *Clear completed* button
 
   Scenario: Super admin deletes complete channel(s)
     Given I am signed in to Kolibri as a super admin
@@ -1511,6 +1578,46 @@ Feature: Kolibri integration testing scenarios
 		When I change any of the available settings such as default language, external devices, default landing page, primary storage location, auto-download and enabled pages
 			And I click *Save changes*
 		Then I can see a *Settings have been updated* snackbar message
+
+  Scenario: Super admin can see the Device permissions user table when there are multiple facilities on the device
+  	Given I am signed in as a super admin
+  		And there are multiple facilities on the device
+  		And in each facility there are users of all types
+    When I go to the *Device > Permissions* page
+    Then I see the *Permissions*, *User type* and *Facility* filters
+    	And the default value of each filter is *All*
+      And I see a *Search for a user* field
+      And I see the users table with a *Full name*, *Username* and *Facility* columns
+      And I see all of the available users
+      And I see a *View permissions* or an *Edit permissions* option for each user
+
+  Scenario: Super admin can filter by each or combination of the available filters at Device > Permissions
+    Given I am signed in as a super admin
+  		And there are multiple facilities on the device
+  		And in each facility there are users of all types
+  		And I am at the *Device > Permissions* page
+    When I click on a filter
+    	And I select a value from the filter
+    Then I see only results matching the applied filter
+    When there are no results matching the applied filter
+    Then I see a *No users match the selected filter* message
+    When I apply a combination of filters
+    Then I see only results matching the applied filters
+    When there are no results matching the applied filters
+    Then I see a *No users match the selected filters* message
+
+  Scenario: Super admin can search for a user at Device > Permissions
+  	Given I am signed in as a super admin
+  		And there are multiple facilities on the device
+  		And in each facility there are users of all types
+  		And I am at the *Device > Permissions* page
+  	When I enter the name or the username of a user in the *Search for a user* field
+  	Then I see only results matching the entered keyword
+  	When there are no results matching the entered keyword
+  	Then I see a *No users match the selected filters* message
+  	When I click the *X* icon next to the entered keyword
+  	Then the keyword is cleared
+  		And I see the default state of the table with all of the available users
 
   Scenario: Super admin can change the device permissions
   	Given I am signed in as a super admin
