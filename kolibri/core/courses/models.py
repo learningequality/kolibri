@@ -19,6 +19,7 @@ from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.utils.cache import process_cache
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -120,7 +121,7 @@ class CourseSession(AbstractFacilityDataModel):
         :param user: A FacilityUser instance
         :return: dict with keys:
             - started (bool)
-            - active_test (dict with unit_id and test_type, or None)
+            - active_test (dict with unit_id, test_type and opened, or None)
             - resume_position (dict with unit_id, lesson_id, resource_id, or None)
             - completed (bool)
         """
@@ -140,6 +141,9 @@ class CourseSession(AbstractFacilityDataModel):
             result["active_test"] = {
                 "unit_id": unit_test_active.unit_contentnode_id,
                 "test_type": unit_test_active.test_type,
+                # A test stays open until a coach closes it, regardless of
+                # whether the learner has opened it yet.
+                "opened": self._test_opened(user, unit_test_active),
             }
             result["started"] = True
             return result
@@ -204,6 +208,23 @@ class CourseSession(AbstractFacilityDataModel):
         result["completed"] = self._is_completed(unit_test_assignments_qs)
 
         return result
+
+    def _test_opened(self, user, unit_test_assignment):
+        """
+        Whether the learner has opened the given unit test - a summary log is
+        created when the learner first opens it, whether or not they go on to
+        submit it. Test sessions are logged against a synthetic content_id
+        shared by the whole class, so this must be filtered by user.
+        """
+        content_id = get_synthetic_content_id(
+            str(self.id),
+            str(unit_test_assignment.unit_contentnode_id),
+            unit_test_assignment.test_type,
+        )
+        return ContentSummaryLog.objects.filter(
+            user=user,
+            content_id=content_id,
+        ).exists()
 
     def _is_completed(self, unit_test_assignments_qs):
         """
