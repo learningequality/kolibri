@@ -228,16 +228,13 @@ const FacilityUserResource = new Resource({
 // and uses _list and _detail suffixes for endpoints
 
 // Fetch a collection (calls kolibri:core:facilityuser_list)
-const users = await FacilityUserResource.fetchCollection();
+const users = await FacilityUserResource.list();
 
 // Fetch a single model (calls kolibri:core:facilityuser_detail)
-const user = await FacilityUserResource.fetchModel({ id: userId });
+const user = await FacilityUserResource.retrieve(userId);
 
 // Save a model
-await FacilityUserResource.saveModel({
-  id: userId,
-  data: { username: 'newname' },
-});
+await FacilityUserResource.update(userId, { username: 'newname' });
 ```
 
 For plugin resources:
@@ -346,7 +343,7 @@ kolibriCoreAppGlobal.urls = {
 
 - **API Resources**: Use for standard CRUD operations on a ViewSet
   ```javascript
-  const data = await MyResource.fetchCollection({ getParams: { page: 1 } });
+  const data = await MyResource.list({ page: 1 });
   ```
 
 ### 2. Always Use URL Namespacing
@@ -446,56 +443,35 @@ console.log(urls['kolibri:core:session_list']());
 
 ## Advanced Topics
 
-### Custom Detail Endpoints
+### Custom Endpoints
 
-Resources support fetching custom detail endpoints (custom actions on a specific model):
-
-```javascript
-// Backend: @action(detail=True, methods=['get'])
-// def recommendations_for(self, request, pk=None)
-// Creates: kolibri:core:contentnode_recommendations_for
-
-const data = await ContentNodeResource.fetchDetailModel(
-  'recommendations_for',  // action name
-  nodeId,                 // id parameter
-  {}                      // getParams
-);
-```
-
-### Custom List Endpoints
-
-Resources support fetching custom list endpoints (custom actions on the collection):
+`request` is the primitive every other Resource method is built on. A custom action gets its own
+method on the resource, defined over `request`; call sites use that method, never `request`
+itself. `request` resolves with the whole response, so the method reads `.data` off it.
 
 ```javascript
-// Backend: @action(detail=False, methods=['get'])
-// def random(self, request)
-// Creates: kolibri:core:contentnode_random
+// Backend: @action(detail=True) def recommendations_for(self, request, pk=None)
+//          @action(detail=False) def random(self, request)
+// Create: kolibri:core:contentnode_recommendations_for, kolibri:core:contentnode_random
 
-const data = await ContentNodeResource.fetchListCollection(
-  'random',  // action name
-  {}         // getParams
-);
-```
-
-### Accessing Endpoints Without Resources
-
-For complete control, use the `accessListEndpoint` or `accessDetailEndpoint` methods:
-
-```javascript
-// List endpoint
-const response = await MyResource.accessListEndpoint(
-  'POST',
-  'import',
-  { data: someData }
-);
-
-// Detail endpoint
-const response = await MyResource.accessDetailEndpoint(
-  'POST',
-  'copy',
-  itemId,
-  { params: someParams }
-);
+export default new Resource({
+  name: 'contentnode',
+  // A detail action passes the id as `routeParams`
+  async fetchRecommendationsFor(id, params) {
+    const { data } = await this.request({ action: 'recommendations_for', routeParams: id, params });
+    return data;
+  },
+  // A collection action omits `routeParams`
+  async fetchRandomCollection(params) {
+    const { data } = await this.request({ action: 'random', params });
+    return data;
+  },
+  // A write takes a `method` and a `data` body
+  async importFrom(source) {
+    const { data } = await this.request({ method: 'POST', action: 'import', data: source });
+    return data;
+  },
+});
 ```
 
 ## Related Documentation
