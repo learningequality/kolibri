@@ -12,9 +12,8 @@ import isPlainObject from 'lodash/isPlainObject';
 import isUndefined from 'lodash/isUndefined';
 import { diff } from 'deep-object-diff';
 import Modalities from 'kolibri-constants/Modalities';
-import client from 'kolibri/client';
 import logger from 'kolibri-logging';
-import urls from 'kolibri/urls';
+import TrackProgressResource from 'kolibri-common/apiResources/TrackProgressResource';
 import useUser from 'kolibri/composables/useUser';
 import useTotalProgress from 'kolibri/composables/useTotalProgress';
 import { ContentNodeKinds } from 'kolibri/constants';
@@ -147,29 +146,24 @@ export default function useProgressTracking() {
   }
 
   function _makeInitContentSessionRequest(data) {
-    return client({
-      method: 'post',
-      url: urls['kolibri:core:trackprogress_list'](),
-      data: data,
-    }).then(response => {
-      const data = response.data;
-      set(context, valOrNull(data.context));
-      set(complete, valOrNull(data.complete));
-      set(progress_state, valOrNull(data.progress));
+    return TrackProgressResource.create(data).then(session => {
+      set(context, valOrNull(session.context));
+      set(complete, valOrNull(session.complete));
+      set(progress_state, valOrNull(session.progress));
       set(progress_delta, 0);
-      set(time_spent, valOrNull(data.time_spent));
+      set(time_spent, valOrNull(session.time_spent));
       set(time_spent_delta, 0);
-      set(session_id, valOrNull(data.session_id));
+      set(session_id, valOrNull(session.session_id));
       clearObject(extra_fields);
-      Object.assign(extra_fields, data.extra_fields || {});
-      set(mastery_criterion, valOrNull(data.mastery_criterion));
-      set(pastattempts, [...(data.pastattempts || [])]);
+      Object.assign(extra_fields, session.extra_fields || {});
+      set(mastery_criterion, valOrNull(session.mastery_criterion));
+      set(pastattempts, [...(session.pastattempts || [])]);
       clearObject(pastattemptMap);
       Object.assign(
         pastattemptMap,
-        data.pastattempts ? fromPairs(data.pastattempts.map(a => [a.id, a])) : {},
+        session.pastattempts ? fromPairs(session.pastattempts.map(a => [a.id, a])) : {},
       );
-      set(totalattempts, valOrNull(data.totalattempts));
+      set(totalattempts, valOrNull(session.totalattempts));
       set(unsaved_interactions, []);
     });
   }
@@ -388,17 +382,13 @@ export default function useProgressTracking() {
 
   function makeSessionUpdateRequest(data) {
     const wasComplete = get(complete);
-    return client({
-      method: 'put',
-      url: urls['kolibri:core:trackprogress_detail'](get(session_id)),
-      data,
-    }).then(response => {
-      if (response.data.attempts) {
-        for (const attempt of response.data.attempts) {
+    return TrackProgressResource.updateSession(get(session_id), data).then(session => {
+      if (session.attempts) {
+        for (const attempt of session.attempts) {
           updateAttempt(attempt);
         }
       }
-      if (response.data.complete) {
+      if (session.complete) {
         set(complete, true);
         set(progress_state, 1);
         const { isUserLoggedIn } = useUser();
@@ -407,7 +397,7 @@ export default function useProgressTracking() {
           incrementTotalProgress(1);
         }
       }
-      return response.data;
+      return session;
     });
   }
 
