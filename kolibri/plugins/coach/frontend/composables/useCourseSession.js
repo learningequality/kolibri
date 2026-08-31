@@ -90,7 +90,7 @@ export default function useCourseSession(courseSessionId) {
     CourseSessionResource.retrieve(courseSessionId.value)
       .then(session => {
         courseSession.value = session;
-        return ContentNodeResource.fetchTree_v2({ id: session.course }).catch(() => {
+        return ContentNodeResource.fetchTree({ id: session.course }).catch(() => {
           contentMissing.value = true;
           return null;
         });

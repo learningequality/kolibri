@@ -48,7 +48,7 @@ describe('useQuizResources', () => {
       loading: ref(false),
     }));
 
-    ContentNodeResource.fetchDescendantsAssessments_v2.mockResolvedValue(descendantsResponse);
+    ContentNodeResource.fetchDescendantsAssessments.mockResolvedValue(descendantsResponse);
   });
 
   describe('initialization', () => {
@@ -96,14 +96,14 @@ describe('useQuizResources', () => {
         sampleResults[2], // Exercise remains unchanged
       ]);
 
-      expect(ContentNodeResource.fetchDescendantsAssessments_v2).toHaveBeenCalledWith([
+      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
         'topic1',
         'topic2',
       ]);
     });
 
     it('should filter out topics with no assessments', async () => {
-      ContentNodeResource.fetchDescendantsAssessments_v2.mockResolvedValue([
+      ContentNodeResource.fetchDescendantsAssessments.mockResolvedValue([
         { id: 'topic1', num_assessments: 0 }, // No assessments
         { id: 'topic2', num_assessments: 1 },
       ]);
@@ -122,7 +122,7 @@ describe('useQuizResources', () => {
 
     it('should handle API errors gracefully', async () => {
       const error = new Error('API Error');
-      ContentNodeResource.fetchDescendantsAssessments_v2.mockRejectedValue(error);
+      ContentNodeResource.fetchDescendantsAssessments.mockRejectedValue(error);
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
       const result = await annotateTopicsWithDescendantCounts(sampleResults);
@@ -149,7 +149,7 @@ describe('useQuizResources', () => {
       ]);
 
       // Verify that the API call to fetch descendant assessments was made with correct topic IDs
-      expect(ContentNodeResource.fetchDescendantsAssessments_v2).toHaveBeenCalledWith([
+      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
         'topic1',
         'topic2',
       ]);
@@ -172,7 +172,7 @@ describe('useQuizResources', () => {
       expect(get(quizResources.resources)).toEqual([...initialResources, ...expectedNewResources]);
 
       // Verify that the API call was made correctly during fetchMore as well
-      expect(ContentNodeResource.fetchDescendantsAssessments_v2).toHaveBeenCalledWith([
+      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
         'topic1',
         'topic2',
       ]);

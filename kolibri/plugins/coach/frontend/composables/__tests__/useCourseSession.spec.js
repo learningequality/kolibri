@@ -105,7 +105,7 @@ describe('useCourseSession', () => {
 
     // Default mock implementations - no tests taken yet
     CourseSessionResource.retrieve.mockResolvedValue(mockCourseSession);
-    ContentNodeResource.fetchTree_v2.mockResolvedValue(mockCourse);
+    ContentNodeResource.fetchTree.mockResolvedValue(mockCourse);
     CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockNoTests);
   });
 
@@ -125,7 +125,7 @@ describe('useCourseSession', () => {
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      expect(ContentNodeResource.fetchTree_v2).toHaveBeenCalledWith({
+      expect(ContentNodeResource.fetchTree).toHaveBeenCalledWith({
         id: mockCourseSession.course,
       });
       expect(CourseSessionResource.lastUnitTest_v2).toHaveBeenCalledWith({
@@ -158,7 +158,7 @@ describe('useCourseSession', () => {
     });
 
     it('should set contentMissing when fetchTree fails', async () => {
-      ContentNodeResource.fetchTree_v2.mockRejectedValue(new Error('Content not found'));
+      ContentNodeResource.fetchTree.mockRejectedValue(new Error('Content not found'));
 
       const { contentMissing, courseSession, course, pageLoading } = useCourseSession(
         ref(mockCourseSessionId),
@@ -294,7 +294,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return null when no units exist', async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
       });
@@ -331,7 +331,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return -1 when no units exist', async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
       });
@@ -476,7 +476,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return false when no units exist', async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
       });
