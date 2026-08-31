@@ -488,7 +488,7 @@ export default {
     },
     fetchLessonsSizes(store, classId) {
       if (Object.keys(store.state.lessonMap).length > 0) {
-        return LessonResource.fetchLessonsSizes_v2({ collection: classId })
+        return LessonResource.fetchLessonsSizes({ collection: classId })
           .then(sizes => {
             store.commit('SET_CLASS_LESSONS_SIZES', sizes);
           })
@@ -500,7 +500,7 @@ export default {
     },
     fetchQuizzesSizes(store, classId) {
       if (Object.keys(store.state.examMap).length > 0) {
-        return ExamResource.fetchQuizzesSizes_v2({ collection: classId })
+        return ExamResource.fetchQuizzesSizes({ collection: classId })
           .then(sizes => {
             store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
           })

@@ -1,5 +1,4 @@
 import { Resource } from 'kolibri/apiResource';
-import urls from 'kolibri/urls';
 
 /**
  * @typedef {object} NetworkLocation
@@ -20,42 +19,15 @@ import urls from 'kolibri/urls';
  * @property {number} since_last_accessed - Seconds since `last_accessed`
  */
 
-/**
- * Refresh the cached connection status for a network location.
- * @param {string} id - network location id
- * @returns {NetworkLocation} the updated network location record
- */
-function updateConnectionStatus(id) {
-  const url = urls['kolibri:core:networklocation_update_connection_status'](id);
-  return this.client({ url, method: 'post' }).then(response => {
-    return response.data;
-  });
-}
-
-/**
- * Fetch the facilities advertised by a remote network location.
- * @param {string} id - network location id
- * @returns {{facilities: [{id: string}]}} the facilities listing from the remote device
- */
-function fetchFacilities(id) {
-  return this.client({
-    url: urls['kolibri:core:networklocation_facilities_detail'](id),
-  }).then(response => {
-    return response.data;
-  });
-}
-
 export const NetworkLocationResource = new Resource({
   name: 'networklocation',
-  updateConnectionStatus,
-  fetchFacilities,
 
   /**
    * Refresh the cached connection status for a network location.
    * @param {string} id - network location id
    * @returns {NetworkLocation} the updated network location record
    */
-  async updateConnectionStatus_v2(id) {
+  async updateConnectionStatus(id) {
     const response = await this.request({
       method: 'POST',
       action: 'update_connection_status',
@@ -69,7 +41,7 @@ export const NetworkLocationResource = new Resource({
    * @param {string} id - network location id
    * @returns {{facilities: [{id: string}]}} the facilities listing from the remote device
    */
-  async fetchFacilities_v2(id) {
+  async fetchFacilities(id) {
     const response = await this.request({ action: 'facilities_detail', routeParams: id });
     return response.data;
   },
@@ -77,12 +49,8 @@ export const NetworkLocationResource = new Resource({
 
 export const StaticNetworkLocationResource = new Resource({
   name: 'staticnetworklocation',
-  updateConnectionStatus,
-  fetchFacilities,
 });
 
 export const DynamicNetworkLocationResource = new Resource({
   name: 'dynamicnetworklocation',
-  updateConnectionStatus,
-  fetchFacilities,
 });
