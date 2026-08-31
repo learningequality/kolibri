@@ -100,7 +100,7 @@ describe('useFacility', () => {
   beforeEach(() => {
     window.localStorage.clear();
     jest.clearAllMocks();
-    FacilityDatasetResource.fetchCollection.mockResolvedValue([]);
+    FacilityDatasetResource.list.mockResolvedValue([]);
 
     useUser.mockImplementation(() =>
       useUserMock({
@@ -247,9 +247,7 @@ describe('useFacility', () => {
     });
 
     it('uses fetched config when available', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([
-        { id: 'dataset-2', setting: true },
-      ]);
+      FacilityDatasetResource.list.mockResolvedValue([{ id: 'dataset-2', setting: true }]);
       useFacilities.mockImplementation(() =>
         useFacilitiesMock({
           fetchFacility: jest.fn().mockResolvedValue(),
@@ -277,9 +275,8 @@ describe('useFacility', () => {
       const { setFacilityId, facilityId } = useFacility();
       await setFacilityId('facility-2');
       expect(fetchFacility).toHaveBeenCalledWith('facility-2');
-      expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { facility_id: 'facility-2' },
-        force: true,
+      expect(FacilityDatasetResource.list).toHaveBeenCalledWith({
+        facility_id: 'facility-2',
       });
       expect(facilityId.value).toBe('facility-2');
     });
@@ -287,7 +284,7 @@ describe('useFacility', () => {
 
   describe('updateFacilityConfig', () => {
     it('fetches config with the selected facility id', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([{ id: 'dataset-1' }]);
+      FacilityDatasetResource.list.mockResolvedValue([{ id: 'dataset-1' }]);
       useUser.mockImplementation(() =>
         useUserMock({
           isUserLoggedIn: true,
@@ -303,9 +300,8 @@ describe('useFacility', () => {
       const { default: useFacility } = loadUseFacilityModule();
       const { updateFacilityConfig } = useFacility();
       const result = await updateFacilityConfig();
-      expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { facility_id: 'facility-1' },
-        force: true,
+      expect(FacilityDatasetResource.list).toHaveBeenCalledWith({
+        facility_id: 'facility-1',
       });
       expect(result).toEqual({ id: 'dataset-1' });
     });
@@ -315,7 +311,7 @@ describe('useFacility', () => {
       const { updateFacilityConfig } = useFacility();
       const result = await updateFacilityConfig();
 
-      expect(FacilityDatasetResource.fetchCollection).not.toHaveBeenCalled();
+      expect(FacilityDatasetResource.list).not.toHaveBeenCalled();
       expect(result).toBeUndefined();
     });
   });
@@ -372,7 +368,7 @@ describe('useFacilityConfig', () => {
         picture_password_settings: { icon_style: 'colorful' },
       };
 
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([configWithPicturePassword]);
+      FacilityDatasetResource.list.mockResolvedValue([configWithPicturePassword]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, signInOptions } = useFacilityConfig('facility-1');
@@ -386,7 +382,7 @@ describe('useFacilityConfig', () => {
         learner_can_login_with_no_password: true,
       };
 
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([configWithUsernameOnly]);
+      FacilityDatasetResource.list.mockResolvedValue([configWithUsernameOnly]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, signInOptions } = useFacilityConfig('facility-1');
@@ -395,7 +391,7 @@ describe('useFacilityConfig', () => {
     });
 
     it('includes USERNAME_PASSWORD when learner_can_login_with_no_password is false', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([mockFacilityConfig]);
+      FacilityDatasetResource.list.mockResolvedValue([mockFacilityConfig]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, signInOptions } = useFacilityConfig('facility-1');
@@ -412,7 +408,7 @@ describe('useFacilityConfig', () => {
         learner_can_login_with_no_password: true,
       };
 
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([configWithPicturePassword]);
+      FacilityDatasetResource.list.mockResolvedValue([configWithPicturePassword]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, picturePasswordSettings } = useFacilityConfig('facility-1');
@@ -424,7 +420,7 @@ describe('useFacilityConfig', () => {
     });
 
     it('returns null when PICTURE_PASSWORD is not in signInOptions', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([mockFacilityConfig]);
+      FacilityDatasetResource.list.mockResolvedValue([mockFacilityConfig]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, picturePasswordSettings } = useFacilityConfig('facility-1');
@@ -435,15 +431,14 @@ describe('useFacilityConfig', () => {
 
   describe('fetchFacilityConfig', () => {
     it('fetches facility config for given facilityId', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([mockFacilityConfig]);
+      FacilityDatasetResource.list.mockResolvedValue([mockFacilityConfig]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, facilityConfig } = useFacilityConfig('facility-1');
       const result = await fetchFacilityConfig();
 
-      expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { facility_id: 'facility-1' },
-        force: true,
+      expect(FacilityDatasetResource.list).toHaveBeenCalledWith({
+        facility_id: 'facility-1',
       });
       expect(result).toEqual(mockFacilityConfig);
       expect(facilityConfig.value).toEqual(result);
@@ -451,15 +446,14 @@ describe('useFacilityConfig', () => {
     });
 
     it('uses provided facilityId parameter over constructor parameter', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([mockFacilityConfig]);
+      FacilityDatasetResource.list.mockResolvedValue([mockFacilityConfig]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig } = useFacilityConfig('facility-1');
       await fetchFacilityConfig('facility-2');
 
-      expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { facility_id: 'facility-2' },
-        force: true,
+      expect(FacilityDatasetResource.list).toHaveBeenCalledWith({
+        facility_id: 'facility-2',
       });
     });
 
@@ -468,13 +462,13 @@ describe('useFacilityConfig', () => {
       const { fetchFacilityConfig, facilityConfig } = useFacilityConfig(null);
       const result = await fetchFacilityConfig();
 
-      expect(FacilityDatasetResource.fetchCollection).not.toHaveBeenCalled();
+      expect(FacilityDatasetResource.list).not.toHaveBeenCalled();
       expect(facilityConfig.value).toEqual({});
       expect(result).toBeUndefined();
     });
 
     it('returns empty config when facility is not found', async () => {
-      FacilityDatasetResource.fetchCollection.mockResolvedValue([]);
+      FacilityDatasetResource.list.mockResolvedValue([]);
 
       const { useFacilityConfig } = loadUseFacilityModule();
       const { fetchFacilityConfig, facilityConfig } = useFacilityConfig('facility-1');

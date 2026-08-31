@@ -92,11 +92,8 @@ export function useFacilityConfig(facilityId) {
       return;
     }
 
-    const _facilityConfig = await FacilityDatasetResource.fetchCollection({
-      getParams: {
-        facility_id: facilityId,
-      },
-      force: true,
+    const _facilityConfig = await FacilityDatasetResource.list({
+      facility_id: facilityId,
     });
 
     let config = {};
