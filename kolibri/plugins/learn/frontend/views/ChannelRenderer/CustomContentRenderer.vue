@@ -342,7 +342,7 @@
         // limit to channel, defaults to true
         const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
 
-        return ContentNodeResource.fetchRandomCollection_v2({
+        return ContentNodeResource.fetchRandomCollection({
           parent: options.parent === 'self' ? this.topic.id : options.parent,
           channel_id: limitToChannel ? this.topic.channel_id : undefined,
           max_results: options.maxResults ? options.maxResults : 10,

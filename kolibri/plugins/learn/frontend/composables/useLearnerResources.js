@@ -426,7 +426,7 @@ export default function useLearnerResources() {
 
     // Fetch course content tree and learner course progress
     const [content, progressResponse] = await Promise.all([
-      course.course_id ? ContentNodeResource.fetchTree_v2({ id: course.course_id }) : null,
+      course.course_id ? ContentNodeResource.fetchTree({ id: course.course_id }) : null,
       LearnerCourseResource.getResumeData(course.id),
     ]);
 
