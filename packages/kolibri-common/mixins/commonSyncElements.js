@@ -1,6 +1,5 @@
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
 import TaskResource from 'kolibri/apiResources/TaskResource';
+import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
 import { createTranslator } from 'kolibri/utils/i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -89,15 +88,7 @@ export default {
       return this.getCommonSyncString('nameWithIdFragment', { name, id: id.slice(0, 4) });
     },
     fetchNetworkLocationFacilities(locationId) {
-      return client({
-        url: urls['kolibri:core:networklocation_facilities_detail'](locationId),
-      })
-        .then(response => {
-          return response.data;
-        })
-        .catch(() => {
-          return [];
-        });
+      return NetworkLocationResource.fetchFacilities_v2(locationId).catch(() => []);
     },
     startKdpSyncTask(facility) {
       return TaskResource.startTask({ type: 'kolibri.core.auth.tasks.dataportalsync', facility });
