@@ -101,7 +101,7 @@ ContentSummaryLog, and UserSessionLog -- collectively, "User Log Data").
 Hence, it is useful to encapsulate a permissions "class" that can be reused
 across models, and extended (through inheritance) if slightly different
 behavior is needed. These classes of permissions are defined as Python classes
-that inherit from kolibri.auth.permissions.base.BasePermissions, which defines
+that inherit from kolibri.core.auth.permissions.base.BasePermissions, which defines
 the following overridable methods:
 
 - The following four Boolean (True/False) permission checks, corresponding to
@@ -171,7 +171,7 @@ Built-in permissions classes
 ----------------------------
 
 Some common rules are encapsulated by the permissions classes in
-``kolibri.auth.permissions.general``. These include:
+``kolibri.core.auth.permissions.general``. These include:
 
 - ``IsOwn``: only allows access to the object if the object belongs to the
   requesting user (in other words, if the object has a specific field,
@@ -263,7 +263,7 @@ only records for which the current user has read permissions. This only applies 
 For example, to use the Kolibri permissions system to restrict permissions for an
 API endpoint providing access to a ``ContentLog`` model, you would do the following::
 
-    from kolibri.auth.api import KolibriAuthPermissions, KolibriAuthPermissionsFilter
+    from kolibri.core.auth.permissions import KolibriAuthPermissions, KolibriAuthPermissionsFilter
 
     class FacilityViewSet(viewsets.ModelViewSet):
         permission_classes = (KolibriAuthPermissions,)

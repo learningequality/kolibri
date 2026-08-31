@@ -43,7 +43,7 @@ Define a DRF serializer as the single source of truth for the API shape. The vie
 
   from rest_framework import serializers
   from kolibri.core.api import ValuesViewset
-  from kolibri.core.auth.api import KolibriAuthPermissions
+  from kolibri.core.auth.permissions import KolibriAuthPermissions
   from .models import Lesson
 
   class LessonSerializer(serializers.ModelSerializer):
@@ -240,8 +240,8 @@ Complete Example
   from rest_framework import serializers
   from django_filters.rest_framework import DjangoFilterBackend
   from kolibri.core.api import ValuesViewset
-  from kolibri.core.auth.api import KolibriAuthPermissions
-  from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+  from kolibri.core.auth.permissions import KolibriAuthPermissions
+  from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
   from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
   from kolibri.core.query import annotate_array_aggregate
   from .models import Lesson, LessonAssignment

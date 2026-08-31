@@ -453,23 +453,23 @@ Kolibri comes with a Python test suite based on `pytest <https://docs.pytest.org
 
   pytest
 
-To run specific tests only, you can add the filepath of the file. To further filter either by TestClass name or test method name, you can add `-k` followed by a string to filter classes or methods by. For example, to only run a test named ``test_admin_can_delete_membership`` in kolibri/auth/test/test_permissions.py:
+To run specific tests only, you can add the filepath of the file. To further filter either by TestClass name or test method name, you can add `-k` followed by a string to filter classes or methods by. For example, to only run a test named ``test_admin_or_coach_can_delete_membership`` in kolibri/core/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  pytest kolibri/auth/test/test_permissions -k test_admin_can_delete_membership
+  pytest kolibri/core/auth/test/test_permissions -k test_admin_or_coach_can_delete_membership
 
-To only run the whole class named ``MembershipPermissionsTestCase`` in kolibri/auth/test/test_permissions.py:
-
-.. code-block:: bash
-
-  pytest kolibri/auth/test/test_permissions -k MembershipPermissionsTestCase
-
-For more advanced usage, logical operators can also be used in wrapped strings, for example, the following will run only one test, named ``test_admin_can_delete_membership`` in the ``MembershipPermissionsTestCase`` class in kolibri/auth/test/test_permissions.py:
+To only run the whole class named ``MembershipPermissionsTestCase`` in kolibri/core/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  pytest kolibri/auth/test/test_permissions -k "MembershipPermissionsTestCase and test_admin_can_delete_membership"
+  pytest kolibri/core/auth/test/test_permissions -k MembershipPermissionsTestCase
+
+For more advanced usage, logical operators can also be used in wrapped strings, for example, the following will run only one test, named ``test_admin_or_coach_can_delete_membership`` in the ``MembershipPermissionsTestCase`` class in kolibri/core/auth/test/test_permissions.py:
+
+.. code-block:: bash
+
+  pytest kolibri/core/auth/test/test_permissions -k "MembershipPermissionsTestCase and test_admin_or_coach_can_delete_membership"
 
 You can run tests for a specific Python version using:
 
