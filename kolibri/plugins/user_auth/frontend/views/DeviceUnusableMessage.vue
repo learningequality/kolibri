@@ -95,7 +95,7 @@
 
       const clearTasks = async () => {
         try {
-          await TaskResource.clearAll(DEPROVISION_TASK_QUEUE);
+          await TaskResource.clearAll_v2(DEPROVISION_TASK_QUEUE);
         } catch (e) {
           return;
         }

@@ -1,13 +1,15 @@
-import { render, waitFor } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
 import { ref } from 'vue';
+import client from 'kolibri/client';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { MAX_USERS_FOR_LISTING_VIEW } from '../../../constants';
-import FacilityUsernameResource from '../../../apiResources/FacilityUsernameResource';
 import SignInPage from '../index.vue';
 import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import useAuthRouter, { useAuthRouterMock } from '../../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import useAuthWatcher from '../../../composables/useAuthWatcher';
 
+jest.mock('kolibri/client');
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri/urls');
@@ -30,56 +32,57 @@ jest.mock('vue-router/composables', () => ({
   useRouter: () => ({ push: jest.fn() }),
   useRoute: () => ({ query: {}, params: {} }),
 }));
-jest.mock('../../../apiResources/FacilityUsernameResource', () => ({
-  __esModule: true,
-  default: { fetchCollection: jest.fn() },
-}));
+
+const { usernameLabel$ } = coreStrings;
 
 const TEST_FACILITY = { id: 'fac-1', name: 'Test Facility' };
+const SUGGESTED_USERNAME = 'alice';
+const SEARCHED_TERM = SUGGESTED_USERNAME.slice(0, 3);
 
-// useAuthFlowMock defaults selectedFacility to ref(null); always override it —
-// created() reads selectedFacility.id and will throw if selectedFacility is null.
-function setupMocks({ isAppContext = false } = {}) {
+// created() dereferences selectedFacility.id, and useAuthFlowMock defaults it to ref(null).
+function setupMocks({ isAppContext = false, facilityConfig = {} } = {}) {
   useUser.mockReturnValue(useUserMock({ isAppContext, login: jest.fn() }));
   useAuthFlow.mockReturnValue(
     useAuthFlowMock({
       selectedFacility: ref(TEST_FACILITY),
       facilityId: ref(TEST_FACILITY.id),
+      facilityConfig: ref(facilityConfig),
     }),
   );
   useAuthRouter.mockReturnValue(useAuthRouterMock());
   useAuthWatcher.mockReturnValue({ watchForFacilityChange: jest.fn() });
 }
 
-describe('SignInPage – FacilityUsername pagination', () => {
+describe('SignInPage – FacilityUsername reads', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    client.__reset();
   });
 
-  describe('created() hook', () => {
+  describe('app context user list', () => {
     it('does not fetch usernames when not in app context', () => {
       setupMocks({ isAppContext: false });
       render(SignInPage);
-      expect(FacilityUsernameResource.fetchCollection).not.toHaveBeenCalled();
+      expect(client).not.toHaveBeenCalled();
     });
 
     it('fetches with facility id and max_results when in app context', async () => {
       setupMocks({ isAppContext: true });
-      FacilityUsernameResource.fetchCollection.mockResolvedValue({
-        results: [],
-        more: null,
-      });
+      // `__setPayload` calls `mockReset()`, so it has to precede `render`.
+      client.__setPayload({ results: [], more: null });
       render(SignInPage);
       await waitFor(() =>
-        expect(FacilityUsernameResource.fetchCollection).toHaveBeenCalledWith({
-          getParams: { facility: TEST_FACILITY.id, max_results: MAX_USERS_FOR_LISTING_VIEW },
-        }),
+        expect(client).toHaveBeenCalledWith(
+          expect.objectContaining({
+            params: { facility: TEST_FACILITY.id, max_results: MAX_USERS_FOR_LISTING_VIEW },
+          }),
+        ),
       );
     });
 
     it('shows users list when facility has few users', async () => {
       setupMocks({ isAppContext: true });
-      FacilityUsernameResource.fetchCollection.mockResolvedValue({
+      client.__setPayload({
         results: [{ username: 'alice' }, { username: 'bob' }],
         more: null,
       });
@@ -89,7 +92,7 @@ describe('SignInPage – FacilityUsername pagination', () => {
 
     it('does not show users list when facility has too many users', async () => {
       setupMocks({ isAppContext: true });
-      FacilityUsernameResource.fetchCollection.mockResolvedValue({
+      client.__setPayload({
         results: Array.from({ length: 10 }, (_, i) => ({
           username: `user${String(i).padStart(2, '0')}`,
         })),
@@ -101,9 +104,32 @@ describe('SignInPage – FacilityUsername pagination', () => {
 
     it('does not show users list when fetch fails', async () => {
       setupMocks({ isAppContext: true });
-      FacilityUsernameResource.fetchCollection.mockRejectedValue(new Error('network'));
+      client.mockRejectedValue(new Error('network'));
       const { queryByTestId } = render(SignInPage);
       await waitFor(() => expect(queryByTestId('users-list')).not.toBeInTheDocument());
+    });
+  });
+
+  describe('username suggestions', () => {
+    it('searches on the typed term and lists the matching usernames', async () => {
+      setupMocks({
+        isAppContext: false,
+        facilityConfig: { learner_can_login_with_no_password: true },
+      });
+      client.__setPayload({ results: [{ username: SUGGESTED_USERNAME }], more: null });
+      render(SignInPage);
+      const usernameInput = await screen.findByRole('textbox', { name: usernameLabel$() });
+
+      await fireEvent.update(usernameInput, SEARCHED_TERM);
+
+      await waitFor(() =>
+        expect(client).toHaveBeenCalledWith(
+          expect.objectContaining({
+            params: { facility: TEST_FACILITY.id, search: SEARCHED_TERM },
+          }),
+        ),
+      );
+      expect(await screen.findByText(SUGGESTED_USERNAME)).toBeInTheDocument();
     });
   });
 });

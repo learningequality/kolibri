@@ -314,11 +314,9 @@
     },
     created() {
       if (this.isAppContext) {
-        FacilityUsernameResource.fetchCollection({
-          getParams: {
-            facility: this.selectedFacility.id,
-            max_results: MAX_USERS_FOR_LISTING_VIEW,
-          },
+        FacilityUsernameResource.list({
+          facility: this.selectedFacility.id,
+          max_results: MAX_USERS_FOR_LISTING_VIEW,
         })
           .then(data => {
             if (!data.more) {
@@ -370,11 +368,9 @@
         }
       },
       setSuggestions() {
-        FacilityUsernameResource.fetchCollection({
-          getParams: {
-            facility: this.selectedFacility.id,
-            search: this.suggestionTerm,
-          },
+        FacilityUsernameResource.list({
+          facility: this.selectedFacility.id,
+          search: this.suggestionTerm,
         })
           .then(users => {
             this.usernameSuggestions = users.results.map(user => user.username);

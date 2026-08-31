@@ -311,7 +311,7 @@
             gender: this.gender || DEFERRED,
             birth_year: this.birthYear || DEFERRED,
           };
-          SignUpResource.saveModel({ data: payload })
+          SignUpResource.create(payload)
             .then(user => {
               if (
                 this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
