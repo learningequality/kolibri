@@ -48,17 +48,17 @@ describe('useFacilities', () => {
 
   describe('fetchFacilities', () => {
     it('fetches facilities from FacilityResource', async () => {
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, facilities } = createUseFacilities();
       await fetchFacilities();
 
-      expect(FacilityResource.fetchCollection).toHaveBeenCalledWith({ force: true });
+      expect(FacilityResource.list).toHaveBeenCalledWith();
       expect(facilities.value).toEqual(mockFacilities);
     });
 
     it('updates hasMultipleFacilities when multiple facilities are fetched', async () => {
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, hasMultipleFacilities } = createUseFacilities();
       await fetchFacilities();
@@ -67,7 +67,7 @@ describe('useFacilities', () => {
     });
 
     it('handles fetch error gracefully', async () => {
-      FacilityResource.fetchCollection.mockRejectedValue(new Error('Fetch failed'));
+      FacilityResource.list.mockRejectedValue(new Error('Fetch failed'));
 
       const { fetchFacilities } = createUseFacilities();
 
@@ -78,12 +78,12 @@ describe('useFacilities', () => {
   describe('fetchFacility', () => {
     it('fetches a single facility and adds it to the cache', async () => {
       const singleFacility = { id: 'facility-3', name: 'Facility 3', dataset: 'dataset-3' };
-      FacilityResource.fetchModel.mockResolvedValue(singleFacility);
+      FacilityResource.retrieve.mockResolvedValue(singleFacility);
 
       const { fetchFacility, facilities } = createUseFacilities();
       await fetchFacility('facility-3');
 
-      expect(FacilityResource.fetchModel).toHaveBeenCalledWith({ id: 'facility-3', force: true });
+      expect(FacilityResource.retrieve).toHaveBeenCalledWith('facility-3');
       expect(facilities.value).toEqual([singleFacility]);
     });
 
@@ -95,7 +95,7 @@ describe('useFacilities', () => {
       };
 
       // First, add a facility to the cache
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
       let useFacilitiesModule;
       jest.isolateModules(() => {
         useFacilitiesModule = require('../useFacilities');
@@ -103,7 +103,7 @@ describe('useFacilities', () => {
       const { fetchFacilities, fetchFacility, facilities } = useFacilitiesModule.default();
 
       await fetchFacilities();
-      FacilityResource.fetchModel.mockResolvedValue(updatedFacility);
+      FacilityResource.retrieve.mockResolvedValue(updatedFacility);
       await fetchFacility('facility-1');
 
       expect(facilities.value[0].name).toBe('Updated Facility 1');
@@ -112,19 +112,19 @@ describe('useFacilities', () => {
 
     it('supports Ref as facilityId parameter', async () => {
       const singleFacility = { id: 'facility-4', name: 'Facility 4', dataset: 'dataset-4' };
-      FacilityResource.fetchModel.mockResolvedValue(singleFacility);
+      FacilityResource.retrieve.mockResolvedValue(singleFacility);
 
       const { fetchFacility } = createUseFacilities();
       const facilityRef = ref('facility-4');
       await fetchFacility(facilityRef);
 
-      expect(FacilityResource.fetchModel).toHaveBeenCalledWith({ id: 'facility-4', force: true });
+      expect(FacilityResource.retrieve).toHaveBeenCalledWith('facility-4');
     });
   });
 
   describe('getFacility', () => {
     it('returns facility matching the given facilityId', async () => {
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, getFacility } = createUseFacilities();
       await fetchFacilities();
@@ -133,7 +133,7 @@ describe('useFacilities', () => {
     });
 
     it('returns undefined when facilityId is not found', async () => {
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, getFacility } = createUseFacilities();
       await fetchFacilities();
@@ -142,7 +142,7 @@ describe('useFacilities', () => {
     });
 
     it('supports Ref as facilityId parameter', async () => {
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, getFacility } = createUseFacilities();
       await fetchFacilities();
@@ -159,7 +159,7 @@ describe('useFacilities', () => {
         isSuperuser: ref(true),
       });
 
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, userIsMultiFacilityAdmin } = createUseFacilities();
       await fetchFacilities();
@@ -173,7 +173,7 @@ describe('useFacilities', () => {
         isSuperuser: ref(false),
       });
 
-      FacilityResource.fetchCollection.mockResolvedValue(mockFacilities);
+      FacilityResource.list.mockResolvedValue(mockFacilities);
 
       const { fetchFacilities, userIsMultiFacilityAdmin } = createUseFacilities();
       await fetchFacilities();
@@ -187,7 +187,7 @@ describe('useFacilities', () => {
         isSuperuser: ref(true),
       });
 
-      FacilityResource.fetchCollection.mockResolvedValue([mockFacilities[0]]);
+      FacilityResource.list.mockResolvedValue([mockFacilities[0]]);
 
       const { fetchFacilities, userIsMultiFacilityAdmin } = createUseFacilities();
       await fetchFacilities();
