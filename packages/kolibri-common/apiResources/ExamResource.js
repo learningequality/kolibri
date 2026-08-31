@@ -7,10 +7,7 @@ import { Resource } from 'kolibri/apiResource';
 export default new Resource({
   name: 'exam',
   idKey: 'id',
-  fetchQuizzesSizes(getParams = {}) {
-    return this.fetchListCollection('size', getParams);
-  },
-  async fetchQuizzesSizes_v2(params = {}) {
+  async fetchQuizzesSizes(params = {}) {
     const response = await this.request({ action: 'size', params });
     return response.data;
   },

@@ -317,7 +317,7 @@
         return this.sandbox.mediator.sendMessage(newMsg);
       },
       sendChannelFilterOptions(message) {
-        return ChannelResource.fetchFilterOptions_v2(this.topic.channel_id)
+        return ChannelResource.fetchFilterOptions(this.topic.channel_id)
           .then(filterOptions => {
             return createReturnMsg({
               message,

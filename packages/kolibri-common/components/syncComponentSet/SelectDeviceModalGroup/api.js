@@ -43,7 +43,7 @@ export function fetchDevices(params = {}) {
  */
 export function deviceHasMatchingFacility(device, facility) {
   // TODO: ideally we could pass along the filters directly to the API
-  return NetworkLocationResource.fetchFacilities_v2(device.id).then(({ facilities }) => {
+  return NetworkLocationResource.fetchFacilities(device.id).then(({ facilities }) => {
     return Boolean(facilities.find(matches(facility)));
   });
 }
@@ -65,5 +65,5 @@ export async function channelIsAvailableAtDevice(channelId, device) {
  * @returns {Promise<NetworkLocation>} the refreshed network location record
  */
 export function updateConnectionStatus(device) {
-  return NetworkLocationResource.updateConnectionStatus_v2(device.id);
+  return NetworkLocationResource.updateConnectionStatus(device.id);
 }
