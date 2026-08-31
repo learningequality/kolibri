@@ -43,7 +43,7 @@
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { handleApiError } from 'kolibri/utils/appError';
   import { Presets } from 'kolibri/constants';
-  import { createFacility } from './api';
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 
   export default {
     name: 'CreateNewFacilityModal',
@@ -72,7 +72,7 @@
           name: this.facilityName,
           preset: this.preset,
         };
-        createFacility(payload)
+        FacilityResource.createFacility(payload)
           .then(() => {
             this.$emit('success');
             this.showSnackbarNotification('newLearningFacilityCreated');
