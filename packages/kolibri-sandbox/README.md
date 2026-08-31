@@ -128,11 +128,11 @@ The listeners for "outgoing" messages are all in `CustomContentRenderer.vue`, th
     });
 ```
 
-Here, when the event is omitted, the component uses existing kolibri helper functions like `ContentNodeResource.fetchModel()` to request the data.
+Here, when the event is omitted, the component uses existing kolibri helper functions like `ContentNodeResource.retrieve()` to request the data.
 
 ```
     fetchContentModel(message) {
-    return ContentNodeResource.fetchModel({ id: message.id })
+    return ContentNodeResource.retrieve(message.id)
         .then(contentNode => {
         return createReturnMsg({ message, data: contentNode });
         })
