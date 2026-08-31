@@ -242,7 +242,7 @@
               if (startedTask.status == TaskStatuses.COMPLETED) {
                 isPolling = false;
               } else if (startedTask.status === TaskStatuses.FAILED) {
-                TaskResource.clear_v2(taskId.value); // start a new one
+                TaskResource.clear(taskId.value); // start a new one
                 isTaskRequested = false;
                 taskError.value = true;
               }
@@ -274,7 +274,7 @@
 
       function to_finish() {
         const token = task.value.extra_metadata.token;
-        TaskResource.clear_v2(taskId.value);
+        TaskResource.clear(taskId.value);
         changeFacilityService.send({ type: 'FINISH' });
         // use the token to login in the device using the new user in the target facility
         const params = {
@@ -302,7 +302,7 @@
 
       function to_retry() {
         if (taskId.value !== null) {
-          TaskResource.clear_v2(taskId.value);
+          TaskResource.clear(taskId.value);
         }
         taskError.value = false;
         changeFacilityService.send('TASKERROR');
