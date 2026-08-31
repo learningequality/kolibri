@@ -230,7 +230,7 @@
             // schedule, and it is briefly clearable between the run ending and
             // the re-schedule that requeues it.
             if (task.clearable && task.repeat === 0) {
-              TaskResource.clear_v2(this.syncTaskId);
+              TaskResource.clear(this.syncTaskId);
             }
             this.syncTaskId = '';
             const status = taskDisplayStatus(task);

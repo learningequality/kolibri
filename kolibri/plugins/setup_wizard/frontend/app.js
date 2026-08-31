@@ -21,7 +21,7 @@ class SetupWizardModule extends KolibriApp {
     // Don't call beat because it may cause a save in the session endpoint
     // while the device provisioning is in progress
     logging.info('Clearing facility tasks created in previous sessions...');
-    TaskResource.clearAll_v2('facility_task');
+    TaskResource.clearAll('facility_task');
     this.startRootVue();
   }
 }

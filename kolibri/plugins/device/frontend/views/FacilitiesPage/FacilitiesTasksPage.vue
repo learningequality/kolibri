@@ -91,13 +91,13 @@
         this.clearCompletedFacilityTasks();
       },
       cancel(task) {
-        return TaskResource.cancel_v2(task.id);
+        return TaskResource.cancel(task.id);
       },
       clear(task) {
-        return TaskResource.clear_v2(task.id);
+        return TaskResource.clear(task.id);
       },
       retry(task) {
-        return TaskResource.restart_v2(task.id);
+        return TaskResource.restart(task.id);
       },
     },
     $trs: {

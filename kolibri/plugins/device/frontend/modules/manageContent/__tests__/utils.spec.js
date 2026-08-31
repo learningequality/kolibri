@@ -9,16 +9,16 @@ describe('cancelTask', () => {
   it('clears the task once it shows up as CANCELED in the task list', async () => {
     const store = makeStore();
     store.commit('manageContent/SET_TASK_LIST', [{ id: 'task_1', status: TaskStatuses.RUNNING }]);
-    TaskResource.cancel_v2.mockResolvedValue();
-    TaskResource.clear_v2.mockResolvedValue();
+    TaskResource.cancel.mockResolvedValue();
+    TaskResource.clear.mockResolvedValue();
 
     const cancelled = cancelTask(store, 'task_1');
-    expect(TaskResource.cancel_v2).toHaveBeenCalledWith('task_1');
-    expect(TaskResource.clear_v2).not.toHaveBeenCalled();
+    expect(TaskResource.cancel).toHaveBeenCalledWith('task_1');
+    expect(TaskResource.clear).not.toHaveBeenCalled();
 
     store.commit('manageContent/SET_TASK_LIST', [{ id: 'task_1', status: TaskStatuses.CANCELED }]);
     await cancelled;
 
-    expect(TaskResource.clear_v2).toHaveBeenCalledWith('task_1');
+    expect(TaskResource.clear).toHaveBeenCalledWith('task_1');
   });
 });
