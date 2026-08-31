@@ -53,7 +53,7 @@ export default function useFacilities() {
    * @returns {Promise<void>}
    */
   async function fetchFacilities() {
-    _facilities.value = await FacilityResource.fetchCollection({ force: true });
+    _facilities.value = await FacilityResource.list();
   }
 
   /**
@@ -62,7 +62,7 @@ export default function useFacilities() {
    * @returns {Promise<void>}
    */
   async function fetchFacility(facilityId) {
-    const facility = await FacilityResource.fetchModel({ id: unref(facilityId), force: true });
+    const facility = await FacilityResource.retrieve(unref(facilityId));
     let replaced = false;
 
     for (let i = 0; i < _facilities.value.length; i++) {
