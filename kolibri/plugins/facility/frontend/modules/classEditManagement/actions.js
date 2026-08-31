@@ -29,8 +29,7 @@ export function removeClassCoach(store, { classId, userId }) {
     // if no id passed, abort the function
     return;
   }
-  // TODO use a getModel with role id? should be available. Might have to undo mappers
-  // fetch the membership model with this classId and userId.
+  // TODO retrieve the role by its id? Might have to undo mappers.
   return RoleResource.bulkDelete({
     user: userId,
     collection: classId,
