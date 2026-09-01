@@ -2130,7 +2130,6 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version == '3.8.*' and platform_python_implementation != 'PyPy'",
     "python_full_version == '3.8.*' and platform_python_implementation == 'PyPy'",
-    "python_full_version < '3.8'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2f/ff/df5fede753cc10f6a5be0931204ea30c35fa2f2ea7a35b25bdaf4fe40e46/greenlet-3.1.1.tar.gz", hash = "sha256:4ce3ac6cdb6adf7946475d7ef31777c26d94bccc377e070a7986bd2d5c515467", size = 186022, upload-time = "2024-09-20T18:21:04.506Z" }
 wheels = [
@@ -3366,7 +3365,7 @@ base = [
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "morango", specifier = "==0.8.15" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
-    { name = "pytz", specifier = "==2026.2" },
+    { name = "pytz", specifier = "==2026.3.post1" },
     { name = "redis", specifier = "==3.5.3" },
     { name = "requests", specifier = "==2.27.1" },
     { name = "semver", specifier = "==2.13.0" },
@@ -3417,7 +3416,7 @@ dev = [
     { name = "pytest-env", specifier = "==0.6.2" },
     { name = "pytest-pythonpath", marker = "python_full_version < '3.14'", specifier = "==0.7.2" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
-    { name = "pytz", specifier = "==2026.2" },
+    { name = "pytz", specifier = "==2026.3.post1" },
     { name = "redis", specifier = "==3.5.3" },
     { name = "requests", specifier = "==2.27.1" },
     { name = "semver", specifier = "==2.13.0" },
@@ -3454,7 +3453,7 @@ docs = [
     { name = "morango", specifier = "==0.8.15" },
     { name = "myst-parser", marker = "python_full_version >= '3.9'" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
-    { name = "pytz", specifier = "==2026.2" },
+    { name = "pytz", specifier = "==2026.3.post1" },
     { name = "redis", specifier = "==3.5.3" },
     { name = "requests", specifier = "==2.27.1" },
     { name = "semver", specifier = "==2.13.0" },
@@ -3496,7 +3495,7 @@ load-test = [
     { name = "morango", specifier = "==0.8.15" },
     { name = "playwright", marker = "python_full_version >= '3.8'", specifier = ">=1.40" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
-    { name = "pytz", specifier = "==2026.2" },
+    { name = "pytz", specifier = "==2026.3.post1" },
     { name = "redis", specifier = "==3.5.3" },
     { name = "requests", specifier = "==2.27.1" },
     { name = "semver", specifier = "==2.13.0" },
@@ -3541,7 +3540,7 @@ test = [
     { name = "pytest-env", specifier = "==0.6.2" },
     { name = "pytest-pythonpath", marker = "python_full_version < '3.14'", specifier = "==0.7.2" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
-    { name = "pytz", specifier = "==2026.2" },
+    { name = "pytz", specifier = "==2026.3.post1" },
     { name = "redis", specifier = "==3.5.3" },
     { name = "requests", specifier = "==2.27.1" },
     { name = "semver", specifier = "==2.13.0" },
@@ -6309,11 +6308,11 @@ wheels = [
 
 [[package]]
 name = "pytz"
-version = "2026.2"
+version = "2026.3.post1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ff/46/dd499ec9038423421951e4fad73051febaa13d2df82b4064f87af8b8c0c3/pytz-2026.2.tar.gz", hash = "sha256:0e60b47b29f21574376f218fe21abc009894a2321ea16c6754f3cad6eb7cdd6a", size = 320861, upload-time = "2026-05-04T01:35:29.667Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/48/fb042503b6ca6cd271261dc559fd6432f7d8c713153e9ec5c591af4dfc1c/pytz-2026.3.post1.tar.gz", hash = "sha256:2211d3fcf9a797d3405cac96ac7f61d80e6a644f72a3309607282fe8a2010c5d", size = 319745, upload-time = "2026-07-25T15:12:07.385Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ec/dd/96da98f892250475bdf2328112d7468abdd4acc7b902b6af23f4ed958ea0/pytz-2026.2-py2.py3-none-any.whl", hash = "sha256:04156e608bee23d3792fd45c94ae47fae1036688e75032eea2e3bf0323d1f126", size = 510141, upload-time = "2026-05-04T01:35:27.408Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/7b/39c34ca613b0b198cb866466651b26b045e2009864c5183c979a3b83f383/pytz-2026.3.post1-py2.py3-none-any.whl", hash = "sha256:dd95840dd199baea12d9cc096a1d452caa6596a1c1e4b5f3dbd1541855d5e815", size = 508283, upload-time = "2026-07-25T15:12:05.782Z" },
 ]
 
 [[package]]
