@@ -36,4 +36,14 @@ export default [
     files: ['kolibri/**/static/**'],
     rules: CJS_RULES,
   },
+
+  // SVGator-generated animation files embed minified ES2022 player code (class
+  // fields, ??= operator) that can't be rewritten. Overriding the parser version
+  // for these files only
+  {
+    files: ['**/animations/**/*.vue'],
+    languageOptions: {
+      ecmaVersion: 2022,
+    },
+  },
 ];
