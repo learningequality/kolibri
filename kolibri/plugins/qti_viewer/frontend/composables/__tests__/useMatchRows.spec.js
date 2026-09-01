@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import useMatchRows from '../useMatchRows.js';
+import useMatchRows, { PAIR_ORDER } from '../useMatchRows.js';
 
 // Shaped after match-example-1: four sources used once each, three targets
 // reusable up to four times.
@@ -12,12 +12,14 @@ function setup({
   targetIds = TARGETS,
   matchMax = MATCH_MAX,
   maxAssociations = 0,
+  pairOrder = undefined,
 } = {}) {
   return useMatchRows({
     sourceIds,
     targetIds,
     matchMaxOf: identifier => matchMax[identifier] ?? 1,
     maxAssociations,
+    ...(pairOrder ? { pairOrder } : {}),
   });
 }
 
@@ -395,5 +397,67 @@ describe('reactive choices', () => {
     targetIds.value = ['T', 'R', 'M'];
 
     expect(pool.value).toEqual(['T', 'R', 'M']);
+  });
+});
+
+// `qti-match-interaction` authors a pair source-first, `qti-gap-match-interaction`
+// pool-choice-first. The rows are the same either way; only the value the
+// interaction reads and writes is turned around.
+describe('pair order', () => {
+  it('names the source first by default', () => {
+    const { pairs, place } = setup();
+    place('M', 0, 0);
+
+    expect(pairs.value).toEqual([['C', 'M']]);
+  });
+
+  it('names the pool choice first when asked to', () => {
+    const { pairs, place } = setup({ pairOrder: PAIR_ORDER.POOL_FIRST });
+    place('M', 0, 0);
+
+    expect(pairs.value).toEqual([['M', 'C']]);
+  });
+
+  it('reads a pool-first value back into the row it came from', () => {
+    const { rows, hydrate } = setup({ pairOrder: PAIR_ORDER.POOL_FIRST });
+    hydrate([
+      ['M', 'C'],
+      ['R', 'L'],
+    ]);
+
+    expect(rows.value).toEqual([['M'], [], ['R'], []]);
+  });
+
+  it('round-trips its own pairs', () => {
+    const { pairs, rows, place, hydrate } = setup({ pairOrder: PAIR_ORDER.POOL_FIRST });
+    place('M', 0, 0);
+    place('T', 3, 0);
+    const written = pairs.value;
+
+    hydrate(written);
+
+    expect(pairs.value).toEqual(written);
+    expect(rows.value).toEqual([['M'], [], [], ['T']]);
+  });
+
+  it('still applies every limit to a pool-first value', () => {
+    const { pairs, hydrate } = setup({
+      maxAssociations: 1,
+      pairOrder: PAIR_ORDER.POOL_FIRST,
+    });
+    hydrate([
+      ['R', 'C'],
+      ['M', 'D'],
+    ]);
+
+    expect(pairs.value).toEqual([['R', 'C']]);
+  });
+
+  it('drops a pool-first pair naming an unknown source', () => {
+    const { rows, hydrate } = setup({ pairOrder: PAIR_ORDER.POOL_FIRST });
+    // Source-first order, so 'C' lands where a target belongs and is refused
+    hydrate([['C', 'M']]);
+
+    expect(rows.value).toEqual([[], [], [], []]);
   });
 });

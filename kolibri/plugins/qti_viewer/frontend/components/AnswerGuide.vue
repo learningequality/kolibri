@@ -53,6 +53,11 @@
       message: 'Short answer only:',
       context: 'Tells the learner to type their answer in a text entry interaction',
     },
+    gapMatch: {
+      message: 'Choose a response, then choose a gap.',
+      context:
+        'Tells the learner how to fill each blank in a gap match question: pick a response from the pool, then pick the gap in the passage to put it in',
+    },
   });
 
   export default {
