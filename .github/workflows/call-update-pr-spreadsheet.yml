@@ -1,5 +1,5 @@
 name: Update community pull requests spreadsheet
-on:
+on: # zizmor: ignore[dangerous-triggers]
   pull_request_target:
     types: [assigned, unassigned, opened, closed, reopened, edited, review_requested, review_request_removed]
 permissions:

@@ -31,6 +31,11 @@ repos:
     rev: v1.7.12
     hooks:
       - id: actionlint
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.29.0
+    hooks:
+      - id: zizmor
+        args: [--no-progress, --offline, --min-confidence, medium]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.1
     hooks:

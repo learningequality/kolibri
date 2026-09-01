@@ -28,8 +28,10 @@ jobs:
     steps:
       - name: Parse Kolibri version
         id: parse-version
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag }}
         run: |
-          tag='${{ inputs.release-tag }}'
+          tag="$RELEASE_TAG"
           echo "kolibri_version=${tag#v}" >> "$GITHUB_OUTPUT"
       - name: Checkout repository
         uses: actions/checkout@v7.0.1

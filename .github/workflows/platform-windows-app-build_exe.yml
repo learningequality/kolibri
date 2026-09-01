@@ -74,7 +74,10 @@ jobs:
         run: choco install wget --no-progress && choco install innosetup --version=6.6.1 --allow-downgrade --no-progress
       - name: Download and install the whl from URL
         if: ${{ inputs.whl-url }}
-        run: make get-whl whl=${{ inputs.whl-url }}
+        shell: pwsh
+        env:
+          WHL_URL: ${{ inputs.whl-url }}
+        run: make get-whl "whl=$env:WHL_URL"
       - name: Download the whl from artifacts
         if: ${{ inputs.whl-file-name }}
         uses: actions/download-artifact@v8
@@ -83,7 +86,10 @@ jobs:
           path: platforms/desktop-app/whl
       - name: Install whl from artifacts
         if: ${{ inputs.whl-file-name }}
-        run: make install-whl whl=whl/${{ inputs.whl-file-name }}
+        shell: pwsh
+        env:
+          WHL_FILE_NAME: ${{ inputs.whl-file-name }}
+        run: make install-whl "whl=whl/$env:WHL_FILE_NAME"
       - name: Build the application with PyInstaller
         run: make pyinstaller
       - name: Build the Windows installer
