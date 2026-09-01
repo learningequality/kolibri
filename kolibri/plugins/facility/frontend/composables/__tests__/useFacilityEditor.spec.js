@@ -1,16 +1,12 @@
 import { computed, ref } from 'vue';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import useFacilityEditor from '../useFacilityEditor';
 
 jest.mock('kolibri-common/apiResources/FacilityResource');
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
-jest.mock('kolibri/client');
-jest.mock('kolibri/urls');
 jest.mock('kolibri-common/composables/useFacility');
 
 function mockSignInOptions(facilityConfig) {
@@ -78,13 +74,9 @@ describe('useFacilityEditor', () => {
   beforeEach(() => {
     useFacility.mockReturnValue(buildUseFacilityState());
 
-    // Mock urls
-    urls['kolibri:core:facilitydataset_update_pin'] = jest
-      .fn()
-      .mockReturnValue('/api/facility_dataset/update_pin/');
-    urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
-      .fn()
-      .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
+    FacilityDatasetResource.setPin.mockResolvedValue({ extra_fields: {} });
+    FacilityDatasetResource.unsetPin.mockResolvedValue({ extra_fields: {} });
+    FacilityDatasetResource.saveLoginSettings.mockResolvedValue({ dataset: {} });
   });
 
   describe('initialization', () => {
@@ -581,7 +573,6 @@ describe('useFacilityEditor', () => {
     });
 
     it('diffs against the pre-save snapshot, which saving the login settings leaves alone', async () => {
-      client.mockResolvedValue({ status: 200, data: {} });
       const {
         saveFacilityConfig,
         saveFacilityLoginSettings,
@@ -605,41 +596,32 @@ describe('useFacilityEditor', () => {
   });
 
   describe('setPin', () => {
-    it('sets PIN via POST request and saves config', async () => {
+    it('applies the returned extra_fields and saves config', async () => {
       const mockPayload = { pin_code: '9999' };
-      const mockResponse = { data: { extra_fields: { pin_code: '9999' } } };
+      FacilityDatasetResource.setPin.mockResolvedValue({ extra_fields: { pin_code: '9999' } });
 
-      client.mockResolvedValue(mockResponse);
-
-      const { setPin, settings } = useFacilityEditor();
+      const { setPin, settings, facilityDatasetId } = useFacilityEditor();
       settings.value = mockFacilityConfig;
+      facilityDatasetId.value = mockDatasetId;
 
       await setPin(mockPayload);
 
-      expect(client).toHaveBeenCalledWith({
-        url: '/api/facility_dataset/update_pin/',
-        method: 'POST',
-        data: mockPayload,
-      });
+      expect(FacilityDatasetResource.setPin).toHaveBeenCalledWith(mockDatasetId, mockPayload);
+      expect(settings.value.extra_fields).toEqual({ pin_code: '9999' });
       expect(FacilityDatasetResource.update).toHaveBeenCalled();
     });
   });
 
   describe('unsetPin', () => {
-    it('unsets PIN via PATCH request and saves config', async () => {
-      const mockResponse = { data: { extra_fields: {} } };
-
-      client.mockResolvedValue(mockResponse);
-
-      const { unsetPin, settings } = useFacilityEditor();
-      settings.value = mockFacilityConfig;
+    it('applies the cleared extra_fields and saves config', async () => {
+      const { unsetPin, settings, facilityDatasetId } = useFacilityEditor();
+      settings.value = { ...mockFacilityConfig, extra_fields: { pin_code: '9999' } };
+      facilityDatasetId.value = mockDatasetId;
 
       await unsetPin();
 
-      expect(client).toHaveBeenCalledWith({
-        url: '/api/facility_dataset/update_pin/',
-        method: 'PATCH',
-      });
+      expect(FacilityDatasetResource.unsetPin).toHaveBeenCalledWith(mockDatasetId);
+      expect(settings.value.extra_fields).toEqual({});
       expect(FacilityDatasetResource.update).toHaveBeenCalled();
     });
   });
@@ -660,9 +642,7 @@ describe('useFacilityEditor', () => {
   });
 
   describe('saveFacilityLoginSettings', () => {
-    it('calls the save-facility-login-settings endpoint via PATCH with login fields', async () => {
-      client.mockResolvedValue({ data: {} });
-
+    it('sends only the login fields', async () => {
       const { saveFacilityLoginSettings, settings, facilityDatasetId } = useFacilityEditor();
       settings.value = {
         ...mockFacilityConfig,
@@ -674,21 +654,17 @@ describe('useFacilityEditor', () => {
 
       await saveFacilityLoginSettings();
 
-      expect(client).toHaveBeenCalledWith({
-        url: '/api/facility_dataset/save_facility_login_settings/',
-        method: 'PATCH',
-        data: {
-          picture_password_settings: { icon_style: 'standard', show_icon_text: true },
-          learner_can_login_with_no_password: true,
-          learner_can_edit_password: false,
-        },
+      expect(FacilityDatasetResource.saveLoginSettings).toHaveBeenCalledWith(mockDatasetId, {
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
       });
     });
 
     it('stores the returned task id when a task is enqueued', async () => {
-      client.mockResolvedValue({
-        status: 202,
-        data: { dataset: {}, task: { id: 'task-123', status: 'QUEUED' } },
+      FacilityDatasetResource.saveLoginSettings.mockResolvedValue({
+        dataset: {},
+        task: { id: 'task-123', status: 'QUEUED' },
       });
 
       const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
@@ -707,7 +683,9 @@ describe('useFacilityEditor', () => {
     });
 
     it('does not set task id when no task is enqueued', async () => {
-      client.mockResolvedValue({ status: 200, data: { dataset: { id: 'dataset-id' } } });
+      FacilityDatasetResource.saveLoginSettings.mockResolvedValue({
+        dataset: { id: 'dataset-id' },
+      });
 
       const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
         useFacilityEditor();
@@ -724,7 +702,7 @@ describe('useFacilityEditor', () => {
         dataset: { id: 'dataset-id' },
         task: { id: 'task-123', status: 'QUEUED', percentage: 0 },
       };
-      client.mockResolvedValue({ status: 202, data: mockTaskData });
+      FacilityDatasetResource.saveLoginSettings.mockResolvedValue(mockTaskData);
 
       const { saveFacilityLoginSettings, settings, facilityDatasetId } = useFacilityEditor();
       settings.value = {

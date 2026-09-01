@@ -3,32 +3,21 @@
  */
 
 import { ref } from 'vue';
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
+import PluginsResource from 'kolibri-common/apiResources/PluginsResource';
 
 export default function usePlugins() {
   const plugins = ref(null);
-  const fetchPlugins = Promise.resolve(
-    client({
-      url: urls['kolibri:core:plugins_list'](),
-    }).then(response => {
-      plugins.value = response.data;
-    }),
-  );
+  const fetchPlugins = PluginsResource.list().then(data => {
+    plugins.value = data;
+  });
 
   function togglePlugin(pluginId, value) {
     const pluginIndex = plugins.value.findIndex(plugin => plugin.id === pluginId);
     if (pluginIndex !== -1) {
       const plugin = plugins.value[pluginIndex];
       if (plugin.enabled !== value) {
-        return client({
-          method: 'PATCH',
-          url: urls['kolibri:core:plugins_detail'](pluginId),
-          data: {
-            enabled: value,
-          },
-        }).then(response => {
-          plugins.value.splice(pluginIndex, 1, response.data);
+        return PluginsResource.update(pluginId, { enabled: value }).then(updatedPlugin => {
+          plugins.value.splice(pluginIndex, 1, updatedPlugin);
         });
       }
       return Promise.resolve();
