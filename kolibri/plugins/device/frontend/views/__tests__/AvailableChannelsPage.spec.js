@@ -1,21 +1,20 @@
-import { render, screen, waitFor, within, fireEvent } from '@testing-library/vue';
+import { render, screen, waitFor, within } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import VueRouter from 'vue-router';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import AvailableChannelsPage from '../AvailableChannelsPage';
 import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
 import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
 import WithImportDetails from '../ManageContentPage/ChannelPanel/WithImportDetails';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
-import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 import { PageNames } from '../../constants';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');
 jest.mock('kolibri-common/composables/usePageLoading');
-jest.mock('../../modules/wizard/utils', () => ({
-  getRemoteChannelBundleByToken: jest.fn(),
-}));
+jest.mock('kolibri-common/apiResources/RemoteChannelResource');
 
 const { channelTokenButtonLabel$, importResourcesHeader$ } = createTranslator(
   AvailableChannelsPage.name,
@@ -62,8 +61,7 @@ async function renderComponent({ store } = {}) {
 
 describe('AvailableChannelsPage', () => {
   it('in REMOTEIMPORT mode, the unlisted channel button is available', async () => {
-    const store = makeAvailableChannelsPageStore();
-    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+    const store = makeAvailableChannelsPageStore({ transferType: 'remoteimport' });
     await renderComponent({ store });
 
     await waitFor(() => {
@@ -72,8 +70,7 @@ describe('AvailableChannelsPage', () => {
   });
 
   it('in LOCALIMPORT mode, the unlisted channel button is not available', async () => {
-    const store = makeAvailableChannelsPageStore();
-    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localimport');
+    const store = makeAvailableChannelsPageStore({ transferType: 'localimport' });
     await renderComponent({ store });
 
     await waitFor(() => {
@@ -163,12 +160,13 @@ describe('AvailableChannelsPage', () => {
 
     // KSelect is a custom dropdown, not a native <select>: clicking its label
     // toggles the options list open, same as a real user would.
+    const user = userEvent.setup();
     const dropdownLabel = document.querySelector('.ui-select-label');
-    await fireEvent.click(dropdownLabel);
+    await user.click(dropdownLabel);
 
     const optionsList = document.querySelector('.ui-select-options');
     const germanLanguageName = 'German';
-    await fireEvent.click(within(optionsList).getByText(germanLanguageName));
+    await user.click(within(optionsList).getByText(germanLanguageName));
 
     // Only Hunden and Kaetze channels have lang_code 'de' in the fixture data.
     await waitFor(() => {
@@ -198,8 +196,9 @@ describe('AvailableChannelsPage', () => {
       expect(screen.getByTestId('available')).toBeInTheDocument();
     });
 
+    const user = userEvent.setup();
     const searchInput = screen.getByPlaceholderText(titleFilterPlaceholder$());
-    await fireEvent.update(searchInput, 'Bird');
+    await user.type(searchInput, 'Bird');
 
     await waitFor(() => {
       expect(screen.getByTestId('available')).toHaveTextContent(
@@ -225,12 +224,13 @@ describe('AvailableChannelsPage', () => {
       expect(screen.getByTestId('available')).toBeInTheDocument();
     });
 
+    const user = userEvent.setup();
     // Select German in the language filter first.
     const dropdownLabel = document.querySelector('.ui-select-label');
-    await fireEvent.click(dropdownLabel);
+    await user.click(dropdownLabel);
     const optionsList = document.querySelector('.ui-select-options');
     const germanLanguageName = 'German';
-    await fireEvent.click(within(optionsList).getByText(germanLanguageName));
+    await user.click(within(optionsList).getByText(germanLanguageName));
 
     await waitFor(() => {
       expect(screen.getByTestId('available')).toHaveTextContent(
@@ -241,7 +241,7 @@ describe('AvailableChannelsPage', () => {
     // Then narrow further by keyword. Both Hunden and Kaetze are German, but
     // only Kaetze should remain once we filter by name too.
     const searchInput = screen.getByPlaceholderText(titleFilterPlaceholder$());
-    await fireEvent.update(searchInput, 'Kaetze');
+    await user.type(searchInput, 'Kaetze');
 
     await waitFor(() => {
       expect(screen.getByTestId('available')).toHaveTextContent(
@@ -284,22 +284,22 @@ describe('AvailableChannelsPage', () => {
     });
 
     it('navigates to the select content page for a new (not-yet-installed) channel', async () => {
-      const store = makeAvailableChannelsPageStore();
-      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const store = makeAvailableChannelsPageStore({ transferType: 'remoteimport' });
       const { router } = await renderComponent({ store });
 
+      const user = userEvent.setup();
       const newChannel = { id: 'new_channel', version: 1 };
-      getRemoteChannelBundleByToken.mockResolvedValue([newChannel]);
+      RemoteChannelResource.list.mockResolvedValue([newChannel]);
 
       // Open the token modal via the "unlisted channel" button.
       const tokenButton = screen.getByText(channelTokenButtonLabel$());
-      await fireEvent.click(tokenButton);
+      await user.click(tokenButton);
 
       const textbox = await screen.findByRole('textbox', { name: channelTokenLabel$() });
-      await fireEvent.update(textbox, 'some-token');
+      await user.type(textbox, 'some-token');
 
       const submitButton = screen.getByRole('button', { name: continueAction$() });
-      await fireEvent.click(submitButton);
+      await user.click(submitButton);
 
       await waitFor(() => {
         expect(router.currentRoute.name).toEqual('SELECT_CONTENT');
@@ -312,20 +312,21 @@ describe('AvailableChannelsPage', () => {
       store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
       const { router } = await renderComponent({ store });
 
+      const user = userEvent.setup();
       const collectionChannels = [
         { id: 'collection_channel_1', version: 1 },
         { id: 'collection_channel_2', version: 1 },
       ];
-      getRemoteChannelBundleByToken.mockResolvedValue(collectionChannels);
+      RemoteChannelResource.list.mockResolvedValue(collectionChannels);
 
       const tokenButton = screen.getByText(channelTokenButtonLabel$());
-      await fireEvent.click(tokenButton);
+      await user.click(tokenButton);
 
       const textbox = await screen.findByRole('textbox', { name: channelTokenLabel$() });
-      await fireEvent.update(textbox, 'collection-token');
+      await user.type(textbox, 'collection-token');
 
       const submitButton = screen.getByRole('button', { name: continueAction$() });
-      await fireEvent.click(submitButton);
+      await user.click(submitButton);
 
       // No page redirect happens for a collection token — instead the token is
       // added to the current page's own url query so the channel list can use it.
@@ -336,24 +337,24 @@ describe('AvailableChannelsPage', () => {
     });
 
     it('navigates to the new channel version page when an installed channel has a newer version', async () => {
-      const store = makeAvailableChannelsPageStore();
-      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const store = makeAvailableChannelsPageStore({ transferType: 'remoteimport' });
       const { router } = await renderComponent({ store });
 
       // Awesome Channel is already installed at version 10 in the fixture data;
       // a token pointing to a newer version of the same channel should redirect
       // to the version-upgrade page rather than straight to select content.
+      const user = userEvent.setup();
       const updatedChannel = { id: 'awesome_channel', version: 11 };
-      getRemoteChannelBundleByToken.mockResolvedValue([updatedChannel]);
+      RemoteChannelResource.list.mockResolvedValue([updatedChannel]);
 
       const tokenButton = screen.getByText(channelTokenButtonLabel$());
-      await fireEvent.click(tokenButton);
+      await user.click(tokenButton);
 
       const textbox = await screen.findByRole('textbox', { name: channelTokenLabel$() });
-      await fireEvent.update(textbox, 'update-token');
+      await user.type(textbox, 'update-token');
 
       const submitButton = screen.getByRole('button', { name: continueAction$() });
-      await fireEvent.click(submitButton);
+      await user.click(submitButton);
 
       await waitFor(() => {
         expect(router.currentRoute.name).toEqual('NEW_CHANNEL_VERSION_PAGE');
