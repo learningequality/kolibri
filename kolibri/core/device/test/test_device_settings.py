@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from mock import patch
 
 import kolibri.core.device.models as device_models
 from kolibri.core.device.models import DeviceSettings
@@ -83,6 +84,43 @@ class DeviceSettingsTestCase(TestCase):
         DeviceSettings.objects.delete()
         with self.assertRaises(DeviceSettings.DoesNotExist):
             DeviceSettings.objects.get()
+
+    @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
+    def test_language_change_warms_cached_views(self, mock_enqueue):
+        ds = DeviceSettings.objects.create(language_id="en")
+
+        with self.captureOnCommitCallbacks(execute=True):
+            ds.language_id = "fr"
+            ds.save()
+
+        mock_enqueue.assert_called_once()
+
+    @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
+    def test_unchanged_language_does_not_warm_cached_views(self, mock_enqueue):
+        ds = DeviceSettings.objects.create(language_id="en")
+
+        with self.captureOnCommitCallbacks(execute=True):
+            ds.language_id = "en"
+            ds.save()
+
+        mock_enqueue.assert_not_called()
+
+    @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
+    def test_language_cleared_does_not_warm_cached_views(self, mock_enqueue):
+        ds = DeviceSettings.objects.create(language_id="en")
+
+        with self.captureOnCommitCallbacks(execute=True):
+            ds.language_id = None
+            ds.save()
+
+        mock_enqueue.assert_not_called()
+
+    @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
+    def test_initial_language_does_not_warm_cached_views(self, mock_enqueue):
+        with self.captureOnCommitCallbacks(execute=True):
+            DeviceSettings.objects.create(language_id="en")
+
+        mock_enqueue.assert_not_called()
 
     @pytest.mark.skip(
         reason="Other tests enabling the App plugin are not properly isolated"
