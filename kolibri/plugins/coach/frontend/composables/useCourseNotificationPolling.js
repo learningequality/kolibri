@@ -12,6 +12,13 @@ export default function useCourseNotificationPolling(
   const initial = store.getters['coachNotifications/maxNotificationTimestamp'];
   let baselineMs = initial ? new Date(initial).getTime() : 0;
 
+  if (classId) {
+    watch(classId, () => {
+      const current = store.getters['coachNotifications/maxNotificationTimestamp'];
+      baselineMs = current ? new Date(current).getTime() : 0;
+    });
+  }
+
   watch(
     () => store.getters['coachNotifications/maxNotificationTimestamp'],
     newTimestamp => {

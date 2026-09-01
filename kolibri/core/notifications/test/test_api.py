@@ -1,7 +1,10 @@
 import uuid
 from datetime import timedelta
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from le_utils.constants import content_kinds
+from le_utils.constants import exercises
 from mock import patch
 from rest_framework.test import APITestCase
 
@@ -13,6 +16,8 @@ from kolibri.core.auth.test.test_utils import MasteryLogFactory
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import TestType
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -1986,6 +1991,13 @@ class PrePostTestNotificationsTestCase(APITestCase):
         cls.synthetic_content_id = get_synthetic_content_id(
             cls.course_session.id, cls.unit_node.id, "pre"
         )
+        cls.unit_test_assignment = UnitTestAssignment.objects.create(
+            course_session=cls.course_session,
+            unit_contentnode_id=cls.unit_node.id,
+            collection=cls.classroom,
+            test_type=TestType.Pre,
+            activated_by=cls.superuser,
+        )
 
     def _create_prepost_masterylog(self, complete=False):
         summarylog = ContentSummaryLogFactory.create(
@@ -2002,6 +2014,11 @@ class PrePostTestNotificationsTestCase(APITestCase):
             mastery_level=-1,
             complete=complete,
             completion_timestamp=now if complete else None,
+            mastery_criterion={
+                "type": exercises.PRE_POST_TEST,
+                "version": "A",
+                "test_type": "pre",
+            },
         )
         return masterylog
 
@@ -2199,6 +2216,115 @@ class PrePostTestNotificationsTestCase(APITestCase):
             ).count()
             == 1
         )
+
+    def test_batch_process_masterylogs_for_quizzes_creates_prepost_notifications(self):
+        """
+        Regression test: the sync-time batch processor (used by the morango
+        post-transfer hook to regenerate notifications for an LOD sync) used
+        to filter on mastery_criterion__contains="coach_assigned", which
+        pre/post-test masterylogs never have, silently dropping them. It
+        should now recover the course_session_id via UnitTestAssignment
+        reverse-matching and create correctly-tagged notifications.
+        """
+        masterylog = self._create_prepost_masterylog(complete=True)
+        batch_process_masterylogs_for_quizzes([masterylog.id], [])
+
+        started = LearnerProgressNotification.objects.filter(
+            quiz_id=self.synthetic_content_id,
+            notification_event=NotificationEventType.Started,
+        )
+        assert started.count() == 1
+        assert started[0].course_session_id == self.course_session.id
+        assert started[0].classroom_id == self.classroom.id
+
+        completed = LearnerProgressNotification.objects.filter(
+            quiz_id=self.synthetic_content_id,
+            notification_event=NotificationEventType.Completed,
+        )
+        assert completed.count() == 1
+        assert completed[0].course_session_id == self.course_session.id
+        assert completed[0].classroom_id == self.classroom.id
+
+    def test_batch_process_masterylogs_for_quizzes_no_notification_without_assignment(
+        self,
+    ):
+        """
+        If no UnitTestAssignment matches the synthetic content_id (e.g. the
+        assignment was deleted, or this isn't actually a course pre/post
+        test), no course_session_id can be recovered - no notification
+        should be created rather than one with a broken/empty classroom_id.
+        """
+        self.unit_test_assignment.delete()
+        masterylog = self._create_prepost_masterylog(complete=True)
+        batch_process_masterylogs_for_quizzes([masterylog.id], [])
+
+        assert not LearnerProgressNotification.objects.filter(
+            quiz_id=self.synthetic_content_id,
+        ).exists()
+
+    def test_batch_process_masterylogs_for_quizzes_creates_prepost_answered(self):
+        masterylog = self._create_prepost_masterylog()
+        sessionlog = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.synthetic_content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        now = local_now()
+        attemptlog = AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            item="test_item",
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=5),
+            time_spent=5.0,
+            complete=True,
+            correct=1,
+        )
+        batch_process_masterylogs_for_quizzes([], [attemptlog.id])
+
+        answered = LearnerProgressNotification.objects.filter(
+            quiz_id=self.synthetic_content_id,
+            notification_event=NotificationEventType.Answered,
+        )
+        assert answered.count() == 1
+        assert answered[0].course_session_id == self.course_session.id
+        assert answered[0].classroom_id == self.classroom.id
+
+    def test_batch_process_masterylogs_for_quizzes_reuses_course_session_lookup(self):
+        masterylog = self._create_prepost_masterylog()
+        sessionlog = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.synthetic_content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        now = local_now()
+        attemptlogs = [
+            AttemptLog.objects.create(
+                masterylog=masterylog,
+                sessionlog=sessionlog,
+                user=self.user1,
+                item="test_item_{}".format(i),
+                start_timestamp=now,
+                end_timestamp=now + timedelta(seconds=5),
+                time_spent=5.0,
+                complete=True,
+                correct=1,
+            )
+            for i in range(3)
+        ]
+
+        with CaptureQueriesContext(connection) as ctx:
+            batch_process_masterylogs_for_quizzes([], [a.id for a in attemptlogs])
+
+        unit_test_assignment_queries = [
+            q
+            for q in ctx.captured_queries
+            if "courses_unittestassignment" in q["sql"].lower()
+        ]
+        assert len(unit_test_assignment_queries) == 1
 
 
 class CourseSessionRegressionTestCase(APITestCase):
