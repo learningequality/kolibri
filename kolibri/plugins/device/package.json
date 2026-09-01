@@ -22,6 +22,7 @@
         "@testing-library/jest-dom": "catalog:",
         "@testing-library/user-event": "catalog:",
         "@testing-library/vue": "catalog:",
-        "@vue/test-utils": "catalog:"
+        "@vue/test-utils": "catalog:",
+        "sortablejs": "1.15.7"
     }
 }
