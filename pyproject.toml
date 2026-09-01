@@ -1,7 +1,7 @@
 [build-system]
 # setuptools-scm 9 added SETUPTOOLS_SCM_PRETEND_METADATA, which the Makefile
 # relies on — 8.x ignores it silently and stamps a dirty version.
-requires = ["setuptools>=64", "setuptools-scm>=9,<10"]
+requires = ["setuptools>=64", "setuptools-scm>=9,<11"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -103,7 +103,7 @@ base = [
 test = [
     {include-group = "base"},
     "setuptools<82",
-    "setuptools-scm>=9,<10; python_version >= '3.8'",
+    "setuptools-scm>=9,<11; python_version >= '3.8'",
     "beautifulsoup4==4.8.2",
     "mock==2.0.0",
     "mixer==6.0.1",
