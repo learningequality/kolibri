@@ -65,4 +65,23 @@ describe('DragSortWidget', () => {
       expect(wrapper.findComponent({ ref: 'dnBtn' }).props('ariaLabel')).toBe('Move down');
     });
   });
+
+  describe('icon colour', () => {
+    const ICON_COLOR = 'rgb(97, 97, 97)';
+    const ICON_SELECTORS = ['.up svg', '.grip', '.dn svg'];
+
+    it('colours the grip and both move buttons', () => {
+      const wrapper = makeWrapper({ color: ICON_COLOR });
+      for (const selector of ICON_SELECTORS) {
+        expect(wrapper.find(selector).element).toHaveStyle({ fill: ICON_COLOR });
+      }
+    });
+
+    it('leaves the icons at the default colour when none is given', () => {
+      const wrapper = makeWrapper();
+      for (const selector of ICON_SELECTORS) {
+        expect(wrapper.find(selector).element).toHaveStyle({ fill: wrapper.vm.$themeTokens.text });
+      }
+    });
+  });
 });

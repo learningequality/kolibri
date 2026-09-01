@@ -13,6 +13,7 @@
       v-show="!isFirst"
       ref="upBtn"
       :icon="horizontal ? 'chevronLeft' : 'chevronUp'"
+      :color="color"
       class="btn up"
       size="mini"
       :ariaLabel="moveUpAriaLabel"
@@ -27,6 +28,7 @@
     <KIcon
       v-if="!horizontal"
       icon="dragHorizontal"
+      :color="color"
       class="grip"
       style="top: 0; width: 24px; height: 24px"
     />
@@ -34,6 +36,7 @@
       v-show="!isLast"
       ref="dnBtn"
       :icon="horizontal ? 'chevronRight' : 'chevronDown'"
+      :color="color"
       class="btn dn"
       size="mini"
       :ariaLabel="moveDownAriaLabel"
@@ -129,6 +132,11 @@
       horizontal: {
         type: Boolean,
         default: false,
+      },
+      // Icon colour for the grip and chevrons; KIcon's default when unset
+      color: {
+        type: String,
+        default: null,
       },
       // Human-readable name of this item
       itemLabel: {
