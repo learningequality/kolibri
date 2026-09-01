@@ -77,13 +77,13 @@ jobs:
             KOLIBRI_VERSION=${{ steps.parse-version.outputs.kolibri_version }}
             KOLIBRI_VERSION_SPEC===${{ steps.parse-version.outputs.kolibri_version }}
       - name: Generate Docker Hub artifact attestation
-        uses: actions/attest@v4.2.0
+        uses: actions/attest@v4.2.2
         with:
           subject-name: index.docker.io/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
       - name: Generate Github artifact attestation
-        uses: actions/attest@v4.2.0
+        uses: actions/attest@v4.2.2
         with:
           subject-name: ghcr.io/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
