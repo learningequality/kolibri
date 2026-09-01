@@ -1,9 +1,9 @@
 import ContentViewerModule from 'kolibri-viewer';
-import BloomPubComponent from './views/BloomPubRendererIndex.vue';
+import SandboxedContentViewer from 'kolibri/components/SandboxedContentViewer';
 
 class BloomPubModule extends ContentViewerModule {
   get viewerComponent() {
-    return BloomPubComponent;
+    return SandboxedContentViewer;
   }
 }
 

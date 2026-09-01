@@ -46,6 +46,9 @@ function parseConfig(buildConfig, pythonData, configPath, index = null) {
     config_path: configPath,
     module_path: pythonData.module_path,
     index,
+    // Flag for sandbox handler builds - these are built with no externals
+    // and output as IIFE format for script tag injection
+    sandbox_handler: buildConfig.sandbox_handler || false,
   };
 }
 

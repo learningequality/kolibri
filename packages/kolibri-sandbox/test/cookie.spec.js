@@ -13,13 +13,6 @@ describe('The cookie shim', () => {
     mediator = new Mediator(window);
     cookie = new Cookie(mediator);
   });
-  describe('__clearData method', () => {
-    it('should set the __data attribute to the empty base object', () => {
-      cookie.__data = {};
-      cookie.__clearData();
-      expect(cookie.__data).toEqual(emptyData);
-    });
-  });
   describe('__removeExpiredCookies method', () => {
     it('should remove any expired cookies from the rootCookies', () => {
       const testData = cookie.__data;
@@ -40,16 +33,20 @@ describe('The cookie shim', () => {
       expect(cookie.__removeExpiredCookies(testData)).toEqual(emptyData);
     });
   });
-  describe('__setData method', () => {
-    it('should call __removeExpiredCookies if the data is of valid form', () => {
-      cookie.__removeExpiredCookies = jest.fn();
-      cookie.__setData(emptyData);
-      expect(cookie.__removeExpiredCookies).toHaveBeenCalledWith(emptyData);
+  describe('setData method', () => {
+    it('should restore cookies that have not expired', () => {
+      const unexpired = { value: 'test', expires: new Date(Date.now() + 10000) };
+      cookie.setData({ rootCookies: { test: unexpired }, byPath: {} });
+      expect(cookie.data).toEqual({ rootCookies: { test: unexpired }, byPath: {} });
     });
-    it('should call __clearData if the data is of invalid form', () => {
-      cookie.__clearData = jest.fn();
-      cookie.__setData({});
-      expect(cookie.__clearData).toHaveBeenCalled();
+    it('should drop cookies that expired while the state was persisted', () => {
+      const expired = { value: 'test', expires: new Date(Date.now() - 10) };
+      cookie.setData({ rootCookies: { test: expired }, byPath: {} });
+      expect(cookie.data).toEqual(emptyData);
+    });
+    it('should empty the jar if the data is of invalid form', () => {
+      cookie.setData({});
+      expect(cookie.data).toEqual(emptyData);
     });
   });
   describe('iframeInitialize method', () => {
@@ -133,32 +130,6 @@ describe('The cookie shim', () => {
       Date.now = jest.fn(() => 0);
       cookie.setNow(new Date(1000));
       expect(cookie.__nowDiff).toEqual(1000);
-    });
-    it('should send a message with the NOW event', () => {
-      return new Promise(resolve => {
-        mediator.registerMessageHandler({
-          nameSpace: cookie.nameSpace,
-          event: cookie.events.NOW,
-          callback: () => {
-            resolve();
-          },
-        });
-        cookie.setNow(new Date(1000));
-      });
-    });
-    it('should send a message with the __nowDiff value', () => {
-      Date.now = jest.fn(() => 0);
-      return new Promise(resolve => {
-        mediator.registerMessageHandler({
-          nameSpace: cookie.nameSpace,
-          event: cookie.events.NOW,
-          callback: nowDiff => {
-            expect(nowDiff).toEqual(1000);
-            resolve();
-          },
-        });
-        cookie.setNow(new Date(1000));
-      });
     });
   });
   describe('__getCookies method', () => {

@@ -1,4 +1,6 @@
-exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex)
+# `build/` matches a whole path segment: unanchored it also swallowed the hand-written
+# sources in the kolibri-build package and the h5p_viewer h5p_build scripts.
+exclude: (\.git/|\.tox/|\.venv/|(^|/)build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

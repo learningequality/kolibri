@@ -35,7 +35,7 @@ jobs:
           # Get the latest commit from the API response
           latest_commit = "${{ fromJson(steps.get-commit.outputs.data).commit.sha }}".strip()
           # Check stored commit
-          commit_file = Path('packages/kolibri-sandbox/.h5p-commit-sha')
+          commit_file = Path('kolibri/plugins/h5p_viewer/h5p_build/.h5p-commit-sha')
           stored_commit = ""
           if commit_file.exists():
               stored_commit = commit_file.read_text().strip()
@@ -64,16 +64,16 @@ jobs:
         if: steps.check-commit.outputs.changed == 'true'
         run: |
           # Update the commit file
-          echo "${{ steps.check-commit.outputs.latest_commit }}" > packages/kolibri-sandbox/.h5p-commit-sha
+          echo "${{ steps.check-commit.outputs.latest_commit }}" > kolibri/plugins/h5p_viewer/h5p_build/.h5p-commit-sha
 
           # Run your script here
-          pnpm --filter kolibri-sandbox run build-h5p
+          pnpm --filter kolibri-h5p-viewer-plugin run build-h5p
       - name: Check for actual build changes
         if: steps.check-commit.outputs.changed == 'true'
         id: check-build-changes
         run: |
           # Stage only the build output files, excluding the commit SHA file
-          git add kolibri/core/content/static/h5p packages/kolibri-sandbox/h5p_build.json
+          git add kolibri/plugins/h5p_viewer/static/h5p kolibri/plugins/h5p_viewer/h5p_build/h5p_build.json
           if git diff --cached --quiet; then
             echo "has_build_changes=false" >> "$GITHUB_OUTPUT"
           else

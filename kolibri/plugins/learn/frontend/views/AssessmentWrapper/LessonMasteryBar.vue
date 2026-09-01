@@ -22,7 +22,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import BaseToolbar from 'kolibri-common/components/BaseToolbar';
+  import BaseToolbar from 'kolibri/components/BaseToolbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {

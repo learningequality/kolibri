@@ -167,6 +167,13 @@ describe('Mediator', () => {
         });
       });
     });
+    it('should drop the message when the remote is null', () => {
+      // An iframe's contentWindow is null while it swaps documents.
+      mediator.remote = null;
+      expect(() =>
+        mediator.sendMessage({ data: 'testData', event: 'testEvent', nameSpace: 'testNameSpace' }),
+      ).not.toThrow();
+    });
   });
   describe('registerMessageHandler method', () => {
     it('should add a callback to the array of callbacks for that nameSpace and event', () => {

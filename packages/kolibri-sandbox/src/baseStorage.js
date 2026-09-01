@@ -4,7 +4,7 @@
  *
  * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/Storage
  */
-import BaseShim from './baseShim';
+import { SandboxShim } from './SandboxShim';
 
 // List out all the keys that exist on the shim itself to
 // prevent accidental overwriting.
@@ -12,14 +12,18 @@ import BaseShim from './baseShim';
 // of object membership with 'in'
 const internalKeys = ['length', 'key', 'getItem', 'setItem', 'removeItem', 'clear'];
 
-export default class BaseStorage extends BaseShim {
-  constructor(mediator) {
-    super(mediator);
-    this.data = {};
+export default class BaseStorage extends SandboxShim {
+  /*
+   * The content reads and writes an object we hand it, rather than going through
+   * getItem/setItem, so the two have to be kept in step: every assignment to our
+   * state is pushed onto that object.
+   */
+  get data() {
+    return this.__data;
   }
 
-  __setData(data = {}) {
-    this.data = data;
+  set data(data) {
+    this.__data = data;
     this.setDataToShim();
   }
 
@@ -50,7 +54,7 @@ export default class BaseStorage extends BaseShim {
       }
     });
     if (updated) {
-      this.__setData(updatedData);
+      this.data = updatedData;
       this.stateUpdated();
     }
   }
