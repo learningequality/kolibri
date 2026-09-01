@@ -27,7 +27,7 @@
     "qrcode": "^1.5.4",
     "screenfull": "^5.2.0",
     "sortablejs": "1.15.7",
-    "uuid": "^14.0.1",
+    "uuid": "^14.0.2",
     "vue-router": "catalog:",
     "vuex": "catalog:",
     "xstate": "catalog:"
