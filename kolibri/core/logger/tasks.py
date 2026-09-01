@@ -2,10 +2,10 @@ from django.core.files.storage import default_storage
 from django.core.management import call_command
 from rest_framework import serializers
 
-from kolibri.core.auth.management.commands.bulkexportusers import (
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.utils.bulk_export import (
     CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
 )
-from kolibri.core.auth.models import Facility
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.tasks.decorators import register_task

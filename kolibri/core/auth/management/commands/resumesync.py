@@ -1,6 +1,6 @@
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
-from kolibri.core.auth.management.utils import get_network_connection
 from kolibri.core.auth.management.utils import MorangoSyncCommand
+from kolibri.core.auth.utils.sync import perform_resumesync
 
 
 class Command(MorangoSyncCommand):
@@ -43,19 +43,14 @@ class Command(MorangoSyncCommand):
         )
 
     def handle_async(self, *args, **options):
-        (
-            baseurl,
-            sync_session_id,
-            chunk_size,
-        ) = (
-            options["baseurl"],
-            options["id"],
-            options["chunk_size"],
+        perform_resumesync(
+            id=options["id"],
+            baseurl=options["baseurl"],
+            chunk_size=options["chunk_size"],
+            noninteractive=options["noninteractive"],
+            no_push=options["no_push"],
+            no_pull=options["no_pull"],
+            no_provision=options["no_provision"],
+            user=options["user"],
+            keep_alive=options["keep_alive"],
         )
-
-        # try to connect to server
-        network_connection = get_network_connection(baseurl)
-        sync_session_client = network_connection.resume_sync_session(
-            sync_session_id, chunk_size=chunk_size
-        )
-        self._sync(sync_session_client, **options)
