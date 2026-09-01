@@ -4,6 +4,7 @@ import sqlite3
 import tempfile
 import unittest
 import uuid
+from contextlib import closing
 from contextlib import contextmanager
 from contextlib import ExitStack
 
@@ -50,9 +51,11 @@ from kolibri.core.content.utils.annotation import (
 from kolibri.core.content.utils.annotation import update_content_metadata
 from kolibri.core.content.utils.channel_import import BATCH_SIZE
 from kolibri.core.content.utils.channel_import import ChannelImport
+from kolibri.core.content.utils.channel_import import FutureSchemaError
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import initialize_import_manager
+from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
 from kolibri.core.content.utils.channel_import import topological_sort
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_db import content_db
@@ -675,6 +678,9 @@ class ContentImportTestBase(TransactionTestCase):
     def load_fixture_data(self):
         return load_content_fixture_data(self.data_name)
 
+    def amend_content_db(self, db_path):
+        pass
+
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
     def set_content_fixture(self, db_path_mock):
         _, self.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
@@ -683,6 +689,7 @@ class ContentImportTestBase(TransactionTestCase):
         build_content_db_from_frozen_schema(
             self.content_db_path, self.schema_name, self.load_fixture_data()
         )
+        self.amend_content_db(self.content_db_path)
 
         import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
         update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
@@ -1542,3 +1549,74 @@ class Version5ImportTestCase(NaiveImportTestCase):
             self._reimport_from_scratch()
 
         self.assertEqual(attached, self._localfile_file_sizes())
+
+
+class SupersetSchemaImportTestCase(NaiveImportTestCase):
+    """
+    A database shaped the way Studio publishes one: the current schema's columns,
+    the legacy file_size column its declared floor promises, and a
+    min_schema_version far below either.
+    """
+
+    name = CONTENT_SCHEMA_VERSION
+
+    # Two activities at once, which no kind maps to, so a backfill from kind shows up.
+    authored_learning_activities = "UD5UGM0z,wA01urpi"
+
+    def load_fixture_data(self):
+        data = super().load_fixture_data()
+        data["content_channelmetadata"][0]["min_schema_version"] = VERSION_1
+        for row in data["content_contentnode"]:
+            if row["kind"] != "topic":
+                row["learning_activities"] = self.authored_learning_activities
+        return data
+
+    def amend_content_db(self, db_path):
+        with closing(sqlite3.connect(db_path)) as connection:
+            connection.execute(
+                "ALTER TABLE content_localfile ADD COLUMN file_size INTEGER"
+            )
+            connection.execute(
+                "UPDATE content_localfile SET file_size = file_size_bigint"
+            )
+            connection.commit()
+
+    def test_authored_learning_activities_are_not_backfilled_from_kind(self):
+        imported = set(
+            ContentNode.objects.filter(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+            .exclude(kind="topic")
+            .values_list("learning_activities", flat=True)
+        )
+
+        self.assertEqual({self.authored_learning_activities}, imported)
+
+
+class SchemaVersionSelectionTestCase(FrozenSchemaDBMixin, TestCase):
+    """
+    Which schema version picks the import class, and which one only gates it.
+    """
+
+    def build_declaring_floor(self, min_schema_version):
+        data = load_content_fixture_data(CONTENT_SCHEMA_VERSION)
+        data["content_channelmetadata"][0]["min_schema_version"] = min_schema_version
+        db_path = os.path.join(self.directory, "floor.sqlite3")
+        build_content_db_from_frozen_schema(db_path, CONTENT_SCHEMA_VERSION, data)
+        return db_path
+
+    def import_manager_for(self, min_schema_version):
+        db_path = self.build_declaring_floor(min_schema_version)
+        return initialize_import_manager(
+            read_channel_metadata_from_db_file(db_path), db_path
+        )
+
+    def test_the_shape_picks_the_class_over_a_lower_floor(self):
+        with self.import_manager_for(VERSION_1) as import_manager:
+            self.assertEqual(ChannelImport, type(import_manager))
+
+    def test_a_floor_above_this_kolibri_is_refused(self):
+        with self.assertRaises(FutureSchemaError):
+            self.import_manager_for(str(int(CONTENT_SCHEMA_VERSION) + 1))
+
+    def test_an_unreadable_floor_is_refused(self):
+        with self.assertRaises(InvalidSchemaVersionError):
+            self.import_manager_for("not-a-schema-version")

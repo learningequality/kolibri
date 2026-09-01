@@ -5,6 +5,8 @@ from django.test import TestCase
 
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import V020BETA1
+from kolibri.core.content.constants.schema_versions import VERSION_2
+from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_6
 from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.content.errors import SchemaNotFoundError
@@ -55,15 +57,27 @@ class SourceDBTestCase(FrozenSchemaDBMixin, TestCase):
             self.assertEqual([], source.columns("content_localfile"))
 
     def test_schema_version_is_inferred_for_every_frozen_schema(self):
+        # Version 2 is the one shape that fits a schema other than its own, and is
+        # covered by the test below instead.
         for version in CONTENT_DB_SCHEMA_VERSIONS:
+            if version == VERSION_2:
+                continue
             with self.subTest(version=version):
                 with SourceDB(self.build(version)) as source:
                     self.assertEqual(version, source.schema_version)
 
-    def test_a_shape_satisfying_two_schemas_infers_the_more_specific(self):
+    def test_a_shape_fitting_an_older_and_a_newer_schema_infers_the_newer(self):
+        # Schema 3 dropped ContentNode.stemmed_metaphone and File.available, so a
+        # version 2 file fits version 3 as well. The newest fit wins, because it is
+        # the reader that takes the most of the file — matching the most columns
+        # would answer 2 here.
+        with SourceDB(self.build(VERSION_2)) as source:
+            self.assertEqual(VERSION_3, source.schema_version)
+
+    def test_a_shape_satisfying_two_schemas_infers_the_newest(self):
         # Schema 6 renamed LocalFile.file_size to file_size_bigint, so a file carrying
-        # both satisfies 5 and 6. The more specific match is 6 — inferring 5 would
-        # drop File.included_presets on import.
+        # both satisfies 5 and 6. Inferring 5 would drop File.included_presets on
+        # import, and map file_size_bigint off a column that was never selected.
         db_path = self.build(VERSION_6)
         with sqlite3.connect(db_path) as connection:
             connection.execute("ALTER TABLE content_localfile ADD COLUMN file_size")

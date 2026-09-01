@@ -1243,6 +1243,30 @@ class InvalidSchemaVersionError(Exception):
     pass
 
 
+def _check_schema_supported(schema_version):
+    if schema_version in mappings:
+        return
+    try:
+        version_number = int(schema_version)
+    except (TypeError, ValueError):
+        raise InvalidSchemaVersionError(
+            "Tried to import invalid schema version {version}".format(
+                version=schema_version
+            )
+        )
+    if version_number > int(CONTENT_SCHEMA_VERSION):
+        raise FutureSchemaError(
+            "Tried to import schema version, {version}, which is not supported by this version of Kolibri.".format(
+                version=schema_version
+            )
+        )
+    raise InvalidSchemaVersionError(
+        "Tried to import unsupported schema version {version}".format(
+            version=schema_version
+        )
+    )
+
+
 def initialize_import_manager(
     channel_metadata,
     source,
@@ -1252,42 +1276,19 @@ def initialize_import_manager(
     version_requested=False,
     force_upgrade=False,
 ):
-    # For data-based imports the schema is the version the data was serialized at;
-    # for file-based imports use the channel's min_schema_version.
     if isinstance(source, dict):
-        min_version = source["schema_version"]
+        schema_version = source["schema_version"]
     else:
-        min_version = channel_metadata.get(
-            "min_schema_version",
-            channel_metadata.get("inferred_schema_version"),
-        )
+        # min_schema_version is a floor, not a description: Studio keeps its published
+        # databases readable by the oldest schema it still supports, and has declared 1
+        # throughout. It gates whether we can read the file; the file's own shape picks
+        # the mappings.
+        _check_schema_supported(channel_metadata.get("min_schema_version", NO_VERSION))
+        schema_version = channel_metadata["inferred_schema_version"]
 
-    try:
-        ImportClass = mappings.get(min_version)
-    except KeyError:
-        try:
-            version_number = int(min_version)
-            if version_number > int(CONTENT_SCHEMA_VERSION):
-                raise FutureSchemaError(
-                    "Tried to import schema version, {version}, which is not supported by this version of Kolibri.".format(
-                        version=min_version
-                    )
-                )
-            elif version_number < int(CONTENT_SCHEMA_VERSION):
-                # If it's a valid integer, but there is no schema for it, then we have stopped supporting this version
-                raise InvalidSchemaVersionError(
-                    "Tried to import unsupported schema version {version}".format(
-                        version=min_version
-                    )
-                )
-        except ValueError:
-            raise InvalidSchemaVersionError(
-                "Tried to import invalid schema version {version}".format(
-                    version=min_version
-                )
-            )
+    _check_schema_supported(schema_version)
 
-    return ImportClass(
+    return mappings[schema_version](
         channel_metadata["id"],
         source,
         channel_version=channel_metadata["version"],

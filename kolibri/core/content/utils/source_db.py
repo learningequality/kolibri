@@ -8,7 +8,6 @@ column maps under `contentschema/columns/`.
 """
 
 import sqlite3
-from functools import lru_cache
 from pathlib import Path
 
 from django.utils.functional import cached_property
@@ -16,21 +15,6 @@ from django.utils.functional import cached_property
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.content.errors import SchemaNotFoundError
-
-
-@lru_cache(maxsize=None)
-def _versions_by_specificity():
-    """
-    The schema versions ordered by declared column count, most first, so the first
-    version a file satisfies is its most specific match.
-
-    Schema 3 dropped ContentNode.stemmed_metaphone and File.available, so every version
-    2 database also satisfies version 3 — the container has to be tried first.
-    """
-    return sorted(
-        CONTENT_DB_SCHEMA_VERSIONS,
-        key=lambda version: -sum(map(len, for_version(version).values())),
-    )
 
 
 class SourceDB:
@@ -115,12 +99,15 @@ class SourceDB:
     @cached_property
     def schema_version(self):
         """
-        The content schema version this file's shape corresponds to. A file may declare
-        more than its own version does, as a Studio export does, so this matches on
-        superset rather than equality.
+        The newest content schema version this file's shape satisfies.
+
+        Studio publishes a database that is a superset of the oldest schema it
+        declares itself readable by, keeping legacy columns alongside current ones,
+        so this matches on superset rather than equality and ratchets down from the
+        newest version until one fits.
         """
         declared = {table: frozenset(columns) for table, columns in self._shape.items()}
-        for version in _versions_by_specificity():
+        for version in CONTENT_DB_SCHEMA_VERSIONS:
             if all(
                 declared.get(table, frozenset()).issuperset(columns)
                 for table, columns in for_version(version).items()
