@@ -142,8 +142,9 @@ kolibrisrc
 hooks/kolibri_plugins_entrypoints_hook.py
 installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
 installer/nssm.exe
-update_report.txt
 installer/dist-installer/
-installer/translations/locale/*/*.isl
+installer/translations/langoptions/
+installer/translations/languages.iss
+installer/translations/inno/
 # WebView2 SDK extracted by scripts/extract_webview2_iids.py for vtable layout
 webview2_sdk/
