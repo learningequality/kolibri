@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line import-x/named
 import { createTranslator } from 'kolibri/utils/i18n';
-import { dragSortStrings } from 'kolibri-common/components/sortable/dragSortStrings';
+import { dragSortStrings } from 'kolibri-common/components/draggable/dragSortStrings';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
@@ -57,7 +57,7 @@ describe('RearrangeChannelsPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    DeviceChannelResource.fetchCollection.mockResolvedValue(MOCK_CHANNELS);
+    DeviceChannelResource.list.mockResolvedValue(MOCK_CHANNELS);
     urls.__setUrl('/fake/url/');
     client.mockResolvedValue({});
   });
@@ -78,7 +78,7 @@ describe('RearrangeChannelsPage', () => {
   });
 
   it('shows a message when there are no channels', async () => {
-    DeviceChannelResource.fetchCollection.mockResolvedValue([]);
+    DeviceChannelResource.list.mockResolvedValue([]);
     await renderComponent();
     await waitFor(() => {
       expect(screen.getByText(noChannels$())).toBeInTheDocument();
