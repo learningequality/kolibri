@@ -42,3 +42,43 @@ class NetworkLocationBroadcastHook(KolibriHook):
         :type network_locations: kolibri.core.discovery.models.NetworkLocation[]
         """
         pass
+
+
+@define_hook(only_one_registered=True)
+class NetworkDiscoveryHook(KolibriHook):
+    """
+    A single-registration transport for network discovery. The default zeroconf
+    transport is registered with `as_default=True`; a platform may override it.
+    """
+
+    @abstractmethod
+    def register(self, instance):
+        """Start advertising `instance` on this transport."""
+
+    @abstractmethod
+    def update(self, instance, on_rebind):
+        """
+        Re-advertise `instance` (when not None) and apply any transport rebind.
+
+        Call `on_rebind()` before performing a rebind, not after: the backend
+        cycles its broadcast id there, and a peer rediscovered by the rebind
+        has to be enqueued under the incoming id.
+        """
+
+    @abstractmethod
+    def unregister(self):
+        """Stop advertising our instance."""
+
+    @abstractmethod
+    def start_listening(self, on_add, on_update, on_remove, is_known):
+        """
+        Begin discovering peers, dispatching KolibriInstances to the callbacks.
+
+        `is_known(name)` reports whether the backend already has a broadcasting
+        instance cached for a service name, so the transport can skip querying
+        it again.
+        """
+
+    @abstractmethod
+    def stop_listening(self):
+        """Stop discovering peers and release transport resources."""
