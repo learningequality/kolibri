@@ -28,7 +28,7 @@
     "mutationobserver-shim": "^0.3.7",
     "purgecss": "^6.0.0",
     "terser-webpack-plugin": "^5.3.14",
-    "webpack": "^5.103.0",
+    "webpack": "^5.109.2",
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
