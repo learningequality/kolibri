@@ -87,7 +87,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       - name: Notify Slack
         if: steps.publish.outputs.published == 'true' && env.PYPI_TARGET != 'testpypi'
-        uses: slackapi/slack-github-action@v3
+        uses: slackapi/slack-github-action@v4
         with:
           # Intentionally shared with npm_publish.yml — one Slack channel for
           # all package-publish notices; the message text disambiguates them.
