@@ -24,6 +24,9 @@
 
 .draggable-item--ghost {
   visibility: hidden;
+  // KListWithOverflow sets `visibility: visible` inline on its overflow items, escaping
+  // `visibility: hidden` here. A descendant cannot override `opacity`.
+  opacity: 0;
 }
 
 .draggable-item--placed {
