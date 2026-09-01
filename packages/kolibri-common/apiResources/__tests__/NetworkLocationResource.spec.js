@@ -11,11 +11,11 @@ describe('NetworkLocationResource', () => {
     urls.__echoUrls();
   });
 
-  describe('fetchFacilities_v2', () => {
+  describe('fetchFacilities', () => {
     it('reads the facilities of one device, not of every device', async () => {
       client.__setPayload({ facilities: [{ id: 'f1' }] });
 
-      const result = await NetworkLocationResource.fetchFacilities_v2('dev-1');
+      const result = await NetworkLocationResource.fetchFacilities('dev-1');
 
       expect(client).toHaveBeenCalledWith(
         expect.objectContaining({ url: '/kolibri:core:networklocation_facilities_detail/dev-1' }),
@@ -24,11 +24,11 @@ describe('NetworkLocationResource', () => {
     });
   });
 
-  describe('updateConnectionStatus_v2', () => {
+  describe('updateConnectionStatus', () => {
     it('POSTs to the connection-status action of one device', async () => {
       client.__setPayload({ id: 'dev-1', connection_status: 'Okay' });
 
-      const result = await NetworkLocationResource.updateConnectionStatus_v2('dev-1');
+      const result = await NetworkLocationResource.updateConnectionStatus('dev-1');
 
       expect(client).toHaveBeenCalledWith(
         expect.objectContaining({

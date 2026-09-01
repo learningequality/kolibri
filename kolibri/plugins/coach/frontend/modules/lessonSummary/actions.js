@@ -17,7 +17,7 @@ export function addToResourceCache(store, { node }) {
 export function updateCurrentLesson(store, lessonId) {
   return Promise.all([
     LessonResource.retrieve(lessonId),
-    LessonResource.fetchLessonsSizes_v2({ id: lessonId }),
+    LessonResource.fetchLessonsSizes({ id: lessonId }),
   ]).then(
     ([lesson, lessonSizes]) => {
       const size = lessonSizes[0] && lessonSizes[0][lessonId];

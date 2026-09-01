@@ -326,7 +326,7 @@
           fetchContentNodeTreeProgress(more);
         }
         // Fetch additional content nodes
-        return ContentNodeResource.fetchTree_v2(more)
+        return ContentNodeResource.fetchTree(more)
           .then(({ children }) => {
             viewResourcesContents.value = [...viewResourcesContents.value, ...children.results];
             moreResourcesContentAvailable.value = children.more;
@@ -637,7 +637,7 @@
         if (this.isUserLoggedIn && !this.baseurl) {
           this.fetchContentNodeTreeProgress(treeParams);
         }
-        return ContentNodeResource.fetchTree_v2(treeParams).then(ancestor => {
+        return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
           let parent;
           let nextFolders;
           if (fetchGrandparent) {

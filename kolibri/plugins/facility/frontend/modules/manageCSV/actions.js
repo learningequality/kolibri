@@ -107,7 +107,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
         store.commit(commitFinish, new Date());
         getExportedCSVsInfo(store);
       }
-      TaskResource.clear_v2(taskId);
+      TaskResource.clear(taskId);
     }
   } else {
     const running = myNewTasks.filter(task => {

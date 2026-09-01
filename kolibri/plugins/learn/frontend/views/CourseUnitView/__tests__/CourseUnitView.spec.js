@@ -135,9 +135,7 @@ describe('CourseUnitView', () => {
     const l1 = createLesson('l1', L1_TITLE, true, [r1, r2]);
     const l2 = createLesson('l2', L2_TITLE, false, [r3]);
 
-    ContentNodeResource.fetchTree_v2.mockResolvedValue(
-      createUnit('unit-1', UNIT_1_TITLE, [l1, l2]),
-    );
+    ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
     ContentNodeResource.list.mockResolvedValue([
       { id: UNIT_1, title: UNIT_1_TITLE, modality: 'UNIT' },
       { id: UNIT_2, title: UNIT_2_TITLE, modality: 'UNIT' },
@@ -157,7 +155,7 @@ describe('CourseUnitView', () => {
   }
 
   /**
-   * Mocks the unit tree returned by ContentNodeResource.fetchTree_v2 for the
+   * Mocks the unit tree returned by ContentNodeResource.fetchTree for the
    * redirect-guard tests that need a specific parent/child shape.
    * @param {object} [config] - Tree configuration.
    * @param {string} [config.unitId] - id of the unit at the root of the mocked tree.
@@ -174,7 +172,7 @@ describe('CourseUnitView', () => {
       [LESSON_3]: [RESOURCE_3],
     },
   } = {}) {
-    ContentNodeResource.fetchTree_v2.mockResolvedValue({
+    ContentNodeResource.fetchTree.mockResolvedValue({
       id: unitId,
       children: {
         results: lessonIds.map(lessonId => ({
@@ -531,9 +529,7 @@ describe('CourseUnitView', () => {
       const r3 = { ...createResource('r3', R3_TITLE, 'l2', 30), available: false };
       const l1 = createLesson('l1', L1_TITLE, true, [r1, r2]);
       const l2 = createLesson('l2', L2_TITLE, false, [r3]);
-      ContentNodeResource.fetchTree_v2.mockResolvedValue(
-        createUnit('unit-1', UNIT_1_TITLE, [l1, l2]),
-      );
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
 
       mockResumeData({
         resume_position: { unit_id: 'unit-1', lesson_id: 'l2', resource_id: 'r3' },
@@ -664,9 +660,7 @@ describe('CourseUnitView', () => {
       const r5 = createResource('r5', R5_TITLE, 'l2', 50);
       const l1 = createLesson('l1', L1_TITLE, true, [r1, r2, r3]);
       const l2 = createLesson('l2', L2_TITLE, false, [r4, r5]);
-      ContentNodeResource.fetchTree_v2.mockResolvedValue(
-        createUnit('unit-1', UNIT_1_TITLE, [l1, l2]),
-      );
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
 
       mockResumeData({
         resume_position: { unit_id: 'unit-1', lesson_id: 'l1', resource_id: 'r3' },

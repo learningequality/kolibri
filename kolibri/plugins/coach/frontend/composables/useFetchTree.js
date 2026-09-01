@@ -10,13 +10,13 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
  * @typedef {object} FetchTreeConfig
  * @property {computed<string|null|undefined>} topicId - The id of the root node to fetch the
  * children for.
- * @property {object} [params] - Params to pass to the `ContentNodeResource.fetchTree_v2` method;
+ * @property {object} [params] - Params to pass to the `ContentNodeResource.fetchTree` method;
  * this can include any keys that our API supports for filtering the results. Example:
  * `{kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC]}`. Default: `{}`.
  */
 
 /**
- * An API wrapper for fetching contents by way of the `ContentNodeResource.fetchTree_v2` method
+ * An API wrapper for fetching contents by way of the `ContentNodeResource.fetchTree` method
  * with specific helper methods for lazily loading more of the contents within a topic.
  * @module useFetchTree
  * @param {FetchTreeConfig} config - Fetch tree configuration.
@@ -40,7 +40,7 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
   const _loading = ref(false);
 
   /**
-   * @type {ref<object|null>} The params object we pass to the `ContentNodeResource.fetchTree_v2`
+   * @type {ref<object|null>} The params object we pass to the `ContentNodeResource.fetchTree`
    *   method to fetch the next batch of nodes. Note that the `more` we get from the API will
    *   include the same parameters as we sent in the first call. When null, there are no more
    *   to fetch for the current topicId.
@@ -50,7 +50,7 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
   const hasMore = computed(() => get(_moreParams) !== null);
   /**
    * Fetches a batch of content nodes under the current topic.
-   * @param {object} params - Params to pass to the `ContentNodeResource.fetchTree_v2` method
+   * @param {object} params - Params to pass to the `ContentNodeResource.fetchTree` method
    * (default: `{}`).
    * @returns {Promise<ContentNode[]>} Resolves with the list of resources fetched.
    * @affects _resources - The list of resources will be updated with the new list of resources.
@@ -61,7 +61,7 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
   async function _fetchNodeTree(params) {
     set(_loading, true);
 
-    return ContentNodeResource.fetchTree_v2({ id: get(topicId), params }).then(topicTree => {
+    return ContentNodeResource.fetchTree({ id: get(topicId), params }).then(topicTree => {
       // results is the list of all children from this call to the API
       // more is an object that contains the parameters we need to fetch the next batch of nodes
       const { results, more } = topicTree.children || { results: [], more: null };

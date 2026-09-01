@@ -105,8 +105,8 @@ describe('useCourseSession', () => {
 
     // Default mock implementations - no tests taken yet
     CourseSessionResource.retrieve.mockResolvedValue(mockCourseSession);
-    ContentNodeResource.fetchTree_v2.mockResolvedValue(mockCourse);
-    CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockNoTests);
+    ContentNodeResource.fetchTree.mockResolvedValue(mockCourse);
+    CourseSessionResource.lastUnitTest.mockResolvedValue(mockNoTests);
   });
 
   describe('initialization', () => {
@@ -125,10 +125,10 @@ describe('useCourseSession', () => {
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      expect(ContentNodeResource.fetchTree_v2).toHaveBeenCalledWith({
+      expect(ContentNodeResource.fetchTree).toHaveBeenCalledWith({
         id: mockCourseSession.course,
       });
-      expect(CourseSessionResource.lastUnitTest_v2).toHaveBeenCalledWith({
+      expect(CourseSessionResource.lastUnitTest).toHaveBeenCalledWith({
         id: mockCourseSessionId.value,
       });
     });
@@ -158,7 +158,7 @@ describe('useCourseSession', () => {
     });
 
     it('should set contentMissing when fetchTree fails', async () => {
-      ContentNodeResource.fetchTree_v2.mockRejectedValue(new Error('Content not found'));
+      ContentNodeResource.fetchTree.mockRejectedValue(new Error('Content not found'));
 
       const { contentMissing, courseSession, course, pageLoading } = useCourseSession(
         ref(mockCourseSessionId),
@@ -212,7 +212,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return null when lastUnitTest is not active', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
       const { activeTest } = useCourseSession(ref(mockCourseSessionId));
 
@@ -222,7 +222,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return lastUnitTest when status is active', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockActivePreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockActivePreTest);
 
       const { activeTest } = useCourseSession(ref(mockCourseSessionId));
 
@@ -242,7 +242,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return unit of active test when test is running', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockActivePreTest,
         unit_contentnode_id: 'unit-2',
         active_unit_id: 'unit-2',
@@ -256,7 +256,7 @@ describe('useCourseSession', () => {
     });
 
     it('should stay on same unit after pre-test is completed', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
       const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
@@ -266,7 +266,7 @@ describe('useCourseSession', () => {
     });
 
     it('should advance to next unit after post-test is completed', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
       const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
@@ -277,7 +277,7 @@ describe('useCourseSession', () => {
 
     it('should return null when course is complete', async () => {
       // Last unit's post-test is completed
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
@@ -294,11 +294,11 @@ describe('useCourseSession', () => {
     });
 
     it('should return null when no units exist', async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
       });
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockNoTests,
         active_unit_id: null,
       });
@@ -321,7 +321,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return correct index after advancing', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
       const { activeUnitIndex } = useCourseSession(ref(mockCourseSessionId));
 
@@ -331,11 +331,11 @@ describe('useCourseSession', () => {
     });
 
     it('should return -1 when no units exist', async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
       });
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockNoTests,
         active_unit_id: null,
       });
@@ -359,7 +359,7 @@ describe('useCourseSession', () => {
 
     it('should return completed units when advanced', async () => {
       // On unit 3 (units 1 and 2 completed)
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         id: 'test-4',
         unit_contentnode_id: 'unit-2',
         test_type: TestType.POST,
@@ -378,7 +378,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return all units when course is complete', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
@@ -411,7 +411,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return fewer units as course progresses', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
       const { upcomingUnits } = useCourseSession(ref(mockCourseSessionId));
 
@@ -422,7 +422,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return empty array on last unit', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         id: 'test-4',
         unit_contentnode_id: 'unit-2',
         test_type: TestType.POST,
@@ -449,7 +449,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return false when some units remain', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
       const { isCourseComplete } = useCourseSession(ref(mockCourseSessionId));
 
@@ -459,7 +459,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return true when all units are complete', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
@@ -476,11 +476,11 @@ describe('useCourseSession', () => {
     });
 
     it('should return false when no units exist', async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
       });
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockNoTests,
         active_unit_id: null,
       });
@@ -505,7 +505,7 @@ describe('useCourseSession', () => {
     });
 
     it('should contain the last test data', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
       const { lastUnitTest } = useCourseSession(ref(mockCourseSessionId));
 
@@ -525,7 +525,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return PRE_TEST_ACTIVE when pre-test is running', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockActivePreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockActivePreTest);
 
       const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
@@ -535,7 +535,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return POST_TEST_PENDING after pre-test is completed', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
       const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
@@ -545,7 +545,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return POST_TEST_ACTIVE when post-test is running', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockActivePostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockActivePostTest);
 
       const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
@@ -555,7 +555,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return PRE_TEST_PENDING after post-test is completed (next unit)', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue(mockCompletedPostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
       const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
@@ -566,7 +566,7 @@ describe('useCourseSession', () => {
     });
 
     it('should return COMPLETE when course is complete', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValue({
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
@@ -584,8 +584,8 @@ describe('useCourseSession', () => {
   });
 
   describe('activateTest action', () => {
-    it('should call CourseSessionResource.activateTest_v2 with correct params', async () => {
-      CourseSessionResource.activateTest_v2.mockResolvedValue(mockActivePreTest);
+    it('should call CourseSessionResource.activateTest with correct params', async () => {
+      CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
 
       const { activateTest } = useCourseSession(ref(mockCourseSessionId));
 
@@ -593,7 +593,7 @@ describe('useCourseSession', () => {
 
       await activateTest(TestType.PRE);
 
-      expect(CourseSessionResource.activateTest_v2).toHaveBeenCalledWith({
+      expect(CourseSessionResource.activateTest).toHaveBeenCalledWith({
         id: mockCourseSessionId.value,
         data: {
           unit_contentnode_id: 'unit-1',
@@ -609,7 +609,7 @@ describe('useCourseSession', () => {
 
       expect(activeTest.value).toBe(null);
 
-      CourseSessionResource.activateTest_v2.mockResolvedValue(mockActivePreTest);
+      CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
 
       await activateTest(TestType.PRE);
 
@@ -617,7 +617,7 @@ describe('useCourseSession', () => {
     });
 
     it('should update unitPhase after activation', async () => {
-      CourseSessionResource.activateTest_v2.mockResolvedValue(mockActivePreTest);
+      CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
 
       const { activateTest, unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
@@ -632,9 +632,9 @@ describe('useCourseSession', () => {
   });
 
   describe('closeTest action', () => {
-    it('should call CourseSessionResource.closeTest_v2 with correct params', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValueOnce(mockActivePreTest);
-      CourseSessionResource.closeTest_v2.mockResolvedValue(mockCompletedPreTest);
+    it('should call CourseSessionResource.closeTest with correct params', async () => {
+      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
       const { closeTest } = useCourseSession(ref(mockCourseSessionId));
 
@@ -642,7 +642,7 @@ describe('useCourseSession', () => {
 
       await closeTest();
 
-      expect(CourseSessionResource.closeTest_v2).toHaveBeenCalledWith({
+      expect(CourseSessionResource.closeTest).toHaveBeenCalledWith({
         id: mockCourseSessionId.value,
         data: {
           unit_contentnode_id: 'unit-1',
@@ -652,8 +652,8 @@ describe('useCourseSession', () => {
     });
 
     it('should clear activeTest after closing', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValueOnce(mockActivePreTest);
-      CourseSessionResource.closeTest_v2.mockResolvedValue(mockCompletedPreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
       const { closeTest, activeTest } = useCourseSession(ref(mockCourseSessionId));
 
@@ -667,8 +667,8 @@ describe('useCourseSession', () => {
     });
 
     it('should update unitPhase after closing pre-test', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValueOnce(mockActivePreTest);
-      CourseSessionResource.closeTest_v2.mockResolvedValue(mockCompletedPreTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
       const { closeTest, unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
@@ -682,8 +682,8 @@ describe('useCourseSession', () => {
     });
 
     it('should advance activeUnit after closing post-test', async () => {
-      CourseSessionResource.lastUnitTest_v2.mockResolvedValueOnce(mockActivePostTest);
-      CourseSessionResource.closeTest_v2.mockResolvedValue(mockCompletedPostTest);
+      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePostTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPostTest);
 
       const { closeTest, activeUnit } = useCourseSession(ref(mockCourseSessionId));
 

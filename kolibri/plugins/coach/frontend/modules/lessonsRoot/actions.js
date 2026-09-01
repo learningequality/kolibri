@@ -40,7 +40,7 @@ export function refreshClassLessons(store, classId) {
 }
 
 export function fetchLessonsSizes(store, classId, shouldCommit = true) {
-  return LessonResource.fetchLessonsSizes_v2({ collection: classId })
+  return LessonResource.fetchLessonsSizes({ collection: classId })
     .then(sizes => {
       if (shouldCommit) {
         store.commit('SET_CLASS_LESSONS_SIZES', sizes);

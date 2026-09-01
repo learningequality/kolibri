@@ -33,7 +33,7 @@ export function useAttendance() {
   }
 
   function fetchRecentSessions(classId, limit = 5) {
-    return AttendanceSessionResource.fetchRecentSessions_v2({
+    return AttendanceSessionResource.fetchRecentSessions({
       collection: classId,
       limit,
     }).then(data => {
@@ -55,7 +55,7 @@ export function useAttendance() {
   }
 
   function bulkUpdateRecords(sessionId, records) {
-    return AttendanceRecordResource.bulkUpdate_v2({
+    return AttendanceRecordResource.bulkUpdate({
       attendance_session: sessionId,
       records,
     });
