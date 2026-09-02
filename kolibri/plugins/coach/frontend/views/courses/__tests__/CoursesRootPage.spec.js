@@ -5,6 +5,7 @@ import VueRouter from 'vue-router';
 import '@testing-library/jest-dom';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import { handleApiError } from 'kolibri/utils/appError';
 import CoursesRootPage from '../CoursesRootPage.vue';
 import { UnitPhase } from '../../../constants/courseConstants';
 // eslint-disable-next-line import-x/named
@@ -21,6 +22,10 @@ const { entireClassLabel$ } = coachStrings;
 
 jest.mock('../../../composables/useCourses');
 jest.mock('../../../composables/useClassSummary');
+jest.mock('kolibri/utils/appError', () => ({
+  ...jest.requireActual('kolibri/utils/appError'),
+  handleApiError: jest.fn(),
+}));
 
 function makeStore() {
   return new Vuex.Store({
@@ -32,13 +37,27 @@ function makeStore() {
         namespaced: true,
         state: { id: 'class-123' },
       },
+      coachNotifications: {
+        namespaced: true,
+        state: { notifications: [] },
+        getters: {
+          maxNotificationTimestamp: state =>
+            state.notifications.length > 0 ? state.notifications[0].timestamp : 0,
+        },
+        mutations: {
+          SET_NOTIFICATIONS(state, notifications) {
+            state.notifications = notifications;
+          },
+        },
+      },
     },
   });
 }
 
 function renderComponent() {
-  return render(CoursesRootPage, {
-    store: makeStore(),
+  const store = makeStore();
+  const utils = render(CoursesRootPage, {
+    store,
     routes: new VueRouter({
       routes: [
         { path: '/', name: 'CoursesRoot' },
@@ -46,6 +65,7 @@ function renderComponent() {
       ],
     }),
   });
+  return { ...utils, store };
 }
 
 describe('CoursesRootPage', () => {
@@ -130,6 +150,60 @@ describe('CoursesRootPage', () => {
 
     const toggle = screen.getByRole('checkbox');
     expect(toggle).toBeDisabled();
+  });
+
+  it('refetches courses when a new coach notification arrives', async () => {
+    const { refreshClassCourses } = useCoursesMock();
+    useCourses.mockImplementation(() =>
+      useCoursesMock({
+        refreshClassCourses,
+        courses: ref([{ id: 'session-1', title: 'Course 1', active: true, contentMissing: false }]),
+      }),
+    );
+
+    const { store } = renderComponent();
+    await global.flushPromises();
+    refreshClassCourses.mockClear();
+
+    store.commit('coachNotifications/SET_NOTIFICATIONS', [
+      {
+        id: 1,
+        course_session_id: 'session-1',
+        classroom_id: undefined,
+        timestamp: '2024-01-01T10:00:00Z',
+      },
+    ]);
+    await global.flushPromises();
+
+    expect(refreshClassCourses).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not surface a global error when a poll-triggered refresh fails', async () => {
+    const refreshClassCourses = jest.fn().mockRejectedValue(new Error('network error'));
+    useCourses.mockImplementation(() =>
+      useCoursesMock({
+        refreshClassCourses,
+        courses: ref([{ id: 'session-1', title: 'Course 1', active: true, contentMissing: false }]),
+      }),
+    );
+
+    const { store } = renderComponent();
+    await global.flushPromises();
+    refreshClassCourses.mockClear();
+    handleApiError.mockClear();
+
+    store.commit('coachNotifications/SET_NOTIFICATIONS', [
+      {
+        id: 1,
+        course_session_id: 'session-1',
+        classroom_id: undefined,
+        timestamp: '2024-01-01T10:00:00Z',
+      },
+    ]);
+    await global.flushPromises();
+
+    expect(refreshClassCourses).toHaveBeenCalledTimes(1);
+    expect(handleApiError).not.toHaveBeenCalled();
   });
 
   it('should enable visibility toggle for courses with content present', () => {
