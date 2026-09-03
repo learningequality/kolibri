@@ -1035,7 +1035,7 @@ describe('Model', function () {
       });
     });
     describe('if called when Model.synced = true and attrs are different', function () {
-      it('should should call the client once', function (done) {
+      it('should call the client once', function (done) {
         model.synced = true;
         const payload = { somethingNew: 'new' };
         const data = {};
@@ -1049,7 +1049,7 @@ describe('Model', function () {
           done();
         });
       });
-      it('should should call set once with the changed attributes', function (done) {
+      it('should call set once with the changed attributes', function (done) {
         model.synced = true;
         const payload = { somethingNew: 'new' };
         const data = {};

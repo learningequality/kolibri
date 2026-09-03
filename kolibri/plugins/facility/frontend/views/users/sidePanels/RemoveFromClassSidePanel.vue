@@ -353,7 +353,7 @@
       // have selected any users if we load into this page, so go to the users table.
       if (from.name === null) {
         next(
-          // Override to to keep params like facility_id in place
+          // Override to keep params like facility_id in place
           overrideRoute(to, {
             name: PageNames.USER_MGMT_PAGE,
           }),

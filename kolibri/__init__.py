@@ -1,5 +1,5 @@
 """
-CAUTION! Keep everything here at at minimum. Do not import stuff.
+CAUTION! Keep everything here at minimum. Do not import stuff.
 Do not import dependencies here.
 """
 

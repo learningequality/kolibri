@@ -279,7 +279,7 @@ However, this should be avoided whenever possible. Consider whether your use cas
 Behavior
 ~~~~~~~~
 
-Occasionally it is necessary to perform different logic depending on the directionalty of the the currently-selected language. For example, the handling of a button that changes horizontal scroll position would need to flip direction.
+Occasionally it is necessary to perform different logic depending on the directionality of the currently-selected language. For example, the handling of a button that changes horizontal scroll position would need to flip direction.
 
 In the frontend, we provide a ``isRtl`` property attached to every Vue instance. For example, you could write Vue methods like:
 
