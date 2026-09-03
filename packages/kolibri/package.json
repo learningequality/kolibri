@@ -93,7 +93,7 @@
     "lockr": "0.8.5",
     "lodash": "catalog:",
     "path-to-regexp": "1.9.0",
-    "qs": "^6.15.2",
+    "qs": "^6.16.0",
     "tippy.js": "^6.3.7",
     "ua-parser-js": "^1.0.41",
     "vue": "catalog:",
