@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { render, screen, fireEvent, within } from '@testing-library/vue';
 import { Categories } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -15,7 +15,7 @@ const {
   mathematics$,
   clearAllAction$,
 } = coreStrings;
-const { allFilters$ } = searchAndFilterStrings;
+const { allFilters$, appliedFiltersGroupLabel$ } = searchAndFilterStrings;
 
 const KEYWORD_FILTER = 'hummingbirds';
 
@@ -67,35 +67,64 @@ function renderComponent(provides = {}, props = {}) {
 }
 
 describe('HorizontalFilterPills', () => {
+  describe('grouping', () => {
+    it('groups the filter checkboxes under a named group', () => {
+      renderComponent();
+      const group = screen.getByRole('group', { name: appliedFiltersGroupLabel$() });
+      expect(within(group).getByRole('checkbox', { name: create$() })).toBeInTheDocument();
+      expect(within(group).getByRole('checkbox', { name: school$() })).toBeInTheDocument();
+    });
+
+    it('does not include the all-filters or clear-all actions in the group', () => {
+      renderComponent({
+        appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
+      });
+      const group = screen.getByRole('group', { name: appliedFiltersGroupLabel$() });
+      expect(within(group).queryByRole('button', { name: allFilters$() })).not.toBeInTheDocument();
+      expect(
+        within(group).queryByRole('button', { name: clearAllAction$() }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('activity pills', () => {
-    it('renders a pill for each available activity', () => {
+    it('renders a checkbox for each available activity', () => {
       renderComponent();
       expect(screen.getAllByTestId('activity-pill')).toHaveLength(3);
-      expect(screen.getByRole('button', { name: create$() })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: explore$() })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: listen$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: explore$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: listen$() })).toBeInTheDocument();
     });
 
     it('calls toggleFilter when an activity pill is clicked', async () => {
       const { toggleFilter } = renderComponent();
-      await fireEvent.click(screen.getByRole('button', { name: create$() }));
+      await fireEvent.click(screen.getByRole('checkbox', { name: create$() }));
       expect(toggleFilter).toHaveBeenCalledWith(
         expect.objectContaining({ key: 'learning_activities', value: 'UXADWcXZ' }),
       );
     });
+
+    it('reflects the applied state as checked', () => {
+      renderComponent({
+        appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
+        isFilterActive: (key, value) => key === 'learning_activities' && value === 'UXADWcXZ',
+      });
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeChecked();
+      expect(screen.getByRole('checkbox', { name: explore$() })).not.toBeChecked();
+    });
   });
 
   describe('category pills', () => {
-    it('renders a pill for each available category', () => {
+    it('renders a checkbox for each available category', () => {
       renderComponent();
       expect(screen.getAllByTestId('category-pill')).toHaveLength(2);
-      expect(screen.getByRole('button', { name: school$() })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: dailyLife$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: school$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: dailyLife$() })).toBeInTheDocument();
     });
 
     it('calls toggleFilter when a category pill is clicked', async () => {
       const { toggleFilter } = renderComponent();
-      await fireEvent.click(screen.getByRole('button', { name: school$() }));
+      await fireEvent.click(screen.getByRole('checkbox', { name: school$() }));
       expect(toggleFilter).toHaveBeenCalledWith(
         expect.objectContaining({ key: 'categories', value: Categories.SCHOOL }),
       );
@@ -112,6 +141,7 @@ describe('HorizontalFilterPills', () => {
       });
       const pill = screen.getByTestId('category-pill');
       expect(pill).toHaveTextContent(mathematics$());
+      expect(screen.getByRole('checkbox', { name: mathematics$() })).toBeChecked();
       expect(screen.queryByText(SUBCATEGORY_VALUE)).not.toBeInTheDocument();
     });
   });
@@ -139,7 +169,7 @@ describe('HorizontalFilterPills', () => {
           key === 'learning_activities' ? value === '#j8L0eq3' : false,
       });
       expect(screen.getAllByTestId('activity-pill')).toHaveLength(1);
-      expect(screen.getByRole('button', { name: explore$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: explore$() })).toBeInTheDocument();
       expect(screen.queryAllByTestId('category-pill')).toHaveLength(0);
     });
 
@@ -150,7 +180,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'learning_activities' && value === 'UXADWcXZ',
       });
       expect(screen.getAllByTestId('activity-pill')).toHaveLength(1);
-      expect(screen.getByRole('button', { name: create$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeInTheDocument();
     });
   });
 
@@ -161,7 +191,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'keywords' && value === KEYWORD_FILTER,
       });
       expect(screen.getByTestId('keyword-pill')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: KEYWORD_FILTER })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: KEYWORD_FILTER })).toBeChecked();
     });
 
     it('renders an active filter from a non-catalog dimension', () => {
@@ -170,7 +200,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'grade_levels' && value === 'basic_skills',
       });
       expect(screen.getByTestId('grade_levels-pill')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: basicSkills$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: basicSkills$() })).toBeChecked();
     });
 
     it('labels an applied language with its name, not the raw code', () => {
@@ -183,7 +213,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'languages' && value === language.id,
       });
       expect(screen.getByTestId('language-pill')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: language.lang_name })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: language.lang_name })).toBeChecked();
       expect(screen.queryByText(language.id)).not.toBeInTheDocument();
     });
   });

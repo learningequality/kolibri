@@ -1,37 +1,37 @@
 <template>
 
   <div class="filter-pills">
-    <KButton
-      v-for="(entry, index) in entries"
-      :key="`${entry.type}-${index}`"
-      :data-testid="`${entry.type}-pill`"
-      :text="entry.label"
-      appearance="flat-button"
-      class="pill"
-      :appearanceOverrides="pillOverridesFor(entry)"
-      :disabled="loading"
-      @click="toggleFilter({ key: entry.termKey, value: entry.value })"
-    >
-      <template
-        v-if="entry.icon"
-        #icon
+    <fieldset class="filters-fieldset">
+      <legend class="visuallyhidden">{{ appliedFiltersGroupLabel$() }}</legend>
+      <label
+        v-for="(entry, index) in entries"
+        :key="`${entry.type}-${index}`"
+        :data-testid="`${entry.type}-pill`"
+        class="pill"
+        :class="$computedClass(pillPseudoStylesFor())"
+        :style="pillColorStyleFor(entry)"
       >
+        <input
+          type="checkbox"
+          class="visuallyhidden"
+          :checked="isFilterActive(entry.termKey, entry.value)"
+          :disabled="loading"
+          @click="toggleFilter({ key: entry.termKey, value: entry.value })"
+        >
         <KIcon
+          v-if="entry.icon"
           :icon="entry.icon"
           :color="entry.type === 'activity' ? null : $themeTokens.primary"
           class="pill-icon"
         />
-      </template>
-      <template
-        v-if="iconAfterFor(entry)"
-        #iconAfter
-      >
+        <span class="link-text">{{ entry.label }}</span>
         <KIcon
+          v-if="iconAfterFor(entry)"
           :icon="iconAfterFor(entry)"
           class="pill-icon-after"
         />
-      </template>
-    </KButton>
+      </label>
+    </fieldset>
     <span
       v-if="hasAvailableLabels"
       class="all-filters-group"
@@ -45,7 +45,7 @@
         :text="allFilters$()"
         appearance="flat-button"
         class="pill"
-        :appearanceOverrides="pillOverridesFor({})"
+        :appearanceOverrides="pillColorStyleFor({})"
         :disabled="loading"
         @click="$emit('openFilters')"
       >
@@ -80,7 +80,7 @@
 
 <script>
 
-  import { computed } from 'vue';
+  import { computed, getCurrentInstance } from 'vue';
   import { get } from '@vueuse/core';
   import { themeTokens, themeBrand, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { CategoriesLookup } from 'kolibri/constants';
@@ -93,6 +93,7 @@
   export default {
     name: 'HorizontalFilterPills',
     setup() {
+      const instance = getCurrentInstance().proxy;
       const {
         availableLearningActivities,
         availableLibraryCategories,
@@ -197,8 +198,7 @@
         return isFilterActive(entry.termKey, entry.value) ? 'close' : null;
       }
 
-      // Only theme-dependent styling lives here; layout is in the style block
-      function pillOverridesFor(entry) {
+      function pillColorStyleFor(entry) {
         if (isFilterActive(entry.termKey, entry.value)) {
           return {
             backgroundColor: themeBrand().primary.v_100,
@@ -216,19 +216,34 @@
         };
       }
 
-      const { allFilters$ } = searchAndFilterStrings;
+      // for a11y, the pill is a semantic checkbox and label
+      // but visually styled to match KButton for sighted users
+      function pillPseudoStylesFor() {
+        return {
+          ':hover': get(searchLoading) ? {} : { backgroundColor: 'rgba(0,0,0,.1)' },
+          ':focus-within': { ...instance.$coreOutline, outlineOffset: 0 },
+          ...(get(searchLoading)
+            ? { pointerEvents: 'none', cursor: 'default', opacity: 0.5 }
+            : { cursor: 'pointer' }),
+        };
+      }
+
+      const { allFilters$, appliedFiltersGroupLabel$ } = searchAndFilterStrings;
       const { clearAllAction$ } = coreStrings;
 
       return {
         entries,
         hasActiveFilters,
         hasAvailableLabels,
+        isFilterActive,
         iconAfterFor,
-        pillOverridesFor,
+        pillColorStyleFor,
+        pillPseudoStylesFor,
         toggleFilter,
         clearSearch,
         loading: searchLoading,
         allFilters$,
+        appliedFiltersGroupLabel$,
         clearAllAction$,
       };
     },
@@ -244,6 +259,13 @@
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
+  }
+
+  // Strip the fieldset's default border/padding/min-width and let its pills
+  // lay out as direct flex children of .filter-pills, same as before grouping.
+  .filters-fieldset {
+    all: unset;
+    display: contents;
   }
 
   .filter-pills .pill {
