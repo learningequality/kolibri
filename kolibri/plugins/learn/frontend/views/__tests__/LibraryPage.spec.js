@@ -6,6 +6,7 @@ import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useUser from 'kolibri/composables/useUser';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 /* eslint-disable import-x/named */
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
@@ -94,6 +95,20 @@ describe('LibraryPage', () => {
       Promise.resolve([{ id: 'test', title: 'test', channel_id: CHANNEL_ID }]),
     );
   });
+  describe('skip navigation', () => {
+    it('marks the main landmark as the skip-link target, since the search bar precedes the h1', async () => {
+      const wrapper = await makeWrapper();
+      expect(wrapper.find('main.main-grid').attributes('data-skip-nav-target')).toBe('');
+    });
+
+    it("names the main landmark to match the page's own heading", async () => {
+      const wrapper = await makeWrapper();
+      expect(wrapper.find('main.main-grid').attributes('aria-label')).toBe(
+        coreString('yourLibrary'),
+      );
+    });
+  });
+
   describe('search bar', () => {
     it('is visible when channels are available', async () => {
       const wrapper = await makeWrapper();

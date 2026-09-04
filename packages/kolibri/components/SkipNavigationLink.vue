@@ -27,20 +27,19 @@
     methods: {
       handleClickSkipLink() {
         // Every page where this is supposed to work needs to have a top-level
-        // element with 'role' and 'id' attribute equal to 'main' and 'tabindex= -1'.
+        // element with 'role' and 'id' attribute equal to 'main'.
         // If it doesn't have one, clicking this link is a noop, but will re-focus itself
         // as a convenience (in case main div is still loading).
         const mainEl = document.getElementById('main');
         if (mainEl) {
-          // If it exists, actually target and focus on the main header
-          const header = mainEl.querySelector('h1');
-          if (header) {
-            // HACK: Need to set its tabindex attribute on the fly to get tab behavior
-            header.setAttribute('tabindex', -1);
-            header.focus();
-          } else {
-            mainEl.focus();
-          }
+          // Default a11y behavior is "focus the first h1"
+          // Override this by marking the element where the focus should land instead (e.g.
+          // the `main` landmark itself, especially if DOM content preceeds the first H1).
+          const target =
+            mainEl.querySelector('[data-skip-nav-target]') || mainEl.querySelector('h1') || mainEl;
+          // Need to set the tabindex attribute on the fly to get tab behavior
+          target.setAttribute('tabindex', -1);
+          target.focus();
         } else {
           // NOTE: the button retains focus, but loses :focus styling after hitting "Enter"
           // TODO: look into theme input modality to see if we can get consistent
