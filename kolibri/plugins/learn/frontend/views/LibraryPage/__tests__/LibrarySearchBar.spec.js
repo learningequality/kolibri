@@ -88,6 +88,11 @@ describe('LibrarySearchBar', () => {
   });
 
   describe('rendering', () => {
+    it('exposes a search landmark so it can be reached independent of the skip link', () => {
+      renderComponent();
+      expect(screen.getByRole('search')).toBeInTheDocument();
+    });
+
     it('renders a search input', () => {
       renderComponent();
       expect(screen.getByRole('combobox', { name: searchLabel$() })).toBeInTheDocument();

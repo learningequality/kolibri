@@ -2,6 +2,7 @@
 
   <form
     class="library-search-bar"
+    role="search"
     @submit.prevent="handleSubmit"
   >
     <div
