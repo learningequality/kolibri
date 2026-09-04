@@ -26,21 +26,29 @@
     },
     methods: {
       handleClickSkipLink() {
-        // Every page where this is supposed to work needs to have a top-level
-        // element with 'role' and 'id' attribute equal to 'main' and 'tabindex= -1'.
-        // If it doesn't have one, clicking this link is a noop, but will re-focus itself
-        // as a convenience (in case main div is still loading).
+        // Every page where this is supposed to work needs a top-level element
+        // with id="main" (typically an unlabelled wrapper div; a nested <main>
+        // or [role="main"] descendant, if present, is one of the focus targets
+        // below). If there's no #main at all, clicking this link is a noop, but
+        // will re-focus itself as a convenience (in case main div is still loading).
         const mainEl = document.getElementById('main');
         if (mainEl) {
-          // If it exists, actually target and focus on the main header
-          const header = mainEl.querySelector('h1');
+          // Default a11y behavior is "focus the first h1"
+          // Override this by marking the element where the focus should land instead (e.g.
+          // the `main` landmark itself, especially if DOM content preceeds the first H1).
+          const target =
+            mainEl.querySelector('[data-skip-nav-target]') ||
+            mainEl.querySelector('h1') ||
+            mainEl.querySelector('main, [role="main"]') ||
+            mainEl;
+          // Need to set the tabindex attribute on the fly to get tab behavior
+          target.setAttribute('tabindex', -1);
+          // The fixed app bar would otherwise cover the target when it scrolls into view
+          const header = document.querySelector('.scrolling-header');
           if (header) {
-            // HACK: Need to set its tabindex attribute on the fly to get tab behavior
-            header.setAttribute('tabindex', -1);
-            header.focus();
-          } else {
-            mainEl.focus();
+            target.style.scrollMarginTop = `${header.offsetHeight}px`;
           }
+          target.focus();
         } else {
           // NOTE: the button retains focus, but loses :focus styling after hitting "Enter"
           // TODO: look into theme input modality to see if we can get consistent
