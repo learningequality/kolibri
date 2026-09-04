@@ -21,7 +21,15 @@
       :deviceId="deviceId"
       :route="back"
     >
-      <main class="main-grid">
+      <main
+        class="main-grid"
+        data-skip-nav-target
+        :aria-label="channelsLabel"
+      >
+        <!--
+          Overrides SkipNavigationLink's default of focusing the first h1: the
+          search bar precedes the h1 here, so focusing the h1 would skip over it.
+        -->
         <!-- Search header: search bar + filter pills grouped together -->
         <div
           class="search-header"
