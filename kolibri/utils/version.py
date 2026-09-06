@@ -57,9 +57,10 @@ def normalize_version_to_semver(version):
 
     # extract the numeric semver component and the stuff that comes after
 
-    numeric, after = re.match(
-        r"(^\d+\.\d+[0-9]*\.?[0-9]*)([a-z0-9.+]*)", version
-    ).groups()
+    numeric, after = re.match(r"(^\d+\.\d+(?:\.\d+)?)([a-z0-9.+]*)", version).groups()
+
+    if numeric.count(".") == 1 and dev:
+        numeric = f"{numeric}.0"
 
     # clean up the different variations of the post-numeric component to ease checking
     after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
