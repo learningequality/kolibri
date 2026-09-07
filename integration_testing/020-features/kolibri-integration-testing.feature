@@ -1118,6 +1118,31 @@ Feature: Kolibri integration testing scenarios
   		And I see a checkbox *Show correct answer*
   		And I see the number of attempts made on this question
 
+  Scenario: Learner interacts with and completes a course
+  	Given I am signed in as a learner user
+  		And a coach has assigned a course to me
+  		And as a learner I've completed all course units
+  	When I click on the course card
+    Then I can see the course page
+      And I can see an enabled *Resume course* button
+    When I click the *Resume course* button
+    Then I can see the first question of the post-test
+    When I fill in all of the questions
+      And I click the *Submit test* button
+    Then I see the *Submit test* modal with the following text: *You cannot change your answers after you submit*
+    When I click the *Submit test* button
+    Then I see the following text: *Post-test completed! You will be able to continue once your coach closes this post-test.*
+    	And I see that the *Previous* and *Next* buttons are disabled
+    	And to the right I can see the post-test marked as completed
+    	And I can see the lesson resources grayed out
+    	And I can see can no longer see an *Up next* section at the bottom right corner of the course
+    When I click the back arrow
+    Then I can see the course page
+      And I can see an enabled *Resume course* button
+    When I click the back arrow
+    Then I am back at the *Learn > Home* page
+      And I can see the course card in the *Recent courses* section
+
   Scenario: Coach can take the class attendance(English only)
     Given I am signed in to Kolibri as a coach
     	And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
@@ -1341,7 +1366,8 @@ Feature: Kolibri integration testing scenarios
   		And there are channels downloaded on the device
     When I click the *Explore without account* link
     Then I am at *Learn > Library*
-    	And I see all of the available filters to the left
+    	And I see the *Find something to learn* search box at the top of the page
+    	And I see all of the available filters under the *Find something to learn* search box
     	And I see my imported channels in *Your library*
     	And I don't see the *Other libraries* section
 

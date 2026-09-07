@@ -146,6 +146,16 @@ Feature: Coach courses
     	And I can see whether the learner is on track or needs support
       And I can see the *Individual learning objective performance* table with *Learning objective* and *Correct questions* columns
 
+  Scenario: Coach can see the unit progress and details
+    Given I am at the course summary page
+    	And there are learners who have completed a pre-test
+    	And there are learners who have interacted with lesson resources
+    When I click on the title of a unit
+    Then I see *Lessons* table
+    	And I can see whether a lesson resource is in progress or completed
+    When I click on the *Learning objectives* tab
+    Then I can see TODO
+
   Scenario: Coach can see the learning objectives
     Given I am at the course summary page
     	And there are learners who have completed a pre/post-test
