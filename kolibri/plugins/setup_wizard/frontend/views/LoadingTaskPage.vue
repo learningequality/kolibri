@@ -166,7 +166,7 @@
         });
       },
       pollTask() {
-        /**
+        /**\
            - Save tasks returned to this.loadingTasks
            - Clear completed.
          */
@@ -200,19 +200,29 @@
               }, 2000);
             }
           })
-          .catch(error => {
-            if (error.status == 500) {
-              if (this.isPolling) {
-                setTimeout(() => {
-                  this.pollTask();
-                }, 2000);
-              }
+          .catch(() => {
+            // Keep polling on any error so a transient network hiccup does not
+            // freeze the loading step forever (issue #15235).
+            if (this.isPolling) {
+              setTimeout(() => {
+                this.pollTask();
+              }, 2000);
             }
           });
       },
       retryImport() {
-        TaskResource.restart_v2(this.loadingTask.id).catch(error => {
-          this.handleApiError({ error });
+        TaskResource.restart_v2(this.loadingTask.id).then(() => {
+          // After a successful restart the task re-enters the queue; re-arm the
+          // poll loop so the loading step reflects the restarted task instead of
+          // sticking on the old FAILED snapshot (issue #15235).
+          this.isPolling = true;
+          this.pollTask();
+        }).catch(() => {
+          // A rejected restart (for example a task that is already QUEUED) must not
+          // kick the user out of the wizard to the global error page. The poll loop
+          // still runs and will surface the real task state on the next fetch.
+          // Silently swallow the restart failure here; the user can use Start over
+          // or retry again after the poll loop updates the view.
         });
       },
       cancelTask() {
