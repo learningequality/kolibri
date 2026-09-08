@@ -359,8 +359,8 @@ importers:
         specifier: ^1.1.12
         version: 1.1.14
       uuid:
-        specifier: ^11.1.0
-        version: 11.1.1
+        specifier: ^14.0.0
+        version: 14.0.0
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1352,8 +1352,8 @@ importers:
         specifier: 1.15.7
         version: 1.15.7
       uuid:
-        specifier: ^14.0.1
-        version: 14.0.1
+        specifier: ^14.0.0
+        version: 14.0.0
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1684,8 +1684,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       uuid:
-        specifier: ^14.0.1
-        version: 14.0.1
+        specifier: ^14.0.0
+        version: 14.0.0
       web-streams-polyfill:
         specifier: 'catalog:'
         version: 4.2.0
@@ -9548,12 +9548,8 @@ packages:
     deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
-  uuid@11.1.1:
-    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
-    hasBin: true
-
-  uuid@14.0.1:
-    resolution: {integrity: sha512-6ZxzVpzDXDa3bJWaHilVayA+BH/1zmxCJoVgvmqJnid/gPoKHxUrS/aC/T6LGQtNHT+XHG9fXPJB4d+IrU30Ew==}
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   uuid@8.3.2:
@@ -19424,9 +19420,7 @@ snapshots:
 
   uuid@10.0.0: {}
 
-  uuid@11.1.1: {}
-
-  uuid@14.0.1: {}
+  uuid@14.0.0: {}
 
   uuid@8.3.2: {}
 
