@@ -213,7 +213,7 @@ class DynamicNetworkLocation(NetworkLocation):
         else:
             raise ValidationError(
                 {
-                    "instance_id": "DynamicNetworkLocations must be be created with an instance ID!"
+                    "instance_id": "DynamicNetworkLocations must be created with an instance ID!"
                 }
             )
 

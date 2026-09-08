@@ -80,7 +80,7 @@
         // Also, to mitigate overscroll rebound and other reasons,
         // the upward threshold is set higher than the downward one.
         // Capped at 240 px, which is half the height of a iPhone 4,
-        // the page would need to be be at least 4800px high to reach this cap.
+        // the page would need to be at least 4800px high to reach this cap.
         const downThresh = Math.min(Math.round(this.mainWrapperScrollHeight * 0.05), 240);
         return {
           up: downThresh * 2,

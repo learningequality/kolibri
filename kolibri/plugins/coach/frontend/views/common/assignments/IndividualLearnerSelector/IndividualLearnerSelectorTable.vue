@@ -117,7 +117,7 @@
     computed: {
       ...mapState('classSummary', ['groupMap']),
       allLearners() {
-        // If we get a class ID different that that in Vuex state,
+        // If we get a class ID different from that in Vuex state,
         // then we're going to need to fetch that class's learners
         if (this.targetClassId != this.classId) {
           // This is init to null so we've not fetched it yet.

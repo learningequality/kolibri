@@ -76,7 +76,7 @@ def retry_import(e):
     When an exception occurs during channel/content import, if
         * there is an Internet connection error or timeout error,
           or HTTPError where the error code is one of the RETRY_STATUS_CODE,
-          return return True to retry the file transfer
+          return True to retry the file transfer
     return value:
         * True - needs retry.
         * False - Does not need retry.

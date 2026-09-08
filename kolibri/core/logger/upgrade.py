@@ -77,7 +77,7 @@ def fix_masterylog_end_timestamps():
     Fix any MasteryLogs that have an end_timestamp that was not updated after creation due to a bug in the
     integrated logging API endpoint.
     """
-    # Fix the MasteryLogs that that have attempts - infer from the end_timestamp of the last attempt.
+    # Fix the MasteryLogs that have attempts - infer from the end_timestamp of the last attempt.
     attempt_subquery = (
         AttemptLog.objects.filter(masterylog=OuterRef("pk"))
         .values("masterylog")

@@ -139,13 +139,13 @@ class TasksViewSet(viewsets.GenericViewSet):
                 jobs_response.append(self._job_to_response(job))
             except KeyError:
                 # Note: Temporarily including unregistered tasks until we complete
-                # our transition to to the new tasks API.
+                # our transition to the new tasks API.
                 # After completing transition to the new tasks API, we won't be
                 # including unregistered tasks to the response list.
                 jobs_response.append(self._job_to_response(job))
             except PermissionDenied:
                 # `request.user` do not have permission for this job hence
-                # we we will NOT append this job to the list.
+                # we will NOT append this job to the list.
                 pass
 
         return Response(jobs_response)

@@ -55,7 +55,7 @@ describe('NotificationsRoot', function () {
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
     });
 
-    it('if user is not authorized, authorization component in the base page page should be rendered', async () => {
+    it('if user is not authorized, authorization component in the base page should be rendered', async () => {
       error.value = { response: { status: 403 } };
       const { wrapper } = makeWrapper();
 
