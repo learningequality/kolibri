@@ -75,10 +75,12 @@ Use `ValuesViewset` (or `ReadOnlyValuesViewset`) from `kolibri.core.api` for new
 from rest_framework import serializers
 from kolibri.core.api import ReadOnlyValuesViewset
 
+
 class MySerializer(serializers.ModelSerializer):
     class Meta:
         model = MyModel
         fields = ("id", "title", "description")
+
 
 class MyViewSet(ReadOnlyValuesViewset):
     serializer_class = MySerializer

@@ -54,16 +54,17 @@ Custom actions on ViewSets create additional URL names using the pattern `<basen
 ```python
 from rest_framework.decorators import action
 
+
 class ContentNodeViewSet(viewsets.ReadOnlyModelViewSet):
     basename = "contentnode"
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def recommendations_for(self, request, pk=None):
         # Creates: kolibri:core:contentnode_recommendations_for
         # The detail=True means it accepts a pk parameter
         pass
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def random(self, request):
         # Creates: kolibri:core:contentnode_random
         # The detail=False means no pk parameter
@@ -145,6 +146,7 @@ In your plugin's `kolibri_plugin.py`, set the `untranslated_view_urls` attribute
 ```python
 # kolibri/plugins/coach/kolibri_plugin.py
 from kolibri.plugins import KolibriPluginBase
+
 
 class Coach(KolibriPluginBase):
     untranslated_view_urls = "api_urls"  # Name of the module, not a path
