@@ -85,7 +85,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       - name: Notify Slack
         if: steps.publish.outputs.published == 'true'
-        uses: slackapi/slack-github-action@v3
+        uses: slackapi/slack-github-action@v4
         with:
           webhook: ${{ secrets.SLACK_NPM_PACKAGES_WEBHOOK }}
           webhook-type: incoming-webhook
