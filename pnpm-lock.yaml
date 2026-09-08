@@ -313,6 +313,9 @@ importers:
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
+      sortablejs:
+        specifier: 1.15.7
+        version: 1.15.7
 
   kolibri/plugins/epub_viewer:
     dependencies:
