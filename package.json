@@ -61,7 +61,7 @@
     "kolibri-plugin-data": "workspace:*",
     "rewire": "^6.0.0",
     "vue-template-compiler": "2.7.16",
-    "webpack": "^5.104.0"
+    "webpack": "^5.109.2"
   },
   "optionalDependencies": {
     "fsevents": "*"
