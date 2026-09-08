@@ -102,7 +102,7 @@ jobs:
         run: >-
           bash .github/scripts/verify-secrets.sh KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD KOLIBRI_ANDROID_APP_PRODUCTION_KEYALIAS_PASSWORD KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON
       - name: Set up JDK 21
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: '21'
