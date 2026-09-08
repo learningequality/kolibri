@@ -72,10 +72,10 @@ importers:
         version: 30.0.0
       '@vue/vue2-jest':
         specifier: ^29.2.6
-        version: 29.2.6(@babel/core@8.0.1)(babel-jest@30.3.0(@babel/core@8.0.1))(jest@30.4.2(@types/node@26.0.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 29.2.6(@babel/core@8.0.1)(babel-jest@30.3.0(@babel/core@8.0.1))(jest@30.4.2(@types/node@26.0.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)
       '@vueuse/shared':
-        specifier: ^11.3.0
-        version: 11.3.0(vue@2.7.16)
+        specifier: ^14.4.0
+        version: 14.4.0
       babel-jest:
         specifier: ^30.3.0
         version: 30.3.0(@babel/core@8.0.1)
@@ -4149,6 +4149,11 @@ packages:
 
   '@vueuse/shared@11.3.0':
     resolution: {integrity: sha512-P8gSSWQeucH5821ek2mn/ciCk+MS/zoRKqdQIM3bHq6p7GXDAJLmnRRKmF5F65sAVJIfzQlwR3aDzwCn10s8hA==}
+
+  '@vueuse/shared@14.4.0':
+    resolution: {integrity: sha512-JRgY90Sz8DDtPMsaDflvPMp9xYk69JZAmbuDvAquUVXKr2gEjqtzGNTTthLfckH0BzBqvnu31gb4a8TGLRe79g==}
+    peerDependencies:
+      vue: ^3.5.0
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -13091,7 +13096,7 @@ snapshots:
       - walrus
       - whiskers
 
-  '@vue/vue2-jest@29.2.6(@babel/core@8.0.1)(babel-jest@30.3.0(@babel/core@8.0.1))(jest@30.4.2(@types/node@26.0.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)':
+  '@vue/vue2-jest@29.2.6(@babel/core@8.0.1)(babel-jest@30.3.0(@babel/core@8.0.1))(jest@30.4.2(@types/node@26.0.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)':
     dependencies:
       '@babel/core': 8.0.1
       '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@8.0.1)
@@ -13102,7 +13107,6 @@ snapshots:
       jest: 30.4.2(@types/node@26.0.0)
       source-map: 0.5.6
       tsconfig: 7.0.0
-      vue: 2.7.16
       vue-template-compiler: 2.7.16
     optionalDependencies:
       typescript: 5.9.3
@@ -13180,6 +13184,8 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  '@vueuse/shared@14.4.0': {}
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
