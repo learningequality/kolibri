@@ -52,6 +52,11 @@ class FrozenRow(dict):
     setdefault = _frozen
     update = _frozen
 
+    def __reduce__(self) -> Tuple[Any, ...]:
+        # pickle rebuilds a dict subclass by replaying its items through
+        # ``__setitem__``, which the guard refuses.
+        return (self.__class__, (dict(self),))
+
 
 class FieldMapEntry(ABC):
     """
