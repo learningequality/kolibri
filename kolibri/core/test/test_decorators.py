@@ -53,6 +53,11 @@ class CacheNoUserDataTestCase(SimpleTestCase):
     def setUp(self):
         process_cache.clear()
         self.factory = RequestFactory()
+        device_setting = mock.patch(
+            "kolibri.core.decorators.get_device_setting", return_value=False
+        )
+        self.get_device_setting = device_setting.start()
+        self.addCleanup(device_setting.stop)
 
     def _request(self, path="/en/learn/", **extra):
         request = self.factory.get(path, **extra)
@@ -117,6 +122,23 @@ class CacheNoUserDataTestCase(SimpleTestCase):
         self.assertEqual(gzip.decompress(served.content), b"body-1")
         self.assertEqual(gzip.decompress(after.content), b"body-2")
         self.assertEqual(len(render_count), 2)
+
+    def test_a_single_user_device_re_renders_rather_than_serving_stale(self):
+        view, render_count = self._view()
+        self.get_device_setting.return_value = True
+        base = 1000.0
+        stale = base + BODY_CACHE_REFRESH + 100
+
+        with mock.patch("kolibri.core.decorators._spawn") as spawn:
+            with mock.patch("kolibri.core.decorators.time.time", return_value=base):
+                view(self._request())
+            with mock.patch("kolibri.core.decorators.time.time", return_value=stale):
+                served = view(self._request())
+
+        # No herd to shield, so the single user gets the fresh body inline.
+        self.assertEqual(gzip.decompress(served.content), b"body-2")
+        self.assertEqual(len(render_count), 2)
+        spawn.assert_not_called()
 
     def test_stored_body_hard_expires_so_orphaned_entries_do_not_accumulate(self):
         view, _ = self._view()
@@ -270,6 +292,27 @@ class WarmCachedViewsTestCase(TestCase):
         # Each cached view is warmed exactly once, in the device language.
         # Other languages are not warmed at startup; they load lazily.
         self.assertEqual(calls, [("/es-es/learn/", "es-es"), ("/es-es/auth/", "es-es")])
+
+    def test_does_not_warm_on_a_single_user_device(self):
+        calls = []
+
+        def callback(request):
+            calls.append(request.path)
+            return HttpResponse("shell")
+
+        with mock.patch(
+            "kolibri.core.decorators._cached_view_targets",
+            return_value=[("learn", callback)],
+        ), mock.patch(
+            "kolibri.core.decorators.reverse", return_value="/x/"
+        ), mock.patch(
+            "kolibri.core.decorators.get_device_setting", return_value=True
+        ), mock.patch("kolibri.core.decorators.connections"):
+            warm_cached_views()
+
+        # One user, no startup burst: the renders would come out of their own
+        # responsiveness, and the cold-miss path serves them fresh anyway.
+        self.assertEqual(calls, [])
 
     def test_falls_back_to_settings_language_when_device_language_missing(self):
         calls = []
