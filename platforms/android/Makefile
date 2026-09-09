@@ -36,6 +36,7 @@ AVD_NAME := kolibri-test
 SYSTEM_IMAGE := system-images;android-$(ANDROID_API);default;x86_64
 
 ADB := adb
+ADB_RETRY := scripts/adb-retry.sh
 
 # Environment variable check helper
 guard-%:
@@ -248,8 +249,8 @@ smoke-test-with-retry: maestro-install
 			exit 1; \
 		fi; \
 		echo "Smoke test attempt $$attempt failed; resetting app state and retrying"; \
-		$(ADB) shell am force-stop org.learningequality.Kolibri || true; \
-		$(ADB) shell pm clear org.learningequality.Kolibri || true; \
+		$(ADB_RETRY) 60 2 shell am force-stop org.learningequality.Kolibri || true; \
+		$(ADB_RETRY) 60 2 shell pm clear org.learningequality.Kolibri || true; \
 		sleep 3; \
 	done
 

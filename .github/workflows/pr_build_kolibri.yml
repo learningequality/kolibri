@@ -176,12 +176,11 @@ jobs:
           # or a script file, not here, and directory changes do not persist between
           # lines — reference platforms/android explicitly.
           script: |
-            # An emulator that goes offline mid-command leaves adb blocked with no
-            # ceiling of its own, so cap every call: observed as a 29 minute
-            # `adb install` on API 24 that ended only when the job timed out.
-            timeout 300 adb install -r platforms/android/dist/*.apk
-            timeout 60 adb shell am set-debug-app --persistent org.learningequality.Kolibri
-            timeout 120 adb wait-for-device
+            # Caps are ~30x the observed normal (6s install, under 1s for the rest);
+            # 3 attempts each still fit the job's cap after a 10 minute emulator boot.
+            platforms/android/scripts/adb-retry.sh 180 3 install -r platforms/android/dist/*.apk
+            platforms/android/scripts/adb-retry.sh 60 3 shell am set-debug-app --persistent org.learningequality.Kolibri
+            platforms/android/scripts/adb-retry.sh 120 3 wait-for-device
             timeout 300 sh -c 'until adb shell pm path org.learningequality.Kolibri >/dev/null 2>&1; do sleep 1; done'
             # Pre-grant so the WRITE_EXTERNAL_STORAGE dialog (API 24-28) never appears.
             # `|| true`: the permission doesn't exist on API 29+.
