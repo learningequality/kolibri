@@ -28,6 +28,7 @@ from rest_framework.views import APIView
 from kolibri import __version__ as kolibri_version
 from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.utils.cache import process_cache
 
 logger = logging.getLogger(__name__)
@@ -413,12 +414,16 @@ class _CachedBody:
         entry = process_cache.get(body_key)
         if entry is not None:
             variants, refresh_at = entry
-            if time.time() >= refresh_at and process_cache.add(
-                lock_key, True, BODY_CACHE_LOCK_TIMEOUT
-            ):
-                self._refresh_in_background(request, body_key, lock_key)
-            return self._conditional(request, self._pick(request, variants))
-        # Cold miss: render inline, since there is nothing to serve stale.
+            if time.time() < refresh_at:
+                return self._conditional(request, self._pick(request, variants))
+            # Past the deadline: serve the stale copy and refresh off-thread. A
+            # device serving one user has no herd to shield from the render, and
+            # would rather have the fresh page than the fast one.
+            if not get_device_setting("subset_of_users_device"):
+                if process_cache.add(lock_key, True, BODY_CACHE_LOCK_TIMEOUT):
+                    self._refresh_in_background(request, body_key, lock_key)
+                return self._conditional(request, self._pick(request, variants))
+        # Cold miss, or stale with nobody to shield: render inline.
         return self._conditional(
             request, self._render_and_store(view, request, args, kwargs, body_key)
         )
@@ -562,7 +567,12 @@ def warm_cached_views():
     Device language only - warming every supported language would render
     hundreds of bodies, stealing CPU from the startup request burst on
     low-power targets. Other languages warm lazily on first request.
+
+    Skipped entirely on a device serving one user, which has no startup burst
+    to get ahead of and pays the renders out of its own responsiveness.
     """
+    if get_device_setting("subset_of_users_device"):
+        return
     language = get_device_language() or get_settings_language()
     try:
         with translation.override(language):
