@@ -96,7 +96,7 @@ jobs:
           # the workspace and its shared .venv by walking up from the member
           # dir, so D:\b must expose the root pyproject.toml and D:\b\.venv.
           # Junctioning the member dir instead makes uv treat it as a standalone
-          # project and build a fresh venv without the `build` extra (no polib).
+          # project and build a fresh venv without the `build` extra.
           # D:\a\kolibri\kolibri -> D:\b, then run make from D:\b\platforms\desktop-app.
           if (Test-Path "D:\b") { Remove-Item "D:\b" -Force }
           New-Item -ItemType Junction -Path "D:\b" -Target "$env:GITHUB_WORKSPACE" | Out-Null
