@@ -25,7 +25,6 @@
                 class="section-order-list"
               >
                 <DragSortWidget
-                  class="drag-title"
                   :isFirst="index === 0"
                   :isLast="index === sectionOrderList.length - 1"
                   :itemLabel="sectionOrderingTitle(section)"
@@ -34,10 +33,7 @@
                   @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
                   @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
                 />
-                <span
-                  class="drag-title"
-                  style="flex: 1"
-                >
+                <span style="flex: 1">
                   {{ sectionOrderingTitle(section) }}
                 </span>
                 <span
@@ -60,7 +56,13 @@
       </div>
     </DraggableRegion>
 
-    <div class="bottom-buttons-style">
+    <div
+      class="bottom-buttons-style"
+      :style="{
+        backgroundColor: $themeTokens.surface,
+        borderTop: `1px solid ${$themeTokens.fineLine}`,
+      }"
+    >
       <KButton
         :primary="true"
         :text="applySettings$()"
@@ -263,44 +265,20 @@
     margin-bottom: 7em;
   }
 
-  .section-settings-heading {
-    margin-bottom: 0.5em;
-    font-weight: 600;
-  }
-
-  .section-settings-top-heading {
-    margin-top: 0;
-    margin-bottom: 1.125em;
-    font-size: 2em;
-    font-weight: 600;
-  }
-
   .section-order-list {
     display: flex;
     flex-wrap: nowrap;
+    gap: 1em;
     align-items: center;
-    height: 2.5em;
+    min-height: 2.5em;
+    padding: 0.5em;
     margin-top: 0.5em;
     border: 1px solid;
     border-radius: 2px;
   }
 
-  .space-content {
-    margin: 0.5em;
-    font-size: 1em;
-  }
-
-  .section-order-style {
-    font-size: 1em;
-  }
-
   .current-section-style {
     font-size: 1em;
-  }
-
-  .drag-title {
-    display: inline-block;
-    padding: 8px;
   }
 
   .bottom-buttons-style {
@@ -311,20 +289,10 @@
     padding: 1em;
     margin-top: 1em;
     text-align: right;
-    background-color: #ffffff;
-    border-top: 1px solid black;
 
     > div {
       padding-right: 1em;
     }
-  }
-
-  /deep/ .textbox {
-    max-width: 100% !important;
-  }
-
-  .description-ktextbox-style /deep/ .ui-textbox-label {
-    width: 100%;
   }
 
   .current-section-text {
