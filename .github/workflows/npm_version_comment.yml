@@ -1,5 +1,7 @@
 name: npm Package Version Comment
-on:
+# On workflow_run, GITHUB_SHA is the default branch tip, so the checkout below
+# gets base-repository code rather than the PR head.
+on: # zizmor: ignore[dangerous-triggers]
   workflow_run:
     workflows: [npm Package Version Check]
     types:

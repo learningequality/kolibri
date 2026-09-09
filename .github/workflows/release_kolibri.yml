@@ -3,8 +3,7 @@ on:
   release:
     types: [published]
 permissions:
-  contents: write
-  packages: write
+  contents: read
 jobs:
   latest_release:
     name: Check if this release is the latest release
@@ -15,6 +14,8 @@ jobs:
       - name: Check if the current release is the latest Kolibri release
         id: is_latest_release
         uses: actions/github-script@v9
+        env:
+          RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
         with:
           result-encoding: string
           script: |
@@ -23,19 +24,23 @@ jobs:
               repo: 'kolibri',
             });
 
-            return latestRelease.tag_name === '${{ github.event.release.tag_name }}';
+            return latestRelease.tag_name === process.env.RELEASE_TAG_NAME;
   whl:
     name: Build WHL file
     uses: ./.github/workflows/build_whl.yml
   upload_whl:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: whl
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.whl.outputs.whl-file-name }}
       release_id: ${{ github.event.release.id }}
   upload_tar:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: whl
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.whl.outputs.tar-file-name }}
       release_id: ${{ github.event.release.id }}
@@ -48,6 +53,8 @@ jobs:
   upload_pex:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: pex
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.pex.outputs.pex-file-name }}
       release_id: ${{ github.event.release.id }}
@@ -68,6 +75,8 @@ jobs:
   upload_dmg:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: dmg
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.dmg.outputs.dmg-file-name }}
       release_id: ${{ github.event.release.id }}
@@ -81,6 +90,8 @@ jobs:
   upload_deb:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: deb
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.deb.outputs.deb-file-name }}
       release_id: ${{ github.event.release.id }}
@@ -101,6 +112,8 @@ jobs:
   upload_exe:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: exe
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.exe.outputs.exe-file-name }}
       release_id: ${{ github.event.release.id }}
@@ -114,6 +127,8 @@ jobs:
   upload_zip:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: zip
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.zip.outputs.zip-file-name }}
       release_id: ${{ github.event.release.id }}
@@ -132,6 +147,8 @@ jobs:
   upload_apk:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: apk
+    permissions:
+      contents: write
     with:
       filename: ${{ needs.apk.outputs.apk-file-name }}
       release_id: ${{ github.event.release.id }}

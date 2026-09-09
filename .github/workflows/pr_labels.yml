@@ -1,12 +1,14 @@
 name: PR Labels
-on: [pull_request_target]
+on: [pull_request_target] # zizmor: ignore[dangerous-triggers]
 permissions:
   contents: read
-  pull-requests: write
 jobs:
   size-labels:
     runs-on: ubuntu-latest
     name: Label the PR size
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: codelytv/pr-size-labeler@v1
         with:

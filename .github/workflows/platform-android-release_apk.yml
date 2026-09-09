@@ -36,4 +36,6 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: uv sync --package kolibri-installer-android --extra build
       - name: Release APK
-        run: uv run python scripts/play_store_api.py release "${{ inputs.version-code }}"
+        env:
+          VERSION_CODE: ${{ inputs.version-code }}
+        run: uv run python scripts/play_store_api.py release "$VERSION_CODE"

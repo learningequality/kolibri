@@ -60,9 +60,11 @@ jobs:
         run: pnpm install --ignore-scripts --no-optional
       - name: Publish to npm
         id: publish
+        env:
+          NPM_PACKAGE: ${{ github.event.inputs.npm_package }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.npm_package }}" != "all" ]; then
-            ./scripts/npm_publish.sh "${{ github.event.inputs.npm_package }}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$NPM_PACKAGE" != "all" ]; then
+            ./scripts/npm_publish.sh "$NPM_PACKAGE"
           else
             ./scripts/npm_publish.sh
           fi

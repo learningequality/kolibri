@@ -1,15 +1,4 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
-name: "CodeQL Advanced"
+name: Security Scan
 on:
   push:
     branches: ["develop", "release-v*"]
@@ -21,16 +10,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 permissions:
-  # required for all workflows
-  security-events: write
-  # required to fetch internal or private CodeQL packs
-  packages: read
-  # only required for workflows in private repositories
-  actions: read
   contents: read
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
+    permissions:
+      # required for all workflows
+      security-events: write
+      # required to fetch internal or private CodeQL packs
+      packages: read
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
@@ -74,3 +65,20 @@ jobs:
         uses: github/codeql-action/analyze@v4.37.3
         with:
           category: "/language:${{matrix.language}}"
+  # Five zizmor audits need a GitHub API token and so cannot run in the prek
+  # hook. One of them, known-vulnerable-actions, reads the GitHub Advisories
+  # database, so this job's findings change without the tree changing.
+  zizmor:
+    name: Audit workflows with zizmor
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: zizmorcore/zizmor-action@v0.6.2
+        with:
+          min-confidence: medium

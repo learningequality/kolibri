@@ -82,7 +82,9 @@ jobs:
         run: make dependencies
       - name: Download the whlfile from URL and install
         if: ${{ inputs.whl-url }}
-        run: make get-whl whl=${{ inputs.whl-url }}
+        env:
+          WHL_URL: ${{ inputs.whl-url }}
+        run: make get-whl whl="$WHL_URL"
       - name: Download the whlfile from artifacts
         if: ${{ inputs.whl-file-name }}
         uses: actions/download-artifact@v8
@@ -91,7 +93,9 @@ jobs:
           path: platforms/desktop-app/whl
       - name: Install WHL file from artifacts
         if: ${{ inputs.whl-file-name }}
-        run: make install-whl whl=whl/${{ inputs.whl-file-name }}
+        env:
+          WHL_FILE_NAME: ${{ inputs.whl-file-name }}
+        run: make install-whl whl="whl/$WHL_FILE_NAME"
       - name: Setup app signing certificate
         if: ${{ inputs.release }}
         run: |

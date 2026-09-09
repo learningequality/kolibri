@@ -86,6 +86,8 @@ jobs:
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
           private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - name: Create Pull Request
         if: steps.check-commit.outputs.changed == 'true' && steps.check-build-changes.outputs.has_build_changes == 'true'
         uses: peter-evans/create-pull-request@v8
@@ -156,6 +158,11 @@ jobs:
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
           private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          # Pushing a change to .github/workflows/, which the prek run above can
+          # produce, needs the app installation's Workflows permission.
+          permission-workflows: write
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:

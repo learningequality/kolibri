@@ -62,9 +62,11 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Publish
         id: publish
+        env:
+          PYPI_PACKAGE: ${{ github.event.inputs.pypi_package }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.pypi_package }}" != "all" ]; then
-            ./scripts/pypi_publish.sh "${{ github.event.inputs.pypi_package }}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$PYPI_PACKAGE" != "all" ]; then
+            ./scripts/pypi_publish.sh "$PYPI_PACKAGE"
           else
             ./scripts/pypi_publish.sh
           fi

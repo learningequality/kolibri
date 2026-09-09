@@ -1,0 +1,8 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        '*': ref-pin
+# `--min-confidence medium`, passed by both callers, defers 92 findings as of
+# this commit: 54 artipacked, 20 cache-poisoning, 18 informational
+# template-injection.

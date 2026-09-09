@@ -22,7 +22,10 @@ jobs:
           name: ${{ inputs.filename }}
           path: dist
       - uses: actions/github-script@v9
+        env:
+          ASSET_FILENAME: ${{ inputs.filename }}
+          RELEASE_ID: ${{ inputs.release_id }}
         with:
           script: |
             const utils = require('./.github/githubUtils.js')
-            await utils.uploadReleaseAsset(github, context, 'dist/${{ inputs.filename }}', '${{ inputs.release_id }}')
+            await utils.uploadReleaseAsset(github, context, `dist/${process.env.ASSET_FILENAME}`, process.env.RELEASE_ID)
