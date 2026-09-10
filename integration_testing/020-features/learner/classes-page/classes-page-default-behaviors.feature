@@ -2,10 +2,11 @@ Feature: Classes page default behaviors
 
   Background:
     Given I am enrolled in at least one class
-    	And I have assigned classes and quizzes
-    When I go to *Home > Classes > Class*
-    Then I see any assigned lessons under the header *Your lessons*
-      And I see any assigned quizzes under the header *Your quizzes*
+    	And I have assigned lessons, quizzes and courses
+    When I go to *Home > Classes > <class>*
+    Then I see my assigned courses under the header *Your courses*
+    	And I see my assigned lessons under the header *Your lessons*
+      And I see my assigned quizzes under the header *Your quizzes*
 
   Scenario: Learner opens a lesson and interacts with a resource
     When I click on the lesson card

@@ -13,6 +13,7 @@ Feature: Change device name
     When I click *Edit* next to the device name
     Then I see the *Device name* modal
     When I enter a new device name
-    	And I click *Save*
+    Then I see the following text under the field: *This device will be reachable at http://<device name>.local:<port>*
+    When I click the *Save* button
     Then I see the new device name
       And I see a *Changes saved* snackbar message

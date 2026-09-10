@@ -60,6 +60,38 @@ Feature: Coach courses
     Then I see a *Course is now hidden from learners* snackbar message
       And learners assigned to the course cannot see it at *Learn > Home > Classes > '<class>'*
 
+  Scenario: Coach can filter courses by status and recipients
+    Given I am at the *Coach - '<class>' > Courses* page
+      And there are several assigned courses with different recipients and *Visible to learners* status
+    When I click the *Status* drop-down
+    	And I select one of the available options
+    Then I see only courses matching the selected status
+    	And I see a *Clear all* button
+    When I click the *Clear all* button
+    Then both the filter by status and filter by recipients are returned to their default state
+    	And I see all of the available courses
+    When I click the *Recipients* drop-down
+    	And I select one of the available options
+    Then I see only courses matching the selected recipients
+    When I apply a filter or combination of filters for which there are no results
+    Then I see a *No results* message
+    	And I see a *Clear all* button
+    When I click the *Clear all* button
+    Then both the filter by status and filter by recipients are returned to their default state
+    	And I see all of the available courses
+
+  Scenario: Coach can search for a course
+    Given I am at the *Coach - '<class>' > Courses* page
+      And there are several assigned courses
+    When I enter a keyword in the *Search* field
+    Then I see only courses matching the entered keyword
+    When there are no results matching the entered keyword
+    Then I see a *No results* message
+    	And I see a *Clear all* button
+    When I click the *Clear all* button
+    Then the entered keyword is cleared
+    	And I see all of the available courses
+
   Scenario: Coach can see the course summary page
     When I click on the title of a course
     Then I see the course summary page
@@ -154,7 +186,7 @@ Feature: Coach courses
     Then I see *Lessons* table
     	And I can see whether a lesson resource is in progress or completed
     When I click on the *Learning objectives* tab
-    Then I can see TODO
+    Then I can see the *Learners by mastery* data for each lesson
 
   Scenario: Coach can see the learning objectives
     Given I am at the course summary page
