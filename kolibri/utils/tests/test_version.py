@@ -6,9 +6,8 @@ import unittest
 
 from parameterized import parameterized
 from setuptools_scm import Configuration
-from setuptools_scm.git import _git_parse_describe
+from setuptools_scm.git import archival_to_version
 from setuptools_scm.version import format_version
-from setuptools_scm.version import meta
 
 import kolibri
 from kolibri.utils import version
@@ -23,8 +22,7 @@ def _scm_version(describe_output):
     This exercises the same pipeline as setuptools-scm at build time:
     parse the git describe string, apply our tag_regex, and format the version.
     """
-    tag, distance, node, dirty = _git_parse_describe(describe_output)
-    v = meta(tag=tag, distance=distance, dirty=dirty, node=node, config=_scm_config)
+    v = archival_to_version({"describe-name": describe_output}, config=_scm_config)
     return format_version(v)
 
 
