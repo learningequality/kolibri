@@ -3,6 +3,7 @@ import sys
 import pywintypes
 import win32service
 
+from kolibri_app.constants import RUN_AS_SERVER
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
 from kolibri_app.server_process_windows import WindowsKolibriProcess
@@ -86,7 +87,7 @@ def handle_windows_commands():
         sys.exit(exit_code)
 
     # This block is the entry point for the server subprocess
-    if "--run-as-server" in sys.argv:
+    if RUN_AS_SERVER:
         logging.info("Starting in server mode...")
         server = WindowsKolibriProcess()
         server.run()
