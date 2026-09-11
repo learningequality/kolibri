@@ -237,6 +237,7 @@
   import CoachHeader from '../common/CoachHeader.vue';
   import { overrideRoute } from '../../utils';
   import { useCourses } from '../../composables/useCourses';
+  import useCourseNotificationPolling from '../../composables/useCourseNotificationPolling';
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import useClassSummary from '../../composables/useClassSummary';
@@ -477,6 +478,16 @@
             loadClassData(newClassId);
           }
         },
+      );
+
+      const currentClassId = computed(() => route.params.classId);
+      useCourseNotificationPolling(
+        store,
+        null,
+        // swallow failures, then retry on polling errors
+        // prevents the global error page when user didn't initiate
+        () => refreshClassCourses(true).catch(() => {}),
+        currentClassId,
       );
 
       function courseHasRecipients(course) {

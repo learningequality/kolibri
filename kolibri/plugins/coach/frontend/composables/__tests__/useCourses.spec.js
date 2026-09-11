@@ -79,6 +79,21 @@ describe('useCourses', () => {
 
       expect(coursesAreLoading.value).toBe(false);
     });
+
+    it('does not toggle when refreshClassCourses is called with silent=true', async () => {
+      CourseSessionResource.list.mockResolvedValue([
+        { id: 'session-1', course: 'content-1', missing_resource: false },
+      ]);
+
+      const { refreshClassCourses, coursesAreLoading } = useCourses();
+      const refreshPromise = refreshClassCourses(true);
+
+      expect(coursesAreLoading.value).toBe(false);
+
+      await refreshPromise;
+
+      expect(coursesAreLoading.value).toBe(false);
+    });
   });
 
   describe('refreshClassCourses', () => {
