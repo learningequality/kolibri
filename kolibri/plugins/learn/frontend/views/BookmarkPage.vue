@@ -93,8 +93,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-  import client from 'kolibri/client';
-  import urls from 'kolibri/urls';
+  import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
@@ -172,10 +171,7 @@
       },
       removeFromBookmarks(bookmark) {
         if (bookmark) {
-          client({
-            method: 'delete',
-            url: urls['kolibri:core:bookmarks_detail'](bookmark.id),
-          }).then(() => {
+          BookmarksResource.delete(bookmark.id).then(() => {
             this.bookmarks = this.bookmarks.filter(bm => bm.bookmark.id !== bookmark.id);
             this.createSnackbar(this.$tr('removedNotification'));
           });

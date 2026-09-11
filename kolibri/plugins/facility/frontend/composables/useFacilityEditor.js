@@ -3,8 +3,6 @@ import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
 import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import useFacility from 'kolibri-common/composables/useFacility';
 
@@ -225,42 +223,31 @@ export default function useFacilityEditor() {
   }
 
   async function setPin(payload) {
-    const response = await client({
-      url: urls['kolibri:core:facilitydataset_update_pin'](facilityDatasetId.value),
-      method: 'POST',
-      data: payload,
-    });
-    modifyExtraFields(response.data.extra_fields);
+    const dataset = await FacilityDatasetResource.setPin(facilityDatasetId.value, payload);
+    modifyExtraFields(dataset.extra_fields);
     await saveFacilityConfig();
   }
 
   async function unsetPin() {
-    const response = await client({
-      url: urls['kolibri:core:facilitydataset_update_pin'](facilityDatasetId.value),
-      method: 'PATCH',
-    });
-    modifyExtraFields(response.data.extra_fields);
+    const dataset = await FacilityDatasetResource.unsetPin(facilityDatasetId.value);
+    modifyExtraFields(dataset.extra_fields);
     await saveFacilityConfig();
   }
 
   const pictureLoginTaskId = ref(null);
 
   async function saveFacilityLoginSettings() {
-    const data = pick(settings.value, LOGIN_SETTINGS_FIELDS);
-    const response = await client({
-      url: urls['kolibri:core:facilitydataset_save_facility_login_settings'](
-        facilityDatasetId.value,
-      ),
-      method: 'PATCH',
-      data,
-    });
-    if (response.status === 202 && response.data.task?.id) {
-      pictureLoginTaskId.value = response.data.task.id;
+    const data = await FacilityDatasetResource.saveLoginSettings(
+      facilityDatasetId.value,
+      pick(settings.value, LOGIN_SETTINGS_FIELDS),
+    );
+    if (data.task?.id) {
+      pictureLoginTaskId.value = data.task.id;
     }
     // No `copySettings()` here: `saveFacilityConfig` runs straight after and diffs against
     // `settingsCopy`, so re-snapshotting now would make every other edited setting look
     // unchanged and be dropped. It takes the snapshot once both halves are saved.
-    return response.data;
+    return data;
   }
 
   return {

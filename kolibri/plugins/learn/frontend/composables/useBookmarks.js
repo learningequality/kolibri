@@ -6,8 +6,6 @@
 
 import { reactive } from 'vue';
 import { set } from '@vueuse/core';
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
 import logger from 'kolibri-logging';
 import useUser from 'kolibri/composables/useUser';
 import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
@@ -47,16 +45,12 @@ export async function createBookmark(contentnodeId) {
   const { currentUserId } = useUser();
   set(loadingBookmarksMap, contentnodeId, true);
   try {
-    const response = await client({
-      method: 'post',
-      url: urls['kolibri:core:bookmarks_list'](),
-      data: {
-        contentnode_id: contentnodeId,
-        user: currentUserId.value,
-      },
+    const bookmark = await BookmarksResource.create({
+      contentnode_id: contentnodeId,
+      user: currentUserId.value,
     });
-    setBookmark(response.data);
-    return response.data;
+    setBookmark(bookmark);
+    return bookmark;
   } catch (e) {
     clearBookmark(contentnodeId);
     throw e;
@@ -78,10 +72,7 @@ export async function removeBookmark(contentnodeId) {
   }
   set(loadingBookmarksMap, contentnodeId, true);
   try {
-    await client({
-      method: 'delete',
-      url: urls['kolibri:core:bookmarks_detail'](savedBookmark.id),
-    });
+    await BookmarksResource.delete(savedBookmark.id);
     clearBookmark(contentnodeId);
   } catch (e) {
     // Restore the bookmark if the delete failed

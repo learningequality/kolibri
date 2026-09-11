@@ -1,5 +1,6 @@
 import flushPromises from 'flush-promises';
 import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { shallowMount } from '@vue/test-utils';
 import BookmarkPage from '../BookmarkPage';
@@ -17,6 +18,7 @@ describe('Bookmark Page', () => {
   const fakeBookmarks = [{ bookmark: { id: 1 } }, { bookmark: { id: 2 } }, { bookmark: { id: 3 } }];
 
   beforeEach(async () => {
+    urls.__echoUrls();
     ContentNodeResource.fetchBookmarks_v2.mockResolvedValue({
       results: fakeBookmarks,
       more: { available: true, limit: 25 },
@@ -31,13 +33,13 @@ describe('Bookmark Page', () => {
   });
   describe('When the user clicks the remove from bookmarks icon', () => {
     it('will make a call to remove the bookmark from the list of bookmarks', async () => {
-      const bookmarkId = '1';
-      const index = 0;
-      await wrapper.vm.removeFromBookmarks(bookmarkId, index);
-      expect(client).toHaveBeenCalledWith({
-        method: 'delete',
-        url: 'test',
-      });
+      await wrapper.vm.removeFromBookmarks({ id: '1' });
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'DELETE',
+          url: '/kolibri:core:bookmarks_detail/1',
+        }),
+      );
     });
   });
 

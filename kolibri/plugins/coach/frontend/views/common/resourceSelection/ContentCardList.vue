@@ -82,8 +82,6 @@
 <script>
 
   import { computed, ref } from 'vue';
-  import urls from 'kolibri/urls';
-  import client from 'kolibri/client';
   import useUser from 'kolibri/composables/useUser';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
@@ -123,24 +121,17 @@
         });
       }
 
-      function deleteBookmark(contentnode_id) {
-        client({
-          method: 'delete',
-          url: urls['kolibri:core:bookmarks_detail'](contentnode_id),
-        }).then(() => {
+      function deleteBookmark(bookmarkId) {
+        BookmarksResource.delete(bookmarkId).then(() => {
           getBookmarks();
           sendPoliteMessage(coreString('removedFromBookmarks'));
         });
       }
 
       function addBookmark(contentnode_id) {
-        client({
-          method: 'post',
-          url: urls['kolibri:core:bookmarks_list'](),
-          data: {
-            contentnode_id: contentnode_id,
-            user: currentUserId.value,
-          },
+        BookmarksResource.create({
+          contentnode_id,
+          user: currentUserId.value,
         }).then(() => {
           getBookmarks();
           sendPoliteMessage(coreString('savedToBookmarks'));
