@@ -22,7 +22,7 @@ class UserExportTestCase(TestCase):
         # assigned objects to be compatible with copy.deepcopy - we do not need to copy
         # the management commands as they will not be modified by the tests, unlike the
         # models.
-        from ..management.commands import bulkexportusers as b
+        from ..utils import bulk_export as b
 
         cls.b = b
         # Run it before setUpClass super call, because this will then execute setUpTestData
