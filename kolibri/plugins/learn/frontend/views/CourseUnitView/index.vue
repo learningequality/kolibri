@@ -179,7 +179,7 @@
         fetchData: fetchUnitTreeData,
       } = useFetch({
         fetchMethod: () =>
-          ContentNodeResource.fetchTree_v2({
+          ContentNodeResource.fetchTree({
             id: props.unitId,
             // Include unavailable nodes so missing resources show a
             // warning in the navigation panel instead of disappearing.

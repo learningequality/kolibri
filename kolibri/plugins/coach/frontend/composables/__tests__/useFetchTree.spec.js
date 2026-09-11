@@ -14,9 +14,9 @@ var resources, topic, fetchTree, fetchMore, hasMore;
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 
 describe('useFetchTree', () => {
-  describe('fetching data with ContentNode.fetchTree_v2 when there is more', () => {
+  describe('fetching data with ContentNode.fetchTree when there is more', () => {
     beforeAll(async () => {
-      ContentNodeResource.fetchTree_v2.mockResolvedValue(fetchTreeTopicResponseWithMore);
+      ContentNodeResource.fetchTree.mockResolvedValue(fetchTreeTopicResponseWithMore);
       ({ resources, topic, fetchTree, fetchMore, hasMore } = useFetchTree({
         topicId: '1',
       }));
@@ -37,7 +37,7 @@ describe('useFetchTree', () => {
     it('fetches the next page of data, resulting in the results being appended to the existing results', async () => {
       const resourcesBeforeFetchingMore = get(resources);
       // Need to update the mock to be sure it's retruning the correct data
-      ContentNodeResource.fetchTree_v2.mockResolvedValue(fetchMoreTopicResponse);
+      ContentNodeResource.fetchTree.mockResolvedValue(fetchMoreTopicResponse);
       await fetchMore();
       expect(get(resources)).toEqual([
         ...resourcesBeforeFetchingMore,
@@ -47,7 +47,7 @@ describe('useFetchTree', () => {
 
     describe('fetching more data', () => {
       beforeAll(async () => {
-        ContentNodeResource.fetchTree_v2.mockResolvedValue(fetchTreeTopicWithoutMore);
+        ContentNodeResource.fetchTree.mockResolvedValue(fetchTreeTopicWithoutMore);
         ({ resources, topic, fetchTree, fetchMore, hasMore } = useFetchTree({
           topicId: '1',
         }));

@@ -46,7 +46,7 @@ To explore the server REST APIs, visit `/api_explorer/` on the Kolibri server wh
 Client resource layer
 ---------------------
 
-To access this REST API in the frontend Javascript code, an abstraction layer has been written to reduce the complexity of inferring URLs, caching resources, and saving data back to the server.
+To access this REST API in the frontend Javascript code, an abstraction layer has been written to reduce the complexity of inferring URLs and saving data back to the server.
 
 Resources
 ~~~~~~~~~
@@ -68,19 +68,19 @@ Here, the :code:`name` property is set to :code:`'channel'` in order to match th
 
 If this resource is part of the core app, it can be added to a global registry of resources inside :code:`packages/kolibri-common/apiResources`. Otherwise, it can be imported as needed, such as in the coach reports module.
 
-Models
-~~~~~~
+Reading data
+~~~~~~~~~~~~
 
-The instantiated Resource can then be queried for client side representations of particular information. For a representation of a single server side Django model, we can request a Model from the Resource, using :code:`fetchModel`
+The instantiated Resource can then be queried for the data behind it. For a single server side Django model, use :code:`retrieve`
 
 .. code-block:: javascript
 
   // corresponds to resource address /api/content/contentnode/<id>
-  const modelPromise = ContentNodeResource.fetchModel(id);
+  const modelPromise = ContentNodeResource.retrieve(id);
 
 The argument is the database id (primary key) for the model.
 
-We now have a reference for the promise to fetch data fron the server. To read the data, we must resolve the promise to an object representing the data
+We now have a reference for the promise to fetch data from the server. To read the data, we must resolve the promise to an object representing the data
 
 .. code-block:: javascript
 
@@ -88,46 +88,24 @@ We now have a reference for the promise to fetch data fron the server. To read t
     logging.info('This is the model data: ', data);
   });
 
-The :code:`fetchModel` method returns a :code:`Promise` which resolves when the data has been successfully retrieved. This may have been due to a round trip call to the REST API, or, if the data has already been previously returned, then it will skip the call to the REST API and return a cached copy of the data.
-
-If it is important to get data that has not been cached, you can call the :code:`fetchModel` method with a force parameter
-
-.. code-block:: javascript
-
-  ContentNodeResource.fetchModel(id, { force: true }).then((data) => {
-    logging.info('This is definitely the most up to date model data: ', data);
-  });
-
-Collections
-~~~~~~~~~~~
-
-For particular views on a data table (which could range from 'show me everything' to 'show me all content nodes with titles starting with "p"') - Collections are used.
-Collections are a cached view onto the data table, which are populated by Models - so if a Model that has previously been fetched from the server by a Collection is requested from :code:`getModel`, it is already cachced.
+For a view on a data table (which could range from 'show me everything' to 'show me all content nodes with titles starting with "p"'), use :code:`list`
 
 .. code-block:: javascript
 
   // corresponds to /api/content/contentnode/?popular=1
-  const collectionPromise = ContentNodeResource.fetchCollection({ getParams: { popular: 1 } });
+  const listPromise = ContentNodeResource.list({ popular: 1 });
 
-The getParams option defines the GET parameters that are used to define the filters to be applied to the data and hence the subset of the data that the Collection represents.
-
-We now have a reference for the promise to fetch data fron the server. To read the data, we must resolve the promise to an array of the returned data objects
+The argument defines the GET parameters that filter the data, and hence the subset of the table the result represents.
 
 .. code-block:: javascript
 
-  collectionPromise.then((dataArray) => {
+  listPromise.then((dataArray) => {
     logging.info('This is the model data: ', dataArray);
   });
 
-The :code:`fetchCollection` method returns a :code:`Promise` which resolves when the data has been successfully retrieved. This may have been due to a round trip call to the REST API, or, if the data has already been previously returned, then it will skip the call to the REST API and return a cached copy of the data.
+:code:`list` resolves with an array, or with :code:`{ results, more, count }` for a paginated endpoint.
 
-If it is important to get data that has not been cached, you can call the :code:`fetch` method with a force parameter
-
-.. code-block:: javascript
-
-  ContentNodeResource.fetchCollection({ getParams: { popular: 1 }, force: true }).then((dataArray) => {
-    logging.info('This is the model data: ', dataArray);
-  });
+:code:`ContentNodeResource.retrieve` — used in the examples above — serves from a node cache. No other resource caches: concurrent identical GETs are coalesced into one request, but every fresh call reaches the REST API.
 
 Data flow
 ---------

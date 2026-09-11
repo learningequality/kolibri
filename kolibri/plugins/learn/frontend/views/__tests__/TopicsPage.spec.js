@@ -141,8 +141,8 @@ describe('TopicsPage', () => {
       }),
     );
 
-    ContentNodeResource.fetchTree_v2.mockClear();
-    ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC);
+    ContentNodeResource.fetchTree.mockClear();
+    ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
 
     useUser.mockImplementation(() => useUserMock());
 
@@ -168,7 +168,7 @@ describe('TopicsPage', () => {
     async function fetchedParams() {
       shallowMount(TopicsPage, { store, localVue, router, propsData: { id: 'topic-id' } });
       await flushPromises();
-      return ContentNodeResource.fetchTree_v2.mock.calls[0][0].params;
+      return ContentNodeResource.fetchTree.mock.calls[0][0].params;
     }
 
     it('excludes courses for a user without a role', async () => {
@@ -195,7 +195,7 @@ describe('TopicsPage', () => {
 
       useBaseSearch.mockImplementation(() => useBaseSearchMock());
 
-      ContentNodeResource.fetchTree_v2.mockResolvedValue({
+      ContentNodeResource.fetchTree.mockResolvedValue({
         ...DEFAULT_TOPIC,
         options: { modality: 'CUSTOM_NAVIGATION' },
       });
@@ -363,7 +363,7 @@ describe('TopicsPage', () => {
           }),
         );
 
-        ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC);
+        ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
 
         useKResponsiveWindow.mockImplementation(() => ({
           windowIsSmall: true,
@@ -478,7 +478,7 @@ describe('TopicsPage', () => {
       });
 
       it('shows correct breadcrumbs at a non-Channel Topic', async () => {
-        ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC.children.results[0]);
+        ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC.children.results[0]);
         useBaseSearch.mockImplementation(() =>
           useBaseSearchMock({
             displayingSearchResults: false,

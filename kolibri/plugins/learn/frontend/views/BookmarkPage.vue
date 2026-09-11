@@ -149,20 +149,18 @@
       };
     },
     created() {
-      ContentNodeResource.fetchBookmarks_v2({ params: { limit: 25, available: true } }).then(
-        data => {
-          this.more = data.more;
-          this.bookmarks = data.results ? data.results : [];
-          this.loading = false;
-          this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
-        },
-      );
+      ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
+        this.more = data.more;
+        this.bookmarks = data.results ? data.results : [];
+        this.loading = false;
+        this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
+      });
     },
     methods: {
       loadMore() {
         if (!this.loading) {
           this.loading = true;
-          ContentNodeResource.fetchBookmarks_v2({ params: this.more }).then(data => {
+          ContentNodeResource.fetchBookmarks({ params: this.more }).then(data => {
             this.more = data.more;
             this.bookmarks.push(...data.results);
             this.loading = false;

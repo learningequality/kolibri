@@ -309,7 +309,7 @@
             // If the task actually just failed, re-start the task
             if (task.status === TaskStatuses.FAILED) {
               this.startDiffStatsTask();
-              TaskResource.clear_v2(task.id);
+              TaskResource.clear(task.id);
             } else {
               this.readAndDeleteTask(task);
             }
@@ -324,7 +324,7 @@
         this.deletedResources = task.extra_metadata.deleted_resources_count;
         this.updatedResources = task.extra_metadata.updated_resources_count;
 
-        return TaskResource.clear_v2(task.id);
+        return TaskResource.clear(task.id);
       },
       onWatchedTaskFinished() {
         const task = find(this.$store.state.manageContent.taskList, { id: this.watchedTaskId });

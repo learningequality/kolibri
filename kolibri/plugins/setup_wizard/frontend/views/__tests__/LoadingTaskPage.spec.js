@@ -13,9 +13,9 @@ const { continueAction$, retryAction$, startOverAction$, cancelAction$ } = coreS
 const { importFacilityAction$ } = syncStrings;
 
 jest.mock('kolibri/apiResources/TaskResource', () => ({
-  cancel_v2: jest.fn().mockResolvedValue({}),
-  clearAll_v2: jest.fn().mockResolvedValue({}),
-  restart_v2: jest.fn().mockResolvedValue({}),
+  cancel: jest.fn().mockResolvedValue({}),
+  clearAll: jest.fn().mockResolvedValue({}),
+  restart: jest.fn().mockResolvedValue({}),
   list: jest.fn().mockResolvedValue([]),
 }));
 
@@ -134,7 +134,7 @@ describe('LoadingTaskPage', () => {
     await userEvent.click(continueButton);
 
     expect(sendMock).toHaveBeenCalledWith('CONTINUE');
-    expect(TaskResource.clearAll_v2).toHaveBeenCalledTimes(1);
+    expect(TaskResource.clearAll).toHaveBeenCalledTimes(1);
   });
 
   it('when task fails, the "retry" button is available', async () => {
@@ -148,7 +148,7 @@ describe('LoadingTaskPage', () => {
 
     await userEvent.click(retryButton);
 
-    expect(TaskResource.restart_v2).toHaveBeenCalledTimes(1);
+    expect(TaskResource.restart).toHaveBeenCalledTimes(1);
   });
 
   it('when task fails, the "start over" button is available', async () => {
@@ -164,7 +164,7 @@ describe('LoadingTaskPage', () => {
 
     await userEvent.click(startOverButton);
 
-    expect(TaskResource.clearAll_v2).toHaveBeenCalledTimes(1);
+    expect(TaskResource.clearAll).toHaveBeenCalledTimes(1);
   });
 
   it('a cancel request is made when "cancel" is clicked', async () => {
@@ -177,7 +177,7 @@ describe('LoadingTaskPage', () => {
     await fireEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(TaskResource.cancel_v2).toHaveBeenCalledTimes(1);
+      expect(TaskResource.cancel).toHaveBeenCalledTimes(1);
     });
   });
 });

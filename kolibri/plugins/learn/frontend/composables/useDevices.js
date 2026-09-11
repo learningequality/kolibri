@@ -41,7 +41,7 @@ function canAccessStudio() {
 
 function fetchDevices() {
   return Promise.all([
-    canAccessStudio() ? RemoteChannelResource.getKolibriStudioStatus_v2() : Promise.resolve(null),
+    canAccessStudio() ? RemoteChannelResource.getKolibriStudioStatus() : Promise.resolve(null),
     NetworkLocationResource.list(),
   ]).then(([studio, devices]) => {
     if (canAccessStudio()) {

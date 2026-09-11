@@ -341,7 +341,7 @@
       },
     },
     mounted() {
-      ContentNodeResource.fetchRecommendationsFor_v2(this.content.id).then(recommendations => {
+      ContentNodeResource.fetchRecommendationsFor(this.content.id).then(recommendations => {
         const threeRecs = recommendations.splice(0, 3);
         this.recommendations = threeRecs.length ? threeRecs : null;
       });
