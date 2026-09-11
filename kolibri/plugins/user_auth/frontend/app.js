@@ -1,7 +1,9 @@
 import { watch } from 'vue';
-import { useWindowFocus } from '@vueuse/core';
+import { get, useWindowFocus } from '@vueuse/core';
 import router from 'kolibri/router';
 import KolibriApp from 'kolibri-app';
+import useUser from 'kolibri/composables/useUser';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import RootVue from './views/UserAuthIndex';
 import routes from './routes';
 import useAuthFlow from './composables/useAuthFlow';
@@ -22,6 +24,14 @@ class UserAuthModule extends KolibriApp {
     // `initialzeFlow` above `super.ready()` causes a delay, showing a white page. putting it after
     // causes the state not to be ready for components
     router.beforeEach(async (to, from, next) => {
+      // Authenticated users have no business on the auth pages; redirect them
+      // to their landing page.
+      const { isUserLoggedIn } = useUser();
+      if (get(isUserLoggedIn)) {
+        redirectBrowser();
+        return;
+      }
+
       await initializeFlow();
       next();
     });
