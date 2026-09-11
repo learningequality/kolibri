@@ -56,34 +56,40 @@
         </template>
       </div>
 
-      <!-- Submit button: shows only a forward-arrow icon; the aria-label
-          cycles through four instructional states as the sequence is built. -->
-      <button
-        type="submit"
-        class="submit-button"
-        :class="[
-          $computedClass({
-            ':hover': submitEnabled
-              ? {
-                backgroundColor: $themeTokens.primaryDark,
-              }
-              : {},
-          }),
-          { pulsing: submitPulsing },
-          { bouncing: arrowBouncing },
-        ]"
-        data-testid="submit-button"
-        :aria-disabled="!submitEnabled ? 'true' : undefined"
-        :aria-label="submitButtonAriaLabel"
-        :style="submitButtonStyle"
-      >
-        <KIcon
-          data-testid="submit-icon"
-          class="submit-icon"
-          icon="forward"
-          :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
+      <div class="submit-container">
+        <!-- Submit button: shows only a forward-arrow icon; the aria-label
+        cycles through four instructional states as the sequence is built. -->
+        <SubmitBurstAnimation
+          v-if="burstVisible"
+          class="submit-burst"
         />
-      </button>
+        <button
+          type="submit"
+          class="submit-button"
+          :class="[
+            $computedClass({
+              ':hover': submitEnabled
+                ? {
+                  backgroundColor: $themeTokens.primaryDark,
+                }
+                : {},
+            }),
+            { pulsing: submitPulsing },
+            { bouncing: arrowBouncing },
+          ]"
+          data-testid="submit-button"
+          :aria-disabled="!submitEnabled ? 'true' : undefined"
+          :aria-label="submitButtonAriaLabel"
+          :style="submitButtonStyle"
+        >
+          <KIcon
+            data-testid="submit-icon"
+            class="submit-icon"
+            icon="forward"
+            :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
+          />
+        </button>
+      </div>
     </div>
   </form>
 
@@ -100,6 +106,7 @@
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import PicturePasswordOption from './PicturePasswordOption';
+  import SubmitBurstAnimation from './animations/SubmitBurstAnimation';
 
   // Pre-compute once at module scope — PICTURE_PASSWORD_SET is static JSON so
   // there is no benefit to re-deriving this array on every component mount.
@@ -111,7 +118,7 @@
   export default {
     name: 'PicturePasswordGrid',
 
-    components: { PicturePasswordOption },
+    components: { PicturePasswordOption, SubmitBurstAnimation },
 
     setup(props, { emit }) {
       const $themeTokens = themeTokens();
@@ -286,6 +293,7 @@
       );
 
       const arrowBouncing = ref(false);
+      const burstVisible = ref(false);
 
       /**
        * Plays the success animation bouncing each selected icon in sequence,
@@ -294,26 +302,43 @@
        */
       const playSuccessAnimation = () => {
         const STAGGER = 150;
-        const DURATION = 380;
+        const ICON_BOUNCE_DURATION = 380;
+        const BURST_DURATION = 1100;
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const stagger = reduce ? 0 : STAGGER;
-        const dur = reduce ? 0 : DURATION;
+        const iconDuration = reduce ? 0 : ICON_BOUNCE_DURATION;
+        const burstDuration = reduce ? 0 : BURST_DURATION;
+        const iconCount = sequence.value.length;
+
+        if (!iconCount) {
+          return Promise.resolve();
+        }
 
         return new Promise(resolve => {
-          for (let i = 0; i < sequence.value.length; i++) {
+          for (let i = 0; i < iconCount; i++) {
             const id = sequence.value[i];
-            const isLast = i === sequence.value.length - 1;
+            const isLast = i === iconCount - 1;
             window.setTimeout(() => {
               bouncingId.value = id;
-              if (isLast) arrowBouncing.value = true;
+              if (isLast) {
+                arrowBouncing.value = true;
+                if (!reduce) {
+                  burstVisible.value = true;
+                  window.setTimeout(() => {
+                    burstVisible.value = false;
+                  }, burstDuration);
+                }
+              }
               window.setTimeout(() => {
                 if (bouncingId.value === id) bouncingId.value = null;
                 if (isLast) arrowBouncing.value = false;
-              }, dur);
+              }, iconDuration);
             }, i * stagger);
           }
 
-          window.setTimeout(() => resolve(), (sequence.value.length - 1) * stagger + dur);
+          const lastStart = (iconCount - 1) * stagger;
+          const animationDuration = Math.max(lastStart + iconDuration, lastStart + burstDuration);
+          window.setTimeout(() => resolve(), animationDuration);
         });
       };
 
@@ -356,6 +381,7 @@
         submitPulsing,
         bouncingId,
         arrowBouncing,
+        burstVisible,
         handleSelect,
         handleDisabledSelect,
         handleSubmit,
@@ -463,14 +489,28 @@
     border-radius: 16px;
   }
 
-  .submit-button {
+  .submit-container {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    height: 100%;
     padding: 0;
     border: 0;
     border-radius: 8px;
     transition: $core-time;
+  }
+
+  .submit-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    transform: translate(-50%, -50%);
   }
 
   .submit-icon {

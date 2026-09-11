@@ -301,7 +301,7 @@ describe('PicturePasswordGrid', () => {
           iconStyle: 'colorful',
           showIconText: true,
         },
-        stubs: ['PicturePasswordOption', 'KIcon'],
+        stubs: ['PicturePasswordOption', 'KIcon', 'SubmitBurstAnimation'],
       });
     }
 
@@ -355,12 +355,20 @@ describe('PicturePasswordGrid', () => {
       await nextTick();
       expect(wrapper.vm.bouncingId).toBe(3);
       expect(wrapper.vm.arrowBouncing).toBe(true);
+      expect(wrapper.vm.burstVisible).toBe(true);
 
-      // After the final 380ms, bouncing clears and Promise resolves
+      // After 380ms, icon/arrow bounce is done but burst is still running
       jest.advanceTimersByTime(380);
       await nextTick();
       expect(wrapper.vm.bouncingId).toBeNull();
       expect(wrapper.vm.arrowBouncing).toBe(false);
+      expect(wrapper.vm.burstVisible).toBe(true);
+      expect(resolved).toBe(false);
+
+      // Burst duration gates completion (1100ms from last icon start)
+      jest.advanceTimersByTime(720);
+      await nextTick();
+      expect(wrapper.vm.burstVisible).toBe(false);
       expect(resolved).toBe(true);
     });
 
@@ -389,6 +397,7 @@ describe('PicturePasswordGrid', () => {
       await nextTick();
       expect(resolved).toBe(true);
       expect(wrapper.vm.arrowBouncing).toBe(false);
+      expect(wrapper.vm.burstVisible).toBe(false);
     });
   });
 
