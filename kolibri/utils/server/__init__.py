@@ -32,8 +32,6 @@ from magicbus.plugins.servers import wait_for_free_port
 from magicbus.plugins.servers import wait_for_occupied_port
 from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Monitor
-from zeroconf import get_all_addresses
-from zeroconf import InterfaceChoice
 
 import kolibri
 from kolibri.utils import conf
@@ -284,28 +282,7 @@ class ZeroConfPlugin(Monitor):
             # A frequency of less than 0 will prevent the monitor from running
             Monitor.__init__(self, bus, None, frequency=-1)
         self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
-        self.broadcast = None
-
-    @property
-    def interfaces(self):
-        return (
-            InterfaceChoice.All
-            if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
-            else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
-        )
-
-    @property
-    def addresses_changed(self):
-        # if we're bound to a specific addresses, then we don't need to do dynamic updates
-        if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] != "0.0.0.0":
-            return False
-
-        current_addresses = set(get_all_addresses())
-        return (
-            self.broadcast is not None
-            and self.broadcast.is_broadcasting
-            and self.broadcast.addresses != current_addresses
-        )
+        self.backend = None
 
     def SERVING(self, port):
         self.port = port or self.port
@@ -315,24 +292,21 @@ class ZeroConfPlugin(Monitor):
         from kolibri.core.discovery.utils.network.broadcast import (
             build_broadcast_instance,
         )
-        from kolibri.core.discovery.utils.network.broadcast import KolibriBroadcast
-        from kolibri.core.discovery.utils.network.local_hostnames import (
-            LocalHostnameListener,
+        from kolibri.core.discovery.utils.network.broadcast import (
+            NetworkDiscoveryBackend,
         )
         from kolibri.core.discovery.utils.network.search import NetworkLocationListener
 
         instance = build_broadcast_instance(self.port)
 
-        if self.broadcast is None:
-            self.broadcast = KolibriBroadcast(instance, interfaces=self.interfaces)
-            self.broadcast.add_listener(NetworkLocationListener)
-            self.broadcast.add_listener(LocalHostnameListener)
-            self.broadcast.start_broadcast()
+        if self.backend is None:
+            # the transport resolved via `NetworkDiscoveryHook` owns interface
+            # selection and the `.local` hostname aliases
+            self.backend = NetworkDiscoveryBackend(instance)
+            self.backend.add_listener(NetworkLocationListener)
+            self.backend.start_broadcast()
         else:
-            # `interfaces` should only be passed to update when there is a change to the interfaces,
-            # like the detection in self.run()
-            interfaces = self.interfaces if self.addresses_changed else None
-            self.broadcast.update_broadcast(instance=instance, interfaces=interfaces)
+            self.backend.update_broadcast(instance=instance)
 
     def UPDATE_ZEROCONF(self):
         self.RUN()
@@ -340,19 +314,17 @@ class ZeroConfPlugin(Monitor):
     def STOP(self):
         super().STOP()
 
-        if self.broadcast is not None:
-            self.broadcast.stop_broadcast()
-            self.broadcast = None
+        if self.backend is not None:
+            self.backend.stop_broadcast()
+            self.backend = None
 
     def run(self):
-        # If set of addresses that were present at the last time zeroconf updated its broadcast list
-        # don't match the current set of all addresses for this device, then we should reinitialize
-        # zeroconf, the listener, and the broadcast kolibri service.
-        if self.addresses_changed:
-            logger.info(
-                "List of local addresses has changed since zeroconf was last initialized, updating now"
-            )
-            self.broadcast.update_broadcast(interfaces=self.interfaces)
+        # the backend is only created on the RUN transition, which the monitor
+        # thread started on START can tick before
+        if self.backend is None:
+            return
+        # the transport detects an address change itself, and rebinds if so
+        self.backend.update_broadcast()
 
 
 def get_local_hostnames():

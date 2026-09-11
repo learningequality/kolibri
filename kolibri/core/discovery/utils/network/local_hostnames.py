@@ -4,8 +4,9 @@ from kolibri.core.discovery.utils.network.broadcast import KolibriInstanceListen
 
 class LocalHostnameListener(KolibriInstanceListener):
     """
-    Persists the `.local` hostnames the broadcast owns to the database, so
-    `get_urls()` can read them from any process.
+    Persists the `.local` hostnames the transport owns to the database, so
+    `get_urls()` can read them from any process. Attached to the transport's
+    own bus, which carries the `EVENT_UPDATE_LOCAL_NAMES` events.
     """
 
     def update_local_names(self, hostnames):
