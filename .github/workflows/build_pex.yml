@@ -15,6 +15,7 @@ jobs:
   build_pex:
     name: Build PEX
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:

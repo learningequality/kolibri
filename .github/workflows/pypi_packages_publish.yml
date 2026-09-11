@@ -37,6 +37,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       PYPI_TARGET: ${{ github.event.inputs.target }}
     permissions:

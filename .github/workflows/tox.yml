@@ -21,6 +21,7 @@ jobs:
   pre_job:
     name: Path match check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -35,6 +36,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -61,6 +63,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.11', '3.12', '3.13', '3.14']
@@ -89,6 +92,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: [3.6, 3.7]
@@ -105,9 +109,17 @@ jobs:
         run: |
           echo "deb http://archive.debian.org/debian-archive/debian/ buster main" > /etc/apt/sources.list
           echo "deb http://archive.debian.org/debian-archive/debian-security/ buster/updates main" >> /etc/apt/sources.list
-          echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive
-          apt-get -y -qq update
-          apt-get install -y git git-lfs
+          # archive.debian.org regularly stalls mid-transfer, and apt bounds a
+          # single stalled connection but never its own total runtime — long
+          # enough to hold the job open for hours rather than failing it.
+          cat > /etc/apt/apt.conf.d/99archive <<'EOF'
+          Acquire::Check-Valid-Until "false";
+          Acquire::Retries "3";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          EOF
+          timeout 300 apt-get -y -qq update
+          timeout 300 apt-get install -y git git-lfs
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
@@ -137,6 +149,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     services:
       # Label used to access the service container
       postgres:
@@ -185,6 +198,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
         python-version: ['3.9', '3.14']
@@ -228,6 +242,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: macos-14
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ['3.10']
@@ -252,6 +267,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: windows-latest
+    timeout-minutes: 60
     strategy:
       matrix:
         python-version: [3.8]
@@ -281,6 +297,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -312,6 +329,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -346,6 +364,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -372,9 +391,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
       - name: Install system dependencies
         if: ${{ matrix.system-packages }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ matrix.system-packages }}
+        run: .github/scripts/apt-install.sh ${{ matrix.system-packages }}
       - name: Install dependencies
         # --all-packages keeps root kolibri's runtime deps in the shared venv;
         # see the sync_extras_plugin_tests note above.
@@ -392,6 +409,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -417,6 +435,7 @@ jobs:
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Set up JDK 21
@@ -446,6 +465,7 @@ jobs:
       - unit_test_stage1
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Fail if any needed job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
@@ -472,6 +492,7 @@ jobs:
       - android_jvm_tests
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Fail if any needed job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

@@ -7,6 +7,7 @@ jobs:
   upload:
     name: Extract and upload strings to Crowdin
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       UV_PYTHON: "3.9"
     steps:
@@ -34,7 +35,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Install gettext
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: .github/scripts/apt-install.sh gettext
       - name: Install Python dependencies
         # --all-packages installs the python_packages/* members; without them the
         # Makefile's importability guard skips their message extraction and their

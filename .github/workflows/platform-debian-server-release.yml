@@ -26,6 +26,7 @@ jobs:
   check_version:
     name: Resolve and validate the release version
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       version: ${{ steps.version.outputs.VERSION }}
     steps:
@@ -68,6 +69,7 @@ jobs:
           echo "Debian version: ${VERSION}"
   build_package:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: check_version
     steps:
       - name: Checkout codebase
@@ -135,13 +137,13 @@ jobs:
       - check_version
       - build_package
     runs-on: ubuntu-latest
+    # launchpad_copy.py wait-for-published gives up after 30 minutes of its own.
+    timeout-minutes: 45
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -163,13 +165,12 @@ jobs:
   copy_to_other_distributions:
     needs: wait_for_source_published
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -189,13 +190,13 @@ jobs:
       - check_version
       - copy_to_other_distributions
     runs-on: ubuntu-latest
+    # launchpad_copy.py wait-for-published gives up after 30 minutes of its own.
+    timeout-minutes: 45
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -217,6 +218,9 @@ jobs:
     needs:
       - wait_for_copies_published
     runs-on: ubuntu-latest
+    # Only bounds the job once approval is granted; the approval wait itself
+    # happens before the job starts and is not subject to this timeout.
+    timeout-minutes: 10
     environment: release
     steps:
       - run: echo "Release approved — proceeding to promote to kolibri PPA."
@@ -226,13 +230,13 @@ jobs:
       - check_version
       - block_release_step
     runs-on: ubuntu-latest
+    # launchpad_copy.py wait-for-published gives up after 30 minutes of its own.
+    timeout-minutes: 45
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}

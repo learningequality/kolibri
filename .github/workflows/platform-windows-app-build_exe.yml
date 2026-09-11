@@ -41,6 +41,7 @@ jobs:
   build_exe:
     name: Build EXE file
     runs-on: windows-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: platforms/desktop-app
@@ -71,7 +72,21 @@ jobs:
       - name: Install build dependencies
         run: make dependencies
       - name: Install wget and Inno Setup
-        run: choco install wget --no-progress && choco install innosetup --version=6.6.1 --allow-downgrade --no-progress
+        shell: pwsh
+        run: |
+          # community.chocolatey.org serves 504s from its V2 feed often enough to
+          # be a leading cause of failed Windows builds; retry rather than fail.
+          function Install-ChocoPackage {
+            param([string[]]$ChocoArgs)
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              choco install @ChocoArgs --no-progress
+              if ($LASTEXITCODE -eq 0) { return }
+              if ($attempt -lt 3) { Start-Sleep -Seconds (15 * $attempt) }
+            }
+            throw "choco install $ChocoArgs failed after 3 attempts"
+          }
+          Install-ChocoPackage @('wget')
+          Install-ChocoPackage @('innosetup', '--version=6.6.1', '--allow-downgrade')
       - name: Download and install the whl from URL
         if: ${{ inputs.whl-url }}
         shell: pwsh

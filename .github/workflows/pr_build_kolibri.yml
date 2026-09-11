@@ -99,13 +99,8 @@ jobs:
           echo "kolibri-server kolibri-server/port select ${KOLIBRI_SERVER_PORT}" | sudo debconf-set-selections
           echo "kolibri-server kolibri-server/zip_content_port select 8081" | sudo debconf-set-selections
       - name: Install the Kolibri and kolibri-server debs
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            "./debs/${{ needs.deb.outputs.deb-file-name }}" \
-            "./debs/${{ needs.server_deb.outputs.deb-file-name }}"
+        run: >-
+          .github/scripts/apt-install.sh "./debs/${{ needs.deb.outputs.deb-file-name }}" "./debs/${{ needs.server_deb.outputs.deb-file-name }}"
       - name: Start kolibri-server
         run: sudo service kolibri-server restart
       - name: Assert Kolibri is served through nginx
@@ -120,6 +115,7 @@ jobs:
     name: Android smoke test (API ${{ matrix.api-level }})
     needs: apk
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -180,13 +176,15 @@ jobs:
           # or a script file, not here, and directory changes do not persist between
           # lines — reference platforms/android explicitly.
           script: |
-            adb install -r platforms/android/dist/*.apk
-            adb shell am set-debug-app --persistent org.learningequality.Kolibri
-            adb wait-for-device
-            until adb shell pm path org.learningequality.Kolibri >/dev/null 2>&1; do sleep 1; done
+            # Caps are ~30x the observed normal (6s install, under 1s for the rest);
+            # 3 attempts each still fit the job's cap after a 10 minute emulator boot.
+            platforms/android/scripts/adb-retry.sh 180 3 install -r platforms/android/dist/*.apk
+            platforms/android/scripts/adb-retry.sh 60 3 shell am set-debug-app --persistent org.learningequality.Kolibri
+            platforms/android/scripts/adb-retry.sh 120 3 wait-for-device
+            timeout 300 sh -c 'until adb shell pm path org.learningequality.Kolibri >/dev/null 2>&1; do sleep 1; done'
             # Pre-grant so the WRITE_EXTERNAL_STORAGE dialog (API 24-28) never appears.
             # `|| true`: the permission doesn't exist on API 29+.
-            adb shell pm grant org.learningequality.Kolibri android.permission.WRITE_EXTERNAL_STORAGE || true
+            timeout 60 adb shell pm grant org.learningequality.Kolibri android.permission.WRITE_EXTERNAL_STORAGE || true
             # Let the launcher settle before app launch, to avoid the "Pixel Launcher
             # isn't responding" ANR seen on the API 35 runner under cold-boot contention.
             sleep 15
@@ -270,6 +268,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         cext: [true, false]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
@@ -301,6 +300,7 @@ jobs:
         python-version: [3.6, 3.7]
         cext: [true, false]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     container:
       image: python:${{ matrix.python-version }}-buster
     steps:
@@ -326,6 +326,7 @@ jobs:
       - test_whl_file_no_uv
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Fail if any needed job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

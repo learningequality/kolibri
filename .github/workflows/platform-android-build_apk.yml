@@ -69,6 +69,7 @@ jobs:
   build_apk:
     name: Build Android App
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: platforms/android
