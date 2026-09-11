@@ -50,16 +50,22 @@ def version_matches_range(version, version_range):
 
 
 def normalize_version_to_semver(version):
-    # dev = re.match(r"(.*?)(\.dev.*)?$", version).group()
     dev_match = re.match(r"(.*?)(\.dev.*)?$", version)
-
+    pre_dev = dev_match.group(1)
     dev = dev_match.group(2)
 
-    # extract the numeric semver component and the stuff that comes after
+    # extract numeric and prerelease from pre_dev
+    m = re.match(r"(^\d+\.\d+(?:\.\d+)?)([a-z0-9.+]*)", pre_dev)
+    if m:
+        numeric, after = m.groups()
+    else:
+        numeric, after = re.match(
+            r"(^\d+\.\d+[0-9]*\.?[0-9]*)([a-z0-9.+]*)", version
+        ).groups()
 
-    numeric, after = re.match(
-        r"(^\d+\.\d+[0-9]*\.?[0-9]*)([a-z0-9.+]*)", version
-    ).groups()
+    # If bipartite and followed by dev, ensure a patch segment exists for semver
+    if numeric.count(".") == 1 and dev:
+        numeric = numeric + ".0"
 
     # clean up the different variations of the post-numeric component to ease checking
     after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
@@ -72,7 +78,16 @@ def normalize_version_to_semver(version):
     # make sure dev versions are sorted nicely relative to one another
     dev = (dev or "").replace("+", ".").replace("-", ".")
 
-    return "{}-{}{}".format(numeric, after, dev).strip("-")
+    if after and dev:
+        suffix = after + dev
+    elif after:
+        suffix = after
+    elif dev:
+        suffix = dev.lstrip(".")
+    else:
+        suffix = ""
+
+    return "{}-{}".format(numeric, suffix) if suffix else numeric
 
 
 def truncate_version(version, truncation_level=PATCH_VERSION):
