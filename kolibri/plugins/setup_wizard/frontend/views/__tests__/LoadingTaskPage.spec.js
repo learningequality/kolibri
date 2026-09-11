@@ -180,4 +180,70 @@ describe('LoadingTaskPage', () => {
       expect(TaskResource.cancel_v2).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('after retry the poll loop re-arms so the loading step reflects the restarted task (issue #15235)', async () => {
+    // 1. Initial state: a FAILED task is shown with the Retry button.
+    TaskResource.list.mockResolvedValue([makeTask('FAILED')]);
+    renderComponent();
+
+    await global.flushPromises();
+
+    expect(screen.getByRole('button', { name: retryAction$() })).toBeInTheDocument();
+
+    // 2. The first poll ran on mount; the second poll is the short-circuited timer.
+    expect(TaskResource.list).toHaveBeenCalledTimes(2);
+
+    // 3. Click Retry. The restart succeeds and the component re-arms the poll loop.
+    await userEvent.click(screen.getByRole('button', { name: retryAction$() }));
+
+    expect(TaskResource.restart_v2).toHaveBeenCalledTimes(1);
+    // After a successful restart the poll loop is re-armed and fires once more.
+    expect(TaskResource.list).toHaveBeenCalledTimes(3);
+  });
+
+  it('a rejected restart keeps the user in the wizard instead of the global error page (issue #15235)', async () => {
+    const { sendMock } = renderComponent();
+
+    // A FAILED task with a restart endpoint that rejects (as if the task were QUEUED).
+    TaskResource.list.mockResolvedValue([makeTask('FAILED')]);
+    TaskResource.restart_v2.mockRejectedValueOnce(new Error('Cannot restart job with state: QUEUED'));
+
+    await global.flushPromises();
+
+    await userEvent.click(screen.getByRole('button', { name: retryAction$() }));
+
+    // The restart failed, but the wizard was not kicked to the global error page.
+    expect(sendMock).not.toHaveBeenCalledWith('ERROR');
+    // The poll loop is still active; the component will re-fetch on the next timer.
+    expect(TaskResource.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('the poll loop recovers from a non-500 network error instead of freezing (issue #15235)', async () => {
+    const originalSetTimeout = global.setTimeout;
+    let pollCount = 0;
+
+    const timeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation((cb, delay) => {
+      if (delay > 0) {
+        if (pollCount < 2) {
+          pollCount++;
+          originalSetTimeout(cb, 0);
+        }
+        return 123;
+      }
+      return originalSetTimeout(cb, delay);
+    });
+
+    // The first list call fails with a non-500 error (for example a transient network hiccup).
+    TaskResource.list.mockRejectedValueOnce(new Error('Network error'));
+
+    renderComponent();
+
+    await global.flushPromises();
+    await global.flushPromises();
+
+    // The poll loop recovered and ran again after the error.
+    expect(TaskResource.list).toHaveBeenCalledTimes(3);
+
+    timeoutSpy.mockRestore();
+  });
 });

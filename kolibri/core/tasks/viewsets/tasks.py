@@ -295,9 +295,16 @@ class TasksViewSet(viewsets.GenericViewSet):
         try:
             restarted_job_id = job_storage.restart_job(job_id=job_to_restart.job_id)
         except JobNotRestartable:
-            raise serializers.ValidationError(
-                "Cannot restart job with state: {}".format(job_to_restart.state)
-            )
+            # A job that re-entered the queue after a retry is QUEUED, which the
+            # storage layer rejects. For the setup wizard retry flow we treat a
+            # QUEUED job as restartable-by-nothing: the caller should just poll
+            # again rather than surfacing a hard error (issue #15235).
+            if job_to_restart.state == State.QUEUED:
+                return Response(
+                    self._job_to_response(job_to_restart),
+                    status=status.HTTP_200_OK,
+                )
+            raise
 
         job_response = self._job_to_response(
             job_storage.get_job(job_id=restarted_job_id)
