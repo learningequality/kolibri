@@ -2,9 +2,8 @@
  * This class offers an API interface for interacting directly with the Kolibri app
  * that the HTML5 app is embedded within
  */
-import BaseShim from './baseShim';
-import Mediator from './mediator';
-import { events, nameSpace, DataTypes } from './base';
+import { SandboxShim } from './SandboxShim';
+import { events, nameSpace } from './base';
 
 /**
  * Type definition for Language metadata.
@@ -89,13 +88,12 @@ import { events, nameSpace, DataTypes } from './base';
  * generate links externally to jump to this state
  */
 
-export default class Kolibri extends BaseShim {
-  constructor(mediator) {
-    super(mediator);
-    this.data = {};
-    this.nameSpace = 'kolibri';
-    this.mediator = new Mediator(window.parent);
-  }
+export default class Kolibri extends SandboxShim {
+  static shimName = 'kolibri';
+
+  // Unlike other shims, these are request/reply calls on the base sandbox namespace -
+  // main listens for them directly (MainClient.on) rather than through the shim state
+  // plumbing - so they go via the mediator instead of SandboxShim.sendMessage.
 
   iframeInitialize(contentWindow) {
     this.__setShimInterface();
@@ -128,9 +126,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { options, dataType: DataTypes.COLLECTION },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.COLLECTIONREQUESTED,
+          data: { options },
           nameSpace,
         });
       }
@@ -141,9 +139,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentPage(options) {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { options, dataType: DataTypes.COLLECTIONPAGE },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.COLLECTIONPAGEREQUESTED,
+          data: { options },
           nameSpace,
         });
       }
@@ -154,9 +152,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<ContentNode>} - a Promise that resolves to a ContentNode
        */
       getContentById(id) {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { id, dataType: DataTypes.MODEL },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.MODELREQUESTED,
+          data: { id },
           nameSpace,
         });
       }
@@ -171,9 +169,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       searchContent(options) {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { options, dataType: DataTypes.SEARCHRESULT },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.SEARCHRESULTREQUESTED,
+          data: { options },
           nameSpace,
         });
       }
@@ -188,7 +186,7 @@ export default class Kolibri extends BaseShim {
        * @return {Promise} - a Promise that resolves when the theme has been applied
        */
       themeRenderer(options) {
-        return self.mediator.sendMessageAwaitReply({
+        return self.__mediator.sendMessageAwaitReply({
           event: events.THEMECHANGED,
           data: options,
           nameSpace,
@@ -209,7 +207,7 @@ export default class Kolibri extends BaseShim {
        * @return {Promise} - a Promise that resolves when the navigation has completed
        */
       navigateTo(nodeId, context) {
-        return self.mediator.sendMessageAwaitReply({
+        return self.__mediator.sendMessageAwaitReply({
           event: events.NAVIGATETO,
           data: { nodeId, context },
           nameSpace,
@@ -222,7 +220,7 @@ export default class Kolibri extends BaseShim {
        * @return {Promise} - a Promise that resolves when the context has been updated
        */
       updateContext(context) {
-        return self.mediator.sendMessageAwaitReply({
+        return self.__mediator.sendMessageAwaitReply({
           event: events.CONTEXT,
           data: { context },
           nameSpace,
@@ -235,7 +233,7 @@ export default class Kolibri extends BaseShim {
        * when the context has been updated
        */
       getContext() {
-        return self.mediator.sendMessageAwaitReply({
+        return self.__mediator.sendMessageAwaitReply({
           event: events.CONTEXT,
           data: {},
           nameSpace,
@@ -247,9 +245,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<string>} - A version string
        */
       getVersion() {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { dataType: DataTypes.KOLIBRIVERSION },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.KOLIBRIVERSIONREQUESTED,
+          data: {},
           nameSpace,
         });
       }
@@ -259,9 +257,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<ChannelMetadata>} - a Promise that resolves to ChannelMetadata
        */
       getChannelMetadata() {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { dataType: DataTypes.CHANNELMETADATA },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.CHANNELMETADATAREQUESTED,
+          data: {},
           nameSpace,
         });
       }
@@ -271,9 +269,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<ChannelFilterOptions>} - a Promise that resolves to ChannelFilterOptions
        */
       getChannelFilterOptions() {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { dataType: DataTypes.CHANNELFILTEROPTIONS },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.CHANNELFILTEROPTIONSREQUESTED,
+          data: {},
           nameSpace,
         });
       }
@@ -291,9 +289,9 @@ export default class Kolibri extends BaseShim {
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getRandomNodes(options) {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { options, dataType: DataTypes.RANDOMCOLLECTION },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.RANDOMCOLLECTIONREQUESTED,
+          data: { options },
           nameSpace,
         });
       }

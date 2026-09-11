@@ -29,66 +29,72 @@ Plugin.prototype.apply = function (compiler) {
   }
 };
 
-module.exports = {
-  entry: path.resolve(__dirname, './src/iframe.js'),
-  resolve: {
-    fallback: {
-      stream: require.resolve('web-streams-polyfill/es5'),
+module.exports = (env, argv) => {
+  // Sandbox handlers are served by the webpack dev server in development, so the
+  // alternate origin has to be allowed to reach it - including over ws: for hot
+  // reload, as http: sources do not match the websocket scheme. Mirrors the
+  // CSP_DEFAULT_SRC additions in kolibri/deployment/default/settings/dev.py.
+  const devCSP = argv.mode !== 'production' ? ' http://localhost:* http://127.0.0.1:* ws:' : '';
+
+  return {
+    entry: path.resolve(__dirname, './src/iframe.js'),
+    output: {
+      filename: 'sandbox-[contenthash].js',
+      chunkFilename: 'sandbox-[name]-[contenthash].bundle.js',
+      path: path.resolve(__dirname, '../../kolibri/core/content/static/sandbox'),
     },
-  },
-  output: {
-    filename: 'sandbox-[contenthash].js',
-    chunkFilename: 'sandbox-[name]-[contenthash].bundle.js',
-    path: path.resolve(__dirname, '../../kolibri/core/content/static/sandbox'),
-  },
-  mode: 'production',
-  module: {
-    rules: [
-      {
-        test: /\.(js|mjs)$/,
-        loader: 'babel-loader',
-        exclude: [
-          // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
-          // \\ for Windows, / for macOS and Linux
-          /node_modules[\\/]core-js/,
-          /node_modules[\\/]webpack[\\/]buildin/,
-        ],
-        options: {
-          // Let babel auto-detect ES vs CommonJS
-          sourceType: 'unambiguous',
+    mode: argv.mode || 'production',
+    module: {
+      rules: [
+        {
+          test: /\.(js|mjs)$/,
+          loader: 'babel-loader',
+          exclude: [
+            // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
+            // \\ for Windows, / for macOS and Linux
+            /node_modules[\\/]core-js/,
+            /node_modules[\\/]webpack[\\/]buildin/,
+          ],
+          options: {
+            // Let babel auto-detect ES vs CommonJS
+            sourceType: 'unambiguous',
+          },
         },
+      ],
+    },
+    optimization: {
+      splitChunks: {
+        minChunks: 2,
       },
-    ],
-  },
-  optimization: {
-    splitChunks: {
-      minChunks: 2,
-    },
-    minimizer: [
-      new TerserPlugin({
-        parallel: true,
-        terserOptions: {
-          mangle: {
+      minimizer: [
+        new TerserPlugin({
+          parallel: true,
+          terserOptions: {
+            mangle: {
+              safari10: true,
+            },
             safari10: true,
+            output: {
+              comments: false,
+            },
           },
-          safari10: true,
-          output: {
-            comments: false,
+        }),
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            preset: ['default', { reduceIdents: false, zindex: false }],
           },
-        },
-      }),
-      new CssMinimizerPlugin({
-        minimizerOptions: {
-          preset: ['default', { reduceIdents: false, zindex: false }],
+        }),
+      ],
+    },
+    plugins: [
+      new Plugin(),
+      new HtmlWebpackPlugin({
+        filename: 'sandbox-[fullhash].html',
+        template: 'src/iframe.html',
+        templateParameters: {
+          devCSP,
         },
       }),
     ],
-  },
-  plugins: [
-    new Plugin(),
-    new HtmlWebpackPlugin({
-      filename: 'sandbox-[fullhash].html',
-      template: 'src/iframe.html',
-    }),
-  ],
+  };
 };

@@ -9,13 +9,14 @@
 import BaseStorage from './baseStorage';
 
 export default class SessionStorage extends BaseStorage {
-  constructor(mediator) {
-    super(mediator);
-    this.nameSpace = 'sessionStorage';
+  static shimName = 'sessionStorage';
+
+  // Both directions stubbed, so non-persistence holds here rather than depending on
+  // main never having any state to restore.
+  __setData() {
+    return;
   }
-  // Override the default implementation of stateUpdated to prevent unnecessarily messages
-  // However, as nothing is listening for this in the main client, it wouldn't actually
-  // hurt if this was still transmitting.
+
   stateUpdated() {
     return;
   }

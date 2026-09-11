@@ -1,10 +1,17 @@
 const path = require('node:path');
 const _ = require('lodash');
+const baseConfig = require('../webpack.config.base');
 const webpackConfigPlugin = require('../webpack.config.plugin');
 
 jest.mock('../apiSpecExportTools', () => ({
   getCoreExternals: () => ({}),
 }));
+
+// Spied on to simulate a base config with no JS transpilation rule.
+jest.mock('../webpack.config.base', () => {
+  const actual = jest.requireActual('../webpack.config.base');
+  return jest.fn((...args) => actual(...args));
+});
 
 jest.mock('kolibri-logging', () => ({
   error: () => {},
@@ -38,6 +45,14 @@ jest.mock(
 
 function hasMessageRegistrationPlugin(config) {
   return config.plugins.some(plugin => plugin.constructor.name === 'MessageRegistrationPlugin');
+}
+
+function hasRTLPlugin(config) {
+  return config.plugins.some(plugin => plugin.constructor.name === 'WebpackRTLPlugin');
+}
+
+function findJsRule(config) {
+  return config.module.rules.find(rule => rule.loader && rule.loader.includes('swc-loader'));
 }
 
 const baseData = {
@@ -152,6 +167,60 @@ describe('webpackConfigPlugin', function () {
     it('should exclude MessageRegistrationPlugin when the bundle config sets skipMessageRegistration', function () {
       data.config_path = 'test_skip_message_registration';
       expect(hasMessageRegistrationPlugin(webpackConfigPlugin(data))).toBe(false);
+    });
+  });
+
+  describe('sandbox handler bundles', function () {
+    beforeEach(function () {
+      data.sandbox_handler = true;
+      // Resolving core-js for the polyfill version needs a real plugin with it as a dependency.
+      data.plugin_path = 'kolibri/plugins/html5_viewer';
+      delete data.locale_data_folder;
+    });
+
+    it('should not need a locale_data_folder', function () {
+      expect(webpackConfigPlugin(data)).toBeDefined();
+    });
+
+    it('should exclude MessageRegistrationPlugin', function () {
+      expect(hasMessageRegistrationPlugin(webpackConfigPlugin(data))).toBe(false);
+    });
+
+    it('should exclude WebpackRTLPlugin', function () {
+      expect(hasRTLPlugin(webpackConfigPlugin(data))).toBe(false);
+    });
+
+    it('should inject the polyfills they use, as they have no core bundle to rely on', function () {
+      const { env } = findJsRule(webpackConfigPlugin(data, { transpile: true })).options;
+      expect(env.mode).toEqual('usage');
+      expect(env.coreJs).toEqual(
+        require(require.resolve('core-js/package.json', { paths: [data.plugin_path] })).version,
+      );
+    });
+
+    it('should detect module type per file so CommonJS gets require() polyfill imports', function () {
+      expect(findJsRule(webpackConfigPlugin(data, { transpile: true })).options.isModule).toEqual(
+        'unknown',
+      );
+    });
+
+    it('should throw when there is no transpilation rule to inject polyfills through', function () {
+      baseConfig.mockReturnValueOnce({ module: { rules: [] } });
+      expect(() => webpackConfigPlugin(data, { transpile: true })).toThrow(
+        /no JS transpilation rule/,
+      );
+    });
+  });
+
+  describe('plugin bundles', function () {
+    it('should include WebpackRTLPlugin', function () {
+      expect(hasRTLPlugin(webpackConfigPlugin(data))).toBe(true);
+    });
+
+    it('should not inject polyfills, as they rely on the core bundle for them', function () {
+      const { options } = findJsRule(webpackConfigPlugin(data, { transpile: true }));
+      expect(options.env.mode).toBeUndefined();
+      expect(options.isModule).toBeUndefined();
     });
   });
 });

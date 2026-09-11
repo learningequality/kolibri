@@ -4,12 +4,15 @@
     "private": true,
     "version": "0.0.1",
     "dependencies": {
+        "core-js": "catalog:",
         "kolibri": "workspace:*",
         "kolibri-common": "workspace:*",
         "kolibri-design-system": "catalog:",
         "kolibri-sandbox": "workspace:*",
         "kolibri-viewer": "workspace:*",
+        "kolibri-zip": "workspace:*",
         "lodash": "catalog:",
-        "vue": "catalog:"
+        "vue": "catalog:",
+        "web-streams-polyfill": "catalog:"
     }
 }

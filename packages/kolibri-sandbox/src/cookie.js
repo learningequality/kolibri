@@ -4,28 +4,18 @@
  *
  * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/document/cookie
  */
-import BaseShim from './baseShim';
+import { SandboxShim } from './SandboxShim';
 
 // Value to set on expires that will prevent this data from being persisted
 const sessionOnly = 'session';
 
-export default class Cookie extends BaseShim {
+export default class Cookie extends SandboxShim {
+  static shimName = 'cookie';
+
   constructor(mediator) {
     super(mediator);
-    this.nameSpace = 'cookie';
-    this.__clearData();
-    this.__setData = this.__setData.bind(this);
     this.__getCookies = this.__getCookies.bind(this);
     this.__setItem = this.__setItem.bind(this);
-    this.on(this.events.STATEUPDATE, this.__setData);
-  }
-
-  __clearData() {
-    const defaultData = {
-      rootCookies: {},
-      byPath: {},
-    };
-    this.__data = Object.assign({}, defaultData);
   }
 
   __removeExpiredCookies(data) {
@@ -54,14 +44,6 @@ export default class Cookie extends BaseShim {
     return output;
   }
 
-  __setData(data) {
-    if (data && data.rootCookies && data.byPath) {
-      this.__data = this.__removeExpiredCookies(data);
-    } else {
-      this.__clearData();
-    }
-  }
-
   iframeInitialize(contentWindow) {
     Object.defineProperty(contentWindow.document, this.nameSpace, {
       get: this.__getCookies,
@@ -72,6 +54,18 @@ export default class Cookie extends BaseShim {
       // to avoid causing errors for their code.
       configurable: true,
     });
+  }
+
+  /*
+   * The live cookie jar holds session-only cookies, which must not outlive the
+   * session, so what we store and what we hand over to be persisted differ. Anything
+   * restored to us has been sitting in the database, so drop what expired in between.
+   */
+  set data(data) {
+    this.__data =
+      data && data.rootCookies && data.byPath
+        ? this.__removeExpiredCookies(data)
+        : { rootCookies: {}, byPath: {} };
   }
 
   get data() {

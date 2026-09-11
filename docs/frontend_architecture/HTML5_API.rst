@@ -3,6 +3,8 @@ HTML5 API
 
 In order to effectively and safely host embedded HTML5 apps as a first class content type in Kolibri, we use the standard IFrame Sandbox functionality and serve HTML5 apps from a separate origin. This allows for HTML5 apps to run arbitrary Javascript, without concerns about accessing privileged user data, as the separate origin will prevent leakage of the session authentication into the sandboxed context.
 
+This page covers the APIs available to HTML5 zip and IMSCP zip content. Other sandboxed content types are rendered by their own sandbox handlers (see ``SandboxedContentViewerHook`` in :doc:`single_page_apps`), and each handler installs only the shims its content needs - the standard Web APIs and the ``window.kolibri`` namespace are common to all of them, everything else is not.
+
 
 Standard Web APIs
 -----------------
@@ -16,12 +18,7 @@ IndexedDB is also shimmed, but due to the very large amount of data that can be 
 SCORM
 -----
 
-A large number of educational web content relies on the SCORM API to log data about learner interactions. In order to support this, Kolibri embeds a `SCORM` namespace on `window.parent` within the HTML5 app context. This is the standard place for SCORM API to be located, so any existing content that is SCORM compatible can be used without modification in this context. Currently, only SCORM 1.2 is supported by this interface, and there are no plans as yet to support the sequencing standard introduced by SCORM 2004. `More information about SCORM 1.2 and the API it exposes is available at the SCORM website <https://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/#section-2>`__.
-
-xAPI
-----
-
-A more general purpose, but not as widely used, standard for logging interactions about learning content is xAPI. In order to provide preliminary support for this standard, Kolibri exposes a `window.xAPI` object in the HTML5 app context. This API offers a set of methods that allow for using xAPI equivalent actions via a Promise based API. The methods available are loosely based on the `XAPIWrapper Javascript library API <https://github.com/adlnet/xAPIWrapper>`__, but limits its support to sending and querying statements, state, activity profiles, and agents. At the moment, the primary use case for this API is internal, it is used to log data from H5P content interactions.
+A large number of educational web content relies on the SCORM API to log data about learner interactions. In order to support this, Kolibri embeds an `API` object on the HTML5 app's own window and on `window.parent`. These are the standard places for the SCORM API to be located, so any existing content that is SCORM compatible can be used without modification in this context. Currently, only SCORM 1.2 is supported by this interface, and there are no plans as yet to support the sequencing standard introduced by SCORM 2004. `More information about SCORM 1.2 and the API it exposes is available at the SCORM website <https://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/#section-2>`__.
 
 
 Custom Navigation

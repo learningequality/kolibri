@@ -10,10 +10,10 @@ class HTML5AppPlugin(KolibriPluginBase):
 
 
 @register_hook
-class HTML5AppAsset(content_hooks.ContentRendererHook):
+class HTML5AppAsset(content_hooks.SandboxedContentViewerHook):
     bundle_id = "main"
+    sandbox_handler_id = "sandbox_handler"
     presets = (
         format_presets.HTML5_ZIP,
-        format_presets.H5P_ZIP,
         format_presets.IMSCP_ZIP,
     )
