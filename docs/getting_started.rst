@@ -284,9 +284,9 @@ When the development server is started, you will see a message with a particular
 
 .. code-block:: bash
 
-  Open this URL to activate app mode: http://127.0.0.1:8000/app/api/initialize/<token>
+  Open this URL to activate app mode: http://127.0.0.1:8000/api/device/initialize/<app_key>?auth_token=1234
 
-Where `<token>` will be a 32-digit hex string. This token is used to authenticate the app mode session.
+Where `<app_key>` will be a 32-digit hex string. The ``auth_token`` identifies the OS user that the development plugin reports.
 
 To tweak the behaviour, the plugin that controls the app integrations can be edited in `integration_testing/development_plugin`.
 
