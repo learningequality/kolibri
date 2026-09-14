@@ -6,10 +6,12 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.db.models import When
 from le_utils.constants import content_kinds
+from le_utils.constants import exercises
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -18,6 +20,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.query import annotate_array_aggregate
 
@@ -908,28 +911,97 @@ def parse_attemptslog(attemptlog, contentnode_id=None, course_session_id=None):
         save_notifications(notifications)
 
 
+_IS_COACH_MONITORED_QUIZ = Q(
+    masterylog__mastery_criterion__contains="coach_assigned"
+) | Q(masterylog__mastery_criterion__contains=exercises.PRE_POST_TEST)
+_IS_COACH_MONITORED_QUIZ_MASTERYLOG = Q(
+    mastery_criterion__contains="coach_assigned"
+) | Q(mastery_criterion__contains=exercises.PRE_POST_TEST)
+
+
+def _resolve_prepost_test_course_session_id(user, content_id, cache=None):
+    """
+    A pre/post test's content_id is a one-way hash of
+    (course_session_id, unit_id, test_type) - see get_synthetic_content_id -
+    so it can't be decoded back into a course_session_id directly. Instead,
+    reverse-match it against the small set of UnitTestAssignment rows
+    reachable via the user's classroom memberships.
+
+    Returns the matching course_session_id, or None if none matches (e.g.
+    the assignment has since been deleted).
+    """
+    cache_key = (user.id, content_id)
+    if cache is not None and cache_key in cache:
+        return cache[cache_key]
+
+    candidate_collection_ids = user.memberships.all().values_list(
+        "collection_id", flat=True
+    )
+    candidates = (
+        UnitTestAssignment.objects.filter(collection_id__in=candidate_collection_ids)
+        .values("course_session_id", "unit_contentnode_id", "test_type")
+        .distinct()
+    )
+    result = None
+    for candidate in candidates:
+        if (
+            get_synthetic_content_id(
+                candidate["course_session_id"],
+                candidate["unit_contentnode_id"],
+                candidate["test_type"],
+            )
+            == content_id
+        ):
+            result = candidate["course_session_id"]
+            break
+
+    if cache is not None:
+        cache[cache_key] = result
+    return result
+
+
 def batch_process_attemptlogs(attemptlog_ids):
     for attemptlog in AttemptLog.objects.filter(id__in=attemptlog_ids).exclude(
-        masterylog__mastery_criterion__contains="coach_assigned"
+        _IS_COACH_MONITORED_QUIZ
     ):
         parse_attemptslog(attemptlog)
 
 
 def batch_process_masterylogs_for_quizzes(masterylog_ids, attemptlog_ids):
+    course_session_cache = {}
     for attemptlog in (
         AttemptLog.objects.filter(id__in=attemptlog_ids)
-        .filter(masterylog__mastery_criterion__contains="coach_assigned")
+        .filter(_IS_COACH_MONITORED_QUIZ)
+        .select_related("masterylog", "user")
         .annotate(quiz_id=F("masterylog__summarylog__content_id"))
         .order_by("start_timestamp")
     ):
-        quiz_answered_notification(attemptlog, attemptlog.quiz_id)
+        course_session_id = None
+        if (
+            attemptlog.masterylog.mastery_criterion.get("type")
+            == exercises.PRE_POST_TEST
+        ):
+            course_session_id = _resolve_prepost_test_course_session_id(
+                attemptlog.user, attemptlog.quiz_id, cache=course_session_cache
+            )
+            if course_session_id is None:
+                continue
+        quiz_answered_notification(attemptlog, attemptlog.quiz_id, course_session_id)
     for masterylog in (
         MasteryLog.objects.filter(id__in=masterylog_ids)
-        .filter(mastery_criterion__contains="coach_assigned")
+        .filter(_IS_COACH_MONITORED_QUIZ_MASTERYLOG)
+        .select_related("user")
         .annotate(quiz_id=F("summarylog__content_id"))
     ):
-        quiz_started_notification(masterylog, masterylog.quiz_id)
-        quiz_completed_notification(masterylog, masterylog.quiz_id)
+        course_session_id = None
+        if masterylog.mastery_criterion.get("type") == exercises.PRE_POST_TEST:
+            course_session_id = _resolve_prepost_test_course_session_id(
+                masterylog.user, masterylog.quiz_id, cache=course_session_cache
+            )
+            if course_session_id is None:
+                continue
+        quiz_started_notification(masterylog, masterylog.quiz_id, course_session_id)
+        quiz_completed_notification(masterylog, masterylog.quiz_id, course_session_id)
 
 
 def batch_process_examlogs(examlog_ids, examattemptlog_ids):

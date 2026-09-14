@@ -33,8 +33,11 @@ export function useCourses() {
     removeCourse(courseId);
   }
 
-  async function refreshClassCourses() {
-    setCoursesAreLoading(true);
+  async function refreshClassCourses(silent = false) {
+    // for polling requests; prevents a blank flash
+    if (!silent) {
+      setCoursesAreLoading(true);
+    }
     try {
       const courseSessions = await CourseSessionResource.list({ collection: classId.value });
 
@@ -49,7 +52,9 @@ export function useCourses() {
       setCourses(mappedSessions);
       return mappedSessions;
     } finally {
-      setCoursesAreLoading(false);
+      if (!silent) {
+        setCoursesAreLoading(false);
+      }
     }
   }
 
