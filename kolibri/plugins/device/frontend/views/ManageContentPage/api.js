@@ -2,14 +2,13 @@ import find from 'lodash/find';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
+import DriveInfoResource from 'kolibri-common/apiResources/DriveInfoResource';
 import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ChannelResource from '../../apiResources/deviceChannel';
 
 function getChannelOnDrive(driveId, channelId) {
-  return client({ url: urls['kolibri:core:driveinfo_detail'](driveId) })
-    .then(({ data }) => {
+  return DriveInfoResource.retrieve(driveId)
+    .then(data => {
       const channelMatch = find(data.metadata.channels, { id: channelId });
       if (!channelMatch) {
         throw ReferenceError('CHANNEL_NOT_ON_DRIVE');

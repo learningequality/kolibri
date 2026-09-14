@@ -169,8 +169,7 @@
   import { ContentNodeKinds, ContentErrorConstants } from 'kolibri/constants';
   import { crossComponentTranslator } from 'kolibri/utils/i18n';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
-  import client from 'kolibri/client';
-  import urls from 'kolibri/urls';
+  import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
@@ -553,16 +552,12 @@
           if (!this.isUserLoggedIn && (this.lessonId || this.classId)) {
             this.$router.replace({ ...this.$route, query: null });
           }
-          client({
-            method: 'get',
-            url: urls['kolibri:core:bookmarks_list'](),
-            params: { contentnode_id: this.content.id },
-          }).then(response => {
+          BookmarksResource.list({ contentnode_id: this.content.id }).then(data => {
             // As the component never gets fully torn down
             // this request could be stale. Only set bookmark
             // data in the case that the ids still match.
             if (this.content && this.content.id === id) {
-              this.bookmark = response.data[0] || false;
+              this.bookmark = data[0] || false;
             }
           });
         }
@@ -671,26 +666,19 @@
           return;
         }
         if (this.bookmark) {
-          client({
-            method: 'delete',
-            url: urls['kolibri:core:bookmarks_detail'](this.bookmark.id),
-          }).then(() => {
+          BookmarksResource.delete(this.bookmark.id).then(() => {
             this.bookmark = false;
           });
         } else if (this.bookmark === false) {
           const id = this.content.id;
-          client({
-            method: 'post',
-            url: urls['kolibri:core:bookmarks_list'](),
-            data: {
-              contentnode_id: id,
-              user: this.currentUserId,
-            },
-          }).then(response => {
+          BookmarksResource.create({
+            contentnode_id: id,
+            user: this.currentUserId,
+          }).then(bookmark => {
             if (this.content && this.content.id === id) {
               // Don't set a stale response if a user
               // navigated away before the bookmark finished.
-              this.bookmark = response.data;
+              this.bookmark = bookmark;
             }
           });
         }

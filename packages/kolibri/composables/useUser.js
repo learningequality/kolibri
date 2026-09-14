@@ -1,5 +1,4 @@
 import { computed, ref } from 'vue';
-import client from 'kolibri/client';
 import { browser, os } from 'kolibri/utils/browserInfo';
 import { setServerTime } from 'kolibri/utils/serverClock';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
@@ -9,6 +8,7 @@ import urls from 'kolibri/urls';
 import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED, UserKinds } from 'kolibri/constants';
 import { handleApiError } from 'kolibri/utils/appError';
 import pick from 'lodash/pick';
+import SessionResource from './internal/SessionResource';
 
 // Base session state (migrated from session module)
 const baseSessionState = {
@@ -115,18 +115,16 @@ export default function useUser() {
       Lockr.set(UPDATE_MODAL_DISMISSED, false);
     }
     try {
-      const response = await client({
-        params: prevalidate ? { prevalidate } : undefined,
-        data: { ...sessionPayload, active: true, browser, os },
-        url: urls['kolibri:core:session_list'](),
-        method: 'post',
-      });
+      const session = await SessionResource.login(
+        { ...sessionPayload, active: true, browser, os },
+        { params: prevalidate ? { prevalidate } : undefined },
+      );
 
       if (enableRedirect) {
         // Update session state before redirecting so that bfcache stores the
         // logged-in user_id. If the user navigates back, pollSessionEndPoint
         // will see user_id change to null and trigger signOutDueToInactivity.
-        setSession({ session: response.data });
+        setSession({ session });
 
         if (sessionPayload.next) {
           // OIDC redirect
@@ -136,7 +134,7 @@ export default function useUser() {
           redirectBrowser();
         }
       }
-      return { data: response.data, error: null };
+      return { data: session, error: null };
     } catch (error) {
       const errorsCaught = CatchErrors(error, [
         ERROR_CONSTANTS.INVALID_CREDENTIALS,
