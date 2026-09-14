@@ -188,26 +188,21 @@ These will be accessible as:
 
 ### Direct URL Function Access
 
-The most common way to use URLs in frontend code is to import the `urls` object and call URL functions directly:
+Use `urls` only for endpoints a Resource cannot reach, and only inside a resource method or an API module — never in a component:
 
 ```javascript
 import urls from 'kolibri/urls';
 import client from 'kolibri/client';
 
-// List endpoint (no parameters)
+// No URL parameters
 const response = await client({
-  url: urls['kolibri:core:session_list'](),
-  method: 'GET',
+  url: urls['kolibri:core:usernameavailable'](),
+  method: 'POST',
+  data: { username, facility },
 });
 
-// Detail endpoint (with parameter)
-const response = await client({
-  url: urls['kolibri:core:session_detail'](sessionId),
-  method: 'GET',
-});
-
-// Custom endpoint with parameter
-const response = await client({
+// With a URL parameter
+await client({
   url: urls['kolibri:core:deleteimporteduser'](userId),
   method: 'DELETE',
 });
@@ -229,17 +224,12 @@ const FacilityUserResource = new Resource({
 // The Resource automatically constructs: 'kolibri:core:facilityuser'
 // and uses _list and _detail suffixes for endpoints
 
-// Fetch a collection (calls kolibri:core:facilityuser_list)
-const users = await FacilityUserResource.fetchCollection();
+// Calls kolibri:core:facilityuser_list
+const users = await FacilityUserResource.list();
 
-// Fetch a single model (calls kolibri:core:facilityuser_detail)
-const user = await FacilityUserResource.fetchModel({ id: userId });
-
-// Save a model
-await FacilityUserResource.saveModel({
-  id: userId,
-  data: { username: 'newname' },
-});
+// Both call kolibri:core:facilityuser_detail
+const user = await FacilityUserResource.retrieve(userId);
+await FacilityUserResource.update(userId, { username: 'newname' });
 ```
 
 For plugin resources:
@@ -258,34 +248,23 @@ const LessonReportResource = new Resource({
 
 ### Custom Methods on Resources
 
-Resources can have custom methods that use specific URL endpoints:
+Anything beyond standard CRUD gets a named method on the resource. `this.request` resolves only `<basename>_<action>` names, so a URL registered outside the router needs `client()` and `urls[...]`.
 
 ```javascript
 import { Resource } from 'kolibri/apiResource';
-import urls from 'kolibri/urls';
-import client from 'kolibri/client';
 
-const FacilityUserResource = new Resource({
-  name: 'facilityuser',
+// Router action: kolibri:core:contentnode_recommendations_for
+const ContentNodeResource = new Resource({
+  name: 'contentnode',
 
-  // Custom method using a specific URL
-  removeImportedUser(user_id) {
-    return client({
-      url: urls['kolibri:core:deleteimporteduser'](user_id),
-      method: 'DELETE',
-    });
-  },
-
-  async listRemoteFacilityLearners(params) {
-    const { data } = await client({
-      url: urls['kolibri:core:remotefacilityauthenticateduserinfo'](),
-      method: 'POST',
-      data: params,
-    });
+  async fetchRecommendationsFor(id, params) {
+    const { data } = await this.request({ action: 'recommendations_for', routeParams: id, params });
     return data;
   },
 });
 ```
+
+[Resource layer](../frontend_architecture/resource_layer.rst) has `request`'s full option list, the non-router case, and how a component consumes a custom method.
 
 ## How URL Resolution Works
 
@@ -339,17 +318,8 @@ kolibriCoreAppGlobal.urls = {
 
 ### 1. Use the Correct Abstraction Level
 
-- **Direct URL access**: Use when you need fine-grained control or are making one-off requests
-  ```javascript
-  const response = await client({
-    url: urls['kolibri:core:session_list'](),
-  });
-  ```
-
-- **API Resources**: Use for standard CRUD operations on a ViewSet
-  ```javascript
-  const data = await MyResource.fetchCollection({ getParams: { page: 1 } });
-  ```
+- **API Resources**: the default, for any endpoint a ViewSet serves
+- **Direct URL access**: only for a URL the router did not generate, and only inside a resource method or an API module
 
 ### 2. Always Use URL Namespacing
 
@@ -446,62 +416,13 @@ console.log(urls['kolibri:core:session_list']());
 - A URL function was called without all required parameters
 - Check the URL pattern to see which parameters are required
 
-## Advanced Topics
-
-### Custom Detail Endpoints
-
-Resources support fetching custom detail endpoints (custom actions on a specific model):
-
-```javascript
-// Backend: @action(detail=True, methods=['get'])
-// def recommendations_for(self, request, pk=None)
-// Creates: kolibri:core:contentnode_recommendations_for
-
-const data = await ContentNodeResource.fetchDetailModel(
-  'recommendations_for',  // action name
-  nodeId,                 // id parameter
-  {}                      // getParams
-);
-```
-
-### Custom List Endpoints
-
-Resources support fetching custom list endpoints (custom actions on the collection):
-
-```javascript
-// Backend: @action(detail=False, methods=['get'])
-// def random(self, request)
-// Creates: kolibri:core:contentnode_random
-
-const data = await ContentNodeResource.fetchListCollection(
-  'random',  // action name
-  {}         // getParams
-);
-```
-
-### Accessing Endpoints Without Resources
-
-For complete control, use the `accessListEndpoint` or `accessDetailEndpoint` methods:
-
-```javascript
-// List endpoint
-const response = await MyResource.accessListEndpoint(
-  'POST',
-  'import',
-  { data: someData }
-);
-
-// Detail endpoint
-const response = await MyResource.accessDetailEndpoint(
-  'POST',
-  'copy',
-  itemId,
-  { params: someParams }
-);
-```
+**Error: "No URL found for the `<action>` action of the `<name>` resource"**
+- A resource method asked for an action the router never registered
+- Check the `@action` method name and the ViewSet's `basename`
 
 ## Related Documentation
 
+- Frontend Architecture: [Resource layer](../frontend_architecture/resource_layer.rst)
 - Frontend Architecture: [Core Functionality](../frontend_architecture/core.rst)
 - Backend Architecture: [Plugins](../backend_architecture/plugins.rst)
 - Django Documentation: [URL namespaces](https://docs.djangoproject.com/en/stable/topics/http/urls/#url-namespaces)
