@@ -8,6 +8,10 @@ MAC = sys.platform.startswith("darwin")
 
 WINDOWS = sys.platform.startswith("win32")
 
+# True only in the server subprocess the Windows UI process spawns; on POSIX the
+# server runs in a thread of the UI process.
+RUN_AS_SERVER = "--run-as-server" in sys.argv
+
 # Windows specific constants
 TRAY_ICON_ICO = "icons/kolibri.ico"
 SERVICE_NAME = "Kolibri"

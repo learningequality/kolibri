@@ -66,13 +66,14 @@ echo "✓ Kolibri service is running"
 
 # 4. Wait for the service to create logs
 echo "[4/6] Waiting for service logs..."
-KOLIBRI_LOG="/c/ProgramData/kolibri/logs/kolibri-app.txt"
+# The service runs with --run-as-server, which logs to its own file.
+KOLIBRI_LOG="/c/ProgramData/kolibri/logs/kolibri-app-server.txt"
 sleep 10
 
 if [ ! -f "$KOLIBRI_LOG" ]; then
     echo "ERROR: Log file not found at $KOLIBRI_LOG"
     echo "Looking for log file in alternative locations..."
-    find /c/ProgramData -name "kolibri-app.txt" 2>/dev/null || true
+    find /c/ProgramData -name "kolibri-app*.txt" 2>/dev/null || true
     exit 1
 fi
 
