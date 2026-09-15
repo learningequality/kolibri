@@ -184,28 +184,18 @@ Resource fetching
 
 .. code-block:: javascript
 
-  import { ref } from 'vue';
-  import ResourceAPI from './api';
+  import LessonResource from 'kolibri-common/apiResources/LessonResource';
 
-  export default function useResource() {
-    const data = ref(null);
-    const loading = ref(false);
-    const error = ref(null);
+  export default function useLessons(classId) {
+    const { data, loading, error, fetchData } = LessonResource.useList(() => ({
+      collection: classId.value,
+    }));
 
-    async function fetch(id) {
-      loading.value = true;
-      error.value = null;
-      try {
-        data.value = await ResourceAPI.get(id);
-      } catch (e) {
-        error.value = e;
-      } finally {
-        loading.value = false;
-      }
-    }
-
-    return { data, loading, error, fetch };
+    return { lessons: data, loading, error, fetchLessons: fetchData };
   }
+
+.. seealso::
+  :doc:`resource_layer` for what each resource composable returns, and for wrapping a custom resource method in ``useFetch``.
 
 Polling
 ~~~~~~~
