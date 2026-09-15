@@ -287,7 +287,7 @@
   // independent of how the content scrolls or grows.
   .keypad-anchor {
     position: fixed;
-    z-index: 20;
+    z-index: 10;
     overflow: hidden;
     pointer-events: none;
   }
