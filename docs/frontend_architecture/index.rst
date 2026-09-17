@@ -8,6 +8,7 @@ Frontend architecture
   core
   components
   composables
+  resource_layer
   conventions
   vuex
   HTML5_API
