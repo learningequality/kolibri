@@ -225,6 +225,17 @@ For a complete reference of the commands that can be run and what they do, inspe
 
   If you get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
 
+.. tip::
+
+  When the browser reaches the devserver at an address other than the one it binds — through a container port mapping, or from another machine — pass ``--public-host`` and ``--public-port``.
+
+  Set ``WEBPACK_DEV_SERVER_HOST`` and ``WEBPACK_DEV_SERVER_PORT`` to that same pair on the Kolibri server, so its CSP header allows the bundles.
+
+  .. code-block:: bash
+
+    pnpm run watch --host 0.0.0.0 --public-host kolibri.example --public-port 34567
+    WEBPACK_DEV_SERVER_HOST=kolibri.example WEBPACK_DEV_SERVER_PORT=34567 pnpm run python-devserver
+
 
 Production server
 ~~~~~~~~~~~~~~~~~
