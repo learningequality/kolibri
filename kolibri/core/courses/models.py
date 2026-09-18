@@ -102,7 +102,9 @@ class CourseSession(AbstractFacilityDataModel):
         # This manager will assign just the course ContentNode, further course nodes
         # will be requested later
         one_to_many=False,
-        filters=dict(is_active=True),
+        # Clearing a course's recipients deletes its CourseSessionAssignment rows and never
+        # touches is_active
+        filters=dict(is_active=True, assignments__isnull=False),
         lookup_field="course",
         lookup_func=course_assignment_lookup,
         content_download_priority_func=course_content_download_priority,
