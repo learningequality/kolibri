@@ -73,6 +73,11 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: '{count, number} {count, plural, one {result} other {results}}',
     context: 'Number of search results when we have an exact count',
   },
+  filterToggledResultsCount: {
+    message: '{count, number} {count, plural, one {result} other {results}} for {filterLabels}',
+    context:
+      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video'), replacing the browser's default announcement of the next checkbox with the updated result count and the filters now applied. 'filterLabels' is a comma-separated list of the active filter labels, e.g. '14 results for School, Video'.",
+  },
   autocompleteResultsAvailable: {
     message:
       '{count, number} {count, plural, one {result} other {results}} available. Use the up and down arrow keys to review.',
