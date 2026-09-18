@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { render, screen, fireEvent, within } from '@testing-library/vue';
 import { Categories } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -133,6 +133,32 @@ describe('HorizontalFilterPills', () => {
 
       expect(screen.getByRole('checkbox', { name: listen$() })).toBeChecked();
       expect(screen.getByRole('checkbox', { name: explore$() })).not.toBeChecked();
+    });
+
+    it('keeps focus on the checkbox after unchecking it, even though unapplying it reorders the list', async () => {
+      // Applied filters render before catalog refinements, so unchecking
+      // "Explore" moves its pill later in the list — a reorder that can drop
+      // focus from the checkbox if it isn't explicitly reclaimed.
+      const applied = ref([{ key: 'learning_activities', value: mockActivities.EXPLORE }]);
+      renderComponent({
+        appliedFilters: () => applied.value,
+        isFilterActive: (key, value) => applied.value.some(f => f.key === key && f.value === value),
+        toggleFilter: ({ key, value }) => {
+          const idx = applied.value.findIndex(f => f.key === key && f.value === value);
+          applied.value =
+            idx === -1
+              ? [...applied.value, { key, value }]
+              : applied.value.filter((_, i) => i !== idx);
+        },
+      });
+
+      const checkbox = screen.getByRole('checkbox', { name: explore$() });
+      checkbox.focus();
+      await fireEvent.click(checkbox);
+      await nextTick();
+
+      expect(checkbox).not.toBeChecked();
+      expect(checkbox).toHaveFocus();
     });
   });
 
