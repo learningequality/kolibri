@@ -239,6 +239,10 @@ const routes = [
     path: '/content/*',
     redirect: '/content',
   },
+  {
+    path: '*',
+    redirect: '/',
+  },
 ];
 
 export default routes;
