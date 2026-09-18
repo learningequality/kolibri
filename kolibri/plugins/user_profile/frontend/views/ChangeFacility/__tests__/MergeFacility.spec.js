@@ -15,7 +15,7 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   retrieve: jest.fn(),
   list: jest.fn(),
   startTask: jest.fn(),
-  clear_v2: jest.fn(),
+  clear: jest.fn(),
 }));
 
 const TARGET_FACILITY_NAME = 'Test Facility';

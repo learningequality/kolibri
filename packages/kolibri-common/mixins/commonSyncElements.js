@@ -88,7 +88,7 @@ export default {
       return this.getCommonSyncString('nameWithIdFragment', { name, id: id.slice(0, 4) });
     },
     fetchNetworkLocationFacilities(locationId) {
-      return NetworkLocationResource.fetchFacilities_v2(locationId).catch(() => []);
+      return NetworkLocationResource.fetchFacilities(locationId).catch(() => []);
     },
     startKdpSyncTask(facility) {
       return TaskResource.startTask({ type: 'kolibri.core.auth.tasks.dataportalsync', facility });
