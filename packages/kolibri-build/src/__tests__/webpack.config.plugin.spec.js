@@ -98,6 +98,23 @@ describe('webpackConfigPlugin', function () {
     });
   });
 
+  describe('dev server public path', function () {
+    it('should advertise localhost and port 3000 by default', function () {
+      expect(webpackConfigPlugin(data, { devServer: true }).output.publicPath).toEqual(
+        `http://localhost:3000/${data.name}/`,
+      );
+    });
+    it('should advertise the public host and port when they are given', function () {
+      expect(
+        webpackConfigPlugin(data, {
+          devServer: true,
+          publicHost: 'kolibri.example',
+          publicPort: 34567,
+        }).output.publicPath,
+      ).toEqual(`http://kolibri.example:34567/${data.name}/`);
+    });
+  });
+
   function expectParsedDataIsUndefined(data) {
     expect(webpackConfigPlugin(data)).toBeUndefined();
   }
