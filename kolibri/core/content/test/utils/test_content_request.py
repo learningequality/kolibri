@@ -989,6 +989,33 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 2)
 
+    def test_topic__admin_imported_descendant(self):
+        # a course removal requests the course node and every descendant
+        topic_request = ContentRemovalRequest.build_for_user(self.learner)
+        topic_request.contentnode_id = self.node.parent_id
+        topic_request.save()
+        self.node.admin_imported = True
+        self.node.save()
+
+        process_content_removal_requests(self.qs)
+        self.mock_delete_call.assert_not_called()
+
+    def test_topic__descendant_has_other_download(self):
+        topic_request = ContentRemovalRequest.build_for_user(self.learner)
+        topic_request.contentnode_id = self.node.parent_id
+        topic_request.save()
+        ContentDownloadRequest.objects.create(
+            contentnode_id=self.node.id,
+            reason=ContentRequestReason.SyncInitiated,
+            status=ContentRequestStatus.Completed,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility=self.facility,
+        )
+
+        process_content_removal_requests(self.qs)
+        self.mock_delete_call.assert_not_called()
+
 
 class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
     def setUp(self):
@@ -1605,11 +1632,13 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
     """
     Tests for process_content_requests().
 
-    Covers the three-phase flow end-to-end:
+    Covers the four-phase flow end-to-end:
         1. Metadata import — triggered for downloads whose ContentNode is absent.
         2. Descendant request creation — extra download requests are created for
             descendants of nodes that carry ``import_descendants`` in their metadata.
-        3. Content download — _process_download is dispatched for every pending
+        3. Sync-initiated removal — pending removals are processed regardless of
+            whether anything is queued to download.
+        4. Content download — _process_download is dispatched for every pending
             download that now has metadata.
 
     ``process_metadata_import`` is mocked to simulate the network import by
@@ -1813,7 +1842,33 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
             self.assertEqual(child_req.metadata.get("extra"), "value")
 
     # ------------------------------------------------------------------ #
-    # Phase 3: content download dispatch                                   #
+    # Phase 3: sync-initiated removals                                     #
+    # ------------------------------------------------------------------ #
+
+    def test_sync_removal_processed_without_pending_downloads(self, _mock_setting):
+        """A pending sync removal is processed even with nothing queued to download."""
+        node_id = uuid.uuid4().hex
+        self._create_resources(node_id, available=True)
+        removal = ContentRemovalRequest.objects.create(
+            facility=self.facility,
+            contentnode_id=node_id,
+            reason=ContentRequestReason.SyncInitiated,
+            status=ContentRequestStatus.Pending,
+            source_model="coursesession",
+            source_id=uuid.uuid4().hex,
+        )
+
+        with mock.patch(
+            "kolibri.core.content.utils.content_delete.delete_content"
+        ) as mock_delete_content:
+            process_content_requests()
+
+        mock_delete_content.assert_called_once()
+        removal.refresh_from_db()
+        self.assertEqual(removal.status, ContentRequestStatus.Completed)
+
+    # ------------------------------------------------------------------ #
+    # Phase 4: content download dispatch                                   #
     # ------------------------------------------------------------------ #
 
     def test_process_download_called_for_simple_download(self, _mock_setting):

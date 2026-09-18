@@ -17,6 +17,7 @@ from django.db.models import Value
 from django.db.models import When
 from django.db.models.expressions import CombinedExpression
 from django.db.models.functions import Coalesce
+from le_utils.constants import content_kinds
 from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
@@ -613,6 +614,12 @@ def process_content_requests():
         process_metadata_import(downloads_needing_metadata_import)
 
     _create_related_download_requests_if_needed(incomplete_downloads)
+
+    # Must run after the derived descendant downloads exist: a removal only survives
+    # `incomplete_removals_queryset` while no other source still downloads the node.
+    process_content_removal_requests(
+        incomplete_removals_queryset().filter(reason=ContentRequestReason.SyncInitiated)
+    )
 
     try:
         logger.debug("Starting automated import of content")
@@ -1227,12 +1234,20 @@ def process_content_removal_requests(queryset):
     from kolibri.core.content.utils.content_delete import delete_content
 
     # exclude admin imported nodes
-    removable_nodes = ContentNode.objects.filter(
-        id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
-        available=True,
-    ).exclude(
-        # could be null, so we exclude True instead of filtering False
-        admin_imported=True,
+    removable_nodes = (
+        ContentNode.objects.filter(
+            id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
+            available=True,
+        )
+        .exclude(
+            # could be null, so we exclude True instead of filtering False
+            admin_imported=True,
+        )
+        .exclude(
+            # `delete_content` expands a topic to every descendant, past the admin-imported
+            # and still-downloaded exclusions. A removal names every node it covers anyway.
+            kind=content_kinds.TOPIC,
+        )
     )
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
 
