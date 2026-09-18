@@ -98,10 +98,10 @@
       const {
         availableLearningActivities,
         availableLibraryCategories,
-        availableLanguages,
         appliedFilters,
         isFilterActive,
         isLabelAvailable,
+        labelForFilter,
         toggleFilter,
         clearSearch,
         searchLoading,
@@ -132,10 +132,10 @@
         ),
       );
 
-      // Decorate a {termKey, value} pair with the label and icon for its pill
       function entryFor(termKey, value) {
+        const label = labelForFilter(termKey, value);
         if (termKey === 'keywords') {
-          return { type: 'keyword', termKey, value, label: value, icon: null };
+          return { type: 'keyword', termKey, value, label, icon: null };
         }
         if (termKey === 'learning_activities') {
           const key = get(activityKeyByValue)[value];
@@ -143,7 +143,7 @@
             type: 'activity',
             termKey,
             value,
-            label: key ? coreString(key) : value,
+            label,
             icon: key ? getLearningActivityIcon(key) : null,
           };
         }
@@ -155,23 +155,14 @@
             type: 'category',
             termKey,
             value,
-            label: key ? coreString(key) : value,
+            label,
             icon: key ? getCategoryIcon(key) : null,
           };
         }
         if (termKey === 'languages') {
-          // Language values are codes (e.g. 'en'), which aren't in coreString's
-          // metadata lookup — resolve the human-readable name from the catalog.
-          const lang = (get(availableLanguages) || []).find(l => l.id === value);
-          return {
-            type: 'language',
-            termKey,
-            value,
-            label: lang ? lang.lang_name : value,
-            icon: null,
-          };
+          return { type: 'language', termKey, value, label, icon: null };
         }
-        return { type: termKey, termKey, value, label: coreString(value), icon: null };
+        return { type: termKey, termKey, value, label, icon: null };
       }
 
       // Applied filters first, then still-yieldable catalog refinements,
@@ -206,8 +197,8 @@
         }
       }
 
-      // Use click's default action so that the checkbox's state is 
-      // accurately read out with the screenreader. 
+      // Use click's default action so that the checkbox's state is
+      // accurately read out with the screenreader.
       // Managing via js causes lags.
       function handleToggle(entry) {
         const refName = `${entry.termKey}:${entry.value}`;

@@ -1,7 +1,7 @@
 import { nextTick, ref } from 'vue';
 import { render, screen, fireEvent, within } from '@testing-library/vue';
-import { Categories } from 'kolibri/constants';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { Categories, CategoriesLookup } from 'kolibri/constants';
+import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 import HorizontalFilterPills from '../HorizontalFilterPills.vue';
 
@@ -43,6 +43,24 @@ const mockCategories = {
     nested: {},
   },
 };
+function defaultLabelForFilter(key, value) {
+  if (key === 'keywords') {
+    return value;
+  }
+  if (key === 'learning_activities') {
+    const activityKey = Object.entries(mockActivities).find(([, v]) => v === value)?.[0];
+    return activityKey ? coreString(activityKey) : value;
+  }
+  if (key === 'categories') {
+    const categoryKey = CategoriesLookup[value];
+    return categoryKey ? coreString(categoryKey) : value;
+  }
+  if (key === 'languages') {
+    const lang = LANGUAGES.find(l => l.id === value);
+    return lang ? lang.lang_name : value;
+  }
+  return coreString(value);
+}
 
 function renderComponent(provides = {}, props = {}) {
   const toggleFilter = jest.fn();
@@ -56,6 +74,7 @@ function renderComponent(provides = {}, props = {}) {
       searchableLabels: ref(null),
       isFilterActive: () => false,
       isLabelAvailable: () => true,
+      labelForFilter: defaultLabelForFilter,
       appliedFilters: () => [],
       toggleFilter,
       clearSearch,
@@ -283,7 +302,6 @@ describe('HorizontalFilterPills', () => {
       // show the human-readable name from the languages catalog instead.
       const language = LANGUAGES[1];
       renderComponent({
-        availableLanguages: ref(LANGUAGES),
         appliedFilters: () => [{ key: 'languages', value: language.id }],
         isFilterActive: (key, value) => key === 'languages' && value === language.id,
       });
