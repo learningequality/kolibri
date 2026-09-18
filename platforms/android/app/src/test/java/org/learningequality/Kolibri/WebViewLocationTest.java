@@ -2,6 +2,7 @@ package org.learningequality.Kolibri;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -58,6 +59,37 @@ public class WebViewLocationTest {
 
     assertEquals(PAGE_PATH, WebViewLocation.getLastPath(context));
     assertEquals(46655, WebViewLocation.getLastPort());
+  }
+
+  @Test
+  public void withoutFragment_dropsTheRouteTheServerNeverSees() {
+    assertEquals("/en/auth/", WebViewLocation.withoutFragment("/en/auth/#/signin"));
+    assertEquals("/en/facility/?token=x", WebViewLocation.withoutFragment(PAGE_PATH));
+    assertEquals("/en/learn/", WebViewLocation.withoutFragment("/en/learn/"));
+    assertNull(WebViewLocation.withoutFragment(null));
+  }
+
+  @Test
+  public void restoreUrlFor_putsTheFragmentBackOnThePageItBelongsTo() {
+    assertEquals(
+        PAGE_URL,
+        WebViewLocation.restoreUrlFor("http://127.0.0.1:46655/en/facility/?token=x", PAGE_PATH));
+    // Matched on path and query, so a route the landed page's router already set does not block it.
+    assertEquals(
+        PAGE_URL,
+        WebViewLocation.restoreUrlFor(
+            "http://127.0.0.1:46655/en/facility/?token=x#/data", PAGE_PATH));
+  }
+
+  @Test
+  public void restoreUrlFor_isNullWhenThereIsNothingToPutBack() {
+    // The landed page's router reached the saved route by itself.
+    assertNull(WebViewLocation.restoreUrlFor(PAGE_URL, PAGE_PATH));
+    // #15232: the re-login redirect served a page the saved route does not belong to.
+    assertNull(
+        WebViewLocation.restoreUrlFor("http://127.0.0.1:46655/en/device/", "/en/auth/#/signin"));
+    assertNull(WebViewLocation.restoreUrlFor("http://127.0.0.1:46655/en/learn/", "/en/learn/"));
+    assertNull(WebViewLocation.restoreUrlFor(null, PAGE_PATH));
   }
 
   @Test
