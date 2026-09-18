@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -6,6 +7,7 @@ from django.db import connection
 from django.db.models import IntegerField
 from django.db.models.expressions import Case
 from django.db.models.expressions import When
+from morango.management.commands.cleanupsyncs import Command as CleanupsyncCommand
 from morango.models import Filter
 from morango.models import ScopeDefinition
 from morango.models import SyncSession
@@ -18,16 +20,22 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.collection_kinds import LEARNERGROUP
+from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
 from kolibri.core.auth.constants.morango_sync import PARTITION_CLASSROOM
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_COACH_RW
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_LEARNER_RW
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_client_and_server_certs
+from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import get_facility_dataset_id
+from kolibri.core.auth.management.utils import get_network_connection
+from kolibri.core.auth.management.utils import is_portal_sync
+from kolibri.core.auth.management.utils import MorangoSyncCommand
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Role
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.retry import retry
@@ -336,3 +344,165 @@ class ClassroomPartitionFilterFactory(ClassroomPartitionFactory):
                 combo_filter = Filter.add(combo_filter, collection_filter)
 
         return combo_filter
+
+
+def cleanup_sync_sessions(
+    ids=None,
+    sync_filter=None,
+    client_instance_id=None,
+    server_instance_id=None,
+    push=None,
+    pull=None,
+    expiration=6,
+):
+    if not device_provisioned():
+        raise CommandError("Kolibri is unprovisioned")
+    CleanupsyncCommand().handle(
+        ids=ids,
+        sync_filter=sync_filter,
+        client_instance_id=client_instance_id,
+        server_instance_id=server_instance_id,
+        push=push,
+        pull=pull,
+        expiration=expiration,
+    )
+
+
+def perform_sync(
+    baseurl=DATA_PORTAL_SYNCING_BASE_URL,
+    facility=None,
+    chunk_size=200,
+    username=None,
+    password=None,
+    user=None,
+    noninteractive=False,
+    no_push=False,
+    no_pull=False,
+    no_provision=False,
+    keep_alive=False,
+):
+    facility_id = facility
+    user_id = user
+
+    # call this in case user directly syncs without migrating database
+    if not ScopeDefinition.objects.filter():
+        call_command("loaddata", "scopedefinitions")
+
+    network_connection = get_network_connection(baseurl)
+    baseurl = network_connection.base_url
+
+    if user_id:  # it's a single-user sync
+        if not facility_id:
+            raise CommandError(
+                "Facility ID must be specified in order to do single-user syncing"
+            )
+        if not re.match("[a-f0-9]{32}", user_id):
+            raise CommandError("User ID must be a 32-character UUID (no dashes)")
+
+        facility_id, dataset_id = get_facility_dataset_id(
+            baseurl, identifier=facility_id, noninteractive=True
+        )
+
+        client_cert, server_cert, username = get_client_and_server_certs(
+            username,
+            password,
+            dataset_id,
+            network_connection,
+            user_id=user_id,
+            facility_id=facility_id,
+            noninteractive=noninteractive,
+        )
+
+        scopes = [client_cert.scope_definition_id, server_cert.scope_definition_id]
+
+        if len(set(scopes)) != 2:
+            raise CommandError(
+                "To do a single-user sync, one device must have a single-user certificate, and the other a full-facility certificate."
+            )
+    elif is_portal_sync(baseurl):  # do portal sync setup
+        facility = get_facility(facility_id=facility_id, noninteractive=noninteractive)
+
+        client_cert = (
+            facility.dataset.get_owned_certificates()
+            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
+            .first()
+        )
+        if not client_cert:
+            raise CommandError(
+                "This device does not own a certificate for Facility: {}".format(
+                    facility.name
+                )
+            )
+
+        scope_params = json.loads(client_cert.scope_params)
+        dataset_id = scope_params["dataset_id"]
+
+        server_certs = network_connection.get_remote_certificates(
+            dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
+        )
+
+        server_cert = (
+            server_certs[0]
+            if server_certs
+            else network_connection.push_signed_client_certificate_chain(
+                local_parent_cert=client_cert,
+                scope_definition_id=ScopeDefinitions.FULL_FACILITY,
+                scope_params=scope_params,
+            )
+        )
+
+    else:  # do P2P setup
+        facility_id, dataset_id = get_facility_dataset_id(
+            baseurl, identifier=facility_id, noninteractive=noninteractive
+        )
+
+        client_cert, server_cert, username = get_client_and_server_certs(
+            username,
+            password,
+            dataset_id,
+            network_connection,
+            facility_id=facility_id,
+            noninteractive=noninteractive,
+        )
+
+    sync_session_client = network_connection.create_sync_session(
+        client_cert, server_cert, chunk_size=chunk_size
+    )
+
+    MorangoSyncCommand()._sync(
+        sync_session_client,
+        no_push=no_push,
+        no_pull=no_pull,
+        noninteractive=noninteractive,
+        no_provision=no_provision,
+        keep_alive=keep_alive,
+        user=user,
+        username=username,
+    )
+
+
+def perform_resumesync(
+    id,
+    baseurl=DATA_PORTAL_SYNCING_BASE_URL,
+    chunk_size=500,
+    noninteractive=False,
+    no_push=False,
+    no_pull=False,
+    no_provision=False,
+    user=None,
+    keep_alive=False,
+):
+    network_connection = get_network_connection(baseurl)
+    sync_session_client = network_connection.resume_sync_session(
+        id, chunk_size=chunk_size
+    )
+
+    MorangoSyncCommand()._sync(
+        sync_session_client,
+        no_push=no_push,
+        no_pull=no_pull,
+        noninteractive=noninteractive,
+        no_provision=no_provision,
+        keep_alive=keep_alive,
+        user=user,
+    )

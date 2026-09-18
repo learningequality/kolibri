@@ -17,8 +17,8 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.core.utils.csv import open_csv_for_writing
 
-from ..management.commands import bulkimportusers as b
-from ..management.commands.bulkexportusers import labels
+from ..utils import bulk_import as b
+from ..utils.bulk_export import labels
 from .helpers import create_dummy_facility_data
 
 CLASSROOMS = 2
@@ -155,11 +155,10 @@ class ImportTestCase(TestCase):
         header_translation = {
             lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
         }
-        cmd = b.Command()
 
         with open_csv_for_reading(local_filepath=self.filename) as source:
             reader = csv.DictReader(source, strict=True)
-            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+            per_line_errors, classes, users, roles = b.csv_values_validation(
                 reader, header_translation, self.facility
             )
 
@@ -225,11 +224,10 @@ class ImportTestCase(TestCase):
         header_translation = {
             lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
         }
-        cmd = b.Command()
 
         with open_csv_for_reading(local_filepath=new_filename) as source:
             reader = csv.DictReader(source, strict=True)
-            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+            per_line_errors, classes, users, roles = b.csv_values_validation(
                 reader, header_translation, self.facility
             )
         assert len(per_line_errors) == 1

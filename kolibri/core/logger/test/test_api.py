@@ -16,11 +16,11 @@ from django.core.management import call_command
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from kolibri.core.auth.management.commands.bulkexportusers import (
-    CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
-)
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.auth.utils.bulk_export import (
+    CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
+)
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.csv_export import labels
