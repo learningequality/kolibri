@@ -12,11 +12,13 @@
         :style="pillColorStyleFor(entry)"
       >
         <input
+          :ref="`${entry.termKey}:${entry.value}`"
           type="checkbox"
           class="visuallyhidden"
           :checked="isFilterActive(entry.termKey, entry.value)"
           :aria-disabled="loading"
-          @click.prevent="handleToggle(entry)"
+          @click="guardClick"
+          @change="handleToggle(entry)"
         >
         <KIcon
           v-if="entry.icon"
@@ -80,11 +82,11 @@
 
 <script>
 
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed, getCurrentInstance, nextTick } from 'vue';
   import { get } from '@vueuse/core';
   import { themeTokens, themeBrand, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { CategoriesLookup } from 'kolibri/constants';
-  import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { injectBaseSearch, searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import { getCategoryIcon } from 'kolibri-common/utils/categoryIcon';
@@ -198,13 +200,25 @@
         return isFilterActive(entry.termKey, entry.value) ? 'close' : null;
       }
 
-      // Guarding here, rather than disabling the checkbox while loading, keeps
-      // it focusable so a keyboard toggle doesn't lose focus mid-search.
-      function handleToggle(entry) {
+      // don't let keyboard loose focus mid-search.
+      function guardClick(event) {
         if (get(searchLoading)) {
-          return;
+          event.preventDefault();
         }
+      }
+
+      // Use click's default action so that the checkbox's state is 
+      // accurately read out with the screenreader. 
+      // Managing via js causes lags.
+      function handleToggle(entry) {
+        const refName = `${entry.termKey}:${entry.value}`;
         toggleFilter({ key: entry.termKey, value: entry.value });
+        nextTick(() => {
+          const [checkbox] = instance.$refs[refName] || [];
+          if (checkbox) {
+            checkbox.focus();
+          }
+        });
       }
 
       function pillColorStyleFor(entry) {
@@ -248,6 +262,7 @@
         iconAfterFor,
         pillColorStyleFor,
         pillPseudoStylesFor,
+        guardClick,
         handleToggle,
         clearSearch,
         loading: searchLoading,

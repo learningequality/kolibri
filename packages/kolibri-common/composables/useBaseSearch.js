@@ -678,6 +678,7 @@ export default function useBaseSearch({
   provide('toggleFilter', toggleFilter);
   provide('appliedFilters', appliedFilters);
   provide('clearSearch', clearSearch);
+  provide('results', results);
 
   // Handling for search autocomplete
   provide('keyWordAutoCompleteHandler', keyWordAutoCompleteHandler);
@@ -727,6 +728,7 @@ export function injectBaseSearch() {
   const toggleFilter = inject('toggleFilter');
   const appliedFilters = inject('appliedFilters');
   const clearSearch = inject('clearSearch');
+  const results = inject('results');
   const searchLoading = inject('searchLoading');
   const keyWordAutoCompleteHandler = inject('keyWordAutoCompleteHandler');
   const autoCompleteSuggestions = inject('autoCompleteSuggestions');
@@ -751,6 +753,7 @@ export function injectBaseSearch() {
     toggleFilter,
     appliedFilters,
     clearSearch,
+    results,
     searchLoading,
     keyWordAutoCompleteHandler,
     autoCompleteSuggestions,
