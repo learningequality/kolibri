@@ -626,44 +626,33 @@
         const unitList = allUnits.value;
         if (!sessionId || !unitList.length) return;
         const getGroupNames = store.getters['classSummary/getGroupNamesForLearner'];
-        Promise.all(
-          unitList.map(unit =>
-            UnitReportResource.fetchReport({
-              courseSessionId: sessionId,
-              unitContentnodeId: unit.id,
-            })
-              .then(data => ({
-                unitId: unit.id,
-                result: {
-                  ...deriveUnitReportInfo(data),
-                  reportData: { ...data, unit_title: unit.numberedTitle },
-                  learnersWithGroups: data.learners.map(learner => ({
-                    ...learner,
-                    groups: getGroupNames(learner.id),
-                  })),
+        const titleById = new Map(unitList.map(unit => [unit.id, unit.numberedTitle]));
+        UnitReportResource.fetchReports({
+          courseSessionId: sessionId,
+          unitIds: unitList.map(unit => unit.id),
+        })
+          .then(({ learners, units }) => {
+            const learnersWithGroups = learners.map(learner => ({
+              ...learner,
+              groups: getGroupNames(learner.id),
+            }));
+            const newInfo = {};
+            for (const unit of units) {
+              newInfo[unit.unit_contentnode_id] = {
+                ...deriveUnitReportInfo(unit),
+                reportData: {
+                  ...unit,
+                  learners,
+                  unit_title: titleById.get(unit.unit_contentnode_id),
                 },
-              }))
-              .catch(error => {
-                handleApiError({ error });
-                return {
-                  unitId: unit.id,
-                  result: {
-                    activeTestType: null,
-                    activeTestStatus: 'not_activated',
-                    bucketedObjectives: [],
-                    reportData: null,
-                    learnersWithGroups: [],
-                  },
-                };
-              }),
-          ),
-        ).then(entries => {
-          const newInfo = {};
-          for (const { unitId, result } of entries) {
-            newInfo[unitId] = result;
-          }
-          unitReportInfo.value = newInfo;
-        });
+                learnersWithGroups,
+              };
+            }
+            unitReportInfo.value = newInfo;
+          })
+          // `handleApiError` re-throws by default, which from this terminal catch
+          // would only surface as an unhandled rejection.
+          .catch(error => handleApiError({ error, shouldThrow: false }));
       }
 
       // Fetch reports when units become available

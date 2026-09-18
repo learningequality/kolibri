@@ -1,14 +1,12 @@
 import { Resource } from 'kolibri/apiResource';
-import urls from 'kolibri/urls';
 
 export default new Resource({
-  name: 'unitreport',
+  name: 'unitreports',
   namespace: 'kolibri.plugins.coach',
-  fetchReport({ courseSessionId, unitContentnodeId }) {
-    const url = urls['kolibri:kolibri.plugins.coach:unitreport'](
-      courseSessionId,
-      unitContentnodeId,
-    );
-    return this.client({ url, method: 'GET' }).then(response => response.data);
+  fetchReports({ courseSessionId, unitIds }) {
+    return this.request({
+      routeParams: courseSessionId,
+      params: { unit_ids: unitIds },
+    }).then(response => response.data);
   },
 });

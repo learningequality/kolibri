@@ -72,12 +72,12 @@ export function bucketAllObjectives(learningObjectives, scores) {
 /**
  * Given raw unit report API data, determines the active test and buckets the learning
  * objectives by learner mastery.
- * @param {object} reportData - Raw response from `UnitReportResource.fetchReport`.
+ * @param {object} unit - One entry of `units[]` from `UnitReportResource.fetchReports`.
  * @returns {{activeTestType: string|null, activeTestStatus: string,
  *   bucketedObjectives: Array<object>}} Derived unit report summary.
  */
-export function deriveUnitReportInfo(reportData) {
-  const { post_test, pre_test, learning_objectives } = reportData;
+export function deriveUnitReportInfo(unit) {
+  const { post_test, pre_test, learning_objectives } = unit;
   let activeTest = null;
   let activeTestType = null;
 
