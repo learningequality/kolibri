@@ -9,7 +9,6 @@ from django.http.response import FileResponse
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import translation
-from django.utils.decorators import method_decorator
 from django.utils.translation import get_language_from_request
 from django.utils.translation import pgettext
 from django.views.generic.base import TemplateView
@@ -37,7 +36,7 @@ content_kinds.QUIZ = "quiz"
 logger = logging.getLogger(__name__)
 
 
-@method_decorator(cache_no_user_data, name="dispatch")
+@cache_no_user_data
 class FacilityManagementView(TemplateView):
     template_name = "facility_management.html"
 

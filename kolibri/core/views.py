@@ -8,7 +8,6 @@ from django.http import HttpResponseRedirect
 from django.urls import is_valid_path
 from django.urls import reverse
 from django.urls import translate_url
-from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
@@ -194,7 +193,7 @@ class GuestRedirectView(RootURLRedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-@method_decorator(cache_no_user_data, name="dispatch")
+@cache_no_user_data
 class UnsupportedBrowserView(TemplateView):
     template_name = "kolibri/unsupported_browser.html"
 
