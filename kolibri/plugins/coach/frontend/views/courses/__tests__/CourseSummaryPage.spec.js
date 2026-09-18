@@ -97,11 +97,10 @@ jest.mock('kolibri/composables/useSnackbar', () => ({
 jest.mock('../../../apiResources/unitReport', () => ({
   __esModule: true,
   default: {
-    fetchReport: jest.fn().mockResolvedValue({
+    fetchReports: jest.fn().mockResolvedValue({
+      course_title: '',
       learners: [],
-      learning_objectives: [],
-      pre_test: { status: 'not_activated', scores: {} },
-      post_test: { status: 'not_activated', scores: {} },
+      units: [],
     }),
   },
 }));
@@ -137,6 +136,21 @@ const CLASS_ID = 'a'.repeat(32);
 const SESSION_ID = 'b'.repeat(32);
 const LEARNER_ID = 'c'.repeat(32);
 const OBJECTIVE_ID = 'd'.repeat(32);
+const UNIT_A = 'e'.repeat(32);
+const UNIT_B = 'f'.repeat(32);
+
+function unitFixture(overrides = {}) {
+  return {
+    unit_contentnode_id: UNIT_A,
+    unit_title: 'A',
+    unit_number: 1,
+    learning_objectives: [],
+    lesson_objectives: {},
+    pre_test: { status: 'not_activated', scores: {} },
+    post_test: { status: 'not_activated', scores: {} },
+    ...overrides,
+  };
+}
 
 // Minimal course session object to satisfy template v-if guard and property access
 const MOCK_COURSE_SESSION = {
@@ -219,22 +233,50 @@ describe('CourseSummaryPage', () => {
     });
 
     it('shows the learner side panel when route is COURSE_SUMMARY_LEARNER and learner data loads', async () => {
-      UnitReportResource.fetchReport.mockResolvedValue({
+      UnitReportResource.fetchReports.mockResolvedValue({
+        course_title: 'Course',
         learners: [{ id: LEARNER_ID, groupIds: [] }],
-        learning_objectives: [],
-        pre_test: { status: 'not_activated', scores: {} },
-        post_test: { status: 'not_activated', scores: {} },
+        units: [unitFixture()],
       });
       useCourseSession.mockImplementation(() =>
         useCourseSessionMock({
           courseSession: ref(MOCK_COURSE_SESSION),
-          units: ref([{ id: 'a'.repeat(32) }]),
+          units: ref([{ id: UNIT_A }]),
         }),
       );
 
       const { findByTestId } = renderPage('COURSE_SUMMARY_LEARNER', { learnerId: LEARNER_ID });
       const panel = await findByTestId('learner-side-panel');
       expect(panel).toBeInTheDocument();
+    });
+  });
+
+  describe('CourseSummaryPage — unit report fetching', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('fetches every unit report in one request', async () => {
+      UnitReportResource.fetchReports.mockResolvedValue({
+        course_title: 'Course',
+        learners: [],
+        units: [unitFixture(), unitFixture({ unit_contentnode_id: UNIT_B, unit_number: 2 })],
+      });
+      useCourseSession.mockImplementation(() =>
+        useCourseSessionMock({
+          courseSession: ref(MOCK_COURSE_SESSION),
+          units: ref([{ id: UNIT_A }, { id: UNIT_B }]),
+        }),
+      );
+
+      renderPage('COURSE_SUMMARY_UNITS');
+      await global.flushPromises();
+
+      expect(UnitReportResource.fetchReports).toHaveBeenCalledTimes(1);
+      expect(UnitReportResource.fetchReports).toHaveBeenCalledWith({
+        courseSessionId: SESSION_ID,
+        unitIds: [UNIT_A, UNIT_B],
+      });
     });
   });
 
@@ -247,16 +289,15 @@ describe('CourseSummaryPage', () => {
     });
 
     it('closing the learner side panel navigates to COURSE_SUMMARY_LEARNERS', async () => {
-      UnitReportResource.fetchReport.mockResolvedValue({
+      UnitReportResource.fetchReports.mockResolvedValue({
+        course_title: 'Course',
         learners: [{ id: LEARNER_ID, groupIds: [] }],
-        learning_objectives: [],
-        pre_test: { status: 'not_activated', scores: {} },
-        post_test: { status: 'not_activated', scores: {} },
+        units: [unitFixture()],
       });
       useCourseSession.mockImplementation(() =>
         useCourseSessionMock({
           courseSession: ref(MOCK_COURSE_SESSION),
-          units: ref([{ id: 'a'.repeat(32) }]),
+          units: ref([{ id: UNIT_A }]),
         }),
       );
 
@@ -284,16 +325,20 @@ describe('CourseSummaryPage', () => {
     });
 
     it('shows the objective side panel when route is COURSE_SUMMARY_OBJECTIVE and objective data loads', async () => {
-      UnitReportResource.fetchReport.mockResolvedValue({
+      UnitReportResource.fetchReports.mockResolvedValue({
+        course_title: 'Course',
         learners: [],
-        learning_objectives: [{ id: OBJECTIVE_ID, text: 'Test Objective', num_questions: 5 }],
-        pre_test: { status: 'open', scores: {} },
-        post_test: { status: 'not_activated', scores: {} },
+        units: [
+          unitFixture({
+            learning_objectives: [{ id: OBJECTIVE_ID, text: 'Test Objective', num_questions: 5 }],
+            pre_test: { status: 'open', scores: {} },
+          }),
+        ],
       });
       useCourseSession.mockImplementation(() =>
         useCourseSessionMock({
           courseSession: ref(MOCK_COURSE_SESSION),
-          units: ref([{ id: 'a'.repeat(32) }]),
+          units: ref([{ id: UNIT_A }]),
         }),
       );
 
@@ -305,16 +350,20 @@ describe('CourseSummaryPage', () => {
     });
 
     it('closing the objective side panel navigates to COURSE_SUMMARY_OBJECTIVES', async () => {
-      UnitReportResource.fetchReport.mockResolvedValue({
+      UnitReportResource.fetchReports.mockResolvedValue({
+        course_title: 'Course',
         learners: [],
-        learning_objectives: [{ id: OBJECTIVE_ID, text: 'Test Objective', num_questions: 5 }],
-        pre_test: { status: 'open', scores: {} },
-        post_test: { status: 'not_activated', scores: {} },
+        units: [
+          unitFixture({
+            learning_objectives: [{ id: OBJECTIVE_ID, text: 'Test Objective', num_questions: 5 }],
+            pre_test: { status: 'open', scores: {} },
+          }),
+        ],
       });
       useCourseSession.mockImplementation(() =>
         useCourseSessionMock({
           courseSession: ref(MOCK_COURSE_SESSION),
-          units: ref([{ id: 'a'.repeat(32) }]),
+          units: ref([{ id: UNIT_A }]),
         }),
       );
 

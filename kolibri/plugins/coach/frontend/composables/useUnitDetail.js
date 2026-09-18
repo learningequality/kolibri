@@ -72,22 +72,23 @@ export default function useUnitDetail(courseSessionId, unitContentnodeId) {
     loading.value = true;
 
     Promise.all([
-      UnitReportResource.fetchReport({ courseSessionId: sessionId, unitContentnodeId: unitId }),
+      UnitReportResource.fetchReports({ courseSessionId: sessionId, unitIds: [unitId] }),
       UnitLessonProgressResource.fetchProgress({
         courseSessionId: sessionId,
         unitContentnodeId: unitId,
       }),
     ])
-      .then(([reportData, progressData]) => {
-        const derived = deriveUnitReportInfo(reportData);
+      .then(([{ course_title, learners, units }, progressData]) => {
+        const unit = units[0];
+        const derived = deriveUnitReportInfo(unit);
         activeTestStatus.value = derived.activeTestStatus;
         bucketedObjectives.value = derived.bucketedObjectives;
-        unitTitle.value = reportData.unit_title;
-        unitNumber.value = reportData.unit_number || null;
-        courseTitle.value = reportData.course_title || '';
-        rawLearningObjectives.value = reportData.learning_objectives || [];
-        lessonObjectivesMap.value = reportData.lesson_objectives || {};
-        learnerIds.value = reportData.learners.map(l => l.id);
+        unitTitle.value = unit.unit_title;
+        unitNumber.value = unit.unit_number || null;
+        courseTitle.value = course_title || '';
+        rawLearningObjectives.value = unit.learning_objectives || [];
+        lessonObjectivesMap.value = unit.lesson_objectives || {};
+        learnerIds.value = learners.map(l => l.id);
 
         lessons.value = progressData.lessons;
         contentLearnerStatus.value = progressData.content_learner_status;

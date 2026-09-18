@@ -2,7 +2,9 @@ import copy
 import datetime
 import uuid
 
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -23,7 +25,6 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.plugins.coach.viewsets.unit_report import compute_all_test_scores
-from kolibri.plugins.coach.viewsets.unit_report import get_test_status
 from kolibri.plugins.coach.viewsets.unit_report import TEST_STATUS_CLOSED
 from kolibri.plugins.coach.viewsets.unit_report import TEST_STATUS_NOT_ACTIVATED
 from kolibri.plugins.coach.viewsets.unit_report import TEST_STATUS_OPEN
@@ -32,18 +33,18 @@ from . import helpers
 
 DUMMY_PASSWORD = "password"
 
-URL_NAME = "kolibri:kolibri.plugins.coach:unitreport"
+URL_NAME = "kolibri:kolibri.plugins.coach:unitreports_list"
 
 
-def _make_url(course_session_id, unit_contentnode_id):
+def _make_url(course_session_id, unit_ids=None):
     # Strip dashes so the IDs match the [0-9a-f]{32} pattern in api_urls.py.
-    return reverse(
+    url = reverse(
         URL_NAME,
-        kwargs={
-            "course_session_id": course_session_id.replace("-", ""),
-            "unit_contentnode_id": unit_contentnode_id.replace("-", ""),
-        },
+        kwargs={"course_session_id": course_session_id.replace("-", "")},
     )
+    if unit_ids is not None:
+        url += "?unit_ids=" + ",".join(unit_ids)
+    return url
 
 
 # Fixed UUIDs so test failures are reproducible across runs.
@@ -177,67 +178,6 @@ def _create_attempt(
     return mastery_log
 
 
-class GetTestStatusTests(TestCase):
-    """get_test_status maps a UnitTestAssignment queryset to a response string."""
-
-    databases = "__all__"
-
-    @classmethod
-    def setUpTestData(cls):
-        provision_device()
-        cls.facility = FacilityFactory.create()
-        cls.classroom = Classroom.objects.create(name="cls", parent=cls.facility)
-        cls.group = LearnerGroup.objects.create(name="grp", parent=cls.classroom)
-        cls.coach = helpers.create_coach(
-            "status_coach", DUMMY_PASSWORD, cls.facility, cls.classroom
-        )
-        cls.course_session = CourseSession.objects.create(
-            course=uuid.uuid4().hex,
-            title="Status Test",
-            collection=cls.classroom,
-            created_by=cls.coach,
-        )
-        cls.unit_id = uuid.uuid4().hex
-
-    def _qs(self):
-        return UnitTestAssignment.objects.filter(
-            course_session=self.course_session,
-            unit_contentnode_id=self.unit_id,
-            test_type="pre",
-        )
-
-    def _make_assignment(self, closed, collection=None):
-        return UnitTestAssignment.objects.create(
-            course_session=self.course_session,
-            unit_contentnode_id=self.unit_id,
-            collection=collection or self.classroom,
-            test_type="pre",
-            closed=closed,
-            activated_by=self.coach,
-        )
-
-    def test_no_assignments_returns_not_activated(self):
-        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_NOT_ACTIVATED)
-
-    def test_active_assignment_returns_open(self):
-        self._make_assignment(closed=False)
-        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_OPEN)
-
-    def test_closed_assignment_returns_closed(self):
-        self._make_assignment(closed=True)
-        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_CLOSED)
-
-    def test_all_closed_assignments_returns_closed(self):
-        self._make_assignment(closed=True)
-        self._make_assignment(closed=True, collection=self.group)
-        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_CLOSED)
-
-    def test_mixed_returns_open(self):
-        self._make_assignment(closed=False)
-        self._make_assignment(closed=True, collection=self.group)
-        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_OPEN)
-
-
 class ComputeTestScoresTests(TestCase):
     """compute_all_test_scores aggregation logic without HTTP layer."""
 
@@ -262,20 +202,20 @@ class ComputeTestScoresTests(TestCase):
         self.course_session_id = uuid.uuid4().hex
         self.unit_id = uuid.uuid4().hex
 
-    def test_no_learners_returns_empty(self):
-        result = compute_all_test_scores(
-            [], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES
+    def _scores(self, learner_ids, objectives_by_unit):
+        return compute_all_test_scores(
+            learner_ids, self.course_session_id, objectives_by_unit
         )
+
+    def test_no_learners_returns_empty(self):
+        result = self._scores([], {self.unit_id: ASSESSMENT_OBJECTIVES})[self.unit_id]
         self.assertEqual(result["pre"], {})
         self.assertEqual(result["post"], {})
 
     def test_unattempted_learner_absent_from_scores(self):
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]
         self.assertNotIn(str(self.learner_a.id), result["pre"])
         self.assertNotIn(str(self.learner_a.id), result["post"])
 
@@ -288,12 +228,9 @@ class ComputeTestScoresTests(TestCase):
             items_correct=[ITEM_A1, ITEM_A2],  # 2 correct for LO1
             items_incorrect=[ITEM_A3],  # 0 correct for LO2
         )
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["pre"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
         lid = str(self.learner_a.id)
         self.assertIn(lid, result)
         self.assertEqual(result[lid].get(LO1_ID, 0), 2)
@@ -308,12 +245,9 @@ class ComputeTestScoresTests(TestCase):
             items_correct=[],
             items_incorrect=[ITEM_A1, ITEM_A2, ITEM_A3],
         )
-        result = compute_all_test_scores(
-            [self.learner_b.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["pre"]
+        result = self._scores(
+            [self.learner_b.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
         # Learner attempted but got 0 correct – should appear with empty scores dict
         self.assertIn(str(self.learner_b.id), result)
         self.assertEqual(result[str(self.learner_b.id)], {})
@@ -361,12 +295,9 @@ class ComputeTestScoresTests(TestCase):
             correct=1,
         )
 
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["post"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["post"]
         self.assertNotIn(str(self.learner_a.id), result)
 
     def test_mastery_log_without_end_timestamp_excluded(self):
@@ -411,12 +342,9 @@ class ComputeTestScoresTests(TestCase):
             correct=1,
         )
 
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["post"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["post"]
         self.assertNotIn(str(self.learner_a.id), result)
 
     def test_pre_and_post_are_independent(self):
@@ -429,12 +357,9 @@ class ComputeTestScoresTests(TestCase):
             items_correct=[ITEM_A1, ITEM_A2, ITEM_A3],
         )
 
-        post_result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["post"]
+        post_result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["post"]
         self.assertNotIn(str(self.learner_a.id), post_result)
 
     def test_duplicate_attempt_items_counted_once(self):
@@ -464,12 +389,9 @@ class ComputeTestScoresTests(TestCase):
             correct=1,
         )
 
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["pre"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
         lid = str(self.learner_a.id)
         self.assertIn(lid, result)
         # The most-recent attempt is correct, so LO1 should have exactly 1 (not 2).
@@ -500,12 +422,9 @@ class ComputeTestScoresTests(TestCase):
             end_timestamp=now + datetime.timedelta(minutes=1),
             correct=0.5,  # partial credit — must NOT count
         )
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["pre"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
         lid = str(self.learner_a.id)
         # Learner appears (complete mastery log); ITEM_A2 counts (1), ITEM_A1 partial does not.
         self.assertIn(lid, result)
@@ -607,12 +526,9 @@ class ComputeTestScoresTests(TestCase):
                 correct=0,
             )
 
-        result = compute_all_test_scores(
-            [self.learner_b.id],
-            self.course_session_id,
-            self.unit_id,
-            ASSESSMENT_OBJECTIVES,
-        )["post"]
+        result = self._scores(
+            [self.learner_b.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["post"]
         lid = str(self.learner_b.id)
         # Most recent log has 0 correct — scores dict should be present but empty.
         self.assertIn(lid, result)
@@ -628,12 +544,9 @@ class ComputeTestScoresTests(TestCase):
             items_correct=[ITEM_A4],  # maps to [LO1_ID, LO2_ID]
             items_incorrect=[],
         )
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            MULTI_LO_ASSESSMENT_OBJECTIVES,
-        )["pre"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: MULTI_LO_ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
         lid = str(self.learner_a.id)
         self.assertIn(lid, result)
         # ITEM_A4 maps to both LO1 and LO2 — both should get credit
@@ -650,17 +563,44 @@ class ComputeTestScoresTests(TestCase):
             items_correct=[],
             items_incorrect=[ITEM_A4],  # maps to [LO1_ID, LO2_ID], but wrong
         )
-        result = compute_all_test_scores(
-            [self.learner_a.id],
-            self.course_session_id,
-            self.unit_id,
-            MULTI_LO_ASSESSMENT_OBJECTIVES,
-        )["pre"]
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: MULTI_LO_ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
         lid = str(self.learner_a.id)
         self.assertIn(lid, result)
         # Wrong answer — neither LO should get credit
         self.assertEqual(result[lid].get(LO1_ID, 0), 0)
         self.assertEqual(result[lid].get(LO2_ID, 0), 0)
+
+    def test_two_units_scored_independently(self):
+        """Attempts on one unit do not leak into another unit's scores."""
+        unit_b_id = uuid.uuid4().hex
+        _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=[ITEM_A1],
+        )
+        _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            unit_b_id,
+            "post",
+            items_correct=[ITEM_A3],
+        )
+        result = self._scores(
+            [self.learner_a.id],
+            {
+                self.unit_id: ASSESSMENT_OBJECTIVES,
+                unit_b_id: ASSESSMENT_OBJECTIVES,
+            },
+        )
+        lid = str(self.learner_a.id)
+        self.assertEqual(result[self.unit_id]["pre"][lid], {LO1_ID: 1})
+        self.assertEqual(result[self.unit_id]["post"], {})
+        self.assertEqual(result[unit_b_id]["pre"], {})
+        self.assertEqual(result[unit_b_id]["post"][lid], {LO2_ID: 1})
 
 
 # ---------------------------------------------------------------------------
@@ -705,26 +645,8 @@ class UnitReportAPIBase(APITestCase):
         )
 
         # Course node (parent) and unit node
-        cls.course_node = ContentNode.objects.create(
-            id=uuid.uuid4().hex,
-            content_id=uuid.uuid4().hex,
-            channel_id=uuid.uuid4().hex,
-            title="Test Course",
-            kind=content_kinds.TOPIC,
-            modality=modalities.COURSE,
-            available=True,
-        )
-        cls.unit_node = ContentNode.objects.create(
-            id=uuid.uuid4().hex,
-            content_id=uuid.uuid4().hex,
-            channel_id=uuid.uuid4().hex,
-            title="Unit 1: Fractions",
-            kind=content_kinds.EXERCISE,
-            modality=modalities.UNIT,
-            options=UNIT_OPTIONS,
-            available=True,
-            parent=cls.course_node,
-        )
+        cls.course_node = cls._create_course("Test Course")
+        cls.unit_node = cls._create_unit("Unit 1: Fractions")
 
         # Course session for the classroom
         cls.course_session = CourseSession.objects.create(
@@ -742,7 +664,33 @@ class UnitReportAPIBase(APITestCase):
         )
 
     def _get_url(self):
-        return _make_url(self.course_session.id, self.unit_node.id)
+        return _make_url(self.course_session.id)
+
+    @classmethod
+    def _create_unit(cls, title, options=UNIT_OPTIONS, parent=None):
+        return ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title=title,
+            kind=content_kinds.EXERCISE,
+            modality=modalities.UNIT,
+            options=options,
+            available=True,
+            parent=parent or cls.course_node,
+        )
+
+    @classmethod
+    def _create_course(cls, title):
+        return ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title=title,
+            kind=content_kinds.TOPIC,
+            modality=modalities.COURSE,
+            available=True,
+        )
 
 
 class UnitReportPermissionTests(UnitReportAPIBase):
@@ -784,20 +732,113 @@ class UnitReportPermissionTests(UnitReportAPIBase):
         self.assertEqual(response.status_code, 200)
 
     def test_nonexistent_course_session_returns_404(self):
-        url = _make_url("0" * 32, self.unit_node.id)
+        url = _make_url("0" * 32)
         self.client.login(
             username=self.facility_coach.username, password=DUMMY_PASSWORD
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-    def test_nonexistent_unit_returns_404(self):
-        url = _make_url(self.course_session.id, uuid.uuid4().hex)
+
+class UnitReportUnitSelectionTests(UnitReportAPIBase):
+    """Verify which units unit_ids selects, rejects and how they are numbered."""
+
+    def setUp(self):
         self.client.login(
             username=self.facility_coach.username, password=DUMMY_PASSWORD
         )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+
+    def test_unknown_unit_id_returns_400(self):
+        unknown = uuid.uuid4().hex
+        response = self.client.get(_make_url(self.course_session.id, [unknown]))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(unknown, str(response.data))
+
+    def test_unit_from_another_course_returns_400(self):
+        foreign_unit = self._create_unit(
+            "Foreign Unit", parent=self._create_course("Other Course")
+        )
+        response = self.client.get(_make_url(self.course_session.id, [foreign_unit.id]))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(foreign_unit.id, str(response.data))
+
+    def test_unit_ids_absent_returns_all_units_in_lft_order(self):
+        second = self._create_unit("Unit 2")
+        third = self._create_unit("Unit 3")
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [unit["unit_contentnode_id"] for unit in response.data["units"]],
+            [self.unit_node.id, second.id, third.id],
+        )
+        self.assertEqual(
+            [unit["unit_number"] for unit in response.data["units"]], [1, 2, 3]
+        )
+
+    def test_unit_number_reflects_position_in_course_not_in_filter(self):
+        second = self._create_unit("Unit 2")
+        response = self.client.get(_make_url(self.course_session.id, [second.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["units"]), 1)
+        self.assertEqual(response.data["units"][0]["unit_number"], 2)
+
+    def test_course_session_with_no_units_returns_empty_units_and_roster(self):
+        empty_course = self._create_course("Course Without Units")
+        empty_session = CourseSession.objects.create(
+            course=empty_course.id,
+            title="Empty Session",
+            collection=self.classroom,
+            created_by=self.facility_admin,
+            is_active=True,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=empty_session,
+            collection=self.classroom,
+            assigned_by=self.facility_admin,
+        )
+        response = self.client.get(_make_url(empty_session.id))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["units"], [])
+        self.assertEqual(response.data["course_title"], "Course Without Units")
+        learner_ids = {lr["id"] for lr in response.data["learners"]}
+        self.assertIn(str(self.learner1.id), learner_ids)
+
+    def test_query_count_does_not_scale_with_unit_count(self):
+        for i in range(2, 6):
+            self._create_unit("Unit {}".format(i))
+        all_unit_ids = list(
+            ContentNode.objects.filter(
+                parent_id=self.course_node.id, modality=modalities.UNIT
+            )
+            .order_by("lft")
+            .values_list("id", flat=True)
+        )
+        # Score every unit, so the mastery log and attempt log passes run in both
+        # blocks rather than short-circuiting on an empty result.
+        for unit_id in all_unit_ids:
+            _create_attempt(
+                self.learner1,
+                self.course_session.id,
+                unit_id,
+                "pre",
+                items_correct=[ITEM_A1],
+                items_incorrect=[ITEM_A3],
+            )
+        # Warm up so one-off caches are not attributed to the first block.
+        self.client.get(_make_url(self.course_session.id, all_unit_ids))
+
+        with CaptureQueriesContext(connection) as ctx_1:
+            response_1 = self.client.get(
+                _make_url(self.course_session.id, all_unit_ids[:1])
+            )
+        with CaptureQueriesContext(connection) as ctx_5:
+            response_5 = self.client.get(
+                _make_url(self.course_session.id, all_unit_ids)
+            )
+
+        self.assertEqual(len(response_1.data["units"]), 1)
+        self.assertEqual(len(response_5.data["units"]), 5)
+        self.assertEqual(len(ctx_5), len(ctx_1))
 
 
 class UnitReportResponseShapeTests(UnitReportAPIBase):
@@ -812,19 +853,21 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
         data = response.data
-        self.assertIn("unit_title", data)
-        self.assertIn("learning_objectives", data)
+        self.assertIn("course_title", data)
         self.assertIn("learners", data)
-        self.assertIn("pre_test", data)
-        self.assertIn("post_test", data)
+        unit = data["units"][0]
+        self.assertIn("unit_title", unit)
+        self.assertIn("learning_objectives", unit)
+        self.assertIn("pre_test", unit)
+        self.assertIn("post_test", unit)
 
     def test_unit_title(self):
         response = self.client.get(self._get_url())
-        self.assertEqual(response.data["unit_title"], "Unit 1: Fractions")
+        self.assertEqual(response.data["units"][0]["unit_title"], "Unit 1: Fractions")
 
     def test_learning_objectives_shape(self):
         response = self.client.get(self._get_url())
-        los = response.data["learning_objectives"]
+        los = response.data["units"][0]["learning_objectives"]
         self.assertEqual(len(los), 2)
         lo = los[0]
         self.assertIn("id", lo)
@@ -834,7 +877,9 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
     def test_num_questions_counts_version_a_items(self):
         """num_questions should equal the number of version-A items per LO."""
         response = self.client.get(self._get_url())
-        lo_map = {lo["id"]: lo for lo in response.data["learning_objectives"]}
+        lo_map = {
+            lo["id"]: lo for lo in response.data["units"][0]["learning_objectives"]
+        }
         # LO1 has 2 version-A items; LO2 has 1
         self.assertEqual(lo_map[LO1_ID]["num_questions"], 2)
         self.assertEqual(lo_map[LO2_ID]["num_questions"], 1)
@@ -858,16 +903,14 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
     def test_test_status_keys(self):
         response = self.client.get(self._get_url())
         for key in ("pre_test", "post_test"):
-            self.assertIn("status", response.data[key])
-            self.assertIn("scores", response.data[key])
+            self.assertIn("status", response.data["units"][0][key])
+            self.assertIn("scores", response.data["units"][0][key])
 
     def test_not_activated_status_when_no_assignments(self):
         """No UnitTestAssignment records → both tests are not_activated."""
-        response = self.client.get(self._get_url())
-        self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
-        self.assertEqual(
-            response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED
-        )
+        unit = self.client.get(self._get_url()).data["units"][0]
+        self.assertEqual(unit["pre_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(unit["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
 
     def test_open_status_when_assignment_is_active(self):
         UnitTestAssignment.objects.create(
@@ -878,11 +921,9 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
             closed=False,
             activated_by=self.facility_coach,
         )
-        response = self.client.get(self._get_url())
-        self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_OPEN)
-        self.assertEqual(
-            response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED
-        )
+        unit = self.client.get(self._get_url()).data["units"][0]
+        self.assertEqual(unit["pre_test"]["status"], TEST_STATUS_OPEN)
+        self.assertEqual(unit["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
 
     def test_closed_status_when_assignment_is_ended(self):
         UnitTestAssignment.objects.create(
@@ -893,27 +934,52 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
             closed=True,
             activated_by=self.facility_coach,
         )
-        response = self.client.get(self._get_url())
-        self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_CLOSED)
+        unit = self.client.get(self._get_url()).data["units"][0]
+        self.assertEqual(unit["pre_test"]["status"], TEST_STATUS_CLOSED)
+
+    def test_test_stays_open_while_any_collections_assignment_is_open(self):
+        """A test assigned to two collections closes only when both are closed."""
+        group = LearnerGroup.objects.create(name="Group A", parent=self.classroom)
+        for collection, closed in ((self.classroom, True), (group, False)):
+            UnitTestAssignment.objects.create(
+                course_session=self.course_session,
+                unit_contentnode_id=self.unit_node.id,
+                collection=collection,
+                test_type="pre",
+                closed=closed,
+                activated_by=self.facility_coach,
+            )
+        unit = self.client.get(self._get_url()).data["units"][0]
+        self.assertEqual(unit["pre_test"]["status"], TEST_STATUS_OPEN)
+
+    def test_statuses_derived_per_unit(self):
+        """An assignment on one unit does not activate its sibling's tests."""
+        second_unit = self._create_unit("Unit 2")
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=second_unit.id,
+            collection=self.classroom,
+            test_type="pre",
+            closed=False,
+            activated_by=self.facility_coach,
+        )
+        units = self.client.get(self._get_url()).data["units"]
+        statuses = {
+            unit["unit_contentnode_id"]: unit["pre_test"]["status"] for unit in units
+        }
+        self.assertEqual(statuses[self.unit_node.id], TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(statuses[second_unit.id], TEST_STATUS_OPEN)
 
     def test_unit_with_null_options_returns_valid_response(self):
         """ContentNode.options = None is handled gracefully by the 'or {}' guard."""
-        bare_unit = ContentNode.objects.create(
-            id=uuid.uuid4().hex,
-            content_id=uuid.uuid4().hex,
-            channel_id=uuid.uuid4().hex,
-            title="Bare Unit",
-            kind=content_kinds.EXERCISE,
-            modality=modalities.UNIT,
-            options=None,
-            available=True,
-        )
-        url = _make_url(self.course_session.id, bare_unit.id)
+        bare_unit = self._create_unit("Bare Unit", options=None)
+        url = _make_url(self.course_session.id, [bare_unit.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["learning_objectives"], [])
-        self.assertEqual(response.data["pre_test"]["scores"], {})
-        self.assertEqual(response.data["post_test"]["scores"], {})
+        unit = response.data["units"][0]
+        self.assertEqual(unit["learning_objectives"], [])
+        self.assertEqual(unit["pre_test"]["scores"], {})
+        self.assertEqual(unit["post_test"]["scores"], {})
 
 
 class UnitReportScoringTests(UnitReportAPIBase):
@@ -926,26 +992,17 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
     def _create_multi_lo_unit(self):
         """Create a unit ContentNode with multi-LO assessment objectives."""
-        return ContentNode.objects.create(
-            id=uuid.uuid4().hex,
-            content_id=uuid.uuid4().hex,
-            channel_id=uuid.uuid4().hex,
-            title="Multi-LO Unit",
-            kind=content_kinds.EXERCISE,
-            modality=modalities.UNIT,
-            options=MULTI_LO_UNIT_OPTIONS,
-            available=True,
-            parent=self.course_node,
-        )
+        return self._create_unit("Multi-LO Unit", options=MULTI_LO_UNIT_OPTIONS)
 
     def test_unattempted_learner_absent_from_scores_map(self):
         """Learner with no attempt is in learners list but not in scores."""
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
         learner_ids = {lr["id"] for lr in response.data["learners"]}
+        unit = response.data["units"][0]
         self.assertIn(str(self.learner1.id), learner_ids)
-        self.assertNotIn(str(self.learner1.id), response.data["pre_test"]["scores"])
-        self.assertNotIn(str(self.learner1.id), response.data["post_test"]["scores"])
+        self.assertNotIn(str(self.learner1.id), unit["pre_test"]["scores"])
+        self.assertNotIn(str(self.learner1.id), unit["post_test"]["scores"])
 
     def test_per_lo_correct_count_in_scores(self):
         """Correct answers are tallied per LO for both pre and post tests."""
@@ -960,7 +1017,7 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
         response = self.client.get(self._get_url())
         lid = str(self.learner2.id)
-        pre_scores = response.data["pre_test"]["scores"]
+        pre_scores = response.data["units"][0]["pre_test"]["scores"]
         self.assertIn(lid, pre_scores)
         lo_scores = pre_scores[lid]
         self.assertEqual(lo_scores.get(LO1_ID, 0), 2)
@@ -985,51 +1042,67 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
         response = self.client.get(self._get_url())
         lid = str(self.learner3.id)
-        self.assertIn(lid, response.data["pre_test"]["scores"])
-        self.assertIn(lid, response.data["post_test"]["scores"])
+        unit = response.data["units"][0]
+        self.assertIn(lid, unit["pre_test"]["scores"])
+        self.assertIn(lid, unit["post_test"]["scores"])
 
-    def test_learners_sorted_ascending_by_total_score(self):
-        """Learner with lowest combined score appears first."""
-        course_session_id = self.course_session.id
-        unit_id = self.unit_node.id
+    def test_scores_attributed_to_the_unit_they_were_earned_on(self):
+        """Two units in one response keep their own learners' scores."""
+        second_unit = self._create_unit("Unit 2")
+        _create_attempt(
+            self.learner1,
+            self.course_session.id,
+            self.unit_node.id,
+            "pre",
+            items_correct=[ITEM_A1],
+        )
+        _create_attempt(
+            self.learner2,
+            self.course_session.id,
+            second_unit.id,
+            "pre",
+            items_correct=[ITEM_A3],
+        )
 
-        # Assign scores 0, 1, 2 correct to learner1, learner2, learner3 respectively.
-        # The loop index i is the number of correct answers for that learner.
-        all_items = [ITEM_A1, ITEM_A2, ITEM_A3]
-        learners = [self.learner1, self.learner2, self.learner3]
-        for i, learner in enumerate(learners):
-            _create_attempt(
-                learner,
-                course_session_id,
-                unit_id,
-                "pre",
-                items_correct=all_items[:i],
-                items_incorrect=all_items[i:],
-            )
+        units = {
+            unit["unit_contentnode_id"]: unit
+            for unit in self.client.get(self._get_url()).data["units"]
+        }
+        self.assertEqual(
+            units[self.unit_node.id]["pre_test"]["scores"],
+            {str(self.learner1.id): {LO1_ID: 1}},
+        )
+        self.assertEqual(
+            units[second_unit.id]["pre_test"]["scores"],
+            {str(self.learner2.id): {LO2_ID: 1}},
+        )
+
+    def test_learners_sorted_by_full_name_then_id(self):
+        """The roster is ordered by full name, with id breaking ties."""
+        self.learner1.full_name = "Zoe Zeta"
+        self.learner1.save()
+        self.learner2.full_name = "Ada Alpha"
+        self.learner2.save()
+        self.learner3.full_name = "Ada Alpha"
+        self.learner3.save()
 
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
         actual_order = [lr["id"] for lr in response.data["learners"]]
 
-        # learner1 scored 0, learner2 scored 1, learner3 scored 2.
-        # Ascending sort means learner1 < learner2 < learner3 in position.
-        # Tie-breaking: Python's sorted() is stable, so equal-score learners
-        # preserve the DB query order (which is undefined).  This test uses
-        # strictly different scores so no tie-breaking is exercised.
-        pos1 = actual_order.index(str(self.learner1.id))
-        pos2 = actual_order.index(str(self.learner2.id))
-        pos3 = actual_order.index(str(self.learner3.id))
-        self.assertLess(pos1, pos2)
-        self.assertLess(pos2, pos3)
+        tied_ids = sorted([str(self.learner2.id), str(self.learner3.id)])
+        self.assertEqual(actual_order, tied_ids + [str(self.learner1.id)])
 
     def test_num_questions_counts_multi_lo_items_for_each_lo(self):
         """An item mapping to multiple LOs increments num_questions for each mapped LO."""
         multi_lo_unit = self._create_multi_lo_unit()
-        url = _make_url(self.course_session.id, multi_lo_unit.id)
+        url = _make_url(self.course_session.id, [multi_lo_unit.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        lo_map = {lo["id"]: lo for lo in response.data["learning_objectives"]}
+        lo_map = {
+            lo["id"]: lo for lo in response.data["units"][0]["learning_objectives"]
+        }
         # Version A items: ITEM_A1→LO1, ITEM_A2→LO1, ITEM_A3→LO2, ITEM_A4→[LO1, LO2]
         # LO1: ITEM_A1 + ITEM_A2 + ITEM_A4 = 3
         # LO2: ITEM_A3 + ITEM_A4 = 2
@@ -1047,12 +1120,12 @@ class UnitReportScoringTests(UnitReportAPIBase):
             items_correct=[ITEM_A4],  # maps to [LO1_ID, LO2_ID]
             items_incorrect=[],
         )
-        url = _make_url(self.course_session.id, multi_lo_unit.id)
+        url = _make_url(self.course_session.id, [multi_lo_unit.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
         lid = str(self.learner1.id)
-        pre_scores = response.data["pre_test"]["scores"]
+        pre_scores = response.data["units"][0]["pre_test"]["scores"]
         self.assertIn(lid, pre_scores)
         # ITEM_A4 maps to both LO1 and LO2 — both should get credit
         self.assertEqual(pre_scores[lid].get(LO1_ID, 0), 1)
@@ -1100,7 +1173,7 @@ class UnitReportLearnerGroupTests(UnitReportAPIBase):
             assigned_by=self.facility_admin,
         )
 
-        url = _make_url(group_session.id, self.unit_node.id)
+        url = _make_url(group_session.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
