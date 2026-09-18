@@ -62,6 +62,13 @@ public class WebViewActivity extends AppCompatActivity {
   private FrameLayout fullscreenContainer;
   private View splashContainer;
   private boolean shouldClearHistory;
+
+  /**
+   * The location this load is restoring, held from when it was issued: the landed page's own
+   * doUpdateVisitedHistory overwrites the saved one before onPageFinished runs.
+   */
+  private String pendingRestoreLocation;
+
   private boolean mainFrameLoadFailed;
   private ValueCallback<Uri[]> pendingFilePickerCallback;
   private ActivityResultLauncher<String[]> filePickerLauncher;
@@ -310,7 +317,21 @@ public class WebViewActivity extends AppCompatActivity {
             if (url != null && !url.startsWith("data:")) {
               hideSplash();
             }
-            WebViewLocation.save(WebViewActivity.this, url);
+            String restoreUrl = WebViewLocation.restoreUrlFor(url, pendingRestoreLocation);
+            pendingRestoreLocation = null;
+            // Saved before the restore is injected: doUpdateVisitedHistory firing for a
+            // script-initiated hash navigation is not a documented guarantee.
+            WebViewLocation.save(WebViewActivity.this, restoreUrl == null ? url : restoreUrl);
+            if (restoreUrl != null) {
+              // location.replace, not loadUrl: a hash-only load pushes a history entry, so the
+              // first Back would land on the default route this page opened at.
+              // Guarded on the live location, which `url` cannot speak for: the page's router may
+              // reach the saved route between this load finishing and the script running, and
+              // replacing a route with itself makes vue-router reject the navigation.
+              String quoted = JSONObject.quote(restoreUrl);
+              view.evaluateJavascript(
+                  "if (location.href !== " + quoted + ") location.replace(" + quoted + ");", null);
+            }
           }
 
           @Override
@@ -440,14 +461,15 @@ public class WebViewActivity extends AppCompatActivity {
     new Thread(
             () -> {
               // Reading the saved path hits SharedPreferences, so keep it off the UI thread too.
-              String nextUrl = WebViewLocation.getLastPath(this);
-              Log.d(TAG, "Server ready, restoring path: " + nextUrl);
+              String savedLocation = WebViewLocation.getLastPath(this);
+              Log.d(TAG, "Server ready, restoring path: " + savedLocation);
               String url =
                   Python.getInstance()
                       .getModule("main")
-                      .callAttr("get_initialize_url", nextUrl)
+                      .callAttr(
+                          "get_initialize_url", WebViewLocation.withoutFragment(savedLocation))
                       .toString();
-              runOnUiThread(() -> loadIfOriginChanged(url));
+              runOnUiThread(() -> loadIfOriginChanged(url, savedLocation));
             })
         .start();
   }
@@ -456,9 +478,12 @@ public class WebViewActivity extends AppCompatActivity {
    * Keeps the live page when the server came back on its old port: {@code url} is the initialize
    * URL on the new port, so an unchanged origin means the page is still good. A page that failed to
    * load is the WebView's error page, and is reloaded.
+   *
+   * @param restoreLocation the saved location whose fragment this load should put back, dropped
+   *     along with the load when the live page is kept
    */
   @VisibleForTesting
-  void loadIfOriginChanged(String url) {
+  void loadIfOriginChanged(String url, String restoreLocation) {
     if (webView == null) {
       return;
     }
@@ -467,6 +492,7 @@ public class WebViewActivity extends AppCompatActivity {
       return;
     }
     shouldClearHistory = true;
+    pendingRestoreLocation = restoreLocation;
     WebViewLocation.noteInitializeUrl(url);
     webView.loadUrl(url);
   }
