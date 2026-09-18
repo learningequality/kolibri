@@ -32,8 +32,8 @@ const { createCssInsert } = require('./createCssInsert');
  * @param {object} [options] - Build options.
  * @param {string} [options.mode] - The webpack mode to set for the configuration.
  * @param {boolean} [options.hot] - Activate hot module reloading.
- * @param {number} [options.port] - Port that the dev server is served on.
- * @param {string} [options.address] - Address that the dev server is served on.
+ * @param {string} [options.publicHost] - Host the browser is told to fetch bundles from.
+ * @param {number} [options.publicPort] - Port the browser is told to fetch bundles from.
  * @param {boolean} [options.cache] - Whether to enable webpack persistent caching.
  * @param {boolean} [options.transpile] - Whether to transpile sources via Babel.
  * @param {boolean} [options.devServer] - Whether the bundle is being built for the dev server.
@@ -48,8 +48,8 @@ module.exports = (
   {
     mode = 'development',
     hot = false,
-    port = 3000,
-    address = 'localhost',
+    publicHost = 'localhost',
+    publicPort = 3000,
     cache = false,
     transpile = false,
     devServer = false,
@@ -214,7 +214,7 @@ module.exports = (
 
   if (devServer) {
     if (setDevServerPublicPath) {
-      const publicPath = `http://${address}:${port}/${data.name}/`;
+      const publicPath = `http://${publicHost}:${publicPort}/${data.name}/`;
       bundle.output.publicPath = publicPath;
     }
     bundle.watch = true;

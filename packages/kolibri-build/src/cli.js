@@ -15,6 +15,7 @@ const readWebpackJson = require('./read_webpack_json');
 const webpackConfig = require('./webpack.config.plugin');
 const clean = require('./clean');
 const compressFile = require('./compress');
+const { publicAddress } = require('./publicAddress');
 
 const cliLogging = logger.getLogger('Kolibri Build CLI');
 const buildLogging = logger.getLogger('Kolibri Build');
@@ -31,9 +32,11 @@ function list(val) {
 program.version(version.version).description('Build tools for Kolibri frontend plugins');
 
 function createWebpackCompiler(bundleData, options) {
+  const { host: publicHost, port: publicPort } = publicAddress(options);
   const buildOptions = {
     hot: options.hot,
-    port: options.port,
+    publicHost,
+    publicPort,
     mode: options.development ? 'development' : 'production',
     cache: options.cache,
     transpile: options.transpile,
@@ -68,6 +71,7 @@ function createWebpackCompiler(bundleData, options) {
 }
 
 function startDevServer(compiler, options) {
+  const { host: publicHost, port: publicPort } = publicAddress(options);
   const devServerOptions = {
     hot: options.hot,
     liveReload: !options.hot,
@@ -80,7 +84,9 @@ function startDevServer(compiler, options) {
         runtimeErrors: false,
       },
     },
-    allowedHosts: [options.host, 'localhost'],
+    // A browser reaching a published port sends the advertised host in `Host`, and
+    // webpack-dev-server waves through only IP literals, localhost and the bound host.
+    allowedHosts: [options.host, publicHost, 'localhost'],
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
@@ -102,6 +108,12 @@ function startDevServer(compiler, options) {
       return middlewares;
     },
   };
+
+  // Left unset, webpack-dev-server derives the socket URL from the bound pair and its client
+  // substitutes the page hostname for a wildcard — which is what `--host 0.0.0.0` alone needs.
+  if (options.publicHost || options.publicPort) {
+    devServerOptions.client.webSocketURL = { hostname: publicHost, port: publicPort };
+  }
 
   const server = new WebpackDevServer(devServerOptions, compiler);
   server.start();
@@ -218,6 +230,16 @@ addBuildOptions(program.command('dev'))
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .option('--port <port>', 'Set a port number to start devserver on', Number, 3000)
   .option('--host <host>', 'Set a host to serve devserver', String, '127.0.0.1')
+  .option(
+    '--public-host <host>',
+    'Set the host that bundle URLs and the live-reload socket advertise to the browser',
+    String,
+  )
+  .option(
+    '--public-port <port>',
+    'Set the port that bundle URLs and the live-reload socket advertise to the browser',
+    Number,
+  )
   .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
   .option(
     '--watchonly [plugins...]',
