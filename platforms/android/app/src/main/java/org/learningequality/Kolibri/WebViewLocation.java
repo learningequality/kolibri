@@ -65,6 +65,42 @@ final class WebViewLocation {
         .getString(PREF_LAST_PATH, null);
   }
 
+  /** {@code location} up to its first {@code #}, which is as much of it as the server can route. */
+  static String withoutFragment(String location) {
+    if (location == null) {
+      return null;
+    }
+    // indexOf, not Uri, to match how save built the string
+    int hash = location.indexOf('#');
+    return hash < 0 ? location : location.substring(0, hash);
+  }
+
+  /**
+   * The URL to put {@code savedLocation}'s fragment back on now that {@code loadedUrl} has loaded,
+   * or {@code null} when it does not belong there.
+   *
+   * <p>The fragment is restored here rather than sent to the server in {@code next}: a browser
+   * carries the request URL's fragment onto a redirect whose {@code Location} has none. The sign-in
+   * route saved at sign-out would otherwise ride the next launch's re-login redirect onto the page
+   * that role gets, where it matches no route (#15232).
+   */
+  static String restoreUrlFor(String loadedUrl, String savedLocation) {
+    if (loadedUrl == null || savedLocation == null || savedLocation.indexOf('#') < 0) {
+      return null;
+    }
+    String origin = origin(Uri.parse(loadedUrl));
+    if (origin == null) {
+      return null;
+    }
+    if (!withoutFragment(loadedUrl).equals(origin + withoutFragment(savedLocation))) {
+      return null;
+    }
+    String restoreUrl = origin + savedLocation;
+    // The landed page's router may have set the saved route before the load finished, leaving
+    // nothing to put back.
+    return restoreUrl.equals(loadedUrl) ? null : restoreUrl;
+  }
+
   /** The port the live page is loaded on, or {@code 0} if this process has not loaded one yet. */
   static int getLastPort() {
     return lastPort;
