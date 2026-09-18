@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { createTranslator } from 'kolibri/utils/i18n';
-import { viewerToolbarStrings } from 'kolibri-common/components/ViewerToolbar';
+import { viewerToolbarStrings } from 'kolibri/components/ViewerToolbar';
 import TopBar from '../TopBar';
 import TocButton from '../TocButton';
 import SettingsButton from '../SettingsButton';

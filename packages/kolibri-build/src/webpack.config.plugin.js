@@ -29,6 +29,7 @@ const { createCssInsert } = require('./createCssInsert');
  * @param {string} data.name - The name that the plugin is referred to by.
  * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data.
+ * @param {boolean} data.sandbox_handler - Whether this is a sandbox handler bundle.
  * @param {object} [options] - Build options.
  * @param {string} [options.mode] - The webpack mode to set for the configuration.
  * @param {boolean} [options.hot] - Activate hot module reloading.
@@ -42,6 +43,8 @@ const { createCssInsert } = require('./createCssInsert');
  * the dev server.
  * @returns {object|undefined} The webpack bundle configuration, or undefined when `data`
  * is missing required parameters.
+ * @throws {Error} When a sandbox handler bundle has no JS transpilation rule to inject
+ * polyfills through, or its plugin does not depend on core-js.
  */
 module.exports = (
   data,
@@ -57,24 +60,35 @@ module.exports = (
     setDevServerPublicPath = true,
   } = {},
 ) => {
-  if (
-    typeof data.name === 'undefined' ||
-    typeof data.bundle_id === 'undefined' ||
-    typeof data.config_path === 'undefined' ||
-    typeof data.static_dir === 'undefined' ||
-    typeof data.stats_file === 'undefined' ||
-    typeof data.locale_data_folder === 'undefined' ||
-    typeof data.plugin_path === 'undefined' ||
-    typeof data.version === 'undefined'
-  ) {
-    logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
+  const isSandboxHandler = Boolean(data.sandbox_handler);
+
+  // Validate required parameters - locale_data_folder not required for sandbox handlers
+  const requiredParams = [
+    'name',
+    'bundle_id',
+    'config_path',
+    'static_dir',
+    'stats_file',
+    'plugin_path',
+    'version',
+  ];
+  if (!isSandboxHandler) {
+    requiredParams.push('locale_data_folder');
+  }
+
+  const missingParams = requiredParams.filter(param => typeof data[param] === 'undefined');
+  if (missingParams.length > 0) {
+    const bundleType = isSandboxHandler ? 'sandbox handler' : 'plugin';
+    logging.error(
+      `${data.name} ${bundleType} is misconfigured, missing parameter(s): ${missingParams.join(', ')}`,
+    );
     return;
   }
   const configData = require(data.config_path);
   // The bundle's own buildConfig.js entry, alongside its webpack_config, may set
   // `skipMessageRegistration` to opt out of the frontend message registration bootstrap below.
   const configEntry = data.index !== null ? configData[data.index] : configData;
-  let webpackConfig = configEntry.webpack_config;
+  const webpackConfig = configEntry.webpack_config;
   if (typeof webpackConfig.entry === 'string') {
     webpackConfig.entry = {
       [data.name]: path.join(data.plugin_path, webpackConfig.entry),
@@ -101,34 +115,43 @@ module.exports = (
 
   const isCoreBundle = webpackConfig.output && webpackConfig.output.library === kolibriName;
 
-  // If this is not the core bundle, then we need to add the external library mappings.
-  const externals = isCoreBundle ? {} : getCoreExternals();
+  // Sandbox handlers are self-contained with no externals.
+  // Core bundle also has no externals.
+  // Other plugins use core externals.
+  const externals = isSandboxHandler || isCoreBundle ? {} : getCoreExternals();
 
   const alias = {};
   if (kdsPath) {
     alias['kolibri-design-system'] = path.resolve(kdsPath);
     cache = false;
   }
+  const output = {
+    path: path.resolve(path.join(data.static_dir, data.name)),
+    filename: '[name]-' + data.version + '.js',
+    // Need to define this in order for chunks to be named
+    // Without this chunks from different bundles will likely have colliding names
+    chunkFilename: data.name + '-[name]-' + data.version + '.js',
+    // c.f. https://webpack.js.org/configuration/output/#outputchunkloadingglobal
+    // Without this namespacing, there is a possibility that chunks from different
+    // plugins could conflict in the global chunk namespace.
+    // Replace any '.' in the name as unclear from documentation whether
+    // webpack properly handles that or not.
+    chunkLoadingGlobal: 'webpackChunkwebpack__' + data.name.replace('.', ''),
+    scriptType: 'text/javascript',
+    pathinfo: false,
+    publicPath: 'auto',
+  };
+
+  // Sandbox handlers use IIFE format for script tag injection
+  if (isSandboxHandler) {
+    output.iife = true;
+  }
+
   let bundle = {
     externals,
     name: data.name,
     mode,
-    output: {
-      path: path.resolve(path.join(data.static_dir, data.name)),
-      filename: '[name]-' + data.version + '.js',
-      // Need to define this in order for chunks to be named
-      // Without this chunks from different bundles will likely have colliding names
-      chunkFilename: data.name + '-[name]-' + data.version + '.js',
-      // c.f. https://webpack.js.org/configuration/output/#outputchunkloadingglobal
-      // Without this namespacing, there is a possibility that chunks from different
-      // plugins could conflict in the global chunk namespace.
-      // Replace any '.' in the name as unclear from documentation whether
-      // webpack properly handles that or not.
-      chunkLoadingGlobal: 'webpackChunkwebpack__' + data.name.replace('.', ''),
-      scriptType: 'text/javascript',
-      pathinfo: false,
-      publicPath: 'auto',
-    },
+    output,
     resolve: {
       // Add the plugin's node_modules first so pnpm can resolve plugin-specific dependencies
       modules: [path.join(data.plugin_path, 'node_modules')],
@@ -144,10 +167,8 @@ module.exports = (
         chunkFilename: '[name]' + data.version + '[id].css',
         insert: createCssInsert(data.name),
       }),
-      new WebpackRTLPlugin({
-        minify: false,
-        isCoreBundle,
-      }),
+      // Sandbox handlers get no RTL support - they have no i18n machinery.
+      ...(isSandboxHandler ? [] : [new WebpackRTLPlugin({ minify: false, isCoreBundle })]),
       // BundleTracker creates stats about our built files which we can then pass to Django to
       // allow our template tags to load the correct frontend files.
       new BundleTracker({
@@ -165,13 +186,14 @@ module.exports = (
       }),
       // Add custom messages per bundle.
       new WebpackMessages({
-        name: data.name,
+        name: data.name + (isSandboxHandler ? ' (sandbox)' : ''),
         logger: str => logging.info(str),
       }),
     ],
   };
 
-  if (!configEntry.skipMessageRegistration) {
+  // Sandbox handlers get no message registration.
+  if (!isSandboxHandler && !configEntry.skipMessageRegistration) {
     bundle.plugins.push(
       // Inject code to register frontend messages
       new MessageRegistrationPlugin({
@@ -211,6 +233,41 @@ module.exports = (
   }
 
   bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
+
+  // Sandbox handlers run in the sandbox iframe with no core bundle, so they cannot rely
+  // on its polyfills - inject the ones they actually use into each handler bundle.
+  if (isSandboxHandler && transpile) {
+    const jsRule = bundle.module.rules.find(
+      rule => rule.loader && rule.loader.includes('swc-loader'),
+    );
+    if (!jsRule) {
+      throw new Error(
+        `${data.name} sandbox handler bundle has no JS transpilation rule to inject polyfills through`,
+      );
+    }
+    // core-js must be a dependency of the handler's plugin so the injected imports resolve,
+    // and is the single source of truth for the version we tell swc to target.
+    let coreJsPackage;
+    try {
+      coreJsPackage = require.resolve('core-js/package.json', { paths: [data.plugin_path] });
+    } catch {
+      throw new Error(
+        `${data.name} sandbox handler bundle requires core-js as a dependency of ${data.plugin_path} so the injected polyfill imports resolve`,
+      );
+    }
+    jsRule.options = {
+      ...jsRule.options,
+      // swc's equivalent of babel's sourceType: 'unambiguous' - CommonJS modules in the
+      // graph get require() polyfill imports rather than ESM ones, which would otherwise
+      // make webpack treat them as ES modules and drop their module.exports.
+      isModule: 'unknown',
+      env: {
+        ...jsRule.options.env,
+        mode: 'usage',
+        coreJs: require(coreJsPackage).version,
+      },
+    };
+  }
 
   if (devServer) {
     if (setDevServerPublicPath) {

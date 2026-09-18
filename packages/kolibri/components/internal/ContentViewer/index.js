@@ -341,6 +341,7 @@ export default {
       element: computed(() => props.element),
       files,
       defaultFile,
+      defaultItemPreset,
       itemData: computed(() => props.itemData),
       itemId: computed(() => props.itemId),
       answerState: computed(() => props.answerState),
