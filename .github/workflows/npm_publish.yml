@@ -45,6 +45,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read # Required for npm provenance attestation
       id-token: write # Required for npm OIDC trusted publishing

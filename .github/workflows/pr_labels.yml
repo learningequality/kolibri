@@ -5,6 +5,7 @@ permissions:
 jobs:
   size-labels:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     name: Label the PR size
     permissions:
       contents: read
@@ -28,6 +29,7 @@ jobs:
       contents: read
       pull-requests: write
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/labeler@v7
         with:

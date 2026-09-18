@@ -14,6 +14,7 @@ jobs:
   build_deb:
     name: Build kolibri-server DEB file
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     outputs:
       deb-file-name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
     steps:

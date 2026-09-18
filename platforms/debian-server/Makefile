@@ -3,8 +3,12 @@
 
 # Auto-detect sudo: empty in containers (root), "sudo" on dev machines
 SUDO := $(shell [ "$$(id -u)" = "0" ] && echo "" || echo "sudo")
-APT_UPDATE := $(SUDO) apt-get update
-APT_INSTALL := $(SUDO) apt-get install -y
+# apt bounds a single stalled connection but never its own total runtime, so an
+# unresponsive mirror holds a CI build open for hours instead of failing it.
+APT_OPTS := -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+APT_TIMEOUT := timeout 600
+APT_UPDATE := $(APT_TIMEOUT) $(SUDO) apt-get $(APT_OPTS) update
+APT_INSTALL := $(APT_TIMEOUT) $(SUDO) apt-get $(APT_OPTS) install -y
 
 help:
 	@echo "changelog          - prepare debian/changelog file with the new version number"

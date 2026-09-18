@@ -7,6 +7,7 @@ jobs:
   download:
     name: Download translations and regenerate fonts
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       UV_PYTHON: "3.9"
     steps:
@@ -35,7 +36,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Install gettext
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: .github/scripts/apt-install.sh gettext
       - name: Install Python dependencies
         # --all-packages installs the python_packages/* members; without them the
         # Makefile's importability guard skips their message-file generation and

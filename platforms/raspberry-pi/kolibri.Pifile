@@ -5,6 +5,12 @@ PUMP 500M
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# apt bounds a single stalled connection but never its own total runtime, so a
+# mirror that stops responding holds the image build open until the job's cap.
+# The debs are local, but their dependencies still come from the network.
+apt_opts="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+apt_timeout="timeout 600"
+
 echo "--- Using Kolibri deb"
 
 # Preseeding package config
@@ -19,7 +25,7 @@ RUN apt-get clean
 # All files copied at build stage to /pi-gen
 INSTALL dist/kolibri_*.deb /tmp/kolibri.deb
 
-RUN apt-get install -y /tmp/kolibri.deb
+RUN ${apt_timeout} apt-get ${apt_opts} install -y /tmp/kolibri.deb
 RUN rm /tmp/kolibri.deb
 
 RUN ls -la /home/pi/.kolibri/options.ini
@@ -28,7 +34,7 @@ RUN ls -la /home/pi/.kolibri/options.ini
 # released APT source is still added in base.Pifile, so it is upgraded from there
 # on later apt updates, the same as the kolibri deb.
 INSTALL dist/kolibri-server_*.deb /tmp/kolibri-server.deb
-RUN apt-get install -y /tmp/kolibri-server.deb
+RUN ${apt_timeout} apt-get ${apt_opts} install -y /tmp/kolibri-server.deb
 RUN rm /tmp/kolibri-server.deb
 
 RUN systemctl enable kolibri-server
