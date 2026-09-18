@@ -15,6 +15,7 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
@@ -44,6 +45,10 @@ class CourseSessionAPITestCase(APITestCase):
         cls.coach.set_password(DUMMY_PASSWORD)
         cls.coach.save()
         cls.classroom.add_coach(cls.coach)
+        cls.classroom_learner = FacilityUser.objects.create(
+            username="classroom_learner", facility=cls.facility
+        )
+        cls.classroom.add_member(cls.classroom_learner)
 
         channel_id = uuid.uuid4().hex
         cls.root_node = ContentNode.objects.create(
@@ -150,6 +155,12 @@ class CourseSessionAPITestCase(APITestCase):
             models.CourseSession.objects.get(id=course_session_id)
             .assignments.filter(collection=self.classroom)
             .exists()
+        )
+        self.assertTrue(
+            ContentDownloadRequest.objects.filter(
+                contentnode_id=self.course.id,
+                source_id=course_session_id,
+            ).exists()
         )
 
     def test_logged_in_admin_course_session_update_no_assignments(self):

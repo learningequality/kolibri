@@ -46,6 +46,7 @@ class ContentAssignmentManager:
         "lookup_func",
         "content_download_priority_func",
         "channel_version_field",
+        "related_change_lookup",
     )
 
     def __init__(
@@ -56,6 +57,7 @@ class ContentAssignmentManager:
         lookup_func=None,
         content_download_priority_func=None,
         channel_version_field=None,
+        related_change_lookup=None,
     ):
         """
         :param one_to_many: indicating that the associated model maps to multiple content nodes
@@ -70,6 +72,10 @@ class ContentAssignmentManager:
         :param content_download_priority_func: a function which receives the model instance and contentnode_id and returns a ,
                                 this will represent the priority for downloading the content associated with that contentnode
         :type content_download_priority_func: callable<int>
+        :param related_change_lookup: a function which receives a transfer_session_id and returns
+            the IDs of model rows whose `filters` validity may have changed because a *related*
+            model changed in that sync, leaving this model's own row untouched
+        :type related_change_lookup: callable<iterable of str>
         """
         self.model = None
         self.name = None
@@ -79,6 +85,7 @@ class ContentAssignmentManager:
         self.lookup_func = lookup_func
         self.content_download_priority_func = content_download_priority_func
         self.channel_version_field = channel_version_field
+        self.related_change_lookup = related_change_lookup
 
     def contribute_to_class(self, model, attribute_name):
         """
@@ -208,6 +215,33 @@ class ContentAssignmentManager:
             last_transfer_session_id=transfer_session_id,
         )
 
+    def _changed_ids_in_transfer_session(self, transfer_session_id, modified_store):
+        """
+        IDs of the model rows whose assignment validity a sync may have changed
+
+        :param transfer_session_id: The ID of the sync's transfer session
+        :param modified_store: The `Store` queryset of this model's records the sync wrote
+        :rtype: iterable of str
+        """
+        changed_ids = modified_store.values_list("id", flat=True)
+        if self.related_change_lookup is None:
+            return changed_ids
+        # one flat ID list, so the scan stays a primary key lookup rather than a disjunction
+        # of two subqueries
+        return set(changed_ids).union(self.related_change_lookup(transfer_session_id))
+
+    def _matching_filters(self, model_qs):
+        """
+        Narrows a model queryset to the rows whose assignments are valid
+
+        :type model_qs: django.db.models.QuerySet
+        :rtype: django.db.models.QuerySet
+        """
+        if not self.filters:
+            return model_qs
+        # a filter may span a reverse relation, whose join repeats the row per match
+        return model_qs.filter(**self.filters).distinct()
+
     def _get_assignments(self, model_qs):
         """
         Shared method that iterates of a model queryset, finding `lookup_field` and calling
@@ -262,9 +296,7 @@ class ContentAssignmentManager:
         # since this is a local function, we need use `weak=False` to prevent garbage collection
         @receiver(models.signals.post_save, sender=self.model, weak=False)
         def on_save(sender, instance, **kwargs):
-            queryset = self.model.objects.filter(pk=instance.pk)
-            if self.filters:
-                queryset = queryset.filter(**self.filters)
+            queryset = self._matching_filters(self.model.objects.filter(pk=instance.pk))
             if queryset.exists():
                 assignments = self._get_assignments(queryset)
                 callable_func(instance.dataset_id, assignments)
@@ -324,13 +356,14 @@ class ContentAssignmentManager:
                 )
             )
             model_qs = model_qs.filter(
-                pk__in=modified_store.values_list("id", flat=True)
+                pk__in=self._changed_ids_in_transfer_session(
+                    transfer_session_id, modified_store
+                )
             )
         elif dataset_id:
             model_qs = model_qs.filter(dataset_id=dataset_id)
 
-        if self.filters:
-            model_qs = model_qs.filter(**self.filters)
+        model_qs = self._matching_filters(model_qs)
 
         for assignment in self._get_assignments(model_qs):
             yield assignment
@@ -351,7 +384,9 @@ class ContentAssignmentManager:
         if transfer_session_id:
             modified_store = self._get_modified_store(transfer_session_id)
             model_qs = model_qs.filter(
-                pk__in=modified_store.values_list("id", flat=True)
+                pk__in=self._changed_ids_in_transfer_session(
+                    transfer_session_id, modified_store
+                )
             )
 
             # models that were deleted

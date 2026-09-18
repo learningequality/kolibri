@@ -7,11 +7,13 @@ from django.db.models import Subquery
 from django.db.utils import IntegrityError
 from le_utils.constants import modalities
 from morango.models import UUIDField
+from morango.models.core import Store
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.content.models import ContentNode
@@ -38,6 +40,39 @@ def course_assignment_lookup(course_id):
 
 def course_content_download_priority(course_session, contentnode_id):
     return course_session.get_course_content_download_priority(contentnode_id)
+
+
+def course_session_recipient_changes(transfer_session_id):
+    """
+    The course sessions a sync changed the recipients of without writing the session row —
+    an assignment row deleted with its collection, or a learner joining or leaving a collection
+    the session is assigned to.
+
+    `CourseSessionAssignment.calculate_source_id` starts with the course session ID, which is the
+    only place that link survives once the assignment row itself is gone.
+    `Membership.calculate_source_id` is the collection ID.
+
+    :param transfer_session_id: The ID of the sync's transfer session
+    :rtype: set of str
+    """
+    changed = Store.objects.filter(last_transfer_session_id=transfer_session_id)
+    course_session_ids = {
+        source_id.split(":")[0]
+        for source_id in changed.filter(
+            model_name=CourseSessionAssignment.morango_model_name
+        ).values_list("source_id", flat=True)
+    }
+    changed_collection_ids = set(
+        changed.filter(model_name=Membership.morango_model_name).values_list(
+            "source_id", flat=True
+        )
+    )
+    course_session_ids.update(
+        CourseSessionAssignment.objects.filter(
+            collection_id__in=changed_collection_ids
+        ).values_list("course_session_id", flat=True)
+    )
+    return course_session_ids
 
 
 class TestType(ChoicesEnum):
@@ -102,11 +137,14 @@ class CourseSession(AbstractFacilityDataModel):
         # This manager will assign just the course ContentNode, further course nodes
         # will be requested later
         one_to_many=False,
-        filters=dict(is_active=True),
+        # A learner-only device holds every course session for its classrooms, assigned or not.
+        # Clearing recipients deletes CourseSessionAssignment rows and never touches is_active.
+        filters=dict(is_active=True, assignments__collection__membership__isnull=False),
         lookup_field="course",
         lookup_func=course_assignment_lookup,
         content_download_priority_func=course_content_download_priority,
         channel_version_field="channel_version",
+        related_change_lookup=course_session_recipient_changes,
     )
 
     def __str__(self):

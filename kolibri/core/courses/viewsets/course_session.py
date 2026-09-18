@@ -247,6 +247,10 @@ class CourseSessionSerializer(ModelSerializer):
                 course_session=new_course_session, collection=adhoc_group
             )
 
+        # The session's own post_save ran before these assignment rows existed, so the
+        # content assignment manager read it as having no recipients
+        new_course_session.save()
+
         return new_course_session
 
     def update(self, instance, validated_data):

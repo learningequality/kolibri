@@ -9,10 +9,14 @@ from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.models import Membership
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.content.utils.assignment import DeletedAssignment
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import IndividualSyncableExam
 from kolibri.core.lessons.models import IndividualSyncableLesson
@@ -58,7 +62,7 @@ class ContentAssignmentManagerTestCase(TestCase):
         qs.filter.assert_called_once_with(dataset_id="test_dataset")
         qs.filter.return_value.filter.assert_called_once_with(test="test")
         get_assignments_mock.assert_called_once_with(
-            qs.filter.return_value.filter.return_value
+            qs.filter.return_value.filter.return_value.distinct.return_value
         )
 
     @mock.patch(_module + "ContentAssignmentManager._get_modified_store")
@@ -633,6 +637,99 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
         )
         self.assertEqual(assignments[0].metadata, None)
 
+    def _create_group(self, name, *members):
+        group = LearnerGroup.objects.create(name=name, parent=self.classroom)
+        for member in members:
+            group.add_member(member)
+        return group
+
+    def _create_course_session(self, *collections):
+        course_session = CourseSession.objects.create(
+            title="My Course",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=True,
+            course=uuid.uuid4().hex,
+        )
+        for collection in collections:
+            CourseSessionAssignment.objects.create(
+                course_session=course_session,
+                collection=collection,
+                assigned_by=self.admin_user,
+            )
+        return course_session
+
+    def _assert_course_session_assignment(self, callable_mock, course_session):
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, course_session.course)
+        self.assertEqual(assignments[0].source_id, course_session.id)
+        self.assertEqual(assignments[0].source_model, CourseSession.morango_model_name)
+        self.assertEqual(assignments[0].metadata, {"import_descendants": True})
+
+    def test_on_removable_assignment__course_session__no_assignments(self):
+        course_session = self._create_course_session(self.classroom)
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        course_session.assignments.all().delete()
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
+
+    def test_on_removable_assignment__course_session__deactivated(self):
+        course_session = self._create_course_session(self.classroom)
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        course_session.save()
+        callable_mock.assert_not_called()
+
+        course_session.is_active = False
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
+
+    def test_on_downloadable_assignment__course_session__multiple_assignments(self):
+        course_session = self._create_course_session(
+            self._create_group("Group A", self.learner),
+            self._create_group("Group B", self.learner),
+        )
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_downloadable_assignment(callable_mock)
+
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
+
+    def test_on_downloadable_assignment__course_session__no_local_recipient(self):
+        course_session = self._create_course_session(self._create_group("Group A"))
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_downloadable_assignment(callable_mock)
+
+        course_session.save()
+
+        callable_mock.assert_not_called()
+
+    def test_on_removable_assignment__course_session__recipient_removed(self):
+        group = self._create_group("Group A", self.learner)
+        course_session = self._create_course_session(group)
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        group.remove_member(self.learner)
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
+
 
 class FindDownloadableAssignmentsStoreFilterTestCase(TestCase):
     """
@@ -768,3 +865,139 @@ class FindDownloadableAssignmentsStoreFilterTestCase(TestCase):
         self._create_store(inactive)
 
         self.assertEqual(self._downloadable_source_ids(), {clean.id, blank_error.id})
+
+
+class CourseSessionRecipientChangeTestCase(TestCase):
+    """
+    A learner joining or leaving a collection a course session is assigned to, or a collection
+    deleted with its assignment rows, never writes the session row, so the sync that carries it
+    leaves no `Store` record for `coursesession` to scan.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        provision_device()
+        cls.facility = Facility.objects.create(name="My Facility")
+        cls.classroom = Classroom.objects.create(
+            name="My Classroom", parent=cls.facility
+        )
+        cls.admin_user = FacilityUser.objects.create(
+            username="admin", facility=cls.facility
+        )
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.classroom.add_member(cls.learner)
+
+    def setUp(self):
+        super().setUp()
+        self.transfer_session_id = uuid.uuid4().hex
+        self.group = LearnerGroup.objects.create(name="My Group", parent=self.classroom)
+        self.course_session = CourseSession.objects.create(
+            title="My Course",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=True,
+            course=uuid.uuid4().hex,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=self.course_session,
+            collection=self.group,
+            assigned_by=self.admin_user,
+        )
+
+    def _create_store(self, model_name, source_id, partition, **overrides):
+        """
+        Creates the `Store` record that a sync would have written for a record of `model_name`
+        """
+        defaults = dict(
+            id=uuid.uuid4().hex,
+            profile=PROFILE_FACILITY_DATA,
+            serialized="",
+            deleted=False,
+            hard_deleted=False,
+            last_saved_instance=uuid.uuid4().hex,
+            last_saved_counter=1,
+            partition=partition,
+            source_id=source_id,
+            model_name=model_name,
+            deserialization_error=None,
+            last_transfer_session_id=self.transfer_session_id,
+        )
+        defaults.update(overrides)
+        return Store.objects.create(**defaults)
+
+    def _create_membership_store(self, collection, **overrides):
+        membership = Membership(
+            user=self.learner,
+            collection=collection,
+            dataset_id=self.facility.dataset_id,
+        )
+        return self._create_store(
+            Membership.morango_model_name,
+            membership.calculate_source_id(),
+            membership.calculate_partition(),
+            **overrides,
+        )
+
+    def _create_assignment_store(self, collection, **overrides):
+        assignment = CourseSessionAssignment(
+            course_session=self.course_session,
+            collection=collection,
+            dataset_id=self.facility.dataset_id,
+        )
+        return self._create_store(
+            CourseSessionAssignment.morango_model_name,
+            assignment.calculate_source_id(),
+            assignment.calculate_partition(),
+            **overrides,
+        )
+
+    def _downloadable_source_ids(self):
+        return set(
+            assignment.source_id
+            for assignment in CourseSession.content_assignments.find_downloadable_assignments(
+                transfer_session_id=self.transfer_session_id
+            )
+        )
+
+    def _removable_source_ids(self):
+        return set(
+            assignment.source_id
+            for assignment in CourseSession.content_assignments.find_removable_assignments(
+                transfer_session_id=self.transfer_session_id
+            )
+        )
+
+    def test_recipient_added(self):
+        self.group.add_member(self.learner)
+        self._create_membership_store(self.group)
+        self.assertEqual(self._downloadable_source_ids(), {self.course_session.id})
+        self.assertEqual(self._removable_source_ids(), set())
+
+    def test_recipient_removed(self):
+        self._create_membership_store(self.group, deleted=True)
+        self.assertEqual(self._removable_source_ids(), {self.course_session.id})
+        self.assertEqual(self._downloadable_source_ids(), set())
+
+    def test_membership_of_unassigned_collection(self):
+        self._create_membership_store(self.classroom, deleted=True)
+        self.assertEqual(self._removable_source_ids(), set())
+
+    def test_other_transfer_session(self):
+        self._create_membership_store(
+            self.group, deleted=True, last_transfer_session_id=uuid.uuid4().hex
+        )
+        self.assertEqual(self._removable_source_ids(), set())
+
+    def test_assignment_deleted_with_its_collection(self):
+        # deleting the group cascades to the assignment row, so nothing local links the
+        # session to the collection any more
+        self._create_assignment_store(self.group, deleted=True)
+        self.group.delete()
+        self.assertEqual(self._removable_source_ids(), {self.course_session.id})
+        self.assertEqual(self._downloadable_source_ids(), set())
