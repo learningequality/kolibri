@@ -3,8 +3,8 @@ from django.test import TestCase
 
 from kolibri.core.tasks.job import Priority
 
-from ..utils.network.broadcast import KolibriBroadcast
 from ..utils.network.broadcast import KolibriInstance
+from ..utils.network.broadcast import NetworkDiscoveryBackend
 from ..utils.network.search import NetworkLocationListener
 
 MOCK_INTERFACE_IP = "111.222.111.222"
@@ -39,7 +39,7 @@ class NetworkLocationListenerTestCase(TestCase):
             },
         )
 
-        self.broadcast = KolibriBroadcast(instance=self.broadcast_instance)
+        self.broadcast = NetworkDiscoveryBackend(instance=self.broadcast_instance)
         self.broadcast.id = "abc123"
 
         self.listener = NetworkLocationListener(self.broadcast)
