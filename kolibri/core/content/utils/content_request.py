@@ -614,6 +614,12 @@ def process_content_requests():
 
     _create_related_download_requests_if_needed(incomplete_downloads)
 
+    # Must run after the derived descendant downloads exist: a removal only survives
+    # `incomplete_removals_queryset` while no other source still downloads the node.
+    process_content_removal_requests(
+        incomplete_removals_queryset().filter(reason=ContentRequestReason.SyncInitiated)
+    )
+
     try:
         logger.debug("Starting automated import of content")
         _process_content_requests(incomplete_downloads)

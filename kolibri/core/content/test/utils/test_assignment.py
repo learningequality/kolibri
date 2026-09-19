@@ -9,10 +9,13 @@ from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.content.utils.assignment import DeletedAssignment
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import IndividualSyncableExam
 from kolibri.core.lessons.models import IndividualSyncableLesson
@@ -58,7 +61,7 @@ class ContentAssignmentManagerTestCase(TestCase):
         qs.filter.assert_called_once_with(dataset_id="test_dataset")
         qs.filter.return_value.filter.assert_called_once_with(test="test")
         get_assignments_mock.assert_called_once_with(
-            qs.filter.return_value.filter.return_value
+            qs.filter.return_value.filter.return_value.distinct.return_value
         )
 
     @mock.patch(_module + "ContentAssignmentManager._get_modified_store")
@@ -632,6 +635,71 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
             assignments[0].source_model, IndividualSyncableExam.morango_model_name
         )
         self.assertEqual(assignments[0].metadata, None)
+
+    def _create_course_session(self, *collections):
+        course_session = CourseSession.objects.create(
+            title="My Course",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=True,
+            course=uuid.uuid4().hex,
+        )
+        for collection in collections:
+            CourseSessionAssignment.objects.create(
+                course_session=course_session,
+                collection=collection,
+                assigned_by=self.admin_user,
+            )
+        return course_session
+
+    def _assert_course_session_assignment(self, callable_mock, course_session):
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, course_session.course)
+        self.assertEqual(assignments[0].source_id, course_session.id)
+        self.assertEqual(assignments[0].source_model, CourseSession.morango_model_name)
+        self.assertEqual(assignments[0].metadata, {"import_descendants": True})
+
+    def test_on_removable_assignment__course_session__no_assignments(self):
+        course_session = self._create_course_session(self.classroom)
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        course_session.assignments.all().delete()
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
+
+    def test_on_removable_assignment__course_session__deactivated(self):
+        course_session = self._create_course_session(self.classroom)
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        course_session.save()
+        callable_mock.assert_not_called()
+
+        course_session.is_active = False
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
+
+    def test_on_downloadable_assignment__course_session__multiple_assignments(self):
+        course_session = self._create_course_session(
+            LearnerGroup.objects.create(name="Group A", parent=self.classroom),
+            LearnerGroup.objects.create(name="Group B", parent=self.classroom),
+        )
+
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_downloadable_assignment(callable_mock)
+
+        course_session.save()
+
+        self._assert_course_session_assignment(callable_mock, course_session)
 
 
 class FindDownloadableAssignmentsStoreFilterTestCase(TestCase):

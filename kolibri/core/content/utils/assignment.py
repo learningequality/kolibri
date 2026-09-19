@@ -264,7 +264,8 @@ class ContentAssignmentManager:
         def on_save(sender, instance, **kwargs):
             queryset = self.model.objects.filter(pk=instance.pk)
             if self.filters:
-                queryset = queryset.filter(**self.filters)
+                # a filter may span a reverse relation, whose join repeats the row per match
+                queryset = queryset.filter(**self.filters).distinct()
             if queryset.exists():
                 assignments = self._get_assignments(queryset)
                 callable_func(instance.dataset_id, assignments)
@@ -330,7 +331,8 @@ class ContentAssignmentManager:
             model_qs = model_qs.filter(dataset_id=dataset_id)
 
         if self.filters:
-            model_qs = model_qs.filter(**self.filters)
+            # a filter may span a reverse relation, whose join repeats the row per match
+            model_qs = model_qs.filter(**self.filters).distinct()
 
         for assignment in self._get_assignments(model_qs):
             yield assignment
