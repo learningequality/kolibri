@@ -45,6 +45,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Unit {unitNumber, number}: {unitTitle} - Post-test',
     context: 'Label for the post-test of a unit.',
   },
+  preTestItemLabel: {
+    message: '{unitTitle} - Pre-test',
+    context:
+      'Name of a unit pre-test in a coach activity notification, where the unit number is not available.',
+  },
+  postTestItemLabel: {
+    message: '{unitTitle} - Post-test',
+    context:
+      'Name of a unit post-test in a coach activity notification, where the unit number is not available.',
+  },
   selectedLearnersLabel: {
     message: 'Selected learners',
     context: 'Label for the list of selected learners when assigning a course.',

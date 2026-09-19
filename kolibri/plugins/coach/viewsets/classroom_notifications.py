@@ -16,8 +16,13 @@ from rest_framework.response import Response
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
+from kolibri.core.content.models import ContentNode
+from kolibri.core.courses.models import TestType
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.decorators import query_params_required
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.core.notifications.models import NotificationObjectType
 from kolibri.core.notifications.models import NotificationsLog
 from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
@@ -83,6 +88,12 @@ class ClassroomNotificationsFilter(FilterSet):
 class ClassroomNotificationsSerializer(serializers.ModelSerializer):
     object = serializers.CharField(source="notification_object", read_only=True)
     event = serializers.CharField(source="notification_event", read_only=True)
+    title = serializers.CharField(read_only=True, allow_null=True)
+    kind = serializers.CharField(read_only=True, allow_null=True)
+    lesson_title = serializers.CharField(read_only=True, allow_null=True)
+    test_type = serializers.ChoiceField(
+        choices=TestType.choices(), read_only=True, allow_null=True
+    )
 
     class Meta:
         model = LearnerProgressNotification
@@ -101,6 +112,10 @@ class ClassroomNotificationsSerializer(serializers.ModelSerializer):
             "object",
             "event",
             "course_session_id",
+            "title",
+            "kind",
+            "lesson_title",
+            "test_type",
         )
 
 
@@ -111,6 +126,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ClassroomNotificationsFilter
     serializer_class = ClassroomNotificationsSerializer
+    deferred_fields = ("title", "kind", "lesson_title", "test_type")
 
     @cached_property
     def _limit(self):
@@ -127,6 +143,80 @@ class ClassroomNotificationsViewset(ValuesViewset):
         if self._limit:
             return queryset[: self._limit]
         return queryset
+
+    def consolidate(self, items, queryset):
+        unresolved = dict.fromkeys(self.deferred_fields)
+        for item in items:
+            item.update(unresolved)
+
+        course_items = [item for item in items if item["course_session_id"]]
+        if not course_items:
+            return items
+
+        units_by_quiz_id = self._units_by_quiz_id(course_items)
+
+        node_ids = set()
+        sources = []
+        for item in course_items:
+            if item["object"] == NotificationObjectType.Quiz:
+                title_node_id, item["test_type"] = units_by_quiz_id.get(
+                    item["quiz_id"], (None, None)
+                )
+                lesson_node_id = None
+            elif item["object"] == NotificationObjectType.Lesson:
+                title_node_id = lesson_node_id = item["lesson_id"]
+            else:
+                title_node_id = item["contentnode_id"]
+                lesson_node_id = item["lesson_id"]
+            sources.append((item, title_node_id, lesson_node_id))
+            node_ids.update(filter(None, (title_node_id, lesson_node_id)))
+
+        # Notifications live in their own database (NotificationsRouter), so this
+        # cannot be a join against the ContentNode table.
+        nodes = {
+            node["id"]: node
+            for node in ContentNode.objects.filter(id__in=node_ids)
+            .order_by()
+            .values("id", "title", "kind")
+        }
+        for item, title_node_id, lesson_node_id in sources:
+            title_node = nodes.get(title_node_id)
+            if title_node:
+                item["title"] = title_node["title"]
+                item["kind"] = title_node["kind"]
+            lesson_node = nodes.get(lesson_node_id)
+            if lesson_node:
+                item["lesson_title"] = lesson_node["title"]
+
+        return items
+
+    @staticmethod
+    def _units_by_quiz_id(course_items):
+        course_session_ids = {
+            item["course_session_id"]
+            for item in course_items
+            if item["object"] == NotificationObjectType.Quiz
+        }
+        if not course_session_ids:
+            return {}
+        units_by_quiz_id = {}
+        # One assignment row per assigned collection, all collapsing onto the same
+        # synthetic id — the test is the same test for every collection.
+        for assignment in (
+            UnitTestAssignment.objects.filter(course_session_id__in=course_session_ids)
+            .values("course_session_id", "unit_contentnode_id", "test_type")
+            .distinct()
+        ):
+            quiz_id = get_synthetic_content_id(
+                str(assignment["course_session_id"]),
+                str(assignment["unit_contentnode_id"]),
+                assignment["test_type"],
+            )
+            units_by_quiz_id[quiz_id] = (
+                assignment["unit_contentnode_id"],
+                assignment["test_type"],
+            )
+        return units_by_quiz_id
 
     def list(self, request, *args, **kwargs):
         try:
