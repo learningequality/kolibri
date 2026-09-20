@@ -345,6 +345,9 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         cext: [true, false]
+        variant: [static, dynamic]
+    env:
+      WHL_FILE_NAME: ${{ matrix.variant == 'dynamic' && needs.whl.outputs.dynamic-whl-file-name || needs.whl.outputs.whl-file-name }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -358,14 +361,17 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
       - uses: actions/download-artifact@v8
         with:
-          name: ${{ needs.whl.outputs.whl-file-name }}
+          name: ${{ env.WHL_FILE_NAME }}
           path: dist
       # Seed the venv with real pip so the wheel is installed via pip itself
       # (not `uv pip`), exercising the install path end users actually follow.
       - name: Create virtual environment with pip
         run: uv venv --seed --python ${{ matrix.python-version }}
       - name: Install WHL file
-        run: .venv/bin/pip install dist/${{ needs.whl.outputs.whl-file-name }}
+        run: .venv/bin/pip install "dist/$WHL_FILE_NAME"
+      - name: Check cryptography resolved
+        if: ${{ matrix.variant == 'dynamic' }}
+        run: .venv/bin/python -c "import cryptography"
       - name: Smoke test WHL file
         env:
           KOLIBRI_NO_C_EXTENSIONS: ${{ matrix.cext == false && '1' || '' }}

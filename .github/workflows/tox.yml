@@ -139,8 +139,9 @@ jobs:
         with:
           enable-cache: false
       - name: Install dependencies
+        shell: bash
         run: |
-          uv pip install --system --group base --group test
+          uv pip install --system --group test -r <(uv run --script build_tools/static_dependencies.py --requirements)
           uv pip install --system -r requirements/cext.txt
           make set-no-uv-python-version-for-tests
       - name: Check migrations

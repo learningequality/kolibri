@@ -11,7 +11,7 @@ export SETUPTOOLS_SCM_PRETEND_METADATA_FOR_KOLIBRI := {dirty=false}
 export SETUPTOOLS_SCM_IGNORE_VCS_ROOTS := $(CURDIR)
 
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext strip-staticdeps writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release dist dist-dynamic dist-all dist-prep dist-static staticdeps staticdeps-cext strip-staticdeps writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-demoserver docker-devserver docker-envlist
 
 
 help:
@@ -22,7 +22,9 @@ help:
 	@echo "Building"
 	@echo "--------"
 	@echo ""
-	@echo "dist: create distributed source packages in dist/"
+	@echo "dist: create distributed source packages in dist/ (static build with dependencies bundled into kolibri/dist)"
+	@echo "dist-dynamic: create a wheel in dist/dynamic/ that declares its dependencies rather than bundling them"
+	@echo "dist-all: create both wheels, sharing the build steps they have in common"
 	@echo "pex: builds a portable .pex file for each .whl in dist/"
 	@echo "assets: builds javascript assets"
 	@echo "staticdeps: downloads/updates all static Python dependencies bundled into the dist"
@@ -178,9 +180,8 @@ clean-staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 
 staticdeps: clean-staticdeps
-	# Resolve the bundled runtime dependencies from the `base` group in
-	# pyproject.toml, pinned to Python 3.6 compatible versions.
-	uv pip install --python-version 3.6 --target kolibri/dist --group base
+	# Resolve the bundled runtime dependencies, pinned to Python 3.6 compatible versions.
+	uv pip install --python-version 3.6 --target kolibri/dist -r <(uv run --script build_tools/static_dependencies.py --requirements)
 	# requirements.txt only carries any EXTRA_REQUIREMENTS injected by
 	# setrequirements (empty by default).
 	uv pip install --python-version 3.6 --target kolibri/dist -r "requirements.txt"
@@ -230,9 +231,32 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: setrequirements writeversion staticdeps staticdeps-cext strip-staticdeps buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
-	uv build
+dist-prep: setrequirements writeversion buildconfig i18n-extract-frontend assets i18n-django-compilemessages
+
+dist-static: staticdeps staticdeps-cext strip-staticdeps preseeddb
+	staging="$$(mktemp -d)" && \
+	trap 'rm -rf "$$staging"' EXIT && \
+	uv build --sdist --out-dir "$$staging" && \
+	mkdir "$$staging/src" && \
+	tar -xzf "$$staging"/kolibri-*.tar.gz -C "$$staging/src" --strip-components=1 && \
+	uv run --script build_tools/static_dependencies.py --clear "$$staging/src/pyproject.toml" && \
+	uv build "$$staging/src" --out-dir dist
+
+dist-dynamic: clean-staticdeps dist-prep
+	uv run ./build_tools/preseed_home.sh
+	rm -rf dist/dynamic
+	uv build --out-dir dist/dynamic
+	rm dist/dynamic/*.tar.gz
+	for whl in dist/dynamic/*.whl; do mv "$$whl" "$${whl%-py3-none-any.whl}-1-py3-none-any.whl"; done
+	ls -l dist/dynamic
+
+dist: dist-prep
+	$(MAKE) dist-static
 	ls -l dist
+
+dist-all: dist-dynamic
+	$(MAKE) dist-static
+	ls -l dist dist/dynamic
 
 pex:
 	ls dist/*.whl | while read whlfile; do version=$$(uv run --script ./build_tools/read_kolibri_version.py $$whlfile); uvx --from "pex==2.1.153" pex $$whlfile --disable-cache -o dist/kolibri-`echo $$version | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
