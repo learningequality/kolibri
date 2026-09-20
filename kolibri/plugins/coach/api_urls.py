@@ -35,9 +35,9 @@ router.register(
 urlpatterns = [
     re_path(r"^", include(router.urls)),
     re_path(
-        r"^coursesession/(?P<course_session_id>[0-9a-fA-F]{32})/unit/(?P<unit_contentnode_id>[0-9a-fA-F]{32})/report/$",
-        UnitReportViewSet.as_view({"get": "retrieve"}),
-        name="unitreport",
+        r"^coursesession/(?P<course_session_id>[0-9a-fA-F]{32})/unitreports/$",
+        UnitReportViewSet.as_view({"get": "list"}),
+        name="unitreports_list",
     ),
     re_path(
         r"^coursesession/(?P<course_session_id>[0-9a-fA-F]{32})/unit/(?P<unit_contentnode_id>[0-9a-fA-F]{32})/lessonprogress/$",
