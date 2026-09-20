@@ -16,7 +16,12 @@ import pytz
 from django.conf import locale
 from morango.constants import settings as morango_settings
 from tzlocal import get_localzone_name
-from tzlocal.utils import ZoneInfoNotFoundError
+
+# tzlocal 5 raises this directly; tzlocal 4 raises tzlocal.utils.ZoneInfoNotFoundError, a subclass.
+try:
+    from zoneinfo import ZoneInfoNotFoundError
+except ImportError:
+    from backports.zoneinfo import ZoneInfoNotFoundError
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
