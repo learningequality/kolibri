@@ -8,6 +8,9 @@ on:
       tar-file-name:
         description: "TAR file name"
         value: ${{ jobs.build_whl.outputs.tar-file-name }}
+      dynamic-whl-file-name:
+        description: "Dynamic (dependency-declaring) WHL file name"
+        value: ${{ jobs.build_whl.outputs.dynamic-whl-file-name }}
 permissions:
   contents: read
 env:
@@ -21,6 +24,7 @@ jobs:
     outputs:
       whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
+      dynamic-whl-file-name: ${{ steps.get-dynamic-whl-filename.outputs.dynamic-whl-file-name }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -66,7 +70,7 @@ jobs:
           path: .cext_cache
           key: cext-${{ hashFiles('requirements/cext.txt', 'requirements/cext_noarch.txt') }}
       - name: Build Kolibri
-        run: make dist
+        run: make dist-all
       # Collected here rather than from the installed whl at release time: the built
       # static tree is already on disk, and running it on every build means a breakage
       # surfaces in PR CI rather than mid-release.
@@ -83,6 +87,7 @@ jobs:
         with:
           name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
           path: dist/${{ steps.get-whl-filename.outputs.whl-file-name }}
+          archive: false
       - name: Get TAR filename
         id: get-tar-filename
         run: echo "tar-file-name=$(basename dist/*.tar.gz)" >> "$GITHUB_OUTPUT"
@@ -90,3 +95,11 @@ jobs:
         with:
           name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
           path: dist/${{ steps.get-tar-filename.outputs.tar-file-name }}
+      - name: Get dynamic WHL filename
+        id: get-dynamic-whl-filename
+        run: echo "dynamic-whl-file-name=$(basename dist/dynamic/*.whl)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.get-dynamic-whl-filename.outputs.dynamic-whl-file-name }}
+          path: dist/dynamic/${{ steps.get-dynamic-whl-filename.outputs.dynamic-whl-file-name }}
+          archive: false
