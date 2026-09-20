@@ -3250,7 +3250,7 @@ requires-dist = [
     { name = "redis", specifier = "==3.5.3" },
     { name = "requests", specifier = "==2.27.1" },
     { name = "semver", specifier = "==2.13.0" },
-    { name = "tzlocal", specifier = "==4.2" },
+    { name = "tzlocal", specifier = ">=4.2" },
     { name = "whitenoise", specifier = "==5.3.0" },
     { name = "zeroconf-py2compat", specifier = "==0.19.17" },
 ]
