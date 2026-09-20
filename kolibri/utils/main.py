@@ -22,6 +22,8 @@ from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
+from kolibri.core.utils.schema_drift import repair_schema_drift
+from kolibri.core.utils.schema_drift import repair_schema_drift_quick_check
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.deployment.default.sqlite_db_names import get_sqlite_database_path
 from kolibri.plugins.utils import autoremove_unavailable_plugins
@@ -108,6 +110,8 @@ def _migrate_databases():
     """
     for database in settings.DATABASES:
         call_command("migrate", interactive=False, database=database)
+
+    repair_schema_drift()
 
     # load morango fixtures needed for certificate related operations
     call_command("loaddata", "scopedefinitions")
@@ -292,6 +296,8 @@ def _run_updates(updated, version):
             e,
         )
         raise
+    else:
+        repair_schema_drift_quick_check()
 
     _upgrades_after_django_setup(updated, version)
 
