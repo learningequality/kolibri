@@ -9,7 +9,7 @@
   },
   "author": "Learning Equality",
   "license": "MIT",
-  "private": "true",
+  "private": true,
   "dependencies": {
     "@m31coding/fuzzy-search": "^2.0.0",
     "date-fns": "^1.28.2",
