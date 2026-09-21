@@ -60,11 +60,12 @@
         <!-- Submit button: shows only a forward-arrow icon; the aria-label
         cycles through four instructional states as the sequence is built. -->
         <!-- Decorative burst GIF, overlaid on the submit button on success.
-        Mounted only while burstVisible is true, which bounds the looping GIF
-        to a single visible play and restarts it on each successful submit. -->
+        Burst-V2.gif carries no loop metadata, so it plays through once and stops;
+        unmounting it when burstVisible goes false clears the spent final frame.
+        See burstSrc below for why each play needs a URL of its own. -->
         <img
           v-if="burstVisible"
-          :src="burstGif"
+          :src="burstSrc"
           class="submit-burst"
           data-testid="submit-burst"
           alt=""
@@ -304,6 +305,21 @@
       const arrowBouncing = ref(false);
       const burstVisible = ref(false);
 
+      // Browsers cache a GIF's decoded frames *and* its animation state against the
+      // URL. Burst-V2.gif has no loop metadata, so once it has played through it is
+      // parked on its final, empty frame -- re-mounting the <img> for a second
+      // successful sign-in resolves to that spent image and nothing appears. Giving
+      // every play its own URL forces a fresh decode from frame 0, so the counter is
+      // load-bearing rather than diagnostic.
+      //
+      // This depends on the GIF being emitted as a separate file rather than inlined:
+      // webpack inlines assets under 10000 bytes as base64 data URIs (see
+      // packages/kolibri-build/src/webpack.config.base.js) and a query string appended
+      // to a data URI would corrupt it. Burst-V2.gif is 10503 bytes, which clears that
+      // threshold -- keep it above 10000 if the asset is ever re-exported.
+      const burstPlays = ref(0);
+      const burstSrc = computed(() => `${burstGif}?play=${burstPlays.value}`);
+
       /**
        * Plays the success animation bouncing each selected icon in sequence,
        * then the submit arrow. Returns a Promise that resolves when complete.
@@ -313,8 +329,8 @@
       const playSuccessAnimation = () => {
         const STAGGER = 150;
         const ICON_BOUNCE_DURATION = 380;
-        // Matches the length of one Burst-V2.gif loop (960ms); unmounting the
-        // <img> at this point bounds the looping GIF to a single visible play.
+        // Matches the full run of Burst-V2.gif (29 frames, 960ms); unmounting the
+        // <img> at this point removes it as it reaches its final frame.
         const BURST_DURATION = 960;
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const stagger = reduce ? 0 : STAGGER;
@@ -335,6 +351,7 @@
               if (isLast) {
                 arrowBouncing.value = true;
                 if (!reduce) {
+                  burstPlays.value++;
                   burstVisible.value = true;
                   window.setTimeout(() => {
                     burstVisible.value = false;
@@ -394,7 +411,7 @@
         bouncingId,
         arrowBouncing,
         burstVisible,
-        burstGif,
+        burstSrc,
         handleSelect,
         handleDisabledSelect,
         handleSubmit,

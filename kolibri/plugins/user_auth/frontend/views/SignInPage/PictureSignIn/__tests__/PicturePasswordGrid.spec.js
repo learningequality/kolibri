@@ -410,15 +410,20 @@ describe('PicturePasswordGrid', () => {
       jest.advanceTimersByTime(300);
       await nextTick();
       expect(burstImg(wrapper).exists()).toBe(true);
+      const firstSrc = burstImg(wrapper).attributes('src');
       jest.runAllTimers();
       await nextTick();
       expect(burstImg(wrapper).exists()).toBe(false);
 
-      // Second run: a fresh <img> mounts again, restarting the GIF from frame 0.
+      // Second run: a fresh <img> mounts again. Re-mounting on its own does not
+      // restart the GIF -- the browser caches the finished animation state against
+      // the URL and paints the final, empty frame -- so the src must differ from
+      // the first play's to force a fresh decode.
       wrapper.vm.playSuccessAnimation();
       jest.advanceTimersByTime(300);
       await nextTick();
       expect(burstImg(wrapper).exists()).toBe(true);
+      expect(burstImg(wrapper).attributes('src')).not.toBe(firstSrc);
     });
 
     it('skips the burst and resolves immediately with prefers-reduced-motion', async () => {
