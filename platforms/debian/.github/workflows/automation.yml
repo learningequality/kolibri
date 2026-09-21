@@ -4,34 +4,33 @@
 #
 # Caller template: copy this file to .github/workflows/automation.yml in a consumer repo.
 # No edits are needed - the on: block is the exhaustive union of every enabled automation.
-
 name: Automation
-on:
-  pull_request_target:
-    types:
-      - review_requested
-      - labeled
-      - opened
-      - assigned
-      - unassigned
-      - closed
-      - reopened
-      - edited
-      - review_request_removed
+on: # zizmor: ignore[dangerous-triggers]
   issue_comment:
     types:
       - created
   issues:
     types:
+      - assigned
+      - labeled
       - opened
       - reopened
-      - labeled
-      - unlabeled
-      - assigned
       - unassigned
+      - unlabeled
   pull_request_review_comment:
     types:
       - created
+  pull_request_target:
+    types:
+      - assigned
+      - closed
+      - edited
+      - labeled
+      - opened
+      - reopened
+      - review_request_removed
+      - review_requested
+      - unassigned
   schedule:
     - cron: 1 0 * * 1
   workflow_dispatch: {}
