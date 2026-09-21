@@ -305,6 +305,9 @@ describe('PicturePasswordGrid', () => {
       });
     }
 
+    // The burst is a decorative <img> shown via v-if while burstVisible is true.
+    const burstImg = wrapper => wrapper.find('[data-testid="submit-burst"]');
+
     beforeEach(() => {
       jest.useFakeTimers('modern');
       originalMatchMedia = window.matchMedia;
@@ -325,7 +328,12 @@ describe('PicturePasswordGrid', () => {
       window.matchMedia = originalMatchMedia;
     });
 
-    it('bounces each selected icon in sequence, then the submit icon, then resolves', async () => {
+    it('does not render the burst before an animation runs', () => {
+      const wrapper = mountComponent();
+      expect(burstImg(wrapper).exists()).toBe(false);
+    });
+
+    it('bounces each selected icon in sequence, then the submit icon and burst, then resolves', async () => {
       const wrapper = mountComponent();
 
       // Set up a sequence
@@ -341,30 +349,79 @@ describe('PicturePasswordGrid', () => {
       jest.advanceTimersByTime(0);
       await nextTick();
 
-      // First icon (bee) bouncing
+      // First icon (bee) bouncing; no burst yet
       expect(wrapper.vm.bouncingId).toBe(1);
       expect(wrapper.vm.arrowBouncing).toBe(false);
+      expect(burstImg(wrapper).exists()).toBe(false);
 
       // After 150ms stagger, second icon (star) starts
       jest.advanceTimersByTime(150);
       await nextTick();
       expect(wrapper.vm.bouncingId).toBe(2);
 
-      // After another 150ms, third (moon) starts AND submit arrow bounces
+      // After another 150ms (t=300), third (moon) starts, arrow bounces, burst shows
       jest.advanceTimersByTime(150);
       await nextTick();
       expect(wrapper.vm.bouncingId).toBe(3);
       expect(wrapper.vm.arrowBouncing).toBe(true);
+      expect(wrapper.vm.burstVisible).toBe(true);
+      expect(burstImg(wrapper).exists()).toBe(true);
 
-      // After the final 380ms, bouncing clears and Promise resolves
+      // After 380ms (t=680), icon/arrow bounce is done but the burst is still running
       jest.advanceTimersByTime(380);
       await nextTick();
       expect(wrapper.vm.bouncingId).toBeNull();
       expect(wrapper.vm.arrowBouncing).toBe(false);
+      expect(burstImg(wrapper).exists()).toBe(true);
+      expect(resolved).toBe(false);
+
+      // Burst duration gates completion: 960ms after the last icon starts (t=1260)
+      jest.advanceTimersByTime(580);
+      await nextTick();
+      expect(wrapper.vm.burstVisible).toBe(false);
+      expect(burstImg(wrapper).exists()).toBe(false);
       expect(resolved).toBe(true);
     });
 
-    it('resolves immediately with prefers-reduced-motion', async () => {
+    it('renders the burst as a decorative image with explicit dimensions', async () => {
+      const wrapper = mountComponent();
+      wrapper.vm.sequence = [1, 2, 3];
+      wrapper.vm.playSuccessAnimation();
+
+      jest.advanceTimersByTime(300); // reach the last icon → burst shows
+      await nextTick();
+
+      const img = burstImg(wrapper);
+      expect(img.exists()).toBe(true);
+      // Decorative: empty alt + hidden from the a11y tree.
+      expect(img.attributes('alt')).toBe('');
+      expect(img.attributes('aria-hidden')).toBe('true');
+      // Explicit dimensions reserve space to prevent layout shift while loading.
+      expect(img.attributes('width')).toBe('120');
+      expect(img.attributes('height')).toBe('120');
+    });
+
+    it('replays the burst on a second successful submission', async () => {
+      const wrapper = mountComponent();
+      wrapper.vm.sequence = [1, 2, 3];
+
+      // First run: burst mounts, then unmounts once it completes.
+      wrapper.vm.playSuccessAnimation();
+      jest.advanceTimersByTime(300);
+      await nextTick();
+      expect(burstImg(wrapper).exists()).toBe(true);
+      jest.runAllTimers();
+      await nextTick();
+      expect(burstImg(wrapper).exists()).toBe(false);
+
+      // Second run: a fresh <img> mounts again, restarting the GIF from frame 0.
+      wrapper.vm.playSuccessAnimation();
+      jest.advanceTimersByTime(300);
+      await nextTick();
+      expect(burstImg(wrapper).exists()).toBe(true);
+    });
+
+    it('skips the burst and resolves immediately with prefers-reduced-motion', async () => {
       window.matchMedia = jest.fn().mockImplementation(query => ({
         matches: query === '(prefers-reduced-motion: reduce)',
         media: query,
@@ -389,6 +446,9 @@ describe('PicturePasswordGrid', () => {
       await nextTick();
       expect(resolved).toBe(true);
       expect(wrapper.vm.arrowBouncing).toBe(false);
+      expect(wrapper.vm.burstVisible).toBe(false);
+      // The burst never mounts under reduced motion.
+      expect(burstImg(wrapper).exists()).toBe(false);
     });
   });
 
