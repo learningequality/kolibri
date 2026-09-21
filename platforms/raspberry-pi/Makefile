@@ -2,6 +2,11 @@
 
 DIST_DIR := dist
 
+# apt bounds a single stalled connection but never its own total runtime, so an
+# unresponsive mirror holds a CI build open for hours instead of failing it.
+APT_OPTS := -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+APT_TIMEOUT := timeout 600
+
 SOURCE_FILE = images/source.xz
 SOURCE_URL = https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2025-12-04/2025-12-04-raspios-trixie-arm64-lite.img.xz
 
@@ -41,8 +46,8 @@ pimod:
 	git clone --depth=1 https://github.com/Nature40/pimod.git -b v0.9.1
 
 install-dependencies:
-	sudo apt-get update -y
-	sudo apt-get install -y fdisk file kpartx qemu-utils qemu-user-static unzip p7zip-full wget xz-utils units
+	$(APT_TIMEOUT) sudo apt-get $(APT_OPTS) update -y
+	$(APT_TIMEOUT) sudo apt-get $(APT_OPTS) install -y fdisk file kpartx qemu-utils qemu-user-static unzip p7zip-full wget xz-utils units
 	$(MAKE) pimod
 
 images/base.img: images/source.img

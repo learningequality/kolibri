@@ -4,6 +4,11 @@ TO images/base.img
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# apt bounds a single stalled connection but never its own total runtime, so a
+# mirror that stops responding holds the image build open until the job's cap.
+apt_opts="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+apt_timeout="timeout 600"
+
 user=pi
 
 # Enable SSH
@@ -30,8 +35,8 @@ RUN chmod -R +rwx /KOLIBRI_DATA
 RUN chown -R ${user}:${user} /home/${user}
 RUN chmod -R +rwx /home/${user}
 
-RUN apt-get update
-RUN apt-get install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq
+RUN ${apt_timeout} apt-get ${apt_opts} update
+RUN ${apt_timeout} apt-get ${apt_opts} install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq
 
 RUN debconf-set-selections <<EOF
 $(cat files/debconf)

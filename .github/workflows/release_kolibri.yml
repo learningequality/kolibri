@@ -8,6 +8,7 @@ jobs:
   latest_release:
     name: Check if this release is the latest release
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       is_latest_release: ${{ steps.is_latest_release.outputs.result }}
     steps:
@@ -156,6 +157,7 @@ jobs:
     name: Upload to TestPyPi
     needs: [whl]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       id-token: write
     steps:
@@ -174,6 +176,7 @@ jobs:
   gcs_upload:
     name: Upload to Google Cloud Storage for LE Downloads
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [whl, pex, dmg, deb, exe, zip, apk]
     strategy:
       matrix:
@@ -198,6 +201,7 @@ jobs:
   bck_gcs_upload:
     name: Upload WHL file to Google Cloud Storage for BCK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [whl]
     steps:
       - name: Download WHL artifact
@@ -241,6 +245,9 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     needs: [whl, pex, dmg, deb, exe, zip, apk, test_pypi_upload]
     runs-on: ubuntu-latest
+    # Only bounds the job once approval is granted; the approval wait itself
+    # happens before the job starts and is not subject to this timeout.
+    timeout-minutes: 10
     environment: release
     steps:
       - run: echo "Release now publishing!"
@@ -249,6 +256,7 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     needs: [whl, block_release_step]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       id-token: write
     steps:
