@@ -1,8 +1,9 @@
-# Unit tests for the Flathub release scripts. Both scripts gate what ships to
+# Unit tests for the Flathub release and build scripts. They gate what ships to
 # Flathub, so the guard/pin paths are covered here. The scripts have hyphenated
 # filenames (not importable modules), so they are loaded by path.
 import importlib.util
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -21,6 +22,7 @@ def load(filename):
 
 sync = load("sync-flathub.py")
 prepare = load("prepare-kolibri-module.py")
+version = load("app-version.py")
 
 
 def manifest(sources):
@@ -133,3 +135,60 @@ def test_pin_requires_url_not_file(rendered, tmp_path):
 def test_pin_rejects_non_wheel_url(rendered):
     with pytest.raises(SystemExit):
         prepare.main(["--url", "https://example.test/kolibri.tar.gz", "--pin"])
+
+
+# --- app-version -------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "kolibri_version,expected",
+    [
+        ("0.19.5", "3.19.5"),
+        ("1.0.0", "4.0.0"),
+        ("0.19.5b1", "3.19.5~b1"),
+        ("0.19.5rc0", "3.19.5~rc0"),
+        ("0.20.0a2.dev5+g1a2b3c4", "3.20.0~a2.dev5+g1a2b3c4"),
+        ("0.19.6.dev5+g1a2b3c4.d20260922", "3.19.6~dev5+g1a2b3c4.d20260922"),
+    ],
+)
+def test_app_version(kolibri_version, expected):
+    assert version.app_version(kolibri_version) == expected
+
+
+@pytest.mark.parametrize(
+    "kolibri_version,expected",
+    [
+        ("0.19.5", "https://github.com/learningequality/kolibri/releases/tag/v0.19.5"),
+        ("0.19.5b1", "https://github.com/learningequality/kolibri/releases"),
+        (
+            "0.19.6.dev5+g1a2b3c4",
+            "https://github.com/learningequality/kolibri/releases",
+        ),
+    ],
+)
+def test_release_url(kolibri_version, expected):
+    assert version.release_url(kolibri_version) == expected
+
+
+requires_appstreamcli = pytest.mark.skipif(
+    shutil.which("appstreamcli") is None, reason="appstreamcli not installed"
+)
+
+
+def vercmp(a, op, b):
+    return subprocess.run(["appstreamcli", "vercmp", a, op, b]).returncode == 0
+
+
+@requires_appstreamcli
+def test_kolibri_0_19_sorts_above_flathub_3_8():
+    assert vercmp(version.app_version("0.19.0"), "gt", "3.8")
+
+
+@requires_appstreamcli
+def test_prerelease_sorts_below_final():
+    assert vercmp(version.app_version("0.19.5b1"), "lt", version.app_version("0.19.5"))
+
+
+def test_release_date_follows_source_date_epoch(monkeypatch):
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "1758499200")
+    assert version.release_date() == "2025-09-22"

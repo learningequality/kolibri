@@ -29,6 +29,9 @@ To build and install this project, you will need to use the
     ninja -C build
     ninja -C build install
 
+Meson takes the app version from the Kolibri that `python3` imports, so
+configure where Kolibri is installed (e.g. the monorepo `.venv`).
+
 The resulting software expects to have Kolibri installed on the system, with
 the Kolibri launcher in _$PATH_ and Kolibri Python packages available in
 _$PYTHONHOME_. We expect that an installer package will provide these
@@ -137,38 +140,10 @@ process is needed instead of handling these URIs in kolibri-gnome.
 
 #### Managing release notes
 
-While making changes for an upcoming release, please update [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in)
-with information about those changes. In the `<releases>` section, there should
-always be a release entry with `version` set to the previous version followed by
-`+next`, like this:
-
-```
-<release version="3.0.0+next" date="2024-04-23" type="development">
-  <description>
-    <ul>
-      <li>The description of a new feature goes here.</li>
-    </ul>
-  </description>
-</release>
-```
-
-If there is not one, please create one as the first entry in `<releases>`.
-
-#### Creating releases
-
-To create a release, use [bump-my-version](<https://pypi.org/project/bump-my-version/>):
-
-```
-bump-my-version bump minor
-git push
-git push --tags
-```
-
-This will create a new git tag, update the `VERSION` file in the project root,
-and update the "+next" release entry in [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in).
-
-Note that it is possible to increment either the `major`, `minor`, or `patch`
-component of the project's version number.
+Each build prepends a `<release>` for its own version to
+[org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in).
+The entries after it are the history from before the app moved into the Kolibri
+repository.
 
 ### Debugging and advanced usage
 

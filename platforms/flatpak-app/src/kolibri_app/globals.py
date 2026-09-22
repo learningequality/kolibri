@@ -82,13 +82,6 @@ def get_version(kolibri_version: str) -> str:
         )
 
 
-def get_release_notes_version() -> str:
-    if config.BUILD_PROFILE == "development":
-        return config.PROJECT_VERSION + "+next"
-    else:
-        return config.PROJECT_VERSION
-
-
 def get_current_language() -> typing.Optional[str]:
     try:
         translations = gettext.translation(

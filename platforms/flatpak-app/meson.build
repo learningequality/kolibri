@@ -1,6 +1,6 @@
 project('kolibri-gnome', ['c'],
     meson_version: '>= 0.56.0',
-    version: run_command('cat', 'VERSION').stdout().strip()
+    version: run_command('python3', 'build-aux/flatpak/app-version.py', check: true).stdout().strip()
 )
 
 package_string = '@0@-@1@'.format(meson.project_name(), meson.project_version())
@@ -67,6 +67,9 @@ kolibri_app_config.set('BINDIR', bindir)
 kolibri_app_config.set('PYTHON', 'python3')
 kolibri_app_config.set('PACKAGE_STRING', package_string)
 kolibri_app_config.set('PROJECT_VERSION', meson.project_version())
+kolibri_app_config.set('RELEASE_DATE', run_command(python_installation, 'build-aux/flatpak/app-version.py', '--date', check: true).stdout().strip())
+kolibri_app_config.set('RELEASE_URL', run_command(python_installation, 'build-aux/flatpak/app-version.py', '--url', check: true).stdout().strip())
+kolibri_app_config.set('RELEASE_TYPE', meson.project_version().contains('~') ? 'development' : 'stable')
 kolibri_app_config.set('VCS_TAG', git_commit)
 kolibri_app_config.set('GETTEXT_PACKAGE', meson.project_name())
 kolibri_app_config.set('LOCALE_DIR', locale_dir)

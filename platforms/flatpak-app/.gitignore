@@ -2,7 +2,6 @@ __pycache__
 
 # Ignore all top-level dotfiles; opt in the ones that belong in git.
 /.*
-!/.bumpversion.toml
 !/.editorconfig
 !/.github/
 !/.gitignore

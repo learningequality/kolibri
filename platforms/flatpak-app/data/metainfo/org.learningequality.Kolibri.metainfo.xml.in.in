@@ -48,6 +48,9 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="@PROJECT_VERSION@" date="@RELEASE_DATE@" type="@RELEASE_TYPE@">
+      <url type="details">@RELEASE_URL@</url>
+    </release>
     <release version="3.8" date="2024-10-02" type="stable">
       <description>
         <p>Changes included in this release:</p>
