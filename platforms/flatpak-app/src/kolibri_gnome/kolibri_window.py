@@ -227,10 +227,10 @@ class KolibriWindow(Adw.ApplicationWindow):
     @staticmethod
     def set_accels(application: Adw.Application):
         application.set_accels_for_action(
-            "win.navigate-back", ["<Control>bracketleft", "<Alt>leftarrow"]
+            "win.navigate-back", ["<Control>bracketleft", "<Alt>Left"]
         )
         application.set_accels_for_action(
-            "win.navigate-forward", ["<Control>bracketright", "<Alt>rightarrow"]
+            "win.navigate-forward", ["<Control>bracketright", "<Alt>Right"]
         )
         application.set_accels_for_action("win.navigate-home", ["<Alt>Home"])
         application.set_accels_for_action("win.show-web-inspector", ["F12"])
