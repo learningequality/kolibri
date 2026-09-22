@@ -19,6 +19,7 @@
       <input
         :id="inputId"
         ref="searchInput"
+        data-skip-nav-target
         :value="keywordsInput"
         type="search"
         :class="['search-input', $computedClass(placeholderStyle)]"
