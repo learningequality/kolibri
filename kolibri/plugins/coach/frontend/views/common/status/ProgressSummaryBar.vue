@@ -23,11 +23,17 @@
 
 <script>
 
-  import tallyMixin from './tallyMixin';
+  import { toRef } from 'vue';
+  import useTally, { tallyProp } from '../../../composables/useTally';
 
   export default {
     name: 'ProgressSummaryBar',
-    mixins: [tallyMixin],
+    setup(props) {
+      return useTally(toRef(props, 'tally'));
+    },
+    props: {
+      tally: tallyProp,
+    },
     computed: {
       barStyleCompleted() {
         return {

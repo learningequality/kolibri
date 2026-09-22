@@ -139,10 +139,11 @@
 
 <script>
 
+  import { toRef } from 'vue';
+  import useTally, { tallyProp } from '../../../composables/useTally';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressCount from './LearnerProgressCount';
   import LearnerProgressRatio from './LearnerProgressRatio';
-  import tallyMixin from './tallyMixin';
 
   export default {
     name: 'StatusSummary',
@@ -151,8 +152,11 @@
       // eslint-disable-next-line vue/no-unused-components
       LearnerProgressRatio, // it is used, it's just referenced dynamically
     },
-    mixins: [tallyMixin],
+    setup(props) {
+      return useTally(toRef(props, 'tally'));
+    },
     props: {
+      tally: tallyProp,
       verbose: {
         type: Boolean,
         default: true,
