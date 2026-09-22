@@ -20,6 +20,8 @@ from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
 CHUNKSIZE = 10000
 
+LOCALFILE_TRANSFER_FIELDS = ("id", "file_size", "extension", "upstream_url")
+
 
 def _calculate_batch_params(channel_id, node_ids, exclude_node_ids):
     # To chunk the tree, we first find the full extent of the tree - this gives the
@@ -233,7 +235,7 @@ def get_content_nodes_data(  # noqa: C901
         file_objects = LocalFile.objects.filter(
             files__thumbnail=True,
             files__contentnode__channel_id=channel_id,
-        ).values("id", "file_size", "extension")
+        ).values(*LOCALFILE_TRANSFER_FIELDS)
         if available is not None:
             file_objects = file_objects.filter(available=available)
         for f in file_objects:
@@ -244,7 +246,7 @@ def get_content_nodes_data(  # noqa: C901
 
         file_objects = LocalFile.objects.filter(
             files__contentnode__in=nodes_query
-        ).values("id", "file_size", "extension")
+        ).values(*LOCALFILE_TRANSFER_FIELDS)
         if available is not None:
             file_objects = file_objects.filter(available=available)
         if all_thumbnails:
@@ -279,7 +281,7 @@ def get_content_nodes_data(  # noqa: C901
 
                 file_objects = LocalFile.objects.filter(
                     files__contentnode__in=segment_topics,
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
                 if available is not None:
                     file_objects = file_objects.filter(available=available)
                 for f in file_objects:
