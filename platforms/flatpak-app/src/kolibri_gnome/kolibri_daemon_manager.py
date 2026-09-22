@@ -135,7 +135,7 @@ class KolibriDaemonManager(GObject.GObject):
             "status": self.__dbus_proxy.props.status,
             "base_url": self.__dbus_proxy.props.base_url,
             "kolibri_home": self.__dbus_proxy.props.kolibri_home,
-            "kolbri_version": self.__dbus_proxy.props.kolibri_version,
+            "kolibri_version": self.__dbus_proxy.props.kolibri_version,
         }
 
     def kolibri_api_get(self, path: str) -> typing.Any:
