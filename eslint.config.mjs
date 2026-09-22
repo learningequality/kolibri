@@ -20,6 +20,7 @@ export default [
       'packages/kolibri-i18n/**',
       'packages/kolibri-jest-config/**',
       'packages/kolibri-logging/**',
+      'packages/kolibri-css-variables/**',
       'packages/build_kolibri_package.js',
     ],
     rules: CJS_RULES,

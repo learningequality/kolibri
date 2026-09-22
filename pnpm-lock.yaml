@@ -1380,6 +1380,15 @@ importers:
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
 
+  packages/kolibri-css-variables:
+    devDependencies:
+      kolibri-design-system:
+        specifier: 'catalog:'
+        version: 5.9.0
+      vue:
+        specifier: 'catalog:'
+        version: 2.7.16
+
   packages/kolibri-format:
     dependencies:
       '@eslint/js':
