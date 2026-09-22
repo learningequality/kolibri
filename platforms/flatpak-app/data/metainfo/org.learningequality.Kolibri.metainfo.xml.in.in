@@ -9,12 +9,12 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <url type="bugtracker">https://github.com/learningequality/kolibri/issues</url>
+  <url type="contact">https://community.learningequality.org/</url>
   <url type="contribute">https://kolibri-dev.readthedocs.io/en/develop/contributing/ways_to_contribute.html</url>
   <url type="donation">https://learningequality.org/donate/</url>
-  <url type="faq">https://learningequality.org/community_faq/</url>
   <url type="help">https://kolibri.readthedocs.io</url>
   <url type="homepage">https://learningequality.org/kolibri/</url>
-  <url type="translate">https://learningequality.org/translate/</url>
+  <url type="translate">https://crowdin.com/project/kolibri</url>
   <url type="vcs-browser">https://github.com/learningequality/kolibri</url>
   <description>
     <p>
