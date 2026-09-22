@@ -96,11 +96,6 @@ describe('LibraryPage', () => {
     );
   });
   describe('skip navigation', () => {
-    it('marks the main landmark as the skip-link target, since the search bar precedes the h1', async () => {
-      const wrapper = await makeWrapper();
-      expect(wrapper.find('main.main-grid').attributes('data-skip-nav-target')).toBe('');
-    });
-
     it("names the main landmark to match the page's own heading", async () => {
       const wrapper = await makeWrapper();
       expect(wrapper.find('main.main-grid').attributes('aria-label')).toBe(

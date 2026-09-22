@@ -23,12 +23,12 @@
     >
       <main
         class="main-grid"
-        data-skip-nav-target
         :aria-label="displayingSearchResults ? null : channelsLabel"
       >
         <!--
-          Overrides SkipNavigationLink's default of focusing the first h1: the
-          search bar precedes the h1 here, so focusing the h1 would skip over it.
+          The search bar precedes the h1 in the DOM. Manually overriding
+          means we don't accidentally bypass the search experience entirely
+          for screen reader users.
         -->
         <!-- Search header: search bar + filter pills grouped together -->
         <div

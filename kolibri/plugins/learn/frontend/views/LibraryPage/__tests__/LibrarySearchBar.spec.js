@@ -103,6 +103,14 @@ describe('LibrarySearchBar', () => {
       renderComponent();
       expect(screen.getByRole('button', { name: startSearchButtonLabel$() })).toBeInTheDocument();
     });
+
+    it('marks the search input as the skip-link target, since it precedes the h1', () => {
+      renderComponent();
+      expect(screen.getByRole('combobox', { name: searchLabel$() })).toHaveAttribute(
+        'data-skip-nav-target',
+        '',
+      );
+    });
   });
 
   describe('clear button', () => {
