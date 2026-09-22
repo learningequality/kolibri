@@ -15,7 +15,7 @@ const {
   mathematics$,
   clearAllAction$,
 } = coreStrings;
-const { allFilters$, appliedFiltersGroupLabel$ } = searchAndFilterStrings;
+const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
 
 const KEYWORD_FILTER = 'hummingbirds';
 
@@ -89,7 +89,7 @@ describe('HorizontalFilterPills', () => {
   describe('grouping', () => {
     it('groups the filter checkboxes under a named group', () => {
       renderComponent();
-      const group = screen.getByRole('group', { name: appliedFiltersGroupLabel$() });
+      const group = screen.getByRole('group', { name: filtersGroupLabel$() });
       expect(within(group).getByRole('checkbox', { name: create$() })).toBeInTheDocument();
       expect(within(group).getByRole('checkbox', { name: school$() })).toBeInTheDocument();
     });
@@ -98,7 +98,7 @@ describe('HorizontalFilterPills', () => {
       renderComponent({
         appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
       });
-      const group = screen.getByRole('group', { name: appliedFiltersGroupLabel$() });
+      const group = screen.getByRole('group', { name: filtersGroupLabel$() });
       expect(within(group).queryByRole('button', { name: allFilters$() })).not.toBeInTheDocument();
       expect(
         within(group).queryByRole('button', { name: clearAllAction$() }),

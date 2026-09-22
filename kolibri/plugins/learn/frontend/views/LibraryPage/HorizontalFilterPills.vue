@@ -2,13 +2,13 @@
 
   <div class="filter-pills">
     <fieldset class="filters-fieldset">
-      <legend class="visuallyhidden">{{ appliedFiltersGroupLabel$() }}</legend>
+      <legend class="visuallyhidden">{{ filtersGroupLabel$() }}</legend>
       <label
         v-for="entry in entries"
         :key="`${entry.termKey}:${entry.value}`"
         :data-testid="`${entry.type}-pill`"
         class="pill"
-        :class="$computedClass(pillPseudoStylesFor())"
+        :class="[$computedClass(pillFocusWithinStyle), { loading }]"
         :style="pillColorStyleFor(entry)"
       >
         <input
@@ -26,7 +26,7 @@
           :color="entry.type === 'activity' ? null : $themeTokens.primary"
           class="pill-icon"
         />
-        <span class="link-text">{{ entry.label }}</span>
+        <span dir="auto">{{ entry.label }}</span>
         <KIcon
           v-if="iconAfterFor(entry)"
           :icon="iconAfterFor(entry)"
@@ -232,17 +232,10 @@
 
       // for a11y, the pill is a semantic checkbox and label
       // but visually styled to match KButton for sighted users
-      function pillPseudoStylesFor() {
-        return {
-          ':hover': get(searchLoading) ? {} : { backgroundColor: 'rgba(0,0,0,.1)' },
-          ':focus-within': { ...instance.$coreOutline, outlineOffset: 0 },
-          ...(get(searchLoading)
-            ? { pointerEvents: 'none', cursor: 'default', opacity: 0.5 }
-            : { cursor: 'pointer' }),
-        };
-      }
-
-      const { allFilters$, appliedFiltersGroupLabel$ } = searchAndFilterStrings;
+      const pillFocusWithinStyle = computed(() => ({
+        ':focus-within': { ...instance.$coreOutline, outlineOffset: 0 },
+      }));
+      const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
       const { clearAllAction$ } = coreStrings;
 
       return {
@@ -252,13 +245,13 @@
         isFilterActive,
         iconAfterFor,
         pillColorStyleFor,
-        pillPseudoStylesFor,
+        pillFocusWithinStyle,
         guardClick,
         handleToggle,
         clearSearch,
         loading: searchLoading,
         allFilters$,
-        appliedFiltersGroupLabel$,
+        filtersGroupLabel$,
         clearAllAction$,
       };
     },
@@ -286,14 +279,32 @@
   .filter-pills .pill {
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
     height: auto;
     min-height: 0;
     padding: 8px;
+    overflow: hidden;
     font-size: 16px;
     line-height: 1;
     text-transform: none;
     white-space: nowrap;
+    user-select: none;
     border-radius: 24px;
+    transition: background-color 0.2s ease;
+  }
+
+  .filter-pills .pill:hover:not(.loading) {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .filter-pills .pill:not(.loading) {
+    cursor: pointer;
+  }
+
+  .filter-pills .pill.loading {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
   }
 
   // Keep the divider attached to the All filters pill when the row wraps
