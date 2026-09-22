@@ -23,31 +23,31 @@ class KolibriServiceContext(object):
 
     __changed_event: multiprocessing.synchronize.Event
 
-    __is_bus_ready_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_bus_ready_value: multiprocessing.sharedctypes.Synchronized[bool]
     __is_bus_ready_set_event: multiprocessing.synchronize.Event
 
-    __is_starting_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_starting_value: multiprocessing.sharedctypes.Synchronized[bool]
     __is_starting_set_event: multiprocessing.synchronize.Event
 
-    __is_started_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_started_value: multiprocessing.sharedctypes.Synchronized[bool]
     __is_started_set_event: multiprocessing.synchronize.Event
 
-    __start_error_value: multiprocessing.sharedctypes.Synchronized[c_int]
+    __start_error_value: multiprocessing.sharedctypes.Synchronized[int]
     __start_error_set_event: multiprocessing.synchronize.Event
 
-    __app_key_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __app_key_value: multiprocessing.sharedctypes.SynchronizedString
     __app_key_set_event: multiprocessing.synchronize.Event
 
-    __is_device_provisioned_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_device_provisioned_value: multiprocessing.sharedctypes.Synchronized[bool]
     __is_device_provisioned_set_event: multiprocessing.synchronize.Event
 
-    __base_url_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __base_url_value: multiprocessing.sharedctypes.SynchronizedString
     __base_url_set_event: multiprocessing.synchronize.Event
 
-    __kolibri_home_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __kolibri_home_value: multiprocessing.sharedctypes.SynchronizedString
     __kolibri_home_set_event: multiprocessing.synchronize.Event
 
-    __kolibri_version_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __kolibri_version_value: multiprocessing.sharedctypes.SynchronizedString
     __kolibri_version_set_event: multiprocessing.synchronize.Event
 
     class Status(Enum):
@@ -133,9 +133,9 @@ class KolibriServiceContext(object):
     def is_bus_ready(self, is_bus_ready: typing.Optional[bool]):
         if is_bus_ready is None:
             self.__is_bus_ready_set_event.clear()
-            self.__is_bus_ready_value.value = False  # type: ignore[assignment]
+            self.__is_bus_ready_value.value = False
         else:
-            self.__is_bus_ready_value.value = bool(is_bus_ready)  # type: ignore[assignment]
+            self.__is_bus_ready_value.value = bool(is_bus_ready)
             self.__is_bus_ready_set_event.set()
         self.push_has_changes()
 
@@ -156,9 +156,9 @@ class KolibriServiceContext(object):
     def is_starting(self, is_starting: typing.Optional[bool]):
         if is_starting is None:
             self.__is_starting_set_event.clear()
-            self.__is_starting_value.value = False  # type: ignore[assignment]
+            self.__is_starting_value.value = False
         else:
-            self.__is_starting_value.value = bool(is_starting)  # type: ignore[assignment]
+            self.__is_starting_value.value = bool(is_starting)
             self.__is_starting_set_event.set()
         self.push_has_changes()
 
@@ -179,9 +179,9 @@ class KolibriServiceContext(object):
     def is_started(self, is_started: typing.Optional[bool]):
         if is_started is None:
             self.__is_started_set_event.clear()
-            self.__is_started_value.value = False  # type: ignore[assignment]
+            self.__is_started_value.value = False
         else:
-            self.__is_started_value.value = bool(is_started)  # type: ignore[assignment]
+            self.__is_started_value.value = bool(is_started)
             self.__is_started_set_event.set()
         self.push_has_changes()
 
@@ -202,9 +202,9 @@ class KolibriServiceContext(object):
     def is_stopped(self, is_stopped: typing.Optional[bool]):
         if is_stopped is None:
             self.__is_stopped_set_event.clear()
-            self.__is_stopped_value.value = False  # type: ignore[assignment]
+            self.__is_stopped_value.value = False
         else:
-            self.__is_stopped_value.value = bool(is_stopped)  # type: ignore[assignment]
+            self.__is_stopped_value.value = bool(is_stopped)
             self.__is_stopped_set_event.set()
         self.push_has_changes()
 
@@ -225,9 +225,9 @@ class KolibriServiceContext(object):
     def is_exited(self, is_exited: typing.Optional[bool]):
         if is_exited is None:
             self.__is_exited_set_event.clear()
-            self.__is_exited_value.value = False  # type: ignore[assignment]
+            self.__is_exited_value.value = False
         else:
-            self.__is_exited_value.value = bool(is_exited)  # type: ignore[assignment]
+            self.__is_exited_value.value = bool(is_exited)
             self.__is_exited_set_event.set()
         self.push_has_changes()
 
@@ -250,9 +250,9 @@ class KolibriServiceContext(object):
     ):
         if start_error is None:
             self.__start_error_set_event.clear()
-            self.__start_error_value.value = 0  # type: ignore[assignment]
+            self.__start_error_value.value = 0
         else:
-            self.__start_error_value.value = start_error.value  # type: ignore[assignment]
+            self.__start_error_value.value = start_error.value
             self.__start_error_set_event.set()
         self.push_has_changes()
 
@@ -265,7 +265,7 @@ class KolibriServiceContext(object):
     @property
     def app_key(self) -> typing.Optional[str]:
         if self.__app_key_set_event.is_set():
-            return self.__app_key_value.value.decode("ascii")  # type: ignore[attr-defined]
+            return self.__app_key_value.value.decode("ascii")
         else:
             return None
 
@@ -273,9 +273,9 @@ class KolibriServiceContext(object):
     def app_key(self, app_key: typing.Optional[str]):
         if app_key is None:
             self.__app_key_set_event.clear()
-            self.__app_key_value.value = None  # type: ignore[attr-defined]
+            self.__app_key_value.value = b""
         else:
-            self.__app_key_value.value = bytes(app_key, encoding="ascii")  # type: ignore[attr-defined]
+            self.__app_key_value.value = bytes(app_key, encoding="ascii")
             self.__app_key_set_event.set()
         self.push_has_changes()
 
@@ -288,7 +288,7 @@ class KolibriServiceContext(object):
     @property
     def app_initialize_url(self) -> typing.Optional[str]:
         if self.__app_initialize_url_set_event.is_set():
-            return self.__app_initialize_url_value.value.decode("ascii")  # type: ignore[attr-defined]
+            return self.__app_initialize_url_value.value.decode("ascii")
         else:
             return None
 
@@ -296,9 +296,9 @@ class KolibriServiceContext(object):
     def app_initialize_url(self, app_initialize_url: typing.Optional[str]):
         if app_initialize_url is None:
             self.__app_initialize_url_set_event.clear()
-            self.__app_initialize_url_value.value = None  # type: ignore[attr-defined]
+            self.__app_initialize_url_value.value = b""
         else:
-            self.__app_initialize_url_value.value = bytes(  # type: ignore[attr-defined]
+            self.__app_initialize_url_value.value = bytes(
                 app_initialize_url, encoding="ascii"
             )
             self.__app_initialize_url_set_event.set()
@@ -321,9 +321,9 @@ class KolibriServiceContext(object):
     def is_device_provisioned(self, is_device_provisioned: typing.Optional[bool]):
         if is_device_provisioned is None:
             self.__is_device_provisioned_set_event.clear()
-            self.__is_device_provisioned_value.value = False  # type: ignore[assignment]
+            self.__is_device_provisioned_value.value = False
         else:
-            self.__is_device_provisioned_value.value = bool(is_device_provisioned)  # type: ignore[assignment]
+            self.__is_device_provisioned_value.value = bool(is_device_provisioned)
             self.__is_device_provisioned_set_event.set()
         self.push_has_changes()
 
@@ -336,7 +336,7 @@ class KolibriServiceContext(object):
     @property
     def base_url(self) -> typing.Optional[str]:
         if self.__base_url_set_event.is_set():
-            return self.__base_url_value.value.decode("ascii")  # type: ignore[attr-defined]
+            return self.__base_url_value.value.decode("ascii")
         else:
             return None
 
@@ -344,9 +344,9 @@ class KolibriServiceContext(object):
     def base_url(self, base_url: typing.Optional[str]):
         if base_url is None:
             self.__base_url_set_event.clear()
-            self.__base_url_value.value = None  # type: ignore[attr-defined]
+            self.__base_url_value.value = b""
         else:
-            self.__base_url_value.value = bytes(base_url, encoding="ascii")  # type: ignore[attr-defined]
+            self.__base_url_value.value = bytes(base_url, encoding="ascii")
             self.__base_url_set_event.set()
         self.push_has_changes()
 
@@ -359,7 +359,7 @@ class KolibriServiceContext(object):
     @property
     def extra_url(self) -> typing.Optional[str]:
         if self.__extra_url_set_event.is_set():
-            return self.__extra_url_value.value.decode("ascii")  # type: ignore[attr-defined]
+            return self.__extra_url_value.value.decode("ascii")
         else:
             return None
 
@@ -367,9 +367,9 @@ class KolibriServiceContext(object):
     def extra_url(self, extra_url: typing.Optional[str]):
         if extra_url is None:
             self.__extra_url_set_event.clear()
-            self.__extra_url_value.value = None  # type: ignore[attr-defined]
+            self.__extra_url_value.value = b""
         else:
-            self.__extra_url_value.value = bytes(extra_url, encoding="ascii")  # type: ignore[attr-defined]
+            self.__extra_url_value.value = bytes(extra_url, encoding="ascii")
             self.__extra_url_set_event.set()
         self.push_has_changes()
 
@@ -382,7 +382,7 @@ class KolibriServiceContext(object):
     @property
     def kolibri_home(self) -> typing.Optional[str]:
         if self.__kolibri_home_set_event.is_set():
-            return self.__kolibri_home_value.value.decode("ascii")  # type: ignore[attr-defined]
+            return self.__kolibri_home_value.value.decode("ascii")
         else:
             return None
 
@@ -390,9 +390,9 @@ class KolibriServiceContext(object):
     def kolibri_home(self, kolibri_home: typing.Optional[str]):
         if kolibri_home is None:
             self.__kolibri_home_set_event.clear()
-            self.__kolibri_home_value.value = None  # type: ignore[attr-defined]
+            self.__kolibri_home_value.value = b""
         else:
-            self.__kolibri_home_value.value = bytes(kolibri_home, encoding="ascii")  # type: ignore[attr-defined]
+            self.__kolibri_home_value.value = bytes(kolibri_home, encoding="ascii")
             self.__kolibri_home_set_event.set()
         self.push_has_changes()
 
@@ -405,7 +405,7 @@ class KolibriServiceContext(object):
     @property
     def kolibri_version(self) -> typing.Optional[str]:
         if self.__kolibri_version_set_event.is_set():
-            return self.__kolibri_version_value.value.decode("ascii")  # type: ignore[attr-defined]
+            return self.__kolibri_version_value.value.decode("ascii")
         else:
             return None
 
@@ -413,9 +413,9 @@ class KolibriServiceContext(object):
     def kolibri_version(self, kolibri_version: typing.Optional[str]):
         if kolibri_version is None:
             self.__kolibri_version_set_event.clear()
-            self.__kolibri_version_value.value = None  # type: ignore[attr-defined]
+            self.__kolibri_version_value.value = b""
         else:
-            self.__kolibri_version_value.value = bytes(  # type: ignore[attr-defined]
+            self.__kolibri_version_value.value = bytes(
                 kolibri_version, encoding="ascii"
             )
             self.__kolibri_version_set_event.set()
