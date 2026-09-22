@@ -2,13 +2,28 @@
 Helper functions for use across the user/auth/permission-related tests.
 """
 
+import json
+import uuid
+
 from django.core.cache import caches
 from django.core.cache.backends.base import InvalidCacheBackendError
+from django.utils import timezone
+from morango.constants import transfer_stages
+from morango.models.certificates import Certificate
+from morango.models.certificates import Key
+from morango.models.certificates import ScopeDefinition
+from morango.models.core import Store
+from morango.models.core import SyncSession
+from morango.models.core import TransferSession
+from morango.sync.context import LocalSessionContext
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
 
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.auth.sync_operations import KolibriSyncOperations
 from kolibri.core.device.models import clear_device_settings_memo
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import provision_device as _provision_device
@@ -95,6 +110,68 @@ def disable_picture_password(facility, passwordless=False):
     dataset.learner_can_edit_password = not passwordless
     dataset.picture_password_settings = None
     dataset.save()
+
+
+def receive_single_user_sync(user, saved=(), deleted=()):
+    """
+    Runs the cleanup stage of a pull by the learner-only device of `user`, as if it had
+    deserialized `saved` and `deleted`
+
+    :param saved: syncable models already saved locally
+    :param deleted: syncable models the pull deletes
+    """
+    root_cert = Certificate.objects.get(id=user.dataset_id)
+    scope_definition = ScopeDefinition.retrieve_by_id(ScopeDefinitions.SINGLE_USER)
+    user_cert = Certificate(
+        parent=root_cert,
+        profile=PROFILE_FACILITY_DATA,
+        scope_definition=scope_definition,
+        scope_version=scope_definition.version,
+        scope_params=json.dumps({"dataset_id": user.dataset_id, "user_id": user.id}),
+        private_key=Key(),
+    )
+    user_cert.id = user_cert.calculate_uuid()
+    root_cert.sign_certificate(user_cert)
+    user_cert.save()
+
+    transfer_session = TransferSession.objects.create(
+        id=uuid.uuid4().hex,
+        sync_session=SyncSession.objects.create(
+            id=uuid.uuid4().hex,
+            client_certificate=user_cert,
+            server_certificate=root_cert,
+            profile=PROFILE_FACILITY_DATA,
+            connection_kind="network",
+            last_activity_timestamp=timezone.now(),
+        ),
+        filter=str(user_cert.get_scope().read_filter),
+        push=False,
+        last_activity_timestamp=timezone.now(),
+        transfer_stage=transfer_stages.CLEANUP,
+    )
+
+    for model, is_deleted in [(m, False) for m in saved] + [(m, True) for m in deleted]:
+        store, _ = Store.objects.update_or_create(
+            id=model.id,
+            defaults={
+                "profile": PROFILE_FACILITY_DATA,
+                "serialized": "" if is_deleted else json.dumps(model.serialize()),
+                "deleted": is_deleted,
+                "last_saved_instance": uuid.uuid4().hex,
+                "last_saved_counter": 1,
+                "partition": model.calculate_partition(),
+                "source_id": model.calculate_source_id(),
+                "model_name": model.morango_model_name,
+                "deserialization_error": None,
+                "last_transfer_session_id": transfer_session.id,
+            },
+        )
+        if is_deleted:
+            store._deserialize_store_model({})
+
+    KolibriSyncOperations().handle(
+        LocalSessionContext(transfer_session=transfer_session)
+    )
 
 
 def create_dummy_facility_data(

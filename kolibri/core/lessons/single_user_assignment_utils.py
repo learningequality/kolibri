@@ -1,7 +1,10 @@
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+from kolibri.core.content.signals import add_removal_requests
+from kolibri.core.content.utils.assignment import DeletedAssignment
 
 from .models import IndividualSyncableLesson
+from .models import Lesson
 from .models import LessonAssignment
 
 
@@ -124,5 +127,21 @@ def update_assignments_from_individual_syncable_lessons(user_id):
             assignment.save(update_dirty_bit_to=False)
 
     # delete lessons/assignments that no longer have a syncable lesson object
+    stale_lesson_ids = set(to_delete.values_list("lesson_id", flat=True))
     with DisablePostDeleteSignal():
         to_delete.delete()
+        unassigned_lessons = list(
+            Lesson.objects.filter(
+                id__in=stale_lesson_ids, lesson_assignments__isnull=True
+            )
+        )
+        removals = [
+            (lesson.dataset_id, DeletedAssignment(Lesson.morango_model_name, lesson.id))
+            for lesson in unassigned_lessons
+        ]
+        for lesson in unassigned_lessons:
+            lesson.delete()
+
+    # DisablePostDeleteSignal also mutes the receiver that frees a deleted lesson's downloads
+    for dataset_id, removal in removals:
+        add_removal_requests(dataset_id, [removal])
