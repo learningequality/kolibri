@@ -240,9 +240,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       # xvfb gives the app a headless display; dbus-x11 provides dbus-launch
-      # for its private session bus.
+      # for its private session bus; libglib2.0-bin provides gdbus to query
+      # the search provider.
       - name: Install host dependencies
-        run: .github/scripts/apt-install.sh --no-install-recommends flatpak xvfb dbus-x11
+        run: .github/scripts/apt-install.sh --no-install-recommends flatpak xvfb dbus-x11 libglib2.0-bin
       - name: Install the GNOME 49 runtime
         run: |
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

@@ -12,6 +12,8 @@ requests the app's WebKit view actually makes -- plus an HTTP probe:
      app reaches the learn library, which serves HTTP 200, and the alternate
      (zip content) origin serves a static file over HTTP 200 -- confirming the
      second, app-owned origin bound without needing imported content.
+  3. In the same run, the GNOME Shell search provider answers a query, which
+     exercises the daemon's in-process calls into Kolibri's content API.
 
 The log is the signal because headless WebKitGTK does not expose web content
 over AT-SPI. A hard SIGALRM timeout guarantees the test can never hang.
@@ -199,6 +201,32 @@ def _http_ok(url):
         return False
 
 
+def _search_provider_answers():
+    # The daemon's search handler calls Kolibri's content viewsets in-process,
+    # so a Kolibri API change breaks it with no request in the server log. It
+    # fails the call rather than returning no results.
+    result = subprocess.run(
+        [
+            "gdbus",
+            "call",
+            "--session",
+            "--dest",
+            f"{APP_ID}.SearchProvider",
+            "--object-path",
+            "/" + APP_ID.replace(".", "/") + "/SearchProvider",
+            "--method",
+            "org.gnome.Shell.SearchProvider2.GetInitialResultSet",
+            "['kolibri']",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    if result.returncode != 0:
+        print(f"  search provider error: {result.stderr.strip()}", flush=True)
+    return result.returncode == 0
+
+
 def phase_setup():
     """Fresh first run reaches the setup wizard via an app-mode session."""
     print("PHASE 1: first-run setup wizard", flush=True)
@@ -241,13 +269,15 @@ def phase_learn():
     # once learn is served it is already up: a single probe of a static file it
     # serves without imported content confirms the second origin bound.
     zip_served = _http_ok(ZIP_STATIC_URL)
+    searched = _search_provider_answers()
     print(
         f"  provisioned={not PROVISION_FILE.exists()} into-app={ok} "
-        f"learn-served-200={served} zip-origin-served-200={zip_served}",
+        f"learn-served-200={served} zip-origin-served-200={zip_served} "
+        f"search-provider-answered={searched}",
         flush=True,
     )
     kill_app()
-    return ok and served and zip_served
+    return ok and served and zip_served and searched
 
 
 def main():

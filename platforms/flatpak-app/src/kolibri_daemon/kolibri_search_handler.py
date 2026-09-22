@@ -160,11 +160,11 @@ class LocalSearchHandler(SearchHandler):
 
     @staticmethod
     def _get_item_ids_for_search(search: str) -> list:
-        from kolibri.core.content.api import ContentNodeSearchViewset
+        from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
 
         request = APIRequestFactory().get("", {"search": search, "max_results": 10})
-        search_view = ContentNodeSearchViewset.as_view({"get": "list"})
+        search_view = ContentNodeViewset.as_view({"get": "list"})
         response = search_view(request)
         search_results = response.data.get("results", [])
 
@@ -172,7 +172,7 @@ class LocalSearchHandler(SearchHandler):
 
     @staticmethod
     def _get_metadata_for_item_id(item_id: str) -> dict:
-        from kolibri.core.content.api import ContentNodeViewset
+        from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
 
         node_id = SearchHandler._item_id_to_node_id(item_id)
