@@ -37,10 +37,7 @@ export default [
       // open, wizard step transitions). Suppress false positives on non-DOM components only.
       'vuejs-accessibility/no-autofocus': ['error', { ignoreNonDOM: true }],
       // Accept either nesting (label wraps input) or id (for/id association) — not both required.
-      'vuejs-accessibility/label-has-for': [
-        'error',
-        { required: { some: ['nesting', 'id'] } },
-      ],
+      'vuejs-accessibility/label-has-for': ['error', { required: { some: ['nesting', 'id'] } }],
     },
   },
   eslintConfigPrettier,
@@ -371,6 +368,15 @@ export default [
       'kolibri/vue-component-require-img-src': ERROR,
       'kolibri/vue-component-class-name-casing': ERROR,
       'kolibri/vue-component-no-duplicate-ids': ERROR,
+      // Colors in `<style>` blocks use the `--tokens-*` CSS variables.
+      'kolibri/vue-no-theme-tokens-in-v-bind': ERROR,
+      // TODO(#15231): turn on once the existing call sites are migrated. The rule has a
+      // fixer and `kolibri-format` runs with `fix: true`, so it would rewrite them all.
+      'kolibri/vue-no-theme-accessor-in-inline-styles': OFF,
+
+      // Narrows `vue/no-root-v-if` to the components that can hit the Vue 2.7 bug it
+      // guards against, which are the ones whose `<style>` block uses `v-bind()`.
+      'kolibri/vue-no-root-v-if-with-style-v-bind': ERROR,
 
       // Match ESLint 8 behavior: don't flag unused catch binding variables
       'no-unused-vars': [ERROR, { caughtErrors: 'none' }],

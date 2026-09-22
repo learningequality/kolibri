@@ -1088,6 +1088,12 @@ importers:
       espree:
         specifier: ^11.2.0
         version: 11.2.0
+      known-css-properties:
+        specifier: ^0.37.0
+        version: 0.37.0
+      kolibri-css-variables:
+        specifier: workspace:*
+        version: link:../kolibri-css-variables
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
