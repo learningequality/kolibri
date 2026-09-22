@@ -293,6 +293,28 @@ jobs:
       DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
       GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
       KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
+  flathub_beta_release:
+    name: Release to Flathub beta
+    if: ${{ github.event.release.prerelease }}
+    needs: [whl, upload_whl]
+    uses: ./.github/workflows/platform-gnome-release_flathub.yml
+    with:
+      release-tag: ${{ github.event.release.tag_name }}
+      whl-url: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/${{ needs.whl.outputs.whl-file-name }}
+      stable: false
+    secrets:
+      LEQ_BOT_CLASSIC_PAT: ${{ secrets.LEQ_BOT_CLASSIC_PAT }}
+  flathub_release:
+    name: Release to Flathub
+    if: ${{ !github.event.release.prerelease }}
+    needs: [whl, upload_whl, block_release_step]
+    uses: ./.github/workflows/platform-gnome-release_flathub.yml
+    with:
+      release-tag: ${{ github.event.release.tag_name }}
+      whl-url: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/${{ needs.whl.outputs.whl-file-name }}
+      stable: true
+    secrets:
+      LEQ_BOT_CLASSIC_PAT: ${{ secrets.LEQ_BOT_CLASSIC_PAT }}
   container_image_publish:
     name: Build and publish container image
     if: ${{ !github.event.release.prerelease }}

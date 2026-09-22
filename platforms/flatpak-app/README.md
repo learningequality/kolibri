@@ -145,6 +145,12 @@ Each build prepends a `<release>` for its own version to
 The entries after it are the history from before the app moved into the Kolibri
 repository.
 
+#### Creating releases
+
+Publishing a Kolibri release opens the Flathub PR through
+`platform-gnome-release_flathub.yml`: against `master` for a final release once
+approved, against `beta` for a pre-release.
+
 ### Debugging and advanced usage
 
 #### Web inspector

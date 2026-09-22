@@ -59,12 +59,11 @@
         {
             "name" : "kolibri-gnome",
             "buildsystem" : "meson",
+            "subdir" : "platforms/flatpak-app",
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "https://github.com/learningequality/kolibri-installer-gnome.git",
-                    "tag" : "v3.8",
-                    "commit" : "4f81b7b2682f3bc438ddd44b60fc66b1b83a71e7"
+                    "url" : "https://github.com/learningequality/kolibri.git"
                 }
             ]
         },

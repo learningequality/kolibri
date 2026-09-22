@@ -24,6 +24,8 @@ sync = load("sync-flathub.py")
 prepare = load("prepare-kolibri-module.py")
 version = load("app-version.py")
 
+SUBDIR = "platforms/flatpak-app"
+
 
 def manifest(sources):
     return {
@@ -39,7 +41,7 @@ def manifest(sources):
 
 def test_pin_sets_tag_and_commit_on_git_source():
     data = manifest([{"type": "git", "url": "x", "tag": "old", "commit": "old"}])
-    sync.pin_kolibri_gnome(data, "v9.9", "abc123")
+    sync.pin_kolibri_gnome(data, "v9.9", "abc123", SUBDIR)
     source = data["modules"][1]["sources"][0]
     assert source["tag"] == "v9.9"
     assert source["commit"] == "abc123"
@@ -47,19 +49,38 @@ def test_pin_sets_tag_and_commit_on_git_source():
 
 def test_pin_selects_git_source_when_not_first():
     data = manifest([{"type": "file", "path": "p"}, {"type": "git", "url": "x"}])
-    sync.pin_kolibri_gnome(data, "v9.9", "abc123")
+    sync.pin_kolibri_gnome(data, "v9.9", "abc123", SUBDIR)
     assert data["modules"][1]["sources"][0] == {"type": "file", "path": "p"}
     assert data["modules"][1]["sources"][1]["commit"] == "abc123"
 
 
+def test_pin_points_git_source_at_kolibri_repo():
+    data = manifest([{"type": "git", "url": "https://example.test/installer.git"}])
+    sync.pin_kolibri_gnome(data, "v9.9", "abc123", SUBDIR)
+    assert data["modules"][1]["sources"][0]["url"] == sync.KOLIBRI_REPO_URL
+
+
+def test_pin_sets_subdir_on_module_not_source():
+    # subdir is a module property in flatpak-manifest(5); on a source it is ignored.
+    data = manifest([{"type": "git", "url": "x"}])
+    sync.pin_kolibri_gnome(data, "v9.9", "abc123", SUBDIR)
+    module = data["modules"][1]
+    assert module.get("subdir") == SUBDIR
+    assert "subdir" not in module["sources"][0]
+
+
 def test_pin_errors_when_module_missing():
     with pytest.raises(SystemExit):
-        sync.pin_kolibri_gnome({"modules": ["modules/iproute2.json"]}, "v9.9", "abc")
+        sync.pin_kolibri_gnome(
+            {"modules": ["modules/iproute2.json"]}, "v9.9", "abc", SUBDIR
+        )
 
 
 def test_pin_errors_when_no_git_source():
     with pytest.raises(SystemExit):
-        sync.pin_kolibri_gnome(manifest([{"type": "file", "path": "p"}]), "v9.9", "abc")
+        sync.pin_kolibri_gnome(
+            manifest([{"type": "file", "path": "p"}]), "v9.9", "abc", SUBDIR
+        )
 
 
 def test_main_resolves_ref_against_this_repo_not_cwd(tmp_path):
@@ -90,6 +111,12 @@ def test_main_resolves_ref_against_this_repo_not_cwd(tmp_path):
     text = (dest / sync.MANIFEST).read_text()
     assert expected in text
     assert decoy_head not in text
+    module = next(
+        m
+        for m in json.loads(text)["modules"]
+        if isinstance(m, dict) and m.get("name") == "kolibri-gnome"
+    )
+    assert module["subdir"] == SUBDIR
 
 
 # --- prepare-kolibri-module --------------------------------------------------

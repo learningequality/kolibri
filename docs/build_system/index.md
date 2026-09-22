@@ -108,6 +108,7 @@ Key aspects:
    - Upload artifacts to GitHub release page
    - Upload to Google Cloud Storage
    - Upload to TestPyPI (test instance of Python Package Index for validation)
+   - Pre-releases: open a Flathub PR against `beta`
 4. **Manual approval step** (final releases only):
    - A maintainer must manually approve the release through GitHub's web interface
    - The workflow pauses and waits for approval before proceeding
@@ -115,4 +116,5 @@ Key aspects:
 5. **After approval** (final releases only):
    - Upload to PyPI (Python packages)
    - Publish to Google Play Store (Android APK)
+   - Open a Flathub PR against `master` (GNOME Flatpak)
 6. Permanent public availability

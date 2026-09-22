@@ -3,7 +3,6 @@ __pycache__
 # Ignore all top-level dotfiles; opt in the ones that belong in git.
 /.*
 !/.editorconfig
-!/.github/
 !/.gitignore
 
 # Meson build
