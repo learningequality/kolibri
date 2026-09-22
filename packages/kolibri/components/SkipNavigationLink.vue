@@ -29,32 +29,49 @@
         // Every page where this is supposed to work needs a top-level element
         // with id="main" (typically an unlabelled wrapper div; a nested <main>
         // or [role="main"] descendant, if present, is one of the focus targets
-        // below). If there's no #main at all, clicking this link is a noop, but
-        // will re-focus itself as a convenience (in case main div is still loading).
+        // below).
         const mainEl = document.getElementById('main');
         if (mainEl) {
           // Default a11y behavior is "focus the first h1"
           // Override this by marking the element where the focus should land instead (e.g.
-          // the `main` landmark itself, especially if DOM content preceeds the first H1).
+          // the `main` landmark itself, especially if DOM content precedes the first H1).
+          // Some pages have no h1 at all; fall back to the first h2 before giving up
+          // on a heading and landing on the main landmark (or #main itself).
           const target =
             mainEl.querySelector('[data-skip-nav-target]') ||
             mainEl.querySelector('h1') ||
+            mainEl.querySelector('h2') ||
             mainEl.querySelector('main, [role="main"]') ||
             mainEl;
-          // Need to set the tabindex attribute on the fly to get tab behavior
-          target.setAttribute('tabindex', -1);
-          // The fixed app bar would otherwise cover the target when it scrolls into view
-          const header = document.querySelector('.scrolling-header');
-          if (header) {
-            target.style.scrollMarginTop = `${header.offsetHeight}px`;
-          }
-          target.focus();
+          this.focusTarget(target);
+          return;
+        }
+        const outsideNavOrHeader = selector =>
+          Array.from(document.querySelectorAll(selector)).find(el => !el.closest('nav, header'));
+        const fallback =
+          outsideNavOrHeader('[data-skip-nav-target]') ||
+          outsideNavOrHeader('h1') ||
+          outsideNavOrHeader('h2') ||
+          outsideNavOrHeader('main, [role="main"]');
+        if (fallback) {
+          this.focusTarget(fallback);
         } else {
           // NOTE: the button retains focus, but loses :focus styling after hitting "Enter"
           // TODO: look into theme input modality to see if we can get consistent
           // styling when in keyboard modality
           this.$refs.button.$el.focus();
         }
+      },
+      focusTarget(target) {
+        if (target.tabIndex < 0) {
+          target.setAttribute('tabindex', -1);
+        }
+        // The fixed app bar would otherwise cover the target when it scrolls into view
+        const header = this.$el.closest('.scrolling-header');
+        if (header) {
+          target.style.scrollMarginTop = `${header.offsetHeight}px`;
+        }
+        target.focus();
       },
     },
     $trs: {
