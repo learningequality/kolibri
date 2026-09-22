@@ -415,6 +415,9 @@ export default [
     rules: {
       'kolibri/tests-no-hardcoded-strings': ERROR,
       'kolibri/tests-no-stubs': ERROR,
+      // A spec often builds small helper components next to the one under test. The
+      // one-component-per-file convention is for source files.
+      'vue/one-component-per-file': OFF,
     },
   },
   // Override: __mocks__ files get jest globals
