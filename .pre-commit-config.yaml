@@ -1,6 +1,7 @@
 # installer/translations/inno/ is vendored verbatim from issrc by
 # update_from_inno.py; reformatting it would make every re-fetch a diff.
-exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex|platforms/desktop-app/installer/translations/inno/)
+# Patches apply verbatim, and a `-- ` signature line ends in whitespace.
+exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex|platforms/desktop-app/installer/translations/inno/|\.patch$)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -44,6 +45,13 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        files: ^platforms/flatpak-app/
+        # From the repo root, imports resolve into kolibri/, which is not typed.
+        args: [--ignore-missing-imports, --follow-imports=silent]
   - repo: https://github.com/sqlfluff/sqlfluff
     rev: 4.3.0
     hooks:

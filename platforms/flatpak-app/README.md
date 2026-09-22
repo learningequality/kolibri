@@ -61,18 +61,8 @@ Flatpak build fails until this is done. In CI this runs automatically from the
 
 #### Setup repository
 
-Please setup `pre-commit` as a git hook before submitting a pull
-request:
-
-```
-# If you don't have pre-commit already:
-pip install pre-commit
-
-# Setup git hook:
-pre-commit install
-```
-
-Now `pre-commit` will run automatically on `git commit`!
+Linting runs through the monorepo's hooks: run `prek install` at the
+repository root.
 
 #### Using GNOME Builder
 

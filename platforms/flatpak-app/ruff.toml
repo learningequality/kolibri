@@ -1,0 +1,12 @@
+# Root ruff; this app has no pyproject.toml to carry its exemptions.
+extend = "../../pyproject.toml"
+# The oldest interpreter here: Ubuntu 24.04's python3 runs the build-aux scripts in CI.
+target-version = "py312"
+
+[lint.per-file-ignores]
+# CLI scripts report to stdout.
+"build-aux/flatpak/*.py" = ["T20"]
+# initialize() must run before Kolibri's Django-backed imports.
+"build-aux/flatpak/tools/kolibri-listcontent.py" = ["E402"]
+# Django settings module built on a star import.
+"src/kolibri_app/kolibri_settings.py" = ["F403"]

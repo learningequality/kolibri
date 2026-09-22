@@ -4,10 +4,8 @@ __pycache__
 /.*
 !/.bumpversion.toml
 !/.editorconfig
-!/.flake8
 !/.github/
 !/.gitignore
-!/.pre-commit-config.yaml
 
 # Meson build
 /build
