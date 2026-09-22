@@ -9,7 +9,6 @@ from .application import Application
 from .kolibri_search_handler import LocalSearchHandler
 from .kolibri_service_manager import KolibriServiceManager
 
-
 PROCESS_NAME = "kolibri-daemon"
 
 

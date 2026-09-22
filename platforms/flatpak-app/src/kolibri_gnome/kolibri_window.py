@@ -9,6 +9,7 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
+
 from kolibri_app.config import BUILD_PROFILE
 from kolibri_app.globals import APP_DEVELOPER_EXTRAS
 

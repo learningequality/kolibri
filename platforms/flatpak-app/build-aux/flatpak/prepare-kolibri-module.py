@@ -6,6 +6,7 @@ The wheel is placed alongside the generated module manifest so flatpak-builder
 copies it into the build dir as a local `file` source (no sha256 needed, no
 double-download). Exactly one of --url / --file must be given; with neither,
 the build cannot proceed (mirrors kolibri-app's `make get-whl` guard)."""
+
 import argparse
 import hashlib
 import json
@@ -29,9 +30,10 @@ def fetch_from_url(url: str) -> str:
         raise SystemExit(f"URL does not point at a .whl file: {url}")
     dest = MODULES_DIR / filename
     print(f"Downloading {url} -> {dest}")
-    with urllib.request.urlopen(url, timeout=DOWNLOAD_TIMEOUT) as response, open(
-        dest, "wb"
-    ) as out:
+    with (
+        urllib.request.urlopen(url, timeout=DOWNLOAD_TIMEOUT) as response,
+        open(dest, "wb") as out,
+    ):
         shutil.copyfileobj(response, out)
     return filename
 

@@ -11,6 +11,7 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import KolibriDaemonDBus
 from gi.repository import Soup
+
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.globals import APP_AUTOMATIC_LOGIN

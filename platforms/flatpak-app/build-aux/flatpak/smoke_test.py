@@ -18,6 +18,7 @@ over AT-SPI. A hard SIGALRM timeout guarantees the test can never hang.
 
 Usage: smoke_test.py [BUNDLE.flatpak]   # installs the bundle first if given
 """
+
 import json
 import os
 import re

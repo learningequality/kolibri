@@ -298,7 +298,9 @@ class KolibriServiceContext(object):
             self.__app_initialize_url_set_event.clear()
             self.__app_initialize_url_value.value = None  # type: ignore[attr-defined]
         else:
-            self.__app_initialize_url_value.value = bytes(app_initialize_url, encoding="ascii")  # type: ignore[attr-defined]
+            self.__app_initialize_url_value.value = bytes(  # type: ignore[attr-defined]
+                app_initialize_url, encoding="ascii"
+            )
             self.__app_initialize_url_set_event.set()
         self.push_has_changes()
 
@@ -413,7 +415,9 @@ class KolibriServiceContext(object):
             self.__kolibri_version_set_event.clear()
             self.__kolibri_version_value.value = None  # type: ignore[attr-defined]
         else:
-            self.__kolibri_version_value.value = bytes(kolibri_version, encoding="ascii")  # type: ignore[attr-defined]
+            self.__kolibri_version_value.value = bytes(  # type: ignore[attr-defined]
+                kolibri_version, encoding="ascii"
+            )
             self.__kolibri_version_set_event.set()
         self.push_has_changes()
 
@@ -456,8 +460,9 @@ class KolibriServiceProcess(multiprocessing.Process):
         return self.__context
 
     def run(self):
-        from kolibri_app.globals import init_logging
         from setproctitle import setproctitle
+
+        from kolibri_app.globals import init_logging
 
         if self.PROCESS_NAME:
             setproctitle(self.PROCESS_NAME)

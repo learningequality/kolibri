@@ -14,6 +14,7 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
+
 from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BASE_APPLICATION_ID
 from kolibri_app.config import BASE_OBJECT_PATH

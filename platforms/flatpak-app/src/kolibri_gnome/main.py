@@ -7,12 +7,12 @@ from functools import partial
 
 from gi.repository import Gio
 from gi.repository import GLib
+from setproctitle import setproctitle
+
 from kolibri_app.config import FRONTEND_APPLICATION_ID
 from kolibri_app.config import FRONTEND_CHANNEL_APPLICATION_ID_PREFIX
 from kolibri_app.globals import init_gettext
 from kolibri_app.globals import init_logging
-from setproctitle import setproctitle
-
 
 PROCESS_NAME = "kolibri-gnome"
 

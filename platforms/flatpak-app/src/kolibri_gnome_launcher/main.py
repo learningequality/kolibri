@@ -5,7 +5,6 @@ from setproctitle import setproctitle
 
 from .application import Launcher
 
-
 PROCESS_NAME = "kolibri-launcher"
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

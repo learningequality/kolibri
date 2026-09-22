@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import typing
 
-
 # Genuinely-external modules whose installed version is worth surfacing in debug
 # info. kolibri_app and kolibri_app_desktop_xdg_plugin ship *with* this app (see
 # src/), so their version is the app's PROJECT_VERSION, already reported
@@ -45,8 +44,8 @@ def get_app_modules_debug_info() -> dict:
 
 def _get_module_debug_info(module_name: str) -> typing.Optional[dict]:
     from importlib.metadata import PackageNotFoundError
-    from importlib.util import find_spec
     from importlib.metadata import version
+    from importlib.util import find_spec
 
     module_spec = find_spec(module_name)
 

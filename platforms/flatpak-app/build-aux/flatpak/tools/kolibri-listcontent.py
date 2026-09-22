@@ -3,19 +3,18 @@ from kolibri.main import initialize
 
 initialize()
 
-import os
-import click
 import enum
 import operator
-
+import os
 from datetime import datetime
+
+import click
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
-from kolibri.dist.django.db.models import Q
-
-from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils import paths
+from kolibri.core.content.utils.import_export_content import get_import_export_data
+from kolibri.dist.django.db.models import Q
 
 
 class OutputFormat(enum.Enum):

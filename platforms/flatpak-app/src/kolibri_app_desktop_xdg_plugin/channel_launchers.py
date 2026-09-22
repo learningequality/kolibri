@@ -15,10 +15,11 @@ import shutil
 import subprocess
 from io import BytesIO
 
-from kolibri.core.content.models import ChannelMetadata
-from kolibri.dist.django.utils.functional import cached_property
 from PIL import Image
 from PIL import ImageDraw
+
+from kolibri.core.content.models import ChannelMetadata
+from kolibri.dist.django.utils.functional import cached_property
 
 from .path_utils import ensure_dir
 from .path_utils import get_content_share_dir_path

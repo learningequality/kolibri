@@ -11,7 +11,6 @@ from gi.repository import GLib
 from .futures import future_chain
 from .glib_helpers import AsyncResultFuture
 
-
 LOCAL_USER: typing.Optional[str] = os.environ.get("USER", None)
 LOCAL_USER_PWD: typing.Optional[pwd.struct_passwd] = None
 

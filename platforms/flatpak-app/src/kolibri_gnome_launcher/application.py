@@ -4,6 +4,7 @@ from urllib.parse import urlsplit
 from urllib.parse import urlunparse
 
 from gi.repository import Gio
+
 from kolibri_app.config import DISPATCH_URI_SCHEME
 from kolibri_app.config import KOLIBRI_URI_SCHEME
 from kolibri_app.config import LAUNCHER_APPLICATION_ID

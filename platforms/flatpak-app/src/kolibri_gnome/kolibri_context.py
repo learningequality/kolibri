@@ -13,6 +13,7 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Soup
 from gi.repository import WebKit
+
 from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BUILD_PROFILE
 from kolibri_app.config import KOLIBRI_APP_DATA_DIR

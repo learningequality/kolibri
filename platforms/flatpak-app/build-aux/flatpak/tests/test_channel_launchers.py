@@ -41,15 +41,17 @@ for _pkg in (
 _stub_module("kolibri.core.content.models").ChannelMetadata = type(
     "ChannelMetadata", (), {}
 )
-_stub_module("kolibri.core.content.utils.paths").get_content_dir_path = (
-    lambda: "/nonexistent"
+_stub_module("kolibri.core.content.utils.paths").get_content_dir_path = lambda: (
+    "/nonexistent"
 )
-_stub_module("kolibri.dist.django.utils.functional").cached_property = (
-    functools.cached_property
-)
+_stub_module(
+    "kolibri.dist.django.utils.functional"
+).cached_property = functools.cached_property
 
-from kolibri_app_desktop_xdg_plugin import channel_launchers, path_utils  # noqa: E402
 from PIL import Image  # noqa: E402
+
+from kolibri_app_desktop_xdg_plugin import channel_launchers  # noqa: E402
+from kolibri_app_desktop_xdg_plugin import path_utils  # noqa: E402
 
 
 def _thumbnail_data_uri(size=(300, 200), mimetype="image/png", fmt="PNG"):

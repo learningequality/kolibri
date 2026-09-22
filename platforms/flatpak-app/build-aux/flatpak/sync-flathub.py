@@ -5,6 +5,7 @@ checkout and pin the kolibri-gnome module to a given ref.
 Run *after* prepare-kolibri-module.py --pin has rendered the production
 python3-kolibri.json. Usage: sync-flathub.py <flathub-checkout-dir> <ref>
 """
+
 import json
 import shutil
 import subprocess

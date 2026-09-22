@@ -9,7 +9,6 @@ from gi.repository import WebKit
 from .kolibri_context import KolibriContext
 from .utils import PropertyWatcher
 
-
 MOUSE_BUTTON_BACK = 8
 MOUSE_BUTTON_FORWARD = 9
 

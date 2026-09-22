@@ -9,6 +9,7 @@ from uuid import uuid4
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import KolibriDaemonDBus
+
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
@@ -20,7 +21,6 @@ from .futures import future_chain
 from .glib_helpers import dict_to_vardict
 from .kolibri_search_handler import LocalSearchHandler
 from .kolibri_service_manager import KolibriServiceManager
-
 
 INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
 

@@ -2,6 +2,7 @@ import logging
 import typing
 
 from gi.repository import Gio
+
 from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.plugins import KolibriPluginBase
