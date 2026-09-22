@@ -206,6 +206,7 @@ class LocalFile(models.Model):
     file_size = models.BigIntegerField(
         blank=True, null=True, db_column="file_size_bigint"
     )
+    upstream_url = models.TextField(blank=True, null=True)
 
     class Meta:
         abstract = True

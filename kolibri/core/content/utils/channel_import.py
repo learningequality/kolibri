@@ -29,6 +29,7 @@ from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_4
 from kolibri.core.content.constants.schema_versions import VERSION_5
 from kolibri.core.content.constants.schema_versions import VERSION_6
+from kolibri.core.content.constants.schema_versions import VERSION_7
 from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
@@ -1232,6 +1233,7 @@ mappings = {
     VERSION_4: NoLearningActivitiesChannelImport,
     VERSION_5: NoIncludedPresetsChannelImport,
     VERSION_6: ChannelImport,
+    VERSION_7: ChannelImport,
 }
 
 

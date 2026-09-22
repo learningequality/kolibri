@@ -39,6 +39,9 @@ class ImportMetadataTestCase(APITestCase):
         cls.tags = content.ContentTag.objects.filter(
             id__in=cls.through_tags.values_list("contenttag_id", flat=True)
         ).distinct()
+        content.LocalFile.objects.filter(id=cls.localfiles.first().id).update(
+            upstream_url="https://upstream.example.org/file.mp4"
+        )
 
     def _assert_data(self, Model, queryset):
         response = self.client.get(
