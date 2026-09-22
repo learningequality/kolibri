@@ -58,6 +58,7 @@ Both PR and release workflows follow a similar orchestration pattern but with di
    - **EXE** (Windows installer): `learningequality/kolibri-installer-windows`
    - **APK** (Android app package): `learningequality/kolibri-installer-android`
    - **ZIP** (Raspberry Pi disk image): built locally from `platforms/raspberry-pi/` via `platform-pi-build_img.yml`
+   - **Flatpak** (GNOME app): built locally from `platforms/flatpak-app/` via `platform-gnome-build_flatpak.yml`
 
 ### How external workflows are called
 

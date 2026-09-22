@@ -20,6 +20,11 @@ const file_manifest = {
       "description": "Mac Installer (DMG)",
       "content_type": "application/x-apple-diskimage",
   },
+  "flatpak": {
+      "extension": "flatpak",
+      "description": "Flatpak bundle (GNOME)",
+      "content_type": "application/vnd.flatpak",
+  },
   "exe": {
       "extension": "exe",
       "description": "Windows Installer (EXE)",
@@ -54,6 +59,7 @@ const file_order = [
   "deb",
   "dmg",
   "apk",
+  "flatpak",
   "zip",
   "gz",
 ]
