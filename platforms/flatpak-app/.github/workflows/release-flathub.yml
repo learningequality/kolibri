@@ -1,0 +1,75 @@
+name: Release to Flathub
+on:
+  workflow_call:
+    inputs:
+      kolibri-whl-url:
+        description: 'URL of the Kolibri wheel to pin'
+        required: true
+        type: string
+      ref:
+        description: 'kolibri-installer-gnome release ref (manifest source + kolibri-gnome pin)'
+        required: true
+        type: string
+      stable:
+        description: 'true → flathub master (stable); false → flathub beta (pre-release)'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      LEQ_BOT_CLASSIC_PAT:
+        # Classic PAT of the LEQ bot user, not a token scoped to this release:
+        # opening a fork -> flathub PR needs a credential that acts across both
+        # the learningequality fork and the flathub parent, which only a classic
+        # (user-wide) PAT can do. A GitHub App token can't — the app can't be
+        # installed on the flathub org, so it could never open the parent PR.
+        required: true
+  workflow_dispatch:
+    inputs:
+      kolibri-whl-url:
+        description: 'URL of the released Kolibri wheel to pin'
+        required: true
+        type: string
+      stable:
+        description: 'Checked → flathub master (stable); unchecked → flathub beta (pre-release)'
+        required: false
+        type: boolean
+        default: false
+jobs:
+  release-flathub:
+    name: Open Flathub PR
+    runs-on: ubuntu-latest
+    # workflow_call always passes ref; workflow_dispatch falls back to the
+    # branch/tag the run was launched from.
+    env:
+      RELEASE_REF: ${{ inputs.ref || github.ref_name }}
+    steps:
+      - name: Checkout kolibri-installer-gnome (manifest source)
+        uses: actions/checkout@v6
+        with:
+          repository: learningequality/kolibri-installer-gnome
+          ref: ${{ env.RELEASE_REF }}
+      - name: Render the wheel pin (url + sha256)
+        run: ./build-aux/flatpak/prepare-kolibri-module.py --url "${{ inputs.kolibri-whl-url }}" --pin
+      - name: Checkout the flathub repo (PR parent)
+        uses: actions/checkout@v6
+        with:
+          repository: flathub/org.learningequality.Kolibri
+          token: ${{ secrets.LEQ_BOT_CLASSIC_PAT }}
+          ref: ${{ inputs.stable && 'master' || 'beta' }}
+          path: flathub
+      - name: Sync canonical files + pin the installer ref
+        run: ./build-aux/flatpak/sync-flathub.py flathub "${{ env.RELEASE_REF }}"
+      - name: Open the PR from the learningequality fork
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.LEQ_BOT_CLASSIC_PAT }}
+          path: flathub
+          push-to-fork: learningequality/org.learningequality.Kolibri
+          base: ${{ inputs.stable && 'master' || 'beta' }}
+          branch: update-kolibri-${{ env.RELEASE_REF }}
+          title: "Update Kolibri (${{ env.RELEASE_REF }})"
+          commit-message: "Update Kolibri to ${{ env.RELEASE_REF }}"
+          body: |
+            Automated update from learningequality/kolibri-installer-gnome.
+            Installer ref: ${{ env.RELEASE_REF }}
+            Kolibri wheel: ${{ inputs.kolibri-whl-url }}

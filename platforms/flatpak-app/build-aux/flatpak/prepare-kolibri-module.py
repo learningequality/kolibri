@@ -7,6 +7,7 @@ copies it into the build dir as a local `file` source (no sha256 needed, no
 double-download). Exactly one of --url / --file must be given; with neither,
 the build cannot proceed (mirrors kolibri-app's `make get-whl` guard)."""
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -47,23 +48,42 @@ def copy_local(path: str) -> str:
     return src.name
 
 
-def render(wheel_filename: str) -> None:
+def fetch_bytes(url: str) -> bytes:
+    with urllib.request.urlopen(url, timeout=DOWNLOAD_TIMEOUT) as response:
+        return response.read()
+
+
+def render(source: dict) -> None:
     module = json.loads(TEMPLATE.read_text())
     module.setdefault("sources", [])
-    module["sources"].insert(0, {"type": "file", "path": wheel_filename})
+    module["sources"].insert(0, source)
     OUTPUT.write_text(json.dumps(module, indent=4) + "\n")
-    print(f"Wrote {OUTPUT} (wheel source: {wheel_filename})")
+    print(f"Wrote {OUTPUT} ({source})")
 
 
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--url", help="URL of the Kolibri wheel to download")
+    group.add_argument("--url", help="URL of the Kolibri wheel")
     group.add_argument("--file", help="Path to a local Kolibri wheel")
+    parser.add_argument(
+        "--pin",
+        action="store_true",
+        help="Emit a committed url+sha256 source (release/Flathub); requires --url.",
+    )
     args = parser.parse_args(argv)
 
+    if args.pin:
+        if not args.url:
+            raise SystemExit("--pin requires --url")
+        if not args.url.split("?", 1)[0].endswith(".whl"):
+            raise SystemExit(f"URL does not point at a .whl file: {args.url}")
+        sha256 = hashlib.sha256(fetch_bytes(args.url)).hexdigest()
+        render({"type": "file", "url": args.url, "sha256": sha256})
+        return
+
     wheel_filename = fetch_from_url(args.url) if args.url else copy_local(args.file)
-    render(wheel_filename)
+    render({"type": "file", "path": wheel_filename})
 
 
 if __name__ == "__main__":

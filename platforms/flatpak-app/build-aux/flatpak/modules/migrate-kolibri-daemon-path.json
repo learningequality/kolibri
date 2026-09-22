@@ -1,0 +1,8 @@
+{
+    "name": "migrate-kolibri-daemon-path",
+    "buildsystem": "simple",
+    "build-commands": [
+        "mkdir -p /app/libexec/kolibri-gnome",
+        "ln -s /app/libexec/kolibri-app/kolibri-daemon /app/libexec/kolibri-gnome/kolibri-daemon"
+    ]
+}
