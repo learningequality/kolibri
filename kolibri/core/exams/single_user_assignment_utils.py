@@ -1,7 +1,10 @@
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+from kolibri.core.content.signals import add_removal_requests
+from kolibri.core.content.utils.assignment import DeletedAssignment
 
+from .models import Exam
 from .models import ExamAssignment
 from .models import IndividualSyncableExam
 
@@ -127,5 +130,19 @@ def update_assignments_from_individual_syncable_exams(user_id):
             assignment.save(update_dirty_bit_to=False)
 
     # delete exams/assignments that no longer have a syncable exam object
+    stale_exam_ids = set(to_delete.values_list("exam_id", flat=True))
     with DisablePostDeleteSignal():
         to_delete.delete()
+        unassigned_exams = list(
+            Exam.objects.filter(id__in=stale_exam_ids, assignments__isnull=True)
+        )
+        removals = [
+            (exam.dataset_id, DeletedAssignment(Exam.morango_model_name, exam.id))
+            for exam in unassigned_exams
+        ]
+        for exam in unassigned_exams:
+            exam.delete()
+
+    # DisablePostDeleteSignal also mutes the receiver that frees a deleted exam's downloads
+    for dataset_id, removal in removals:
+        add_removal_requests(dataset_id, [removal])
