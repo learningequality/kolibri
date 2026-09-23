@@ -1,0 +1,37 @@
+<!DOCTYPE node PUBLIC
+ '-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
+ 'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+<node>
+  <interface name="org.learningequality.Kolibri.Daemon">
+    <method name="Hold" />
+    <method name="Release" />
+    <method name="Start" />
+    <method name="Stop" />
+    <method name="GetLoginToken">
+      <arg direction="out" type="s" name="token" />
+    </method>
+    <method name="GetItemIdsForSearch">
+      <arg direction="in" type="s" name="search" />
+      <arg direction="out" type="as" name="item_ids" />
+    </method>
+    <method name="GetMetadataForItemIds">
+      <arg direction="in" type="as" name="item_ids" />
+      <arg direction="out" type="aa{sv}" name="metadata" />
+    </method>
+    <property name="AppKey" type="s" access="read" />
+    <property name="AppInitializeURL" type="s" access="read" />
+    <property name="BaseURL" type="s" access="read" />
+    <property name="ExtraURL" type="s" access="read" />
+    <property name="IsDeviceProvisioned" type="b" access="read" />
+    <property name="KolibriHome" type="s" access="read" />
+    <property name="KolibriVersion" type="s" access="read" />
+    <property name="Status" type="s" access="read" />
+    <property name="Version" type="u" access="read" />
+  </interface>
+  <interface name="org.learningequality.Kolibri.Daemon.Private">
+    <method name="CheckLoginToken">
+      <arg direction="in" type="s" name="token" />
+      <arg direction="out" type="a{sv}" name="details" />
+    </method>
+  </interface>
+</node>

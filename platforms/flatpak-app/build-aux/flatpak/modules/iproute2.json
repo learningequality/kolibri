@@ -1,0 +1,21 @@
+{
+    "name": "iproute2",
+    "buildsystem": "autotools",
+    "make-install-args": [
+        "PREFIX=${FLATPAK_DEST}",
+        "SBINDIR=${FLATPAK_DEST}/bin",
+        "CONFDIR=${FLATPAK_DEST}/etc/iproute2"
+    ],
+    "sources": [
+        {
+            "type": "git",
+            "url": "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git",
+            "tag": "v6.11.0",
+            "x-checker-data": {
+                "type": "git",
+                "tag-pattern": "^v([\\d.]+)$"
+            },
+            "commit": "b19d4d6eef2f97e55d03eb7f1f2e528def72296d"
+        }
+    ]
+}

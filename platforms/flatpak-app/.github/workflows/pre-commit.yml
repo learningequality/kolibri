@@ -1,0 +1,33 @@
+name: Linting
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  pre_job:
+    name: Path match check
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        # Pinned to a SHA pending the org-wide reusable-workflow replacement
+        # tracked in learningequality/.github#83.
+        uses: fkirc/skip-duplicate-actions@04a1aebece824b56e6ad6a401d015479cd1c50b3 # master
+        with:
+          github_token: ${{ github.token }}
+          paths_ignore: '["**.po", "**.json"]'
+  linting:
+    name: All file linting
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - uses: pre-commit/action@v3.0.1
