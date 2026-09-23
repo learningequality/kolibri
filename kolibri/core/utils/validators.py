@@ -14,7 +14,7 @@ class JSON_Schema_Validator:
         try:
             Validator.validate(self.schema, value)
         except jsonschema_exceptions.ValidationError as e:
-            raise ValidationError(e.message, code="invalid")
+            raise ValidationError(e.message, code="invalid") from e
         return value
 
     def __eq__(self, other):

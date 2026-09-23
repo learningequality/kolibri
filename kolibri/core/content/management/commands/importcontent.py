@@ -290,14 +290,14 @@ class Command(BaseCommand):
 
         try:
             ChannelMetadata.objects.get(id=options["channel_id"])
-        except ValueError:
+        except ValueError as e:
             raise CommandError(
                 "{} is not a valid channel_id".format(options["channel_id"])
-            )
-        except ChannelMetadata.DoesNotExist:
+            ) from e
+        except ChannelMetadata.DoesNotExist as e:
             raise CommandError(
                 "Must import a channel with importchannel before importing content."
-            )
+            ) from e
 
         if options["command"] == "network":
             manager = self.download_content(
@@ -344,4 +344,4 @@ class Command(BaseCommand):
         try:
             manager.run()
         except Exception as e:
-            raise CommandError(e)
+            raise CommandError(e) from e

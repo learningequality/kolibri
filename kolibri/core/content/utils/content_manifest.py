@@ -76,7 +76,7 @@ class ContentManifest:
         try:
             manifest_data = json.load(fp)
         except JSONDecodeError as error:
-            raise ContentManifestParseError(f"Error decoding JSON: {error}")
+            raise ContentManifestParseError(f"Error decoding JSON: {error}") from error
 
         self.read_dict(manifest_data, validate=validate)
 

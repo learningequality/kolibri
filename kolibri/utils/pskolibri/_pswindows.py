@@ -190,9 +190,9 @@ def wrap_exceptions(fun):
             return fun(self, *args, **kwargs)
         except OSError as err:
             if err.errno in ACCESS_DENIED_ERRSET:
-                raise AccessDenied()
+                raise AccessDenied() from err
             if err.errno == errno.ESRCH:
-                raise NoSuchProcess()
+                raise NoSuchProcess() from err
             raise
 
     return wrapper

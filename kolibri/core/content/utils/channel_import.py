@@ -918,10 +918,10 @@ class ChannelImport:
         for operation in post_operations:
             try:
                 handler = getattr(self, operation)
-            except AttributeError:
+            except AttributeError as e:
                 raise AttributeError(
                     f"Post operation {operation} specified for model {model} but none found on class"
-                )
+                ) from e
             handler()
 
     def _import_models(self):
@@ -1230,10 +1230,10 @@ def _check_schema_supported(schema_version):
         return
     try:
         version_number = int(schema_version)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as e:
         raise InvalidSchemaVersionError(
             f"Tried to import invalid schema version {schema_version}"
-        )
+        ) from e
     if version_number > int(CONTENT_SCHEMA_VERSION):
         raise FutureSchemaError(
             f"Tried to import schema version, {schema_version}, which is not supported by this version of Kolibri."
@@ -1319,11 +1319,11 @@ def import_channel_by_id(
             contentfolder=contentfolder,
             version_requested=version_requested,
         )
-    except InvalidSchemaVersionError:
+    except InvalidSchemaVersionError as e:
         raise CommandError(
             "Database file had an invalid database schema, the file may be corrupted or have been modified."
-        )
-    except FutureSchemaError:
+        ) from e
+    except FutureSchemaError as e:
         raise KolibriUpgradeError(
             "Database file uses a future database schema that this version of Kolibri does not support."
-        )
+        ) from e

@@ -14,11 +14,11 @@ def test_cryptography_path():
         assert os.environ.get("GITHUB_JOB") != "nocext"
         if os.environ.get("GITHUB_JOB") == "cext":
             assert "dist/cext" in cryptography.__file__
-    except ImportError:
+    except ImportError as e:
         # This variable is defined by Github Actions and the intention is to fail
         # loudly when were unsuccessful when importing cryptography
         if os.environ.get("GITHUB_JOB") == "cext":
-            raise AssertionError("Expected c extensions")
+            raise AssertionError("Expected c extensions") from e
 
 
 def test_cryptography_runs():
@@ -37,5 +37,5 @@ def test_cryptography_runs():
                 public_exponent=65537, key_size=2048, backend=crypto_backend
             )
 
-        except Exception:
-            raise AssertionError("Cryptography could not run.")
+        except Exception as e:
+            raise AssertionError("Cryptography could not run.") from e

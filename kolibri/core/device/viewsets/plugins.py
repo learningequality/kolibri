@@ -36,8 +36,8 @@ class PluginsViewSet(viewsets.ViewSet):
             if not plugin.can_manage_while_running:
                 raise Http404
             return plugin
-        except PluginDoesNotExist:
-            raise Http404
+        except PluginDoesNotExist as e:
+            raise Http404 from e
 
     def retrieve(self, request, pk):
         return Response(self._serialize(self._retrieve_plugin(pk)))

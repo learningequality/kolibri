@@ -104,8 +104,10 @@ def provisiondevice(**data):  # noqa C901
                 facility = Facility.objects.get(pk=facility_id)
                 preset = facility.dataset.preset
                 facility_created = False
-            except Facility.DoesNotExist:
-                raise ParseError(f"Facility with id={facility_id} does not exist")
+            except Facility.DoesNotExist as e:
+                raise ParseError(
+                    f"Facility with id={facility_id} does not exist"
+                ) from e
         else:
             try:
                 facility = Facility.objects.create(**facility_data)
@@ -113,8 +115,8 @@ def provisiondevice(**data):  # noqa C901
                 facility.dataset.preset = preset
                 facility.dataset.reset_to_default_settings(preset)
                 facility_created = True
-            except Exception:
-                raise ParseError("Please check `facility` or `preset` fields.")
+            except Exception as e:
+                raise ParseError("Please check `facility` or `preset` fields.") from e
 
         custom_settings = data.pop("settings")
 
@@ -163,10 +165,10 @@ def provisiondevice(**data):  # noqa C901
                         full_name=superuser_data.get("full_name"),
                     )
                     superuser_created = True
-                except Exception:
+                except Exception as e:
                     raise ParseError(
                         "`username`, `password`, or `full_name` are missing in `superuser`"
-                    )
+                    ) from e
             if auth_token:
                 # If we have an auth token, we need to create an OSUser for the superuser
                 # so that we can associate the user with the OSUser
@@ -175,10 +177,10 @@ def provisiondevice(**data):  # noqa C901
                     OSUser.objects.update_or_create(
                         os_username=os_username, defaults={"user": superuser}
                     )
-                except NotImplementedError:
+                except NotImplementedError as e:
                     raise ParseError(
                         "Getting the OS user is not supported on this platform"
-                    )
+                    ) from e
 
         elif auth_token:
             superuser = FacilityUser.objects.get_or_create_os_user(

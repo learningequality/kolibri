@@ -71,7 +71,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
                     data["base_url"], e.__class__.__name__
                 ),
                 code=e.code,
-            )
+            ) from e
         data["base_url"] = client.base_url
         data["last_known_ip"] = client.remote_ip
         data["connection_status"] = ConnectionStatus.Okay
@@ -200,8 +200,8 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
                     facilities = sanitize_remote_list(
                         _RemoteFacilitySerializer, response.json()
                     )
-        except (errors.NetworkClientError, NetworkLocation.DoesNotExist):
-            raise NotFound()
+        except (errors.NetworkClientError, NetworkLocation.DoesNotExist) as e:
+            raise NotFound() from e
 
         # Step 3: Respond with the list of facilities, and append device info
         # for convenience

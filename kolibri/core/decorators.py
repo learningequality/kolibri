@@ -141,7 +141,7 @@ class ParamValidator:
         except InvalidQueryParamsException as e:
             msg = str(e)
             msg = ("Length " if self.param_type == str else "Value ") + msg
-            raise InvalidQueryParamsException(msg)
+            raise InvalidQueryParamsException(msg) from e
 
     def set_type(self, param_type):
         if not hasattr(param_type, "_default_manager"):  # django model

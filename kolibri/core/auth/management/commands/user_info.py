@@ -25,12 +25,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             user = FacilityUser.objects.get(username=options["username"])
-        except FacilityUser.DoesNotExist:
+        except FacilityUser.DoesNotExist as e:
             raise CommandError(
                 "User with username `{username}` does not exist.".format(
                     username=options["username"]
                 )
-            )
+            ) from e
 
         # create username directory to hold associated files
         cwd = os.getcwd()

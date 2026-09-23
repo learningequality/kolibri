@@ -160,7 +160,9 @@ class WebpackBundleHook(hooks.KolibriHook):
                 .read_text()
             )
         except OSError as e:
-            raise WebpackError(f"Error accessing stats file '{self.unique_id}': {e}")
+            raise WebpackError(
+                f"Error accessing stats file '{self.unique_id}': {e}"
+            ) from e
 
     def frontend_message_file(self, lang_code):
         message_file_name = f"{self.unique_id}-messages.json"

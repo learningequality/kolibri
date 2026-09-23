@@ -148,10 +148,10 @@ class Registry:
                     raise PluginExistsInApp(
                         f"Django app {app} contains a plugin definition"
                     )
-                except MultiplePlugins:
+                except MultiplePlugins as e:
                     raise PluginExistsInApp(
                         f"Django app {app} contains multiple plugin definitions"
-                    )
+                    ) from e
                 except PluginDoesNotExist:
                     # Register so that we don't do this twice.
                     self._apps[app] = None

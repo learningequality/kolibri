@@ -1039,14 +1039,14 @@ def get_status():  # noqa: C901
     if status == STATUS_STARTING_UP:
         try:
             wait_for_occupied_port(conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port)
-        except OSError:
-            raise NotRunning(STATUS_FAILED_TO_START)
+        except OSError as e:
+            raise NotRunning(STATUS_FAILED_TO_START) from e
 
     if status == STATUS_SHUTTING_DOWN:
         try:
             wait_for_free_port(conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port)
-        except OSError:
-            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+        except OSError as e:
+            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN) from e
         raise NotRunning(STATUS_STOPPED)
 
     # PID file exists, but process is dead
@@ -1070,10 +1070,13 @@ def get_status():  # noqa: C901
             # be configurable
             # TODO: HTTP might not be the protocol if server has SSL
             response = requests.get(check_url, timeout=3)
-        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-            raise NotRunning(STATUS_NOT_RESPONDING)
-        except requests.exceptions.RequestException:
-            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+        except (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectionError,
+        ) as e:
+            raise NotRunning(STATUS_NOT_RESPONDING) from e
+        except requests.exceptions.RequestException as e:
+            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN) from e
 
         if response.status_code == 404:
             raise NotRunning(STATUS_UNKNOWN_INSTANCE)  # Unknown HTTP server
@@ -1088,8 +1091,11 @@ def get_status():  # noqa: C901
     else:
         try:
             requests.get(check_url, timeout=3)
-        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-            raise NotRunning(STATUS_NOT_RESPONDING)
+        except (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectionError,
+        ) as e:
+            raise NotRunning(STATUS_NOT_RESPONDING) from e
         except requests.exceptions.RequestException:
             return pid, "", ""
 

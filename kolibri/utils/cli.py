@@ -199,8 +199,8 @@ class KolibriDjangoCommand(click.Command):
     def invoke(self, ctx):
         try:
             initialize(**get_initialize_params())
-        except Exception:
-            raise click.ClickException(traceback.format_exc())
+        except Exception as e:
+            raise click.ClickException(traceback.format_exc()) from e
 
         # Remove parameters that are not for Django management command
         for param in initialize_params:
@@ -579,7 +579,7 @@ def create(name, target_dir, mode, surface, description, author, email, url_slug
     except (FileExistsError, LookupError, ValueError) as e:
         exception = click.ClickException(str(e))
         exception.exit_code = 2
-        raise exception
+        raise exception from e
 
     click.echo(f"Created {surface} plugin at {result.plugin_root}")
     for path in result.files_written:

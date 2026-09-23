@@ -88,7 +88,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         try:
             client.post(public_signup_url, data=user_data)
         except NetworkLocationResponseFailure as e:
-            raise serializers.ValidationError(e.response.json()[0]["id"])
+            raise serializers.ValidationError(e.response.json()[0]["id"]) from e
 
 
 def status_fn(job):

@@ -50,8 +50,8 @@ def import_path_to_callable(funcstring):
     """
     try:
         return import_string(funcstring)
-    except AttributeError:
-        raise ImportError(f"Invalid module path: {funcstring}")
+    except AttributeError as e:
+        raise ImportError(f"Invalid module path: {funcstring}") from e
 
 
 class InfiniteLoopThread(Thread):

@@ -63,8 +63,8 @@ class RemoteMixin:
         del qs[REMOTE_URL_PARAM]
         try:
             client = NetworkClient.build_for_address(baseurl)
-        except NetworkLocationNotFound:
-            raise Http404("Remote resource not found")
+        except NetworkLocationNotFound as e:
+            raise Http404("Remote resource not found") from e
         qs = self.update_request_params(qs, client.device_info)
         remote_url = remote_path
         try:
@@ -87,8 +87,8 @@ class RemoteMixin:
             )
         except NetworkLocationResponseFailure as e:
             if e.response.status_code == status.HTTP_404_NOT_FOUND:
-                raise Http404("Remote resource not found")
-            raise ResourceGoneError
+                raise Http404("Remote resource not found") from e
+            raise ResourceGoneError from e
 
 
 class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):

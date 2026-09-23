@@ -54,7 +54,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             ):
                 raise Http404(
                     "The requested channel does not exist on the content server"
-                )
+                ) from e
             raise
         # map the channel list into the format the Kolibri client-side expects
         return list(map(self._studio_response_to_kolibri_response, resp.json()))
@@ -138,7 +138,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             ):
                 raise Http404(
                     "The requested channel does not exist on the content server"
-                )
+                ) from e
             raise
         return Response(self._studio_response_to_kolibri_response(resp.json()))
 

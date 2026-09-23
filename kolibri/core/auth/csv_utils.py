@@ -29,10 +29,10 @@ def infer_facility(facility_id, facility=None):
         except (Facility.DoesNotExist, ValueError):
             try:
                 facility = Facility.objects.get(name=facility_id)
-            except Facility.DoesNotExist:
+            except Facility.DoesNotExist as e:
                 raise ValueError(
                     f"Facility matching identifier {facility_id} was not found"
-                )
+                ) from e
     elif facility is not None:
         return facility
     else:

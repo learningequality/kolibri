@@ -36,10 +36,10 @@ class Command(BaseCommand):
         # register the facility
         try:
             self._register(token, facility)
-        except Certificate.DoesNotExist:
+        except Certificate.DoesNotExist as e:
             raise CommandError(
                 f"This device does not own a certificate for Facility: {facility.name}"
-            )
+            ) from e
         # an invalid nonce/register response
         except NetworkLocationResponseFailure as e:
             error = e.response.json()[0]
@@ -62,7 +62,7 @@ class Command(BaseCommand):
             # display nice error messages for other Http errors
             raise CommandError(
                 f"{e.response.status_code} Client Error: For url: {e.response.url} Reason: {message}"
-            )
+            ) from e
         # handle any other invalid response
         except NetworkClientError as e:
-            raise CommandError(e)
+            raise CommandError(e) from e

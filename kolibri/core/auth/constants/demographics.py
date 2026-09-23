@@ -92,13 +92,13 @@ class DescriptionTranslationValidator:
         for item in value.get(self.custom_demographics_key, []):
             try:
                 unique_translations_validator(item)
-            except ValidationError:
+            except ValidationError as e:
                 raise ValidationError(
                     "User facing description translations for '{} ({})' must be unique by language".format(
                         item["description"], item["id"]
                     ),
                     code="invalid",
-                )
+                ) from e
         return value
 
 
@@ -117,13 +117,13 @@ class EnumValuesValidator:
             enum_values = item.get("enumValues", [])
             try:
                 unique_value_validator(enum_values)
-            except ValidationError:
+            except ValidationError as e:
                 raise ValidationError(
                     "Possible values for '{} ({})' must be unique".format(
                         item["description"], item["id"]
                     ),
                     code="invalid",
-                )
+                ) from e
         return value
 
 
@@ -137,7 +137,7 @@ class LabelTranslationValidator:
             for enumValue in item.get("enumValues", []):
                 try:
                     unique_translations_validator(enumValue)
-                except ValidationError:
+                except ValidationError as e:
                     raise ValidationError(
                         "User facing label translations for value '{} ({})' in '{} ({})' must be unique by language".format(
                             enumValue["defaultLabel"],
@@ -146,7 +146,7 @@ class LabelTranslationValidator:
                             item["id"],
                         ),
                         code="invalid",
-                    )
+                    ) from e
         return value
 
 

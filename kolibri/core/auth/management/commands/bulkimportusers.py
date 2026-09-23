@@ -183,8 +183,8 @@ def valid_uuid(allow_null=True):
             return
         try:
             UUID(v).version
-        except (ValueError, TypeError):
-            raise ValueError(v)
+        except (ValueError, TypeError) as e:
+            raise ValueError(v) from e
 
     return checker
 

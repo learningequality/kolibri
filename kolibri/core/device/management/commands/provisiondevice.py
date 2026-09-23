@@ -103,12 +103,12 @@ def validate_options(options):
             language_id=language_id, facility=facility, **options["device_settings"]
         )
     except ValueError as e:
-        raise CommandError(str(e))
+        raise CommandError(str(e)) from e
 
     try:
         facility_settings = validate_facility_settings(options["facility_settings"])
     except ValueError as e:
-        raise CommandError(str(e))
+        raise CommandError(str(e)) from e
 
     return (
         facility,

@@ -135,10 +135,10 @@ class DriveIdField(serializers.CharField):
     def to_internal_value(self, drive_id):
         try:
             get_mounted_drive_by_id(drive_id)
-        except KeyError:
+        except KeyError as e:
             raise serializers.ValidationError(
                 "That drive_id was not found in the list of drives."
-            )
+            ) from e
         return drive_id
 
 
@@ -222,8 +222,8 @@ class RemoteImportMixin(metaclass=serializers.SerializerMetaclass):
         try:
             baseurl = NetworkClient.build_for_address(peer["base_url"]).base_url
             peer["base_url"] = baseurl
-        except NetworkLocationNotFound:
-            raise ResourceGoneError()
+        except NetworkLocationNotFound as e:
+            raise ResourceGoneError() from e
         job_data["extra_metadata"].update({"peer_id": peer["id"]})
         job_data["kwargs"]["baseurl"] = peer["base_url"]
         job_data["kwargs"]["peer_id"] = peer["id"]
@@ -346,8 +346,8 @@ class RemoteResourceImportValidator(ResourceNodeValidator):
                     "Remote Kolibri instance must be 0.16.0 or higher"
                 )
             peer["base_url"] = client.base_url
-        except NetworkLocationNotFound:
-            raise ResourceGoneError()
+        except NetworkLocationNotFound as e:
+            raise ResourceGoneError() from e
         job_data["extra_metadata"].update({"peer_id": peer["id"]})
         job_data["kwargs"]["baseurl"] = peer["base_url"]
         job_data["kwargs"]["peer_id"] = peer["id"]

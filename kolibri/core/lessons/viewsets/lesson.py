@@ -123,7 +123,7 @@ class LessonSerializer(ModelSerializer):
         try:
             return field.run_validation(raw_value)
         except ValidationError as exc:
-            raise ValidationError({field_name: exc.detail})
+            raise ValidationError({field_name: exc.detail}) from exc
 
     def to_internal_value(self, data):
         data = dict(data)

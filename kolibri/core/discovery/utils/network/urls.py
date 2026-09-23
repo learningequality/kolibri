@@ -135,8 +135,8 @@ def parse_address_into_components(address):  # noqa C901
             if len(split_by_colon) > 1:
                 extracted_port = split_by_colon[-1]
                 raise errors.InvalidPort(extracted_port)
-    except ValueError:
-        raise errors.InvalidPort(parsed.netloc.rsplit(":")[-1])
+    except ValueError as e:
+        raise errors.InvalidPort(parsed.netloc.rsplit(":")[-1]) from e
 
     # perform basic validation on the URL components
     if p_scheme not in ("http", "https"):

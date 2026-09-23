@@ -149,7 +149,7 @@ class CreateSessionSerializer(serializers.Serializer):
             unauthenticated_user = FacilityUser.objects.get(
                 username__iexact=username, facility=facility
             )
-        except (ValueError, ObjectDoesNotExist):
+        except (ValueError, ObjectDoesNotExist) as e:
             raise RestValidationError(
                 detail={
                     "username": [
@@ -162,7 +162,7 @@ class CreateSessionSerializer(serializers.Serializer):
                         }
                     ]
                 }
-            )
+            ) from e
         except FacilityUser.MultipleObjectsReturned:
             # Handle case of multiple matching usernames
             unauthenticated_user = FacilityUser.objects.filter(

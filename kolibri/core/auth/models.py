@@ -365,7 +365,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
             try:
                 dataset_id = getattr(self, related_obj_name).dataset_id
             except ObjectDoesNotExist as e:
-                raise ValidationError(e)
+                raise ValidationError(e) from e
             dataset_cache.set(key, dataset_id)
         return dataset_id
 
@@ -392,7 +392,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         try:
             self.ensure_dataset()
         except KolibriValidationError as e:
-            raise IntegrityError(str(e))
+            raise IntegrityError(str(e)) from e
 
     def enforce_authoring_user_field(self, field_name, **save_kwargs):
         """
@@ -811,7 +811,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         try:
             os_user = OSUser.objects.get(os_username=os_username)
             return os_user.user
-        except OSUser.DoesNotExist:
+        except OSUser.DoesNotExist as e:
             user = None
             method = self.create_superuser if is_superuser else self.create_user
             for i in range(10):
@@ -829,7 +829,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
             if not user:
                 raise ValidationError(
                     f"Error creating FacilityUser for OS user: {os_username}"
-                )
+                ) from e
             return user
 
 
@@ -876,10 +876,10 @@ def validate_role_kinds(kinds):
     else:
         try:
             kinds = set(kinds)
-        except TypeError:
+        except TypeError as e:
             raise TypeError(
                 "kinds argument must be a string or an iterable coerceable to a set"
-            )
+            ) from e
     if not role_kinds_set.issuperset(kinds):
         raise InvalidRoleKind("kinds argument must only contain valid role kind names")
     return kinds
@@ -1343,10 +1343,10 @@ class Collection(AbstractFacilityDataModel):
         # make sure the user has the role to begin with
         try:
             role = Role.objects.get(user=user, collection=self, kind=role_kind)
-        except Role.DoesNotExist:
+        except Role.DoesNotExist as e:
             raise UserDoesNotHaveRoleError(
                 "User does not have this role for this collection."
-            )
+            ) from e
 
         # delete the appropriate role, if it exists
         role.delete()

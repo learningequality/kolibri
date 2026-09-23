@@ -302,7 +302,7 @@ class Command(AsyncCommand):
                     progress_update(1)
             except (OSError, ValueError) as e:
                 self.overall_error.append(MESSAGES[FILE_WRITE_ERROR].format(e))
-                raise CommandError(self.overall_error[-1])
+                raise CommandError(self.overall_error[-1]) from e
 
             # freeze error messages translations:
             self.overall_error = [str(msg) for msg in self.overall_error]

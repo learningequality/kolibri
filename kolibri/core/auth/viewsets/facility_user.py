@@ -300,7 +300,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             try:
                 facility.dataset.validate_demographic_data(extra_demographics)
             except DjangoValidationError as e:
-                raise serializers.ValidationError({"extra_demographics": e.message})
+                raise serializers.ValidationError(
+                    {"extra_demographics": e.message}
+                ) from e
 
     def validate(self, attrs):
         username = attrs.get("username", None)
@@ -309,14 +311,14 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             try:
                 validate_username_allowed_chars(username)
             except DjangoValidationError as e:
-                raise serializers.ValidationError({"username": e.message})
+                raise serializers.ValidationError({"username": e.message}) from e
 
             try:
                 validate_username_max_length(username)
             except DjangoValidationError as e:
                 raise serializers.ValidationError(
                     {"username": e.message}, code=error_constants.MAX_LENGTH
-                )
+                ) from e
 
         # first condition is for creating object, second is for updating
         facility = attrs.get("facility") or self.instance.facility

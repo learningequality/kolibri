@@ -26,10 +26,10 @@ class VersionUpgrade:
         try:
             if not self._old:
                 raise AssertionError
-        except AssertionError:
+        except AssertionError as e:
             raise TypeError(
                 "Unparseable semver version or range passed to upgrade object for old_version"
-            )
+            ) from e
         # Semver version range specification for the new version
         # of Kolibri when this should be applied.
         # If None - should be applied to all.
@@ -37,10 +37,10 @@ class VersionUpgrade:
         try:
             if not self._new:
                 raise AssertionError
-        except AssertionError:
+        except AssertionError as e:
             raise TypeError(
                 "Unparseable semver version or range passed to upgrade object for new_version"
-            )
+            ) from e
         if not callable(upgrade):
             raise TypeError("Upgrade argument must be a function or other callable")
         self.upgrade = upgrade

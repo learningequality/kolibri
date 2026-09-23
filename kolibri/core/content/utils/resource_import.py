@@ -66,7 +66,7 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
             return None
         raise LocationError(
             f"Failed to look up channel {identifier} on remote {baseurl}: HTTP {e.response.status_code}"
-        )
+        ) from e
 
     channels = resp.json()
     if not channels:
@@ -635,10 +635,10 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                     .get(id=peer_id)
                 )
                 baseurl = NetworkClient.build_for_address(peer["base_url"]).base_url
-            except (NetworkLocation.DoesNotExist, NetworkLocationNotFound):
+            except (NetworkLocation.DoesNotExist, NetworkLocationNotFound) as e:
                 raise LocationError(
                     f"The network location with the id {peer_id} does not exist"
-                )
+                ) from e
 
         self.baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
         self.central_source = is_central_content_base_url(self.baseurl)
@@ -771,10 +771,10 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
     def get_path_from_drive_id(drive_id):
         try:
             drive = get_mounted_drive_by_id(drive_id)
-        except KeyError:
+        except KeyError as e:
             raise LocationError(
                 f"The external drive with given drive id {drive_id} does not exist."
-            )
+            ) from e
         return drive["path"]
 
     @classmethod
@@ -996,7 +996,9 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                     # If the result of the json.loads is not iterable, a TypeError will be thrown
                     # If we end up here, just set checksums to None to allow us to cleanly continue
                     if self.fail_on_error:
-                        raise LocationError("Required files not available from remote")
+                        raise LocationError(
+                            "Required files not available from remote"
+                        ) from e
 
         return super().run()
 

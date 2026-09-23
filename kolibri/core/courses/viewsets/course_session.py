@@ -173,7 +173,7 @@ class CourseSessionSerializer(ModelSerializer):
         try:
             return field.run_validation(raw_value)
         except ValidationError as exc:
-            raise ValidationError({field_name: exc.detail})
+            raise ValidationError({field_name: exc.detail}) from exc
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
@@ -202,10 +202,10 @@ class CourseSessionSerializer(ModelSerializer):
                 course = ContentNode.objects.filter(modality=modalities.COURSE).get(
                     id=course_id
                 )
-            except (ContentNode.DoesNotExist, ValueError):
+            except (ContentNode.DoesNotExist, ValueError) as e:
                 raise ValidationError(
                     {"course": [f'Invalid pk "{course_id}" - object does not exist.']}
-                )
+                ) from e
             instance["title"] = course.title
             instance["description"] = course.description
             instance["course"] = course.id

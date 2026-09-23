@@ -118,8 +118,8 @@ def validate_and_create_sync_credentials(
         if not username and not password:
             raise PermissionDenied(
                 "Username and password required to validate sync credentials, and were not supplied"
-            )
-        raise AuthenticationFailed(e)
+            ) from e
+        raise AuthenticationFailed(e) from e
 
 
 def learner_canonicalized_assignments(resource_name, assignments):

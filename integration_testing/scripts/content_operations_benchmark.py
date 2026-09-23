@@ -237,13 +237,13 @@ def _lock_kolibri_home(home):
     _home_lock_file = open(os.path.join(home, "benchmark.lock"), "w")
     try:
         fcntl.flock(_home_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
+    except OSError as e:
         raise SystemExit(
             f"Another benchmark run already holds {_home_lock_file.name}. Run one instance at a time: "
             "concurrent runs reset each other's content tables mid-phase, so "
             "both captures measure a database the other one is "
             "rewriting."
-        )
+        ) from e
 
 
 def setup_kolibri(kolibri_home):

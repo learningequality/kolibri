@@ -119,10 +119,10 @@ class Command(AsyncCommand):
         # validate url that is passed in
         try:
             URLValidator()(options["base_url"])
-        except ValidationError:
+        except ValidationError as e:
             raise CommandError(
                 "Base URL is not valid. Please retry command and enter a valid URL."
-            )
+            ) from e
 
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
@@ -134,12 +134,12 @@ class Command(AsyncCommand):
                 network_connection = controller.create_network_connection(
                     options["base_url"]
                 )
-            except ConnectionError:
+            except ConnectionError as e:
                 raise CommandError(
                     "Can not connect to server with base URL: {}".format(
                         options["base_url"]
                     )
-                )
+                ) from e
 
             # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
             if (

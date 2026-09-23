@@ -33,12 +33,12 @@ class BookmarksSerializer(ModelSerializer):
     def validate(self, data):
         try:
             contentnode = ContentNode.objects.get(pk=data["contentnode_id"])
-        except ContentNode.DoesNotExist:
+        except ContentNode.DoesNotExist as e:
             raise ValidationError(
                 "ContentNode for contentnode_id {} does not exist".format(
                     data["contentnode_id"]
                 )
-            )
+            ) from e
 
         data.setdefault("channel_id", contentnode.channel_id)
         data.setdefault("content_id", contentnode.content_id)
@@ -56,10 +56,10 @@ class BookmarksFilterset(FilterSet):
     def filter_descendant_of(self, queryset, name, value):
         try:
             contentnode = ContentNode.objects.get(pk=value)
-        except ContentNode.DoesNotExist:
+        except ContentNode.DoesNotExist as e:
             raise ValidationError(
                 f"ContentNode for contentnode_id {value} does not exist"
-            )
+            ) from e
         descendant_ids = contentnode.get_descendants(include_self=True).values_list(
             "id", flat=True
         )

@@ -165,16 +165,16 @@ def wrap_exceptions(fun):
             return fun(self, *args, **kwargs)
         except OSError as err:
             if err.errno in (errno.EPERM, errno.EACCES):
-                raise AccessDenied()
+                raise AccessDenied() from err
             # ESRCH (no such process) can be raised on read() if
             # process is gone in the meantime.
             if err.errno == errno.ESRCH:
-                raise NoSuchProcess()
+                raise NoSuchProcess() from err
             # ENOENT (no such file or directory) can be raised on open().
             if err.errno == errno.ENOENT and not os.path.exists(
                 f"{self._procfs_path}/{self.pid}"
             ):
-                raise NoSuchProcess()
+                raise NoSuchProcess() from err
             # Note: zombies will keep existing under /proc until they're
             # gone so there's no way to distinguish them in here.
             raise

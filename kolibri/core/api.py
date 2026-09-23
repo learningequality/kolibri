@@ -326,10 +326,10 @@ class BaseValuesViewset(viewsets.GenericViewSet):
             filter_kwargs = filter_kwargs or self._get_lookup_filter()
             queryset = self.get_queryset().filter(**filter_kwargs)
             return self.serialize(self.filter_queryset(queryset))[0]
-        except (IndexError, ValueError, TypeError):
+        except (IndexError, ValueError, TypeError) as e:
             raise Http404(
                 f"No {queryset.model._meta.object_name} matches the given query."
-            )
+            ) from e
 
 
 class QueryParamRequest(Request):

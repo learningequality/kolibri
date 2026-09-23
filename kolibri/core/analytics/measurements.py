@@ -184,9 +184,9 @@ def get_kolibri_process_cmd():
         return None
     try:
         kolibri_proc = psutil.Process(kolibri_pid)
-    except psutil.NoSuchProcess:
+    except psutil.NoSuchProcess as e:
         # Kolibri server is not running
-        raise NotRunning(0)
+        raise NotRunning(0) from e
     return kolibri_proc.cmdline()
 
 
@@ -205,8 +205,8 @@ def get_kolibri_use(development=False):
             kolibri_proc = psutil.Process(kolibri_pid)
             kolibri_mem = str(kolibri_proc.memory_info().rss / pow(10, 6))
             kolibri_cpu = str(kolibri_proc.cpu_percent())
-        except psutil.NoSuchProcess:
+        except psutil.NoSuchProcess as e:
             # Kolibri server is not running
-            raise NotRunning(0)
+            raise NotRunning(0) from e
 
     return (kolibri_cpu, kolibri_mem)

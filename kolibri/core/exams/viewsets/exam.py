@@ -559,8 +559,8 @@ class ExamViewset(ValuesViewset):
             instance = (
                 draft_queryset.get(pk=pk) if is_draft else exam_queryset.get(pk=pk)
             )
-        except (IndexError, ValueError, TypeError, ObjectDoesNotExist):
-            raise Http404("No Exam matches the given query.")
+        except (IndexError, ValueError, TypeError, ObjectDoesNotExist) as e:
+            raise Http404("No Exam matches the given query.") from e
 
         # May raise a permission denied
         self.check_object_permissions(self.request, instance)
@@ -587,8 +587,8 @@ class ExamViewset(ValuesViewset):
             if is_draft:
                 return self.serialize_draft(self.get_draft_queryset().filter(pk=pk))[0]
             return self.serialize(self.get_queryset().filter(pk=pk))[0]
-        except (IndexError, ValueError, TypeError):
-            raise Http404("No Exam matches the given query.")
+        except (IndexError, ValueError, TypeError) as e:
+            raise Http404("No Exam matches the given query.") from e
 
     def consolidate(self, items, queryset):
         if items:

@@ -104,14 +104,14 @@ class Command(AsyncCommand):
             NetworkLocationNotFound,
             NetworkLocationResponseFailure,
             NetworkLocationResponseTimeout,
-        ):
+        ) as e:
             raise CommandError(
                 "Could not connect to content server at '{}'.".format(
                     baseurl or "Kolibri Studio"
                 )
-            )
+            ) from e
         except LocationError as e:
-            raise CommandError(str(e))
+            raise CommandError(str(e)) from e
 
         if metadata is None:
             raise CommandError(f"Token '{identifier}' not found on content server.")

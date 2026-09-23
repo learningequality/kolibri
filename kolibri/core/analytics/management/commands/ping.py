@@ -53,6 +53,6 @@ class Command(BaseCommand):
             try:
                 ping_once(started, server)
             except Exception as e:
-                raise CommandError(e)
+                raise CommandError(e) from e
         else:
             schedule_ping(server, checkrate, interval)

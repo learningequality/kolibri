@@ -45,8 +45,8 @@ def resource_filename(package, resource):
     """Get the filename of a resource in a package."""
     try:
         return str(files(package) / resource)
-    except (ModuleNotFoundError, AttributeError, TypeError):
-        raise FileNotFoundError(f"Resource {resource} not found in {package}")
+    except (ModuleNotFoundError, AttributeError, TypeError) as e:
+        raise FileNotFoundError(f"Resource {resource} not found in {package}") from e
 
 
 def resource_isdir(package, resource):

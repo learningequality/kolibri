@@ -370,12 +370,12 @@ def _resolve_auto_fetch_info(
     source = getattr(field, "source", None) or field_name
     try:
         relation = parent_model._meta.get_field(source)
-    except FieldDoesNotExist:
+    except FieldDoesNotExist as e:
         raise TypeError(
             f"Cannot resolve auto-fetch for nested field '{field_name}': source '{source}' "
             f"is not a relation on {parent_model.__name__}. Add '{field_name}' to deferred_fields explicitly "
             "and implement consolidate() to handle the fetch."
-        )
+        ) from e
 
     if getattr(relation, "one_to_many", False):
         return AutoFetchInfo(

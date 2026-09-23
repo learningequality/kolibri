@@ -232,9 +232,9 @@ class Process:
         # cache creation time for later use in is_running() method
         try:
             self.create_time()
-        except NoSuchProcess:
+        except NoSuchProcess as e:
             if not _ignore_nsp:
-                raise NoSuchProcess()
+                raise NoSuchProcess() from e
             self._gone = True
         # This pair is supposed to indentify a Process instance
         # univocally over time (the PID alone is not enough as

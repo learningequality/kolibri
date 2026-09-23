@@ -40,18 +40,20 @@ class TreeQueryMixin:
             depth = int(depth)
             if 1 > depth or depth > 2:
                 raise ValueError
-        except ValueError:
-            raise ValidationError("Depth query parameter must have the value 1 or 2")
+        except ValueError as e:
+            raise ValidationError(
+                "Depth query parameter must have the value 1 or 2"
+            ) from e
 
         if next__gt is not None:
             try:
                 next__gt = int(next__gt)
                 if 1 > next__gt:
                     raise ValueError
-            except ValueError:
+            except ValueError as e:
                 raise ValidationError(
                     "next__gt query parameter must be a positive integer if specified"
-                )
+                ) from e
 
         return depth, next__gt
 
@@ -101,8 +103,8 @@ class TreeQueryMixin:
         try:
             if not pk or not base_qs.filter(id=pk).exists():
                 raise Http404
-        except ValueError:
-            raise Http404
+        except ValueError as e:
+            raise Http404 from e
 
         depth, next__gt = self.validate_and_return_params(request)
 

@@ -368,8 +368,8 @@ class Storage:
     def get_orm_job(self, job_id):
         try:
             return ORMJob.objects.get(id=job_id)
-        except ORMJob.DoesNotExist:
-            raise JobNotFound()
+        except ORMJob.DoesNotExist as e:
+            raise JobNotFound() from e
 
     def restart_job(self, job_id):
         """
@@ -878,8 +878,8 @@ class Storage:
             queryset = self._lock_rows(queryset)
         try:
             orm_job = queryset.get(id=job_id)
-        except ORMJob.DoesNotExist:
-            raise JobNotFound()
+        except ORMJob.DoesNotExist as e:
+            raise JobNotFound() from e
         job = self._orm_to_job(orm_job)
         return job, orm_job
 

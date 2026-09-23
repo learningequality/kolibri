@@ -88,7 +88,7 @@ class ValuesViewsetPageNumberPagination(PageNumberPagination):
             msg = self.invalid_page_message.format(
                 page_number=page_number, message=str(exc)
             )
-            raise NotFound(msg)
+            raise NotFound(msg) from exc
 
         if paginator.num_pages > 1 and self.template is not None:
             # The browsable API should display pagination controls.

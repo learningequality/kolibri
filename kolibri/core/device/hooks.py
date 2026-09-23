@@ -33,10 +33,10 @@ class GetOSUserHook(KolibriHook):
     def retrieve_os_user(cls, auth_token):
         try:
             hook = next(cls.registered_hooks)
-        except StopIteration:
+        except StopIteration as e:
             raise NotImplementedError(
                 "Getting the OS user is not supported on this platform"
-            )
+            ) from e
         return hook.get_os_user(auth_token)
 
 
@@ -50,8 +50,8 @@ class CheckIsMeteredHook(KolibriHook):
     def execute_is_metered_check(cls):
         try:
             hook = next(cls.registered_hooks)
-        except StopIteration:
+        except StopIteration as e:
             raise NotImplementedError(
                 "Checking if the connection is metered is not supported on this platform"
-            )
+            ) from e
         return hook.check_is_metered()
