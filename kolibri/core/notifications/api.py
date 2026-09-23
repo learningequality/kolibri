@@ -1,4 +1,3 @@
-from django.db import transaction
 from django.db.models import Case
 from django.db.models import Count
 from django.db.models import F
@@ -163,10 +162,9 @@ def get_course_lesson_dict(user, node_id, course_session_id):
 
 
 def save_notifications(notifications):
-    with transaction.atomic():
-        for notification in notifications:
-            if notification:
-                notification.save()
+    for notification in notifications:
+        if notification:
+            notification.save()
 
 
 def create_notification(

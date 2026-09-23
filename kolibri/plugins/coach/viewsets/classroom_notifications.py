@@ -1,8 +1,6 @@
 from datetime import timedelta
 
-from django.db import connections
 from django.db.utils import DatabaseError
-from django.db.utils import OperationalError
 from django.utils.functional import cached_property
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DateTimeFilter
@@ -19,8 +17,6 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.decorators import query_params_required
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
-from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 from kolibri.utils.time_utils import local_now
 
 
@@ -72,10 +68,7 @@ class ClassroomNotificationsFilter(FilterSet):
                 # returns all the notifications 24 hours older than the latest
                 last_24h = last_record.timestamp - timedelta(days=1)
                 queryset = queryset.filter(timestamp__gte=last_24h)
-            except LearnerProgressNotification.DoesNotExist:
-                return LearnerProgressNotification.objects.none()
-            except DatabaseError:
-                repair_sqlite_db(connections[NOTIFICATIONS])
+            except (LearnerProgressNotification.DoesNotExist, DatabaseError):
                 return LearnerProgressNotification.objects.none()
         return queryset
 
@@ -131,9 +124,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
     def list(self, request, *args, **kwargs):
         try:
             queryset = self.filter_queryset(self.get_queryset())
-        except (OperationalError, DatabaseError):
-            if NOTIFICATIONS in connections:
-                repair_sqlite_db(connections[NOTIFICATIONS])
+        except DatabaseError:
             queryset = LearnerProgressNotification.objects.none()
 
         logging_interval = local_now() - timedelta(minutes=5)
@@ -144,9 +135,8 @@ class ClassroomNotificationsViewset(ValuesViewset):
                 .distinct()
                 .count()
             )
-        except (OperationalError, DatabaseError):
+        except DatabaseError:
             logged_notifications = 0
-            repair_sqlite_db(connections[NOTIFICATIONS])
         # Throttle writes: only log this coach's poll if fewer than 10 distinct
         # coaches are already recorded in the last 5 minutes, preventing excessive
         # SQLite writes under high coach load.

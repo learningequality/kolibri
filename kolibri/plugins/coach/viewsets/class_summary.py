@@ -1,4 +1,3 @@
-from django.db import connections
 from django.db.models import Exists
 from django.db.models import F
 from django.db.models import Max
@@ -25,8 +24,6 @@ from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
-from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
 # Intended to match  NotificationEventType
 NOT_STARTED = "NotStarted"
@@ -159,7 +156,7 @@ def fetch_notification_maps(**scope_filter):
             elif event == NotificationEventType.Completed:
                 completed[key] = timestamp
     except OperationalError:
-        repair_sqlite_db(connections[NOTIFICATIONS])
+        pass
     return needs_help, completed
 
 

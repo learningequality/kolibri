@@ -2,13 +2,7 @@ import logging as logger
 import threading
 import time
 
-from django.db import connection
 from django.db import connections
-from django.db import transaction
-from django.db.utils import OperationalError
-
-from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
 logging = logger.getLogger(__name__)
 
@@ -57,22 +51,17 @@ class AsyncNotificationQueue:
         """
         Execute any log saving functions in the self.running list
         """
-        if self.running:
-            # Do this conditionally to avoid opening an unnecessary transaction
-            with transaction.atomic():
-                for fn in self.running:
-                    try:
-                        fn()
-                    except OperationalError:
-                        repair_sqlite_db(connections[NOTIFICATIONS])
-                    except Exception as e:
-                        # Catch all exceptions and log, otherwise the background process will end
-                        # and no more logs will be saved!
-                        logging.warning(
-                            "Exception raised during background notification calculation: %s",
-                            e,
-                        )
-            connection.close()
+        for fn in self.running:
+            try:
+                fn()
+            except Exception as e:
+                # Catch all exceptions and log, otherwise the background process will end
+                # and no more logs will be saved!
+                logging.warning(
+                    "Exception raised during background notification calculation: %s",
+                    e,
+                )
+        connections.close_all()
 
     def start(self):
         self.started = True
