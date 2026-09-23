@@ -14,9 +14,7 @@ from kolibri.utils.file_transfer import ChunkedFileDoesNotExist
 def _write_test_data_to_chunked_file(chunked_file):
     data = b""
     for i in range(chunked_file.chunks_count):
-        with open(
-            os.path.join(chunked_file.chunk_dir, ".chunk_{}".format(i)), "wb"
-        ) as f:
+        with open(os.path.join(chunked_file.chunk_dir, f".chunk_{i}"), "wb") as f:
             size = (
                 chunked_file.chunk_size
                 if i < chunked_file.chunks_count - 1
@@ -65,9 +63,7 @@ class TestChunkedFile(unittest.TestCase):
     def test_write(self):
         new_data = os.urandom(self.chunk_size)
         os.remove(
-            os.path.join(
-                self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 2)
-            )
+            os.path.join(self.chunked_file.chunk_dir, f".chunk_{self.chunks_count - 2}")
         )
         self.chunked_file.write_chunk(self.chunks_count - 2, new_data)
 
@@ -78,7 +74,7 @@ class TestChunkedFile(unittest.TestCase):
     def test_write_whole_file(self):
         new_data = os.urandom(self.file_size)
         for i in range(self.chunks_count):
-            os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_{}".format(i)))
+            os.remove(os.path.join(self.chunked_file.chunk_dir, f".chunk_{i}"))
         self.chunked_file.write_all(self.chunked_file.chunk_generator(new_data))
 
         self.chunked_file.seek(0)
@@ -104,9 +100,7 @@ class TestChunkedFile(unittest.TestCase):
     def test_write_whole_file_overwrites(self):
         new_data = os.urandom(self.file_size)
         os.remove(
-            os.path.join(
-                self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 2)
-            )
+            os.path.join(self.chunked_file.chunk_dir, f".chunk_{self.chunks_count - 2}")
         )
         self.chunked_file.seek(0)
         self.chunked_file.write_all(self.chunked_file.chunk_generator(new_data))
@@ -236,7 +230,7 @@ class TestChunkedFile(unittest.TestCase):
         expected_md5 = hashlib.md5()
         for i in range(self.chunks_count):
             with open(
-                os.path.join(self.chunked_file.chunk_dir, ".chunk_{}".format(i)), "rb"
+                os.path.join(self.chunked_file.chunk_dir, f".chunk_{i}"), "rb"
             ) as f:
                 while True:
                     data = f.read(8192)

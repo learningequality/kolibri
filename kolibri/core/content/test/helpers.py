@@ -106,7 +106,7 @@ class ChannelBuilder:
 
     @property
     def cache_key(self):
-        return "{}_{}".format(self.levels, self.num_children)
+        return f"{self.levels}_{self.num_children}"
 
     def generate_new_tree(self):
         self.channel = self.channel_data()
@@ -489,7 +489,7 @@ def load_content_fixture_data(schema_name):
     """
     The JSON fixture rows for a schema version, as a mapping of table name to row dicts.
     """
-    path = os.path.join(FIXTURE_DIR, "{}_content_data.json".format(schema_name))
+    path = os.path.join(FIXTURE_DIR, f"{schema_name}_content_data.json")
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
@@ -517,7 +517,7 @@ def build_content_db_from_frozen_schema(db_path, schema_name, data):
             conn.executemany(
                 'INSERT INTO "{}" ({}) VALUES ({})'.format(
                     table,
-                    ", ".join('"{}"'.format(column) for column in use),
+                    ", ".join(f'"{column}"' for column in use),
                     ", ".join("?" for _ in use),
                 ),
                 [[row.get(column) for column in use] for row in rows],
@@ -538,7 +538,7 @@ class FrozenSchemaDBMixin:
         self.addCleanup(shutil.rmtree, self.directory)
 
     def build(self, schema_name):
-        db_path = os.path.join(self.directory, "{}.sqlite3".format(schema_name))
+        db_path = os.path.join(self.directory, f"{schema_name}.sqlite3")
         build_content_db_from_frozen_schema(
             db_path, schema_name, load_content_fixture_data(schema_name)
         )

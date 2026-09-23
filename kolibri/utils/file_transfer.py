@@ -218,7 +218,7 @@ class ChunkedFile(TransferFileBase):
         if raise_if_empty and not os.path.exists(self.chunk_dir):
             raise FileNotFoundError("Chunked file does not exist")
         if raise_if_exists and os.path.exists(self.filepath):
-            raise FileExistsError("File already exists at {}".format(self.filepath))
+            raise FileExistsError(f"File already exists at {self.filepath}")
         self._initialize()
         self.position = 0
         self._file_size = None
@@ -268,7 +268,7 @@ class ChunkedFile(TransferFileBase):
             raise ChunkedFileDoesNotExist("Chunked file does not exist")
 
     def _get_chunk_file_name(self, index):
-        return os.path.join(self.chunk_dir, ".chunk_{index}".format(index=index))
+        return os.path.join(self.chunk_dir, f".chunk_{index}")
 
     def seek(self, offset, whence=os.SEEK_SET):
         if whence == os.SEEK_SET:
@@ -326,18 +326,14 @@ class ChunkedFile(TransferFileBase):
     def write_chunk(self, index, data):
         if not -1 < index < self.chunks_count:
             raise ValueError(
-                "Chunk index {} out of range should be between 0 and {}".format(
-                    index, self.chunks_count
-                )
+                f"Chunk index {index} out of range should be between 0 and {self.chunks_count}"
             )
         self._check_for_chunk_dir()
         chunk_file = self._get_chunk_file_name(index)
         chunk_file_size = self._get_expected_chunk_size(index)
         if len(data) != chunk_file_size:
             raise ValueError(
-                "Chunk size mismatch. Expected {expected} bytes, got {actual} bytes".format(
-                    expected=chunk_file_size, actual=len(data)
-                )
+                f"Chunk size mismatch. Expected {chunk_file_size} bytes, got {len(data)} bytes"
             )
         with open(chunk_file, "wb") as f:
             f.write(data)
@@ -726,14 +722,14 @@ class Transfer(ABC):
         # is corrupted, either from origin or during import. Skip importing
         # this file.
         if self.checksum and not self._checksum_correct():
-            e = "File {} is corrupted.".format(self.source)
+            e = f"File {self.source} is corrupted."
             logger.error("An error occurred during content import: %s", e)
             try:
                 self.dest_file_obj.delete()
             except OSError:
                 pass
             raise TransferFailed(
-                "Transferred file checksums did not match for {}".format(self.source)
+                f"Transferred file checksums did not match for {self.source}"
             )
 
     def finalize(self):
@@ -974,15 +970,16 @@ class FileDownload(Transfer):
                     # Easiest to just start over and get the fresh list of chunks to download.
                     response = self.session.get(
                         self.source,
-                        headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},
+                        headers={"Range": f"bytes={start_byte}-{end_byte}"},
                         stream=True,
                         timeout=self.timeout,
                     )
                     response.raise_for_status()
 
-                    range_response_supported = response.headers.get(
-                        "content-range", ""
-                    ) == "bytes {}-{}/{}".format(start_byte, end_byte, self.total_size)
+                    range_response_supported = (
+                        response.headers.get("content-range", "")
+                        == f"bytes {start_byte}-{end_byte}/{self.total_size}"
+                    )
 
                     data_generator = response.iter_content(
                         self.dest_file_obj.chunk_size

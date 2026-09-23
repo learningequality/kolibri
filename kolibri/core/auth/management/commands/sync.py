@@ -134,9 +134,7 @@ class Command(MorangoSyncCommand):
             )
             if not client_cert:
                 raise CommandError(
-                    "This device does not own a certificate for Facility: {}".format(
-                        facility.name
-                    )
+                    f"This device does not own a certificate for Facility: {facility.name}"
                 )
 
             # get primary partition

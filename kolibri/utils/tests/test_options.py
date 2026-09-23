@@ -33,9 +33,9 @@ def test_option_reading_and_precedence_rules():
             "\n".join(
                 [
                     "[Paths]",
-                    "CONTENT_DIR = {dir}".format(dir=_CONTENT_DIR),
+                    f"CONTENT_DIR = {_CONTENT_DIR}",
                     "[Deployment]",
-                    "HTTP_PORT = {port}".format(port=_HTTP_PORT_INI),
+                    f"HTTP_PORT = {_HTTP_PORT_INI}",
                 ]
             )
         )
@@ -294,9 +294,9 @@ def test_option_writing():
             "\n".join(
                 [
                     "[Paths]",
-                    "CONTENT_DIR = {dir}".format(dir=_OLD_CONTENT_DIR),
+                    f"CONTENT_DIR = {_OLD_CONTENT_DIR}",
                     "[Deployment]",
-                    "HTTP_PORT = {port}".format(port=_HTTP_PORT_GOOD),
+                    f"HTTP_PORT = {_HTTP_PORT_GOOD}",
                 ]
             )
         )

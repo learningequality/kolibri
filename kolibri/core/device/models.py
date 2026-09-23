@@ -684,7 +684,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
 
         # in order to save a status, it must be defined
         if not any(status == choice for choice, _ in DeviceStatus.choices()):
-            raise ValueError("Value '{}' is not a valid status".format(status[0]))
+            raise ValueError(f"Value '{status[0]}' is not a valid status")
 
         cls.objects.update_or_create(
             instance_id=instance_model.id,
@@ -717,11 +717,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         return self.cached_related_dataset_lookup("user")
 
     def calculate_source_id(self):
-        return "{instance_id}:{user_id}".format(
-            instance_id=self.instance_id, user_id=self.user_id
-        )
+        return f"{self.instance_id}:{self.user_id}"
 
     def calculate_partition(self):
-        return "{dataset_id}:user-rw:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.user_id
-        )
+        return f"{self.dataset_id}:user-rw:{self.user_id}"

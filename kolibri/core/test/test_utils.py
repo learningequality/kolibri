@@ -38,7 +38,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
                 raise Exception("An error")
         except Exception:
             pass
-        query = "SELECT pg_try_advisory_lock({key}) AS lock;".format(key=1)
+        query = f"SELECT pg_try_advisory_lock({1}) AS lock;"
         with connection.cursor() as c:
             c.execute(query)
             results = c.fetchone()

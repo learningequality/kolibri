@@ -111,9 +111,7 @@ class PropertyWatcher(object):
 
     def __connect(self):
         for source, prop in self.__all_properties:
-            handler_id = source.connect(
-                "notify::{}".format(prop), self.__notify_debounced
-            )
+            handler_id = source.connect(f"notify::{prop}", self.__notify_debounced)
             self.__signal_handlers.add((source, handler_id))
 
     def disconnect(self):

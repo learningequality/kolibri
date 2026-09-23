@@ -244,9 +244,9 @@ class TestJobStorage:
         try:
             storage_fixture.cancel_if_exists("does not exist")
         except JobNotFound as e:
-            pytest.fail("Raised 'JobNotFound' error | {}".format(e))
+            pytest.fail(f"Raised 'JobNotFound' error | {e}")
         except Exception as e:
-            pytest.fail("Raised unexpected error | {}".format(e))
+            pytest.fail(f"Raised unexpected error | {e}")
 
     def test_can_cancel_a_job(self, storage_fixture):
         job_id = storage_fixture.enqueue_job(Job(cancelable_job, cancellable=True))

@@ -25,5 +25,5 @@ def for_version(version):
     declaration order.
     """
     if version not in CONTENT_DB_SCHEMA_VERSIONS:
-        raise ValueError("Unknown content schema version {}".format(version))
+        raise ValueError(f"Unknown content schema version {version}")
     return importlib.import_module("." + _module_name(version), __name__).COLUMNS

@@ -196,7 +196,7 @@ class Job:
     @classmethod
     def from_job(cls, job, **kwargs):
         if not isinstance(job, cls):
-            raise TypeError("job must be an instance of {}".format(cls))
+            raise TypeError(f"job must be an instance of {cls}")
         kwargs["args"] = copy.copy(job.args)
         kwargs["kwargs"] = copy.copy(job.kwargs)
         kwargs["track_progress"] = job.track_progress
@@ -233,9 +233,7 @@ class Job:
         or it can be an importable string already.
         """
         if not callable(func) and not isinstance(func, str):
-            raise TypeError(
-                "Cannot create Job for object of type {}".format(type(func))
-            )
+            raise TypeError(f"Cannot create Job for object of type {type(func)}")
 
         if not isinstance(args, (list, tuple)):
             raise TypeError("args must be a list or tuple")
@@ -399,9 +397,7 @@ class Job:
         self._retry_in_delay = dt
         for key in kwargs:
             if key not in ALLOWED_RETRY_IN_KWARGS:
-                raise ValueError(
-                    "retry_in got an unexpected keyword argument '{}'".format(key)
-                )
+                raise ValueError(f"retry_in got an unexpected keyword argument '{key}'")
         if "priority" in kwargs:
             validate_priority(kwargs["priority"])
 
@@ -506,15 +502,7 @@ class Job:
         return self._float_progress(self.progress, self.total_progress)
 
     def __repr__(self):
-        return (
-            "<Job id: {id} state: {state} progress: {p}/{total} func: {func}>".format(
-                id=self.job_id,
-                state=self.state,
-                func=self.func,
-                p=self.progress,
-                total=self.total_progress,
-            )
-        )
+        return f"<Job id: {self.job_id} state: {self.state} progress: {self.progress}/{self.total_progress} func: {self.func}>"
 
     def status(self, lang):
         with translation.override(lang):

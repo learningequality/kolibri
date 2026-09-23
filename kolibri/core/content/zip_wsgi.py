@@ -125,7 +125,7 @@ def add_security_headers(request, response):
 
 
 def django_response_to_wsgi(response, environ, start_response):
-    status = "%d %s" % (response.status_code, response.reason_phrase)
+    status = f"{response.status_code} {response.reason_phrase}"
     response_headers = [(str(k), str(v)) for k, v in response.items()]
     for c in response.cookies.values():
         response_headers.append((str("Set-Cookie"), str(c.output(header=""))))
@@ -217,9 +217,7 @@ def get_embedded_file(
             info = zf.getinfo(embedded_filepath)
         except KeyError:
             return HttpResponseNotFound(
-                '"{}" does not exist inside "{}"'.format(
-                    embedded_filepath, zipped_filename
-                )
+                f'"{embedded_filepath}" does not exist inside "{zipped_filename}"'
             )
 
         # try to guess the MIME type of the embedded file being referenced
@@ -312,9 +310,7 @@ def _zip_content_from_request(request):  # noqa: C901
 
     match = path_regex.match(request.path_info)
     if match is None:
-        return create_error_response(
-            "Path not found: {path}".format(path=request.path_info)
-        )
+        return create_error_response(f"Path not found: {request.path_info}")
 
     remote_baseurl, zipped_filename, embedded_filepath = match.groups()
 
@@ -331,23 +327,17 @@ def _zip_content_from_request(request):  # noqa: C901
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
     except InvalidStorageFilenameError:
-        return create_error_response(
-            "{filename} is not a valid file name".format(filename=zipped_filename)
-        )
+        return create_error_response(f"{zipped_filename} is not a valid file name")
 
     if remote_baseurl:
         remote_baseurl = unquote(remote_baseurl)
         if NetworkClient.known_location_for_address(remote_baseurl) is None:
-            return create_error_response(
-                "{baseurl} is not a known peer".format(baseurl=remote_baseurl)
-            )
+            return create_error_response(f"{remote_baseurl} is not a known peer")
 
     # if the zipfile does not exist on disk, return a 404
     if not os.path.exists(zipped_path):
         if not remote_baseurl:
-            return create_error_response(
-                "{filename} is not a valid zip file".format(filename=zipped_filename)
-            )
+            return create_error_response(f"{zipped_filename} is not a valid zip file")
         try:
             zipped_url = get_content_storage_remote_url(
                 zipped_filename, baseurl=remote_baseurl
@@ -355,9 +345,7 @@ def _zip_content_from_request(request):  # noqa: C901
             zipped_path = RemoteFile(zipped_path, zipped_url)
         except Exception:
             return create_error_response(
-                "{filename} is either not available on the remote {baseurl}, or cannot be fetched".format(
-                    filename=zipped_filename, baseurl=remote_baseurl
-                )
+                f"{zipped_filename} is either not available on the remote {remote_baseurl}, or cannot be fetched"
             )
 
     # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
@@ -381,9 +369,7 @@ def _zip_content_from_request(request):  # noqa: C901
     if request.META.get("HTTP_IF_MODIFIED_SINCE"):
         return HttpResponseNotModified()
 
-    CACHE_KEY = "ZIPCONTENT_VIEW_RESPONSE_{}/{}".format(
-        zipped_filename, embedded_filepath
-    )
+    CACHE_KEY = f"ZIPCONTENT_VIEW_RESPONSE_{zipped_filename}/{embedded_filepath}"
     cached_response = cache.get(CACHE_KEY)
     if cached_response is not None:
         return cached_response
@@ -397,9 +383,7 @@ def _zip_content_from_request(request):  # noqa: C901
     except Exception:
         if remote_baseurl:
             return create_error_response(
-                "{filename} is either not available on the remote {baseurl}, or cannot be fetched".format(
-                    filename=zipped_filename, baseurl=remote_baseurl
-                )
+                f"{zipped_filename} is either not available on the remote {remote_baseurl}, or cannot be fetched"
             )
         raise
 

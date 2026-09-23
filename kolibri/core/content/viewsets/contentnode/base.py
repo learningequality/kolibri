@@ -280,7 +280,7 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
         return params
 
     def add_base_url_to_node(self, node, baseurl):
-        baseurl_querystring = "?{}={}".format(REMOTE_URL_PARAM, baseurl)
+        baseurl_querystring = f"?{REMOTE_URL_PARAM}={baseurl}"
         if node["thumbnail"]:
             node["thumbnail"] += baseurl_querystring
         for file in node["files"]:

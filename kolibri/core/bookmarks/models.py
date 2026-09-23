@@ -22,9 +22,7 @@ class Bookmark(AbstractFacilityDataModel):
         return self.cached_related_dataset_lookup("user")
 
     def calculate_partition(self):
-        return "{dataset_id}:user-rw:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.user.id
-        )
+        return f"{self.dataset_id}:user-rw:{self.user.id}"
 
     class Meta:
         # Ensures that we do not save duplicates, otherwise raises a

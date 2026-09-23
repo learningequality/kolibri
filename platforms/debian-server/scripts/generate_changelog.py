@@ -41,7 +41,7 @@ def debian_upstream_version(version):
 
 def debian_version(version):
     """Full Debian version for the .deb: upstream version + Ubuntu revision."""
-    return "{}-{}".format(debian_upstream_version(version), DEBIAN_REVISION)
+    return f"{debian_upstream_version(version)}-{DEBIAN_REVISION}"
 
 
 def kolibri_version():
@@ -54,18 +54,11 @@ def kolibri_version():
 def render_changelog(deb_version, distribution, author, date):
     """Render a single, dpkg-parseable changelog entry."""
     return (
-        "{package} ({version}) {distribution}; urgency={urgency}\n"
+        f"{PACKAGE} ({deb_version}) {distribution}; urgency={URGENCY}\n"
         "\n"
-        "  * Release {version}, generated from the Kolibri version.\n"
+        f"  * Release {deb_version}, generated from the Kolibri version.\n"
         "\n"
-        " -- {author}  {date}\n"
-    ).format(
-        package=PACKAGE,
-        version=deb_version,
-        distribution=distribution,
-        urgency=URGENCY,
-        author=author,
-        date=date,
+        f" -- {author}  {date}\n"
     )
 
 
@@ -81,7 +74,7 @@ def main():
         "--distribution",
         default=os.environ.get("DISTRIBUTION") or DEFAULT_DISTRIBUTION,
         help="Target Debian/Ubuntu series (defaults to $DISTRIBUTION, then "
-        "'{}').".format(DEFAULT_DISTRIBUTION),
+        f"'{DEFAULT_DISTRIBUTION}').",
     )
     args = parser.parse_args()
 

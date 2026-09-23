@@ -14,9 +14,7 @@ def _validate_settings_module(settings_module):
         try:
             return importlib.import_module(settings_module)
         except ImportError:
-            raise ValueError(
-                "Invalid settings module path {path}".format(path=settings_module)
-            )
+            raise ValueError(f"Invalid settings module path {settings_module}")
     elif not isinstance(settings_module, ModuleType):
         raise TypeError(
             "Invalid argument for apply_settings - requires module or module path"
@@ -43,7 +41,7 @@ def _validate_module_setting(
         )
     # Raise an error if a tuple setting is not an iterable.
     if setting in _tuple_settings and not isinstance(setting_value, (tuple, list)):
-        raise ValueError("{setting} must be a tuple or a list".format(setting=setting))
+        raise ValueError(f"{setting} must be a tuple or a list")
     # Warn if this setting has already been modified by another plugin
     if setting in plugin_settings:
         warnings.warn(

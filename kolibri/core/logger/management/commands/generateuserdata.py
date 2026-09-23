@@ -164,9 +164,7 @@ class Command(BaseCommand):
         for facility in facilities:
             if no_onboarding:
                 utils.logger_info(
-                    'Creating superuser "superuser" with password "password" at facility {facility}.'.format(
-                        facility=facility.name
-                    ),
+                    f'Creating superuser "superuser" with password "password" at facility {facility.name}.',
                     verbosity=verbosity,
                 )
                 create_superuser(facility=facility)
@@ -222,16 +220,14 @@ class Command(BaseCommand):
 
                     # Loop over all local channels to generate data for each channel
                     utils.logger_info(
-                        "    Learner {learner}...".format(learner=user),
+                        f"    Learner {user}...",
                         verbosity=verbosity,
                     )
                     for channel in channels:
                         # TODO(cpauya): check for issue as per Richard's report
                         # REF: https://github.com/learningequality/kolibri/pull/6983#issuecomment-638980072
                         utils.logger_info(
-                            "      ==> Adding {channel} channel activity for learner {learner}...".format(
-                                channel=channel, learner=user
-                            ),
+                            f"      ==> Adding {channel} channel activity for learner {user}...",
                             verbosity=verbosity,
                         )
                         utils.add_channel_activity_for_user(

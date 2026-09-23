@@ -139,12 +139,10 @@ class BookmarkAPITestCase(APITestCase):
                 # Try getting the id before deleting it because it should exist within the
                 # context of this test.
                 Bookmark.objects.get(pk=id)
-                return self.client.delete("/api/bookmarks/bookmarks/{}/".format(id))
+                return self.client.delete(f"/api/bookmarks/bookmarks/{id}/")
             except Bookmark.DoesNotExist:
                 self.fail(
-                    "Bookmark with id {} should exist at this point because you've not deleted it yet.".format(
-                        id
-                    )
+                    f"Bookmark with id {id} should exist at this point because you've not deleted it yet."
                 )
 
         user1s_bookmarks = Bookmark.objects.filter(user=self.user)

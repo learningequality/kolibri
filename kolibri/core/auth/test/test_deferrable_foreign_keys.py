@@ -22,7 +22,7 @@ class DeferrableForeignKeysTestCase(TransactionTestCase):
             )
             indexes = [r[0] for r in cursor.fetchall()]
             cursor.execute("PRAGMA foreign_keys = OFF")
-            cursor.execute("DROP TABLE {}".format(table))
+            cursor.execute(f"DROP TABLE {table}")
             cursor.execute(immediate)
             for idx in indexes:
                 cursor.execute(idx)

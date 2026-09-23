@@ -51,7 +51,7 @@ def _load_kolibri_plugin(path, unique):
     ``register_hook`` requires the defining module's name to end with
     ``kolibri_plugin``, so the unique prefix is suffixed accordingly.
     """
-    name = "{}_kolibri_plugin".format(unique)
+    name = f"{unique}_kolibri_plugin"
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -266,7 +266,7 @@ def _write_pnpm_workspace(root, catalog=(), member_names=()):
     if catalog:
         lines.append("catalog:")
         for name in catalog:
-            lines.append('  "{}": "1.0.0"'.format(name))
+            lines.append(f'  "{name}": "1.0.0"')
     (root / "pnpm-workspace.yaml").write_text("\n".join(lines) + "\n")
     for name in member_names:
         member = root / "packages" / name

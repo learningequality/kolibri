@@ -53,7 +53,7 @@ def get_initialize_url(next_url=None):
         raise RuntimeError("Server is not running")
     auth_token = get_os_user_auth_token()
     path = app_initialize_url(auth_token=auth_token, next_url=next_url)
-    return "http://127.0.0.1:{port}".format(port=_server_bus.port) + path
+    return f"http://127.0.0.1:{_server_bus.port}" + path
 
 
 def _resolve_server_port(port):

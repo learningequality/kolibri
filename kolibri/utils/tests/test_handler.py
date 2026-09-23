@@ -115,7 +115,7 @@ def test_full_queue_does_not_report_drops_to_stderr():
 
     with patch("sys.stderr", stderr):
         for i in range(5):
-            handler.handle(make_record("message {}".format(i)))
+            handler.handle(make_record(f"message {i}"))
 
     assert stderr.getvalue() == ""
 
@@ -127,7 +127,7 @@ def test_dropped_records_are_reported_once_the_queue_has_room():
     handler.handle(make_record("first"))
     handler.handle(make_record("second"))
     for i in range(3):
-        handler.handle(make_record("dropped {}".format(i)))
+        handler.handle(make_record(f"dropped {i}"))
 
     queue.get()
     queue.get()

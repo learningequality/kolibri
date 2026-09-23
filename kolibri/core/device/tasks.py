@@ -105,9 +105,7 @@ def provisiondevice(**data):  # noqa C901
                 preset = facility.dataset.preset
                 facility_created = False
             except Facility.DoesNotExist:
-                raise ParseError(
-                    "Facility with id={0} does not exist".format(facility_id)
-                )
+                raise ParseError(f"Facility with id={facility_id} does not exist")
         else:
             try:
                 facility = Facility.objects.create(**facility_data)

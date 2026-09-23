@@ -116,9 +116,7 @@ class _registry(dict):
             raise serializers.ValidationError("The task type must be a string.")
         if task not in self:
             raise serializers.ValidationError(
-                "{} is not a registered task - is it in a tasks module of an installed app?".format(
-                    task
-                )
+                f"{task} is not a registered task - is it in a tasks module of an installed app?"
             )
         return self[task]
 
@@ -203,7 +201,7 @@ class RegisteredTask:
         if permission_classes is None:
             permission_classes = []
         if not issubclass(validator, JobValidator):
-            raise TypeError("Validators must be a subclass of {}".format(JobValidator))
+            raise TypeError(f"Validators must be a subclass of {JobValidator}")
         if priority not in Priority.Priorities:
             raise ValueError("priority must be one of '5' or '10' (integer).")
         if not isinstance(permission_classes, list):
@@ -251,7 +249,7 @@ class RegisteredTask:
         return self.func(*args, **kwargs)
 
     def __repr__(self):
-        return "<RegisteredJob: {func}>".format(func=self.func)
+        return f"<RegisteredJob: {self.func}>"
 
     @property
     def func_string(self):
@@ -263,9 +261,7 @@ class RegisteredTask:
                 permission_class, BasePermission
             ):
                 raise TypeError(
-                    "permission_classes must all inherit from {}.".format(
-                        BasePermission
-                    )
+                    f"permission_classes must all inherit from {BasePermission}."
                 )
             if isinstance(permission_class, type):
                 yield permission_class()

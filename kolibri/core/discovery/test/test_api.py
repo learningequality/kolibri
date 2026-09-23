@@ -229,9 +229,7 @@ class NetworkLocationAPITestCase(APITestCase):
                 )
             except IntegrityError as e:
                 self.fail(
-                    "NetworkLocation.operating_system has no default value set: {}".format(
-                        e
-                    )
+                    f"NetworkLocation.operating_system has no default value set: {e}"
                 )
 
 

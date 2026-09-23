@@ -40,9 +40,7 @@ class Command(AsyncCommand):
         if not noninteractive:
             # ensure the user REALLY wants to do this!
             confirm_or_exit(
-                "Are you sure you wish to delete all sync session buffers before {}?".format(
-                    before_datetime.isoformat()
-                )
+                f"Are you sure you wish to delete all sync session buffers before {before_datetime.isoformat()}?"
             )
 
         sync_sessions = SyncSession.objects.filter(

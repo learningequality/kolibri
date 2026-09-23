@@ -61,9 +61,7 @@ class ChannelUpdateTestBase(TestCase):
                     cursor.executemany(
                         "INSERT INTO {} ({}) VALUES ({})".format(
                             model._meta.db_table,
-                            ", ".join(
-                                '"{}"'.format(columns.get(key, key)) for key in keys
-                            ),
+                            ", ".join(f'"{columns.get(key, key)}"' for key in keys),
                             ", ".join(["%s"] * len(keys)),
                         ),
                         [tuple(row[key] for key in keys) for row in rows],

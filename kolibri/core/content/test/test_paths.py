@@ -22,9 +22,7 @@ class LocalFilePathsTest(TestCase):
         filename = file.get_filename()
         self.assertEqual(
             file.get_storage_url(),
-            "{}content/storage/{}/{}/{}".format(
-                path_prefix, filename[0], filename[1], filename
-            ),
+            f"{path_prefix}content/storage/{filename[0]}/{filename[1]}/{filename}",
         )
 
 
@@ -48,16 +46,16 @@ class GetContentDatabaseFileUrlTest(TestCase):
         url = get_content_database_file_url(
             self.channel_id, baseurl="https://studio.example.com"
         )
-        self.assertTrue(url.endswith("{}.sqlite3".format(self.channel_id)))
+        self.assertTrue(url.endswith(f"{self.channel_id}.sqlite3"))
 
     def test_integer_version_returns_versioned_filename(self):
         url = get_content_database_file_url(
             self.channel_id, baseurl="https://studio.example.com", version=42
         )
-        self.assertTrue(url.endswith("{}-42.sqlite3".format(self.channel_id)))
+        self.assertTrue(url.endswith(f"{self.channel_id}-42.sqlite3"))
 
     def test_string_next_returns_next_filename(self):
         url = get_content_database_file_url(
             self.channel_id, baseurl="https://studio.example.com", version="next"
         )
-        self.assertTrue(url.endswith("{}-next.sqlite3".format(self.channel_id)))
+        self.assertTrue(url.endswith(f"{self.channel_id}-next.sqlite3"))

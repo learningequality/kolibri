@@ -52,4 +52,4 @@ def get_sqlite_database_path(db_name):
 
         return job_storage_path
 
-    return os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db_name))
+    return os.path.join(KOLIBRI_HOME, f"{db_name}.sqlite3")

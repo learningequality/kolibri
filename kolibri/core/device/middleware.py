@@ -40,7 +40,7 @@ class KolibriLocaleMiddleware:
         script_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
         # Replace the global prefix with the global prefix and the language prefix.
         language_path = request.path_info.replace(
-            script_prefix, "%s%s/" % (script_prefix, language), 1
+            script_prefix, f"{script_prefix}{language}/", 1
         )
 
         # Get the urlconf from the request, default to the global settings ROOT_URLCONF
@@ -51,7 +51,7 @@ class KolibriLocaleMiddleware:
         path_needs_slash = not path_valid and (
             settings.APPEND_SLASH
             and not language_path.endswith("/")
-            and is_valid_path("%s/" % language_path, urlconf)
+            and is_valid_path(f"{language_path}/", urlconf)
         )
         # If the constructed path is valid, or it would be valid with a trailing slash
         # then redirect to the prefixed path, with a trailing slash added if needed.
@@ -59,7 +59,7 @@ class KolibriLocaleMiddleware:
             # Insert language after the script prefix and before the
             # rest of the URL
             return request.get_full_path(force_append_slash=path_needs_slash).replace(
-                script_prefix, "%s%s/" % (script_prefix, language), 1
+                script_prefix, f"{script_prefix}{language}/", 1
             )
         return None
 

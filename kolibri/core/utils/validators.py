@@ -44,7 +44,7 @@ class NoRepeatedValueJSONArrayValidator:
         if not isinstance(value_to_check, list):
             raise ValidationError(
                 "Value must be an array"
-                + (" ({})".format(self.array_key) if self.array_key else ""),
+                + (f" ({self.array_key})" if self.array_key else ""),
                 code="invalid",
             )
         if self.object_key is not None:
@@ -54,7 +54,7 @@ class NoRepeatedValueJSONArrayValidator:
         if len(values) != len(set(values)):
             raise ValidationError(
                 "Array must contain unique values"
-                + (" ({})".format(self.array_key) if self.array_key else ""),
+                + (f" ({self.array_key})" if self.array_key else ""),
                 code="invalid",
             )
         return value

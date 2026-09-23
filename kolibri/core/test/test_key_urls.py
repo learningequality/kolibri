@@ -224,9 +224,7 @@ class AllUrlsTest(APITestCase):
                         response = self.client.get(url)
                         if response.status_code not in self.allowed_http_codes:
                             failures.append(
-                                "{url} gave status code {status_code}".format(
-                                    url=url, status_code=response.status_code
-                                )
+                                f"{url} gave status code {response.status_code}"
                             )
                         if url == reverse("kolibri:core:logout"):
                             self.client.login(**credentials)
@@ -287,7 +285,7 @@ class LogoutLanguagePersistenceTest(APITestCase):
         # Test that namespaced /{lang_code}/logout persists that namespace.
         for lang_code in [lang[0] for lang in settings.LANGUAGES]:
             self.client.login(**self.credentials)
-            response = self.client.post("/{}/logout".format(lang_code))
+            response = self.client.post(f"/{lang_code}/logout")
             self.assertIn(lang_code, response.url)
 
     def test_default_language_without_namespaced_logout(self):

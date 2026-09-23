@@ -13,11 +13,8 @@ def to_locale(language):
     p = language.find("-")
     if p >= 0:
         if len(language[p + 1 :]) > 2:
-            return "{}_{}".format(
-                language[:p].lower(),
-                language[p + 1].upper() + language[p + 2 :].lower(),
-            )
-        return "{}_{}".format(language[:p].lower(), language[p + 1 :].upper())
+            return f"{language[:p].lower()}_{language[p + 1].upper() + language[p + 2 :].lower()}"
+        return f"{language[:p].lower()}_{language[p + 1 :].upper()}"
     return language.lower()
 
 

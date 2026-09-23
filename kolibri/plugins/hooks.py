@@ -378,9 +378,7 @@ class KolibriHookMeta(SingletonMeta):
                     # Find the first ancestor class that enforces the only one registered
                     # constraint.
                     raise HookSingleInstanceError(
-                        "Attempted to register more than one instance of {}".format(
-                            parent
-                        )
+                        f"Attempted to register more than one instance of {parent}"
                     )
         cls._registered_hooks[hook.unique_id] = hook
         logger.debug("%s added to registry for defined hook: %s", hook.unique_id, cls)
@@ -444,7 +442,7 @@ class KolibriHook(metaclass=KolibriHookMeta):
         Python module path. This should give a globally unique id for the module
         and prevent accidental or malicious collisions.
         """
-        return "{}.{}".format(self._module_path, self.__class__.__name__)
+        return f"{self._module_path}.{self.__class__.__name__}"
 
     @property
     def _module_path(self):

@@ -1020,9 +1020,7 @@ def _process_content_requests(incomplete_downloads):
                 )
                 continue
             raise InsufficientStorage(
-                "Content download requests need {} of free space".format(
-                    bytes_for_humans(_total_size(incomplete_downloads_with_metadata))
-                )
+                f"Content download requests need {bytes_for_humans(_total_size(incomplete_downloads_with_metadata))} of free space"
             )
 
 
@@ -1042,9 +1040,7 @@ def process_download_request(download_request):
         # by this point we should have a ContentNode
         node = ContentNode.objects.get(pk=download_request.contentnode_id)
         if node.available:
-            raise AlreadyAvailable(
-                "ContentNode {} is already available".format(node.id)
-            )
+            raise AlreadyAvailable(f"ContentNode {node.id} is already available")
 
         peer_sets = [
             # we do not need to filter by version, since content import should work for any
@@ -1065,7 +1061,7 @@ def process_download_request(download_request):
                 break
         else:
             raise NoPeerAvailable(
-                "Unable to import {} from peers".format(download_request.contentnode_id)
+                f"Unable to import {download_request.contentnode_id} from peers"
             )
     except AlreadyAvailable:
         # do nothing, since the content is already available

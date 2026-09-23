@@ -96,12 +96,12 @@ def upload_dist_aab():
     )
     if len(aabs) != 1:
         raise RuntimeError(
-            "Expected exactly one aab file in dist, found {}".format(len(aabs))
+            f"Expected exactly one aab file in dist, found {len(aabs)}"
         )
     aab_path = aabs[0]
     aab_name = _aab_name(aab_path)
 
-    print("Uploading AAB: {}".format(aab_path))
+    print(f"Uploading AAB: {aab_path}")
 
     bundle_upload = (
         service.edits()
@@ -112,7 +112,7 @@ def upload_dist_aab():
 
     versionCode = bundle_upload["versionCode"]
 
-    print("AAB with version code: {} successfully uploaded".format(versionCode))
+    print(f"AAB with version code: {versionCode} successfully uploaded")
 
     # Assign APK to closed testing track.
     track_response = (
@@ -174,9 +174,7 @@ def upload_dist_aab():
             time.sleep(15)
             continue
 
-    print(
-        "Universal APK generated with download ID: {}".format(universal_apk_id)
-    )
+    print(f"Universal APK generated with download ID: {universal_apk_id}")
 
     downloaded_attempts = 0
 
@@ -189,7 +187,7 @@ def upload_dist_aab():
                 downloadId=universal_apk_id,
             )
 
-            filename = "{}-universal.apk".format(aab_name)
+            filename = f"{aab_name}-universal.apk"
 
             filepath = os.path.join(
                 os.path.dirname(__file__), "../dist", filename
@@ -204,16 +202,14 @@ def upload_dist_aab():
                     status, done = downloader.next_chunk()
                     if status:
                         print(
-                            "Universal APK download in progress: {}%.".format(
-                                int(status.progress() * 100)
-                            )
+                            f"Universal APK download in progress: {int(status.progress() * 100)}%."
                         )
             break
         except Exception as e:
             downloaded_attempts += 1
-            print("Download failed with error: {}. Retrying...".format(e))
+            print(f"Download failed with error: {e}. Retrying...")
 
-    print("Universal APK downloaded to {}".format(filepath))
+    print(f"Universal APK downloaded to {filepath}")
 
 
 def release_app(version_code):
@@ -232,7 +228,7 @@ def release_app(version_code):
             break
     else:
         raise RuntimeError(
-            "Version code {} not found in internal track.".format(version_code)
+            f"Version code {version_code} not found in internal track."
         )
 
     # Assign this release to the open testing track
@@ -243,7 +239,7 @@ def release_app(version_code):
         body={"releases": [release]},
     ).execute()
 
-    print("Open testing track updated with release: {}".format(str(release)))
+    print(f"Open testing track updated with release: {release}")
 
     # Commit changes for edit.
     commit_response = (
@@ -253,9 +249,7 @@ def release_app(version_code):
     )
 
     print("Edit id {} has been committed".format(commit_response["id"]))
-    print(
-        "App version {} has been promoted to open testing.".format(version_code)
-    )
+    print(f"App version {version_code} has been promoted to open testing.")
 
 
 if __name__ == "__main__":
@@ -269,4 +263,4 @@ if __name__ == "__main__":
                 "You must specify the version code of the release to promote to production."
             )
     else:
-        raise RuntimeError("Unknown command {}".format(sys.argv[1]))
+        raise RuntimeError(f"Unknown command {sys.argv[1]}")

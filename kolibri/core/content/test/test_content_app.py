@@ -323,12 +323,12 @@ class ContentNodeAPIBase:
             file["lang"] = self.map_language(f.lang)
             file["storage_url"] = f.get_storage_url()
             if self.baseurl and file["storage_url"]:
-                file["storage_url"] += "?baseurl={}".format(self.baseurl)
+                file["storage_url"] += f"?baseurl={self.baseurl}"
             files.append(file)
             if f.thumbnail:
                 thumbnail = f.get_storage_url()
                 if self.baseurl and thumbnail:
-                    thumbnail += "?baseurl={}".format(self.baseurl)
+                    thumbnail += f"?baseurl={self.baseurl}"
         files = sorted(files, key=lambda x: x["id"])
         actual["files"] = sorted(actual["files"], key=lambda x: x["id"])
         actual["tags"] = sorted(actual["tags"])
@@ -430,7 +430,7 @@ class ContentNodeAPIBase:
         # A new response should be received with no cached response.
         self.assertNotIn(url, self.client_cache)
         cache_key = str(ContentCacheKey.get_cache_key())
-        expected_etag = '"{}"'.format(cache_key)
+        expected_etag = f'"{cache_key}"'
         response = self._cached_get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("HTTP_IF_NONE_MATCH", response.request)
@@ -447,20 +447,20 @@ class ContentNodeAPIBase:
         self.assertIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], expected_etag)
         self.assertEqual(response.content, b"")
-        self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
+        self.assertEqual(response.headers["ETag"], f'"{cache_key}"')
 
         # Update the content cache key to get a new response.
         time.sleep(0.01)
         ContentCacheKey.update_cache_key()
         cache_key = str(ContentCacheKey.get_cache_key())
         old_expected_etag = expected_etag
-        expected_etag = '"{}"'.format(cache_key)
+        expected_etag = f'"{cache_key}"'
         response = self._cached_get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], old_expected_etag)
         self.assertEqual(len(response.data), expected_len)
-        self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
+        self.assertEqual(response.headers["ETag"], f'"{cache_key}"')
         old_cached_response = cached_response
         cached_response = self.client_cache[url]
         self.assertEqual(len(cached_response.data), expected_len)
@@ -473,7 +473,7 @@ class ContentNodeAPIBase:
         self.assertIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], expected_etag)
         self.assertEqual(response.content, b"")
-        self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
+        self.assertEqual(response.headers["ETag"], f'"{cache_key}"')
 
     def _recurse_and_assert(self, data, nodes, recursion_depth=0):
         recursion_depths = []
@@ -521,7 +521,7 @@ class ContentNodeAPIBase:
         root = content.ContentNode.objects.get(title="root")
         response = self.client.get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
-            + "?parent={}".format(uuid.uuid4().hex)
+            + f"?parent={uuid.uuid4().hex}"
         )
         self.assertEqual(response.status_code, 404)
 
@@ -2537,12 +2537,12 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 file["lang"] = self.map_language(f.lang)
                 file["storage_url"] = f.get_storage_url()
                 if self.baseurl and file["storage_url"]:
-                    file["storage_url"] += "?baseurl={}".format(self.baseurl)
+                    file["storage_url"] += f"?baseurl={self.baseurl}"
                 files.append(file)
                 if f.thumbnail:
                     thumbnail = f.get_storage_url()
                     if self.baseurl and thumbnail:
-                        thumbnail += "?baseurl={}".format(self.baseurl)
+                        thumbnail += f"?baseurl={self.baseurl}"
 
             expected_modality = modalities.COURSE
             expected_old_data = {
@@ -2660,12 +2660,12 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 file["lang"] = self.map_language(f.lang)
                 file["storage_url"] = f.get_storage_url()
                 if self.baseurl and file["storage_url"]:
-                    file["storage_url"] += "?baseurl={}".format(self.baseurl)
+                    file["storage_url"] += f"?baseurl={self.baseurl}"
                 files.append(file)
                 if f.thumbnail:
                     thumbnail = f.get_storage_url()
                     if self.baseurl and thumbnail:
-                        thumbnail += "?baseurl={}".format(self.baseurl)
+                        thumbnail += f"?baseurl={self.baseurl}"
 
             expected_old_data = {
                 "id": expected.id,

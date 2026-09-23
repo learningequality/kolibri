@@ -89,7 +89,7 @@ class Context:
         return {"user": self.user_id, "instance": instance_model.id}
 
     def __str__(self):
-        return "[user={}] [server={}]".format(self.user_id, self.instance_id)
+        return f"[user={self.user_id}] [server={self.instance_id}]"
 
 
 def find_client_sync_session(context):

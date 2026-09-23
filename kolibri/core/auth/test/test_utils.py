@@ -304,12 +304,12 @@ class TeleportUserTwiceTestCase(TestCase):
         sess_logs.append(ex_csessl)
         summ_logs.append(ex_csmlog)
 
-        setattr(cls, "user_{}".format(str(i)), user)
-        setattr(cls, "user_{}_sess_logs".format(str(i)), sess_logs)
-        setattr(cls, "user_{}_summ_logs".format(str(i)), summ_logs)
-        setattr(cls, "user_{}_masterylog".format(str(i)), masterylog)
-        setattr(cls, "user_{}_attemptlog".format(str(i)), attemptlog)
-        setattr(cls, "user_{}_usersessionlog".format(str(i)), usersessionlog)
+        setattr(cls, f"user_{i}", user)
+        setattr(cls, f"user_{i}_sess_logs", sess_logs)
+        setattr(cls, f"user_{i}_summ_logs", summ_logs)
+        setattr(cls, f"user_{i}_masterylog", masterylog)
+        setattr(cls, f"user_{i}_attemptlog", attemptlog)
+        setattr(cls, f"user_{i}_usersessionlog", usersessionlog)
 
         cls.user_1_id = cls.user_1.id
 
@@ -435,12 +435,12 @@ class MergeUsersTestCase(TestCase):
             sess_logs.append(ex_csessl)
             summ_logs.append(ex_csmlog)
 
-            setattr(cls, "user_{}".format(str(i)), user)
-            setattr(cls, "user_{}_sess_logs".format(str(i)), sess_logs)
-            setattr(cls, "user_{}_summ_logs".format(str(i)), summ_logs)
-            setattr(cls, "user_{}_masterylog".format(str(i)), masterylog)
-            setattr(cls, "user_{}_attemptlog".format(str(i)), attemptlog)
-            setattr(cls, "user_{}_usersessionlog".format(str(i)), usersessionlog)
+            setattr(cls, f"user_{i}", user)
+            setattr(cls, f"user_{i}_sess_logs", sess_logs)
+            setattr(cls, f"user_{i}_summ_logs", summ_logs)
+            setattr(cls, f"user_{i}_masterylog", masterylog)
+            setattr(cls, f"user_{i}_attemptlog", attemptlog)
+            setattr(cls, f"user_{i}_usersessionlog", usersessionlog)
 
         cls.user_1_id = cls.user_1.id
         cls.user_1.birth_year = "1984"

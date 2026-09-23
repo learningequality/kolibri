@@ -49,10 +49,8 @@ def set_debconf_ports(port, zip_content_port):
     reconfigurations or upgrades of the kolibri-server package
     """
     dccomm = start_debconf_dialog()
-    dccomm.stdin.write("SET kolibri-server/port {}\n".format(port))
-    dccomm.stdin.write(
-        "SET kolibri-server/zip_content_port {}\n".format(zip_content_port)
-    )
+    dccomm.stdin.write(f"SET kolibri-server/port {port}\n")
+    dccomm.stdin.write(f"SET kolibri-server/zip_content_port {zip_content_port}\n")
     dccomm.stdin.flush()
     stop_debconf_dialog(dccomm)
 
@@ -149,8 +147,8 @@ def save_nginx_conf_port(port, zip_port, listen_address="0.0.0.0", nginx_conf=No
         nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
 
     if listen_address != "0.0.0.0":
-        address_port = "{}:{}".format(listen_address, port)
-        address_zip_port = "{}:{}".format(listen_address, zip_port)
+        address_port = f"{listen_address}:{port}"
+        address_zip_port = f"{listen_address}:{zip_port}"
     else:
         address_port = port
         address_zip_port = zip_port
@@ -162,33 +160,33 @@ def save_nginx_conf_port(port, zip_port, listen_address="0.0.0.0", nginx_conf=No
         "package,\n"
         "# please write custom configurations in /etc/kolibri/nginx.d/\n"
         "\n"
-        "server{{\n"
-        "  listen {port};\n"
-        "  location {path_prefix}favicon.ico {{\n"
+        "server{\n"
+        f"  listen {address_port};\n"
+        f"  location {path_prefix}favicon.ico {{\n"
         "    empty_gif;\n"
-        "  }}\n\n"
-        "  location {path_prefix} {{\n"
+        "  }\n\n"
+        f"  location {path_prefix} {{\n"
         "    include uwsgi_params;\n"
         "    uwsgi_pass unix:///tmp/kolibri_uwsgi.sock;\n"
         "    proxy_ignore_headers Vary;\n"
-        "  }}\n\n"
+        "  }\n\n"
         "  error_page 502 = @error502;\n"
-        "  location @error502 {{\n"
+        "  location @error502 {\n"
         "    ssi on;\n"
         "    internal;\n"
         "    root /usr/share/kolibri/error_pages;\n"
         "    rewrite ^(.*)$ $error502 break;\n"
-        "  }}\n"
-        "}}\n"
+        "  }\n"
+        "}\n"
         "\n"
-        "server{{\n"
-        "  listen {zip_port};\n"
-        "  location {path_prefix} {{\n"
+        "server{\n"
+        f"  listen {address_zip_port};\n"
+        f"  location {path_prefix} {{\n"
         "    include uwsgi_params;\n"
         "    uwsgi_pass unix:///tmp/kolibri_hashi_uwsgi.sock;\n"
-        "  }}\n"
-        "}}\n"
-    ).format(port=address_port, path_prefix=path_prefix, zip_port=address_zip_port)
+        "  }\n"
+        "}\n"
+    )
 
     with open(nginx_conf, "w") as nginx_conf_file:
         nginx_conf_file.write(configuration)

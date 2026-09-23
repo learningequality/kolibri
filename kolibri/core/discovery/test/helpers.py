@@ -35,7 +35,7 @@ def mock_request(session, method, url, *args, **kwargs):
         raise exceptions.Timeout("Snooooooorrrrrrrre!")
     if url.startswith("http://timeoutonport80url.qqq:8080/"):
         return response
-    raise exceptions.ConnectionError("Refusing connection to: {}".format(url))
+    raise exceptions.ConnectionError(f"Refusing connection to: {url}")
 
 
 def mock_happy_no_os_request(happy_url, default_error=exceptions.RequestException):
@@ -63,7 +63,7 @@ def mock_happy_request(happy_url, default_error=exceptions.RequestException):
 
         if url.startswith(happy_url):
             return response
-        raise default_error("Refusing connection to: {}".format(url))
+        raise default_error(f"Refusing connection to: {url}")
 
     return mock_request
 
@@ -77,13 +77,13 @@ def mock_sad_request(
 
         if url.startswith(sad_url):
             return response
-        raise default_error("Refusing connection to: {}".format(url))
+        raise default_error(f"Refusing connection to: {url}")
 
     return mock_request
 
 
 def mock_not_found(default_error=exceptions.ConnectTimeout):
     def mock_request(session, method, url, *args, **kwargs):
-        raise default_error("Refusing connection to: {}".format(url))
+        raise default_error(f"Refusing connection to: {url}")
 
     return mock_request

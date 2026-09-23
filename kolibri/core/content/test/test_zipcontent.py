@@ -13,11 +13,11 @@ from kolibri.core.content.zip_wsgi import generate_zip_content_response
 from kolibri.core.content.zip_wsgi import INITIALIZE_SANDBOX_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
-sandbox_injection = '<script type="text/javascript">{}</script>'.format(
-    INITIALIZE_SANDBOX_FROM_IFRAME
+sandbox_injection = (
+    f'<script type="text/javascript">{INITIALIZE_SANDBOX_FROM_IFRAME}</script>'
 )
 
-empty_content = "<html><head>{}</head><body></body></html>".format(sandbox_injection)
+empty_content = f"<html><head>{sandbox_injection}</head><body></body></html>"
 
 # datetime.datetime(2016, 9, 10, 19, 14, 7) in time from EPOCH
 caching_http_date = http_date(1473560047.0)
@@ -57,7 +57,7 @@ class ZipContentTestCase(TestCase):
     def setUp(self):
         self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
         self.extension = "zip"
-        self.filename = "{}.{}".format(self.hash, self.extension)
+        self.filename = f"{self.hash}.{self.extension}"
 
         self.zip_path = get_content_storage_file_path(self.filename)
         zip_path_dir = os.path.dirname(self.zip_path)
@@ -75,7 +75,7 @@ class ZipContentTestCase(TestCase):
             zf.writestr(self.test_name_2, self.test_str_2)
             zf.writestr(self.embedded_file_name, self.embedded_file_str)
 
-        self.zip_file_base_url = "/{}/".format(self.filename)
+        self.zip_file_base_url = f"/{self.filename}/"
 
         self.environ = {}
         setup_testing_defaults(self.environ)
@@ -191,22 +191,14 @@ class ZipContentTestCase(TestCase):
 
     def test_request_for_html_body_script_return_sandbox_modified_html(self):
         response = self._get_file(self.script_name)
-        content = (
-            "<html><head>{}<script>test</script></head><body></body></html>".format(
-                sandbox_injection
-            )
-        )
+        content = f"<html><head>{sandbox_injection}<script>test</script></head><body></body></html>"
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_html_body_script_with_extra_slash_return_sandbox_modified_html(
         self,
     ):
         response = self._get_file("/" + self.script_name)
-        content = (
-            "<html><head>{}<script>test</script></head><body></body></html>".format(
-                sandbox_injection
-            )
-        )
+        content = f"<html><head>{sandbox_injection}<script>test</script></head><body></body></html>"
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_embedded_file_return_embedded_file(self):
@@ -235,11 +227,7 @@ class ZipContentTestCase(TestCase):
 
     def test_request_for_html_body_script_return_correct_length_header(self):
         response = self._get_file(self.script_name)
-        expected_content = (
-            "<html><head>{}<script>test</script></head><body></body></html>".format(
-                sandbox_injection
-            )
-        )
+        expected_content = f"<html><head>{sandbox_injection}<script>test</script></head><body></body></html>"
         file_size = len(expected_content)
         self.assertEqual(int(response.headers["Content-Length"]), file_size)
 
@@ -328,11 +316,7 @@ class ZipContentTestCase(TestCase):
         """Test range requests on HTML files that get modified - should return full file"""
         response = self._get_file(self.script_name, HTTP_RANGE="bytes=0-10")
         # Should return full modified file, not range
-        content = (
-            "<html><head>{}<script>test</script></head><body></body></html>".format(
-                sandbox_injection
-            )
-        )
+        content = f"<html><head>{sandbox_injection}<script>test</script></head><body></body></html>"
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode("utf-8"), content)
 

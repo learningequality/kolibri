@@ -80,7 +80,7 @@ class ImportMetadataTestCase(APITestCase):
     def _get_metadata(self, schema_version):
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})
-            + "?schema_version={}".format(schema_version)
+            + f"?schema_version={schema_version}"
         )
         self.assertEqual(response.status_code, 200)
         return response.data
@@ -116,7 +116,7 @@ class ImportMetadataTestCase(APITestCase):
     def test_schema_version_too_high(self):
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})
-            + "?schema_version={}".format(int(CONTENT_SCHEMA_VERSION) + 1)
+            + f"?schema_version={int(CONTENT_SCHEMA_VERSION) + 1}"
         )
         self.assertEqual(response.status_code, 400)
 
@@ -142,7 +142,7 @@ class ImportMetadataTestCase(APITestCase):
     def test_schema_version_just_right(self):
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})
-            + "?schema_version={}".format(CONTENT_SCHEMA_VERSION)
+            + f"?schema_version={CONTENT_SCHEMA_VERSION}"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -228,7 +228,7 @@ class ImportMetadataTestCase(APITestCase):
         max_results = 2
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?descendants=true&max_results={}".format(max_results)
+            + f"?descendants=true&max_results={max_results}"
         )
         self.assertEqual(response.status_code, 200)
         nodes_data = response.data["results"][content.ContentNode._meta.db_table]

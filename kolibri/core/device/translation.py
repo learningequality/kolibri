@@ -158,7 +158,7 @@ class LocalePrefixPattern:
         language_code = get_language() or device_language
         if language_code == device_language and not self.prefix_default_language:
             return self._prefix or ""
-        return ("%s/" % language_code) + (self._prefix or "")
+        return f"{language_code}/" + (self._prefix or "")
 
     def match(self, path):
         language_prefix = self.language_prefix
@@ -170,7 +170,7 @@ class LocalePrefixPattern:
         return []
 
     def describe(self):
-        return "'{}'".format(self)
+        return f"'{self}'"
 
     def __str__(self):
         return self.language_prefix

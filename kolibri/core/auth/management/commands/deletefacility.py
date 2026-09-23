@@ -80,11 +80,9 @@ class Command(AsyncCommand):
 
             # if count doesn't match, something doesn't seem right
             if total_count != total_deleted:
-                msg = "Deleted count does not match total ({} != {})".format(
-                    total_count, total_deleted
-                )
+                msg = f"Deleted count does not match total ({total_count} != {total_deleted})"
                 if strict:
-                    raise CommandError("{}, aborting!".format(msg))
+                    raise CommandError(f"{msg}, aborting!")
                 logger.warning(msg)
 
         logger.info("Deletion complete.")

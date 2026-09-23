@@ -183,7 +183,7 @@ def transfer_channel(
         )
         filetransfer = transfer.FileCopy(srcpath, dest, cancel_check=job.is_cancelled)
     else:
-        raise ValueError("Invalid transfer method specified: {}".format(method))
+        raise ValueError(f"Invalid transfer method specified: {method}")
 
     logger.debug("Destination: %s", dest)
 

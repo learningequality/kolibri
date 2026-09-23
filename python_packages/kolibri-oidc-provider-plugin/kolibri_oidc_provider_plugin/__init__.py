@@ -15,7 +15,5 @@ def kolibri_userinfo(claims, user):
     claims["name"] = user.full_name
     COUNTRY = os.environ.get("COUNTRY", None)
     if COUNTRY:
-        claims["email"] = "{username}@{country}.org".format(
-            username=user.username, country=COUNTRY
-        )
+        claims["email"] = f"{user.username}@{COUNTRY}.org"
     return claims

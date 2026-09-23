@@ -90,9 +90,7 @@ class ExportLogCSVValidator(JobValidator):
             )
         if not start_date or not end_date:
             raise serializers.ValidationError(
-                "Start {} and End {} date values are required.".format(
-                    start_date, end_date
-                )
+                f"Start {start_date} and End {end_date} date values are required."
             )
         kwargs = {
             "facility": facility.id,
@@ -170,6 +168,6 @@ def log_exports_cleanup():
     _, files_in_storage = default_storage.listdir("log_export/")
     # Prefix the filenames with the directory name because that's what we'll
     # get from get_valid_filenames
-    for filename in ["log_export/{}".format(filename) for filename in files_in_storage]:
+    for filename in [f"log_export/{filename}" for filename in files_in_storage]:
         if filename not in valid_filenames_set:
             default_storage.delete(filename)

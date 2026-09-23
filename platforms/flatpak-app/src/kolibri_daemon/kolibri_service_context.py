@@ -453,4 +453,4 @@ class KolibriServiceProcess(multiprocessing.Process):
             setproctitle(self.PROCESS_NAME)
 
         if self.PROCESS_NAME and self.ENABLE_LOGGING:
-            init_logging("{}.txt".format(self.PROCESS_NAME))
+            init_logging(f"{self.PROCESS_NAME}.txt")

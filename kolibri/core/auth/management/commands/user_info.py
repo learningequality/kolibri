@@ -39,7 +39,7 @@ class Command(BaseCommand):
             os.makedirs(directory_location)
 
         # write basic user data to file
-        file_name = "{user}.txt".format(user=user.username)
+        file_name = f"{user.username}.txt"
         file_location = os.path.join(directory_location, file_name)
         data = FacilityUserSerializer(user).data
         logger.info("Writing user data to %s...", file_location)
@@ -59,12 +59,10 @@ class Command(BaseCommand):
         for manager in managers:
             # currently accounts for one-to-one field on DevicePermissions
             if isinstance(manager, Model):
-                file_name = "{model}.txt".format(
-                    model=manager.__class__.__name__.lower()
-                )
+                file_name = f"{manager.__class__.__name__.lower()}.txt"
                 models = [manager]
             else:
-                file_name = "{model}.txt".format(model=manager.model.__name__.lower())
+                file_name = f"{manager.model.__name__.lower()}.txt"
                 models = manager.all()
             file_location = os.path.join(directory_location, file_name)
             # only create file if models exist

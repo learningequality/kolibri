@@ -805,7 +805,7 @@ class UnitReportUnitSelectionTests(UnitReportAPIBase):
 
     def test_query_count_does_not_scale_with_unit_count(self):
         for i in range(2, 6):
-            self._create_unit("Unit {}".format(i))
+            self._create_unit(f"Unit {i}")
         all_unit_ids = list(
             ContentNode.objects.filter(
                 parent_id=self.course_node.id, modality=modalities.UNIT

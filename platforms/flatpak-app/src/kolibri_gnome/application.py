@@ -404,7 +404,7 @@ class ChannelApplication(Application):
 
     def __context_on_kolibri_ready(self, context: KolibriContext):
         context.kolibri_api_get_async(
-            "/api/content/channel/{channel_id}".format(channel_id=self.__channel_id),
+            f"/api/content/channel/{self.__channel_id}",
             result_cb=self.__on_kolibri_api_channel_response,
         )
 

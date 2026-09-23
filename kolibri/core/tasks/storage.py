@@ -391,9 +391,7 @@ class Storage:
                 job_id=job_to_restart.job_id,
             )
             return self.enqueue_job(job, queue=orm_job.queue, priority=orm_job.priority)
-        raise JobNotRestartable(
-            "Cannot restart job with state={}".format(job_to_restart.state)
-        )
+        raise JobNotRestartable(f"Cannot restart job with state={job_to_restart.state}")
 
     def check_job_canceled(self, job_id, expected_supervisor_id=NO_VALUE):
         try:
@@ -662,9 +660,7 @@ class Storage:
 
         # Only allow this function to be run on a job that is in a finished state.
         if orm_job.state not in State.FINISHED_STATES:
-            raise JobNotRestartable(
-                "Cannot reschedule job with state={}".format(orm_job.state)
-            )
+            raise JobNotRestartable(f"Cannot reschedule job with state={orm_job.state}")
 
         # Create the schedule kwargs by reading from the database, and overriding with any passed in values.
         kwargs = {

@@ -21,8 +21,7 @@ class Descriptor(View):
             "<ShortName>Kolibri</ShortName>"
             "<Description>Kolibri Open Search Engine</Description>"
             + (
-                '<Url type="application/atom+xml" template="%sopensearch/search?q={searchTerms}"/>'
-                % absolute_url
+                f'<Url type="application/atom+xml" template="{absolute_url}opensearch/search?q={{searchTerms}}"/>'
             )
             + "</OpenSearchDescription>"
         )
@@ -55,7 +54,7 @@ class Search(View):
         feed = feedgenerator.Atom1Feed(
             title="Kolibri search results",
             link=request.build_absolute_uri(),
-            description="Kolibri search results for query {value}".format(value=value),
+            description=f"Kolibri search results for query {value}",
         )
 
         for result in results:

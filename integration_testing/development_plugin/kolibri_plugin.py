@@ -58,9 +58,9 @@ class AppUrlLoggerPlugin(SimplePlugin):
     def RUN(self):
         from kolibri.core.device.utils import app_initialize_url
 
-        start_url = "http://127.0.0.1:{port}".format(
-            port=self.port
-        ) + app_initialize_url(auth_token="1234")
+        start_url = f"http://127.0.0.1:{self.port}" + app_initialize_url(
+            auth_token="1234"
+        )
         # Use warning to make sure this message stands out in the console
         logger.warning("Open this URL to activate app mode: %s", start_url)
 

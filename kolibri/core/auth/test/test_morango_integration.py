@@ -130,9 +130,7 @@ class CrossDatasetSuperuserDeserializationTestCase(TransactionTestCase):
             store = Store.objects.get(id=instance_id)
             self.assertIsNone(
                 store.deserialization_error,
-                msg="{} failed to deserialize: {}".format(
-                    store.model_name, store.deserialization_error
-                ),
+                msg=f"{store.model_name} failed to deserialize: {store.deserialization_error}",
             )
             self.assertFalse(store.dirty_bit)
 
@@ -1259,9 +1257,7 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
         for log_queryset in logs_expected:
             self.assertTrue(
                 log_queryset.using(self.laptop_a.db_alias).exists(),
-                msg="Exam logging information in {} was not synced".format(
-                    log_queryset.model.__name__
-                ),
+                msg=f"Exam logging information in {log_queryset.model.__name__} was not synced",
             )
 
         # Create lesson on Laptop A, single-user sync to tablet, then modify lesson on Laptop A
@@ -1551,15 +1547,11 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
                     id=assignment_id, lesson__is_active=True
                 )
             assert should_exist, (
-                "Assignment {assignment_id} should not exist on server {server} but does!".format(
-                    assignment_id=assignment_id, server=server
-                )
+                f"Assignment {assignment_id} should not exist on server {server} but does!"
             )
         except (ExamAssignment.DoesNotExist, LessonAssignment.DoesNotExist):
             assert not should_exist, (
-                "Assignment {assignment_id} should exist on server {server}!".format(
-                    assignment_id=assignment_id, server=server
-                )
+                f"Assignment {assignment_id} should exist on server {server}!"
             )
 
 

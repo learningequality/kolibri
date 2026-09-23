@@ -1342,12 +1342,11 @@ class TestDataSerialization(TestCase):
         older than 3.32 raises at 999.
         """
         authors = Author.objects.bulk_create(
-            Author(name="Bulk {:04d}".format(i), publisher=self.main_publisher)
+            Author(name=f"Bulk {i:04d}", publisher=self.main_publisher)
             for i in range(1200)
         )
         Book.objects.bulk_create(
-            Book(author=author, title="Bulk book {}".format(author.name))
-            for author in authors
+            Book(author=author, title=f"Bulk book {author.name}") for author in authors
         )
         Ser = make_serializer(
             id=serializers.CharField(),
@@ -1707,7 +1706,7 @@ class TestDataSerialization(TestCase):
             label = ValuesMethodField(sources=("name",))
 
             def get_label(self, obj):
-                return "label: {}".format(obj.name)
+                return f"label: {obj.name}"
 
             class Meta:
                 model = Author
@@ -1731,7 +1730,7 @@ class TestDataSerialization(TestCase):
             label = ValuesMethodField(sources=("name",))
 
             def get_label(self, obj):
-                return "label: {}".format(obj.name)
+                return f"label: {obj.name}"
 
             class Meta:
                 model = Author
@@ -1755,7 +1754,7 @@ class TestDataSerialization(TestCase):
             label = ValuesMethodField(sources=("email",))
 
             def get_label(self, obj):
-                return "label: {}".format(obj.email)
+                return f"label: {obj.email}"
 
             class Meta:
                 model = Author
@@ -1767,7 +1766,7 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(result[0]["email"], self.alice.name)
-        self.assertEqual(result[0]["label"], "label: {}".format(self.alice.email))
+        self.assertEqual(result[0]["label"], f"label: {self.alice.email}")
 
     def test_method_field_source_shared_with_renamed_field(self):
         """A source read by both a rename and a method field is not promoted to
@@ -1779,7 +1778,7 @@ class TestDataSerialization(TestCase):
             label = ValuesMethodField(sources=("name",))
 
             def get_label(self, obj):
-                return "label: {}".format(obj.name)
+                return f"label: {obj.name}"
 
             class Meta:
                 model = Author
@@ -1827,7 +1826,7 @@ class TestDataSerialization(TestCase):
             publisher_label = ValuesMethodField(sources=("publisher.name",))
 
             def get_publisher_label(self, obj):
-                return "pub: {}".format(obj.publisher.name)
+                return f"pub: {obj.publisher.name}"
 
             class Meta:
                 model = Author
@@ -1850,7 +1849,7 @@ class TestDataSerialization(TestCase):
             publisher_label = ValuesMethodField(sources=("publisher", "publisher.name"))
 
             def get_publisher_label(self, obj):
-                return "pub: {}".format(obj.publisher)
+                return f"pub: {obj.publisher}"
 
             class Meta:
                 model = Author
@@ -1862,7 +1861,7 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(
-            result[0]["publisher_label"], "pub: {}".format(self.alice.publisher_id)
+            result[0]["publisher_label"], f"pub: {self.alice.publisher_id}"
         )
 
     def test_method_field_reads_context_from_request(self):
@@ -1875,7 +1874,7 @@ class TestDataSerialization(TestCase):
 
             def get_ctx_label(self, obj):
                 hint = self.context.get("hint", "missing")
-                return "{}/{}".format(obj.name, hint)
+                return f"{obj.name}/{hint}"
 
             class Meta:
                 model = Author
@@ -2028,7 +2027,7 @@ class TestDataSerialization(TestCase):
 
             def get_title_with_hint(self, obj):
                 hint = self.context.get("hint", "missing")
-                return "{}/{}".format(obj.title, hint)
+                return f"{obj.title}/{hint}"
 
             class Meta:
                 model = Book
@@ -2486,7 +2485,7 @@ class TestDevModeSafeguards(TestCase):
         publisher = Publisher.objects.create(name="Shared")
         for i in range(2):
             Author.objects.create(
-                name="A{}".format(i), email="a{}@e.com".format(i), publisher=publisher
+                name=f"A{i}", email=f"a{i}@e.com", publisher=publisher
             )
         viewset = make_viewset(
             queryset=Author.objects.order_by("name"),

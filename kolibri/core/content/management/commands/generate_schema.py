@@ -77,7 +77,7 @@ class Command(BaseCommand):
 
         with connection.cursor() as cursor:
             for table_name in table_names:
-                cursor.execute('SELECT * FROM "{}"'.format(table_name))
+                cursor.execute(f'SELECT * FROM "{table_name}"')
                 data[table_name] = [
                     dict(zip(table_columns[table_name], row))
                     for row in cursor.fetchall()

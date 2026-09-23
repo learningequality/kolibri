@@ -163,7 +163,7 @@ def plugin_data(module_path):
     # Handle cases where the module doesn't have the expected structure
     except (FileNotFoundError, ModuleNotFoundError):
         pass
-    raise ImportError("No frontend build assets for plugin {}".format(module_path))
+    raise ImportError(f"No frontend build assets for plugin {module_path}")
 
 
 def initialize_plugins(build_list):

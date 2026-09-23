@@ -14,5 +14,5 @@ class Command(BaseCommand):
         for path, drive in drives.items():
             self.stdout.write(path + "\n")
             for field, value in drive._asdict().items():
-                self.stdout.write("\t{}: {}\n".format(field, value))
+                self.stdout.write(f"\t{field}: {value}\n")
             self.stdout.write("\n")

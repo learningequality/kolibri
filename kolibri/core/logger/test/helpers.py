@@ -62,7 +62,7 @@ class EvaluationMixin:
                 kind=content_kinds.EXERCISE,
                 content_id=content_id,
                 channel_id=channel_id,
-                title="Test {}".format(content_id),
+                title=f"Test {content_id}",
                 available=True,
                 options={"modality": modalities.QUIZ},
             )

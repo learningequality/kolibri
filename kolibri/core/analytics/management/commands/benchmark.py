@@ -23,10 +23,10 @@ logger = logging.getLogger(__name__)
 
 def format_line(parameter, value, indented=False):
     if indented:
-        info = "  * {:30}".format("{}:".format(parameter))
+        info = "  * {:30}".format(f"{parameter}:")
     else:
-        info = "* {:32}".format("{}:".format(parameter))
-    return "{info}{value}".format(info=info, value=value)
+        info = "* {:32}".format(f"{parameter}:")
+    return f"{info}{value}"
 
 
 class Command(BaseCommand):
@@ -102,17 +102,17 @@ class Command(BaseCommand):
         cpu_parameters = ("Total processes", "Used CPU", "Kolibri CPU usage")
         cpu_values = (
             total_processes,
-            "{} %".format(used_cpu),
-            "{} %".format(kolibri_cpu),
+            f"{used_cpu} %",
+            f"{kolibri_cpu} %",
         )
         self.add_section(cpu_parameters, cpu_values)
 
         self.add_header("Memory")
         memory_parameters = ("Used memory", "Total memory", "Kolibri memory usage")
         memory_values = (
-            "{} Mb".format(used_memory),
-            "{} Mb".format(total_memory),
-            "{} Mb".format(kolibri_mem),
+            f"{used_memory} Mb",
+            f"{total_memory} Mb",
+            f"{kolibri_mem} Mb",
         )
         self.add_section(memory_parameters, memory_values)
 
@@ -120,7 +120,7 @@ class Command(BaseCommand):
         channels_stats = get_channels_usage_info()
         self.messages.append(format_line("Total Channels", str(len(channels_stats))))
         for channel in channels_stats:
-            self.messages.append("\033[95m* {}\033[0m".format(channel.name))
+            self.messages.append(f"\033[95m* {channel.name}\033[0m")
             self.messages.append(format_line("Accesses", channel.accesses, True))
             self.messages.append(format_line("Time spent", channel.time_spent, True))
 
@@ -141,9 +141,7 @@ class Command(BaseCommand):
         )
         self.messages.append(format_line("Device name", instance_model.hostname))
         self.messages.append(
-            format_line(
-                "Free disk space", "{} Mb".format(get_free_space() / pow(10, 6))
-            )
+            format_line("Free disk space", f"{get_free_space() / pow(10, 6)} Mb")
         )
         self.messages.append(format_line("Server time", local_now()))
         self.messages.append(format_line("Server timezone", settings.TIME_ZONE))
@@ -153,7 +151,7 @@ class Command(BaseCommand):
 
     def add_header(self, header):
         self.messages.append("")
-        self.messages.append("\033[1m{}\033[0m".format(header))
+        self.messages.append(f"\033[1m{header}\033[0m")
 
     def add_section(self, params, values):
         for index, param in enumerate(params):

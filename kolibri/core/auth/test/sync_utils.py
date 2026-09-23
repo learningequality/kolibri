@@ -55,7 +55,7 @@ class KolibriServer:
         self.db_path = os.path.join(self.env["KOLIBRI_HOME"], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
-        self.baseurl = "http://127.0.0.1:{}/".format(self.port)
+        self.baseurl = f"http://127.0.0.1:{self.port}/"
         self.enable_automatic_download = enable_automatic_download
         self._instance = None
         if seeded_kolibri_home is not None:
@@ -87,50 +87,51 @@ class KolibriServer:
         """
         kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
-            'import json; from {module} import {name}; kwargs = json.loads("""{}"""); {name}(**kwargs)'.format(
-                kwarg_text, module=func.__module__, name=func.__name__
-            )
+            "import json; "
+            f"from {func.__module__} import {func.__name__}; "
+            f'kwargs = json.loads("""{kwarg_text}"""); '
+            f"{func.__name__}(**kwargs)"
         )
 
     def create_model(self, model, **kwargs):
         kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
-            'import json; from {module_path} import {model_name}; kwargs = json.loads("""{}"""); {model_name}.objects.create(**kwargs)'.format(
-                kwarg_text, module_path=model.__module__, model_name=model.__name__
-            )
+            "import json; "
+            f"from {model.__module__} import {model.__name__}; "
+            f'kwargs = json.loads("""{kwarg_text}"""); '
+            f"{model.__name__}.objects.create(**kwargs)"
         )
 
     def update_model(self, model, pk, **kwargs):
         kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
-            'import json; from {module_path} import {model_nm}; kwargs = json.loads("""{}"""); {model_nm}.objects.filter(pk="{pk}").update(**kwargs)'.format(
-                kwarg_text,
-                module_path=model.__module__,
-                model_nm=model.__name__,
-                pk=pk,
-            )
+            "import json; "
+            f"from {model.__module__} import {model.__name__}; "
+            f'kwargs = json.loads("""{kwarg_text}"""); '
+            f'{model.__name__}.objects.filter(pk="{pk}").update(**kwargs)'
         )
 
     def delete_model(self, model, **kwargs):
         kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
-            'import json; from {module_path} import {model_name}; kwargs = json.loads("""{}"""); obj = {model_name}.objects.get(**kwargs); obj.delete()'.format(
-                kwarg_text, module_path=model.__module__, model_name=model.__name__
-            )
+            "import json; "
+            f"from {model.__module__} import {model.__name__}; "
+            f'kwargs = json.loads("""{kwarg_text}"""); '
+            f"obj = {model.__name__}.objects.get(**kwargs); "
+            "obj.delete()"
         )
 
     def change_password(self, user, password):
+        user_id = user.id if isinstance(user, FacilityUser) else user
         self.pipe_shell(
-            'from kolibri.core.auth.models import *; user = FacilityUser.objects.get(id="{user}"); user.set_password("{password}"); user.save()'.format(
-                user=user.id if isinstance(user, FacilityUser) else user,
-                password=password,
-            )
+            "from kolibri.core.auth.models import *; "
+            f'user = FacilityUser.objects.get(id="{user_id}"); '
+            f'user.set_password("{password}"); '
+            "user.save()"
         )
 
     def pipe_shell(self, text):
-        subprocess.call(
-            "echo '{}' | kolibri shell".format(text), env=self.env, shell=True
-        )
+        subprocess.call(f"echo '{text}' | kolibri shell", env=self.env, shell=True)
 
     def _wait_for_server_start(self, timeout=20):
         # At a 0.5s interval each of the suite's dozens of server starts waits a
@@ -144,7 +145,7 @@ class KolibriServer:
                 pass
             time.sleep(0.1)
 
-        raise Exception("Server did not start within {} seconds".format(timeout))
+        raise Exception(f"Server did not start within {timeout} seconds")
 
     def kill(self):
         try:

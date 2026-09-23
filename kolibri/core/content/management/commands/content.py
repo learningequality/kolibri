@@ -105,8 +105,8 @@ class Command(BaseCommand):
         """
         user_answer = input(
             self.style.WARNING(
-                "The destination has content inside: {}\n"
-                "Do you want to overwrite it completely? (y/N)".format(dst)
+                f"The destination has content inside: {dst}\n"
+                "Do you want to overwrite it completely? (y/N)"
             )
         )
 
@@ -120,8 +120,8 @@ class Command(BaseCommand):
         elif user_answer.strip().lower() not in ["n", "no", ""]:
             self.stderr.write(
                 self.style.ERROR(
-                    "{} cannot be an answer to the question. "
-                    "Please answer 'y' or 'n'.".format(user_answer)
+                    f"{user_answer} cannot be an answer to the question. "
+                    "Please answer 'y' or 'n'."
                 )
             )
             raise SystemExit(1)
@@ -134,9 +134,7 @@ class Command(BaseCommand):
         ini_path = os.path.join(KOLIBRI_HOME, "options.ini")
         update_options_file("Paths", "CONTENT_DIR", dst, ini_path)
 
-        self.stdout.write(
-            self.style.SUCCESS("\nCurrent content directory is {}".format(dst))
-        )
+        self.stdout.write(self.style.SUCCESS(f"\nCurrent content directory is {dst}"))
 
     def copy_content(self, src, dst):
         """

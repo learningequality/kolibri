@@ -38,7 +38,7 @@ def set_scputimes_ntuple(procfs_path):
     Used by cpu_times() function.
     """
     global scputimes
-    with open_binary("%s/stat" % procfs_path) as f:
+    with open_binary(f"{procfs_path}/stat") as f:
         values = f.readline().split()[1:]
     fields = ["user", "nice", "system", "idle", "iowait", "irq", "softirq"]
     vlen = len(values)
@@ -63,7 +63,7 @@ def cpu_times():
     """
     procfs_path = get_procfs_path()
     set_scputimes_ntuple(procfs_path)
-    with open_binary("%s/stat" % procfs_path) as f:
+    with open_binary(f"{procfs_path}/stat") as f:
         values = f.readline().split()
     fields = values[1 : len(scputimes._fields) + 1]
     fields = [float(x) / CLOCK_TICKS for x in fields]
@@ -88,7 +88,7 @@ def virtual_memory():
     """
     missing_fields = []
     mems = {}
-    with open_binary("%s/meminfo" % get_procfs_path()) as f:
+    with open_binary(f"{get_procfs_path()}/meminfo") as f:
         for line in f:
             fields = line.split()
             mems[fields[0]] = int(fields[1]) * 1024
@@ -132,7 +132,7 @@ def cpu_count_logical():
     except ValueError:
         # as a second fallback we try to parse /proc/cpuinfo
         num = 0
-        with open_binary("%s/cpuinfo" % get_procfs_path()) as f:
+        with open_binary(f"{get_procfs_path()}/cpuinfo") as f:
             for line in f:
                 if line.lower().startswith(b"processor"):
                     num += 1
@@ -142,7 +142,7 @@ def cpu_count_logical():
         # try to parse /proc/stat as a last resort
         if num == 0:
             search = re.compile(r"cpu\d")
-            with open_text("%s/stat" % get_procfs_path()) as f:
+            with open_text(f"{get_procfs_path()}/stat") as f:
                 for line in f:
                     line = line.split(" ")[0]
                     if search.match(line):
@@ -172,7 +172,7 @@ def wrap_exceptions(fun):
                 raise NoSuchProcess()
             # ENOENT (no such file or directory) can be raised on open().
             if err.errno == errno.ENOENT and not os.path.exists(
-                "%s/%s" % (self._procfs_path, self.pid)
+                f"{self._procfs_path}/{self.pid}"
             ):
                 raise NoSuchProcess()
             # Note: zombies will keep existing under /proc until they're
@@ -185,14 +185,14 @@ def wrap_exceptions(fun):
 def boot_time():
     """Return the system boot time expressed in seconds since the epoch."""
     global BOOT_TIME
-    path = "%s/stat" % get_procfs_path()
+    path = f"{get_procfs_path()}/stat"
     with open_binary(path) as f:
         for line in f:
             if line.startswith(b"btime"):
                 ret = float(line.strip().split()[1])
                 BOOT_TIME = ret
                 return ret
-        raise RuntimeError("line 'btime' not found in %s" % path)
+        raise RuntimeError(f"line 'btime' not found in {path}")
 
 
 class Process:
@@ -216,7 +216,7 @@ class Process:
         The return value is cached in case oneshot() ctx manager is
         in use.
         """
-        with open_binary("%s/%s/stat" % (self._procfs_path, self.pid)) as f:
+        with open_binary(f"{self._procfs_path}/{self.pid}/stat") as f:
             data = f.read()
         # Process name is between parentheses. It can contain spaces and
         # other parentheses. This is taken into account by looking for
@@ -228,7 +228,7 @@ class Process:
 
     @wrap_exceptions
     def cmdline(self):
-        with open_text("%s/%s/cmdline" % (self._procfs_path, self.pid)) as f:
+        with open_text(f"{self._procfs_path}/{self.pid}/cmdline") as f:
             data = f.read()
         if not data:
             # may happen in case of zombie process
@@ -262,7 +262,7 @@ class Process:
         # | data   | data + stack                        | drs  | DATA |
         # | dirty  | dirty pages (unused in Linux 2.6)   | dt   |      |
         #  ============================================================
-        with open_binary("%s/%s/statm" % (self._procfs_path, self.pid)) as f:
+        with open_binary(f"{self._procfs_path}/{self.pid}/statm") as f:
             vms, rss, shared, text, lib, data, dirty = [
                 int(x) * PAGESIZE for x in f.readline().split()[:7]
             ]

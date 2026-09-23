@@ -29,7 +29,7 @@ class RandomBitMaskTestCase(TestCase):
         self.assertEqual(
             ContentNode.objects.filter(**{field + "__contains": label}).count(),
             ContentNode.objects.has_all_labels(field, [label]).count(),
-            "{} {}".format(field, label),
+            f"{field} {label}",
         )
 
 
@@ -48,7 +48,7 @@ class ConstrainedBitMaskTestCase(TestCase):
                     license_description=None,
                     lang_id=None,
                     author="",
-                    title="Test{}_{}".format(field, label),
+                    title=f"Test{field}_{label}",
                     parent_id=None,
                     kind=content_kinds.VIDEO,
                     coach_content=False,
@@ -66,7 +66,7 @@ class ConstrainedBitMaskTestCase(TestCase):
         self.assertEqual(
             ContentNode.objects.filter(**{field + "__contains": label}).count(),
             ContentNode.objects.has_all_labels(field, [label]).count(),
-            "{} {}".format(field, label),
+            f"{field} {label}",
         )
 
     def test_bitmasks_and_not_or(self):
@@ -81,7 +81,7 @@ class ConstrainedBitMaskTestCase(TestCase):
                 license_description=None,
                 lang_id=None,
                 author="",
-                title="Test{}".format(field),
+                title=f"Test{field}",
                 parent_id=None,
                 kind=content_kinds.VIDEO,
                 coach_content=False,
@@ -94,7 +94,7 @@ class ConstrainedBitMaskTestCase(TestCase):
                 ContentNode.objects.has_all_labels(
                     field, metadata_lookup[field]
                 ).count(),
-                "{}".format(field),
+                f"{field}",
             )
 
 
@@ -114,12 +114,12 @@ class RandomMetadataLabelsTestCase(TestCase):
                     if label in LIST:
                         self.assertTrue(
                             queryset.filter(**{field + "__contains": label}).exists(),
-                            "{} {}".format(field, label),
+                            f"{field} {label}",
                         )
                     else:
                         self.assertFalse(
                             queryset.filter(**{field + "__contains": label}).exists(),
-                            "{} {}".format(field, label),
+                            f"{field} {label}",
                         )
 
     def test_all(self):
@@ -153,7 +153,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
                     license_description=None,
                     lang_id=None,
                     author="",
-                    title="Test{}_{}".format(field, label),
+                    title=f"Test{field}_{label}",
                     parent_id=None,
                     kind=content_kinds.VIDEO,
                     coach_content=False,
@@ -175,9 +175,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         expected = [
             ".".join(split_labels[0:i]) for i in range(1, len(split_labels) + 1)
         ]
-        self.assertEqual(
-            set(metadata_labels[field]), set(expected), "{} {}".format(field, label)
-        )
+        self.assertEqual(set(metadata_labels[field]), set(expected), f"{field} {label}")
 
     @parameterized.expand(
         field for field in (list(metadata_lookup.keys()) + ["channels", "languages"])
@@ -186,7 +184,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         try:
             labels = get_available_metadata_labels(ContentNode.objects.none())
         except Exception as e:
-            self.fail("get_available_metadata_labels raised {}".format(e))
+            self.fail(f"get_available_metadata_labels raised {e}")
         self.assertEqual(labels[field], [])
 
 

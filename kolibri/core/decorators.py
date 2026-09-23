@@ -72,7 +72,7 @@ class ParamValidator:
     def check_tuple_type(self, param):
         if param not in self.param_type:
             raise InvalidQueryParamsException(
-                'invalid option "%s": Must be one of: %s' % (param, self.param_type)
+                f'invalid option "{param}": Must be one of: {self.param_type}'
             )
 
     def check_non_tuple_types(self, param):
@@ -91,8 +91,7 @@ class ParamValidator:
                 param = False
             else:
                 raise InvalidQueryParamsException(
-                    "%s is not a valid bool: must be one of: %s"
-                    % (param, TRUE_VALUES + FALSE_VALUES)
+                    f"{param} is not a valid bool: must be one of: {TRUE_VALUES + FALSE_VALUES}"
                 )
         elif hasattr(
             self.param_type, "_default_manager"
@@ -103,7 +102,7 @@ class ParamValidator:
             param = query_set.get(**{self.field: param})
         else:
             raise InvalidQueryParamsException(
-                "Invalid param type: %s" % self.param_type.__name__
+                f"Invalid param type: {self.param_type.__name__}"
             )
         return param
 
@@ -126,18 +125,18 @@ class ParamValidator:
     def check_value_constraints(self, param):
         try:
             if self.eq and param != self.eq:
-                raise InvalidQueryParamsException("must be equal to %s!" % self.eq)
+                raise InvalidQueryParamsException(f"must be equal to {self.eq}!")
             if self.lt and param >= self.lt:
-                raise InvalidQueryParamsException("must be less than %s!" % self.lt)
+                raise InvalidQueryParamsException(f"must be less than {self.lt}!")
             if self.lte and param > self.lte:
                 raise InvalidQueryParamsException(
-                    "must be less than or equal to %s!" % self.lte
+                    f"must be less than or equal to {self.lte}!"
                 )
             if self.gt and param <= self.gt:
-                raise InvalidQueryParamsException("must be greater than %s!" % self.gt)
+                raise InvalidQueryParamsException(f"must be greater than {self.gt}!")
             if self.gte and param < self.gte:
                 raise InvalidQueryParamsException(
-                    "must be greater than or equal to %s!" % self.gte
+                    f"must be greater than or equal to {self.gte}!"
                 )
         except InvalidQueryParamsException as e:
             msg = str(e)
@@ -151,8 +150,7 @@ class ParamValidator:
                 and param_type not in VALID_TYPES
             ):
                 raise InvalidQueryParamsException(
-                    "Invalid type for %s: %s is not a valid type"
-                    % (self.param_name, param_type)
+                    f"Invalid type for {self.param_name}: {param_type} is not a valid type"
                 )
         self.param_type = param_type
 
@@ -165,7 +163,7 @@ class ParamValidator:
                     self.allow_POST = True
                 else:
                     raise InvalidQueryParamsException(
-                        'Invalid value for __method: "%s"' % method
+                        f'Invalid value for __method: "{method}"'
                     )
         else:
             if value == "GET":
@@ -174,7 +172,7 @@ class ParamValidator:
                 self.allow_POST = True
             else:
                 raise InvalidQueryParamsException(
-                    'Invalid value for __method: "%s"' % value
+                    f'Invalid value for __method: "{value}"'
                 )
 
     def set_constraints(self, suffix, value):
@@ -198,9 +196,7 @@ class ParamValidator:
             self.field = value
         else:
             raise InvalidQueryParamsException(
-                "Invalid option: '__{suffix}' in param '{param_name}'".format(
-                    suffix=suffix, param_name=self.param_name
-                )
+                f"Invalid option: '__{suffix}' in param '{self.param_name}'"
             )
 
     def validate(self, request):

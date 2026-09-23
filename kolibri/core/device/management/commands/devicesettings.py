@@ -51,24 +51,24 @@ class Command(BaseCommand):
             field_type = self._get_type(field_name)
             if field_type == bool:
                 parser.add_argument(
-                    "--{}".format(self._setting_to_arg(field_name)),
+                    f"--{self._setting_to_arg(field_name)}",
                     action="store_true",
                     default=None,
-                    help="Set '{}' to True".format(field_name),
+                    help=f"Set '{field_name}' to True",
                 )
                 parser.add_argument(
-                    "--{}".format(self._setting_to_arg(field_name, negate=True)),
+                    f"--{self._setting_to_arg(field_name, negate=True)}",
                     action="store_false",
                     default=None,
-                    help="Set '{}' to False".format(field_name),
+                    help=f"Set '{field_name}' to False",
                 )
             else:
                 parser.add_argument(
-                    "--{}".format(self._setting_to_arg(field_name)),
+                    f"--{self._setting_to_arg(field_name)}",
                     action="store",
                     default=None,
                     type=field_type,
-                    help="Set '{}' to a value".format(field_name),
+                    help=f"Set '{field_name}' to a value",
                 )
 
     def handle(self, *args, **options):

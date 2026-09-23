@@ -119,7 +119,7 @@ class RoleBasedPermissions(BasePermissions):
             # Otherwise, we just set the collection field to the value passed in (which defaults to "collection")
             # and set the parent field as "<collection_field>__parent" to point to the parent of the FKed collection.
             self.collection_field = collection_field
-            self.parent_collection_field = "{}__parent".format(self.collection_field)
+            self.parent_collection_field = f"{self.collection_field}__parent"
         self.is_syncable = is_syncable
 
     def _get_target_object(self, obj):
@@ -191,7 +191,7 @@ class RoleBasedPermissions(BasePermissions):
                 # If it is a syncable model then it will have a dataset_id
                 return Q(dataset_id=user.dataset_id)
             # If it is not syncable, then reference the dataset_id from the target_field
-            return Q(**{"{}__dataset_id".format(self.target_field): user.dataset_id})
+            return Q(**{f"{self.target_field}__dataset_id": user.dataset_id})
 
         # If we've got to this point, we've already checked for facility admins, and we currently only allow
         # admins to be set at the facility level, so if we're not allowing coaches to read this, we can return none
@@ -213,8 +213,8 @@ class RoleBasedPermissions(BasePermissions):
             # Filter the queryset based on the field that identifies
             # which collection an object is associated with.
             q_filter = Q(
-                Q(**{"{}__in".format(self.collection_field): collection_ids})
-                | Q(**{"{}__in".format(self.parent_collection_field): collection_ids})
+                Q(**{f"{self.collection_field}__in": collection_ids})
+                | Q(**{f"{self.parent_collection_field}__in": collection_ids})
             )
             # Also filter by the parents of collections, so that objects associated with LearnerGroup
             # or AdHocGroups will also be readable by those with coach permissions on the parent Classroom

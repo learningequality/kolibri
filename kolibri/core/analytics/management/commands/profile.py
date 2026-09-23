@@ -89,8 +89,8 @@ class Command(BaseCommand):
         file_timestamp = time.strftime("%Y%m%d_%H%M%S")
         try:
             with open(PROFILE_LOCK, "w") as f:
-                f.write("%d" % this_pid)
-                f.write("\n{}".format(file_timestamp))
+                f.write(str(this_pid))
+                f.write(f"\n{file_timestamp}")
         except OSError:
             logger.error(
                 "Impossible to create profile lock file. Kolibri won't profile its requests"
@@ -99,7 +99,7 @@ class Command(BaseCommand):
         num_samples = options["num_samples"]
         performance_dir = os.path.join(conf.KOLIBRI_HOME, "performance")
         self.performance_file = os.path.join(
-            performance_dir, "{}_performance.csv".format(file_timestamp)
+            performance_dir, f"{file_timestamp}_performance.csv"
         )
         if not os.path.exists(performance_dir):
             try:

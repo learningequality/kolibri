@@ -4,10 +4,10 @@ from kolibri.core.content.models import ChannelMetadata
 
 
 def format_line(pos, ident, name):
-    pos = "{:10}".format("{}".format(pos))
-    ident = "{:40}".format("{}".format(ident))
-    name = "{}".format("{}".format(name))
-    return "{pos}{ident}{name}".format(pos=pos, ident=ident, name=name)
+    pos = "{:10}".format(f"{pos}")
+    ident = "{:40}".format(f"{ident}")
+    name = "{}".format(f"{name}")
+    return f"{pos}{ident}{name}"
 
 
 class Command(BaseCommand):

@@ -29,9 +29,7 @@ def find_duplicate_slugs():
                 # If we have multiple kolibri core plugins setting the same url slug, we should error out.
                 # This is not acceptable.
                 raise RuntimeError(
-                    "Multiple core kolibri plugins define the same top level URL slug: {}".format(
-                        key
-                    )
+                    f"Multiple core kolibri plugins define the same top level URL slug: {key}"
                 )
             duplicate_slugs[key] = value
     return duplicate_slugs

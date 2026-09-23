@@ -27,7 +27,7 @@ def get_cache_key(*args, **kwargs):
 
 
 def get_course_ids():
-    cache_key = "COURSE_IDS_{}".format(get_cache_key())
+    cache_key = f"COURSE_IDS_{get_cache_key()}"
     cached_data = cache.get(cache_key)
     if cached_data is not None:
         return cached_data
@@ -61,7 +61,7 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
         ).hexdigest()
         response = None
         if key_prefix is not None:
-            cache_key = "{}:{}".format(key_prefix, url_key)
+            cache_key = f"{key_prefix}:{url_key}"
             response = cache.get(cache_key)
         if response is None:
             response = view_func(*args, **kwargs)
@@ -73,7 +73,7 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
                     and hasattr(response, "render")
                     and callable(response.render)
                 ):
-                    cache_key = "{}:{}".format(key_prefix, url_key)
+                    cache_key = f"{key_prefix}:{url_key}"
                     response.add_post_render_callback(
                         lambda r: cache.set(cache_key, r, timeout=3600)
                     )

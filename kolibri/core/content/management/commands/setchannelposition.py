@@ -24,14 +24,12 @@ class Command(BaseCommand):
         try:
             target_channel = ChannelMetadata.objects.get(id=channel_id)
         except (ChannelMetadata.DoesNotExist, ValueError):
-            self.stderr.write("Channel with ID {} does not exist".format(channel_id))
+            self.stderr.write(f"Channel with ID {channel_id} does not exist")
             sys.exit(1)
 
         if position < 1 or position > count:
             self.stderr.write(
-                "Invalid position {}. Please choose a value between [1-{}].".format(
-                    position, count
-                )
+                f"Invalid position {position}. Please choose a value between [1-{count}]."
             )
             sys.exit(1)
 

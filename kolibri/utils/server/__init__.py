@@ -82,7 +82,7 @@ status_messages = {
     STATUS_STOPPED: "Stopped",
     STATUS_STARTING_UP: "Starting up",
     STATUS_NOT_RESPONDING: "Not responding",
-    STATUS_FAILED_TO_START: "Failed to start (check log file: {0})".format(DAEMON_LOG),
+    STATUS_FAILED_TO_START: f"Failed to start (check log file: {DAEMON_LOG})",
     STATUS_UNCLEAN_SHUTDOWN: "Unclean shutdown",
     STATUS_UNKNOWN_INSTANCE: "Unknown Kolibri running on port",
     STATUS_SERVER_CONFIGURATION_ERROR: "Kolibri server configuration error",
@@ -194,8 +194,8 @@ class ServerPlugin(BaseServerPlugin):
             return "unknown interface (dynamic?)"
         if isinstance(self.httpserver.bind_addr, tuple):
             host, port = self.httpserver.bind_addr
-            return "%s:%s" % (host, port)
-        return "socket file: %s" % self.httpserver.bind_addr
+            return f"{host}:{port}"
+        return f"socket file: {self.httpserver.bind_addr}"
 
 
 class KolibriServerPlugin(ServerPlugin):
@@ -234,7 +234,7 @@ class KolibriServerPlugin(ServerPlugin):
         self.bus.publish("SERVING", bind_port)
         __, urls = get_urls(listen_port=bind_port)
         for url in urls:
-            self.bus.publish("log", "Kolibri running on: {}".format(url), 20)
+            self.bus.publish("log", f"Kolibri running on: {url}", 20)
 
     START.priority = 75
 
@@ -402,11 +402,7 @@ class PIDPlugin(SimplePlugin):
         if status is None:
             _, _, _, status = _read_pid_file(self.bus.pid_file)
         with open(self.bus.pid_file, "w") as f:
-            f.write(
-                "{}\n{}\n{}\n{}\n".format(
-                    os.getpid(), self.bus.port, self.bus.zip_port, status
-                )
-            )
+            f.write(f"{os.getpid()}\n{self.bus.port}\n{self.bus.zip_port}\n{status}\n")
 
     def SERVING(self, port):
         self.bus.port = port or self.bus.port
@@ -497,7 +493,7 @@ def _port_check(port):
             "running on this port and try again.\n",
             port,
         )
-        raise PortOccupied("Port {} is occupied.".format(port))
+        raise PortOccupied(f"Port {port} is occupied.")
 
 
 class DaemonizePlugin(SimplePlugin):
@@ -522,7 +518,7 @@ class DaemonizePlugin(SimplePlugin):
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
         self.bus.publish(
-            "log", "Going to background mode, logging to {0}".format(kolibri_log), 20
+            "log", f"Going to background mode, logging to {kolibri_log}", 20
         )
 
         kwargs = {}
@@ -664,7 +660,7 @@ class ThreadWait(SimplePlugin):
             if t.daemon or isinstance(t, threading._MainThread):
                 continue
 
-            self.bus.log("Waiting for thread %s." % t.getName())
+            self.bus.log(f"Waiting for thread {t.getName()}.")
             t.join()
 
     EXIT.priority = 100
@@ -1150,11 +1146,11 @@ def get_urls(listen_port=None):
                     else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
                 )
                 for ip in all_addresses:
-                    urls.append("http://{}:{}/".format(ip, port))
+                    urls.append(f"http://{ip}:{port}/")
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
             for hostname in get_local_hostnames():
-                urls.append("http://{}:{}/".format(hostname, port))
+                urls.append(f"http://{hostname}:{port}/")
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

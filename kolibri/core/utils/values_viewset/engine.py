@@ -386,10 +386,8 @@ class ValuesEngine:
         plan = self._plans.get(serializer_path)
         if plan is None:
             raise ValueError(
-                "No serialization plan for path {!r} — serialize_queryset needs "
-                "a serializer-derived viewset with that nested path.".format(
-                    serializer_path
-                )
+                f"No serialization plan for path {serializer_path!r} — serialize_queryset needs "
+                "a serializer-derived viewset with that nested path."
             )
         raw_rows = plan.annotate_queryset(queryset).values(*plan.fetch_values)
         return self._expand_plan_rows(raw_rows, plan, method_context)
@@ -428,9 +426,7 @@ class ValuesEngine:
             # than filters — it is what makes entry.child_path reachable.
             if not isinstance(entry, ForwardAutoFetch):
                 raise TypeError(
-                    "{} returned forward targets but is not a forward fetch".format(
-                        type(entry).__name__
-                    )
+                    f"{type(entry).__name__} returned forward targets but is not a forward fetch"
                 )
             for item, target_pk in zip(items, forward_targets):
                 if target_pk is not None:
@@ -586,17 +582,13 @@ class ValuesEngine:
         missing = present_fields - item_keys
         if missing:
             raise OutputValidationError(
-                "Missing fields in output: {}. Expected: {}, Got: {}".format(
-                    missing, expected_fields, item_keys
-                )
+                f"Missing fields in output: {missing}. Expected: {expected_fields}, Got: {item_keys}"
             )
 
         extra = item_keys - expected_fields
         if extra:
             raise OutputValidationError(
-                "Unexpected fields in output: {}. Expected: {}, Got: {}".format(
-                    extra, expected_fields, item_keys
-                )
+                f"Unexpected fields in output: {extra}. Expected: {expected_fields}, Got: {item_keys}"
             )
 
         for field_name, nested_schema in nested_schemas.items():

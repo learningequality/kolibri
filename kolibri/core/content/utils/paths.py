@@ -110,7 +110,7 @@ def get_content_database_file_path(channel_id, datafolder=None, contentfolder=No
     Given a channel_id, returns the path to the sqlite3 file
     ($HOME/.kolibri/content/databases/<channel_id>.sqlite3 on POSIX systems, by default)
     """
-    suffix = "{}.sqlite3".format(channel_id)
+    suffix = f"{channel_id}.sqlite3"
     primary_path = os.path.join(
         get_content_database_dir_path(
             datafolder=datafolder, contentfolder=contentfolder
@@ -138,7 +138,7 @@ def get_upgrade_content_database_file_path(
         get_content_database_dir_path(
             datafolder=datafolder, contentfolder=contentfolder
         ),
-        "{}-upgrade.sqlite3".format(channel_id),
+        f"{channel_id}-upgrade.sqlite3",
     )
 
 
@@ -149,7 +149,7 @@ def get_annotated_content_database_file_path(
         get_content_database_dir_path(
             datafolder=datafolder, contentfolder=contentfolder
         ),
-        "{}-annotated.sqlite3".format(channel_id),
+        f"{channel_id}-annotated.sqlite3",
     )
 
 
@@ -165,7 +165,7 @@ def get_content_storage_dir_path(datafolder=None, contentfolder=None):
 def get_content_storage_file_path(filename, datafolder=None, contentfolder=None):
     if not VALID_STORAGE_FILENAME.match(filename):
         raise InvalidStorageFilenameError(
-            "'{}' is not a valid content storage filename".format(filename)
+            f"'{filename}' is not a valid content storage filename"
         )
     suffix = os.path.join(filename[0], filename[1], filename)
     primary_path = os.path.join(
@@ -205,9 +205,9 @@ def get_content_database_url(baseurl=None):
 
 def get_content_database_file_url(channel_id, baseurl=None, version=None):
     if version is not None:
-        filename = "{}-{}.sqlite3".format(channel_id, version)
+        filename = f"{channel_id}-{version}.sqlite3"
     else:
-        filename = "{}.sqlite3".format(channel_id)
+        filename = f"{channel_id}.sqlite3"
     return join_url(get_content_database_url(baseurl), filename)
 
 
@@ -216,9 +216,7 @@ def get_content_storage_url(baseurl=None):
 
 
 def get_content_storage_remote_url(filename, baseurl=None):
-    return "{}{}/{}/{}".format(
-        get_content_storage_url(baseurl), filename[0], filename[1], filename
-    )
+    return f"{get_content_storage_url(baseurl)}{filename[0]}/{filename[1]}/{filename}"
 
 
 def get_content_server_url(path, baseurl=None):
@@ -232,9 +230,9 @@ def get_info_url(baseurl=None):
 
 
 def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=None):
-    content_server_path = "/api/public/v{}/channels".format(version)
+    content_server_path = f"/api/public/v{version}/channels"
     if identifier:
-        content_server_path += "/lookup/{}".format(identifier)
+        content_server_path += f"/lookup/{identifier}"
     query_params = {"channel_versions": "true"}
     if keyword:
         query_params["keyword"] = keyword
@@ -246,15 +244,13 @@ def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=
 
 
 def get_v2_channel_lookup_url(identifier):
-    return "/api/public/v2/channel/{}?public=false".format(identifier)
+    return f"/api/public/v2/channel/{identifier}?public=false"
 
 
 def get_file_checksums_url(channel_id, baseurl, version="1"):
     # This endpoint does not exist on Studio, so a baseurl is required.
     return get_content_server_url(
-        "api/public/v{version}/file_checksums/{channel_id}".format(
-            version=version, channel_id=channel_id
-        ),
+        f"api/public/v{version}/file_checksums/{channel_id}",
         baseurl=baseurl,
     )
 
@@ -287,7 +283,7 @@ def zip_content_path_prefix():
 
 
 def get_zip_content_base_path():
-    return "{}{}".format(get_content_url(zip_content_path_prefix()), ZIPCONTENT)
+    return f"{get_content_url(zip_content_path_prefix())}{ZIPCONTENT}"
 
 
 SANDBOX_FILENAME = None
@@ -311,6 +307,4 @@ def zip_content_static_root():
 
 
 def get_sandbox_path():
-    return "{}{}{}".format(
-        zip_content_static_root(), SANDBOX, get_sandbox_html_filename()
-    )
+    return f"{zip_content_static_root()}{SANDBOX}{get_sandbox_html_filename()}"

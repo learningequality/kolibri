@@ -51,9 +51,9 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
         cursor = connection.cursor()
         for m in morango_models:
             if full:
-                cursor.execute("vacuum full analyze {};".format(m))
+                cursor.execute(f"vacuum full analyze {m};")
             else:
-                cursor.execute("vacuum analyze {};".format(m._meta.db_table))
+                cursor.execute(f"vacuum analyze {m._meta.db_table};")
         connection.close()
 
 

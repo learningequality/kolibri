@@ -121,7 +121,7 @@ def create_dummy_facility_data(
     # create the Collection hierarchy
     facility = data["facility"] = Facility.objects.create(dataset=dataset)
     data["classrooms"] = [
-        Classroom.objects.create(parent=facility, name="classroom{}".format(i))
+        Classroom.objects.create(parent=facility, name=f"classroom{i}")
         for i in range(classroom_count)
     ]
     data["learnergroups"] = []
@@ -142,7 +142,7 @@ def create_dummy_facility_data(
     )
     data["classroom_coaches"] = [
         FacilityUser.objects.create(
-            username="classcoach%d" % i, password="***", facility=facility
+            username=f"classcoach{i}", password="***", facility=facility
         )
         for i, classroom in enumerate(data["classrooms"])
     ]
@@ -157,7 +157,7 @@ def create_dummy_facility_data(
         data["learners_one_group"].append([])
         for j, group in enumerate(classroom_list):
             learner = FacilityUser.objects.create(
-                username="learnerclass%dgroup%d" % (i, j),
+                username=f"learnerclass{i}group{j}",
                 password="***",
                 facility=facility,
             )
@@ -168,7 +168,7 @@ def create_dummy_facility_data(
 
     data["unattached_users"] = [
         FacilityUser.objects.create(
-            username="orphan%d" % i, password="*", facility=facility
+            username=f"orphan{i}", password="*", facility=facility
         )
         for i in range(3)
     ]

@@ -222,7 +222,7 @@ class PublicDBusInterface(object):
             invocation.return_error_literal(
                 Gio.io_error_quark(),
                 Gio.IOErrorEnum.FAILED,
-                "Error creating login token: {}".format(error),
+                f"Error creating login token: {error}",
             )
         else:
             self.__skeleton.complete_get_login_token(invocation, token_key)

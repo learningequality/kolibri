@@ -146,11 +146,11 @@ class Registry:
                     # Raise an error here because non-plugins should raise a PluginDoesNotExist exception
                     # if they are properly configured.
                     raise PluginExistsInApp(
-                        "Django app {} contains a plugin definition".format(app)
+                        f"Django app {app} contains a plugin definition"
                     )
                 except MultiplePlugins:
                     raise PluginExistsInApp(
-                        "Django app {} contains multiple plugin definitions".format(app)
+                        f"Django app {app} contains multiple plugin definitions"
                     )
                 except PluginDoesNotExist:
                     # Register so that we don't do this twice.

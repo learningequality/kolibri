@@ -239,7 +239,7 @@ def _try_to_get_drive_info_from_diskutil(device):
 
     # run the command and read the results
     diskutilp = subprocess.Popen(
-        "diskutil info {}".format(device), shell=True, stdout=subprocess.PIPE
+        f"diskutil info {device}", shell=True, stdout=subprocess.PIPE
     )
     diskutil_output, err = diskutilp.communicate()
 

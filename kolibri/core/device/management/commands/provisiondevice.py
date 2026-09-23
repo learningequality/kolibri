@@ -32,12 +32,12 @@ languages = dict(settings.LANGUAGES)
 
 def json_file_contents(parser, arg):
     if not os.path.exists(arg) or not os.path.isfile(arg):
-        return parser.error("The file '{}' does not exist".format(arg))
+        return parser.error(f"The file '{arg}' does not exist")
     with open(arg) as f:
         try:
             return json.load(f)
         except json.JSONDecodeError as e:
-            return parser.error("The file '{}' is not valid JSON:\n{}".format(arg, e))
+            return parser.error(f"The file '{arg}' is not valid JSON:\n{e}")
 
 
 def get_all_user_input(facility_name, preset, language_id, username, password):

@@ -23,9 +23,7 @@ class TestMigrations(TransactionTestCase):
 
     def setUp(self):
         assert self.migrate_from and self.migrate_to, (
-            "TestCase '{}' must define migrate_from and migrate_to properties".format(
-                type(self).__name__
-            )
+            f"TestCase '{type(self).__name__}' must define migrate_from and migrate_to properties"
         )
 
         migrate_from = [(self.app, self.migrate_from)]

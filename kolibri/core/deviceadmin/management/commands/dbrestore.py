@@ -66,9 +66,7 @@ class Command(BaseCommand):
             use_backup = search_latest(dumps_root, fallback_version)
         if not use_backup:
             raise CommandError(
-                "Could not find a database backup for version: {}".format(
-                    fallback_version
-                )
+                f"Could not find a database backup for version: {fallback_version}"
             )
         return use_backup
 
@@ -92,9 +90,7 @@ class Command(BaseCommand):
             "Type the number in brackets to select the backup to be restored\n"
             + "".join(
                 (
-                    "({num}) {backup}\n".format(
-                        num=num + 1, backup=get_dtm_from_backup_name(backup)
-                    )
+                    f"({num + 1}) {get_dtm_from_backup_name(backup)}\n"
                     for num, backup in enumerate(backups)
                 )
             ),
@@ -133,10 +129,8 @@ class Command(BaseCommand):
         logger.info("Using backup file: %s", use_backup)
 
         if not os.path.isfile(use_backup):
-            raise CommandError("Couldn't find: {}".format(use_backup))
+            raise CommandError(f"Couldn't find: {use_backup}")
 
         dbrestore(use_backup)
 
-        self.stdout.write(
-            self.style.SUCCESS("Restored database from: {path}".format(path=use_backup))
-        )
+        self.stdout.write(self.style.SUCCESS(f"Restored database from: {use_backup}"))

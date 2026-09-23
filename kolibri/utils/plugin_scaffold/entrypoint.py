@@ -79,9 +79,7 @@ def insert_entry_point(pyproject_path, name):
 
     header_index = _find_header_index(lines)
     if header_index is None:
-        raise LookupError(
-            "No {} table in {}".format(ENTRY_POINT_HEADER, pyproject_path)
-        )
+        raise LookupError(f"No {ENTRY_POINT_HEADER} table in {pyproject_path}")
 
     # Scan the contiguous entry lines following the header, up to the next
     # blank line or table header, tracking the sorted insertion point and
@@ -101,7 +99,7 @@ def insert_entry_point(pyproject_path, name):
     if insert_at is None:
         insert_at = end_index
 
-    lines.insert(insert_at, '"{name}" = "{name}"'.format(name=name))
+    lines.insert(insert_at, f'"{name}" = "{name}"')
     with io.open(pyproject_path, "w", encoding="utf-8", newline="") as f:
         f.write(newline.join(lines) + newline)
     return True

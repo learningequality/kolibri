@@ -98,9 +98,7 @@ class ContentAssignmentManager:
         """
         if not issubclass(model, AbstractFacilityDataModel):
             raise ImproperlyConfigured(
-                "{} is only valid on AbstractFacilityDataModels".format(
-                    self.__class__.__name__
-                )
+                f"{self.__class__.__name__} is only valid on AbstractFacilityDataModels"
             )
 
         if self.one_to_many and self.lookup_func is None:
@@ -179,9 +177,7 @@ class ContentAssignmentManager:
 
     @classmethod
     def _get_cached_model_instance(cls, manager, source_id):
-        cache_key = "CONTENT_ASSIGNMENT_INSTANCE_{}_{}".format(
-            manager.model.morango_model_name, source_id
-        )
+        cache_key = f"CONTENT_ASSIGNMENT_INSTANCE_{manager.model.morango_model_name}_{source_id}"
         if cache_key not in process_cache:
             instance = manager.model.objects.filter(pk=source_id).first()
             process_cache.set(

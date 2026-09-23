@@ -33,7 +33,7 @@ class TestNetworkLocationUpgrade(TestCase):
                 locations
             )
             mock_connection.cursor().execute.assert_called_with(
-                "DROP TABLE {}".format(NetworkLocation._meta.db_table)
+                f"DROP TABLE {NetworkLocation._meta.db_table}"
             )
 
     def test_default_db_no_migration(self):

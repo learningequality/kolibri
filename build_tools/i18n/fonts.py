@@ -122,12 +122,12 @@ def _gen_font_face(family, url, weight, unicodes, display="swap"):
 
 
 def _scoped(scope, name):
-    return "{}.{}".format(scope, name)
+    return f"{scope}.{name}"
 
 
 @functools.cache
 def _woff_font_path(name, weight):
-    file_name = "{name}.{weight}.woff".format(name=name, weight=FONT_WEIGHT_MAP[weight])
+    file_name = f"{name}.{FONT_WEIGHT_MAP[weight]}.woff"
     return os.path.join(OUTPUT_PATH, file_name)
 
 
@@ -294,7 +294,7 @@ def _list_to_ranges(input_list):
 
 
 def _fmt_code(code):
-    return "{:x}".format(code).upper()
+    return f"{code:x}".upper()
 
 
 def _fmt_range(glyphs):
@@ -304,9 +304,9 @@ def _fmt_range(glyphs):
     fmt_ranges = []
     for r in _list_to_ranges(sorted(glyphs)):
         if r[0] == r[1] - 1:
-            fmt_ranges.append("U+{}".format(_fmt_code(r[0])))
+            fmt_ranges.append(f"U+{_fmt_code(r[0])}")
         else:
-            fmt_ranges.append("U+{}-{}".format(_fmt_code(r[0]), _fmt_code(r[1] - 1)))
+            fmt_ranges.append(f"U+{_fmt_code(r[0])}-{_fmt_code(r[1] - 1)}")
     return ",".join(fmt_ranges)
 
 
@@ -361,8 +361,8 @@ def _gen_full_css_modern(lang_info):
         hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
         previous_glyphs |= _font_glyphs(hashed_path)
 
-    original_filename = "{}.modern.css".format(
-        _scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])
+    original_filename = (
+        f"{_scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])}.modern.css"
     )
     temp_path = os.path.join(OUTPUT_PATH, original_filename + ".tmp")
 
@@ -383,8 +383,8 @@ def _gen_full_css_modern(lang_info):
 
 
 def _gen_full_css_basic(lang_info):
-    original_filename = "{}.basic.css".format(
-        _scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])
+    original_filename = (
+        f"{_scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])}.basic.css"
     )
     temp_path = os.path.join(OUTPUT_PATH, original_filename + ".tmp")
 
@@ -518,7 +518,7 @@ def _generate_inline_font_css(name, font_family):
     Generate CSS and clean up inlined woff files
     """
 
-    original_filename = "{}.css".format(name)
+    original_filename = f"{name}.css"
     temp_path = os.path.join(OUTPUT_PATH, original_filename + ".tmp")
 
     # Write to temporary file
@@ -630,7 +630,7 @@ def _merge_fonts(fonts, output_file_path):
     tmp = tempfile.gettempdir()
     f_names = []
     for i, f in enumerate(fonts):
-        tmp_font_path = os.path.join(tmp, "{}.woff".format(i))
+        tmp_font_path = os.path.join(tmp, f"{i}.woff")
         f_names.append(tmp_font_path)
         f.save(tmp_font_path)
     merger = merge.Merger(options=FONT_TOOLS_OPTIONS)

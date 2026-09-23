@@ -101,7 +101,7 @@ class FacilityDatasetTestCase(TestCase):
     def test_dataset_representation(self):
         self.assertEqual(
             str(self.facility.dataset),
-            "FacilityDataset for {}".format(self.facility.name),
+            f"FacilityDataset for {self.facility.name}",
         )
         new_dataset = FacilityDataset.objects.create()
         self.assertEqual(str(new_dataset), "FacilityDataset (no associated Facility)")

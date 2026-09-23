@@ -295,7 +295,7 @@ def _build_synthetic_viewset():
             )
 
         def get_contact_label(self, row):
-            return "{} <{}>".format(row.name, row.email)
+            return f"{row.name} <{row.email}>"
 
     class SyntheticViewset(BaseValuesViewset, ListModelMixin):
         serializer_class = SyntheticSerializer
@@ -971,15 +971,15 @@ def _build_autodefer_fixtures(author_count, books_per_author=3, awards_per_autho
         pub = publisher if i % 3 != 0 else None
         author = Author.objects.create(
             id=uuid.UUID(int=i),
-            name="Author {:03d}".format(i),
-            email="author{}@example.com".format(i),
+            name=f"Author {i:03d}",
+            email=f"author{i}@example.com",
             publisher=pub,
         )
         authors.append(author)
         for j in range(books_per_author):
-            Book.objects.create(author=author, title="Book {}-{}".format(i, j))
+            Book.objects.create(author=author, title=f"Book {i}-{j}")
         for j in range(awards_per_author):
-            Award.objects.create(author=author, name="Award {}-{}".format(i, j))
+            Award.objects.create(author=author, name=f"Award {i}-{j}")
     return authors
 
 
@@ -1162,12 +1162,12 @@ def _build_to_one_fixtures(author_count, shared_publisher):
     )
     for i in range(author_count):
         publisher = shared or Publisher.objects.create(
-            name="House {:04d}".format(i), country=country
+            name=f"House {i:04d}", country=country
         )
         Author.objects.create(
             id=uuid.UUID(int=i),
-            name="Author {:04d}".format(i),
-            email="author{}@example.com".format(i),
+            name=f"Author {i:04d}",
+            email=f"author{i}@example.com",
             publisher=publisher,
         )
 

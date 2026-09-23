@@ -52,9 +52,7 @@ class GenerateFromDjangoSchemaTestCase(TestCase):
         with closing(sqlite3.connect(":memory:")) as connection:
             connection.executescript(ddl)
             for table, columns in table_columns.items():
-                rebuilt = connection.execute(
-                    'PRAGMA table_info("{}")'.format(table)
-                ).fetchall()
+                rebuilt = connection.execute(f'PRAGMA table_info("{table}")').fetchall()
                 self.assertEqual(list(columns), [row[1] for row in rebuilt])
 
     def _index_names(self, cursor):

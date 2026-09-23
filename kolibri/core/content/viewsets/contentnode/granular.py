@@ -150,16 +150,14 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
                 self.channel_stats = get_channel_stats_from_disk(channel_id, drive_id)
             except LocationError:
                 raise serializers.ValidationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
+                    f"The external drive with given drive id {drive_id} does not exist."
                 )
         if peer_id:
             try:
                 self.channel_stats = get_channel_stats_from_peer(channel_id, peer_id)
             except LocationError:
                 raise serializers.ValidationError(
-                    "The network location with the id {} does not exist".format(peer_id)
+                    f"The network location with the id {peer_id} does not exist"
                 )
         children = queryset.filter(parent=instance)
         parent_serializer = self.get_serializer(instance)

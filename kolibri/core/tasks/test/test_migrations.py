@@ -19,7 +19,7 @@ class TimestamptzMigrationTest(TestMigrations):
         with connection.cursor() as cursor:
             # Simulate the legacy SQLAlchemy schema where datetime columns are naive.
             alter_clauses = ", ".join(
-                "ALTER COLUMN {} TYPE TIMESTAMP WITHOUT TIME ZONE".format(col)
+                f"ALTER COLUMN {col} TYPE TIMESTAMP WITHOUT TIME ZONE"
                 for col in self.COLUMNS
             )
             cursor.execute("ALTER TABLE jobs " + alter_clauses)
@@ -56,14 +56,12 @@ class TimestamptzMigrationTest(TestMigrations):
             col_types = {row[0]: row[1] for row in cursor.fetchall()}
         for col in self.COLUMNS:
             self.assertIn(
-                col, col_types, "Column {} not found in information_schema".format(col)
+                col, col_types, f"Column {col} not found in information_schema"
             )
             self.assertEqual(
                 col_types[col],
                 "timestamp with time zone",
-                "Column {} should be timestamptz after migration, got {}".format(
-                    col, col_types[col]
-                ),
+                f"Column {col} should be timestamptz after migration, got {col_types[col]}",
             )
 
     def test_data_preserved_as_utc_after_migration(self):

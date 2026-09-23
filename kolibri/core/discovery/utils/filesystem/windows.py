@@ -29,7 +29,7 @@ def _get_drive_name(drive, path):
     caption = drive.get("Caption")
     description = drive.get("Description")
     if caption and description:
-        return "{} ({})".format(caption, description)
+        return f"{caption} ({description})"
     if caption:
         return caption
     if description:
@@ -102,11 +102,11 @@ def _wmic_output():
 
     # choose a unique file name (re-entrant/thread-safe/crash-safe)
     OUTPUT_PATH = os.path.join(
-        tempfile.gettempdir(), "kolibri_disks-{}.txt".format(uuid.uuid4())
+        tempfile.gettempdir(), f"kolibri_disks-{uuid.uuid4()}.txt"
     )
 
     # fallback when en-us directory does not exist
-    cmd = 'wmic logicaldisk list full /format:csv > "{}"'.format(OUTPUT_PATH)
+    cmd = f'wmic logicaldisk list full /format:csv > "{OUTPUT_PATH}"'
     try:
         # pipe output from the WMIC command to the temp file
         csv_path = os.path.join(
@@ -114,15 +114,13 @@ def _wmic_output():
         )
         # If csv_path exists, use a different WMIC command.
         if os.path.exists(csv_path):
-            cmd = 'wmic logicaldisk list full /format:"{}" > "{}"'.format(
-                csv_path, OUTPUT_PATH
-            )
+            cmd = f'wmic logicaldisk list full /format:"{csv_path}" > "{OUTPUT_PATH}"'
     except KeyError:
         # If WINDIR is undefined on env
         pass
     returnCode = os.system(cmd)
     if returnCode:
-        raise Exception("Could not run command '{}'".format(cmd))
+        raise Exception(f"Could not run command '{cmd}'")
 
     # output from WMIC is ostensibly UTF-16
     with open(OUTPUT_PATH, "rb") as f:
@@ -168,7 +166,7 @@ def _get_drive_list_powershell():
 
     # Create a unique temp file
     temp_file_path = os.path.join(
-        tempfile.gettempdir(), "kolibri_disks_ps-{}.json".format(uuid.uuid4())
+        tempfile.gettempdir(), f"kolibri_disks_ps-{uuid.uuid4()}.json"
     )
 
     # PowerShell command with explicit property selection

@@ -239,10 +239,10 @@ def _lock_kolibri_home(home):
         fcntl.flock(_home_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         raise SystemExit(
-            "Another benchmark run already holds {}. Run one instance at a time: "
+            f"Another benchmark run already holds {_home_lock_file.name}. Run one instance at a time: "
             "concurrent runs reset each other's content tables mid-phase, so "
             "both captures measure a database the other one is "
-            "rewriting.".format(_home_lock_file.name)
+            "rewriting."
         )
 
 
@@ -284,7 +284,7 @@ def ensure_pristine_copy(channel_id):
     from kolibri.core.content.utils.channel_transfer import transfer_channel
     from kolibri.utils.data import bytes_for_humans
 
-    pristine_path = os.path.join(pristine_dir(), "{}.sqlite3".format(channel_id))
+    pristine_path = os.path.join(pristine_dir(), f"{channel_id}.sqlite3")
     if os.path.exists(pristine_path):
         return pristine_path
 
@@ -463,9 +463,9 @@ def _import_channel(channel_id):
 
     if not import_channel_from_local_db(channel_id):
         raise SystemExit(
-            "Importing channel {} did nothing, so the phase would have measured "
+            f"Importing channel {channel_id} did nothing, so the phase would have measured "
             "an empty import. The destination database was not in the state the "
-            "phase expects.".format(channel_id)
+            "phase expects."
         )
 
 
@@ -661,9 +661,7 @@ def _metadata_warnings(baseline, current):
         if _meta(baseline, key) == _meta(current, key):
             continue
         warnings.append(
-            "metadata.{} differs: baseline {}, current {} — {}".format(
-                key, _meta(baseline, key), _meta(current, key), why
-            )
+            f"metadata.{key} differs: baseline {_meta(baseline, key)}, current {_meta(current, key)} — {why}"
         )
         fatal = fatal or is_fatal
 
@@ -674,13 +672,13 @@ def _metadata_warnings(baseline, current):
         # rather than fails: a deliberate harness self-check legitimately
         # compares a revision against itself.
         warnings.append(
-            "both reports were captured at git revision {}, so no code change "
-            "was measured — check the protocol's git checkout steps".format(revision)
+            f"both reports were captured at git revision {revision}, so no code change "
+            "was measured — check the protocol's git checkout steps"
         )
 
     only_one_side = set(baseline.get("channels", {})) ^ set(current.get("channels", {}))
     warnings += [
-        "channel {} is present in only one report; skipped".format(channel_id)
+        f"channel {channel_id} is present in only one report; skipped"
         for channel_id in sorted(only_one_side)
     ]
     return warnings, fatal
@@ -716,16 +714,14 @@ def _phase_verdict(b_entry, c_entry, time_threshold, min_phase_s):
 def _compare_channel(b_channel, c_channel, time_threshold, min_phase_s):
     """Compare one channel's phases, returning (phase verdicts, warnings)."""
     warnings = [
-        "{} differs: baseline {}, current {}".format(
-            key, b_channel.get(key), c_channel.get(key)
-        )
+        f"{key} differs: baseline {b_channel.get(key)}, current {c_channel.get(key)}"
         for key in _CHANNEL_INVARIANTS
         if b_channel.get(key) != c_channel.get(key)
     ]
     b_phases = b_channel.get("phases", {})
     c_phases = c_channel.get("phases", {})
     warnings += [
-        "phase {} is present in only one report; skipped".format(phase)
+        f"phase {phase} is present in only one report; skipped"
         for phase in PHASES
         if (phase in b_phases) != (phase in c_phases)
     ]
@@ -764,9 +760,7 @@ def compare_reports(baseline, current, time_threshold, min_phase_s):
             b_channels[channel_id], c_channel, time_threshold, min_phase_s
         )
         channels[channel_id] = phases
-        warnings += [
-            "channel {}: {}".format(channel_id, warning) for warning in channel_warnings
-        ]
+        warnings += [f"channel {channel_id}: {warning}" for warning in channel_warnings]
 
     compared = [verdict for phases in channels.values() for verdict in phases.values()]
     if not compared:
@@ -964,7 +958,7 @@ def main():
     if args.runs < 1:
         # Otherwise the run downloads both channel databases and writes a report
         # whose channels carry no phases at all — which without --compare exits 0.
-        raise SystemExit("--runs must be at least 1, got {}".format(args.runs))
+        raise SystemExit(f"--runs must be at least 1, got {args.runs}")
     # Read the baseline and check the output directory before the run, not
     # after it. A capture takes tens of minutes to hours and there is no
     # compare-only mode, so a mistyped --compare path or an unwritable -o path
@@ -973,12 +967,12 @@ def main():
     if args.compare and os.path.abspath(args.compare) == os.path.abspath(args.output):
         # A baseline costs hours to capture.
         raise SystemExit(
-            "--compare and --output are the same path ({}); the new capture "
-            "would overwrite the baseline it is compared against.".format(args.output)
+            f"--compare and --output are the same path ({args.output}); the new capture "
+            "would overwrite the baseline it is compared against."
         )
     output_dir = os.path.dirname(os.path.abspath(args.output))
     if not os.access(output_dir, os.W_OK):
-        raise SystemExit("Output directory is not writable: {}".format(output_dir))
+        raise SystemExit(f"Output directory is not writable: {output_dir}")
 
     setup_kolibri(args.kolibri_home)
 

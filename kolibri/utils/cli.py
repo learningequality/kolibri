@@ -319,16 +319,14 @@ def status():
     status_code, urls = server.get_urls()
 
     if status_code == server.STATUS_RUNNING:
-        sys.stderr.write("{msg:s} (0)\n".format(msg=server.status_messages[0]))
+        sys.stderr.write(f"{server.status_messages[0]:s} (0)\n")
         if urls:
             sys.stderr.write("Kolibri running on:\n\n")
             for addr in urls:
-                sys.stderr.write("\t{}\n".format(addr))
+                sys.stderr.write(f"\t{addr}\n")
     else:
         verbose_status = server.status_messages[status_code]
-        sys.stderr.write(
-            "{msg:s} ({code:d})\n".format(code=status_code, msg=verbose_status)
-        )
+        sys.stderr.write(f"{verbose_status:s} ({status_code:d})\n")
     sys.exit(status_code)
 
 
@@ -568,7 +566,7 @@ def create(name, target_dir, mode, surface, description, author, email, url_slug
     # ``~/plugins`` resolves rather than creating a literal ``~`` directory.
     target_dir = os.path.expanduser(os.path.expandvars(target_dir))
     if not description:
-        description = "{} plugin for Kolibri".format(name)
+        description = f"{name} plugin for Kolibri"
 
     try:
         result = scaffold_plugin(
@@ -586,9 +584,9 @@ def create(name, target_dir, mode, surface, description, author, email, url_slug
         exception.exit_code = 2
         raise exception
 
-    click.echo("Created {} plugin at {}".format(surface, result.plugin_root))
+    click.echo(f"Created {surface} plugin at {result.plugin_root}")
     for path in result.files_written:
-        click.echo("  {}".format(path))
+        click.echo(f"  {path}")
     if result.registration_note:
         click.echo(result.registration_note)
 

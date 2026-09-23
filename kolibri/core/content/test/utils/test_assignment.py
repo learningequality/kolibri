@@ -791,7 +791,7 @@ class FindDownloadableAssignmentsStoreFilterTestCase(TestCase):
             "hard_deleted": False,
             "last_saved_instance": uuid.uuid4().hex,
             "last_saved_counter": 1,
-            "partition": "{}:allusers-ro".format(self.facility.dataset_id),
+            "partition": f"{self.facility.dataset_id}:allusers-ro",
             "source_id": lesson.id,
             "model_name": Lesson.morango_model_name,
             # morango nulls this field out when deserialization succeeds

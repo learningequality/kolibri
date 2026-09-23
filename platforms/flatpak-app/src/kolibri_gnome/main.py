@@ -24,7 +24,7 @@ def application_signal_handler(application, sig, frame):
 def main():
     setproctitle(PROCESS_NAME)
 
-    init_logging("{}.txt".format(PROCESS_NAME))
+    init_logging(f"{PROCESS_NAME}.txt")
     init_gettext()
 
     parser = argparse.ArgumentParser()
@@ -49,10 +49,7 @@ def main():
     uri_files = [Gio.File.new_for_uri(uri) for uri in args.uri_list]
 
     if args.channel_id:
-        application_id = "{prefix}{channel_id}".format(
-            prefix=FRONTEND_CHANNEL_APPLICATION_ID_PREFIX,
-            channel_id=args.channel_id,
-        )
+        application_id = f"{FRONTEND_CHANNEL_APPLICATION_ID_PREFIX}{args.channel_id}"
         GLib.set_prgname(application_id)
         application = ChannelApplication(
             application_id=application_id, channel_id=args.channel_id

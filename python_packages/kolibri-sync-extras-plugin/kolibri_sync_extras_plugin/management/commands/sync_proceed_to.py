@@ -64,15 +64,13 @@ class Command(BaseCommand):
             if status == transfer_statuses.ERRORED:
                 # capture context.error in the stack trace
                 raise SyncProceedToError(
-                    "Failed to finalize {}".format(transfer_session.pk)
+                    f"Failed to finalize {transfer_session.pk}"
                 ) from context.error
             if tries >= MAX_RETRIES:
                 # the only finished states are completed or errored, so in this case we must have
                 # exceeded our retry attempts
                 raise SyncProceedToError(
-                    "Exceeded retry attempts to finalize {}".format(transfer_session.pk)
+                    f"Exceeded retry attempts to finalize {transfer_session.pk}"
                 )
             # this should really never happen
-            raise RuntimeError(
-                "Unexpected failure finalizing {}".format(transfer_session.pk)
-            )
+            raise RuntimeError(f"Unexpected failure finalizing {transfer_session.pk}")

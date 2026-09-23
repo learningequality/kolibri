@@ -361,7 +361,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             # per unit, but pre and post tests get opposite versions so learners don't
             # see the same questions on both. Last hex digit parity drives the split.
             # See PR #14316 (issue #14133) for the pre/post test design rationale.
-            raw = "{}:{}:{}".format(user.id, course_session_id, unit_id)
+            raw = f"{user.id}:{course_session_id}:{unit_id}"
             deterministic_hash = hashlib.md5(raw.encode()).hexdigest()
 
             # A/B version: last hex digit even -> pre=A/post=B; odd -> reverse
@@ -911,9 +911,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 return ContentSessionLog.objects.get(id=session_id, user__isnull=True)
             return ContentSessionLog.objects.get(id=session_id, user=user)
         except (ValueError, ContentSessionLog.DoesNotExist):
-            raise Http404(
-                "ContentSessionLog with id {} does not exist".format(session_id)
-            )
+            raise Http404(f"ContentSessionLog with id {session_id} does not exist")
 
     def _normalize_progress(self, progress):
         # Round progress to three decimal places

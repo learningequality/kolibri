@@ -31,13 +31,11 @@ def get_current_job():
 
 def callable_to_import_path(func):
     if callable(func):
-        funcstring = "{module}.{funcname}".format(
-            module=func.__module__, funcname=func.__name__
-        )
+        funcstring = f"{func.__module__}.{func.__name__}"
     elif isinstance(func, str):
         funcstring = func
     else:
-        raise TypeError("Can't handle a function of type {}".format(type(func)))
+        raise TypeError(f"Can't handle a function of type {type(func)}")
 
     return funcstring
 
@@ -53,7 +51,7 @@ def import_path_to_callable(funcstring):
     try:
         return import_string(funcstring)
     except AttributeError:
-        raise ImportError("Invalid module path: {}".format(funcstring))
+        raise ImportError(f"Invalid module path: {funcstring}")
 
 
 class InfiniteLoopThread(Thread):
@@ -74,9 +72,7 @@ class InfiniteLoopThread(Thread):
         self.logger = logging.getLogger(
             "{module}".format(module=__name__.split(".")[0])
         )
-        self.full_thread_name = "{thread_name}-{thread_id}".format(
-            thread_name=self.thread_name, thread_id=self.thread_id
-        )
+        self.full_thread_name = f"{self.thread_name}-{self.thread_id}"
         super().__init__(name=self.full_thread_name, *args, **kwargs)
         self.func = func
         self.wait = wait_between_runs

@@ -359,15 +359,15 @@ def provision_from_file(file_path):
         raise ValidationError("Device is already provisioned")
 
     if not os.path.exists(file_path):
-        raise ValidationError("File {} does not exist".format(file_path))
+        raise ValidationError(f"File {file_path} does not exist")
 
     try:
         with open(file_path) as f:
             options = json.load(f)
     except OSError:
-        raise ValidationError("File {} could not be opened".format(file_path))
+        raise ValidationError(f"File {file_path} could not be opened")
     except ValueError:
-        raise ValidationError("File {} did not contain valid JSON".format(file_path))
+        raise ValidationError(f"File {file_path} did not contain valid JSON")
 
     facility_name = options.get("facility_name")
 
@@ -376,18 +376,14 @@ def provision_from_file(file_path):
     try:
         device_settings = validate_device_settings(**options.get("device_settings", {}))
     except ValueError:
-        raise ValidationError(
-            "Invalid device settings specified in {}.".format(file_path)
-        )
+        raise ValidationError(f"Invalid device settings specified in {file_path}.")
 
     try:
         facility_settings = validate_facility_settings(
             options.get("facility_settings", {})
         )
     except ValueError:
-        raise ValidationError(
-            "Invalid facility settings specified in {}.".format(file_path)
-        )
+        raise ValidationError(f"Invalid facility settings specified in {file_path}.")
 
     preset = options.get("preset")
     username = options.get("superuser", {}).get("username")

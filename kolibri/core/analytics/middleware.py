@@ -180,7 +180,7 @@ class MetricsMiddleware(MiddlewareMixin):
                             self.requests_profiling_file = os.path.join(
                                 conf.KOLIBRI_HOME,
                                 "performance",
-                                "{}_requests_performance.csv".format(file_timestamp),
+                                f"{file_timestamp}_requests_performance.csv",
                             )
                             with open(
                                 self.requests_profiling_file, mode="a"

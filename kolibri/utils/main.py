@@ -162,7 +162,7 @@ def _copy_preseeded_db(db_name):
             db_path = os.path.abspath(
                 os.path.join(
                     os.path.dirname(kolibri.dist.__file__),
-                    "home/{}".format(db_file_name),
+                    f"home/{db_file_name}",
                 )
             )
             shutil.copyfile(db_path, target)

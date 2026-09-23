@@ -45,14 +45,14 @@ class SyncQueueTestCase(TestCase):
         for i in range(3):
             SyncQueue.objects.create(
                 user_id=FacilityUser.objects.create(
-                    username="test{}".format(i), facility=self.facility
+                    username=f"test{i}", facility=self.facility
                 ).id,
                 instance_id=uuid4(),
             )
         for i in range(3, 5):
             item = SyncQueue.objects.create(
                 user_id=FacilityUser.objects.create(
-                    username="test{}".format(i), facility=self.facility
+                    username=f"test{i}", facility=self.facility
                 ).id,
                 instance_id=uuid4(),
             )
@@ -79,7 +79,7 @@ class SyncQueueTestCase(TestCase):
                 updated_time = time_now - 5
             SyncQueue.objects.create(
                 user_id=FacilityUser.objects.create(
-                    username="atest{}".format(i), facility=self.facility
+                    username=f"atest{i}", facility=self.facility
                 ).id,
                 instance_id=uuid4(),
                 status=SyncQueueStatus.Queued,
@@ -184,10 +184,10 @@ class LearnerDeviceStatusTestCase(TestCase):
 
         self.assertEqual(self.facility.dataset_id, device_status.dataset_id)
         self.assertEqual(
-            "{}:{}".format(self.instance.id, self.user.id),
+            f"{self.instance.id}:{self.user.id}",
             device_status._morango_source_id,
         )
         self.assertEqual(
-            "{}:user-rw:{}".format(self.facility.dataset_id, self.user.id),
+            f"{self.facility.dataset_id}:user-rw:{self.user.id}",
             device_status._morango_partition,
         )

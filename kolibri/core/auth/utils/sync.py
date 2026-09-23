@@ -134,7 +134,7 @@ def learner_canonicalized_assignments(resource_name, assignments):
     :param assignments: An assignment queryset, for LessonAssignment or ExamAssignment
     :return: A queryset of canonicalized assignments
     """
-    resource_id_name = "{}_id".format(resource_name)
+    resource_id_name = f"{resource_name}_id"
     annotated_assignments = assignments.annotate(
         canonical_preference=Case(
             When(collection__kind=CLASSROOM, then=1),

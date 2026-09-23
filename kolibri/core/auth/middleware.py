@@ -29,17 +29,13 @@ def get_anonymous_user_model():
         )
     except LookupError:
         raise ImproperlyConfigured(
-            "AUTH_ANONYMOUS_USER_MODEL refers to an app '{}' that has not been installed".format(
-                app_name
-            )
+            f"AUTH_ANONYMOUS_USER_MODEL refers to an app '{app_name}' that has not been installed"
         )
     try:
         return getattr(models_module, model_name)
     except AttributeError:
         raise ImproperlyConfigured(
-            "AUTH_ANONYMOUS_USER_MODEL refers to a model '{}' that does not exist in the app '{}'".format(
-                model_name, app_name
-            )
+            f"AUTH_ANONYMOUS_USER_MODEL refers to a model '{model_name}' that does not exist in the app '{app_name}'"
         )
 
 

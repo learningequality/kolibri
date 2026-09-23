@@ -64,19 +64,19 @@ def get_or_create_facilities(**options):
     n_to_create = n_facilities - n_on_device
     if n_to_create > 0:
         logger_info(
-            "Generating {n} facility object(s)".format(n=n_to_create),
+            f"Generating {n_to_create} facility object(s)",
             verbosity=verbosity,
         )
         for i in range(n_to_create):
-            facility_name = "Facility{i}".format(i=i + 1)
+            facility_name = f"Facility{i + 1}"
             if device_name:
                 # If specified, prepend the device name to the facility.
-                facility_name = "{0} {1}".format(device_name, facility_name)
+                facility_name = f"{device_name} {facility_name}"
             facility, created = Facility.objects.get_or_create(name=facility_name)
             facility.dataset.location = device_name
             facility.dataset.save()
             if created:
-                logger_info("==> CREATED FACILITY {f}".format(f=facility), verbosity)
+                logger_info(f"==> CREATED FACILITY {facility}", verbosity)
 
     return Facility.objects.all()[0:n_facilities]
 
@@ -91,9 +91,7 @@ def get_or_create_classrooms(**options):
 
     if n_to_create > 0:
         logger_info(
-            "Generating {n} classroom object(s) for facility: {name}".format(
-                n=n_to_create, name=facility.name
-            ),
+            f"Generating {n_to_create} classroom object(s) for facility: {facility.name}",
             verbosity,
         )
         for i in range(n_to_create):
@@ -101,12 +99,12 @@ def get_or_create_classrooms(**options):
             if device_name:
                 # Prepend the facility name to the class to easily identify the class during
                 # P2P sync tests. The facility name already has the device_name prepended.
-                class_name = "{0} {1}".format(facility, class_name)
+                class_name = f"{facility} {class_name}"
             classroom, created = Classroom.objects.get_or_create(
                 parent=facility, name=class_name
             )
             if created:
-                logger_info("==> CREATED Class {c}".format(c=classroom), verbosity)
+                logger_info(f"==> CREATED Class {classroom}", verbosity)
     return Classroom.objects.filter(parent=facility)[0:n_classes]
 
 
@@ -134,9 +132,7 @@ def get_or_create_classroom_users(**options):
     n_to_create = n_users - n_in_classroom
     if n_to_create > 0:
         logger_info(
-            "Generating {n} user object(s) for class: {classroom} in facility: {facility}".format(
-                n=n_to_create, classroom=classroom, facility=facility
-            ),
+            f"Generating {n_to_create} user object(s) for class: {classroom} in facility: {facility}",
             verbosity=verbosity,
         )
         for i in range(n_to_create):
@@ -154,7 +150,7 @@ def get_or_create_classroom_users(**options):
             )
             if device_name:
                 # If specified, prepend the device name to the user.
-                name = "{0} {1}".format(device_name, name)
+                name = f"{device_name} {name}"
             # calculate birth year
             birth_year = str(current_year - int(base_data["Age"]))
             # randomly assign gender
@@ -196,9 +192,7 @@ def add_channel_activity_for_user(**options):  # noqa: C901
     ).filter(channel_id=channel_id)
 
     logger_info(
-        "Generating {i} user interaction(s) for user: {user} for channel: {channel}".format(
-            i=n_content_items, user=user, channel=channel.name
-        ),
+        f"Generating {n_content_items} user interaction(s) for user: {user} for channel: {channel.name}",
         verbosity=verbosity,
     )
     # Generate a content interaction history for this many content items
@@ -486,7 +480,7 @@ def create_exams_for_classrooms(**options):
             coach.set_password("password")
             if device_name:
                 # If specified, prepend the device_name to the new coach.
-                coach.name = "{0} {1}".format(device_name, coach.name)
+                coach.name = f"{device_name} {coach.name}"
             coach.save()
         else:
             coach = random.choice(members)
@@ -569,9 +563,7 @@ def create_exams_for_classrooms(**options):
                 random_seconds = random.randint(1, 100)
                 seconds = timezone.timedelta(seconds=random_seconds)
                 AttemptLog.objects.create(
-                    item="{}{}{}".format(
-                        content_ids[i], QUIZ_ITEM_DELIMETER, assessment_ids[i]
-                    ),
+                    item=f"{content_ids[i]}{QUIZ_ITEM_DELIMETER}{assessment_ids[i]}",
                     start_timestamp=now - seconds,
                     end_timestamp=now,
                     completion_timestamp=now,
@@ -630,9 +622,7 @@ def create_attendance_for_classroom(**options):
             ).save()
 
     logger_info(
-        "    Created {} attendance sessions for {}".format(
-            num_sessions, classroom.name
-        ),
+        f"    Created {num_sessions} attendance sessions for {classroom.name}",
         verbosity=verbosity,
     )
 

@@ -33,11 +33,7 @@ class CustomDjangoCache(DjangoCache):
         try:
             method = getattr(super(), method_name)
             if method is None:
-                raise ValueError(
-                    "{method_name} is not a valid method".format(
-                        method_name=method_name
-                    )
-                )
+                raise ValueError(f"{method_name} is not a valid method")
             return method(*args, **kwargs)
         except self.ERRORS_TO_HANDLE:
             return error_return_value

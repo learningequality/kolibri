@@ -31,7 +31,7 @@ class SyncExtrasLocalOperation(LocalOperation):
         if not sync_options or not sync_options.get(self.option_condition, False):
             return []
         # if option is enabled, check that stage is in option's stage list
-        option_key = "{}_STAGES".format(self.option_condition)
+        option_key = f"{self.option_condition}_STAGES"
         if not sync_options.get(option_key, None):
             return []
         return sync_options.get(option_key).split(",")

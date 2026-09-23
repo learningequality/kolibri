@@ -42,13 +42,11 @@ class ImportMetadataViewset(GenericViewSet):
         else:
             error += "high"
         if self.default_content_schema == self.min_content_schema:
-            error += ", exports only suported for version {}".format(
-                self.default_content_schema
+            error += (
+                f", exports only suported for version {self.default_content_schema}"
             )
         else:
-            error += ", exports only suported for versions {} to {}".format(
-                self.min_content_schema, self.default_content_schema
-            )
+            error += f", exports only suported for versions {self.min_content_schema} to {self.default_content_schema}"
         return error
 
     def _validate_content_schema(self, content_schema):

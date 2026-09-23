@@ -167,7 +167,7 @@ class KolibriInstance:
         # Zeroconf wants socket.inet_aton() format, so make sure we have string with this class
         # which we convert when interfacing with Zeroconf
         if ip is not None and not isinstance(ip, str):
-            raise TypeError("IP must be a string, not {}".format(type(ip)))
+            raise TypeError(f"IP must be a string, not {type(ip)}")
 
         self.id = instance_id
         self.zeroconf_id = instance_id
@@ -278,7 +278,7 @@ class KolibriInstance:
         """
         if not service_info.name.endswith(SERVICE_TYPE):
             raise AssertionError(
-                "Invalid service name; must end with '%s'" % SERVICE_TYPE
+                f"Invalid service name; must end with '{SERVICE_TYPE}'"
             )
 
         # parse out device info
@@ -571,7 +571,7 @@ class KolibriBroadcast:
                 self.zeroconf.check_service(service, False)
             except NonUniqueNameException:
                 # if there's a name conflict, append incrementing integer until no conflict
-                zeroconf_id = "%s-%d" % (self.instance.id, i)
+                zeroconf_id = f"{self.instance.id}-{i}"
                 service = None
 
             if i > SERVICE_RENAME_ATTEMPTS:

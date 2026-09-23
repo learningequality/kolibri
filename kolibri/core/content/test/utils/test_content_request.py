@@ -1327,8 +1327,8 @@ class GetImportMetadataTestCase(TestCase):
     @mock.patch(_module + "reverse_path")
     def test_basic_metadata_retrieval(self, mock_reverse_path):
         """Test basic metadata retrieval without descendants"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         metadata = self._create_basic_metadata(self.contentnode_id)
         self.mock_client.get.return_value.json.return_value = {"results": metadata}
@@ -1341,8 +1341,8 @@ class GetImportMetadataTestCase(TestCase):
     @mock.patch(_module + "reverse_path")
     def test_import_descendants_adds_descendants_flag_to_url(self, mock_reverse_path):
         """Test that import_descendants=True adds descendants=true to the API request URL."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         self.mock_download.metadata = {"import_descendants": True}
         combined_metadata = {
@@ -1369,8 +1369,8 @@ class GetImportMetadataTestCase(TestCase):
         self, mock_reverse_path
     ):
         """Test that requests without import_descendants do not include descendants=true."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         metadata = self._create_basic_metadata(self.contentnode_id)
         self.mock_client.get.return_value.json.return_value = {"results": metadata}
@@ -1416,8 +1416,8 @@ class GetImportMetadataTestCase(TestCase):
     @mock.patch(_module + "reverse_path")
     def test_merges_paginated_metadata(self, mock_reverse_path):
         """Test that paginated pages from the combined endpoint are properly merged."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         self.mock_download.metadata = {"import_descendants": True}
         # Page 1 contains the node itself, its parent, and the first child.
@@ -1460,8 +1460,8 @@ class GetImportMetadataTestCase(TestCase):
     @mock.patch(_module + "reverse_path")
     def test_initial_request_always_includes_max_results(self, mock_reverse_path):
         """Test that every first request includes max_results regardless of import_descendants."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         self.mock_client.get.return_value.json.return_value = {
             "results": {ContentNode._meta.db_table: []}
@@ -1470,7 +1470,7 @@ class GetImportMetadataTestCase(TestCase):
         _get_import_metadata(self.mock_client, self.mock_download)
 
         call_url = self.mock_client.get.call_args[0][0]
-        self.assertIn("max_results={}".format(MAX_NODES_PER_REQUEST), call_url)
+        self.assertIn(f"max_results={MAX_NODES_PER_REQUEST}", call_url)
 
     @mock.patch(_module + "reverse_path")
     def test_initial_request_with_descendants_includes_both_flags(
@@ -1478,8 +1478,8 @@ class GetImportMetadataTestCase(TestCase):
     ):
         """Test that the initial request with import_descendants includes both
         descendants=true and max_results."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         self.mock_download.metadata = {"import_descendants": True}
         self.mock_client.get.return_value.json.return_value = {
@@ -1490,13 +1490,13 @@ class GetImportMetadataTestCase(TestCase):
 
         call_url = self.mock_client.get.call_args[0][0]
         self.assertIn("descendants=true", call_url)
-        self.assertIn("max_results={}".format(MAX_NODES_PER_REQUEST), call_url)
+        self.assertIn(f"max_results={MAX_NODES_PER_REQUEST}", call_url)
 
     @mock.patch(_module + "reverse_path")
     def test_subsequent_requests_use_cursor(self, mock_reverse_path):
         """Test that follow-up requests use the cursor from the 'more' field."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         self.mock_download.metadata = {"import_descendants": True}
         page1_response = {
@@ -1521,8 +1521,8 @@ class GetImportMetadataTestCase(TestCase):
     @mock.patch(_module + "reverse_path")
     def test_import_descendants_404_returns_none(self, mock_reverse_path):
         """Test that a 404 during a descendants fetch returns None."""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
+        mock_reverse_path.return_value = (
+            f"/api/public/v2/importmetadata/{self.contentnode_id}/"
         )
         self.mock_download.metadata = {"import_descendants": True}
         mock_response = mock.MagicMock()
@@ -1709,7 +1709,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
                 for i in range(2):
                     ContentNode.objects.create(
                         id=uuid.uuid4().hex,
-                        title="child {}".format(i),
+                        title=f"child {i}",
                         kind="video",
                         parent=parent,
                         channel_id=channel_id,

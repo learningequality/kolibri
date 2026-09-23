@@ -231,13 +231,9 @@ class TasksViewSet(viewsets.GenericViewSet):
             registered_task = TaskRegistry[job.func]
             registered_task.check_job_permissions(request.user, job, self)
         except JobNotFound:
-            raise Http404("Job with {pk} not found".format(pk=pk))
+            raise Http404(f"Job with {pk} not found")
         except KeyError:
-            raise Http404(
-                "Job with {pk} found but '{funcstr}' is not registered.".format(
-                    pk=pk, funcstr=job.func
-                )
-            )
+            raise Http404(f"Job with {pk} found but '{job.func}' is not registered.")
         return job
 
     def retrieve(self, request, pk=None):
@@ -271,7 +267,7 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         if job_to_clear.state == State.RUNNING:
             raise serializers.ValidationError(
-                "Cannot delete job with state: {}".format(job_to_clear.state)
+                f"Cannot delete job with state: {job_to_clear.state}"
             )
 
         job_storage.clear(job_id=job_to_clear.job_id, force=True)
@@ -294,7 +290,7 @@ class TasksViewSet(viewsets.GenericViewSet):
             restarted_job_id = job_storage.restart_job(job_id=job_to_restart.job_id)
         except JobNotRestartable:
             raise serializers.ValidationError(
-                "Cannot restart job with state: {}".format(job_to_restart.state)
+                f"Cannot restart job with state: {job_to_restart.state}"
             )
 
         job_response = self._job_to_response(
@@ -311,7 +307,7 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         if not job_to_cancel.cancellable:
             raise serializers.ValidationError(
-                "Cannot cancel job for task: {}".format(job_to_cancel.func)
+                f"Cannot cancel job for task: {job_to_cancel.func}"
             )
 
         job_storage.cancel(job_id=job_to_cancel.job_id)
@@ -327,7 +323,7 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         if job_to_clear.state not in State.FINISHED_STATES:
             raise serializers.ValidationError(
-                "Cannot clear job with state: {}".format(job_to_clear.state)
+                f"Cannot clear job with state: {job_to_clear.state}"
             )
 
         job_storage.clear(job_id=job_to_clear.job_id)

@@ -26,7 +26,7 @@ from kolibri.utils.file_transfer import TransferFailed
 
 class BaseTestTransfer(unittest.TestCase):
     def set_test_data(self, partial=False, incomplete=False, finished=False):
-        self.dest = self.destdir + "/test_file_{}".format(self.num_files)
+        self.dest = self.destdir + f"/test_file_{self.num_files}"
 
         chunked_file = ChunkedFile(self.dest)
 
@@ -60,7 +60,7 @@ class BaseTestTransfer(unittest.TestCase):
                 else:
                     to_file_data = to_write
                 with open(
-                    os.path.join(self.dest + ".chunks", ".chunk_{}".format(i)), "wb"
+                    os.path.join(self.dest + ".chunks", f".chunk_{i}"), "wb"
                 ) as f:
                     f.write(to_file_data)
             else:
@@ -112,13 +112,9 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         if "x-goog-stored-content-length" in headers:
             headers["x-goog-stored-content-length"] = len(data)
         if end is not None:
-            headers["content-range"] = "bytes {}-{}/{}".format(
-                # have to take 1 away as it has been coerced to fit an exclusive
-                # range for a Python list slice.
-                start,
-                end - 1,
-                self.file_size,
-            )
+            # have to take 1 away as it has been coerced to fit an exclusive
+            # range for a Python list slice.
+            headers["content-range"] = f"bytes {start}-{end - 1}/{self.file_size}"
         return headers
 
     def mock_get_request(self, url, headers=None, **kwargs):
@@ -223,10 +219,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 download_call = call(
                     self.source,
                     headers={
-                        "Range": "bytes={}-{}".format(
-                            i * ChunkedFile.chunk_size,
-                            min(j * ChunkedFile.chunk_size, self.file_size) - 1,
-                        )
+                        "Range": f"bytes={i * ChunkedFile.chunk_size}-{min(j * ChunkedFile.chunk_size, self.file_size) - 1}"
                     },
                     stream=True,
                     timeout=60,
@@ -285,7 +278,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
     def test_download_run_no_existing_chunked_file(self):
         """Test downloading entire file when no chunked file exists"""
         # Create a fresh destination without any chunked file setup
-        fresh_dest = self.destdir + "/fresh_file_{}".format(self.num_files + 100)
+        fresh_dest = self.destdir + f"/fresh_file_{self.num_files + 100}"
 
         with FileDownload(
             self.source,
@@ -367,13 +360,13 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             calls = [
                 call(
                     self.source,
-                    headers={"Range": "bytes=0-{}".format(size)},
+                    headers={"Range": f"bytes=0-{size}"},
                     stream=True,
                     timeout=60,
                 ),
                 call(
                     self.source,
-                    headers={"Range": "bytes=0-{}".format(size)},
+                    headers={"Range": f"bytes=0-{size}"},
                     stream=True,
                     timeout=60,
                 ),
@@ -739,7 +732,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
                 self.assertEqual(
                     self.content[start_range : capped_end_rage + 1],
                     data_out,
-                    "Content mismatch: {}-{}".format(start_range, end_range),
+                    f"Content mismatch: {start_range}-{end_range}",
                 )
 
                 chunked_file = ChunkedFile(self.dest)
@@ -747,9 +740,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
                 self.assertEqual(
                     chunked_file.read(end_range - start_range + 1),
                     self.content[start_range : capped_end_rage + 1],
-                    "Chunked file content mismatch: {}-{}".format(
-                        start_range, end_range
-                    ),
+                    f"Chunked file content mismatch: {start_range}-{end_range}",
                 )
                 self.mock_session.get.reset_mock()
 
@@ -782,7 +773,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
                 self.assertEqual(
                     self.content[start_range : capped_end_rage + 1],
                     data_out,
-                    "Content mismatch: {}-{}".format(start_range, end_range),
+                    f"Content mismatch: {start_range}-{end_range}",
                 )
 
                 chunked_file = ChunkedFile(self.dest)
@@ -790,9 +781,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
                 self.assertEqual(
                     chunked_file.read(end_range - start_range + 1),
                     self.content[start_range : capped_end_rage + 1],
-                    "Chunked file content mismatch: {}-{}".format(
-                        start_range, end_range
-                    ),
+                    f"Chunked file content mismatch: {start_range}-{end_range}",
                 )
 
     def test_remote_file_seek_and_tell(self):
@@ -991,7 +980,7 @@ class TestRetryImport(unittest.TestCase):
     def _retry_import_helper(self, exception_class, *args, **kwargs):
         e = exception_class(*args, **kwargs)
         self.assertTrue(
-            retry_import(e), "Expected retry for {}".format(exception_class.__name__)
+            retry_import(e), f"Expected retry for {exception_class.__name__}"
         )
 
     def test_retry_import_connection_error(self):
@@ -1021,5 +1010,5 @@ class TestRetryImport(unittest.TestCase):
             e = exception_class(**kwargs)
             self.assertFalse(
                 retry_import(e),
-                "Expected no retry for {}".format(exception_class.__name__),
+                f"Expected no retry for {exception_class.__name__}",
             )

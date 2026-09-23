@@ -285,7 +285,7 @@ class CollectionRelatedObjectTestCase(TestCase):
         cls.facility = Facility.objects.create()
 
         users = cls.users = [
-            FacilityUser.objects.create(username="foo%s" % i, facility=cls.facility)
+            FacilityUser.objects.create(username=f"foo{i}", facility=cls.facility)
             for i in range(10)
         ]
 

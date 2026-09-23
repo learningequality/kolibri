@@ -595,7 +595,7 @@ class QuizDifficultQuestionTestCase(APITestCase):
             complete=True,
             correct=0,
             user=user,
-            item="{}:test".format(self.content_id),
+            item=f"{self.content_id}:test",
         )
 
     def test_coach_one_difficult(self):
@@ -716,7 +716,7 @@ class QuizDifficultQuestionTestCase(APITestCase):
             complete=True,
             correct=0,
             user=self.classroom_group_learner,
-            item="{}:notatest".format(self.content_id),
+            item=f"{self.content_id}:notatest",
         )
         self._login_as_coach()
         response = self._get_quiz_difficulties()
@@ -736,7 +736,7 @@ class QuizDifficultQuestionTestCase(APITestCase):
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
-            item="{}:notatest".format(self.content_id),
+            item=f"{self.content_id}:notatest",
         )
         self._login_as_coach()
         response = self._get_quiz_difficulties()
@@ -758,7 +758,7 @@ class QuizDifficultQuestionTestCase(APITestCase):
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
-            item="{}:notatest".format(self.content_id),
+            item=f"{self.content_id}:notatest",
         )
         self._login_as_coach()
         response = self._get_quiz_difficulties(for_group=True)
