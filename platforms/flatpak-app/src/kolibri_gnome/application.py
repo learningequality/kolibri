@@ -95,7 +95,7 @@ class Application(Adw.Application):
         action = Gio.SimpleAction.new("zoom-in", None)
         action.connect("activate", self.__on_zoom_in)
         self.add_action(action)
-        self.set_accels_for_action("app.zoom-in", ["<Control>plus"])
+        self.set_accels_for_action("app.zoom-in", ["<Control>plus", "<Control>equal"])
 
         action = Gio.SimpleAction.new("zoom-out", None)
         action.connect("activate", self.__on_zoom_out)
