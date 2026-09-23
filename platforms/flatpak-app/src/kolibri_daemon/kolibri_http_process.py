@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import logging
 import multiprocessing
+import threading
 from enum import auto
 from enum import Enum
+
+from gi.repository import GLib
 
 import kolibri
 from kolibri.dist.magicbus import ProcessBus
@@ -50,6 +53,11 @@ class KolibriHttpProcess(KolibriServiceProcess):
 
     def run(self):
         super().run()
+
+        # Gio.NetworkMonitor, read by the kolibri_app CheckIsMeteredHook, only
+        # sees connection changes through D-Bus signals dispatched on the
+        # default main context. Nothing else in this process iterates it.
+        threading.Thread(target=GLib.MainLoop().run, daemon=True).start()
 
         init_kolibri()
 
