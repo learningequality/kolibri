@@ -688,7 +688,7 @@ class Command(AsyncCommand):
         """
         new_classes = []
         update_classes = []
-        total_classes = set([k for k in classes[0]] + [v for v in classes[1]])
+        total_classes = {*classes[0], *classes[1]}
         existing_classes = (
             Classroom.objects.filter(parent=self.default_facility)
             # .filter(name__in=total_classes)  # can't be done if classes names are case insensitive
