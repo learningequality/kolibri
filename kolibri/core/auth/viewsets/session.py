@@ -109,12 +109,12 @@ class CreateSessionSerializer(serializers.Serializer):
                 request, username=username, password=password, facility=facility
             )
 
-        if user is not None and user.is_active:
-            attrs["user"] = user
-            return attrs
-
         # Otherwise, throw a meaningful validation error
-        self._throw_validation_error(username, password, facility, picture_password)
+        if user is None or not user.is_active:
+            self._throw_validation_error(username, password, facility, picture_password)
+
+        attrs["user"] = user
+        return attrs
 
     def _check_os_user(self, request, username):
         app_auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
