@@ -7,7 +7,7 @@ option_spec = {
     "Pwa": {
         # Ideally this would be an array of dicts defining *all* the related
         # apps, not just a couple of platform-specific ones. However, the type
-        # system for `option_spec` doesn’t support that at the moment.
+        # system for `option_spec` doesn't support that at the moment.
         "ANDROID_APPLICATION_ID": {
             "type": "string",
             "default": "",

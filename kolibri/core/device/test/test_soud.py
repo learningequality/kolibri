@@ -349,7 +349,7 @@ class SoudExecuteSyncsTestCase(TestCase):
 
     def test_ordering(self):
         queues = []
-        for i in range(WINDOW_SEC + 2):
+        for _ in range(WINDOW_SEC + 2):
             queue = self._create_queue(
                 instance_id=uuid.uuid4().hex, status=SyncQueueStatus.Pending
             )
@@ -369,7 +369,7 @@ class SoudExecuteSyncsTestCase(TestCase):
                 self.mock_request_sync, instance_id=queue.instance_id, call_index=i
             )
 
-        for i, queue in enumerate(queues[WINDOW_SEC:]):
+        for queue in queues[WINDOW_SEC:]:
             self.assertNotCalledWithContext(
                 self.mock_request_sync, instance_id=queue.instance_id
             )

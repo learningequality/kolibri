@@ -445,7 +445,7 @@ class ChunkedFile(TransferFileBase):
             # Check that the number of chunks is set
             # this depends on the file size being set
             # which will raise a ValueError.
-            self.chunks_count
+            _ = self.chunks_count
         except ValueError:
             return False
         start_chunk, end_chunk = self._chunk_range_for_byte_range(start, end)

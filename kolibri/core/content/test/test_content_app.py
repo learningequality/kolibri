@@ -300,11 +300,6 @@ class ContentNodeAPIBase:
         thumbnail = None
         files = []
         for f in expected.files.all():
-            ("local_file__id",)
-            ("local_file__available",)
-            ("local_file__file_size",)
-            ("local_file__extension",)
-            ("lang_id",)
             file = {}
             for field in [
                 "id",
@@ -2511,11 +2506,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             files = []
 
             for f in expected.files.all():
-                ("local_file__id",)
-                ("local_file__available",)
-                ("local_file__file_size",)
-                ("local_file__extension",)
-                ("lang_id",)
                 file = {}
                 for field in [
                     "id",
@@ -2634,11 +2624,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             files = []
 
             for f in expected.files.all():
-                ("local_file__id",)
-                ("local_file__available",)
-                ("local_file__file_size",)
-                ("local_file__extension",)
-                ("lang_id",)
                 file = {}
                 for field in [
                     "id",

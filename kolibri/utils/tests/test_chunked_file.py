@@ -261,14 +261,14 @@ class TestChunkedFile(unittest.TestCase):
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
         self.chunked_file._file_size = None
         with self.assertRaises(ChunkedFileDoesNotExist):
-            self.chunked_file.file_size
+            _ = self.chunked_file.file_size
 
     def test_file_finalized_by_parallel_process_after_opening(self):
         self.chunked_file.finalize_file()
         self.chunked_file.delete()
         self.chunked_file._file_size = None
         with self.assertRaises(ChunkedFileDoesNotExist):
-            self.chunked_file.file_size
+            _ = self.chunked_file.file_size
 
     def test_file_finalized_by_parallel_process_after_opening_writing(self):
         self.chunked_file.finalize_file()

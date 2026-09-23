@@ -55,7 +55,7 @@ class KolibriWindow(Adw.ApplicationWindow):
         related_webview: typing.Optional[WebKit.WebView] = None,
         **kwargs,
     ):
-        super().__init__(application=application, *args, **kwargs)
+        super().__init__(*args, application=application, **kwargs)
 
         self.__context = context
 

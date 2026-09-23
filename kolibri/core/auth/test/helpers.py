@@ -175,7 +175,9 @@ def create_dummy_facility_data(
 
     data["all_users"] = data["facility"].get_members()
     data["all_collections"] = (
-        [data["facility"]] + data["classrooms"] + sum(data["learnergroups"], [])
+        [data["facility"]]
+        + data["classrooms"]
+        + [group for groups in data["learnergroups"] for group in groups]
     )
 
     # create Roles linking users with Collections

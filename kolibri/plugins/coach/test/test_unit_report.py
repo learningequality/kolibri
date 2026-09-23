@@ -248,7 +248,7 @@ class ComputeTestScoresTests(TestCase):
         result = self._scores(
             [self.learner_b.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
         )[self.unit_id]["pre"]
-        # Learner attempted but got 0 correct – should appear with empty scores dict
+        # Learner attempted but got 0 correct - should appear with empty scores dict
         self.assertIn(str(self.learner_b.id), result)
         self.assertEqual(result[str(self.learner_b.id)], {})
 

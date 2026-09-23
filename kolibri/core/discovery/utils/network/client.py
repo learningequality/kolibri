@@ -204,7 +204,7 @@ class NetworkClient(SameHostSession):
                 # capture the remote IP address, which requires `stream=True` and before consumed
                 self.remote_ip = response.raw._connection.sock.getpeername()[0]
                 # now consume content, see how `Session.send` does this when `stream=False`
-                response.content
+                _ = response.content
 
             response.raise_for_status()
             return response

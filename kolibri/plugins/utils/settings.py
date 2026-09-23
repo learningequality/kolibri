@@ -49,7 +49,8 @@ def _validate_module_setting(
                 plugin_module=module_path,
                 setting=setting,
                 plugins=", ".join(plugin_settings[setting]),
-            )
+            ),
+            stacklevel=1,
         )
         plugin_settings[setting].append(module_path)
     else:

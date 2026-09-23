@@ -23,7 +23,7 @@ class PwaPlugin(KolibriPluginBase):
     anything more than the browser usually does.
 
     For the web app to be installable, the Kolibri instance must be set up to be
-    served over HTTPS, as that’s a requirement of the Web Application
+    served over HTTPS, as that's a requirement of the Web Application
     specification.
 
     You must also provide a themed logo in scalable, 192px and 512px versions.

@@ -547,7 +547,7 @@ class TestJobSupervisorId:
             barrier = threading.Barrier(2, timeout=10)
             results = {}
 
-            def claim(supervisor_id):
+            def claim(supervisor_id, barrier, results):
                 barrier.wait()
                 try:
                     results[supervisor_id] = defaultbackend.get_next_queued_job(
@@ -558,7 +558,7 @@ class TestJobSupervisorId:
 
             supervisor_ids = [uuid.uuid4().hex, uuid.uuid4().hex]
             threads = [
-                threading.Thread(target=claim, args=(supervisor_id,))
+                threading.Thread(target=claim, args=(supervisor_id, barrier, results))
                 for supervisor_id in supervisor_ids
             ]
             for t in threads:
@@ -650,14 +650,17 @@ class TestJobSupervisorId:
                 hook.reset_mock()
                 barrier = threading.Barrier(2, timeout=10)
 
-                def finalize():
+                def finalize(barrier, job_id):
                     barrier.wait()
                     try:
                         backend.mark_job_as_canceled(job_id)
                     finally:
                         connections.close_all()
 
-                threads = [threading.Thread(target=finalize) for _ in range(2)]
+                threads = [
+                    threading.Thread(target=finalize, args=(barrier, job_id))
+                    for _ in range(2)
+                ]
                 for t in threads:
                     t.start()
                 for t in threads:

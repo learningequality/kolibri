@@ -226,14 +226,10 @@ class Process:
             pass
         elements = out.split()
         b_pid = str(self.pid).encode("ascii")
-        found = False
         for pos, element in enumerate(elements):
             if element == b_pid:
-                found = True
-                break
-        if not found:
-            raise NoSuchProcess()
-        return elements[pos - 1].decode("utf-8", "slashescape")
+                return elements[pos - 1].decode("utf-8", "slashescape")
+        raise NoSuchProcess()
 
     @wrap_exceptions
     def create_time(self):

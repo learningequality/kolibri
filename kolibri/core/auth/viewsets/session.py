@@ -56,8 +56,8 @@ class CreateSessionSerializer(serializers.Serializer):
         default=None,
         allow_null=True,
         allow_blank=False,
-        # Format is exactly three dot-separated integers, each 1–2 digits
-        # (icon indices 0–99), e.g. "3.7.12". min/max_length are a fast
+        # Format is exactly three dot-separated integers, each 1-2 digits
+        # (icon indices 0-99), e.g. "3.7.12". min/max_length are a fast
         # pre-check; the regex is the authoritative format constraint.
         min_length=5,
         max_length=8,

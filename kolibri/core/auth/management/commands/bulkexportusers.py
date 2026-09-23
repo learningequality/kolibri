@@ -30,11 +30,6 @@ from .bulkimportusers import FILE_WRITE_ERROR
 from .bulkimportusers import MESSAGES
 from .bulkimportusers import NO_FACILITY
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 logger = logging.getLogger(__name__)
 
 CSV_EXPORT_FILENAMES = {"user": "log_export/{}_{}_users.csv"}

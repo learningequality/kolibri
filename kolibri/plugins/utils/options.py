@@ -25,7 +25,8 @@ def __validate_config_option(
                     plugins=", ".join(plugin_specs[section][name]),
                     option=name,
                     section=section,
-                )
+                ),
+                stacklevel=1,
             )
             plugin_specs[section][name].append(module_path)
         else:
@@ -61,7 +62,8 @@ def __validate_option_default(section, name, plugin_default_overrides, module_pa
                     plugins=", ".join(plugin_default_overrides[section][name]),
                     option=name,
                     section=section,
-                )
+                ),
+                stacklevel=1,
             )
             plugin_default_overrides[section][name].append(module_path)
         else:

@@ -277,7 +277,7 @@ CSS_HEADER = """
 def _list_to_ranges(input_list):
     """
     Iterator of ranges of contiguous numbers from a list of integers.
-    Ranges returned are [x, y) – in other words, y is non-inclusive.
+    Ranges returned are [x, y) - in other words, y is non-inclusive.
     (from: http://code.activestate.com/recipes/496682/)
     """
     new_list = list(input_list)

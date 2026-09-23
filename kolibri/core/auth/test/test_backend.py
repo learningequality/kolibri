@@ -372,7 +372,7 @@ class FacilityAuthScopeTestCase(TestCase):
     def test_dataset_id__raises_permission_denied_for_missing_facility_pk(self):
         auth_scope = _NoMatchFacilityAuthScope(str(uuid.uuid4()))
         with self.assertRaises(PermissionDenied):
-            auth_scope.dataset_id
+            _ = auth_scope.dataset_id
 
     def test_is_subset_of_users_device__returns_false_for_full_facility_import(self):
         auth_scope = _NoMatchFacilityAuthScope(self.facility)

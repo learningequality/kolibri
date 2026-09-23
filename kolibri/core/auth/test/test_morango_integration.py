@@ -570,7 +570,7 @@ class EcosystemTestCase(MultipleServerTestCase):
         self.assertTrue(server0_fu.check_password("syncing"))
 
         # sync in a circle node twice to ensure full consistency
-        for i in range(2):
+        for _ in range(2):
             for j in range(servers_len):
                 servers[j].sync(servers[(j + 1) % servers_len], facility)
 
@@ -711,7 +711,7 @@ class EcosystemTestCase(MultipleServerTestCase):
             servers[2].sync(servers[4], facility)
 
         # sync in a circle node twice to ensure full consistency
-        for i in range(2):
+        for _ in range(2):
             for j in range(servers_len):
                 servers[j].sync(servers[(j + 1) % servers_len], facility)
 

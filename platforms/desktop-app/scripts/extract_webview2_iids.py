@@ -74,7 +74,7 @@ for i, (owner, method) in enumerate(vtables[target][-6:]):
     print(f"  [{idx:>3}] {owner}::{method}")
 
 # Show position of ShowPrintUI in ICoreWebView2_16
-for i, (owner, method) in enumerate(vtables[target]):
+for i, (_, method) in enumerate(vtables[target]):
     if method == "ShowPrintUI":
         print(f"\nShowPrintUI vtable index in ICoreWebView2_16: {i}")
         break

@@ -73,7 +73,7 @@ class InfiniteLoopThread(Thread):
             "{module}".format(module=__name__.split(".")[0])
         )
         self.full_thread_name = f"{self.thread_name}-{self.thread_id}"
-        super().__init__(name=self.full_thread_name, *args, **kwargs)
+        super().__init__(*args, name=self.full_thread_name, **kwargs)
         self.func = func
         self.wait = wait_between_runs
 

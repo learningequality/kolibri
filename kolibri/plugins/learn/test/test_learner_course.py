@@ -476,7 +476,7 @@ class LearnerCourseTestCase(APITestCase):
         )
         # unit 3 pre test active
         for i in range(2):
-            unit, lessons = units[i]
+            unit, _ = units[i]
             UnitTestAssignment.objects.create(
                 course_session=course_session,
                 unit_contentnode_id=unit.id,
@@ -524,7 +524,7 @@ class LearnerCourseTestCase(APITestCase):
         )
         # unit 4 post test active
         for i in range(3):
-            unit, lessons = units[i]
+            unit, _ = units[i]
             UnitTestAssignment.objects.create(
                 course_session=course_session,
                 unit_contentnode_id=unit.id,

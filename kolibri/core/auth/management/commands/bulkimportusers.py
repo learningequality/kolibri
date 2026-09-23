@@ -25,11 +25,6 @@ from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.csv import open_csv_for_reading
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 logger = logging.getLogger(__name__)
 
 # TODO: decide whether these should be internationalized
@@ -182,7 +177,7 @@ def valid_uuid(allow_null=True):
         if allow_null and (v is None or v == ""):
             return
         try:
-            UUID(v).version
+            UUID(v)
         except (ValueError, TypeError) as e:
             raise ValueError(v) from e
 
