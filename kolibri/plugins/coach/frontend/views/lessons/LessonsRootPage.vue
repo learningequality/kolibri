@@ -91,7 +91,17 @@
                   />
                 </td>
                 <td>
-                  <div :style="{ height: '28px' }">
+                  <template v-if="$isPrint">
+                    {{
+                      lesson.active
+                        ? coachString('filterLessonVisible')
+                        : coachString('filterLessonNotVisible')
+                    }}
+                  </template>
+                  <div
+                    v-else
+                    :style="{ height: '28px' }"
+                  >
                     <KTransition kind="component-fade-out-in">
                       <KCircularLoader
                         v-if="show(lesson.id, isUpdatingVisibility(lesson.id), 2000)"
