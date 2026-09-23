@@ -236,7 +236,7 @@ class Process:
         sep = "\x00" if data.endswith("\x00") else " "
         if data.endswith(sep):
             data = data[:-1]
-        return list(data.split(sep))
+        return data.split(sep)
 
     @wrap_exceptions
     def create_time(self):
