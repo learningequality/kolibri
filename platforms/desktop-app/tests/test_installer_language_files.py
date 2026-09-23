@@ -4,11 +4,14 @@ from pathlib import Path
 import pytest
 from definitions import LANG_DEFINITIONS
 from update_from_inno import INNO_TAG
+from update_from_inno import TRANSLATED_MESSAGES
 from update_from_inno import vendored_files
+from update_from_inno import write_english_messages
 from write_language_files import messages_files
 from write_language_files import write_languages
 
-INNO_DIR = Path(__file__).parent.parent / "installer" / "translations" / "inno"
+TRANSLATIONS_DIR = Path(__file__).parent.parent / "installer" / "translations"
+INNO_DIR = TRANSLATIONS_DIR / "inno"
 BUILD_WORKFLOW = (
     Path(__file__).parents[3]
     / ".github"
@@ -99,6 +102,39 @@ def test_every_unofficial_inno_file_is_vendored():
     # committed copy fails iscc on Windows and nowhere else.
     for inno_file in vendored_files():
         assert (INNO_DIR / Path(inno_file).name).is_file()
+
+
+def message_keys(path):
+    return [
+        line.split("=", 1)[0]
+        for line in path.read_text(encoding="utf-8").splitlines()[1:]
+    ]
+
+
+def default_isl(keys):
+    lines = ["[LangOptions]", "LanguageName=English", "[Messages]"]
+    lines.extend(f"{key}=The {key} text" for key in keys)
+    return "\n".join(lines).encode("utf-8")
+
+
+def test_english_messages_hold_only_the_translated_messages(tmp_path):
+    output_path = tmp_path / "messages.isl"
+    write_english_messages(
+        default_isl(["NotTranslated", *TRANSLATED_MESSAGES]), output_path
+    )
+    assert message_keys(output_path) == list(TRANSLATED_MESSAGES)
+
+
+def test_english_messages_fail_when_inno_drops_a_translated_message(tmp_path):
+    with pytest.raises(KeyError):
+        write_english_messages(
+            default_isl(TRANSLATED_MESSAGES[1:]), tmp_path / "messages.isl"
+        )
+
+
+def test_committed_english_messages_are_the_translated_messages():
+    committed = TRANSLATIONS_DIR / "locale" / "en" / "messages.isl"
+    assert message_keys(committed) == list(TRANSLATED_MESSAGES)
 
 
 def test_english_is_the_first_language_entry(locale_dir, tmp_path):
