@@ -4,17 +4,14 @@ import os
 from django.apps import AppConfig
 from django.conf import settings
 from django.db.backends.signals import connection_created
-from django.db.utils import DatabaseError
 from django_filters.filters import UUIDFilter
 from django_filters.rest_framework.filterset import FilterSet
 
 from kolibri.core.errors import RedisConnectionError
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
-from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.cache import RedisSettingsHelper
-from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 from kolibri.plugins.registry import registered_plugins
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
@@ -59,16 +56,6 @@ class KolibriCoreConfig(AppConfig):
         """
 
         if connection.vendor == "sqlite":
-            if connection.alias == NOTIFICATIONS:
-                broken_db = False
-                try:
-                    cursor = connection.cursor()
-                    quick_check = cursor.execute("PRAGMA quick_check").fetchone()[0]
-                    broken_db = quick_check != "ok"
-                except DatabaseError:
-                    broken_db = True
-                if broken_db:
-                    repair_sqlite_db(connection)
             cursor = connection.cursor()
 
             # Shorten the default WAL autocheckpoint from 1000 pages to 500
