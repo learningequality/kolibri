@@ -7,6 +7,7 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.models import Membership
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.helpers import receive_single_user_sync
 from kolibri.core.content.models import ContentRemovalRequest
@@ -60,9 +61,7 @@ class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(TestCase):
     def _sync_deletion(self, syncable, *deleted):
         receive_single_user_sync(syncable.user, deleted=[*deleted, syncable])
 
-    def test_deleted_lesson_frees_its_resources(self):
-        self._sync_deletion(self._sync_assignment(self.learner, self.classroom))
-
+    def _assert_resources_freed(self):
         requested = set(
             ContentRemovalRequest.objects.filter(
                 contentnode_id=self.node_id
@@ -77,6 +76,21 @@ class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(TestCase):
                 .values_list("id", flat=True)
             ),
         )
+
+    def test_deleted_lesson_frees_its_resources(self):
+        self._sync_deletion(self._sync_assignment(self.learner, self.classroom))
+
+        self._assert_resources_freed()
+
+    def test_learner_removed_from_group_frees_its_resources(self):
+        group = LearnerGroup.objects.create(name="A", parent=self.classroom)
+        group.add_learner(self.learner)
+        syncable = self._sync_assignment(self.learner, group)
+        self._sync_deletion(
+            syncable, Membership.objects.get(user=self.learner, collection=group)
+        )
+
+        self._assert_resources_freed()
 
     def test_lesson_another_learner_holds_stays_assigned_to_them(self):
         group_a = LearnerGroup.objects.create(name="A", parent=self.classroom)

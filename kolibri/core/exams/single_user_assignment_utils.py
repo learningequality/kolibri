@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
@@ -129,19 +131,33 @@ def update_assignments_from_individual_syncable_exams(user_id):
             assignment.collection_id = syncableexam.collection_id
             assignment.save(update_dirty_bit_to=False)
 
-    # delete exams/assignments that no longer have a syncable exam object
-    stale_exam_ids = set(to_delete.values_list("exam_id", flat=True))
+    # delete exams/assignments that no longer have a syncable exam object, or no local recipient
+    stale_assignments = ExamAssignment.objects.filter(
+        Q(id__in=to_delete.values("id")) | Q(collection__membership__isnull=True)
+    )
+    delete_stale_exam_assignments(
+        stale_assignments, Exam.objects.filter(assignments__in=stale_assignments)
+    )
+
+
+def delete_stale_exam_assignments(assignments, exams):
+    """
+    Deletes the assignments, then each of the exams left with none, without syncing either deletion
+
+    :param assignments: ExamAssignment queryset
+    :param exams: Exam queryset
+    """
+    exam_ids = set(exams.values_list("id", flat=True))
     with DisablePostDeleteSignal():
-        to_delete.delete()
-        unassigned_exams = list(
-            Exam.objects.filter(id__in=stale_exam_ids, assignments__isnull=True)
+        assignments.delete()
+        unassigned_exams = Exam.objects.filter(
+            id__in=exam_ids, assignments__isnull=True
         )
         removals = [
-            (exam.dataset_id, DeletedAssignment(Exam.morango_model_name, exam.id))
-            for exam in unassigned_exams
+            (dataset_id, DeletedAssignment(Exam.morango_model_name, exam_id))
+            for exam_id, dataset_id in unassigned_exams.values_list("id", "dataset_id")
         ]
-        for exam in unassigned_exams:
-            exam.delete()
+        unassigned_exams.delete()
 
     # DisablePostDeleteSignal also mutes the receiver that frees a deleted exam's downloads
     for dataset_id, removal in removals:
