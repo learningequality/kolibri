@@ -731,7 +731,7 @@ class ChannelImport:
         if schema_map:
             # Check that the only thing in the schema map is row mappings
             can_use_attach = (
-                can_use_attach and len(set(schema_map.keys()) - set(["per_row"])) == 0
+                can_use_attach and len(set(schema_map.keys()) - {"per_row"}) == 0
             )
             # Check that all the row mappings defined for this table are things we can express in SQL
             source_columns = set(self._source_shape[source_table])
@@ -742,9 +742,7 @@ class ChannelImport:
                 ):
                     return False
         # Check that the engine being used is sqlite, and it's been attached
-        can_use_attach = can_use_attach and self._sqlite_db_attached
-
-        return can_use_attach
+        return can_use_attach and self._sqlite_db_attached
 
     def table_import(self, model, row_mapper, table_mapper):
         if connections[self.destination].vendor == "postgresql":

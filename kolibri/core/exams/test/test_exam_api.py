@@ -69,11 +69,11 @@ class BaseExamTest:
         cls.admin.save()
         cls.facility.add_admin(cls.admin)
         cls.classroom = Classroom.objects.create(name="Classroom", parent=cls.facility)
-        kwargs = dict(
-            title="title",
-            collection=cls.classroom,
-            creator=cls.admin,
-            question_sources=[
+        kwargs = {
+            "title": "title",
+            "collection": cls.classroom,
+            "creator": cls.admin,
+            "question_sources": [
                 {
                     "section_title": "Test Section Title",
                     "description": "Test descripton for Section",
@@ -89,7 +89,7 @@ class BaseExamTest:
                     "instant_report_visibility": True,
                 }
             ],
-        )
+        }
         if cls.class_object == models.Exam:
             kwargs["active"] = True
         cls.exam = cls.class_object.objects.create(**kwargs)

@@ -129,6 +129,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name, initialize_hooks=True
 
     if len(plugin_objects) > 1:
         raise MultiplePlugins("More than one plugin defined in kolibri_plugin module")
+    return None
 
 
 def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):

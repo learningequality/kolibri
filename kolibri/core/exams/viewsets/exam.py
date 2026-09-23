@@ -324,7 +324,7 @@ class ExamSerializer(ModelSerializer):
                     ExamAssignment.objects.filter(
                         exam_id=instance.id,
                         collection_id__in=(
-                            current_group_ids - set(c.id for c in collections)
+                            current_group_ids - {c.id for c in collections}
                         ),
                     ).exclude(collection__kind=ADHOCLEARNERSGROUP).delete()
 

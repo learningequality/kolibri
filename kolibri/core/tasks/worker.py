@@ -199,8 +199,7 @@ class WorkerSupervisor:
         self.workers.shutdown(wait=wait)
 
     def start_workers(self):
-        pool = ThreadPoolExecutor(max_workers=self.max_workers)
-        return pool
+        return ThreadPoolExecutor(max_workers=self.max_workers)
 
     def handle_finished_future(self, future):
         try:

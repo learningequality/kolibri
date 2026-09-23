@@ -156,9 +156,7 @@ class KolibriClient:
 
         r = self.session.post(self._url("/api/auth/session/"), json=payload)
         r.raise_for_status()
-        session_data = r.json()
-
-        return session_data
+        return r.json()
 
     def fetch_csrf_token(self):
         """
@@ -355,6 +353,7 @@ class KolibriClient:
         for lesson in existing_lessons:
             if lesson["title"] == LESSON_TITLE:
                 return lesson
+        return None
 
     def create_lesson(self, channel_id, classroom_id):
         """

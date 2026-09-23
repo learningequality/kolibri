@@ -353,6 +353,7 @@ def run_once(f):
             result = f(*args, **kwargs)
             wrapper.has_run = True
             return result
+        return None
 
     wrapper.has_run = False
     return wrapper
@@ -682,11 +683,11 @@ class MorangoSyncCommand(AsyncCommand):
             self.update_progress(
                 current_progress=progress,
                 message=stats_msg(transfer_session),
-                extra_data=dict(
-                    bytes_sent=transfer_session.bytes_sent,
-                    bytes_received=transfer_session.bytes_received,
-                    sync_state=sync_state,
-                ),
+                extra_data={
+                    "bytes_sent": transfer_session.bytes_sent,
+                    "bytes_received": transfer_session.bytes_received,
+                    "sync_state": sync_state,
+                },
             )
 
         signal_group.started.connect(started)
@@ -720,9 +721,7 @@ class MorangoSyncCommand(AsyncCommand):
                     logger.info("No records transferred")
 
         def handler(transfer_session):
-            self.update_progress(
-                message=message, extra_data=dict(sync_state=sync_state)
-            )
+            self.update_progress(message=message, extra_data={"sync_state": sync_state})
 
         signal_group.started.connect(started)
         signal_group.started.connect(handler)

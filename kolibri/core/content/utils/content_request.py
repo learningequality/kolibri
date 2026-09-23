@@ -94,13 +94,13 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
             source_id=assignment.source_id,
             contentnode_id=assignment.contentnode_id,
             channel_version=assignment.channel_version,
-            defaults=dict(
-                facility_id=facility.id,
-                reason=ContentRequestReason.SyncInitiated,
-                status=ContentRequestStatus.Pending,
-                source_instance_id=source_instance_id,
-                metadata=assignment.metadata,
-            ),
+            defaults={
+                "facility_id": facility.id,
+                "reason": ContentRequestReason.SyncInitiated,
+                "status": ContentRequestStatus.Pending,
+                "source_instance_id": source_instance_id,
+                "metadata": assignment.metadata,
+            },
         )
         if created:
             # compute the priority here to prevent having to compute this if we don't end up creating a request,
@@ -164,11 +164,11 @@ def create_content_removal_requests(facility, removable_assignments):
                 "Creating content removal request for {}".format(contentnode_id)
             )
             ContentRemovalRequest.objects.get_or_create(
-                defaults=dict(
-                    facility_id=facility.id,
-                    reason=ContentRequestReason.SyncInitiated,
-                    status=ContentRequestStatus.Pending,
-                ),
+                defaults={
+                    "facility_id": facility.id,
+                    "reason": ContentRequestReason.SyncInitiated,
+                    "status": ContentRequestStatus.Pending,
+                },
                 source_model=assignment.source_model,
                 source_id=assignment.source_id,
                 contentnode_id=contentnode_id,
@@ -1178,11 +1178,11 @@ def process_user_downloads_for_removal():
         source_model=largest_user_download.source_model,
         source_id=largest_user_download.source_id,
         contentnode_id=largest_user_download.contentnode_id,
-        defaults=dict(
-            facility_id=largest_user_download.facility_id,
-            reason=ContentRequestReason.SyncInitiated,
-            status=ContentRequestStatus.Pending,
-        ),
+        defaults={
+            "facility_id": largest_user_download.facility_id,
+            "reason": ContentRequestReason.SyncInitiated,
+            "status": ContentRequestStatus.Pending,
+        },
     )
     logger.info(
         "Added removal request for user download of {}".format(

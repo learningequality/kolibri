@@ -722,7 +722,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     mastery_level=context["mastery_level"],
                     summarylog_id=summarylog_id,
                 )
-                update_fields = tuple()
+                update_fields = ()
                 if time_spent_delta:
                     masterylog.time_spent = (
                         masterylog.time_spent or 0
@@ -748,6 +748,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 raise ValidationError(
                     "Invalid mastery_level value, this session has not been started."
                 )
+        return None
 
     def _update_attempt(self, attemptlog, interaction, update_fields, end_timestamp):
         interaction_summary = self._generate_interaction_summary(interaction)
@@ -831,6 +832,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 )
             except AttemptLog.DoesNotExist:
                 pass
+        return None
 
     def _update_or_create_attempts(
         self, session_id, masterylog_id, user, interactions, end_timestamp, context

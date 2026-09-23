@@ -7,17 +7,17 @@ from redis import Redis
 from kolibri.core.apps import KolibriCoreConfig
 from kolibri.core.apps import RedisSettingsHelper
 
-DEFAULT_CACHE_OPTS = dict(
-    CACHE_BACKEND="redis",
-    CACHE_REDIS_MAXMEMORY=123,
-    CACHE_REDIS_MAXMEMORY_POLICY="allkeys-lru",
-)
+DEFAULT_CACHE_OPTS = {
+    "CACHE_BACKEND": "redis",
+    "CACHE_REDIS_MAXMEMORY": 123,
+    "CACHE_REDIS_MAXMEMORY_POLICY": "allkeys-lru",
+}
 
 
 def do_setup(**cache_opts):
     defaults = DEFAULT_CACHE_OPTS.copy()
     defaults.update(cache_opts)
-    all_opts = dict(Cache=defaults)
+    all_opts = {"Cache": defaults}
 
     def outer_decorator(func):
         @functools.wraps(func)

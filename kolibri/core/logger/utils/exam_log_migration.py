@@ -341,7 +341,7 @@ def migrate_from_exam_logs(source_logs, source_attempt_log_ids=None):  # noqa C9
         _bulk_create(ContentSummaryLog, compress(content_summary_logs, mask))
 
         masked_masterylogs = list(compress(mastery_logs, mask))
-        written_masterylog_ids = set(m.id for m in masked_masterylogs)
+        written_masterylog_ids = {m.id for m in masked_masterylogs}
         _bulk_create(MasteryLog, masked_masterylogs)
         _bulk_create(
             AttemptLog,

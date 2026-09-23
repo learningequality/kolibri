@@ -52,7 +52,7 @@ class PublicSignUpViewSet(BaseSignUpViewSet):
 
     def create(self, request, *args, **kwargs):
         exception = None
-        serializer_kwargs = dict(data=request.data)
+        serializer_kwargs = {"data": request.data}
         serializer_kwargs.setdefault("context", self.get_serializer_context())
         for serializer_class in [
             self.get_serializer_class()

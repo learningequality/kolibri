@@ -289,5 +289,5 @@ def get_content_nodes_data(  # noqa: C901
 
     files_to_download = list(queried_file_objects.values())
 
-    total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
+    total_bytes_to_transfer = sum(x["file_size"] or 0 for x in files_to_download)
     return number_of_resources, files_to_download, total_bytes_to_transfer

@@ -87,7 +87,7 @@ class PublicDBusInterface(object):
             self.__on_handle_get_metadata_for_item_ids,
         )
 
-        self.__hold_clients = dict()
+        self.__hold_clients = {}
 
     @property
     def clients_count(self) -> int:
@@ -381,7 +381,7 @@ class PrivateDBusInterface(object):
         if login_token:
             result_dict = login_token.user._asdict()
         else:
-            result_dict = dict()
+            result_dict = {}
         result_variant = GLib.Variant("a{sv}", dict_to_vardict(result_dict))
         interface.complete_check_login_token(invocation, result_variant)
         return True
@@ -389,7 +389,7 @@ class PrivateDBusInterface(object):
 
 class LoginTokenManager(object):
     def __init__(self):
-        self.__login_tokens = dict()
+        self.__login_tokens = {}
         self.__expire_tokens_timeout_source = None
 
     def generate_for_user(self, user_info: UserInfo) -> str:
@@ -414,7 +414,7 @@ class LoginTokenManager(object):
         return token_key
 
     def __generate_token_key(self, user_id: str) -> str:
-        return ":".join([user_id, uuid4().hex])
+        return f"{user_id}:{uuid4().hex}"
 
     def __get_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
         user_id, _sep, _uuid = token_key.partition(":")

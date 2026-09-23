@@ -891,7 +891,7 @@ role_kinds_set = {r[0] for r in role_kinds.choices}
 
 def validate_role_kinds(kinds):
     if isinstance(kinds, str):
-        kinds = set([kinds])
+        kinds = {kinds}
     else:
         try:
             kinds = set(kinds)
@@ -1228,16 +1228,19 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         # ensure the superuser has full access to the Django admin
         if self.is_superuser:
             return True
+        return None
 
     def has_perms(self, perm_list, obj=None):
         # ensure the superuser has full access to the Django admin
         if self.is_superuser:
             return True
+        return None
 
     def has_module_perms(self, app_label):
         # ensure the superuser has full access to the Django admin
         if self.is_superuser:
             return True
+        return None
 
 
 class Collection(AbstractFacilityDataModel):

@@ -39,8 +39,7 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
             msg = "Multiple users returned"
             raise SuspiciousOperation(msg)
         if self.get_settings("OIDC_CREATE_USER", True):
-            user = self.create_user(user_info)
-            return user
+            return self.create_user(user_info)
         logger.debug(
             "Login failed: No user with username  %s found, and "
             "OIDC_CREATE_USER is False",

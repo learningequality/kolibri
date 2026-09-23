@@ -91,20 +91,18 @@ class ChannelUpdateAllNewTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             set(new_resource_ids),
-            set(map(lambda x: x["id"], self.upgraded_channel.resources)),
+            {x["id"] for x in self.upgraded_channel.resources},
         )
         self.assertEqual(
             set(new_resource_content_ids),
-            set(map(lambda x: x["content_id"], self.upgraded_channel.resources)),
+            {x["content_id"] for x in self.upgraded_channel.resources},
         )
         self.assertEqual(
             new_resource_total_size,
             sum(
-                map(
-                    lambda x: x["file_size_bigint"],
-                    self.upgraded_channel.get_resource_localfiles(
-                        map(lambda x: x["id"], self.upgraded_channel.resources)
-                    ),
+                x["file_size_bigint"]
+                for x in self.upgraded_channel.get_resource_localfiles(
+                    x["id"] for x in self.upgraded_channel.resources
                 )
             ),
         )
@@ -205,20 +203,20 @@ class ChannelMixedTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             set(new_resource_ids),
-            set(map(lambda x: x["id"], self.upgraded_channel.new_resources)),
+            {x["id"] for x in self.upgraded_channel.new_resources},
         )
         self.assertEqual(
             set(new_resource_content_ids),
-            set(map(lambda x: x["content_id"], self.upgraded_channel.new_resources)),
+            {x["content_id"] for x in self.upgraded_channel.new_resources},
         )
 
         new_resource_local_files = self.upgraded_channel.get_resource_localfiles(
-            map(lambda x: x["id"], self.upgraded_channel.new_resources)
+            x["id"] for x in self.upgraded_channel.new_resources
         )
 
         self.assertEqual(
             new_resource_total_size,
-            sum(map(lambda x: x["file_size_bigint"], new_resource_local_files)),
+            sum(x["file_size_bigint"] for x in new_resource_local_files),
         )
 
     def test_deleted_resources(self):
@@ -237,21 +235,17 @@ class ChannelMixedTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             set(updated_resource_ids),
-            set(map(lambda x: x["id"], self.upgraded_channel.updated_resources)),
+            {x["id"] for x in self.upgraded_channel.updated_resources},
         )
         self.assertEqual(
             set(updated_resource_content_ids),
-            set(
-                map(lambda x: x["content_id"], self.upgraded_channel.updated_resources)
-            ),
+            {x["content_id"] for x in self.upgraded_channel.updated_resources},
         )
         self.assertEqual(
             updated_resource_total_size,
             sum(
-                map(
-                    lambda x: x["file_size_bigint"],
-                    self.upgraded_channel.updated_resource_localfiles,
-                )
+                x["file_size_bigint"]
+                for x in self.upgraded_channel.updated_resource_localfiles
             ),
         )
 
@@ -281,7 +275,7 @@ class ChannelDuplicateTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             set(new_resource_ids),
-            set(map(lambda x: x["id"], self.upgraded_channel.duplicated_resources)),
+            {x["id"] for x in self.upgraded_channel.duplicated_resources},
         )
         self.assertEqual(set(new_resource_content_ids), set())
 
@@ -331,7 +325,7 @@ class ChannelNodesMovedTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             set(new_resource_ids),
-            set(map(lambda x: x["id"], self.upgraded_channel.moved_resources)),
+            {x["id"] for x in self.upgraded_channel.moved_resources},
         )
 
         self.assertEqual(set(new_resource_content_ids), set())

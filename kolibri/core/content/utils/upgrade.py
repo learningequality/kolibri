@@ -392,13 +392,11 @@ def _get_available_course_bounds(alias, channel_id):
     )
 
     # lft/rght bounds from the upgrade DB for courses that exist on both sides
-    available_course_bounds = [
+    return [
         courses_on_destination[cid]
         for cid in available_course_ids
         if cid in courses_on_destination
     ]
-
-    return available_course_bounds
 
 
 def get_automatically_updated_resources(destination, channel_id):

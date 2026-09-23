@@ -140,9 +140,7 @@ class TestChunkedFile(unittest.TestCase):
 
         start = self.chunk_size
         end = self.chunk_size * 4 - 1
-        missing_ranges = [
-            mr for mr in self.chunked_file.missing_chunks_generator(start, end)
-        ]
+        missing_ranges = list(self.chunked_file.missing_chunks_generator(start, end))
 
         expected_ranges = [
             (1, self.chunk_size * 1, self.chunk_size * 2 - 1),
@@ -157,9 +155,7 @@ class TestChunkedFile(unittest.TestCase):
 
         start = self.chunk_size
         end = self.chunk_size * 3 - 1
-        missing_ranges = [
-            mr for mr in self.chunked_file.missing_chunks_generator(start, end)
-        ]
+        missing_ranges = list(self.chunked_file.missing_chunks_generator(start, end))
 
         expected_ranges = [
             (1, self.chunk_size * 1, self.chunk_size * 2 - 1),
@@ -172,9 +168,7 @@ class TestChunkedFile(unittest.TestCase):
 
         start = self.chunk_size
         end = self.chunk_size * 2 - 1
-        missing_ranges = [
-            mr for mr in self.chunked_file.missing_chunks_generator(start, end)
-        ]
+        missing_ranges = list(self.chunked_file.missing_chunks_generator(start, end))
 
         expected_ranges = [
             (1, self.chunk_size, self.chunk_size * 2 - 1),
@@ -187,9 +181,7 @@ class TestChunkedFile(unittest.TestCase):
 
         start = self.chunk_size // 3
         end = self.chunk_size * 2 + self.chunk_size // 3
-        missing_ranges = [
-            mr for mr in self.chunked_file.missing_chunks_generator(start, end)
-        ]
+        missing_ranges = list(self.chunked_file.missing_chunks_generator(start, end))
 
         expected_ranges = [
             (0, 0, self.chunk_size - 1),
@@ -203,7 +195,7 @@ class TestChunkedFile(unittest.TestCase):
         os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_1"))
         os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_3"))
 
-        missing_ranges = [mr for mr in self.chunked_file.missing_chunks_generator()]
+        missing_ranges = list(self.chunked_file.missing_chunks_generator())
 
         expected_ranges = [
             (1, self.chunk_size * 1, self.chunk_size * 2 - 1),
@@ -337,7 +329,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
     def test_listing_chunked_files(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
@@ -376,7 +368,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3),
         )
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted([]),
         )
 
@@ -387,7 +379,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3 + 12),
         )
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted([]),
         )
 
@@ -397,7 +389,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             TOTAL_CHUNKED_FILE_SIZE, manager.evict_files(TOTAL_CHUNKED_FILE_SIZE)
         )
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(
@@ -419,7 +411,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             TOTAL_CHUNKED_FILE_SIZE, manager.evict_files(TOTAL_CHUNKED_FILE_SIZE - 12)
         )
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(
@@ -442,7 +434,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             manager.evict_files(TOTAL_CHUNKED_FILE_SIZE + 12),
         )
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(
@@ -462,7 +454,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 2 + 12),
         )
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted([]),
         )
 
@@ -470,7 +462,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(0, manager.evict_files(0))
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
@@ -491,7 +483,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         manager.limit_files(TOTAL_CHUNKED_FILE_SIZE * 3)
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
@@ -512,7 +504,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         manager.limit_files(TOTAL_CHUNKED_FILE_SIZE * 2)
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted(
                 [
                     os.path.join(
@@ -532,6 +524,6 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         manager.limit_files(TOTAL_CHUNKED_FILE_SIZE - 12)
         self.assertEqual(
-            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(manager._get_chunked_file_dirs()),
             sorted([]),
         )

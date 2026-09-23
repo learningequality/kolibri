@@ -22,7 +22,7 @@ def lesson_assignment_lookup(resources):
     :return: a tuple of contentnode_id and metadata
     """
     for resource in resources:
-        yield (resource["contentnode_id"], dict(channel_id=resource["channel_id"]))
+        yield (resource["contentnode_id"], {"channel_id": resource["channel_id"]})
 
 
 class Lesson(AbstractFacilityDataModel):
@@ -76,7 +76,7 @@ class Lesson(AbstractFacilityDataModel):
     content_assignments = ContentAssignmentManager(
         # one lesson can contain multiple resources, hence multiple assigned content nodes
         one_to_many=True,
-        filters=dict(is_active=True),
+        filters={"is_active": True},
         lookup_field="resources",
         lookup_func=lesson_assignment_lookup,
     )

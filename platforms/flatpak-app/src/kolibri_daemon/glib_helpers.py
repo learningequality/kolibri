@@ -42,7 +42,7 @@ def dict_to_vardict(data: dict) -> dict:
     Convert all the values in a Python dict to GLib.Variant.
     """
 
-    return dict((key, _value_to_variant(value)) for key, value in data.items())
+    return {key: _value_to_variant(value) for key, value in data.items()}
 
 
 def _value_to_variant(value: typing.Union[bytes, int, float, str]) -> GLib.Variant:

@@ -101,7 +101,7 @@ class ContentExtensionsList(object):
         old: ContentExtensionsList, new: ContentExtensionsList
     ) -> typing.Generator[ContentExtensionCompare, None, None]:
         changed_extensions = old.__extensions.symmetric_difference(new.__extensions)
-        changed_refs = set(extension.ref for extension in changed_extensions)
+        changed_refs = {extension.ref for extension in changed_extensions}
         for ref in changed_refs:
             old_extension = old.get_extension(ref)
             new_extension = new.get_extension(ref)
@@ -206,7 +206,7 @@ class ContentExtension(object):
 
     @property
     def channel_ids(self) -> set:
-        return set(channel.channel_id for channel in self.__channels)
+        return {channel.channel_id for channel in self.__channels}
 
     def get_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         return next(

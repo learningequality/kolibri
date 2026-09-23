@@ -293,7 +293,7 @@ class Process:
         if not ret:
             raise NoSuchProcess()
         kernel32.CloseHandle(hProcess)
-        info = (
+        return (
             counters.PageFaultCount,
             counters.PeakWorkingSetSize,
             counters.WorkingSetSize,
@@ -304,4 +304,3 @@ class Process:
             counters.PagefileUsage,
             counters.PeakPagefileUsage,
         )
-        return info

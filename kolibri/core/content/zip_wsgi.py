@@ -137,7 +137,7 @@ def django_response_to_wsgi(response, environ, start_response):
     return response
 
 
-allowed_methods = set(["GET", "OPTIONS"])
+allowed_methods = {"GET", "OPTIONS"}
 
 # This is also included in packages/sandbox/src/h5p.html
 # ideally, we should never ever update this code

@@ -59,7 +59,7 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_drive_id
         )
-        self.assertEqual(checksums, set([file_id_1]))
+        self.assertEqual(checksums, {file_id_1})
 
     @patch("kolibri.core.content.utils.file_availability.get_mounted_drive_by_id")
     def test_set_one_file_not_in_channel(self, drive_mock):
@@ -84,7 +84,7 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_drive_id
         )
-        self.assertEqual(checksums, set([file_id_1, file_id_2]))
+        self.assertEqual(checksums, {file_id_1, file_id_2})
 
     @patch("kolibri.core.content.utils.file_availability.get_mounted_drive_by_id")
     def test_set_two_files_one_in_channel(self, drive_mock):
@@ -97,7 +97,7 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_drive_id
         )
-        self.assertEqual(checksums, set([file_id_1]))
+        self.assertEqual(checksums, {file_id_1})
 
     @patch("kolibri.core.content.utils.file_availability.get_mounted_drive_by_id")
     def test_set_two_files_none_in_channel(self, drive_mock):

@@ -84,7 +84,7 @@ class TasksViewSet(viewsets.GenericViewSet):
 
     def _job_to_response(self, job):
         orm_job = job_storage.get_orm_job(job_id=job.job_id)
-        output = {
+        return {
             "status": job.state,
             "type": job.func,
             "exception": job.exception,
@@ -107,7 +107,6 @@ class TasksViewSet(viewsets.GenericViewSet):
             "retry_interval": orm_job.retry_interval,
             "max_retries": orm_job.max_retries,
         }
-        return output
 
     def _handle_repeat_query_param(self, repeating):
         if repeating == "true":

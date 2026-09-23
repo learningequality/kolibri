@@ -219,7 +219,7 @@ class PublicAPITestCase(APITestCase):
         for key, value in expected.items():
             self.assertEqual(data[key], value)
         # we don't care what order these elements are in
-        self.assertSetEqual(set(["en", "es"]), set(data["included_languages"]))
+        self.assertSetEqual({"en", "es"}, set(data["included_languages"]))
 
     def test_public_channel_lookup_no_version(self):
         response = self.client.get(
@@ -270,7 +270,7 @@ class PublicAPITestCase(APITestCase):
 
         self.assertEqual(
             set(self._public_channel_v2_item(self.channel_id2)["included_languages"]),
-            set(["sw", "ar"]),
+            {"sw", "ar"},
         )
 
     def test_public_channel_v2_excludes_unlisted_channels(self):
@@ -282,8 +282,8 @@ class PublicAPITestCase(APITestCase):
 
         set_device_settings(allow_peer_unlisted_channel_import=True)
         self.assertEqual(
-            set(channel["id"] for channel in self._public_channel_v2_list()),
-            set([self.channel_id1, self.channel_id2]),
+            {channel["id"] for channel in self._public_channel_v2_list()},
+            {self.channel_id1, self.channel_id2},
         )
 
     def test_public_channel_v2_list_is_ordered_by_order_column(self):

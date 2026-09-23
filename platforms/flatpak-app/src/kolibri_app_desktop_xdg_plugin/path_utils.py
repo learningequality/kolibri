@@ -46,6 +46,4 @@ def get_kolibri_gnome_path():
 
     # Remove the commit to make it work with flatpak updates updates
     app_path = app_path.replace(app_commit, "active")
-    path = os.path.join(app_path, "bin", "kolibri-gnome")
-
-    return path
+    return os.path.join(app_path, "bin", "kolibri-gnome")

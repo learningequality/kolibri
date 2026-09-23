@@ -125,6 +125,7 @@ class CreateSessionSerializer(serializers.Serializer):
                     return user
             except ValidationError as e:
                 logger.error(e)
+        return None
 
     def _throw_validation_error(
         self, username, password, facility, picture_password=None
@@ -303,5 +304,4 @@ class SessionViewSet(viewsets.ViewSet):
                 browser_info=request.data.get("browser"),
             )
 
-        response = Response(session)
-        return response
+        return Response(session)

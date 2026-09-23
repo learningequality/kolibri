@@ -199,7 +199,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             .values("last_removal"),
             output_field=DateTimeTzField(),
         )
-        queryset = queryset.annotate(
+        return queryset.annotate(
             transfer_status=Subquery(most_recent_sync_status),
             device_status=Subquery(
                 most_recent_synced_device_status.values("status")[:1]
@@ -211,4 +211,3 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             last_download_removed=last_download_removal,
             sync_downloads_in_progress=has_in_progress_sync_initiated_download,
         )
-        return queryset

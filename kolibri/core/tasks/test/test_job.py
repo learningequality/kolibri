@@ -476,7 +476,7 @@ class TestRegisteredTask(TestCase):
 
     @mock.patch("kolibri.core.tasks.registry.Job", spec=True)
     def test__ready_job(self, MockJob):
-        result = self.registered_task._ready_job(args=("10",), kwargs=dict(base=10))
+        result = self.registered_task._ready_job(args=("10",), kwargs={"base": 10})
 
         MockJob.assert_called_once_with(
             self.registered_task,
@@ -485,7 +485,7 @@ class TestRegisteredTask(TestCase):
             cancellable=True,
             track_progress=True,
             long_running=True,
-            kwargs=dict(base=10),  # kwarg that was passed to _ready_job()
+            kwargs={"base": 10},  # kwarg that was passed to _ready_job()
         )
 
         # Do we return the job object?
@@ -495,7 +495,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue_in(self, mock_job_storage, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "job"
 
@@ -524,7 +524,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue_in__override_priority(self, mock_job_storage, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "job"
 
@@ -556,7 +556,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue_at(self, mock_job_storage, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "job"
 
@@ -585,7 +585,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue_at__override_priority(self, mock_job_storage, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "job"
 
@@ -618,7 +618,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue(self, job_storage_mock, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "job"
 
@@ -636,7 +636,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue_lifo_job(self, job_storage_mock, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "lifo_job"
 
@@ -654,7 +654,7 @@ class TestRegisteredTask(TestCase):
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue__override_priority(self, job_storage_mock, _ready_job_mock):
         args = ("10",)
-        kwargs = dict(base=10)
+        kwargs = {"base": 10}
 
         _ready_job_mock.return_value = "job"
 

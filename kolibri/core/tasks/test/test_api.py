@@ -30,19 +30,19 @@ from kolibri.utils.time_utils import local_now
 
 DUMMY_PASSWORD = "password"
 
-fake_job_defaults = dict(
-    job_id=None,
-    facility_id=None,
-    state=None,
-    exception="",
-    traceback="",
-    percentage_progress=0,
-    cancellable=False,
-    extra_metadata={},
-    func="",
-    args=(),
-    kwargs={},
-)
+fake_job_defaults = {
+    "job_id": None,
+    "facility_id": None,
+    "state": None,
+    "exception": "",
+    "traceback": "",
+    "percentage_progress": 0,
+    "cancellable": False,
+    "extra_metadata": {},
+    "func": "",
+    "args": (),
+    "kwargs": {},
+}
 
 
 def fake_job(**kwargs):

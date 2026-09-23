@@ -73,39 +73,38 @@ class BaseTestCase(TestCase):
         sync_overrides = sync_overrides or {}
         location_overrides = location_overrides or {}
 
-        sync_kwargs = dict(
-            id=uuid.uuid4().hex,
-            connection_kind="network",
-            connection_path="https://le.fyi",
-            profile=uuid.uuid4().hex,
-            last_activity_timestamp=timezone.now(),
-            client_instance_id=uuid.uuid4().hex,
-            server_instance_id=uuid.uuid4().hex,
-        )
+        sync_kwargs = {
+            "id": uuid.uuid4().hex,
+            "connection_kind": "network",
+            "connection_path": "https://le.fyi",
+            "profile": uuid.uuid4().hex,
+            "last_activity_timestamp": timezone.now(),
+            "client_instance_id": uuid.uuid4().hex,
+            "server_instance_id": uuid.uuid4().hex,
+        }
         sync_kwargs.update(sync_overrides)
         sync_session = SyncSession.objects.create(**sync_kwargs)
 
-        location_kwargs = dict(
-            base_url=sync_session.connection_path,
-            instance_id=sync_session.server_instance_id,
-        )
+        location_kwargs = {
+            "base_url": sync_session.connection_path,
+            "instance_id": sync_session.server_instance_id,
+        }
         location_kwargs.update(location_overrides)
         network_location = self._create_network_location(**location_kwargs)
         return (sync_session, network_location)
 
     def _create_network_location(self, **location_overrides):
-        kwargs = dict(
-            id=uuid.uuid4().hex,
-            base_url="https://le.fyi",
-            instance_id=uuid.uuid4().hex,
-            location_type="dynamic",
-            kolibri_version="0.16.0",
-            is_local=True,
-            connection_status=ConnectionStatus.Okay,
-        )
+        kwargs = {
+            "id": uuid.uuid4().hex,
+            "base_url": "https://le.fyi",
+            "instance_id": uuid.uuid4().hex,
+            "location_type": "dynamic",
+            "kolibri_version": "0.16.0",
+            "is_local": True,
+            "connection_status": ConnectionStatus.Okay,
+        }
         kwargs.update(location_overrides)
-        network_location = NetworkLocation.objects.create(**kwargs)
-        return network_location
+        return NetworkLocation.objects.create(**kwargs)
 
 
 @mock.patch(_module + "Facility.objects.get", new=_facility)
@@ -637,24 +636,24 @@ class PreferredDevicesTestCase(BaseTestCase):
 
     def test_sync_peers(self):
         (sync_session2, network_location2) = self._create_sync_and_network_location(
-            sync_overrides=dict(
-                last_activity_timestamp=timezone.now() - timedelta(days=1),
-            )
+            sync_overrides={
+                "last_activity_timestamp": timezone.now() - timedelta(days=1),
+            }
         )
         (sync_session1, network_location1) = self._create_sync_and_network_location()
         instance = PreferredDevices.build_from_sync_sessions()
-        peer_ids = set([location.id for location in instance])
+        peer_ids = {location.id for location in instance}
         self.assertEqual(len(peer_ids), 2)
-        self.assertEqual(peer_ids, set([network_location1.id, network_location2.id]))
+        self.assertEqual(peer_ids, {network_location1.id, network_location2.id})
 
     def test_sync_peers__with_version_filter(self):
         (sync_session2, network_location2) = self._create_sync_and_network_location(
-            sync_overrides=dict(
-                last_activity_timestamp=timezone.now() - timedelta(days=1),
-            ),
-            location_overrides=dict(
-                kolibri_version="0.15.0",
-            ),
+            sync_overrides={
+                "last_activity_timestamp": timezone.now() - timedelta(days=1),
+            },
+            location_overrides={
+                "kolibri_version": "0.15.0",
+            },
         )
         (sync_session1, network_location1) = self._create_sync_and_network_location()
         instance = PreferredDevices.build_from_sync_sessions(version_filter=">=0.16.0")
@@ -2184,18 +2183,17 @@ class CreateContentDownloadRequestsTestCase(BaseQuerysetTestCase):
 
 
 def _create_network_location(**location_overrides):
-    kwargs = dict(
-        id=uuid.uuid4().hex,
-        base_url="https://le.fyi",
-        instance_id=uuid.uuid4().hex,
-        location_type="dynamic",
-        kolibri_version="0.16.0",
-        is_local=True,
-        connection_status=ConnectionStatus.Okay,
-    )
+    kwargs = {
+        "id": uuid.uuid4().hex,
+        "base_url": "https://le.fyi",
+        "instance_id": uuid.uuid4().hex,
+        "location_type": "dynamic",
+        "kolibri_version": "0.16.0",
+        "is_local": True,
+        "connection_status": ConnectionStatus.Okay,
+    }
     kwargs.update(location_overrides)
-    network_location = NetworkLocation.objects.create(**kwargs)
-    return network_location
+    return NetworkLocation.objects.create(**kwargs)
 
 
 @pytest.fixture(scope="module")

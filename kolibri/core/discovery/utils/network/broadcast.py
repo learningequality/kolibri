@@ -197,11 +197,11 @@ class KolibriInstance:
 
     @property
     def name(self):
-        return ".".join([self.zeroconf_id, SERVICE_TYPE])
+        return f"{self.zeroconf_id}.{SERVICE_TYPE}"
 
     @property
     def server(self):
-        return ".".join([self.zeroconf_id, LOCAL_DOMAIN, ""])
+        return f"{self.zeroconf_id}.{LOCAL_DOMAIN}."
 
     @property
     def local(self):
@@ -315,15 +315,15 @@ class KolibriInstance:
         """
         :rtype: dict
         """
-        return dict(
-            id=self.id,
-            ip=self.ip,
-            port=self.port,
-            host=self.host,
-            device_info=self.device_info,
-            is_self=self.is_self,
-            prefix=self.prefix,
-        )
+        return {
+            "id": self.id,
+            "ip": self.ip,
+            "port": self.port,
+            "host": self.host,
+            "device_info": self.device_info,
+            "is_self": self.is_self,
+            "prefix": self.prefix,
+        }
 
     @classmethod
     def from_dict(cls, state):
@@ -678,10 +678,10 @@ class KolibriBroadcast:
         attempt to keep them unique, so if a peer already advertises the same
         name we simply skip ours rather than renaming or contending for it.
         """
-        server = ".".join([label, LOCAL_TLD, ""])
+        server = f"{label}.{LOCAL_TLD}."
         service = ServiceInfo(
             type_,
-            ".".join([label, type_]),
+            f"{label}.{type_}",
             server=server,
             address=_packed_lan_address(lan_address),
             port=self.instance.port or DEFAULT_PORT,
@@ -807,6 +807,7 @@ class KolibriBroadcast:
                 % (instance.zeroconf_id, instance.device_info)
             )
             self.events.publish(EVENT_UPDATE_INSTANCE, instance)
+        return None
 
     def remove_service(self, name):
         """

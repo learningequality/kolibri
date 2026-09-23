@@ -379,7 +379,7 @@ status_map = {
     "EXIT_ERROR": STATUS_UNCLEAN_SHUTDOWN,
 }
 
-IS_RUNNING = set([STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN])
+IS_RUNNING = {STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN}
 
 
 class PIDPlugin(SimplePlugin):
@@ -575,6 +575,7 @@ class SignalHandler(BaseSignalHandler):
             return super()._handle_signal(signum, frame)
         if os.getpid() == self.process_pid:
             return super()._handle_signal(signum, frame)
+        return None
 
     def subscribe(self):
         super().subscribe()
@@ -1120,12 +1121,12 @@ def _get_local_ips():
     :return: a list of IP addresses
     """
     return list(
-        set(
+        {
             addr.ip
             for iface in ifaddr.get_adapters()
             for addr in iface.ips
             if addr.is_IPv4 and not addr.ip.startswith("169.254")
-        )
+        }
     )
 
 
@@ -1170,8 +1171,7 @@ def get_installer_version(installer_type):  # noqa: C901
             package_info = output.split("\n")
             version_info = [line for line in package_info if "Version" in line]
             if version_info:
-                version = version_info[0].split(":")[1].strip()
-                return version
+                return version_info[0].split(":")[1].strip()
         except CalledProcessError:  # package not installed!
             pass  # will return None
         return None

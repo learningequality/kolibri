@@ -233,11 +233,11 @@ class QueueDeserializer(serializers.Serializer):
 
 class SyncQueueAPIView(APIView):
     def get_response_data(self, queue_object):
-        return dict(
-            id=queue_object.id,
-            status=queue_object.status,
-            keep_alive=queue_object.keep_alive,
-        )
+        return {
+            "id": queue_object.id,
+            "status": queue_object.status,
+            "keep_alive": queue_object.keep_alive,
+        }
 
     def check_queue(self, queue_object):
         # first, ensure no expired devices are in the queue
@@ -318,9 +318,9 @@ class SyncQueueAPIView(APIView):
             queue_object, created = SyncQueue.objects.get_or_create(
                 user_id=user_id,
                 instance_id=instance_id,
-                defaults=dict(
-                    status=SyncQueueStatus.Queued,
-                ),
+                defaults={
+                    "status": SyncQueueStatus.Queued,
+                },
             )
 
         if not created:

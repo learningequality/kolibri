@@ -111,6 +111,7 @@ def get_field(fields, obj):
     for label in fields:
         if label in obj:
             return obj[label]
+    return None
 
 
 input_choices = {val: key for key, val in choices}
@@ -124,6 +125,7 @@ def map_class(obj):
     value = get_field(["class", "Class id", "Class name"], obj)
     if value != MULTIPLE_CLASSROOMS_TEXT:
         return value
+    return None
 
 
 input_mappings = {

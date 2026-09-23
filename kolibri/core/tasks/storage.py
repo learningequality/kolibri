@@ -371,13 +371,11 @@ class Storage:
 
     def get_job(self, job_id):
         orm_job = self.get_orm_job(job_id)
-        job = self._orm_to_job(orm_job)
-        return job
+        return self._orm_to_job(orm_job)
 
     def get_orm_job(self, job_id):
         try:
-            orm_job = ORMJob.objects.get(id=job_id)
-            return orm_job
+            return ORMJob.objects.get(id=job_id)
         except ORMJob.DoesNotExist:
             raise JobNotFound()
 
@@ -674,17 +672,17 @@ class Storage:
             )
 
         # Create the schedule kwargs by reading from the database, and overriding with any passed in values.
-        kwargs = dict(
-            queue=orm_job.queue,
-            priority=priority if priority is not None else orm_job.priority,
-            interval=interval if interval is not None else orm_job.interval,
-            repeat=repeat if repeat is not NO_VALUE else orm_job.repeat,
-            retry_interval=retry_interval
+        kwargs = {
+            "queue": orm_job.queue,
+            "priority": priority if priority is not None else orm_job.priority,
+            "interval": interval if interval is not None else orm_job.interval,
+            "repeat": repeat if repeat is not NO_VALUE else orm_job.repeat,
+            "retry_interval": retry_interval
             if retry_interval is not NO_VALUE
             else orm_job.retry_interval,
-            max_retries=orm_job.max_retries,
-            retries=orm_job.retries,
-        )
+            "max_retries": orm_job.max_retries,
+            "retries": orm_job.retries,
+        }
 
         # Set a null new_scheduled_time so that we finish processing if none of the cases below pertain.
         new_scheduled_time = None

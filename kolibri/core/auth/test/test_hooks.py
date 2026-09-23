@@ -42,12 +42,12 @@ class CleanUpTaskOperationTestCase(TestCase):
         result = self.operation.handle_initial(self.context)
         self.assertFalse(result)
         mock_task.enqueue.assert_called_once_with(
-            kwargs=dict(
-                pull=self.context.is_pull,
-                push=self.context.is_push,
-                sync_filter=str(self.context.filter),
-                client_instance_id=self.context.sync_session.client_instance_id.hex,
-            )
+            kwargs={
+                "pull": self.context.is_pull,
+                "push": self.context.is_push,
+                "sync_filter": str(self.context.filter),
+                "client_instance_id": self.context.sync_session.client_instance_id.hex,
+            }
         )
 
     def test_handle_initial__not_server(self, mock_task):
@@ -56,12 +56,12 @@ class CleanUpTaskOperationTestCase(TestCase):
         result = self.operation.handle_initial(self.context)
         self.assertFalse(result)
         mock_task.enqueue.assert_called_once_with(
-            kwargs=dict(
-                pull=self.context.is_pull,
-                push=self.context.is_push,
-                sync_filter=str(self.context.filter),
-                server_instance_id=self.context.sync_session.server_instance_id.hex,
-            )
+            kwargs={
+                "pull": self.context.is_pull,
+                "push": self.context.is_push,
+                "sync_filter": str(self.context.filter),
+                "server_instance_id": self.context.sync_session.server_instance_id.hex,
+            }
         )
 
 

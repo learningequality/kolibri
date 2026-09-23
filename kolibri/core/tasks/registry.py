@@ -430,7 +430,7 @@ class RegisteredTask:
         """
         Returns a job object with args and kwargs as its positional and keyword arguments.
         """
-        job_obj = Job(
+        return Job(
             self,
             job_id=job_kwargs.pop("job_id", self.job_id),
             cancellable=job_kwargs.pop("cancellable", self.cancellable),
@@ -438,7 +438,6 @@ class RegisteredTask:
             long_running=job_kwargs.pop("long_running", self.long_running),
             **job_kwargs,
         )
-        return job_obj
 
     def generate_status(self, job):
         """
@@ -450,3 +449,4 @@ class RegisteredTask:
         """
         if self._status_fn:
             return self._status_fn(job)
+        return None

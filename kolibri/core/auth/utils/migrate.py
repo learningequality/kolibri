@@ -48,7 +48,7 @@ def _batch_save(Model, objects):
     Model.objects.bulk_create(objects, batch_size=batch_size)
 
 
-blocklist = set(["id", "_morango_partition"])
+blocklist = {"id", "_morango_partition"}
 
 
 def merge_users(source_user, target_user):  # noqa C901

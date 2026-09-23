@@ -93,10 +93,10 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
         for user_id in self.user_ids:
             FacilityUser.objects.get_or_create(
                 id=user_id,
-                defaults=dict(
-                    username=user_id,
-                    facility=self.facility,
-                ),
+                defaults={
+                    "username": user_id,
+                    "facility": self.facility,
+                },
             )
 
     def assertRequestSyncCalled(self, user_id, call_index=0):
@@ -387,10 +387,10 @@ class SoudExecuteSyncTestCase(TestCase):
         self.facility = Facility.objects.create(name="Test")
         self.user = FacilityUser.objects.get_or_create(
             id=self.user_id,
-            defaults=dict(
-                username=self.user_id,
-                facility=self.facility,
-            ),
+            defaults={
+                "username": self.user_id,
+                "facility": self.facility,
+            },
         )
 
         self.network_location = StaticNetworkLocation.objects.create(

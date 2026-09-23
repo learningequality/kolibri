@@ -82,6 +82,7 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
         # when using postgres, we can call distinct on a specific column
         if connection.vendor == "postgresql":
             return self.order_by("content_id").distinct("content_id")
+        return None
 
     def filter_by_content_ids(self, content_ids, validate=True):
         return self._by_uuids(content_ids, validate, "content_id", True)

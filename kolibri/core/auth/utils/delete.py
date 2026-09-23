@@ -266,11 +266,10 @@ def _get_log_models(dataset_id):
 
 
 def _get_user_partition_filters(user):
-    partition_filters = [
+    return [
         f"{user.dataset_id}:user-ro:{user.id}",
         f"{user.dataset_id}:user-rw:{user.id}",
     ]
-    return partition_filters
 
 
 def _get_database_max_counters(dataset_id=None, user=None):

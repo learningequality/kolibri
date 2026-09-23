@@ -47,6 +47,7 @@ def _optional_node_id(item):
         and "context" in item["most_recent_session_log_extra_fields"]
     ):
         return item["most_recent_session_log_extra_fields"]["context"].get("node_id")
+    return None
 
 
 def _key_gen(item, name):
@@ -316,11 +317,11 @@ def csv_file_generator(
         queryset = queryset.filter(start_timestamp__lte=end)
 
     # Exclude completion timestamp for the sessionlog CSV
-    header_labels = list(
+    header_labels = [
         label
         for label in labels.values()
         if log_type == "summary" or label != labels["completion_timestamp"]
-    )
+    ]
     # len of topic headers should be equal to the max depth of the content node
     topic_headers = [
         (f"Folder level {i + 1}", _(f"Folder level {i + 1}"))

@@ -57,10 +57,9 @@ def create_timezonestamp(value):
         value = timezone.make_aware(value, timezone.get_current_timezone())
     date_time_string = value.astimezone(pytz.utc).strftime(date_time_format)
     tz_string = tz_format.format(tz=tz)
-    value = db_storage_string.format(
+    return db_storage_string.format(
         date_time_string=date_time_string, tz_string=tz_string
     )
-    return value
 
 
 class DateTimeTzField(Field):
@@ -112,6 +111,7 @@ class DateTimeTzField(Field):
         value = self.value_from_object(obj)
         if value is not None:
             return create_timezonestamp(self.value_from_object(obj))
+        return None
 
 
 class JSONField(JSONFieldBase):

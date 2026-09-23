@@ -17,10 +17,9 @@ LOGS_CLEANUP_JOB_ID = "18"
 
 def get_filepath(log_type, facility_id, start_date, end_date):
     facility = Facility.objects.get(id=facility_id)
-    filepath = CSV_EXPORT_FILENAMES[log_type].format(
+    return CSV_EXPORT_FILENAMES[log_type].format(
         facility.name, facility.id[:4], start_date[:10], end_date[:10]
     )
-    return filepath
 
 
 def get_valid_logs_csv_filenames():
@@ -66,8 +65,7 @@ def get_valid_filenames():
     """
     valid_logs_filenames = get_valid_logs_csv_filenames()
     valid_users_filenames = get_valid_users_csv_filenames()
-    valid_filenames_set = valid_logs_filenames.union(valid_users_filenames)
-    return valid_filenames_set
+    return valid_logs_filenames.union(valid_users_filenames)
 
 
 class ExportLogCSVValidator(JobValidator):

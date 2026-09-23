@@ -87,6 +87,7 @@ class FileFinder(finders.FileSystemFinder):
         path = _get_file_path(root, path, prefix)
         if path and os.path.exists(path):
             return path
+        return None
 
 
 class SlicedFile(BufferedIOBase):
@@ -244,6 +245,7 @@ class EndRangeStaticFile(StaticFile):
         for encoding_re, path, headers in self.alternatives:
             if accept_encoding == "*" or encoding_re.search(accept_encoding):
                 return path, headers
+        return None
 
 
 class StreamingStaticFile(EndRangeStaticFile):

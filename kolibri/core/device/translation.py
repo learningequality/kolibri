@@ -45,6 +45,7 @@ def get_accept_headers_language(request):
             return get_supported_language_variant(accept_lang)
         except LookupError:
             continue
+    return None
 
 
 def get_settings_language():

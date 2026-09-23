@@ -281,6 +281,7 @@ class ContentNodeAPIBase:
                     "lang_direction",
                 ]
             }
+        return None
 
     def _assert_node(self, actual, expected, with_admin_imported=True):
         assessmentmetadata = (
@@ -1734,7 +1735,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         course_node.save()
 
         # Get the descendants of the course node
-        descendant_ids = set(
+        descendant_ids = {
             str(pk)
             for pk in content.ContentNode.objects.filter(
                 tree_id=course_node.tree_id,
@@ -1743,7 +1744,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             )
             .filter(available=True)
             .values_list("id", flat=True)
-        )
+        }
         self.assertGreater(len(descendant_ids), 0)
 
         response = self.client.get(
@@ -1766,7 +1767,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         course_node.available = True
         course_node.save()
 
-        descendant_ids = set(
+        descendant_ids = {
             str(pk)
             for pk in content.ContentNode.objects.filter(
                 tree_id=course_node.tree_id,
@@ -1775,7 +1776,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             )
             .filter(available=True)
             .values_list("id", flat=True)
-        )
+        }
 
         response = self.client.get(
             reverse("kolibri:core:contentnode-list"),

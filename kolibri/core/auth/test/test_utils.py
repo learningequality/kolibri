@@ -698,7 +698,7 @@ class TestDeleteFacilityDeletesAllFacilityModels(TestCase):
         facility = FacilityFactory.create()
         all_facility_models = set(syncable_models.get_models("facilitydata"))
         delete_group = get_delete_group_for_facility(facility)
-        all_deleted_models = set(qs.model for qs in delete_group.get_querysets())
+        all_deleted_models = {qs.model for qs in delete_group.get_querysets()}
         self.assertTrue(all_deleted_models.issuperset(all_facility_models))
 
 

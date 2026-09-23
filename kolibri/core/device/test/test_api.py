@@ -425,15 +425,15 @@ class UserSyncStatusTestCase(APITestCase):
         cls.syncstatus2 = UserSyncStatus.objects.create(**data2)
 
     def _create_transfer_session(self, **data):
-        defaults = dict(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.COMPLETED,
-        )
+        defaults = {
+            "id": uuid.uuid4(),
+            "filter": "no-filter",
+            "push": True,
+            "active": True,
+            "sync_session": self.syncsession1,
+            "last_activity_timestamp": timezone.now(),
+            "transfer_stage_status": transfer_statuses.COMPLETED,
+        }
         defaults.update(data)
         TransferSession.objects.create(**defaults)
 

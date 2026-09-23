@@ -65,9 +65,9 @@ class Context:
         queue, _ = SyncQueue.objects.get_or_create(
             user_id=self.user_id,
             instance_id=self.instance_id,
-            defaults=dict(
-                status=SyncQueueStatus.Pending,
-            ),
+            defaults={
+                "status": SyncQueueStatus.Pending,
+            },
         )
         return queue
 
@@ -86,7 +86,7 @@ class Context:
     @cached_property
     def request_data(self):
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-        return dict(user=self.user_id, instance=instance_model.id)
+        return {"user": self.user_id, "instance": instance_model.id}
 
     def __str__(self):
         return "[user={}] [server={}]".format(self.user_id, self.instance_id)
@@ -390,13 +390,13 @@ def execute_sync(context):
     sync_session_id = sync_queue.sync_session_id
     cleanup = False
     command = "sync"
-    kwargs = dict(
-        user=context.user_id,
-        baseurl=context.network_location.base_url,
-        keep_alive=True,
-        noninteractive=True,
-        no_provision=True,
-    )
+    kwargs = {
+        "user": context.user_id,
+        "baseurl": context.network_location.base_url,
+        "keep_alive": True,
+        "noninteractive": True,
+        "no_provision": True,
+    }
 
     if sync_session_id:
         command = "resumesync"

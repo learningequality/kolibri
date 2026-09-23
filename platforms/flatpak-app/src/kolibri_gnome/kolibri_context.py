@@ -315,9 +315,7 @@ class KolibriContext(BaseKolibriContext):
         url_tuple = urlsplit(url)
         url_path = url_tuple.path.lstrip("/")
 
-        return not (
-            url_path.startswith("static/") or url_path.startswith("content/storage/")
-        )
+        return not (url_path.startswith(("static/", "content/storage/")))
 
     def is_url_in_scope(self, url: str) -> bool:
         return self.is_url_for_kolibri_app(url)

@@ -216,12 +216,7 @@ def test_cli_usage():
 def test_list_plugins(echo_mock, plugins):
     cli.list.callback()
     test_plugin = "kolibri.plugins.media_player"
-    any(
-        map(
-            lambda x: test_plugin in x[0] and "ENABLED" in x[0],
-            echo_mock.call_args_list,
-        )
-    )
+    any(test_plugin in x[0] and "ENABLED" in x[0] for x in echo_mock.call_args_list)
 
 
 @patch("kolibri.utils.cli.click.echo")
@@ -229,12 +224,7 @@ def test_list_plugins_disabled(echo_mock, plugins):
     cli.list.callback()
     test_plugin = "kolibri.plugins.media_player"
     cli.disable.callback((test_plugin,), False)
-    any(
-        map(
-            lambda x: test_plugin in x[0] and "DISABLED" in x[0],
-            echo_mock.call_args_list,
-        )
-    )
+    any(test_plugin in x[0] and "DISABLED" in x[0] for x in echo_mock.call_args_list)
 
 
 # ---------------------------------------------------------------------------

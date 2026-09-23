@@ -25,6 +25,7 @@ def get_by_node_id(node_id):
         except (ContentNode.DoesNotExist, ValueError):
             # not found, or the id is invalid
             pass
+    return None
 
 
 def get_by_channel_id_and_content_id(channel_id, content_id):
@@ -39,6 +40,7 @@ def get_by_channel_id_and_content_id(channel_id, content_id):
         except ValueError:
             # Raised if a malformed UUID is passed
             pass
+    return None
 
 
 def get_by_content_id(content_id):
@@ -51,6 +53,7 @@ def get_by_content_id(content_id):
         except ValueError:
             # Raised if a malformed UUID is passed
             pass
+    return None
 
 
 class ContentPermalinkRedirect(View):

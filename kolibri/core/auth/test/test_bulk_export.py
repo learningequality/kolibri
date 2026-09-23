@@ -131,8 +131,7 @@ class UserExportTestCase(TestCase):
 
     def get_data_from_csv_file(self):
         with open_csv_for_reading(local_filepath=self.filepath) as f:
-            results = [row for row in csv.DictReader(f)]
-        return results
+            return list(csv.DictReader(f))
 
     def test_csv_file(self):
         results = self.get_data_from_csv_file()

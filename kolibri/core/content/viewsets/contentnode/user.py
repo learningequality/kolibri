@@ -42,7 +42,7 @@ class UserContentNodeFilter(ContentNodeFilter):
         )
         if lesson is None:
             return queryset.none()
-        node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
+        node_ids = [x["contentnode_id"] for x in lesson.resources]
         return queryset.filter(pk__in=node_ids)
 
     def filter_by_resume(self, queryset, name, value):
@@ -180,11 +180,10 @@ class UserContentNodeViewset(
         if user.is_anonymous:
             user = None
 
-        queryset = queryset.annotate(
+        return queryset.annotate(
             last_interacted=Subquery(
                 ContentSummaryLog.objects.filter(
                     content_id=OuterRef("content_id"), user=user
                 ).values_list("end_timestamp")[:1]
             )
         )
-        return queryset

@@ -139,7 +139,10 @@ class CourseSession(AbstractFacilityDataModel):
         one_to_many=False,
         # A learner-only device holds every course session for its classrooms, assigned or not.
         # Clearing recipients deletes CourseSessionAssignment rows and never touches is_active.
-        filters=dict(is_active=True, assignments__collection__membership__isnull=False),
+        filters={
+            "is_active": True,
+            "assignments__collection__membership__isnull": False,
+        },
         lookup_field="course",
         lookup_func=course_assignment_lookup,
         content_download_priority_func=course_content_download_priority,

@@ -298,10 +298,10 @@ class SyncJobValidator(JobValidator):
         else:
             facility_id = facility
             facility_name = data["facility_name"]
-        kwargs = dict(
-            chunk_size=200,
-            noninteractive=True,
-        )
+        kwargs = {
+            "chunk_size": 200,
+            "noninteractive": True,
+        }
         if data["command"] == "resumesync":
             # Selectively add in the sync_session_id if resuming
             # as the sync command will reject the id parameter.
@@ -309,13 +309,13 @@ class SyncJobValidator(JobValidator):
         else:
             kwargs["facility"] = facility_id
         return {
-            "extra_metadata": dict(
-                facility_id=facility_id,
-                facility_name=facility_name,
-                sync_state=FacilitySyncState.PENDING,
-                bytes_sent=0,
-                bytes_received=0,
-            ),
+            "extra_metadata": {
+                "facility_id": facility_id,
+                "facility_name": facility_name,
+                "sync_state": FacilitySyncState.PENDING,
+                "bytes_sent": 0,
+                "bytes_received": 0,
+            },
             "facility_id": facility_id,
             "kwargs": kwargs,
             "args": [data["command"]],
@@ -437,13 +437,13 @@ class PeerSyncJobValidator(SyncJobValidator):
             device_id = ""
 
         job_data["extra_metadata"].update(
-            dict(
-                device_name=device_name,
-                device_id=device_id,
-                baseurl=baseurl,
-            )
+            {
+                "device_name": device_name,
+                "device_id": device_id,
+                "baseurl": baseurl,
+            }
         )
-        job_data["kwargs"].update(dict(baseurl=baseurl))
+        job_data["kwargs"].update({"baseurl": baseurl})
         return job_data
 
 
@@ -491,10 +491,10 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     def validate(self, data):
         job_data = super().validate(data)
         job_data["kwargs"].update(
-            dict(
-                no_push=True,
-                no_provision=True,
-            )
+            {
+                "no_push": True,
+                "no_provision": True,
+            }
         )
         # A facility import is a one-off pull; it must not collapse onto a
         # scheduled peer sync, so drop any inherited deterministic id.
@@ -536,10 +536,10 @@ class DeleteFacilityValidator(JobValidator):
         return {
             "args": (facility.id,),
             "facility_id": facility.id,
-            "extra_metadata": dict(
-                facility=facility.id,
-                facility_name=facility.name,
-            ),
+            "extra_metadata": {
+                "facility": facility.id,
+                "facility_name": facility.name,
+            },
         }
 
 
@@ -622,7 +622,7 @@ def queue_soud_sync_cleanup(*sync_session_ids):
     logger.info(
         "Enqueueing cleanup of sync sessions: {}".format(", ".join(sync_session_ids))
     )
-    return soud_sync_cleanup.enqueue(kwargs=dict(pk__in=sync_session_ids))
+    return soud_sync_cleanup.enqueue(kwargs={"pk__in": sync_session_ids})
 
 
 def queue_soud_server_sync_cleanup(client_instance_id):
@@ -632,7 +632,7 @@ def queue_soud_server_sync_cleanup(client_instance_id):
     :param client_instance_id: The Kolibri instance ID of the client
     """
     return soud_sync_cleanup.enqueue(
-        kwargs=dict(client_instance_id=client_instance_id, is_server=True)
+        kwargs={"client_instance_id": client_instance_id, "is_server": True}
     )
 
 
@@ -713,10 +713,10 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         job_data["kwargs"]["user"] = user_id
 
         job_data["kwargs"].update(
-            dict(
-                no_push=True,
-                no_provision=True,
-            )
+            {
+                "no_push": True,
+                "no_provision": True,
+            }
         )
         return job_data
 
@@ -849,7 +849,7 @@ class AssignPicturePasswordsValidator(JobValidator):
         return {
             "kwargs": {"facility_id": facility.id},
             "facility_id": facility.id,
-            "extra_metadata": dict(facility_id=facility.id),
+            "extra_metadata": {"facility_id": facility.id},
         }
 
 

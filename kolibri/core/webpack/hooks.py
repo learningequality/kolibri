@@ -171,14 +171,15 @@ class WebpackBundleHook(hooks.KolibriHook):
             )
             if os.path.exists(file_path):
                 return file_path
+        return None
 
     def frontend_messages(self):
         lang_code = get_language()
         frontend_message_file = self.frontend_message_file(lang_code)
         if frontend_message_file:
             with open(frontend_message_file, encoding="utf-8") as f:
-                message_file_content = json.load(f)
-            return message_file_content
+                return json.load(f)
+        return None
 
     def sorted_chunks(self):
         bidi = get_language_info(get_language())["bidi"]
@@ -289,9 +290,8 @@ class WebpackBundleHook(hooks.KolibriHook):
             return None
 
         with codecs.open(filename, "r", charset) as fd:
-            content = fd.read()
+            return fd.read()
         # Cache this forever, as URLs will update for new files
-        return content
 
     def render_to_page_load_sync_html(self):
         """

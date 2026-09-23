@@ -375,7 +375,7 @@ def restart():
 
 @main.command(
     cls=KolibriDjangoCommand,
-    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+    context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
     help="Django management commands. See also 'kolibri manage help'",
 )
 @click.pass_context

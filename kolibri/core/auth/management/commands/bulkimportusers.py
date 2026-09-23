@@ -124,6 +124,7 @@ def number_range(min, max, allow_null=False):
 
         if v is None or (int(v) < min or int(v) > max):
             raise ValueError(v)
+        return None
 
     return checker
 
@@ -166,6 +167,7 @@ def value_length(length, allow_null=False, multiple=False):
                 check_single_value(value)
         else:
             check_single_value(v)
+        return None
 
     return checker
 
@@ -203,6 +205,7 @@ def enumeration(*args):
             return checker
         if value.lower() not in members:
             raise ValueError(value)
+        return None
 
     return checker
 
@@ -225,6 +228,7 @@ def valid_name(username=True, allow_null=False):
             has_punc = r"[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]"
         if re.search(has_punc, v):
             raise ValueError(v)
+        return None
 
     return checker
 
@@ -470,7 +474,7 @@ class Command(AsyncCommand):
             per_line_errors.append(err)
         # cleaning classes names:
         normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
-        coach_classrooms = [cl for cl in validator.coach_classrooms]
+        coach_classrooms = list(validator.coach_classrooms)
         for classroom in coach_classrooms:
             normalized_name = classroom.lower()
             if normalized_name in normalized_learner_classroooms:

@@ -183,3 +183,4 @@ def search_latest(search_root, fallback_version):
 
     if newest:
         return os.path.join(search_root, newest)
+    return None

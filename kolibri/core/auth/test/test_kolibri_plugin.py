@@ -24,13 +24,13 @@ class PicturePasswordsSyncHookTestCase(TestCase):
         self.dataset_id = self.facility.dataset_id
 
     def _call_post_transfer(self, **kwargs):
-        params = dict(
-            dataset_id=self.dataset_id,
-            local_is_single_user=False,
-            remote_is_single_user=False,
-            single_user_id=None,
-            context=self.context,
-        )
+        params = {
+            "dataset_id": self.dataset_id,
+            "local_is_single_user": False,
+            "remote_is_single_user": False,
+            "single_user_id": None,
+            "context": self.context,
+        }
         params.update(kwargs)
         self.hook.post_transfer(**params)
 

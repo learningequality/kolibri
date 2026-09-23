@@ -53,8 +53,7 @@ def _map_contentnodes(request, content_ids):
         if content_ids
         else []
     )
-    contentnode_map = {c["id"]: c for c in contentnodes}
-    return contentnode_map
+    return {c["id"]: c for c in contentnodes}
 
 
 def _consolidate_lessons_data(request, lessons):

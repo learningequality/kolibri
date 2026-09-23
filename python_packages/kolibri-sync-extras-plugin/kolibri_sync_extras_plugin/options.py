@@ -9,7 +9,7 @@ option_spec = {
         },
         "BACKGROUND_INITIALIZATION_STAGES": {
             "type": "string",
-            "default": ",".join([transfer_stages.SERIALIZING, transfer_stages.QUEUING]),
+            "default": f"{transfer_stages.SERIALIZING},{transfer_stages.QUEUING}",
             "envvars": ("KOLIBRI_SYNC_BACKGROUND_INITIALIZATION_STAGES",),
         },
         "BACKGROUND_FINALIZATION": {
@@ -19,13 +19,7 @@ option_spec = {
         },
         "BACKGROUND_FINALIZATION_STAGES": {
             "type": "string",
-            "default": ",".join(
-                [
-                    transfer_stages.DEQUEUING,
-                    transfer_stages.DESERIALIZING,
-                    transfer_stages.CLEANUP,
-                ]
-            ),
+            "default": f"{transfer_stages.DEQUEUING},{transfer_stages.DESERIALIZING},{transfer_stages.CLEANUP}",
             "envvars": ("KOLIBRI_SYNC_BACKGROUND_FINALIZATION_STAGES",),
         },
     }

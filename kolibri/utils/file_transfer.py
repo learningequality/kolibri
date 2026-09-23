@@ -1145,6 +1145,7 @@ class RemoteFile(ChunkedFile):
                 self.transfer.restore_head_info(header_info)
             self.transfer.start()
             return True
+        return None
 
     def read(self, size=-1):
         dest_file_handle = self.dest_file_handle

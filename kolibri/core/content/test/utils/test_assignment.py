@@ -783,31 +783,31 @@ class FindDownloadableAssignmentsStoreFilterTestCase(TestCase):
         """
         Creates the `Store` record that a sync would have written for `lesson`
         """
-        defaults = dict(
-            id=lesson.id,
-            profile=PROFILE_FACILITY_DATA,
-            serialized="",
-            deleted=False,
-            hard_deleted=False,
-            last_saved_instance=uuid.uuid4().hex,
-            last_saved_counter=1,
-            partition="{}:allusers-ro".format(self.facility.dataset_id),
-            source_id=lesson.id,
-            model_name=Lesson.morango_model_name,
+        defaults = {
+            "id": lesson.id,
+            "profile": PROFILE_FACILITY_DATA,
+            "serialized": "",
+            "deleted": False,
+            "hard_deleted": False,
+            "last_saved_instance": uuid.uuid4().hex,
+            "last_saved_counter": 1,
+            "partition": "{}:allusers-ro".format(self.facility.dataset_id),
+            "source_id": lesson.id,
+            "model_name": Lesson.morango_model_name,
             # morango nulls this field out when deserialization succeeds
-            deserialization_error=None,
-            last_transfer_session_id=self.transfer_session_id,
-        )
+            "deserialization_error": None,
+            "last_transfer_session_id": self.transfer_session_id,
+        }
         defaults.update(overrides)
         return Store.objects.create(**defaults)
 
     def _downloadable_source_ids(self):
-        return set(
+        return {
             assignment.source_id
             for assignment in Lesson.content_assignments.find_downloadable_assignments(
                 transfer_session_id=self.transfer_session_id
             )
-        )
+        }
 
     def test_deserialized_without_error(self):
         lesson = self._create_lesson()
@@ -914,20 +914,20 @@ class CourseSessionRecipientChangeTestCase(TestCase):
         """
         Creates the `Store` record that a sync would have written for a record of `model_name`
         """
-        defaults = dict(
-            id=uuid.uuid4().hex,
-            profile=PROFILE_FACILITY_DATA,
-            serialized="",
-            deleted=False,
-            hard_deleted=False,
-            last_saved_instance=uuid.uuid4().hex,
-            last_saved_counter=1,
-            partition=partition,
-            source_id=source_id,
-            model_name=model_name,
-            deserialization_error=None,
-            last_transfer_session_id=self.transfer_session_id,
-        )
+        defaults = {
+            "id": uuid.uuid4().hex,
+            "profile": PROFILE_FACILITY_DATA,
+            "serialized": "",
+            "deleted": False,
+            "hard_deleted": False,
+            "last_saved_instance": uuid.uuid4().hex,
+            "last_saved_counter": 1,
+            "partition": partition,
+            "source_id": source_id,
+            "model_name": model_name,
+            "deserialization_error": None,
+            "last_transfer_session_id": self.transfer_session_id,
+        }
         defaults.update(overrides)
         return Store.objects.create(**defaults)
 
@@ -958,20 +958,20 @@ class CourseSessionRecipientChangeTestCase(TestCase):
         )
 
     def _downloadable_source_ids(self):
-        return set(
+        return {
             assignment.source_id
             for assignment in CourseSession.content_assignments.find_downloadable_assignments(
                 transfer_session_id=self.transfer_session_id
             )
-        )
+        }
 
     def _removable_source_ids(self):
-        return set(
+        return {
             assignment.source_id
             for assignment in CourseSession.content_assignments.find_removable_assignments(
                 transfer_session_id=self.transfer_session_id
             )
-        )
+        }
 
     def test_recipient_added(self):
         self.group.add_member(self.learner)

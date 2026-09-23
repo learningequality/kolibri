@@ -67,9 +67,7 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
         logger.warning(
             err_msg.format(directory=content_database_dir, names=db_files_to_remove)
         )
-    valid_dbs = list(set(valid_db_names) - set(db_files_to_remove))
-
-    return valid_dbs
+    return list(set(valid_db_names) - set(db_files_to_remove))
 
 
 def enumerate_content_database_file_paths(content_database_dir):

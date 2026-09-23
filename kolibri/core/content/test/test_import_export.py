@@ -3474,7 +3474,7 @@ class TestFilesToTransfer(TestCase):
         _, files_to_transfer, _ = get_import_export_data(
             self.the_channel_id, None, None, False, renderable_only=False, peer_id="1"
         )
-        transfer_ids = set([f["id"] for f in files_to_transfer])
+        transfer_ids = {f["id"] for f in files_to_transfer}
         self.assertEqual(transfer_ids, supplementary_ids)
 
     @patch(
@@ -3498,7 +3498,7 @@ class TestFilesToTransfer(TestCase):
                 "id", flat=True
             )
         )
-        transfer_ids = set([f["id"] for f in files_to_transfer])
+        transfer_ids = {f["id"] for f in files_to_transfer}
         self.assertEqual(transfer_ids, essential_ids)
 
 

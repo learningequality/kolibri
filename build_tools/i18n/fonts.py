@@ -197,7 +197,7 @@ def _clean_up_fonts_directory():
     Delete all generated font files.
     """
     for name in os.listdir(OUTPUT_PATH):
-        if name.endswith(".css") or name.endswith(".woff"):
+        if name.endswith((".css", ".woff")):
             os.unlink(os.path.join(OUTPUT_PATH, name))
     logging.info("Cleaned fonts directory")
 
@@ -658,7 +658,7 @@ def _subset_and_merge_fonts(text, default_font, scope):
         subsets[weight] = []
 
     # track which glyphs are left
-    remaining_glyphs = set([ord(c) for c in text])
+    remaining_glyphs = {ord(c) for c in text}
 
     for font_name in _font_priorities(default_font):
         if font_name in FONTS_TO_EXCLUDE_FROM_SUBSET:

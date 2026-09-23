@@ -1503,6 +1503,7 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
                 assigned_by_id=self.teacher.id,
             )
             return LessonAssignment.objects.using(alias).get(lesson__title=title).id
+        return None
 
     def unassign(self, server, kind, assignment_id):
         """

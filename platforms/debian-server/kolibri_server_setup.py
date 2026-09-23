@@ -26,14 +26,13 @@ def start_debconf_dialog():
     Auxiliar function to start a dialog with debconf database
     """
     args = ["debconf-communicate", "-fnoninteractive", "kolibri-server"]
-    dccomm = subprocess.Popen(
+    return subprocess.Popen(
         args,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         close_fds=True,
         universal_newlines=True,
     )
-    return dccomm
 
 
 def stop_debconf_dialog(dccomm):

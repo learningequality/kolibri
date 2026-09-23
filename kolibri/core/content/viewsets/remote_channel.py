@@ -89,7 +89,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
         channel_lang_name = cls._get_lang_native_name(studioresp.get("language"))
 
-        resp = {
+        return {
             "id": studioresp["id"],
             "description": studioresp.get("description"),
             "tagline": studioresp.get("tagline", None),
@@ -105,8 +105,6 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             "last_updated": studioresp.get("last_published"),
             "version_notes": studioresp.get("version_notes"),
         }
-
-        return resp
 
     def list(self, request, *args, **kwargs):
         """
