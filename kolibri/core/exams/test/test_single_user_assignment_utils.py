@@ -16,7 +16,7 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import IndividualSyncableExam
 
 
-class UpdateAssignmentsFromIndividualSyncableExamsTestCase(TestCase):
+class SingleUserExamTestCase(TestCase):
     databases = "__all__"
 
     @classmethod
@@ -27,10 +27,6 @@ class UpdateAssignmentsFromIndividualSyncableExamsTestCase(TestCase):
             name="My Classroom", parent=cls.facility
         )
         cls.coach = FacilityUser.objects.create(username="coach", facility=cls.facility)
-        cls.learner = FacilityUser.objects.create(
-            username="learner", facility=cls.facility
-        )
-        cls.classroom.add_member(cls.learner)
 
     def setUp(self):
         self.node_id = uuid.uuid4().hex
@@ -60,19 +56,6 @@ class UpdateAssignmentsFromIndividualSyncableExamsTestCase(TestCase):
             ],
         )
 
-    def _sync_assignment(self, learner, collection):
-        syncable = IndividualSyncableExam.objects.create(
-            user=learner,
-            collection=collection,
-            exam_id=self.exam.id,
-            serialized_exam=IndividualSyncableExam.serialize_exam(self.exam),
-        )
-        receive_single_user_sync(learner, saved=[syncable])
-        return syncable
-
-    def _sync_deletion(self, syncable, *deleted):
-        receive_single_user_sync(syncable.user, deleted=[*deleted, syncable])
-
     def _assert_resources_freed(self):
         requested = set(
             ContentRemovalRequest.objects.filter(
@@ -88,6 +71,29 @@ class UpdateAssignmentsFromIndividualSyncableExamsTestCase(TestCase):
                 .values_list("id", flat=True)
             ),
         )
+
+
+class UpdateAssignmentsFromIndividualSyncableExamsTestCase(SingleUserExamTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.classroom.add_member(cls.learner)
+
+    def _sync_assignment(self, learner, collection):
+        syncable = IndividualSyncableExam.objects.create(
+            user=learner,
+            collection=collection,
+            exam_id=self.exam.id,
+            serialized_exam=IndividualSyncableExam.serialize_exam(self.exam),
+        )
+        receive_single_user_sync(learner, saved=[syncable])
+        return syncable
+
+    def _sync_deletion(self, syncable, *deleted):
+        receive_single_user_sync(syncable.user, deleted=[*deleted, syncable])
 
     def test_deleted_quiz_frees_its_resources(self):
         self._sync_deletion(self._sync_assignment(self.learner, self.classroom))

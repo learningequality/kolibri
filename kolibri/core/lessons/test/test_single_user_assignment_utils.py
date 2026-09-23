@@ -16,7 +16,7 @@ from kolibri.core.lessons.models import IndividualSyncableLesson
 from kolibri.core.lessons.models import Lesson
 
 
-class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(TestCase):
+class SingleUserLessonTestCase(TestCase):
     databases = "__all__"
 
     @classmethod
@@ -27,10 +27,6 @@ class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(TestCase):
             name="My Classroom", parent=cls.facility
         )
         cls.coach = FacilityUser.objects.create(username="coach", facility=cls.facility)
-        cls.learner = FacilityUser.objects.create(
-            username="learner", facility=cls.facility
-        )
-        cls.classroom.add_member(cls.learner)
 
     def setUp(self):
         self.node_id = uuid.uuid4().hex
@@ -48,19 +44,6 @@ class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(TestCase):
             ],
         )
 
-    def _sync_assignment(self, learner, collection):
-        syncable = IndividualSyncableLesson.objects.create(
-            user=learner,
-            collection=collection,
-            lesson_id=self.lesson.id,
-            serialized_lesson=IndividualSyncableLesson.serialize_lesson(self.lesson),
-        )
-        receive_single_user_sync(learner, saved=[syncable])
-        return syncable
-
-    def _sync_deletion(self, syncable, *deleted):
-        receive_single_user_sync(syncable.user, deleted=[*deleted, syncable])
-
     def _assert_resources_freed(self):
         requested = set(
             ContentRemovalRequest.objects.filter(
@@ -76,6 +59,29 @@ class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(TestCase):
                 .values_list("id", flat=True)
             ),
         )
+
+
+class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(SingleUserLessonTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.classroom.add_member(cls.learner)
+
+    def _sync_assignment(self, learner, collection):
+        syncable = IndividualSyncableLesson.objects.create(
+            user=learner,
+            collection=collection,
+            lesson_id=self.lesson.id,
+            serialized_lesson=IndividualSyncableLesson.serialize_lesson(self.lesson),
+        )
+        receive_single_user_sync(learner, saved=[syncable])
+        return syncable
+
+    def _sync_deletion(self, syncable, *deleted):
+        receive_single_user_sync(syncable.user, deleted=[*deleted, syncable])
 
     def test_deleted_lesson_frees_its_resources(self):
         self._sync_deletion(self._sync_assignment(self.learner, self.classroom))
