@@ -1,12 +1,12 @@
 import datetime
+from unittest.mock import Mock
+from unittest.mock import patch
 from uuid import uuid4
 
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from mock import Mock
-from mock import patch
 from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import serializers

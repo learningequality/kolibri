@@ -1,9 +1,9 @@
 import os
 import tempfile
+from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
-from mock import patch
 
 from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.core.deviceadmin.tests.test_dbrestore import mock_status_not_running

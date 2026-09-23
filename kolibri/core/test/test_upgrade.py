@@ -1,7 +1,8 @@
+from unittest.mock import call
+from unittest.mock import Mock
+from unittest.mock import patch
+
 import pytest
-from mock import call
-from mock import Mock
-from mock import patch
 
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.upgrade import VersionUpgrade

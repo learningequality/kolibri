@@ -5,9 +5,9 @@ Tests for `kolibri.utils.cli` module.
 import logging
 import os
 import tempfile
+from unittest.mock import patch
 
 import pytest
-from mock import patch
 
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.utils import cli

@@ -3,9 +3,9 @@ import shutil
 import tempfile
 import uuid
 from collections import namedtuple
+from unittest.mock import patch
 
 from django.test import TransactionTestCase
-from mock import patch
 
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.file_availability import (

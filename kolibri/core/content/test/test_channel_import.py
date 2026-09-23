@@ -7,6 +7,10 @@ import uuid
 from contextlib import closing
 from contextlib import contextmanager
 from contextlib import ExitStack
+from unittest.mock import call
+from unittest.mock import MagicMock
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 from django.conf import settings
@@ -19,10 +23,6 @@ from django.db.models import AutoField
 from django.db.utils import ConnectionDoesNotExist
 from django.test import TestCase
 from django.test import TransactionTestCase
-from mock import call
-from mock import MagicMock
-from mock import Mock
-from mock import patch
 
 from kolibri.core.content import models as content
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map

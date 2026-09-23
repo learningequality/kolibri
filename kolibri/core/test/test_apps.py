@@ -1,6 +1,6 @@
 import functools
+from unittest import mock
 
-import mock
 from django.test.testcases import TestCase
 from redis import Redis
 

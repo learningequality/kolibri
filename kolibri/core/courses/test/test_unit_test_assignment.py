@@ -1,11 +1,11 @@
 import hashlib
 import uuid
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from django.db.utils import IntegrityError
 from django.test import SimpleTestCase
 from django.test import TestCase
-from mock import MagicMock
-from mock import patch
 from morango.models import Filter
 
 from kolibri.core.auth.models import Classroom

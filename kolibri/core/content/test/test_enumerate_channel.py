@@ -1,8 +1,8 @@
 import os
 import tempfile
+from unittest.mock import patch
 
 from django.test import TestCase
-from mock import patch
 
 from kolibri.core.content.constants.schema_versions import V020BETA1
 from kolibri.core.content.constants.schema_versions import VERSION_6

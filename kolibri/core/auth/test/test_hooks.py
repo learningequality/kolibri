@@ -1,6 +1,6 @@
 import uuid
+from unittest import mock
 
-import mock
 from django.test import TestCase
 from django.utils.timezone import now
 from morango.sync.context import LocalSessionContext

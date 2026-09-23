@@ -5,7 +5,7 @@ so that any attempt to access the Django database during the running
 of these cli methods will result in an error and test failure.
 """
 
-from mock import patch
+from unittest.mock import patch
 
 # Patched inside each test, after kolibri is imported: env.set_env() prepends
 # kolibri/dist to sys.path, so resolving Django earlier can bind a different copy.

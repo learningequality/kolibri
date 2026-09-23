@@ -5,8 +5,8 @@ Subset of Users Device (SOUD) tests
 import time
 import uuid
 from functools import partial
+from unittest import mock
 
-import mock
 from django.db.models.signals import post_save
 from django.test import TestCase
 from morango.errors import MorangoResumeSyncError

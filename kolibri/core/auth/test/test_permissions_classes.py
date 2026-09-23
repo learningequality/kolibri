@@ -1,5 +1,6 @@
+from unittest.mock import Mock
+
 from django.test import TestCase
-from mock import Mock
 
 from ..models import Facility
 from ..models import FacilityUser

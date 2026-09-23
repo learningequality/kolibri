@@ -1,8 +1,8 @@
 import uuid
+from unittest.mock import call
+from unittest.mock import patch
 
 from django.test import TestCase
-from mock import call
-from mock import patch
 
 from kolibri.core.content import models as content
 from kolibri.core.content.utils.content_delete import delete_content

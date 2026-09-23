@@ -4,14 +4,14 @@ import tempfile
 import uuid
 from collections import namedtuple
 from datetime import timedelta
+from unittest import mock
+from unittest.mock import patch
 
-import mock
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
-from mock import patch
 from morango.constants import transfer_statuses
 from morango.models import DatabaseIDModel
 from morango.models import InstanceIDModel

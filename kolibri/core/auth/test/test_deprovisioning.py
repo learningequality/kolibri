@@ -1,9 +1,9 @@
 import uuid
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import override_settings
 from django.test import TestCase
-from mock import patch
 from morango.models import Certificate
 from morango.models import DatabaseIDModel
 from morango.models import DatabaseMaxCounter

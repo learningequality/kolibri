@@ -1,10 +1,10 @@
 import os
 import posixpath
 import sys
+from unittest.mock import patch
 
 import pytest
 from django.test import TestCase
-from mock import patch
 
 from ..utils.filesystem import enumerate_mounted_disk_partitions
 from ..utils.filesystem import EXPORT_FOLDER_NAME

@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.test import SimpleTestCase
 from morango.constants import transfer_stages
 from morango.models.core import SyncSession

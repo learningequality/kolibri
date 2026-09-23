@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from requests import exceptions
 
 info = {

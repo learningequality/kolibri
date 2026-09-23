@@ -1,6 +1,6 @@
 import uuid
+from unittest import mock
 
-import mock
 from django.test import TestCase
 from rest_framework import serializers
 

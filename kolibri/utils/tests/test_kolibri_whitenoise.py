@@ -3,11 +3,11 @@ import re
 import tempfile
 from gzip import GzipFile
 from http import HTTPStatus
+from unittest.mock import MagicMock
+from unittest.mock import mock_open
+from unittest.mock import patch
 
 import pytest
-from mock import MagicMock
-from mock import mock_open
-from mock import patch
 from whitenoise.responders import Response
 
 from kolibri.utils.kolibri_whitenoise import COMPRESSED_FILE_FOR_REGULAR_PATH

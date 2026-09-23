@@ -1,10 +1,10 @@
 import datetime
+from unittest.mock import call
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytz
 from django.urls import reverse
-from mock import call
-from mock import Mock
-from mock import patch
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.test import APIClient

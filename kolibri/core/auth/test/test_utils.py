@@ -1,8 +1,8 @@
 import datetime
 import random
 import uuid
+from unittest import mock
 
-import mock
 from django.core.management.base import CommandError
 from django.test import TestCase
 from morango.registry import syncable_models

@@ -1,6 +1,6 @@
 import unittest
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.db import connection
 from django.test import SimpleTestCase

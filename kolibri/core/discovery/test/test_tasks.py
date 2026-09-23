@@ -1,8 +1,8 @@
 import datetime
 import functools
 import uuid
+from unittest import mock
 
-import mock
 from django.test import TestCase
 
 from kolibri.core.tasks.job import Priority

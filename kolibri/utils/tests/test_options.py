@@ -8,8 +8,8 @@ import os
 import sys
 import tempfile
 from contextlib import contextmanager
+from unittest import mock
 
-import mock
 import pytest
 
 from kolibri.utils import options

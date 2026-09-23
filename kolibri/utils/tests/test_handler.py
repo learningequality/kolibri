@@ -7,11 +7,11 @@ from io import StringIO
 from queue import Queue
 from time import sleep
 from time import time
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import override_settings
 from django.test import TestCase
-from mock import patch
 
 from kolibri.utils import cli
 from kolibri.utils.logger import get_logging_config

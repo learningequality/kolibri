@@ -2,8 +2,8 @@ import uuid
 from contextlib import contextmanager
 from datetime import timedelta
 from functools import partial
+from unittest import mock
 
-import mock
 import pytest
 from django.test import LiveServerTestCase
 from django.test import TestCase

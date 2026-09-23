@@ -1,13 +1,13 @@
 import hashlib
 import os
 import uuid
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
-from mock import patch
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File

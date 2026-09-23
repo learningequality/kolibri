@@ -2,8 +2,8 @@ import datetime
 import threading
 import time
 import uuid
+from unittest import mock
 
-import mock
 import pytest
 from django.db import connections
 

@@ -1,8 +1,8 @@
 import tempfile
+from unittest.mock import patch
 
 from django.test import TestCase
 from le_utils.constants import content_kinds
-from mock import patch
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.content_manifest import ContentManifest

@@ -4,8 +4,7 @@ import os
 import sqlite3
 import tempfile
 import unittest
-
-from mock import patch
+from unittest.mock import patch
 
 from kolibri.utils.database import sqlite_check_foreign_keys
 

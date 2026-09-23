@@ -1,7 +1,7 @@
 import uuid
+from unittest.mock import Mock
 
 from django.test import TestCase
-from mock import Mock
 from morango.models import Filter
 from morango.sync.utils import SyncSignalGroup
 

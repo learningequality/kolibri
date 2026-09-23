@@ -1,8 +1,8 @@
 import platform
 import time
 import uuid
+from unittest import mock
 
-import mock
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds

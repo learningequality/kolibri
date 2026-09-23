@@ -1,6 +1,6 @@
 import socket
+from unittest import mock
 
-import mock
 import pytest
 from django.test import SimpleTestCase
 from magicbus import Bus

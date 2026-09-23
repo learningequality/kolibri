@@ -1,6 +1,6 @@
 import uuid
+from unittest import mock
 
-import mock
 from django.db.models.functions import NullIf
 from django.test import TestCase
 from morango.models import Store

@@ -1,6 +1,6 @@
 import uuid
+from unittest import mock
 
-import mock
 import requests
 from django.db.utils import IntegrityError
 from django.urls import reverse

@@ -8,6 +8,9 @@ import time
 import uuid
 from contextlib import contextmanager
 from io import StringIO
+from unittest.mock import call
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.core.management import CommandError
@@ -15,9 +18,6 @@ from django.db.models import Q
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import library as library_constants
-from mock import call
-from mock import MagicMock
-from mock import patch
 from requests import Session
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError

@@ -1,5 +1,6 @@
 import tempfile
 import uuid
+from unittest.mock import patch
 
 from django.apps import apps
 from django.db import connections
@@ -7,7 +8,6 @@ from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
 from le_utils.constants import modalities
-from mock import patch
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File

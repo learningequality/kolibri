@@ -1,5 +1,7 @@
 import threading
 import uuid
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from django.db import connections
 from django.db import router
@@ -8,8 +10,6 @@ from django.db.backends.signals import connection_created
 from django.db.utils import OperationalError
 from django.test import TestCase
 from django.test import TransactionTestCase
-from mock import MagicMock
-from mock import patch
 
 from ..api import create_notification
 from ..api import save_notifications

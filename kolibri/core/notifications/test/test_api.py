@@ -1,11 +1,11 @@
 import uuid
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
-from mock import patch
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.test.helpers import create_superuser

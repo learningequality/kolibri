@@ -1,7 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
+from unittest import mock
 
-import mock
 from django.test.testcases import TestCase
 from requests.exceptions import HTTPError
 

@@ -1,13 +1,13 @@
 import os
 import random
 import tempfile
+from unittest.mock import patch
 
 import pytest
 from django.conf import settings
 from django.core.management import call_command
 from django.db import ConnectionHandler
 from django.test.utils import override_settings
-from mock import patch
 
 import kolibri
 from kolibri.core.auth.constants.collection_kinds import FACILITY

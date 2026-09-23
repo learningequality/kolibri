@@ -7,8 +7,8 @@ import time
 import unittest
 import uuid
 from base64 import urlsafe_b64decode
+from unittest import mock
 
-import mock
 import pytz
 from django.conf import settings
 from django.core.cache import cache

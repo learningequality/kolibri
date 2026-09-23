@@ -5,6 +5,8 @@ import uuid
 from datetime import datetime
 from datetime import timedelta
 from importlib import import_module
+from unittest.mock import Mock
+from unittest.mock import patch
 
 from django.conf import settings
 from django.db import connection
@@ -12,8 +14,6 @@ from django.db.models.signals import pre_delete
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
-from mock import Mock
-from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import Certificate

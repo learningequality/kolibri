@@ -1,7 +1,7 @@
 import uuid
+from unittest.mock import patch
 
 from django.urls import reverse
-from mock import patch
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase

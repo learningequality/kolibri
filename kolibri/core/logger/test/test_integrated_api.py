@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import uuid
+from unittest.mock import patch
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.http.cookie import SimpleCookie
@@ -11,7 +12,6 @@ from django.urls import reverse
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from le_utils.constants import modalities
-from mock import patch
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase

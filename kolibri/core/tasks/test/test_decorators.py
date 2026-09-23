@@ -1,5 +1,6 @@
+from unittest.mock import patch
+
 from django.test import TestCase
-from mock import patch
 
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.decorators import register_task

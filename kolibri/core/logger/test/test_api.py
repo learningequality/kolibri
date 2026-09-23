@@ -8,8 +8,8 @@ import datetime
 import os
 import tempfile
 import uuid
+from unittest import mock
 
-import mock
 import pytz
 from django.core.files.storage import default_storage
 from django.core.management import call_command

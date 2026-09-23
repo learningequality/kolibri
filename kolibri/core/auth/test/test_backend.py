@@ -1,7 +1,7 @@
 import uuid
 from datetime import timedelta
+from unittest import mock
 
-import mock
 from django.core.exceptions import PermissionDenied
 from django.test import TestCase
 from django.utils import timezone
