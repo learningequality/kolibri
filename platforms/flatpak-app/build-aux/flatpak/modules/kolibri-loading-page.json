@@ -1,0 +1,7 @@
+{
+    "name" : "kolibri-loading-page",
+    "buildsystem" : "simple",
+    "build-commands" : [
+        "kolibri manage loadingpage --output-dir=/app/share/kolibri-app/loading-page"
+    ]
+}

@@ -50,6 +50,12 @@ jobs:
     uses: ./.github/workflows/platform-android-build_apk.yml
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+  flatpak:
+    name: Build Flatpak file
+    needs: whl
+    uses: ./.github/workflows/platform-gnome-build_flatpak.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
   zip:
     name: Build Raspberry Pi Image
     needs: [deb, server_deb]
@@ -226,6 +232,77 @@ jobs:
       - name: Run smoke test
         shell: bash
         run: ./platforms/desktop-app/scripts/smoke_test_windows.sh "./artifacts/${{ needs.exe.outputs.exe-file-name }}"
+  flatpak_smoke_test:
+    name: Flatpak smoke test
+    needs: flatpak
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      # xvfb gives the app a headless display; dbus-x11 provides dbus-launch
+      # for its private session bus; libglib2.0-bin provides gdbus to query
+      # the search provider.
+      - name: Install host dependencies
+        run: .github/scripts/apt-install.sh --no-install-recommends flatpak xvfb dbus-x11 libglib2.0-bin
+      - name: Install the GNOME 49 runtime
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.gnome.Platform//49
+      - name: Download Flatpak bundle
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.flatpak.outputs.flatpak-file-name }}
+      - name: Run smoke test
+        env:
+          FLATPAK_FILE_NAME: ${{ needs.flatpak.outputs.flatpak-file-name }}
+        run: python3 platforms/flatpak-app/build-aux/flatpak/smoke_test.py "$FLATPAK_FILE_NAME"
+      - name: Upload smoke-test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: flatpak-smoke-test-logs
+          path: /tmp/smoke-*.log
+  flatpak_release_script_tests:
+    name: Flatpak release script tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install Python
+        uses: actions/setup-python@v7
+        with:
+          # The GNOME 49 runtime's Python, which runs these scripts' output.
+          python-version: '3.13'
+      # appstreamcli runs the app-version sort-order tests, which skip without it.
+      - name: Install appstream
+        run: .github/scripts/apt-install.sh --no-install-recommends appstream
+      - name: Install test dependencies
+        run: pip install pytest Pillow
+      - name: Run tests
+        run: python -m pytest platforms/flatpak-app/build-aux/flatpak/tests -q
+  flatpak_manifest_check:
+    name: Validate Flatpak production manifest
+    needs: whl
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install flatpak-builder
+        run: .github/scripts/apt-install.sh --no-install-recommends flatpak-builder
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      # python3-kolibri.json is rendered, not committed, so render it for the
+      # includes to resolve.
+      - name: Render the Kolibri module
+        env:
+          WHL_FILE_NAME: ${{ needs.whl.outputs.whl-file-name }}
+        run: ./platforms/flatpak-app/build-aux/flatpak/prepare-kolibri-module.py --file "dist/$WHL_FILE_NAME"
+      # Resolves every modules/*.json include and validates the merged JSON
+      # without fetching sources or building.
+      - name: Resolve and validate the merged manifest
+        run: flatpak-builder --show-manifest platforms/flatpak-app/build-aux/flatpak/org.learningequality.Kolibri.json > /dev/null
   browser_smoke_test:
     name: Browser smoke test
     needs: whl

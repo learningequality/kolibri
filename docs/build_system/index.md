@@ -58,6 +58,7 @@ Both PR and release workflows follow a similar orchestration pattern but with di
    - **EXE** (Windows installer): `learningequality/kolibri-installer-windows`
    - **APK** (Android app package): `learningequality/kolibri-installer-android`
    - **ZIP** (Raspberry Pi disk image): built locally from `platforms/raspberry-pi/` via `platform-pi-build_img.yml`
+   - **Flatpak** (GNOME app): built locally from `platforms/flatpak-app/` via `platform-gnome-build_flatpak.yml`
 
 ### How external workflows are called
 
@@ -107,6 +108,7 @@ Key aspects:
    - Upload artifacts to GitHub release page
    - Upload to Google Cloud Storage
    - Upload to TestPyPI (test instance of Python Package Index for validation)
+   - Pre-releases: open a Flathub PR against `beta`
 4. **Manual approval step** (final releases only):
    - A maintainer must manually approve the release through GitHub's web interface
    - The workflow pauses and waits for approval before proceeding
@@ -114,4 +116,5 @@ Key aspects:
 5. **After approval** (final releases only):
    - Upload to PyPI (Python packages)
    - Publish to Google Play Store (Android APK)
+   - Open a Flathub PR against `master` (GNOME Flatpak)
 6. Permanent public availability

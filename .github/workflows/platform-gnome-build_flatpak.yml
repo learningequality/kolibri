@@ -1,0 +1,70 @@
+name: Build Flatpak
+on:
+  workflow_dispatch:
+    inputs:
+      whl-url:
+        description: 'URL for the Kolibri whl file'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      whl-url:
+        description: 'URL for the Kolibri whl file'
+        required: false
+        type: string
+      whl-file-name:
+        description: 'Artifact name containing the Kolibri whl file'
+        required: false
+        type: string
+    outputs:
+      flatpak-file-name:
+        description: "Flatpak bundle file name"
+        value: ${{ jobs.build_flatpak.outputs.flatpak-file-name }}
+permissions:
+  contents: read
+jobs:
+  build_flatpak:
+    name: Build Flatpak bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    outputs:
+      flatpak-file-name: ${{ steps.bundle-name.outputs.flatpak-file-name }}
+    steps:
+      - name: Validate whl reference inputs
+        if: ${{ (inputs.whl-url && inputs.whl-file-name) || (!inputs.whl-url && !inputs.whl-file-name) }}
+        run: |
+          echo "Specify exactly one of whl-url / whl-file-name."
+          exit 1
+      - uses: actions/checkout@v7.0.1
+      - name: Prepare Kolibri module from URL
+        if: ${{ inputs.whl-url }}
+        env:
+          WHL_URL: ${{ inputs.whl-url }}
+        run: ./platforms/flatpak-app/build-aux/flatpak/prepare-kolibri-module.py --url "$WHL_URL"
+      - name: Download Kolibri wheel artifact
+        if: ${{ inputs.whl-file-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.whl-file-name }}
+          path: whl-artifact
+      - name: Prepare Kolibri module from artifact
+        if: ${{ inputs.whl-file-name }}
+        env:
+          WHL_FILE_NAME: ${{ inputs.whl-file-name }}
+        run: ./platforms/flatpak-app/build-aux/flatpak/prepare-kolibri-module.py --file "whl-artifact/$WHL_FILE_NAME"
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: org.learningequality.Kolibri.Devel.flatpak
+          # Without this the action uploads the bundle as <bundle>-x86_64.flatpak.
+          artifact-name: org.learningequality.Kolibri.Devel.flatpak
+          manifest-path: platforms/flatpak-app/build-aux/flatpak/org.learningequality.Kolibri.Devel.json
+          # Keyed on the module definitions, not the commit, so develop saves
+          # one entry that PRs restore instead of one per push.
+          cache-key: flatpak-builder-${{ hashFiles('platforms/flatpak-app/build-aux/flatpak/*.json', 'platforms/flatpak-app/build-aux/flatpak/modules/*.json', '!platforms/flatpak-app/build-aux/flatpak/modules/python3-kolibri.json') }}
+      - name: Expose bundle file name
+        id: bundle-name
+        run: echo "flatpak-file-name=org.learningequality.Kolibri.Devel.flatpak" >> "$GITHUB_OUTPUT"

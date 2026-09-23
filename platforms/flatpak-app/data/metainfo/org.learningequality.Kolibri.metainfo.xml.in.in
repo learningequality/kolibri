@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@BASE_APPLICATION_ID@</id>
+  <name>Kolibri</name>
+  <developer id="org.learningequality">
+    <name>Learning Equality</name>
+  </developer>
+  <summary>Offline learning platform</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <url type="bugtracker">https://github.com/learningequality/kolibri/issues</url>
+  <url type="contact">https://community.learningequality.org/</url>
+  <url type="contribute">https://kolibri-dev.readthedocs.io/en/develop/contributing/ways_to_contribute.html</url>
+  <url type="donation">https://learningequality.org/donate/</url>
+  <url type="help">https://kolibri.readthedocs.io</url>
+  <url type="homepage">https://learningequality.org/kolibri/</url>
+  <url type="translate">https://crowdin.com/project/kolibri</url>
+  <url type="vcs-browser">https://github.com/learningequality/kolibri</url>
+  <description>
+    <p>
+      Kolibri provides offline access to a curated and openly licensed
+      educational content library, focused on serving both learners and
+      educators.
+    </p>
+    <p>
+      Available in dozens of languages, the Kolibri Content Library includes
+      both formal educational materials, such as lessons and assessments, as
+      well as exploratory materials, such as books, games, and simulations.
+    </p>
+  </description>
+  <launchable type="desktop-id">@FRONTEND_APPLICATION_ID@.desktop</launchable>
+  <branding>
+    <color type="primary" scheme_preference="light">#fff5cc</color>
+    <color type="primary" scheme_preference="dark">#37436f</color>
+  </branding>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Browsing content in Kolibri</caption>
+      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.3/doc/Screenshot-1.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Exploring more content in Kolibri</caption>
+      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.3/doc/Screenshot-2.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Watching a video from Khan Academy using Kolibri</caption>
+      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.3/doc/Screenshot-3.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="@PROJECT_VERSION@" date="@RELEASE_DATE@" type="@RELEASE_TYPE@">
+      <url type="details">@RELEASE_URL@</url>
+    </release>
+    <release version="3.8" date="2024-10-02" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            Kolibri has been updated to 0.17.2.
+          </li>
+          <li>
+            The application runtime is updated to GNOME 47.
+          </li>
+          <li>
+            An Italian translation has been added.
+          </li>
+        </ul>
+      </description>
+    </release>
+    <release version="3.7" date="2024-08-07" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            Kolibri has been updated to 0.17.0.
+          </li>
+        </ul>
+      </description>
+    </release>
+    <release version="3.6" date="2024-06-07" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            Kolibri has been updated to 0.16.2.
+          </li>
+          <li>
+            The app icon has been updated.
+          </li>
+          <li>
+            The Kolibri app will now sign in automatically using credentials
+            associated with the current desktop user account.
+          </li>
+          <li>
+            The main menu has been simplified.
+          </li>
+          <li>
+            Troubleshooting information has been added to the About window.
+          </li>
+          <li>
+            Kolibri's first run setup wizard will appear in a dialog when the
+            application is started for the first time.
+          </li>
+        </ul>
+      </description>
+    </release>
+    <release version="3.5" date="2024-06-03" type="stable"/>
+    <release version="2.3.4" date="2023-09-21" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            An issue was resolved where the application was failing to save
+            files selected using the file chooser dialog.
+          </li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1" />
+  <update_contact>info_at_learningequality.org</update_contact>
+  <translation type="gettext">kolibri-gnome</translation>
+  <compulsory_for_desktop>Endless</compulsory_for_desktop>
+</component>
