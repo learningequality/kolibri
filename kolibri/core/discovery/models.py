@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.exceptions import ValidationError
@@ -56,7 +57,7 @@ class NetworkLocation(models.Model):
     """
 
     class Meta:
-        ordering = ["added"]
+        ordering: ClassVar[list] = ["added"]
 
     # for statically added network locations: `id` will be a random UUID
     # for dynamically discovered devices: `id` will be the device's `instance_id`
@@ -230,7 +231,7 @@ class LocalHostname(models.Model):
     hostname = models.CharField(primary_key=True, max_length=100)
 
     class Meta:
-        ordering = ["hostname"]
+        ordering: ClassVar[list] = ["hostname"]
 
 
 class NetworkLocationRouter(KolibriModelRouter):
@@ -239,7 +240,7 @@ class NetworkLocationRouter(KolibriModelRouter):
     All other models will be routed to the default database.
     """
 
-    MODEL_CLASSES = {
+    MODEL_CLASSES: ClassVar[set] = {
         NetworkLocation,
         StaticNetworkLocation,
         DynamicNetworkLocation,

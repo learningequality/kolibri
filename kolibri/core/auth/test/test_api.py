@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 from datetime import timedelta
 from importlib import import_module
+from typing import ClassVar
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -4559,7 +4560,10 @@ class RemoteFacilityResponseSanitizationMixin:
 class RemoteFacilityUserViewsetTestCase(
     RemoteFacilityResponseSanitizationMixin, APITestCase
 ):
-    valid_item = {"id": "00000000000000000000000000000001", "username": "alice"}
+    valid_item: ClassVar[dict] = {
+        "id": "00000000000000000000000000000001",
+        "username": "alice",
+    }
 
     def _call_with_payload(self, payload):
         with patch(
@@ -4610,7 +4614,7 @@ class RemoteFacilityUserViewsetTestCase(
 class RemoteFacilityUserAuthenticatedViewsetTestCase(
     RemoteFacilityResponseSanitizationMixin, APITestCase
 ):
-    valid_item = {
+    valid_item: ClassVar[dict] = {
         "id": "00000000000000000000000000000001",
         "username": "alice",
         "full_name": "Alice",

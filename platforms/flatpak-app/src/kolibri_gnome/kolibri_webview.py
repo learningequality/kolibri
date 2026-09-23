@@ -25,7 +25,7 @@ class KolibriWebView(WebKit.WebView):
 
     __deferred_load_kolibri_url: typing.Optional[str] = None
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "kolibri-load-finished": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -175,7 +175,7 @@ class KolibriWebViewStack(Gtk.Stack):
     can_go_back = GObject.Property(type=bool, default=False)
     can_go_forward = GObject.Property(type=bool, default=False)
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "open-new-window": (
             GObject.SIGNAL_RUN_FIRST,
             KolibriWebView,

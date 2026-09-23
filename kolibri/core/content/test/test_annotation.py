@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import uuid
+from typing import ClassVar
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -73,7 +74,7 @@ class ExistsInUpdateEvaluatesPerRowTestCase(TransactionTestCase):
     """
 
     databases = "__all__"
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def test_update_with_exists_correlates_to_the_row_being_updated(self):
         available_checksum = (
@@ -138,7 +139,7 @@ class ExistsInUpdateEvaluatesPerRowTestCase(TransactionTestCase):
 
 class SetContentNodesInvisibleTestCase(TransactionTestCase):
     databases = "__all__"
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def test_all_leaves(self):
         ContentNode.objects.all().update(available=True)
@@ -326,7 +327,7 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
 
 
 class AnnotationFromLocalFileAvailability(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def test_all_local_files_available(self):
         LocalFile.objects.all().update(available=True)
@@ -632,7 +633,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
 
 class AnnotationTreeRecursion(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -861,7 +862,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
 
 
 class LocalFileAvailableByChecksum(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -887,7 +888,7 @@ class LocalFileAvailableByChecksum(TransactionTestCase):
 
 
 class LocalFileUnAvailableByChecksum(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -961,7 +962,7 @@ mock_content_file = tempfile.mkstemp()
 
 
 class LocalFileByDisk(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
     file_id_2 = "e00699f859624e0f875ac6fe1e13d648"

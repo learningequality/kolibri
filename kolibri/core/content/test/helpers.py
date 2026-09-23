@@ -9,6 +9,7 @@ import tempfile
 import uuid
 from contextlib import closing
 from itertools import chain
+from typing import ClassVar
 
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
@@ -79,7 +80,7 @@ class ChannelBuilder:
     channel for use during testing.
     """
 
-    __TREE_CACHE = {}
+    __TREE_CACHE: ClassVar[dict] = {}
 
     tree_keys = (
         "channel",

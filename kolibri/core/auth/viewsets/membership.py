@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.db import connections
 from django.db import transaction
@@ -114,7 +115,7 @@ class MembershipSerializer(serializers.ModelSerializer):
         model = Membership
         fields = ("id", "collection", "user")
         list_serializer_class = MembershipListSerializer
-        validators = []
+        validators: ClassVar[list] = []
 
     def save(self, **kwargs):
         try:
@@ -138,7 +139,7 @@ class MembershipFilter(FilterSet):
 
     class Meta:
         model = Membership
-        fields = ["user", "collection", "user_ids", "by_ids"]
+        fields: ClassVar[list] = ["user", "collection", "user_ids", "by_ids"]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):

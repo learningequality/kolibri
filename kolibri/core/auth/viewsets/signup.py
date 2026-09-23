@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
@@ -48,7 +49,7 @@ class SignUpViewSet(BaseSignUpViewSet):
 @method_decorator(csrf_exempt, name="dispatch")
 class PublicSignUpViewSet(BaseSignUpViewSet):
     # Does not log in the user. Supports legacy_serializer_classes for API stability.
-    legacy_serializer_classes = []
+    legacy_serializer_classes: ClassVar[list] = []
 
     def create(self, request, *args, **kwargs):
         exception = None

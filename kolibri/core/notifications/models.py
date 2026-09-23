@@ -8,6 +8,8 @@ performance problems due to the locks on the main database.
 None of these models will have Morango synchronization
 """
 
+from typing import ClassVar
+
 from django.db import models
 from morango.models import UUIDField
 
@@ -66,7 +68,7 @@ class LearnerProgressNotification(models.Model):
 
     class Meta:
         app_label = "notifications"
-        indexes = [
+        indexes: ClassVar[list] = [
             models.Index(
                 fields=[
                     "-timestamp",
@@ -97,5 +99,5 @@ class NotificationsRouter(KolibriModelRouter):
     All other models will be routed to the default database.
     """
 
-    MODEL_CLASSES = {LearnerProgressNotification, NotificationsLog}
+    MODEL_CLASSES: ClassVar[set] = {LearnerProgressNotification, NotificationsLog}
     DB_NAME = NOTIFICATIONS

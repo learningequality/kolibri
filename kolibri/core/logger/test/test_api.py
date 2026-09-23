@@ -8,6 +8,7 @@ import datetime
 import os
 import tempfile
 import uuid
+from typing import ClassVar
 from unittest import mock
 
 import pytz
@@ -43,7 +44,7 @@ from .helpers import EvaluationMixin
 class ContentSummaryLogCSVExportTestCase(APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):
@@ -207,7 +208,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
 class ContentSessionLogCSVExportTestCase(APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):

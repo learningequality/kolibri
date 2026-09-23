@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import ClassVar
 
 from django.db.models import Exists
 from django.db.models import F
@@ -54,7 +55,7 @@ class SyncStatusFilter(FilterSet):
 
     class Meta:
         model = UserSyncStatus
-        fields = ["user", "member_of"]
+        fields: ClassVar[list] = ["user", "member_of"]
 
 
 sync_diff = timedelta(seconds=DELAYED_SYNC)

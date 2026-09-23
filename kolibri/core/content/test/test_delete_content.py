@@ -1,6 +1,7 @@
 import hashlib
 import os
 import uuid
+from typing import ClassVar
 from unittest.mock import patch
 
 from django.core.management import call_command
@@ -101,7 +102,7 @@ class DeleteContentTestCase(TestCase):
     """
 
     databases = "__all__"
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def _get_node_ids(self):
         return list(

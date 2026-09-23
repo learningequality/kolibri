@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from morango.sync.operations import LocalOperation
 
@@ -50,7 +51,7 @@ class ContentRequestsOperation(KolibriSyncOperationMixin, LocalOperation):
 
 @register_hook
 class ContentSyncHook(FacilityDataSyncHook):
-    cleanup_operations = [ContentRequestsOperation()]
+    cleanup_operations: ClassVar[list] = [ContentRequestsOperation()]
 
     def post_transfer(
         self,

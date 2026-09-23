@@ -4,6 +4,7 @@ import logging
 import time
 from contextlib import ExitStack
 from itertools import islice
+from typing import ClassVar
 
 from django.apps import apps
 from django.core.management.base import CommandError
@@ -269,7 +270,7 @@ class ChannelImport:
     #
     # See NoVersionChannelImport for an annotated example.
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         ContentNode: {
             "per_row": {
                 "tree_id": "available_tree_id",
@@ -1034,7 +1035,7 @@ class NoIncludedPresetsChannelImport(ChannelImport):
     preset, and maps the legacy file_size column to file_size_bigint.
     """
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         ContentNode: {
             "per_row": {
                 "tree_id": "available_tree_id",
@@ -1076,7 +1077,7 @@ class NoLearningActivitiesChannelImport(NoIncludedPresetsChannelImport):
     Class defining the schema mapping for importing content databases before learning activities metadata was added
     """
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         **NoIncludedPresetsChannelImport.schema_mapping,
         ContentNode: {
             "per_row": {
@@ -1101,7 +1102,7 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
     from the old version of the Kolibri content databases into the database for the current version of Kolibri.
     """
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         # The top level keys of the schema_mapping are the Content Django Models that are to be imported
         ContentNode: {
             # For each model's mappings, can defined both 'per_row' and 'per_table' mappings.

@@ -7,6 +7,7 @@ import time
 import unittest
 import uuid
 from base64 import urlsafe_b64decode
+from typing import ClassVar
 from unittest import mock
 
 import pytz
@@ -193,7 +194,7 @@ class ContentNodeTestBase:
 
 
 class ContentNodeQuerysetTestCase(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @classmethod
@@ -237,7 +238,7 @@ def infer_learning_activity(kind):
 
 
 class ContentNodeAPIBase:
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     baseurl = None
 
@@ -2814,7 +2815,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
 
 
 class ContentNodeBookmarksAPITestCase(APITestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     databases = "__all__"
 
     @classmethod

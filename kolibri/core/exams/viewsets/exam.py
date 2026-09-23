@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -108,7 +109,7 @@ class ExamSerializer(ModelSerializer):
             "date_archived",
             "date_activated",
         )
-        extra_kwargs = {
+        extra_kwargs: ClassVar[dict] = {
             "seed": {"read_only": True},
             "question_count": {"read_only": True},
             "creator": {"read_only": True},
@@ -416,13 +417,13 @@ class ExamSerializer(ModelSerializer):
 class ExamFilter(FilterSet):
     class Meta:
         model = Exam
-        fields = ["collection"]
+        fields: ClassVar[list] = ["collection"]
 
 
 class DraftExamFilter(FilterSet):
     class Meta:
         model = DraftExam
-        fields = ["collection"]
+        fields: ClassVar[list] = ["collection"]
 
 
 class ExamPermissions(KolibriAuthPermissions):

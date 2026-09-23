@@ -4,6 +4,7 @@ import logging
 import traceback
 import uuid
 from collections import namedtuple
+from typing import ClassVar
 
 from kolibri.core.tasks.constants import NO_VALUE
 from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
@@ -66,7 +67,7 @@ class State:
     CANCELED = "CANCELED"
     COMPLETED = "COMPLETED"
 
-    States = {
+    States: ClassVar[set] = {
         PENDING,
         SCHEDULED,
         QUEUED,
@@ -80,13 +81,13 @@ class State:
 
     # States in which a supervisor may hold the job - ownership only exists
     # while the job is in one of these states.
-    SUPERVISED_STATES = {
+    SUPERVISED_STATES: ClassVar[set] = {
         SELECTED,
         RUNNING,
         CANCELING,
     }
 
-    FINISHED_STATES = {
+    FINISHED_STATES: ClassVar[set] = {
         FAILED,
         CANCELED,
         COMPLETED,
@@ -128,14 +129,14 @@ class Job:
 
     # Stored in their own ORM column (the source of truth), not in saved_job;
     # restored from the row on inflation. See Storage._orm_to_job.
-    PROJECTED_KEYS = {
+    PROJECTED_KEYS: ClassVar[set] = {
         "job_id",
         "func",
         "state",
     }
 
     # Mutable fields a storage update may write through _update_job's kwargs.
-    UPDATEABLE_KEYS = {
+    UPDATEABLE_KEYS: ClassVar[set] = {
         "exception",
         "traceback",
         "track_progress",

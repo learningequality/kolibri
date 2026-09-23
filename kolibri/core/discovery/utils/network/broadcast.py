@@ -6,6 +6,7 @@ import time
 import uuid
 from collections import namedtuple
 from ipaddress import ip_address
+from typing import ClassVar
 
 from magicbus.base import Bus
 from magicbus.plugins import SimplePlugin
@@ -364,7 +365,7 @@ class KolibriBroadcastEvents(Bus):
     # Adding `Exception` here will re-raise all errors, but making it easier to debug.
     throws = (Exception,)
 
-    event_map = {
+    event_map: ClassVar[dict] = {
         ServiceStateChange.Added: EVENT_ADD_SERVICE,
         ServiceStateChange.Removed: EVENT_REMOVE_SERVICE,
         ServiceStateChange.Updated: EVENT_UPDATE_SERVICE,

@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 from unittest import mock
 
 import requests
@@ -253,7 +254,7 @@ class NetworkLocationFacilitiesViewTestCase(APITestCase):
             facility=self.facility,
         )
 
-    valid_facility = {
+    valid_facility: ClassVar[dict] = {
         "id": "00000000000000000000000000000003",
         "dataset": "00000000000000000000000000000004",
         "name": "Peer Facility",

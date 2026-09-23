@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 DEFAULT_QUEUE = "kolibri"
 
 # Sentinel default for parameters where None is a semantic value (e.g. an
@@ -22,4 +24,4 @@ class Priority:
     HIGH = 5
 
     # A set of all valid priorities
-    Priorities = {HIGH, REGULAR, LOW}
+    Priorities: ClassVar[set] = {HIGH, REGULAR, LOW}

@@ -2,6 +2,7 @@ import datetime
 import uuid
 from random import choice
 from random import uniform
+from typing import ClassVar
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.test import TestCase
@@ -21,7 +22,7 @@ from kolibri.utils.time_utils import local_now
 
 class ConsolidateBase(TestCase):
     MASTERY_LEVEL = -1
-    MASTERY_CRITERION = {"type": exercises.QUIZ, "coach_assigned": True}
+    MASTERY_CRITERION: ClassVar[dict] = {"type": exercises.QUIZ, "coach_assigned": True}
 
     def setUp(self):
         self.facility = FacilityFactory.create()
@@ -88,7 +89,7 @@ class ConsolidateBase(TestCase):
 
 class ConsolidateAttemptLogsCoachQuizTestCase(ConsolidateBase, TestCase):
     MASTERY_LEVEL = -1
-    MASTERY_CRITERION = {"type": exercises.QUIZ, "coach_assigned": True}
+    MASTERY_CRITERION: ClassVar[dict] = {"type": exercises.QUIZ, "coach_assigned": True}
 
     def test_consolidation(self):
         end_timestamp = (
@@ -140,7 +141,7 @@ class ConsolidateAttemptLogsCoachQuizTestCase(ConsolidateBase, TestCase):
 class ConsolidateAttemptLogsPracticeQuizTestCase(
     ConsolidateAttemptLogsCoachQuizTestCase
 ):
-    MASTERY_CRITERION = {"type": exercises.QUIZ}
+    MASTERY_CRITERION: ClassVar[dict] = {"type": exercises.QUIZ}
 
 
 class ConsolidateAttemptLogsExerciseTestCase(ConsolidateBase, TestCase):
@@ -149,7 +150,7 @@ class ConsolidateAttemptLogsExerciseTestCase(ConsolidateBase, TestCase):
     """
 
     MASTERY_LEVEL = 1
-    MASTERY_CRITERION = {"type": exercises.M_OF_N, "m": 8, "n": 10}
+    MASTERY_CRITERION: ClassVar[dict] = {"type": exercises.M_OF_N, "m": 8, "n": 10}
 
     def test_no_consolidation(self):
         consolidate_quiz_attempt_logs(AttemptLog.objects.all())

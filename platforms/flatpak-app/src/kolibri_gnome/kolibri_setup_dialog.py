@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from gettext import gettext as _
 
 from gi.repository import Adw
@@ -17,7 +18,7 @@ class KolibriSetupDialog(Adw.Dialog):
     __setup_context: KolibriSetupContext
     __webview: KolibriWebView
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "setup-complete": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 

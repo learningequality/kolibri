@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
@@ -22,7 +24,7 @@ class BookmarksSerializer(ModelSerializer):
             "user",
         )
         read_only_fields = ("id",)
-        extra_kwargs = {
+        extra_kwargs: ClassVar[dict] = {
             "channel_id": {"required": False},
             "content_id": {"required": False},
             "user": {"write_only": True},
@@ -49,7 +51,7 @@ class BookmarksFilterset(FilterSet):
 
     class Meta:
         model = Bookmark
-        fields = ["contentnode_id"]
+        fields: ClassVar[list] = ["contentnode_id"]
 
     def filter_descendant_of(self, queryset, name, value):
         try:

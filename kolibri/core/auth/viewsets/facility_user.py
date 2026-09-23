@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 from uuid import UUID
 
 from django.contrib.auth import update_session_auth_hash
@@ -203,7 +204,7 @@ class FacilityUserFilter(FilterSet):
 
     class Meta:
         model = FacilityUser
-        fields = [
+        fields: ClassVar[list] = [
             "member_of",
             "related_to__in",
             "user_type",
@@ -250,7 +251,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FacilityUser
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs: ClassVar[dict] = {"password": {"write_only": True}}
         fields = (
             "id",
             "username",
@@ -381,8 +382,8 @@ class FacilitySearchUsernameSerializer(serializers.ModelSerializer):
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all().order_by("id")
     serializer_class = PublicFacilityUserSerializer
-    authentication_classes = [BasicMultiArgumentAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes: ClassVar[list] = [BasicMultiArgumentAuthentication]
+    permission_classes: ClassVar[list] = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.user.is_anonymous:

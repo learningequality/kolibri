@@ -9,6 +9,7 @@ import time
 import uuid
 from contextlib import contextmanager
 from io import StringIO
+from typing import ClassVar
 from unittest.mock import call
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -134,7 +135,7 @@ class GetImportExportNodesTestCase(TestCase):
     Test case for utils.import_export_content.get_import_export_nodes
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
@@ -345,7 +346,7 @@ class GetContentNodesDataTestCase(TestCase):
     Test case for utils.import_export_content.get_content_nodes_data
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
@@ -1195,7 +1196,7 @@ class ImportContentTestCase(TestCase):
     Test case for the importcontent management command.
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     the_channel_version = 0
 
@@ -3075,7 +3076,7 @@ class ExportContentTestCase(TestCase):
     Test case for the exportcontent management command.
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @patch("kolibri.core.content.utils.resource_export.transfer.FileCopy")
@@ -3182,7 +3183,7 @@ class ExportContentTestCase(TestCase):
 
 
 class TestFilesToTransfer(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def test_no_exclude_duplicate_files(self):
@@ -3519,7 +3520,7 @@ class DiskChannelResourceExportManagerTestCase(TestCase):
     Uses real fixture data for content queries, only mocks file operations.
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
@@ -3619,7 +3620,7 @@ class ImportManagerWithChannelDatabaseTestCase(TestCase):
     Uses real fixture data for content queries, only mocks file/network operations.
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
@@ -3911,7 +3912,7 @@ class NewChannelImportRegressionTestCase(TestCase):
     content nodes with: TypeError: unsupported operand type(s) for *: 'int' and 'NoneType'
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def test_new_channel_import_does_not_fail_on_missing_channel(self):
@@ -4027,7 +4028,7 @@ class UpgradeDBReuseTestCase(TestCase):
     after import.
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
@@ -4322,7 +4323,7 @@ class LookupChannelListingStatusTest(TestCase):
 
 
 class ChannelMetadataLibraryFieldTest(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def test_library_field_exists_and_defaults_to_null(self):
@@ -4338,7 +4339,7 @@ class ChannelMetadataLibraryFieldTest(TestCase):
 
 
 class SetChannelMetadataFieldsTest(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def test_sets_library_field(self):
@@ -4360,7 +4361,7 @@ class SetChannelMetadataFieldsTest(TestCase):
 
 
 class PopulateChannelLibraryUpgradeTest(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def test_public_channel_gets_kolibri_library(self):

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db.models import IntegerField
 from django.db.models import Sum
 from django.db.models import Value
@@ -39,7 +41,7 @@ class MasteryFilter(BaseLogFilter):
 
     class Meta:
         model = MasteryLog
-        fields = ["content", "user", "complete"]
+        fields: ClassVar[list] = ["content", "user", "complete"]
 
 
 class MasteryLogSerializer(serializers.ModelSerializer):

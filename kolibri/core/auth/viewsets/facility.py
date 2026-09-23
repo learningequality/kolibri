@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.db import transaction
 from django.db.models import Func
@@ -56,7 +57,7 @@ class FacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Facility
-        extra_kwargs = {"id": {"read_only": True}}
+        extra_kwargs: ClassVar[dict] = {"id": {"read_only": True}}
         fields = (
             "id",
             "name",

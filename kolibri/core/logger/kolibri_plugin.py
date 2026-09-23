@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.auth.sync_operations import KolibriVersionedSyncOperation
@@ -56,7 +57,7 @@ class AttemptLogsConsolidationOperation(KolibriVersionedSyncOperation):
 
 @register_hook
 class LoggerSyncHook(FacilityDataSyncHook):
-    cleanup_operations = [
+    cleanup_operations: ClassVar[list] = [
         ExamLogsCompatibilityOperation(),
         AttemptLogsConsolidationOperation(),
     ]

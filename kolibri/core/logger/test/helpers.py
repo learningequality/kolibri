@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from random import randint
+from typing import ClassVar
 
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -35,7 +36,7 @@ class EvaluationMixin:
     | 5    | Incorrect | Incorrect |
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):

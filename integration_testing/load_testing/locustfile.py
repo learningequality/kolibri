@@ -21,6 +21,7 @@ import random
 import re
 import time
 from datetime import datetime
+from typing import ClassVar
 from urllib.parse import unquote
 from urllib.parse import urlparse
 
@@ -168,14 +169,14 @@ class LessonUser(HttpUser):
     classroom_id = CLASSROOM_ID
     lesson_id = LESSON_ID
 
-    URL_PARAM_REPLACEMENT = {
+    URL_PARAM_REPLACEMENT: ClassVar[dict] = {
         "/api/logger/userprogress/": "user_id",
         "/api/logger/trackprogress/": "trackprogress_session_id",
         "/learn/api/learnerclassroom/": "classroom_id",
         "/learn/api/learnerlesson/": "lesson_id",
     }
 
-    PARAM_REPLACEMENT = {
+    PARAM_REPLACEMENT: ClassVar[dict] = {
         "facility_id": "facility_id",
         "facility": "facility_id",
         "classroom_id": "classroom_id",

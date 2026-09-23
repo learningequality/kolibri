@@ -1,4 +1,5 @@
 import json
+from typing import ClassVar
 
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -34,8 +35,8 @@ class BulkCreateView(BulkCreateMixin, LanguageViewSet):
 
 
 class TestBulkAPIMixins(TestCase):
-    lang1 = {"id": "en-us", "lang_code": "en", "lang_subcode": "us"}
-    lang2 = {"id": "fr-fr", "lang_code": "fr", "lang_subcode": "fr"}
+    lang1: ClassVar[dict] = {"id": "en-us", "lang_code": "en", "lang_subcode": "us"}
+    lang2: ClassVar[dict] = {"id": "fr-fr", "lang_code": "fr", "lang_subcode": "fr"}
 
     def setUp(self):
         super().setUp()

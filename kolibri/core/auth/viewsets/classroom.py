@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -52,7 +53,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "parent", "learner_count", "coaches")
         read_only_fields = ("id",)
 
-        validators = [
+        validators: ClassVar[list] = [
             UniqueTogetherValidator(
                 queryset=Classroom.objects.all(), fields=("parent", "name")
             )
@@ -98,7 +99,7 @@ class ClassroomFilter(FilterSet):
 
     class Meta:
         model = Classroom
-        fields = ["role", "parent"]
+        fields: ClassVar[list] = ["role", "parent"]
 
 
 class ClassroomViewSet(ValuesViewset):

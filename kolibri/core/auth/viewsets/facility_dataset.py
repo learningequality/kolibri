@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.core.exceptions import PermissionDenied
 from django.core.validators import MinLengthValidator
@@ -53,7 +54,7 @@ class FacilityDatasetFilter(FilterSet):
 
     class Meta:
         model = FacilityDataset
-        fields = ["facility_id"]
+        fields: ClassVar[list] = ["facility_id"]
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):

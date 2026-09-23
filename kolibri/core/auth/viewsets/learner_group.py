@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers
@@ -24,7 +25,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
         model = LearnerGroup
         fields = ("id", "name", "parent", "user_ids")
 
-        validators = [
+        validators: ClassVar[list] = [
             UniqueTogetherValidator(
                 queryset=LearnerGroup.objects.all(), fields=("parent", "name")
             )

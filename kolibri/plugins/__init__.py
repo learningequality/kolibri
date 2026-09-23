@@ -4,6 +4,7 @@ import os
 import sys
 from abc import ABCMeta
 from importlib import import_module
+from typing import ClassVar
 
 from django.utils.module_loading import module_has_submodule
 
@@ -182,7 +183,7 @@ config = ConfigDict()
 
 
 class SingletonMeta(ABCMeta):
-    _instances = {}
+    _instances: ClassVar[dict] = {}
 
     # Make all classes using this metaclass singletons
     # Taken from here: https://stackoverflow.com/q/6760685

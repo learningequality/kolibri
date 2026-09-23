@@ -51,7 +51,7 @@ class KolibriDaemonManager(GObject.GObject):
     app_initialize_url = GObject.Property(type=str, default=None)
     is_device_provisioned = GObject.Property(type=bool, default=True)
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "dbus-owner-changed": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 

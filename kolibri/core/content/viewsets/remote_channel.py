@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 class RemoteChannelViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
 
-    http_method_names = ["get"]
+    http_method_names: ClassVar[list] = ["get"]
 
     def _make_channel_endpoint_request(
         self, identifier=None, baseurl=None, keyword=None, language=None

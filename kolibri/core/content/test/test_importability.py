@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.core.management import call_command
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
@@ -18,7 +20,7 @@ file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
 
 
 class ImportabilityStats(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def test_all_files(self):
         File.objects.update(supplementary=False)

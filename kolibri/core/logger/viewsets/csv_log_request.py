@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
@@ -15,7 +17,7 @@ from ..models import GenerateCSVLogRequest
 class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenerateCSVLogRequest
-        fields = [
+        fields: ClassVar[list] = [
             "facility",
             "log_type",
             "selected_start_date",
@@ -30,7 +32,7 @@ class GenerateCSVLogRequestFilter(FilterSet):
 
     class Meta:
         model = GenerateCSVLogRequest
-        fields = ["log_type", "facility"]
+        fields: ClassVar[list] = ["log_type", "facility"]
 
 
 class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):

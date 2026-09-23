@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.db import transaction
 from django.db.models import Count
@@ -97,7 +98,7 @@ class AttendanceSessionFilter(FilterSet):
 
     class Meta:
         model = AttendanceSession
-        fields = ["collection", "start_date", "end_date"]
+        fields: ClassVar[list] = ["collection", "start_date", "end_date"]
 
 
 class AttendanceSessionPermissions(KolibriAuthPermissions):

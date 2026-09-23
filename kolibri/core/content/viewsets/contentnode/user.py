@@ -1,4 +1,5 @@
 from random import sample
+from typing import ClassVar
 
 from django.core.cache import cache
 from django.db.models import OuterRef
@@ -154,7 +155,7 @@ class UserContentNodeFilter(ContentNodeFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = [*contentnode_filter_fields, "resume", "lesson"]
+        fields: ClassVar[list] = [*contentnode_filter_fields, "resume", "lesson"]
 
 
 class UserContentNodeViewset(
@@ -165,7 +166,7 @@ class UserContentNodeViewset(
     """
 
     filter_backends = (DjangoFilterBackend, ValuesViewsetOrderingFilter)
-    ordering_fields = ["last_interacted"]
+    ordering_fields: ClassVar[list] = ["last_interacted"]
     ordering = ("lft", "id")
     filterset_class = UserContentNodeFilter
     pagination_class = OptionalPagination

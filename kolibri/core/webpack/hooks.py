@@ -14,6 +14,7 @@ import re
 import time
 from abc import abstractmethod
 from functools import partial
+from typing import ClassVar
 from urllib.request import url2pathname
 
 from django.conf import settings
@@ -66,7 +67,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : A mapping of key to JSON serializable value.
     # : This plugin_data will be bootstrapped into a global object on window
     # : with a key of the unique_id as a Javascript object
-    plugin_data = {}
+    plugin_data: ClassVar[dict] = {}
 
     @classmethod
     def get_by_unique_id(cls, unique_id):

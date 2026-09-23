@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import NumberFilter
@@ -51,7 +53,14 @@ class AttemptFilter(BaseLogFilter):
 
     class Meta:
         model = AttemptLog
-        fields = ["masterylog", "complete", "user", "content", "item", "mastery_level"]
+        fields: ClassVar[list] = [
+            "masterylog",
+            "complete",
+            "user",
+            "content",
+            "item",
+            "mastery_level",
+        ]
 
 
 class AttemptLogViewSet(ReadOnlyValuesViewset):

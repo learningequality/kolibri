@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.auth.sync_operations import KolibriSingleUserSyncOperation
 from kolibri.plugins.hooks import register_hook
@@ -30,5 +32,5 @@ class SingleUserExamCleanupOperation(KolibriSingleUserSyncOperation):
 
 @register_hook
 class ExamsSyncHook(FacilityDataSyncHook):
-    serializing_operations = [SingleUserExamSerializeOperation()]
-    cleanup_operations = [SingleUserExamCleanupOperation()]
+    serializing_operations: ClassVar[list] = [SingleUserExamSerializeOperation()]
+    cleanup_operations: ClassVar[list] = [SingleUserExamCleanupOperation()]

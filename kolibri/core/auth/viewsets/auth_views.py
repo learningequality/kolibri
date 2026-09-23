@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -102,7 +103,7 @@ class UserIdParamSerializer(serializers.Serializer):
 
 
 class DeleteImportedUserView(views.APIView):
-    permission_classes = [KolibriAuthPermissions]
+    permission_classes: ClassVar[list] = [KolibriAuthPermissions]
 
     def delete(self, request, user_id):
         serializer = UserIdParamSerializer(data={"user_id": user_id})
@@ -154,7 +155,7 @@ class _RemoteFacilityUserSearchSerializer(serializers.Serializer):
 
 
 class RemoteFacilityUserViewset(views.APIView):
-    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
 
     def get(self, request):
         baseurl = request.query_params.get("baseurl", "")
@@ -183,7 +184,7 @@ class RemoteFacilityUserViewset(views.APIView):
 
 
 class RemoteFacilityUserAuthenticatedViewset(views.APIView):
-    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
 
     def post(self, request):
         baseurl = request.data.get("baseurl", "")

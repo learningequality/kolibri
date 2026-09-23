@@ -5,6 +5,7 @@ Also tests whether the users with permissions can create logs.
 
 import datetime
 import uuid
+from typing import ClassVar
 from unittest import mock
 
 import pytz
@@ -26,7 +27,7 @@ from kolibri.utils.time_utils import utc_now
 class ContentSummaryLogCSVExportTestCase(APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):
@@ -115,7 +116,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
 class ContentSessionLogCSVExportTestCase(APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):
@@ -204,7 +205,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
 class UserCSVExportTestCase(APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):

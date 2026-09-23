@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 from unittest import mock
 
 from django.db.models import Q
@@ -22,7 +23,7 @@ DUMMY_PASSWORD = "password"
 class ChannelOrderTestCase(APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
@@ -153,7 +154,7 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
     Testcase for channel API methods
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):
@@ -249,7 +250,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
     Testcase for channel API methods
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def setUp(self):

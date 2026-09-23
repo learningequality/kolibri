@@ -1,5 +1,6 @@
 import tempfile
 import uuid
+from typing import ClassVar
 from unittest.mock import call
 from unittest.mock import patch
 
@@ -35,7 +36,7 @@ mock_content_db_file = tempfile.mkstemp()
 class FixMultipleTreesWithId1TestCase(TransactionTestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def execute(self):
         fix_multiple_trees_with_tree_id1()
@@ -181,7 +182,7 @@ class FixMultipleTreesWithId1TestCase(TransactionTestCase):
 
 
 class UpdateNumCoachContents(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -298,7 +299,7 @@ class UpdateNumCoachContents(TransactionTestCase):
 
 
 class UpdateOnDeviceResources(TransactionTestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -334,7 +335,7 @@ class FileIncludedPresetsAnnotationTestCase(TestCase):
     predate the column, using each file's own preset bit.
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()

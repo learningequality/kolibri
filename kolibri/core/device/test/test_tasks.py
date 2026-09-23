@@ -1,3 +1,4 @@
+from typing import ClassVar
 from unittest import mock
 
 import pytest
@@ -27,10 +28,10 @@ class DeviceProvisionTestCase(TestCase):
     def setUp(self):
         clear_process_cache()
 
-    superuser_data = {"username": "superuser", "password": "password"}
-    facility_data = {"name": "Wilson Elementary"}
+    superuser_data: ClassVar[dict] = {"username": "superuser", "password": "password"}
+    facility_data: ClassVar[dict] = {"name": "Wilson Elementary"}
     preset_data = "nonformal"
-    dataset_data = {
+    dataset_data: ClassVar[dict] = {
         "learner_can_edit_username": True,
         "learner_can_edit_name": True,
         "learner_can_edit_password": True,
@@ -38,7 +39,7 @@ class DeviceProvisionTestCase(TestCase):
         "learner_can_delete_account": True,
         "learner_can_login_with_no_password": False,
     }
-    settings = {}
+    settings: ClassVar[dict] = {}
     allow_guest_access = True
 
     language_id = "en"

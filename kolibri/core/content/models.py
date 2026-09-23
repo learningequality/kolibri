@@ -17,6 +17,7 @@ See base_models.py for when a new export schema version is needed.
 
 import os
 import uuid
+from typing import ClassVar
 
 from django.db import connection
 from django.db import models
@@ -221,11 +222,11 @@ class ContentNode(base_models.ContentNode):
 
     class Meta:
         ordering = ("lft",)
-        index_together = [
+        index_together: ClassVar[list] = [
             ["level", "channel_id", "kind"],
             ["level", "channel_id", "available"],
         ]
-        indexes = [
+        indexes: ClassVar[list] = [
             models.Index(fields=["modality"]),
         ]
 
@@ -261,7 +262,7 @@ class File(base_models.File):
     """
 
     class Meta:
-        ordering = ["priority"]
+        ordering: ClassVar[list] = ["priority"]
 
     class Admin:
         pass
@@ -408,7 +409,7 @@ class ChannelMetadata(base_models.ChannelMetadata):
         pass
 
     class Meta:
-        ordering = ["order"]
+        ordering: ClassVar[list] = ["order"]
 
     def __str__(self):
         return self.name

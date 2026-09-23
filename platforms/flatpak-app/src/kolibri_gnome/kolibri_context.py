@@ -49,7 +49,7 @@ class BaseKolibriContext(GObject.GObject):
 
     session_status = GObject.Property(type=int, default=SESSION_STATUS_STOPPED)
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "download-started": (GObject.SIGNAL_RUN_FIRST, None, (WebKit.Download,)),
         "open-external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "kolibri-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -208,7 +208,7 @@ class KolibriContext(BaseKolibriContext):
     __property_watchers: list[PropertyWatcher]
     __download_started_handler_id: int
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "open-setup-wizard": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -610,7 +610,7 @@ class KolibriSetupContext(KolibriContext):
     most of its functionality.
     """
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "setup-complete": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 

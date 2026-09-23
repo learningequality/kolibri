@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import subprocess
+import typing
 from io import BytesIO
 
 from PIL import Image
@@ -372,7 +373,7 @@ class ChannelLauncher_FromDisk(ChannelLauncher):
 
 
 class ChannelIcon(object):
-    MIMETYPES_MAP = {"image/jpg": "image/jpeg"}
+    MIMETYPES_MAP: typing.ClassVar[dict] = {"image/jpg": "image/jpeg"}
 
     icon_size = (256, 256)
     icon_inner_size = (256 - 48, 256 - 48)

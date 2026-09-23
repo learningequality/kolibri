@@ -21,6 +21,7 @@ user gains through the ``Role``.
 
 import logging
 from threading import local
+from typing import ClassVar
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
@@ -119,7 +120,7 @@ class SessionRouter(KolibriModelRouter):
     Determine how to route database calls for custom Session model.
     """
 
-    MODEL_CLASSES = {Session}
+    MODEL_CLASSES: ClassVar[set] = {Session}
     DB_NAME = SESSIONS
 
 
@@ -1633,7 +1634,7 @@ class CollectionProxyManager(SyncableModelManager):
 
 class Facility(Collection):
     # don't require that we have a dataset set during validation, so we're not forced to generate one unnecessarily
-    FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
+    FIELDS_TO_EXCLUDE_FROM_VALIDATION: ClassVar[list] = ["dataset"]
 
     morango_model_name = "facility"
 
