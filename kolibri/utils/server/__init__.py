@@ -720,7 +720,7 @@ def stop():
         else:
             break
     if pid_exists(pid):
-        logging.error("Kolibri process has failed to shutdown")
+        logger.error("Kolibri process has failed to shutdown")
         return STATUS_UNCLEAN_SHUTDOWN
     return STATUS_STOPPED
 
@@ -950,14 +950,14 @@ def restart():
     Restarts the server.
     """
     if not conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
-        logging.warning("No registered RESTART_HOOKS, restarting is not possible")
+        logger.warning("No registered RESTART_HOOKS, restarting is not possible")
         return False
     result = True
     for hook in conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
         try:
             result = result and hook()
         except Exception as e:
-            logging.warning("Error running restart hook %s: %s" % (hook, e))
+            logger.warning("Error running restart hook %s: %s", hook, e)
             result = False
     return result
 

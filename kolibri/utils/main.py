@@ -240,10 +240,10 @@ def _upgrades_after_django_setup(updated, version):
         try:
             provision_from_file(OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"])
         except ValidationError as e:
-            logging.error(
+            logger.error(
                 "Tried to automatically provision the device but received an error"
             )
-            logging.error(e)
+            logger.error(e)
 
 
 def set_django_settings_and_python_path(django_settings, pythonpath):
@@ -307,7 +307,7 @@ def initialize(  # noqa C901
             try:
                 _migrate_databases()
             except Exception as e:
-                logging.error(
+                logger.error(
                     "The database was not fully migrated. Tried to "
                     "migrate the database and an error occurred: "
                     "%s",
@@ -315,7 +315,7 @@ def initialize(  # noqa C901
                 )
                 raise
         except DatabaseInaccessible as e:
-            logging.error(
+            logger.error(
                 "Tried to check that the database was accessible "
                 "and an error occurred: %s",
                 e,

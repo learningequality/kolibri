@@ -14,6 +14,8 @@ from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import APP_USER_MODEL_ID
 from kolibri_app.constants import WEBVIEW2_RUNTIME_GUID
 
+logger = logging.getLogger(__name__)
+
 # Path for current user's startup programs
 REG_KEY_STARTUP_CURRENT_USER = r"Software\Microsoft\Windows\CurrentVersion\Run"
 
@@ -66,7 +68,7 @@ def register_app_user_model_id(icon_path):
             winreg.SetValueEx(key, "IconUri", 0, winreg.REG_SZ, icon_path)
         return True
     except OSError as e:
-        logging.error("Failed to register AppUserModelId: %s", e)
+        logger.error("Failed to register AppUserModelId: %s", e)
         return False
 
 
@@ -97,13 +99,13 @@ def set_ui_startup_enabled(enabled):
                 if not getattr(sys, "frozen", False):
                     startup_cmd += " -m kolibri_app"
                 winreg.SetValueEx(key, f"{APP_NAME}_UI", 0, winreg.REG_SZ, startup_cmd)
-                logging.info("Enabled Kolibri UI startup on logon.")
+                logger.info("Enabled Kolibri UI startup on logon.")
             else:
                 winreg.DeleteValue(key, f"{APP_NAME}_UI")
-                logging.info("Disabled Kolibri UI startup on logon.")
+                logger.info("Disabled Kolibri UI startup on logon.")
             return True
     except (FileNotFoundError, OSError) as e:
-        logging.error("Failed to modify UI startup setting: %s", e)
+        logger.error("Failed to modify UI startup setting: %s", e)
         return False
 
 
@@ -123,13 +125,13 @@ def update_tray_icon_startup(new_state):
                 if not getattr(sys, "frozen", False):
                     tray_cmd = f'"{sys.executable}" -m kolibri_app --tray-only'
                 winreg.SetValueEx(key, "KolibriTray", 0, winreg.REG_SZ, tray_cmd)
-                logging.info("Added tray icon to system startup.")
+                logger.info("Added tray icon to system startup.")
             else:
                 # Remove tray icon from startup
                 try:
                     winreg.DeleteValue(key, "KolibriTray")
-                    logging.info("Removed tray icon from system startup.")
+                    logger.info("Removed tray icon from system startup.")
                 except FileNotFoundError:
                     pass  # Key doesn't exist, which is fine.
     except (OSError, PermissionError, winreg.error) as e:
-        logging.error("Failed to update tray icon startup: %s", e)
+        logger.error("Failed to update tray icon startup: %s", e)

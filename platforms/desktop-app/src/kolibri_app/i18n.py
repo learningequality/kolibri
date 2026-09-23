@@ -6,6 +6,8 @@ from importlib.resources import files
 
 from kolibri_app.constants import MAC
 
+logger = logging.getLogger(__name__)
+
 try:
     languages = [
         loc for loc in (locale.getlocale()[0], locale.getdefaultlocale()[0]) if loc
@@ -53,4 +55,4 @@ if "language" not in locale_info:
     locale_info["language"] = "en"
 _ = t.gettext
 
-logging.debug("Locale info = %s", locale_info)
+logger.debug("Locale info = %s", locale_info)

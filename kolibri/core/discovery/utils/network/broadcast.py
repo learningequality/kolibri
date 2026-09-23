@@ -524,7 +524,7 @@ class KolibriBroadcast:
         if interfaces is not None:
             # a new ID every time the broadcast interfaces change
             new_id = uuid.uuid4().hex
-            logging.debug(
+            logger.debug(
                 "Updating broadcast with new ID: %s, old ID: %s", new_id, self.id
             )
             self.id = new_id

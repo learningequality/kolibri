@@ -995,7 +995,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                     NetworkLocationResponseFailure,
                     NetworkLocationResponseTimeout,
                 ) as e:
-                    logging.debug("Failed to retrieve or validate checksums: %s", e)
+                    logger.debug("Failed to retrieve or validate checksums: %s", e)
                     # Bad JSON parsing will throw ValueError
                     # If the result of the json.loads is not iterable, a TypeError will be thrown
                     # If we end up here, just set checksums to None to allow us to cleanly continue

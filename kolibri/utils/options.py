@@ -871,7 +871,7 @@ def _get_option_spec():
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
             else:
-                logging.warning(
+                logger.warning(
                     "Duplicate environment variable for options %s", default_envvar
                 )
                 default_envvar = "KOLIBRI_{}_{}".format(

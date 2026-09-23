@@ -9,6 +9,8 @@ import kolibri
 from kolibri_app._version import __version__ as app_version
 from kolibri_app.i18n import _
 
+logger = logging.getLogger(__name__)
+
 DOCS_URL = "https://kolibri.readthedocs.io/en/latest/"
 FORUMS_URL = "https://community.learningequality.org/"
 
@@ -33,7 +35,7 @@ class AboutDialog(wx.Dialog):
             bitmap = wx.StaticBitmap(self, bitmap=wx.Bitmap(image))
             sizer.Add(bitmap, 0, wx.ALIGN_CENTER | wx.TOP, 16)
         except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
-            logging.warning("Error loading About dialog icon: %s", e)
+            logger.warning("Error loading About dialog icon: %s", e)
 
         add_centered_text(_("App version: %(version)s") % {"version": app_version}, 8)
         add_centered_text(

@@ -296,12 +296,12 @@ class KolibriPluginBase(metaclass=SingletonMeta):
             try:
                 return import_module(models_module_name)
             except Exception as e:
-                logging.warning(
+                logger.warning(
                     "Tried to import module %s from %s but an error was raised",
                     module_name,
                     self.module_path,
                 )
-                logging.exception(e)
+                logger.exception(e)
 
         return None
 
@@ -325,7 +325,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.translated_view_urls:
             module = self._return_module(self.translated_view_urls)
             if module is None:
-                logging.warning(
+                logger.warning(
                     "%s defined %s translated view urls but the module was not found",
                     self.module_path,
                     self.translated_view_urls,
@@ -356,7 +356,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.untranslated_view_urls:
             module = self._return_module(self.untranslated_view_urls)
             if module is None:
-                logging.warning(
+                logger.warning(
                     "%s defined %s untranslated view urls but the module was not found",
                     self.module_path,
                     self.untranslated_view_urls,
@@ -383,7 +383,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.root_view_urls:
             module = self._return_module(self.root_view_urls)
             if module is None:
-                logging.warning(
+                logger.warning(
                     "%s defined %s root view urls but the module was not found",
                     self.module_path,
                     self.root_view_urls,
@@ -406,7 +406,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.django_settings:
             module = self._return_module(self.django_settings)
             if module is None:
-                logging.warning(
+                logger.warning(
                     "%s defined %s django settings but the module was not found",
                     self.module_path,
                     self.django_settings,
@@ -427,7 +427,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.kolibri_options:
             module = self._return_module(self.kolibri_options)
             if module is None:
-                logging.warning(
+                logger.warning(
                     "%s defined %s kolibri options but the module was not found",
                     self.module_path,
                     self.kolibri_options,
@@ -446,7 +446,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.kolibri_option_defaults:
             module = self._return_module(self.kolibri_option_defaults)
             if module is None:
-                logging.warning(
+                logger.warning(
                     "%s defined %s kolibri option defaults but the module was not found",
                     self.module_path,
                     self.kolibri_option_defaults,

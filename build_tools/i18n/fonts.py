@@ -28,6 +28,7 @@ import utils
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
 logging.StreamHandler(sys.stdout)
+logger = logging.getLogger(__name__)
 
 
 import noto_source  # noqa E402
@@ -140,15 +141,15 @@ def _load_font(path):
         "application/font-sfnt",
         "application/font-woff",
     ]:
-        logging.error("Not a font file: %s", path)
-        logging.error("Guessed mimetype: '%s'", guess[0])
-        logging.error("If this is a text file: do you have Git LFS installed?")
+        logger.error("Not a font file: %s", path)
+        logger.error("Guessed mimetype: '%s'", guess[0])
+        logger.error("If this is a text file: do you have Git LFS installed?")
         sys.exit(1)
     try:
         return subset.load_font(path, FONT_TOOLS_OPTIONS, dontLoadGlyphNames=True)
     except FileNotFoundError as e:  # noqa F821
-        logging.error("Could not load font: %s", str(e))
-        logging.error("You may need to run: `make i18n-download-source-fonts`")
+        logger.error("Could not load font: %s", e)
+        logger.error("You may need to run: `make i18n-download-source-fonts`")
         sys.exit(1)
 
 
@@ -199,7 +200,7 @@ def _clean_up_fonts_directory():
     for name in os.listdir(OUTPUT_PATH):
         if name.endswith((".css", ".woff")):
             os.unlink(os.path.join(OUTPUT_PATH, name))
-    logging.info("Cleaned fonts directory")
+    logger.info("Cleaned fonts directory")
 
 
 def _compute_file_hash(file_path):
@@ -252,7 +253,7 @@ def _write_css_hash_manifest():
     with io.open(manifest_path, mode="w", encoding="utf-8") as f:
         json.dump(_FONT_CSS_HASHES, f, sort_keys=True, indent=2)
 
-    logging.info(f"Wrote font CSS hash manifest with {len(_FONT_CSS_HASHES)} entries")
+    logger.info("Wrote font CSS hash manifest with %s entries", len(_FONT_CSS_HASHES))
     _FONT_CSS_HASHES.clear()
 
 
@@ -378,7 +379,7 @@ def _gen_full_css_modern(lang_info):
     # Register in manifest
     _register_hashed_css(original_filename, hashed_filename)
 
-    logging.info("Writing %s", hashed_path)
+    logger.info("Writing %s", hashed_path)
 
 
 def _gen_full_css_basic(lang_info):
@@ -402,7 +403,7 @@ def _gen_full_css_basic(lang_info):
     # Register in manifest
     _register_hashed_css(original_filename, hashed_filename)
 
-    logging.info("Writing %s", hashed_path)
+    logger.info("Writing %s", hashed_path)
 
 
 def _write_full_font(font_name, weight):
@@ -424,14 +425,14 @@ def _write_full_font(font_name, weight):
     # Store mapping for CSS generation
     _WOFF_HASHES[original_filename] = hashed_filename
 
-    logging.info("Writing %s", hashed_path)
+    logger.info("Writing %s", hashed_path)
 
 
 def command_generate_fonts():
     """
     Generate all font files (full and subset) and create the hash manifest.
     """
-    logging.info("Generating fonts...")
+    logger.info("Generating fonts...")
 
     # Clean up all old fonts
     _clean_up_fonts_directory()
@@ -454,7 +455,7 @@ def command_generate_fonts():
     )
 
     for lang_info in languages:
-        logging.info(f"Generating subset for {lang_info[utils.KEY_ENG_NAME]}")
+        logger.info("Generating subset for %s", lang_info[utils.KEY_ENG_NAME])
         strings = _get_lang_strings(utils.local_locale_path(lang_info))
         _subset_and_merge_fonts(
             text=" ".join(strings),
@@ -473,7 +474,7 @@ def command_generate_fonts():
     # Write manifest with all hashed file mappings
     _write_css_hash_manifest()
 
-    logging.info("Finished generating fonts")
+    logger.info("Finished generating fonts")
 
 
 """
@@ -536,7 +537,7 @@ def _generate_inline_font_css(name, font_family):
     # Register in manifest
     _register_hashed_css(original_filename, hashed_filename)
 
-    logging.info("Writing %s", hashed_path)
+    logger.info("Writing %s", hashed_path)
 
 
 def _get_subset_font(source_file_path, text):
@@ -548,7 +549,7 @@ def _get_subset_font(source_file_path, text):
     generate appropriate ligatures and other features important for correct rendering.
     """
     if not os.path.exists(source_file_path):
-        logging.error("'%s' not found", source_file_path)
+        logger.error("'%s' not found", source_file_path)
 
     font = _load_font(source_file_path)
     subsetter = subset.Subsetter(options=FONT_TOOLS_OPTIONS)
@@ -635,7 +636,7 @@ def _merge_fonts(fonts, output_file_path):
     merger = merge.Merger(options=FONT_TOOLS_OPTIONS)
     merged_font = merger.merge(f_names)
     merged_font.save(output_file_path)
-    logging.info("created %s", output_file_path)
+    logger.info("created %s", output_file_path)
 
 
 # For reasons that are not entirely clear, these fonts do not subset well.
@@ -782,7 +783,7 @@ def main():
     elif args.command == "generate-fonts":
         command_generate_fonts()
     else:
-        logging.warning("Unknown command\n")
+        logger.warning("Unknown command\n")
         parser.print_help(sys.stderr)
         sys.exit(0)
 

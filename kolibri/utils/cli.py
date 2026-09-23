@@ -13,8 +13,7 @@ import kolibri
 try:
     from kolibri.plugins import config
 except RuntimeError as e:
-    logging.error("Loading plugin configuration failed with error '%s'", e)
-    sys.exit(1)
+    sys.exit(f"Loading plugin configuration failed with error '{e}'")
 from kolibri.plugins.utils import disable_all_plugins
 from kolibri.plugins.utils import disable_plugins
 from kolibri.plugins.utils import enable_default_plugins
@@ -287,7 +286,7 @@ def stop():
         server.get_status()
     except server.NotRunning as e:
         if e.status_code == server.STATUS_STOPPED:
-            logging.info(
+            logger.info(
                 "Already stopped: %s", server.status_messages[server.STATUS_STOPPED]
             )
             sys.exit(0)

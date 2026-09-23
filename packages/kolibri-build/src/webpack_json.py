@@ -94,7 +94,7 @@ def expand_glob(build_item):
         or build_item == "*"
         or not build_item.endswith("*")
     ):
-        logging.error("Too many * paths, only use one per module spec")
+        logger.error("Too many * paths, only use one per module spec")
         return plugins
     parent_module_path = ".".join(
         [item for item in build_item.split(".") if item and item != "*"]

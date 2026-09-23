@@ -760,7 +760,7 @@ def _import_metadata(client, downloads_needing_metadata_import):
 
     # quick exit, without log noise, if nothing to do
     if not total_count:
-        logging.debug("No content metadata to import")
+        logger.debug("No content metadata to import")
         return True
 
     processed_count = 0
