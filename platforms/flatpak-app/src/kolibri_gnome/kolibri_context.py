@@ -500,7 +500,7 @@ class _KolibriSetupHelper(GObject.GObject):
             cookie_manager.replace_cookies_finish(result)
         except GLib.Error as error:
             # Continue anyway; it is better that the app at least mostly works.
-            logger.error(f"Error replacing cookies from API response: {error}")
+            logger.error("Error replacing cookies from API response: %s", error)
 
         self.props.is_cookie_manager_ready = True
 

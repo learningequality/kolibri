@@ -34,13 +34,13 @@ class ExampleAppCheckIsMeteredHook(CheckIsMeteredHook):
 @register_hook
 class ExampleAppShareFileHook(ShareFileHook):
     def share_file(self, file_path, message):
-        logger.debug(f"Sharing file {file_path} with message {message}")
+        logger.debug("Sharing file %s with message %s", file_path, message)
 
 
 @register_hook
 class ExampleAppJobHook(JobHook):
     def schedule(self, job, orm_job):
-        logger.debug(f"Scheduling job {job} with ORM job {orm_job}")
+        logger.debug("Scheduling job %s with ORM job %s", job, orm_job)
 
     def update(self, job, orm_job, state=None, **kwargs):
         from kolibri.core.tasks.job import log_status
@@ -48,7 +48,7 @@ class ExampleAppJobHook(JobHook):
         log_status(job, orm_job, state=state, **kwargs)
 
     def clear(self, job, orm_job):
-        logger.debug(f"Clearing job {job} with ORM job {orm_job}")
+        logger.debug("Clearing job %s with ORM job %s", job, orm_job)
 
 
 class AppUrlLoggerPlugin(SimplePlugin):
@@ -62,11 +62,7 @@ class AppUrlLoggerPlugin(SimplePlugin):
             port=self.port
         ) + app_initialize_url(auth_token="1234")
         # Use warning to make sure this message stands out in the console
-        logger.warning(
-            "Open this URL to activate app mode: {start_url}".format(
-                start_url=start_url
-            )
-        )
+        logger.warning("Open this URL to activate app mode: %s", start_url)
 
 
 @register_hook

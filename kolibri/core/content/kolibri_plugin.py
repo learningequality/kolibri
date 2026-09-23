@@ -42,13 +42,9 @@ class ContentRequestsOperation(KolibriSyncOperationMixin, LocalOperation):
         self._assert(automatic_download_enabled())
 
         dataset_id = get_dataset_id(context)
-        logger.info(
-            "Processing content requests for synced dataset: {}".format(dataset_id)
-        )
+        logger.info("Processing content requests for synced dataset: %s", dataset_id)
         synchronize_content_requests(dataset_id, context.transfer_session)
-        logger.info(
-            "Completed content requests for synced dataset: {}".format(dataset_id)
-        )
+        logger.info("Completed content requests for synced dataset: %s", dataset_id)
         return False
 
 

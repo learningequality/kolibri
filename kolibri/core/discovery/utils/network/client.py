@@ -151,9 +151,7 @@ class NetworkClient(SameHostSession):
         except errors.NetworkLocationNotFound:
             pass
 
-        logger.info(
-            "Attempting connections to variations of the URL: {}".format(address)
-        )
+        logger.info("Attempting connections to variations of the URL: %s", address)
         _, self_urls = get_urls()
         for url in get_normalized_url_variations(address):
             if url in self_urls:
@@ -256,7 +254,7 @@ class NetworkClient(SameHostSession):
             return True
 
         try:
-            logger.info("Attempting connection to: {}".format(self.base_url))
+            logger.info("Attempting connection to: %s", self.base_url)
             response = self.get(
                 "api/public/info/",
                 allow_redirects=True,
@@ -294,7 +292,7 @@ class NetworkClient(SameHostSession):
                 raise errors.NetworkLocationInvalidResponse(
                     "Server is not running Kolibri or Studio"
                 )
-            logger.info("Success! We connected to: {}".format(response.url))
+            logger.info("Success! We connected to: %s", response.url)
 
             self.base_url = "{}://{}{}".format(
                 parsed_url.scheme,

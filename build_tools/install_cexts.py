@@ -173,7 +173,7 @@ def install_one(task):
         platform, version_path, abi, implementation, python_version
     )
 
-    logger.info("Installing package {}...".format(filename))
+    logger.info("Installing package %s...", filename)
     # Install the package using pip with cache_path as the cache directory
     install_return = run_pip_install(
         package_path,
@@ -282,16 +282,14 @@ def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
                 r = session.get(url)
                 r.raise_for_status()
             except Exception as e:
-                logger.info("Error retrieving {}: {}".format(url, e))
+                logger.info("Error retrieving %s: %s", url, e)
             else:
                 if r.status_code == 200:
                     # Got a valid response
                     break
 
                 logger.info(
-                    "Unexpected response from {}: {} {}".format(
-                        url, r.status_code, r.reason
-                    )
+                    "Unexpected response from %s: %s %s", url, r.status_code, r.reason
                 )
 
             # Clear the response in case this is the last iteration

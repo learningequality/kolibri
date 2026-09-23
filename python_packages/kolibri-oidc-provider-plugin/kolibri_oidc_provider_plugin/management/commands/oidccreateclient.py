@@ -78,13 +78,12 @@ class Command(BaseCommand):
             )
         except IntegrityError:
             logger.error(
-                "Client {id} could not be created. A client with the same id already exists in the database".format(
-                    id=client_id
-                )
+                "Client %s could not be created. A client with the same id already exists in the database",
+                client_id,
             )
         except Exception as e:
             logger.error(
-                "Client {id} could not be created. There was an error {error}".format(
-                    id=client_id, error=str(e)
-                )
+                "Client %s could not be created. There was an error %s",
+                client_id,
+                e,
             )

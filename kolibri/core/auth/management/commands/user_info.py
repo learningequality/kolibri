@@ -42,7 +42,7 @@ class Command(BaseCommand):
         file_name = "{user}.txt".format(user=user.username)
         file_location = os.path.join(directory_location, file_name)
         data = FacilityUserSerializer(user).data
-        logger.info("Writing user data to {file}...".format(file=file_location))
+        logger.info("Writing user data to %s...", file_location)
         with open(file_location, "w") as outfile:
             json.dump(data, outfile, sort_keys=True, indent=4)
 
@@ -70,6 +70,6 @@ class Command(BaseCommand):
             # only create file if models exist
             if models:
                 data = serializers.serialize("json", models, indent=4)
-                logger.info("Writing data to {file}...".format(file=file_location))
+                logger.info("Writing data to %s...", file_location)
                 with open(file_location, "w") as outfile:
                     outfile.write(data)

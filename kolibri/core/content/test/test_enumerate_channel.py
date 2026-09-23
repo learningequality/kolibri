@@ -42,13 +42,11 @@ class EnumerateChannelTestCase(TestCase):
         return db_file
 
     @patch("kolibri.core.content.upgrade.update_num_coach_contents")
-    @patch("kolibri.core.content.upgrade.logger.warning")
-    def test_corrupted_database_file_server_start(
-        self, logger_mock, coach_contents_mock
-    ):
+    def test_corrupted_database_file_server_start(self, coach_contents_mock):
         db_file = self.create_corrupted_database_file(get_content_database_dir_path())
-        import_external_content_dbs()
-        message_list = [message[0][0] for message in logger_mock.call_args_list]
+        with self.assertLogs("kolibri.core.content.upgrade", level="WARNING") as logs:
+            import_external_content_dbs()
+        message_list = [r.getMessage() for r in logs.records]
         error_message = "Tried to import channel 6199dde695db4ee4ab392222d5af1e5c, but database file was corrupted."
         self.assertIn(error_message, message_list)
         os.remove(db_file)  # Remove database file for future tests

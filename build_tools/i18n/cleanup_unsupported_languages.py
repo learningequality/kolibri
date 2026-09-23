@@ -18,6 +18,8 @@ from build_tools.i18n.generate_mapping import get_android_language_mapping
 from build_tools.i18n.generate_mapping import get_installer_language_mapping
 from build_tools.i18n.generate_mapping import get_language_mapping
 
+logger = logging.getLogger(__name__)
+
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # `values-` prefixes every Android resource qualifier, not just locales, so match the
@@ -149,11 +151,12 @@ def cleanup_unsupported_languages(repo_root=REPO_ROOT):
             )
 
     if removed_locales:
-        logging.info(
-            f"Removed unsupported language directories: {', '.join(sorted(removed_locales))}"
+        logger.info(
+            "Removed unsupported language directories: %s",
+            ", ".join(sorted(removed_locales)),
         )
     else:
-        logging.info("No unsupported language directories found")
+        logger.info("No unsupported language directories found")
 
 
 if __name__ == "__main__":

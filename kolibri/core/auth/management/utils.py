@@ -298,7 +298,7 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
             )
         if not FacilityUser.objects.filter(username=username).exists():
             logger.error(
-                "User with username `{}` does not exist on this device".format(username)
+                "User with username `%s` does not exist on this device", username
             )
             username = None
             continue
@@ -405,11 +405,10 @@ class MorangoSyncCommand(AsyncCommand):
 
         if not noninteractive:
             # output session ID for CLI user
-            logger.info("Session ID: {}".format(sync_session_client.sync_session.id))
+            logger.info("Session ID: %s", sync_session_client.sync_session.id)
             logger.info(
-                "Session instance info: {}".format(
-                    sync_session_client.sync_session.client_instance_data
-                )
+                "Session instance info: %s",
+                sync_session_client.sync_session.client_instance_data,
             )
 
         try:

@@ -36,9 +36,7 @@ def export_content(
         copy_content_files(channel_id, data_dir, files, total_bytes_to_transfer)
     # Reraise any cancellation
     job.check_for_cancel()
-    logger.info(
-        "Exporting manifest for channel id {} to {}".format(channel_id, data_dir)
-    )
+    logger.info("Exporting manifest for channel id %s to %s", channel_id, data_dir)
     manifest_path = os.path.join(data_dir, "content", "manifest.json")
     content_manifest = ContentManifest()
     content_manifest.read(manifest_path)
@@ -50,9 +48,7 @@ def export_content(
 
 def copy_content_files(channel_id, data_dir, files, total_bytes_to_transfer):
     job = get_job()
-    logger.info(
-        "Exporting content for channel id {} to {}".format(channel_id, data_dir)
-    )
+    logger.info("Exporting content for channel id %s to %s", channel_id, data_dir)
     for f in files:
         if job.is_cancelled():
             break

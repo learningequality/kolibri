@@ -124,7 +124,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name, initialize_hooks=True
         )
     if len(plugin_objects) == 1:
         plugin_instance = plugin_objects[0]
-        logger.debug("Initializing plugin: {}".format(plugin_name))
+        logger.debug("Initializing plugin: %s", plugin_name)
         return plugin_instance
 
     if len(plugin_objects) > 1:
@@ -159,7 +159,7 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
                     plugin_name
                 )
             )
-        logger.debug("Loaded kolibri plugin: {}".format(plugin_name))
+        logger.debug("Loaded kolibri plugin: %s", plugin_name)
         # If no exception is thrown, use this to find the plugin class.
         # Load a list of all class types in module
         # Filter the list to only match the ones that belong to the module
@@ -214,7 +214,7 @@ def enable_plugin(plugin_name, initialize_hooks=False):
 def enable_plugins(plugin_names):
     error = False
     for name in plugin_names:
-        logger.info("Enabling plugin '{}'".format(name))
+        logger.info("Enabling plugin '%s'", name)
         success = enable_plugin(name, initialize_hooks=True)
         error = error or not success
     return error
@@ -232,17 +232,15 @@ def disable_plugin(plugin_name, initialize_hooks=False):
             return True
     except Exception:
         logger.exception("Error disabling plugin %s", plugin_name)
-        logger.warning(
-            "Removing '{}' from configuration in a naive way.".format(plugin_name)
-        )
+        logger.warning("Removing '%s' from configuration in a naive way.", plugin_name)
         config.clear_plugin(plugin_name)
-        logger.info("Removed '{}'".format(plugin_name))
+        logger.info("Removed '%s'", plugin_name)
 
 
 def disable_plugins(plugin_names):
     error = False
     for name in plugin_names:
-        logger.info("Disabling plugin '{}'".format(name))
+        logger.info("Disabling plugin '%s'", name)
         success = disable_plugin(name)
         error = error or not success
     return error
@@ -307,9 +305,7 @@ class PluginUpdateManager:
     def _migrate_plugin(self, plugin_name, app_configs):
         for app_config in app_configs:
             if app_config.label in self.migration_loader.migrated_apps:
-                logger.info(
-                    "Running database migrations for {}".format(app_config.label)
-                )
+                logger.info("Running database migrations for %s", app_config.label)
                 for database in django_settings.DATABASES:
                     # Run any unapplied migrations on all active databases
                     # Migrate takes a single app label at a time as an argument
@@ -322,9 +318,11 @@ class PluginUpdateManager:
                         )
                     except Exception as e:
                         logger.error(
-                            "An exception occured running migrations for plugin {} in app {} on database {}: {}".format(
-                                plugin_name, app_config.label, database, e
-                            )
+                            "An exception occured running migrations for plugin %s in app %s on database %s: %s",
+                            plugin_name,
+                            app_config.label,
+                            database,
+                            e,
                         )
                         raise e
 
@@ -336,9 +334,7 @@ class PluginUpdateManager:
         plugin_instance = registered_plugins.get(plugin_name)
         if plugin_instance is None:
             logger.error(
-                "Tried to run upgrades for plugin {} but it doesn't exist".format(
-                    plugin_name
-                )
+                "Tried to run upgrades for plugin %s but it doesn't exist", plugin_name
             )
             return None
         for app in plugin_instance.INSTALLED_APPS:
@@ -351,9 +347,9 @@ class PluginUpdateManager:
             self._migrate_plugin(plugin_name, app_configs)
         except Exception as e:
             logger.error(
-                "Unhandled exception while migrating {}, exception was:\n\n{}".format(
-                    plugin_name, e
-                )
+                "Unhandled exception while migrating %s, exception was:\n\n%s",
+                plugin_name,
+                e,
             )
             return None
         if old_version:
@@ -361,29 +357,31 @@ class PluginUpdateManager:
                 normalize_version_to_semver(old_version)
             ) < VersionInfo.parse(normalize_version_to_semver(new_version)):
                 logger.info(
-                    "Running upgrade routines for {}, upgrading from {} to {}".format(
-                        plugin_name, old_version, new_version
-                    )
+                    "Running upgrade routines for %s, upgrading from %s to %s",
+                    plugin_name,
+                    old_version,
+                    new_version,
                 )
             else:
                 logger.info(
-                    "Running downgrade routines for {}, downgrading from {} to {}".format(
-                        plugin_name, old_version, new_version
-                    )
+                    "Running downgrade routines for %s, downgrading from %s to %s",
+                    plugin_name,
+                    old_version,
+                    new_version,
                 )
         else:
             logger.info(
-                "Running installation routines for {}, installing {}".format(
-                    plugin_name, new_version
-                )
+                "Running installation routines for %s, installing %s",
+                plugin_name,
+                new_version,
             )
         try:
             run_upgrades(old_version, new_version, app_configs=app_configs)
         except Exception as e:
             logger.error(
-                "An exception occured running upgrades for plugin {}: {}".format(
-                    plugin_name, e
-                )
+                "An exception occured running upgrades for plugin %s: %s",
+                plugin_name,
+                e,
             )
             return None
         return new_version
@@ -392,10 +390,10 @@ class PluginUpdateManager:
         for plugin_name in self.updated_plugins:
             new_version = self._update_plugin(plugin_name)
             if new_version:
-                logger.info("{} successfully updated".format(plugin_name))
+                logger.info("%s successfully updated", plugin_name)
                 config.update_plugin_version(plugin_name, new_version)
             else:
-                logger.error("{} plugin could not update".format(plugin_name))
+                logger.error("%s plugin could not update", plugin_name)
                 config.remove_plugin(plugin_name)
                 self.errors.append(plugin_name)
 
@@ -403,9 +401,7 @@ class PluginUpdateManager:
 def run_plugin_updates():
     if config["UPDATED_PLUGINS"]:
         logger.info(
-            "Detected updates to plugins: {}".format(
-                ", ".join(config["UPDATED_PLUGINS"])
-            )
+            "Detected updates to plugins: %s", ", ".join(config["UPDATED_PLUGINS"])
         )
 
         update_manager = PluginUpdateManager(config["UPDATED_PLUGINS"])
@@ -439,10 +435,10 @@ def autoremove_unavailable_plugins():
         if not module_exists(module_path):
             config.clear_plugin(module_path)
             logger.error(
-                (
-                    "Plugin {mod} not found and disabled. To re-enable it, run:\n"
-                    "   $ kolibri plugin {mod} enable"
-                ).format(mod=module_path)
+                "Plugin %s not found and disabled. To re-enable it, run:\n"
+                "   $ kolibri plugin %s enable",
+                module_path,
+                module_path,
             )
             changed = True
     if changed:
@@ -467,10 +463,10 @@ def enable_new_default_plugins():
             # Can be migrated to upgrade only logic
             if module_path not in config["DISABLED_PLUGINS"]:
                 logger.warning(
-                    (
-                        "Default plugin {mod} not found in configuration. To re-disable it, run:\n"
-                        "   $ kolibri plugin {mod} disable"
-                    ).format(mod=module_path)
+                    "Default plugin %s not found in configuration. To re-disable it, run:\n"
+                    "   $ kolibri plugin %s disable",
+                    module_path,
+                    module_path,
                 )
             changed = True
 

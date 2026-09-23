@@ -23,11 +23,7 @@ def add_requirements_to_base():
         file_path = os.environ["EXTRA_REQUIREMENTS"]
         # We have been passed a URL, not a local file path
         if file_path.startswith("http"):
-            logger.info(
-                "Downloading extra requirements from {file_path}".format(
-                    file_path=file_path
-                )
-            )
+            logger.info("Downloading extra requirements from %s", file_path)
             _, path = tempfile.mkstemp(suffix=".txt", text=True)
             with open(path, "w") as f:
                 r = requests.get(file_path)

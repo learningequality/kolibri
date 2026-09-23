@@ -284,9 +284,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
                 os.remove(upgrade_db_path)
             except OSError as e:
                 logger.info(
-                    "Tried to remove {}, but exception {} occurred.".format(
-                        upgrade_db_path, e
-                    )
+                    "Tried to remove %s, but exception %s occurred.", upgrade_db_path, e
                 )
 
     def do_channel_database_import(self):
@@ -299,9 +297,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         )
 
         logger.info(
-            "Importing channel database for channel id {} to {}".format(
-                self.channel_id, dest
-            )
+            "Importing channel database for channel id %s to %s", self.channel_id, dest
         )
 
         # Store node state before import for metadata updates after
@@ -346,9 +342,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             try:
                 os.remove(dest)
             except OSError as e:
-                logger.info(
-                    "Tried to remove {}, but exception {} occurred.".format(dest, e)
-                )
+                logger.info("Tried to remove %s, but exception %s occurred.", dest, e)
             # Reraise any cancellation.
             self.check_for_cancel()
 
@@ -373,7 +367,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         except transfer.TransferCanceled:
             pass
         except Exception as e:
-            logger.error("An error occurred during content import: {}".format(e))
+            logger.error("An error occurred during content import: %s", e)
             if not self.fail_on_error and (
                 (
                     isinstance(e, requests.exceptions.HTTPError)
@@ -592,9 +586,8 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
 
         if self.number_of_skipped_files > 0:
             logger.warning(
-                "{} files are skipped, because errors occurred during the import.".format(
-                    self.number_of_skipped_files
-                )
+                "%s files are skipped, because errors occurred during the import.",
+                self.number_of_skipped_files,
             )
 
         self.update_progress(self.dummy_bytes_for_annotation)
@@ -1002,9 +995,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                     NetworkLocationResponseFailure,
                     NetworkLocationResponseTimeout,
                 ) as e:
-                    logging.debug(
-                        "Failed to retrieve or validate checksums: {}".format(e)
-                    )
+                    logger.debug("Failed to retrieve or validate checksums: %s", e)
                     # Bad JSON parsing will throw ValueError
                     # If the result of the json.loads is not iterable, a TypeError will be thrown
                     # If we end up here, just set checksums to None to allow us to cleanly continue

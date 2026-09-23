@@ -71,8 +71,8 @@ class Command(BaseCommand):
         """
         Migrate the content from current content directory to the destination.
         """
-        logger.info("Current content directory is {}".format(src))
-        logger.info("Migrating the content into {}".format(dst))
+        logger.info("Current content directory is %s", src)
+        logger.info("Migrating the content into %s", dst)
 
         databases_src = os.path.join(src, "databases")
         databases_dst = os.path.join(dst, "databases")

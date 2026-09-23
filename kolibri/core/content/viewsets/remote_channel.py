@@ -64,7 +64,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             lang_name = languages.getlang(code).native_name
         except AttributeError:
             logger.warning(
-                "Did not find language code {} in our le_utils.constants!".format(code)
+                "Did not find language code %s in our le_utils.constants!", code
             )
             lang_name = None
 

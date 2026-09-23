@@ -169,6 +169,6 @@ def stop_server():
         try:
             _server_bus.stop()
         except Exception as e:
-            logger.error(f"Error stopping server: {e}", exc_info=True)
+            logger.exception("Error stopping server: %s", e)
     else:
         logger.warning("stop_server called but no server is running")

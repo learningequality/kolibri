@@ -1,6 +1,7 @@
 import hashlib
 import itertools
 import json
+import logging
 import os
 import sys
 import tempfile
@@ -1615,14 +1616,12 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         self.annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
     def test_remote_import_httperror_404(
         self,
         path_mock,
-        logger_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1666,9 +1665,15 @@ class ImportContentTestCase(TestCase):
             manager = RemoteChannelResourceImportManager(
                 self.the_channel_id, node_ids=node_id, renderable_only=False
             )
-            manager.run()
-        logger_mock.assert_called_once()
-        self.assertIn("4 files are skipped", logger_mock.call_args_list[0][0][0])
+            with self.assertLogs(
+                "kolibri.core.content.utils.resource_import", level="WARNING"
+            ) as logs:
+                manager.run()
+        warnings = [
+            r.getMessage() for r in logs.records if r.levelno == logging.WARNING
+        ]
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("4 files are skipped", warnings[0])
         self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
@@ -1862,7 +1867,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         self.annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
@@ -1878,7 +1882,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         path_mock,
-        logger_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1896,8 +1899,14 @@ class ImportContentTestCase(TestCase):
         manager = DiskChannelResourceImportManager(
             self.the_channel_id, path="destination"
         )
-        manager.run()
-        self.assertIn("1 files are skipped", logger_mock.call_args_list[0][0][0])
+        with self.assertLogs(
+            "kolibri.core.content.utils.resource_import", level="WARNING"
+        ) as logs:
+            manager.run()
+        warnings = [
+            r.getMessage() for r in logs.records if r.levelno == logging.WARNING
+        ]
+        self.assertIn("1 files are skipped", warnings[0])
         self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.logger.error")
@@ -2305,10 +2314,8 @@ class ImportContentTestCase(TestCase):
                 manifest=manifest_file,
             )
 
-    @patch("kolibri.core.content.utils.content_manifest.logger.warning")
     def test_local_import_with_local_manifest_file_with_multiple_versions(
         self,
-        warning_logger_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2316,40 +2323,45 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.return_value = (0, [], 0)
 
-        manager = DiskChannelResourceImportManager.from_manifest(
-            self.the_channel_id,
-            path=import_source_dir,
-            manifest_file=StringIO(
-                json.dumps(
-                    {
-                        "channels": [
-                            {
-                                "id": self.the_channel_id,
-                                "version": self.the_channel_version - 1,
-                                "include_node_ids": [self.c2c1_node_id],
-                            },
-                            {
-                                "id": self.the_channel_id,
-                                "version": self.the_channel_version,
-                                "include_node_ids": [self.c2c2_node_id],
-                            },
-                        ]
-                    }
-                )
-            ),
-        )
+        with self.assertLogs(
+            "kolibri.core.content.utils.content_manifest", level="WARNING"
+        ) as logs:
+            manager = DiskChannelResourceImportManager.from_manifest(
+                self.the_channel_id,
+                path=import_source_dir,
+                manifest_file=StringIO(
+                    json.dumps(
+                        {
+                            "channels": [
+                                {
+                                    "id": self.the_channel_id,
+                                    "version": self.the_channel_version - 1,
+                                    "include_node_ids": [self.c2c1_node_id],
+                                },
+                                {
+                                    "id": self.the_channel_id,
+                                    "version": self.the_channel_version,
+                                    "include_node_ids": [self.c2c2_node_id],
+                                },
+                            ]
+                        }
+                    )
+                ),
+            )
         manager.run()
 
-        warning_logger_mock.assert_called_once()
         # If a provided manifest file specifies versions of a channel which do not
         # match the channel version in the local database, importcontent should log a
         # warning message explaining the mismatch.
-        warning_logger_mock.assert_called_with(
-            "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
-                channel_id=self.the_channel_id,
-                manifest_version=self.the_channel_version - 1,
-                local_version=self.the_channel_version,
-            )
+        self.assertEqual(
+            [r.getMessage() for r in logs.records],
+            [
+                "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
+                    channel_id=self.the_channel_id,
+                    manifest_version=self.the_channel_version - 1,
+                    local_version=self.the_channel_version,
+                )
+            ],
         )
 
         # Regardless, importcontent should continue to call get_import_export with a

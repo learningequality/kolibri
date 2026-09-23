@@ -130,7 +130,7 @@ class Command(BaseCommand):
         elif select:
             use_backup = self.select_backup(search_root)
 
-        logger.info("Using backup file: {}".format(use_backup))
+        logger.info("Using backup file: %s", use_backup)
 
         if not os.path.isfile(use_backup):
             raise CommandError("Couldn't find: {}".format(use_backup))

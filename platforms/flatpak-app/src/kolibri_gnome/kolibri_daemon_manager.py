@@ -109,9 +109,7 @@ class KolibriDaemonManager(GObject.GObject):
             try:
                 self.__dbus_proxy.call_release_sync()
             except GLib.Error as error:
-                logger.warning(
-                    "Error calling Kolibri daemon release: {error}".format(error=error)
-                )
+                logger.warning("Error calling Kolibri daemon release: %s", error)
 
     def is_url_in_scope(self, url: str) -> bool:
         return self.__is_base_url(url) or self.__is_extra_url(url)
@@ -223,7 +221,7 @@ class KolibriDaemonManager(GObject.GObject):
         try:
             stream = session.send_finish(result)
         except GLib.Error as error:
-            logger.warning(f"Error adding receiving data from Kolibri API: {error}")
+            logger.warning("Error adding receiving data from Kolibri API: %s", error)
             result_cb(None, soup_message=soup_message)
             return
 
@@ -247,7 +245,7 @@ class KolibriDaemonManager(GObject.GObject):
         login_token_ready_cb: typing.Callable,
     ):
         if isinstance(result, Exception):
-            logger.warning("Error creating login token: {}".format(result))
+            logger.warning("Error creating login token: %s", result)
             login_token_ready_cb(self, None)
         else:
             login_token_ready_cb(self, result)
@@ -256,9 +254,7 @@ class KolibriDaemonManager(GObject.GObject):
         try:
             self.__dbus_proxy.init_finish(result)
         except GLib.Error as error:
-            logger.warning(
-                "Error initializing Kolibri daemon proxy: {error}".format(error=error)
-            )
+            logger.warning("Error initializing Kolibri daemon proxy: %s", error)
             self.props.has_error = True
         else:
             self.__dbus_proxy_on_notify_g_name_owner(self.__dbus_proxy)
@@ -326,7 +322,7 @@ class KolibriDaemonManager(GObject.GObject):
         user_data: typing.Any = None,
     ):
         if isinstance(result, Exception):
-            logger.warning("Error communicating with Kolibri daemon: {}".format(result))
+            logger.warning("Error communicating with Kolibri daemon: %s", result)
             self.props.has_error = True
 
 
@@ -336,7 +332,5 @@ def _read_json_from_input_stream(stream: Gio.InputStream):
     try:
         return json.load(stream_io)
     except json.JSONDecodeError as error:
-        logger.warning(
-            "Error reading Kolibri API response: {error}".format(error=error)
-        )
+        logger.warning("Error reading Kolibri API response: %s", error)
         return None

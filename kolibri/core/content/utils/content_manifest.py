@@ -179,11 +179,10 @@ class ContentManifest:
         for channel_version in self.get_channel_versions(channel_id):
             if channel_version != channel_metadata.version:
                 logger.warning(
-                    "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
-                        channel_id=channel_id,
-                        manifest_version=channel_version,
-                        local_version=channel_metadata.version,
-                    )
+                    "Manifest entry for %s has a different version (%s) than the installed channel (%s)",
+                    channel_id,
+                    channel_version,
+                    channel_metadata.version,
                 )
             node_ids.update(self.get_include_node_ids(channel_id, channel_version))
 

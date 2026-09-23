@@ -105,14 +105,12 @@ class GroupDeletion:
         for qs in self.groups:
             if isinstance(qs, GroupDeletion):
                 count = qs.count(progress_updater)
-                logger.debug("Counted {} in group `{}`".format(count, qs.name))
+                logger.debug("Counted %s in group `%s`", count, qs.name)
             else:
                 count = qs.count()
                 if progress_updater:
                     progress_updater(increment=1)
-                logger.debug(
-                    "Counted {} of `{}`".format(count, qs.model._meta.model_name)
-                )
+                logger.debug("Counted %s of `%s`", count, qs.model._meta.model_name)
 
             sum += count
 
@@ -371,29 +369,26 @@ def clean_up_legacy_counters():
 
 
 def delete_facility(facility):
-    logger.info("Deleting facility {}".format(facility.name))
+    logger.info("Deleting facility %s", facility.name)
     delete_group = get_delete_group_for_facility(facility)
     total_to_delete = delete_group.count()
     logger.info(
-        "Deleting {} database records for facility {}".format(
-            total_to_delete, facility.name
-        )
+        "Deleting %s database records for facility %s", total_to_delete, facility.name
     )
     with DisablePostDeleteSignal(), transaction.atomic():
         count, _ = delete_group.delete()
         clean_up_legacy_counters()
         dataset_cache.clear()
     if count == total_to_delete:
-        logger.info(
-            "Deleted {} database records for facility {}".format(count, facility.name)
-        )
+        logger.info("Deleted %s database records for facility %s", count, facility.name)
     else:
         logger.warning(
-            "Deleted {} database records but expected to delete {} records for facility {}".format(
-                count, total_to_delete, facility.name
-            )
+            "Deleted %s database records but expected to delete %s records for facility %s",
+            count,
+            total_to_delete,
+            facility.name,
         )
-    logger.info("Deleted facility {}".format(facility.name))
+    logger.info("Deleted facility %s", facility.name)
 
 
 def _get_user_related_models(user):
@@ -462,17 +457,22 @@ def get_delete_group_for_user(user):
 
 
 def delete_imported_user(user):
-    logger.info(f"Deleting user {user.username}")
+    logger.info("Deleting user %s", user.username)
     delete_group = get_delete_group_for_user(user)
     total_to_delete = delete_group.count()
-    logger.info(f"Deleting {total_to_delete} database records for user {user.username}")
+    logger.info(
+        "Deleting %s database records for user %s", total_to_delete, user.username
+    )
     with DisablePostDeleteSignal(), transaction.atomic():
         count, _ = delete_group.delete()
         dataset_cache.clear()
     if count == total_to_delete:
-        logger.info(f"Deleted {count} database records for user {user.username}")
+        logger.info("Deleted %s database records for user %s", count, user.username)
     else:
         logger.warning(
-            f"Deleted {count} database records but expected to delete {total_to_delete} records for user {user.username}"
+            "Deleted %s database records but expected to delete %s records for user %s",
+            count,
+            total_to_delete,
+            user.username,
         )
-    logger.info(f"Deleted user {user.username}")
+    logger.info("Deleted user %s", user.username)

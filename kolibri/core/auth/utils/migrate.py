@@ -141,7 +141,7 @@ def filter_blocklist(data):
 
 
 def _copy_data(Model, id_map, source_data):
-    logger.info("Copying data for model {}".format(Model))
+    logger.info("Copying data for model %s", Model)
     obj_map = id_map.get(Model, {})
     id_map[Model] = obj_map
     new_objs = []
@@ -173,7 +173,7 @@ def _copy_data(Model, id_map, source_data):
         new_objs.append(new_obj)
 
     _batch_save(Model, new_objs)
-    logger.info("Finished copying data for model {}".format(Model))
+    logger.info("Finished copying data for model %s", Model)
 
 
 def fork_facility(facility):
@@ -181,8 +181,8 @@ def fork_facility(facility):
     Utility function to make a complete copy of all facility data, but separated from the original
     facility.
     """
-    logger.info("Making a copy of facility {}".format(facility.name))
-    logger.info("Copying dataset with id {}".format(facility.dataset_id))
+    logger.info("Making a copy of facility %s", facility.name)
+    logger.info("Copying dataset with id %s", facility.dataset_id)
     dataset_data = filter_blocklist(facility.dataset.serialize())
     # The new facility will not be registered on KDP
     del dataset_data["registered"]
@@ -210,7 +210,7 @@ def fork_facility(facility):
             _copy_data(
                 Model, id_map, Model.objects.filter(dataset_id=facility.dataset_id)
             )
-    logger.info("Completed making a copy of facility {}".format(facility.name))
+    logger.info("Completed making a copy of facility %s", facility.name)
     return new_dataset
 
 
@@ -225,4 +225,4 @@ def migrate_facility(facility):
         new_facility = Facility.objects.get(dataset_id=new_dataset.id)
         set_device_settings(default_facility=new_facility)
     delete_facility(facility)
-    logger.info("Finished migrating facility {}".format(facility.name))
+    logger.info("Finished migrating facility %s", facility.name)

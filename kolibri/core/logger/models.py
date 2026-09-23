@@ -223,9 +223,8 @@ class UserSessionLog(BaseLogModel):
                 user_session_log.save()
             except IntegrityError:
                 logger.warning(
-                    "UserSessionLog save failed due to IntegrityError, for user {}".format(
-                        user.id
-                    )
+                    "UserSessionLog save failed due to IntegrityError, for user %s",
+                    user.id,
                 )
 
 

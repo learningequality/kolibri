@@ -49,17 +49,18 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         pre_sync_transfer_handler(self.context)
         self.hook.pre_transfer.assert_not_called()
 
-    @mock.patch("kolibri.core.auth.sync_event_hook_utils.logger")
-    def test_pre_transfer__failure(self, mock_logger, mock_hook_registry):
+    def test_pre_transfer__failure(self, mock_hook_registry):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.pre_transfer.assert_not_called()
         self.hook.pre_transfer.side_effect = RuntimeError()
-        pre_sync_transfer_handler(self.context)
+        with self.assertLogs(MODULE_NAME, level="ERROR") as logs:
+            pre_sync_transfer_handler(self.context)
         self.hook.pre_transfer.assert_called()
-        mock_logger.error.assert_called_once_with(
-            "TestHook.pre_transfer hook failed",
-            exc_info=self.hook.pre_transfer.side_effect,
+        self.assertEqual(
+            [r.getMessage() for r in logs.records],
+            ["TestHook.pre_transfer hook failed"],
         )
+        self.assertIs(logs.records[0].exc_info[1], self.hook.pre_transfer.side_effect)
 
     def test_pre_transfer__failure__logging(self, mock_hook_registry):
         mock_hook_registry.registered_hooks = [self.hook]
@@ -87,17 +88,18 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         post_sync_transfer_handler(self.context)
         self.hook.post_transfer.assert_not_called()
 
-    @mock.patch("kolibri.core.auth.sync_event_hook_utils.logger")
-    def test_post_transfer__failure(self, mock_logger, mock_hook_registry):
+    def test_post_transfer__failure(self, mock_hook_registry):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.post_transfer.assert_not_called()
         self.hook.post_transfer.side_effect = RuntimeError()
-        post_sync_transfer_handler(self.context)
+        with self.assertLogs(MODULE_NAME, level="ERROR") as logs:
+            post_sync_transfer_handler(self.context)
         self.hook.post_transfer.assert_called()
-        mock_logger.error.assert_called_once_with(
-            "TestHook.post_transfer hook failed",
-            exc_info=self.hook.post_transfer.side_effect,
+        self.assertEqual(
+            [r.getMessage() for r in logs.records],
+            ["TestHook.post_transfer hook failed"],
         )
+        self.assertIs(logs.records[0].exc_info[1], self.hook.post_transfer.side_effect)
 
     def test_post_transfer__failure__logging(self, mock_hook_registry):
         mock_hook_registry.registered_hooks = [self.hook]

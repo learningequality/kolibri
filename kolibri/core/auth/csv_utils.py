@@ -41,9 +41,7 @@ def infer_facility(facility_id, facility=None):
         facility = Facility.get_default_facility()
         if facility:
             logger.info(
-                "No facility specified, using the default facility {}".format(
-                    facility.name
-                )
+                "No facility specified, using the default facility %s", facility.name
             )
         else:
             raise ValueError(

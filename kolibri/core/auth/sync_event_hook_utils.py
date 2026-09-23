@@ -106,7 +106,8 @@ def pre_sync_transfer_handler(**kwargs):
             hook.pre_transfer(**kwargs)
         except Exception as e:
             logger.error(
-                "{}.pre_transfer hook failed".format(hook.__class__.__name__),
+                "%s.pre_transfer hook failed",
+                hook.__class__.__name__,
                 exc_info=e,
             )
 
@@ -122,6 +123,7 @@ def post_sync_transfer_handler(**kwargs):
             hook.post_transfer(**kwargs)
         except Exception as e:
             logger.error(
-                "{}.post_transfer hook failed".format(hook.__class__.__name__),
+                "%s.post_transfer hook failed",
+                hook.__class__.__name__,
                 exc_info=e,
             )

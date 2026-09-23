@@ -241,9 +241,9 @@ class FacilityUserBackend:
         :return:
         """
         for user in auth_scope.iter_candidate_users():
-            logger.debug(f"Using {auth_scope} to check user {user.id}")
+            logger.debug("Using %s to check user %s", auth_scope, user.id)
             if auth_scope.matches_credentials(user):
-                logger.debug(f"{auth_scope} authorized user {user.id}")
+                logger.debug("%s authorized user %s", auth_scope, user.id)
                 return user
         return None
 

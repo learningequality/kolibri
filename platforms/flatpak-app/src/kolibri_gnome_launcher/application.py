@@ -49,7 +49,7 @@ class Launcher(Gio.Application):
             node_path = url_tuple.path
             node_query = url_tuple.query
         else:
-            logger.info(f"Invalid URL scheme: {uri}")
+            logger.info("Invalid URL scheme: %s", uri)
             return
 
         kolibri_gnome_args = []

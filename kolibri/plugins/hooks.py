@@ -383,9 +383,7 @@ class KolibriHookMeta(SingletonMeta):
                         )
                     )
         cls._registered_hooks[hook.unique_id] = hook
-        logger.debug(
-            "{} added to registry for defined hook: {}".format(hook.unique_id, cls)
-        )
+        logger.debug("%s added to registry for defined hook: %s", hook.unique_id, cls)
 
     def remove_hook_from_registries(cls):
         """
@@ -413,9 +411,7 @@ class KolibriHookMeta(SingletonMeta):
         if hook.unique_id in cls._registered_hooks:
             del cls._registered_hooks[hook.unique_id]
             logger.debug(
-                "{} removed from registry for defined hook: {}".format(
-                    hook.unique_id, cls
-                )
+                "%s removed from registry for defined hook: %s", hook.unique_id, cls
             )
 
     def get_hook(cls, unique_id):

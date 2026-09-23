@@ -44,9 +44,9 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
     invalid_db_names = set(db_names) - set(valid_db_names)
     if invalid_db_names:
         logger.warning(
-            "Ignoring databases in content database directory '{directory}' with invalid names: {names}".format(
-                directory=content_database_dir, names=invalid_db_names
-            )
+            "Ignoring databases in content database directory '%s' with invalid names: %s",
+            content_database_dir,
+            invalid_db_names,
         )
 
     # nonexistent database files are created if we delete the files that have broken symbolic links;
@@ -107,9 +107,8 @@ def get_channels_for_data_folder(datafolder):
             channel = read_channel_metadata_from_db_file(path)
         except sqlite3.DatabaseError:
             logger.warning(
-                "Tried to import channel from database file {}, but the file was corrupted.".format(
-                    path
-                )
+                "Tried to import channel from database file %s, but the file was corrupted.",
+                path,
             )
             continue
         channel_data = {

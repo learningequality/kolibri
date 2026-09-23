@@ -177,9 +177,7 @@ class Command(AsyncCommand):
         else:
             if self.overall_error:
                 raise CommandError(self.overall_error)
-            logger.info(
-                "Created csv file {} with {} lines".format(filename, total_rows)
-            )
+            logger.info("Created csv file %s with %s lines", filename, total_rows)
 
         translation.deactivate()
 

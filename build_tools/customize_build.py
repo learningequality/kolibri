@@ -24,11 +24,7 @@ def load_plugins_from_file(file_path):
     if file_path not in plugins_cache:
         # We have been passed a URL, not a local file path
         if file_path.startswith("http"):
-            logger.info(
-                "Downloading plugins manifest from {file_path}".format(
-                    file_path=file_path
-                )
-            )
+            logger.info("Downloading plugins manifest from %s", file_path)
             _, path = tempfile.mkstemp(suffix=".txt", text=True)
             with open(path, "w") as f:
                 r = requests.get(file_path)
@@ -56,11 +52,7 @@ def set_default_settings_module():
         default_settings_path = os.environ["DEFAULT_SETTINGS_MODULE"]
         with open(os.path.join(build_config_path, "default_settings.py"), "w") as f:
             # Just write out settings_path = '<settings_path>'
-            logger.info(
-                "Setting default settings module to {path}".format(
-                    path=default_settings_path
-                )
-            )
+            logger.info("Setting default settings module to %s", default_settings_path)
             f.write(default_settings_template.format(path=default_settings_path))
 
 

@@ -393,7 +393,7 @@ def enqueue_automatic_kdp_sync(facility):
             **job_data,
         )
     except JobRunning:
-        logger.info("KDP sync already running for facility {}".format(facility.name))
+        logger.info("KDP sync already running for facility %s", facility.name)
 
 
 class PeerSyncJobValidator(SyncJobValidator):
@@ -589,7 +589,7 @@ def enqueue_soud_sync_processing():
     except JobNotFound:
         pass
 
-    logger.info("Enqueuing SoUD sync processing in {}".format(next_run))
+    logger.info("Enqueuing SoUD sync processing in %s", next_run)
     try:
         soud_sync_processing.enqueue_in(next_run)
     except JobRunning:
@@ -605,7 +605,7 @@ def soud_sync_cleanup(**filters):
 
     :param filters: A dict of queryset filters for SyncSession model
     """
-    logger.debug("Running SoUD sync cleanup | {}".format(filters))
+    logger.debug("Running SoUD sync cleanup | %s", filters)
     sync_sessions = find_soud_sync_sessions(**filters)
     clean_up_ids = sync_sessions.values_list("id", flat=True)
 
@@ -619,9 +619,7 @@ def queue_soud_sync_cleanup(*sync_session_ids):
 
     :param sync_session_ids: ID's of sync sessions we should cleanup
     """
-    logger.info(
-        "Enqueueing cleanup of sync sessions: {}".format(", ".join(sync_session_ids))
-    )
+    logger.info("Enqueueing cleanup of sync sessions: %s", ", ".join(sync_session_ids))
     return soud_sync_cleanup.enqueue(kwargs={"pk__in": sync_session_ids})
 
 

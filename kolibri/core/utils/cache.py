@@ -34,7 +34,7 @@ class RedisSettingsHelper:
 
     def set(self, key, value):
         self.changed = True
-        logger.info("Configuring Redis: {} {}".format(key, value))
+        logger.info("Configuring Redis: %s %s", key, value)
         return self.client.config_set(key, value)
 
     def get_used_memory(self):

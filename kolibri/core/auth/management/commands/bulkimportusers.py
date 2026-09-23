@@ -861,10 +861,10 @@ class Command(AsyncCommand):
             self.job.extra_metadata["filename"] = ntpath.basename(filepath)
             self.job.save_meta()
         else:
-            logger.info("File errors: {}".format(str(self.overall_error)))
-            logger.info("Data errors: {}".format(str(per_line_errors)))
-            logger.info("Classes report: {}".format(str(classes_report)))
-            logger.info("Users report: {}".format(str(users_report)))
+            logger.info("File errors: %s", self.overall_error)
+            logger.info("Data errors: %s", per_line_errors)
+            logger.info("Classes report: %s", classes_report)
+            logger.info("Users report: %s", users_report)
             if errorlines:
                 for line in per_line_errors:
                     errorlines.write(str(line))

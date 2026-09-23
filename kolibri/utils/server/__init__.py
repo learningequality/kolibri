@@ -464,11 +464,11 @@ class SystemdNotifyPlugin(SimplePlugin):
         """
         try:
             with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as s:
-                logger.info("Sending sd-notify state {}".format(state))
+                logger.info("Sending sd-notify state %s", state)
                 s.connect(self.notify_socket_path)
                 s.send(state.encode())
         except OSError as e:
-            logger.warning("Failed to send sd-notify state {}: {}".format(state, e))
+            logger.warning("Failed to send sd-notify state %s: %s", state, e)
 
     def send_ready(self):
         self.sd_notify("READY=1")
@@ -492,9 +492,10 @@ def _port_check(port):
     ):
         # Port is occupied
         logger.error(
-            "Port {} is occupied.\n"
+            "Port %s is occupied.\n"
             "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(port)
+            "running on this port and try again.\n",
+            port,
         )
         raise PortOccupied("Port {} is occupied.".format(port))
 
@@ -512,7 +513,7 @@ class DaemonizePlugin(SimplePlugin):
             if self.bus.port:
                 __, urls = get_urls(listen_port=self.bus.port)
                 for url in urls:
-                    logger.info("Kolibri running on: {}".format(url))
+                    logger.info("Kolibri running on: %s", url)
             else:
                 logger.info(
                     "No port specified, for information about accessing the server, run kolibri status"
@@ -705,12 +706,12 @@ def stop():
         f.write(STOP)
     wait_for_status(STATUS_STOPPED, timeout=10)
     if pid_exists(pid):
-        logger.debug("Process wth pid %s still exists; attempting a SIGKILL." % pid)
+        logger.debug("Process wth pid %s still exists; attempting a SIGKILL.", pid)
         try:
             os.kill(pid, SIGKILL)
         except SystemError as e:
             logger.debug(
-                "Received an error while trying to kill the Kolibri process: %s" % e
+                "Received an error while trying to kill the Kolibri process: %s", e
             )
     starttime = time.time()
     while time.time() - starttime <= 10:
@@ -719,7 +720,7 @@ def stop():
         else:
             break
     if pid_exists(pid):
-        logging.error("Kolibri process has failed to shutdown")
+        logger.error("Kolibri process has failed to shutdown")
         return STATUS_UNCLEAN_SHUTDOWN
     return STATUS_STOPPED
 
@@ -755,7 +756,7 @@ class BaseKolibriProcessBus(ProcessBus):
             systemd_plugin = SystemdNotifyPlugin(self)
             systemd_plugin.subscribe()
 
-        logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
+        logger.info("Starting Kolibri %s", kolibri.__version__)
 
         log_plugin = LogPlugin(self)
         log_plugin.subscribe()
@@ -949,14 +950,14 @@ def restart():
     Restarts the server.
     """
     if not conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
-        logging.warning("No registered RESTART_HOOKS, restarting is not possible")
+        logger.warning("No registered RESTART_HOOKS, restarting is not possible")
         return False
     result = True
     for hook in conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
         try:
             result = result and hook()
         except Exception as e:
-            logging.warning("Error running restart hook %s: %s" % (hook, e))
+            logger.warning("Error running restart hook %s: %s", hook, e)
             result = False
     return result
 

@@ -524,8 +524,8 @@ class KolibriBroadcast:
         if interfaces is not None:
             # a new ID every time the broadcast interfaces change
             new_id = uuid.uuid4().hex
-            logging.debug(
-                "Updating broadcast with new ID: {}, old ID: {}".format(new_id, self.id)
+            logger.debug(
+                "Updating broadcast with new ID: %s, old ID: %s", new_id, self.id
             )
             self.id = new_id
 
@@ -554,9 +554,9 @@ class KolibriBroadcast:
             return
 
         logger.info(
-            "Registering ourselves to zeroconf network with id '{}' and port '{}'".format(
-                self.instance.zeroconf_id, self.instance.port
-            )
+            "Registering ourselves to zeroconf network with id '%s' and port '%s'",
+            self.instance.zeroconf_id,
+            self.instance.port,
         )
 
         # determine the zeroconf_id for the instance on the network
@@ -596,9 +596,9 @@ class KolibriBroadcast:
             return
 
         logger.info(
-            "Updating ourselves to zeroconf network with id '{}' and port '{}'".format(
-                self.instance.zeroconf_id, self.instance.port
-            )
+            "Updating ourselves to zeroconf network with id '%s' and port '%s'",
+            self.instance.zeroconf_id,
+            self.instance.port,
         )
         service = self.instance.to_service_info()
         # very important to publish the event first, to avoid race conditions
@@ -750,7 +750,7 @@ class KolibriBroadcast:
         if self.instance.is_broadcasting and self.instance.service_info.name == name:
             return
 
-        logger.debug("Received ADD event for Zeroconf service: {}".format(name))
+        logger.debug("Received ADD event for Zeroconf service: %s", name)
 
         # check for instance in our cache
         instance = self.other_instances.get(name)
@@ -768,8 +768,9 @@ class KolibriBroadcast:
         if not instance.is_self:
             self.other_instances[name] = instance
             logger.info(
-                "Kolibri instance '%s' joined zeroconf network; device info: %s"
-                % (instance.zeroconf_id, instance.device_info)
+                "Kolibri instance '%s' joined zeroconf network; device info: %s",
+                instance.zeroconf_id,
+                instance.device_info,
             )
             self.events.publish(EVENT_ADD_INSTANCE, instance)
 
@@ -781,7 +782,7 @@ class KolibriBroadcast:
         if self.instance.is_broadcasting and self.instance.service_info.name == name:
             return None
 
-        logger.debug("Received UPDATE event for Zeroconf service: {}".format(name))
+        logger.debug("Received UPDATE event for Zeroconf service: %s", name)
 
         # get information about the instance from Zeroconf
         service_info = self._get_service_info(name)
@@ -803,8 +804,9 @@ class KolibriBroadcast:
                     return None
             self.other_instances[name] = instance
             logger.info(
-                "Kolibri instance '%s' updated zeroconf network; device info: %s"
-                % (instance.zeroconf_id, instance.device_info)
+                "Kolibri instance '%s' updated zeroconf network; device info: %s",
+                instance.zeroconf_id,
+                instance.device_info,
             )
             self.events.publish(EVENT_UPDATE_INSTANCE, instance)
         return None
@@ -817,13 +819,13 @@ class KolibriBroadcast:
         if self.instance.is_broadcasting and self.instance.service_info.name == name:
             return
 
-        logger.debug("Received REMOVE event for Zeroconf service: {}".format(name))
+        logger.debug("Received REMOVE event for Zeroconf service: %s", name)
 
         instance = self.other_instances.get(name)
         if instance is not None and not instance.is_self and instance.is_broadcasting:
             logger.info(
-                "Kolibri instance '%s' has left the zeroconf network."
-                % (instance.zeroconf_id,)
+                "Kolibri instance '%s' has left the zeroconf network.",
+                instance.zeroconf_id,
             )
             instance.reset_broadcasting()
             self.events.publish(EVENT_REMOVE_INSTANCE, instance)
@@ -854,8 +856,7 @@ class KolibriBroadcast:
         )
         if service_info is None:
             logger.warning(
-                "Zeroconf network service information could not be retrieved within {} seconds".format(
-                    str(timeout / 1000.0)
-                )
+                "Zeroconf network service information could not be retrieved within %s seconds",
+                timeout / 1000.0,
             )
         return service_info

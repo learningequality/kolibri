@@ -32,9 +32,8 @@ class KolibriCoreConfig(AppConfig):
         # Do this logging here, as this will be after Django has done its processing of
         # Any environment variables or --settings command line arguments.
         logger.info(
-            "Running Kolibri with the following settings: {settings}".format(
-                settings=os.environ["DJANGO_SETTINGS_MODULE"]
-            )
+            "Running Kolibri with the following settings: %s",
+            os.environ["DJANGO_SETTINGS_MODULE"],
         )
         self.check_redis_settings()
         self.check_file_storage_settings()
@@ -148,10 +147,9 @@ class KolibriCoreConfig(AppConfig):
                 used_memory = helper.get_used_memory()
                 if config_maxmemory < used_memory:
                     logger.warning(
-                        "Redis was using {used_memory} before setting `maxmemory` configuration of {config_memory}".format(
-                            used_memory=bytes_for_humans(used_memory),
-                            config_memory=bytes_for_humans(config_maxmemory),
-                        )
+                        "Redis was using %s before setting `maxmemory` configuration of %s",
+                        bytes_for_humans(used_memory),
+                        bytes_for_humans(config_maxmemory),
                     )
 
                 helper.set_maxmemory(config_maxmemory)

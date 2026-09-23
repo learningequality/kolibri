@@ -41,21 +41,18 @@ class ConfigDict(dict):
         logger.info("Initialized plugins.json")
         if self.ENV_VAR_APPLIED_PLUGINS:
             logger.info(
-                "Applied plugins from environment variable: {}".format(
-                    self.ENV_VAR_APPLIED_PLUGINS
-                )
+                "Applied plugins from environment variable: %s",
+                self.ENV_VAR_APPLIED_PLUGINS,
             )
         if self.ENV_VAR_ENABLED_PLUGINS:
             logger.info(
-                "Enabled plugins from environment variable: {}".format(
-                    self.ENV_VAR_ENABLED_PLUGINS
-                )
+                "Enabled plugins from environment variable: %s",
+                self.ENV_VAR_ENABLED_PLUGINS,
             )
         if self.ENV_VAR_DISABLED_PLUGINS:
             logger.info(
-                "Disabled plugins from environment variable: {}".format(
-                    self.ENV_VAR_DISABLED_PLUGINS
-                )
+                "Disabled plugins from environment variable: %s",
+                self.ENV_VAR_DISABLED_PLUGINS,
             )
 
     def set_defaults(self):
@@ -129,7 +126,7 @@ class ConfigDict(dict):
 
     def add_plugin(self, module_path):
         if module_path in self.ACTIVE_PLUGINS:
-            logger.warning("{} already enabled".format(module_path))
+            logger.warning("%s already enabled", module_path)
             return
         self["INSTALLED_PLUGINS"].add(module_path)
         self["UPDATED_PLUGINS"].add(module_path)
@@ -141,7 +138,7 @@ class ConfigDict(dict):
 
     def remove_plugin(self, module_path):
         if module_path not in self.ACTIVE_PLUGINS:
-            logger.warning("{} already disabled".format(module_path))
+            logger.warning("%s already disabled", module_path)
             return
         self["DISABLED_PLUGINS"].add(module_path)
         try:
@@ -299,12 +296,12 @@ class KolibriPluginBase(metaclass=SingletonMeta):
             try:
                 return import_module(models_module_name)
             except Exception as e:
-                logging.warning(
-                    "Tried to import module {module_name} from {plugin} but an error was raised".format(
-                        plugin=self.module_path, module_name=module_name
-                    )
+                logger.warning(
+                    "Tried to import module %s from %s but an error was raised",
+                    module_name,
+                    self.module_path,
                 )
-                logging.exception(e)
+                logger.exception(e)
 
         return None
 
@@ -328,10 +325,10 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.translated_view_urls:
             module = self._return_module(self.translated_view_urls)
             if module is None:
-                logging.warning(
-                    "{plugin} defined {urls} translated view urls but the module was not found".format(
-                        plugin=self.module_path, urls=self.translated_view_urls
-                    )
+                logger.warning(
+                    "%s defined %s translated view urls but the module was not found",
+                    self.module_path,
+                    self.translated_view_urls,
                 )
             return module
         return None
@@ -359,10 +356,10 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.untranslated_view_urls:
             module = self._return_module(self.untranslated_view_urls)
             if module is None:
-                logging.warning(
-                    "{plugin} defined {urls} untranslated view urls but the module was not found".format(
-                        plugin=self.module_path, urls=self.untranslated_view_urls
-                    )
+                logger.warning(
+                    "%s defined %s untranslated view urls but the module was not found",
+                    self.module_path,
+                    self.untranslated_view_urls,
                 )
             return module
         return None
@@ -386,10 +383,10 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.root_view_urls:
             module = self._return_module(self.root_view_urls)
             if module is None:
-                logging.warning(
-                    "{plugin} defined {urls} root view urls but the module was not found".format(
-                        plugin=self.module_path, urls=self.root_view_urls
-                    )
+                logger.warning(
+                    "%s defined %s root view urls but the module was not found",
+                    self.module_path,
+                    self.root_view_urls,
                 )
             return module
         return None
@@ -409,10 +406,10 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.django_settings:
             module = self._return_module(self.django_settings)
             if module is None:
-                logging.warning(
-                    "{plugin} defined {module} django settings but the module was not found".format(
-                        plugin=self.module_path, module=self.django_settings
-                    )
+                logger.warning(
+                    "%s defined %s django settings but the module was not found",
+                    self.module_path,
+                    self.django_settings,
                 )
             return module
         return None
@@ -430,10 +427,10 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.kolibri_options:
             module = self._return_module(self.kolibri_options)
             if module is None:
-                logging.warning(
-                    "{plugin} defined {module} kolibri options but the module was not found".format(
-                        plugin=self.module_path, module=self.kolibri_options
-                    )
+                logger.warning(
+                    "%s defined %s kolibri options but the module was not found",
+                    self.module_path,
+                    self.kolibri_options,
                 )
             return module
         return None
@@ -449,10 +446,10 @@ class KolibriPluginBase(metaclass=SingletonMeta):
         if self.kolibri_option_defaults:
             module = self._return_module(self.kolibri_option_defaults)
             if module is None:
-                logging.warning(
-                    "{plugin} defined {module} kolibri option defaults but the module was not found".format(
-                        plugin=self.module_path, module=self.kolibri_option_defaults
-                    )
+                logger.warning(
+                    "%s defined %s kolibri option defaults but the module was not found",
+                    self.module_path,
+                    self.kolibri_option_defaults,
                 )
             return module
         return None

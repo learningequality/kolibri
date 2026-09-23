@@ -14,6 +14,7 @@ import utils
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
+logger = logging.getLogger(__name__)
 
 
 FILE_NAME = "kolibri.core.default_frontend-messages.json"
@@ -86,7 +87,7 @@ def main(title, message, link_text):
         output[lang_object[utils.KEY_INTL_CODE]] = i18n
 
     # output JSON
-    logging.info(
+    logger.info(
         json.dumps(
             output, sort_keys=True, indent=2, separators=(",", ": "), ensure_ascii=False
         )

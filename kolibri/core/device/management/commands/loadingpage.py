@@ -55,5 +55,5 @@ class Command(BaseCommand):
                 rendered = render_to_string("kolibri/loading_page.html", context)
             with open(os.path.join(output_dir, lang, output_filename), "w") as f:
                 f.write(rendered)
-            logger.info("Created loading page for {lang}".format(lang=lang))
+            logger.info("Created loading page for %s", lang)
         logger.info("Created loading pages in all supported languages")

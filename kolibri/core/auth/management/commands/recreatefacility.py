@@ -29,9 +29,7 @@ class Command(AsyncCommand):
         )
         dataset_id = facility.dataset_id
 
-        logger.info(
-            "Found facility {} <{}> for recreation".format(facility.id, dataset_id)
-        )
+        logger.info("Found facility %s <%s> for recreation", facility.id, dataset_id)
 
         if not noninteractive:
             # ensure the user REALLY wants to do this!
@@ -43,9 +41,8 @@ class Command(AsyncCommand):
             )
 
         logger.info(
-            "Proceeding with facility recreation. Recreating all data for facility <{}>".format(
-                dataset_id
-            )
+            "Proceeding with facility recreation. Recreating all data for facility <%s>",
+            dataset_id,
         )
 
         with transaction.atomic():

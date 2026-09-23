@@ -73,7 +73,7 @@ def run_smoke_test():
             try:
                 # Navigate to Kolibri
                 page.goto(KOLIBRI_URL, wait_until="domcontentloaded")
-                logger.info(f"Loaded: {page.url}")
+                logger.info("Loaded: %s", page.url)
 
                 # Step 1: "How are you using Kolibri?" — "On my own" is pre-selected
                 page.get_by_role("button", name="Continue").click()
@@ -108,17 +108,17 @@ def run_smoke_test():
                 page.get_by_text("There is nothing in your library yet").wait_for(
                     state="visible", timeout=30000
                 )
-                logger.info(f"Setup complete, landed on: {page.url}")
+                logger.info("Setup complete, landed on: %s", page.url)
 
                 # Take screenshot of the post-setup landing page
                 page.screenshot(path=SCREENSHOT_PATH, full_page=False)
-                logger.info(f"Screenshot saved to {SCREENSHOT_PATH}")
+                logger.info("Screenshot saved to %s", SCREENSHOT_PATH)
 
             except PlaywrightError as e:
                 # Take a screenshot of whatever state we're in for debugging
                 try:
                     page.screenshot(path=SCREENSHOT_PATH, full_page=False)
-                    logger.info(f"Error screenshot saved to {SCREENSHOT_PATH}")
+                    logger.info("Error screenshot saved to %s", SCREENSHOT_PATH)
                 except Exception:
                     pass
                 raise e

@@ -825,9 +825,9 @@ class CourseSessionViewset(ValuesViewset):
             unit_title = unit.title
         except ContentNode.DoesNotExist:
             logger.error(
-                "UnitTestAssignment {} references non-existent ContentNode {}. This is orphaned data.".format(
-                    active_test.id, active_test.unit_contentnode_id
-                )
+                "UnitTestAssignment %s references non-existent ContentNode %s. This is orphaned data.",
+                active_test.id,
+                active_test.unit_contentnode_id,
             )
             unit_title = None
 

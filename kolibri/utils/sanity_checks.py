@@ -49,17 +49,14 @@ def check_content_directory_exists_and_writable():
             os.makedirs(content_directory)
         except OSError:
             logger.error(
-                "The content directory {} does not exist and cannot be created.".format(
-                    content_directory
-                )
+                "The content directory %s does not exist and cannot be created.",
+                content_directory,
             )
             sys.exit(1)
 
     # Check if the directory is writable
     if not os.access(content_directory, os.W_OK):
-        logger.error(
-            "The content directory {} is not writable.".format(content_directory)
-        )
+        logger.error("The content directory %s is not writable.", content_directory)
         sys.exit(1)
 
 
@@ -123,7 +120,5 @@ def check_default_options_exist():
             generate_empty_options_file()
         except OSError:
             logger.warning(
-                "Failed to create an options.ini file at this path: {}".format(
-                    options_path
-                )
+                "Failed to create an options.ini file at this path: %s", options_path
             )

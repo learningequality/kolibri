@@ -253,9 +253,9 @@ def set_leaf_nodes_invisible(
     )
 
     logger.info(
-        "Removing availability of non-topic ContentNode objects in {} batches of {}".format(
-            int(ceil(max_rght / dynamic_chunksize)), dynamic_chunksize
-        )
+        "Removing availability of non-topic ContentNode objects in %s batches of %s",
+        int(ceil(max_rght / dynamic_chunksize)),
+        dynamic_chunksize,
     )
 
     values_dict = {
@@ -302,9 +302,9 @@ def set_leaf_node_availability_from_local_file_availability(
     )
 
     logger.info(
-        "Setting availability of non-topic ContentNode objects based on LocalFile availability in {} batches of {}".format(
-            int(ceil(max_rght / dynamic_chunksize)), dynamic_chunksize
-        )
+        "Setting availability of non-topic ContentNode objects based on LocalFile availability in %s batches of %s",
+        int(ceil(max_rght / dynamic_chunksize)),
+        dynamic_chunksize,
     )
 
     values_dict = {
@@ -359,9 +359,9 @@ def mark_local_files_as_available(checksums, destination=None):
 def mark_local_files_availability(checksums, availability, destination=None):
     if checksums:
         logger.info(
-            "Setting availability to {availability} of {number} LocalFile objects based on passed in checksums".format(
-                number=len(checksums), availability=availability
-            )
+            "Setting availability to %s of %s LocalFile objects based on passed in checksums",
+            availability,
+            len(checksums),
         )
 
         with content_db(destination) as alias:
@@ -412,16 +412,14 @@ def set_local_file_availability_from_disk(checksums=None, destination=None):
             )
         elif isinstance(checksums, list):
             logger.info(
-                "Setting availability of {number} LocalFile objects based on disk availability".format(
-                    number=len(checksums)
-                )
+                "Setting availability of %s LocalFile objects based on disk availability",
+                len(checksums),
             )
             queryset = queryset.filter_by_checksums(checksums)
         else:
             logger.info(
-                "Setting availability of LocalFile object with checksum {checksum} based on disk availability".format(
-                    checksum=checksums
-                )
+                "Setting availability of LocalFile object with checksum %s based on disk availability",
+                checksums,
             )
             queryset = queryset.filter(id=checksums)
 
@@ -484,9 +482,7 @@ def recurse_annotation_up_tree(channel_id):
     node_depth = get_channel_node_depth(channel_id)
 
     logger.info(
-        "Annotating ContentNode objects with children for {levels} levels".format(
-            levels=node_depth
-        )
+        "Annotating ContentNode objects with children for %s levels", node_depth
     )
 
     start = datetime.datetime.now()
@@ -511,9 +507,7 @@ def recurse_annotation_up_tree(channel_id):
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
             logger.info(
-                "Annotating ContentNode objects with children for level {level}".format(
-                    level=level
-                )
+                "Annotating ContentNode objects with children for level %s", level
             )
             # Only modify topic availability here
             ContentNode.objects.filter(
@@ -532,9 +526,7 @@ def recurse_annotation_up_tree(channel_id):
             )
 
     elapsed = datetime.datetime.now() - start
-    logger.debug(
-        "Recursive topic tree annotation took {} seconds".format(elapsed.seconds)
-    )
+    logger.debug("Recursive topic tree annotation took %s seconds", elapsed.seconds)
 
 
 def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_progress):
@@ -787,9 +779,7 @@ def set_channel_ancestors(channel_id):
                 cursor.execute(sql, ['\\"', level, channel_id])
 
     elapsed = datetime.datetime.now() - start
-    logger.debug(
-        "Recursive ancestor annotation took {} seconds".format(elapsed.seconds)
-    )
+    logger.debug("Recursive ancestor annotation took %s seconds", elapsed.seconds)
 
 
 def update_channel_version_to_assignments(channel):

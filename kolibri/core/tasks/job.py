@@ -310,7 +310,11 @@ class Job:
             total_progress, (int, float)
         ):
             logger.warning(
-                f"Tried to set invalid progress values on job {self.job_id} for task {self.func} with progress: {progress} and total_progress {total_progress}"
+                "Tried to set invalid progress values on job %s for task %s with progress: %s and total_progress %s",
+                self.job_id,
+                self.func,
+                progress,
+                total_progress,
             )
             return
         self.progress = progress
@@ -453,9 +457,7 @@ class Job:
             # If any error occurs, mark the job as failed and save the exception
             traceback_str = traceback.format_exc()
             e.traceback = traceback_str
-            logger.error(
-                "Job {} raised an exception: {}".format(self.job_id, traceback_str)
-            )
+            logger.error("Job %s raised an exception: %s", self.job_id, traceback_str)
             accepted = self.storage.mark_job_as_failed(
                 self.job_id,
                 e,
@@ -528,6 +530,6 @@ def log_status(job, orm_job, state=None, **kwargs):
 
     status = job.status(translation.get_language())
     if status:
-        logging.debug(status.title)
+        logger.debug(status.title)
         if status.text:
-            logging.debug(status.text)
+            logger.debug(status.text)

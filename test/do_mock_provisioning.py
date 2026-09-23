@@ -48,5 +48,5 @@ if status_code == 201:
     logger.info("success!")
     exit(0)
 else:
-    logger.error("failed with status %i" % status_code)
+    logger.error("failed with status %i", status_code)
     exit(1)

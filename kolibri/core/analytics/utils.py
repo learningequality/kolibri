@@ -443,7 +443,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
         "installer": installation_type(),
     }
 
-    logger.debug("Pingback data: {}".format(data))
+    logger.debug("Pingback data: %s", data)
     jsondata = dump_zipped_json(data)
     response = client.post(url, data=jsondata, timeout=60)
     return json.loads(response.content.decode() or "{}")
@@ -455,7 +455,7 @@ def perform_statistics(server, pingback_id):
     channels = [extract_channel_statistics(c) for c in ChannelMetadata.objects.all()]
     facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
     data = {"pi": pingback_id, "c": channels, "f": facilities}
-    logger.debug("Statistics data: {}".format(data))
+    logger.debug("Statistics data: %s", data)
     jsondata = dump_zipped_json(data)
     response = client.post(url, data=jsondata, timeout=60)
     return json.loads(response.content.decode() or "{}")
@@ -463,7 +463,7 @@ def perform_statistics(server, pingback_id):
 
 def ping_once(started, server=DEFAULT_SERVER_URL):
     data = perform_ping(started, server=server)
-    logger.info("Ping succeeded! (response: {})".format(data))
+    logger.info("Ping succeeded! (response: %s)", data)
     create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
     if "id" in data:
         stat_data = perform_statistics(server, data["id"])

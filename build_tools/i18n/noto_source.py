@@ -20,6 +20,7 @@ from fontTools.varLib import instancer
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
+logger = logging.getLogger(__name__)
 
 
 """
@@ -91,11 +92,11 @@ def _request(path):
     headers = {"Authorization": "token {}".format(token)} if token else {}
     r = requests.get(url, headers=headers)
     if r.status_code == 403:
-        logging.error("You've hit the Github API rate limit.")
+        logger.error("You've hit the Github API rate limit.")
         if not token:
-            logging.info(
+            logger.info(
                 "You can set a GITHUB_TOKEN environment variable with a github API token.\n"
-                + "Generate a github token at https://github.com/settings/tokens and give it read-only permission."
+                "Generate a github token at https://github.com/settings/tokens and give it read-only permission."
             )
         sys.exit(1)
     else:
@@ -238,10 +239,10 @@ def update_manifest(ref=None):
 
     # grab the head of main
     if not ref:
-        logging.info("Using head of main")
+        logger.info("Using head of main")
         ref = _request("git/refs/heads/main")["object"]["sha"]
 
-    logging.info("Generating new manifest for reference '{}'".format(ref))
+    logger.info("Generating new manifest for reference '%s'", ref)
 
     git_tree = _request("git/trees/{}?recursive=1".format(ref))
     font_info = _font_info(git_tree, ref)
@@ -263,24 +264,24 @@ def show_typefaces(ref=None):
 
     # grab the head of main
     if not ref:
-        logging.info("Using head of main")
+        logger.info("Using head of main")
         ref = _request("git/refs/heads/main")["object"]["sha"]
 
-    logging.info("Generating new manifest for reference '{}'".format(ref))
+    logger.info("Generating new manifest for reference '%s'", ref)
 
     git_tree = _request("git/trees/{}?recursive=1".format(ref))
     typefaces = _get_all_typefaces(git_tree)
 
     for typeface in sorted(typefaces):
-        logging.info(typeface)
+        logger.info(typeface)
 
     if EXCLUDED_TYPEFACES:
-        logging.info("Excluded typefaces:")
+        logger.info("Excluded typefaces:")
 
         for typeface in sorted(EXCLUDED_TYPEFACES):
-            logging.info(typeface)
+            logger.info(typeface)
     else:
-        logging.info("No excluded typefaces")
+        logger.info("No excluded typefaces")
 
 
 def fetch_fonts():
@@ -300,7 +301,7 @@ def fetch_fonts():
         font_info = FONT_MANIFEST[font_name]
         for weight in WEIGHTS:
             output_path = get_path(font_name, weight)
-            logging.info("Writing {}".format(output_path))
+            logger.info("Writing %s", output_path)
             if weight in font_info:
                 r = requests.get(font_info[weight])
                 r.raise_for_status()

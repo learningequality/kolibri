@@ -13,8 +13,7 @@ import kolibri
 try:
     from kolibri.plugins import config
 except RuntimeError as e:
-    logging.error("Loading plugin configuration failed with error '{}'".format(e))
-    sys.exit(1)
+    sys.exit(f"Loading plugin configuration failed with error '{e}'")
 from kolibri.plugins.utils import disable_all_plugins
 from kolibri.plugins.utils import disable_plugins
 from kolibri.plugins.utils import enable_default_plugins
@@ -287,10 +286,8 @@ def stop():
         server.get_status()
     except server.NotRunning as e:
         if e.status_code == server.STATUS_STOPPED:
-            logging.info(
-                "Already stopped: {}".format(
-                    server.status_messages[server.STATUS_STOPPED]
-                )
+            logger.info(
+                "Already stopped: %s", server.status_messages[server.STATUS_STOPPED]
             )
             sys.exit(0)
     status = server.stop()
@@ -381,7 +378,7 @@ def restart():
 @click.pass_context
 def manage(ctx):
     if ctx.args:
-        logger.info("Invoking command {}".format(" ".join(ctx.args)))
+        logger.info("Invoking command %s", " ".join(ctx.args))
     execute_from_command_line(["kolibri manage"] + ctx.args)
 
 

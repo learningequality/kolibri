@@ -871,10 +871,8 @@ def _get_option_spec():
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
             else:
-                logging.warning(
-                    "Duplicate environment variable for options {}".format(
-                        default_envvar
-                    )
+                logger.warning(
+                    "Duplicate environment variable for options %s", default_envvar
                 )
                 default_envvar = "KOLIBRI_{}_{}".format(
                     section.upper(), optname.upper()
@@ -956,15 +954,16 @@ def _set_from_envvars(conf):
                         )
                     else:
                         logger.info(
-                            "Option {optname} in section [{section}] being overridden by environment variable {envvar}".format(
-                                optname=optname, section=section, envvar=envvar
-                            )
+                            "Option %s in section [%s] being overridden by environment variable %s",
+                            optname,
+                            section,
+                            envvar,
                         )
                     if attrs.get("deprecated", False):
                         logger.warning(
-                            "Option {optname} in section [{section}] is deprecated, please remove it from your options.ini file".format(
-                                optname=optname, section=section
-                            )
+                            "Option %s in section [%s] is deprecated, please remove it from your options.ini file",
+                            optname,
+                            section,
                         )
                     conf[section][optname] = os.environ[envvar]
                     using_env_vars[optname] = envvar
@@ -1016,9 +1015,9 @@ def read_options_file(ini_filename="options.ini"):
                 and optname in conf[section]
             ):
                 logger.warning(
-                    "Option {optname} in section [{section}] is deprecated, please remove it from your options.ini file".format(
-                        optname=optname, section=section
-                    )
+                    "Option %s in section [%s] is deprecated, please remove it from your options.ini file",
+                    optname,
+                    section,
                 )
 
     # validate once up front to ensure section structure is in place
@@ -1036,24 +1035,25 @@ def read_options_file(ini_filename="options.ini"):
             section = section_list[0]
             if optname in using_env_vars:
                 logger.error(
-                    "Error processing environment variable option {envvar}: {error}".format(
-                        envvar=using_env_vars[optname], error=error
-                    )
+                    "Error processing environment variable option %s: %s",
+                    using_env_vars[optname],
+                    error,
                 )
             elif optname in using_deprecated_alias:
                 logger.error(
-                    "Error processing {file} under section [{section}] for option {alias}: {error}".format(
-                        file=ini_path,
-                        section=section,
-                        alias=using_deprecated_alias[optname],
-                        error=error,
-                    )
+                    "Error processing %s under section [%s] for option %s: %s",
+                    ini_path,
+                    section,
+                    using_deprecated_alias[optname],
+                    error,
                 )
             else:
                 logger.error(
-                    "Error processing {file} under section [{section}] for option {option}: {error}".format(
-                        file=ini_path, section=section, option=optname, error=error
-                    )
+                    "Error processing %s under section [%s] for option %s: %s",
+                    ini_path,
+                    section,
+                    optname,
+                    error,
                 )
         logger.critical(
             "Aborting: Could not process options config (see errors above for more details)"
@@ -1074,12 +1074,11 @@ def read_options_file(ini_filename="options.ini"):
         kind = "section" if isinstance(the_value, dict) else "option"
 
         logger.warning(
-            "Ignoring unknown {kind} in options file {file} under {section}: {name}.".format(
-                kind=kind,
-                file=ini_path,
-                section=sections[0] if sections else "top level",
-                name=name,
-            )
+            "Ignoring unknown %s in options file %s under %s: %s.",
+            kind,
+            ini_path,
+            sections[0] if sections else "top level",
+            name,
         )
 
     # run validation once again to fill in any default values for options we deleted due to issues
@@ -1118,9 +1117,8 @@ def update_options_file(section, key, value, ini_filename="options.ini"):
     conf.write()
 
     logger.warning(
-        "Options file {file} has been updated; server restart is required before change will take effect.".format(
-            file=conf.filename
-        )
+        "Options file %s has been updated; server restart is required before change will take effect.",
+        conf.filename,
     )
 
 

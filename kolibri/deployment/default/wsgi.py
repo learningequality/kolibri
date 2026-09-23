@@ -57,17 +57,14 @@ while not application and tries_remaining:
         # An OperationalError happens when sqlite vacuum is being
         # executed. the db is locked
         logger.error(
-            "Database assumed to be undergoing a VACUUM, retrying again in {} seconds...".format(
-                interval
-            )
+            "Database assumed to be undergoing a VACUUM, retrying again in %s seconds...",
+            interval,
         )
         tries_remaining -= 1
         time.sleep(interval)
 
 if not application:
     logger.error(
-        "Could not start Kolibri with {} retries. Trying one last time".format(
-            tries_remaining
-        )
+        "Could not start Kolibri with %s retries. Trying one last time", tries_remaining
     )
     application = generate_wsgi_application()

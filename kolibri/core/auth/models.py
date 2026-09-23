@@ -111,7 +111,7 @@ class Session(AbstractBaseSession):
     def delete_all_sessions(cls, user_ids):
         store_class = cls.get_session_store_class()
         store_class.delete_all_sessions(user_ids)
-        logger.info("Deleted all sessions for user IDs: {}".format(user_ids))
+        logger.info("Deleted all sessions for user IDs: %s", user_ids)
 
 
 class SessionRouter(KolibriModelRouter):
@@ -586,9 +586,8 @@ class KolibriBaseUserMixin:
             instance.clean()
         except TypeError as e:
             logger.error(
-                "TypeError while validating model before checking permissions: {}".format(
-                    e.args
-                )
+                "TypeError while validating model before checking permissions: %s",
+                e.args,
             )
             # if the data provided does not fit the Model, don't continue checking
             return False

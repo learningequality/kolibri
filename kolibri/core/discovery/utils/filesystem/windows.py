@@ -54,9 +54,9 @@ def get_drive_list():
         # skip drives that have invalid types
         if drivetype.startswith("#"):
             logger.debug(
-                "Skipping drive '{}' with invalid type: {}".format(
-                    drive.get("DeviceID"), drivetype
-                )
+                "Skipping drive '%s' with invalid type: %s",
+                drive.get("DeviceID"),
+                drivetype,
             )
             continue
 

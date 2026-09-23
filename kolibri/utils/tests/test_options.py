@@ -7,7 +7,6 @@ import logging
 import os
 import sys
 import tempfile
-from contextlib import contextmanager
 from unittest import mock
 
 import pytest
@@ -15,31 +14,6 @@ import pytest
 from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
-
-
-LOG_LOGGER = []
-
-
-def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
-    """
-    Monkeypatching for logging.Logger._log to scoop up log messages if we wanna
-    test something specific was logged.
-    """
-    LOG_LOGGER.append((LEVEL, msg))
-    # Call the original function
-    logger_instance.__log(LEVEL, msg, args, **kwargs)
-
-
-@contextmanager
-def activate_log_logger(monkeypatch):
-    """
-    Activates logging everything to ``LOG_LOGGER`` with the monkeypatch pattern
-    of py.test (test accepts a ``monkeypatch`` argument)
-    """
-    monkeypatch.setattr(logging.Logger, "__log", logging.Logger._log, raising=False)
-    monkeypatch.setattr(logging.Logger, "_log", log_logger)
-    yield
-    del LOG_LOGGER[:]
 
 
 def test_option_reading_and_precedence_rules():
@@ -130,68 +104,67 @@ def test_database_ssl_mode_envvar():
         assert OPTIONS["Database"]["DATABASE_SSL_MODE"] == "require"
 
 
-def test_improper_settings_display_errors_and_exit(monkeypatch):
+def test_improper_settings_display_errors_and_exit(caplog):
     """
     Checks invalid options log errors and exit.
     """
 
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
 
-        # non-numeric arguments for an integer option in the ini file cause it to bail
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Deployment]\nHTTP_PORT = abba")
-        with mock.patch.dict(
-            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
-        ):
-            with pytest.raises(SystemExit):
-                options.read_options_file(ini_filename=tmp_ini_path)
-            assert 'value "abba" is of the wrong type' in LOG_LOGGER[-2][1]
+    # non-numeric arguments for an integer option in the ini file cause it to bail
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Deployment]\nHTTP_PORT = abba")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert 'value "abba" is of the wrong type' in caplog.messages[-2]
 
-        # non-numeric arguments for an integer option in the env var cause it to bail, even when ini file is ok
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Deployment]\nHTTP_PORT = 1278")
-        with mock.patch.dict(
-            os.environ,
-            {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
-            clear=True,
-        ):
-            with pytest.raises(SystemExit):
-                options.read_options_file(ini_filename=tmp_ini_path)
-            assert 'value "baba" is of the wrong type' in LOG_LOGGER[-2][1]
+    # non-numeric arguments for an integer option in the env var cause it to bail, even when ini file is ok
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Deployment]\nHTTP_PORT = 1278")
+    with mock.patch.dict(
+        os.environ,
+        {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
+        clear=True,
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert 'value "baba" is of the wrong type' in caplog.messages[-2]
 
-        # out-of-bounds value for an option with validator_args bounds causes it to bail
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Tasks]\nSUPERVISOR_STALE_THRESHOLD = 14")
-        with mock.patch.dict(
-            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
-        ):
-            with pytest.raises(SystemExit):
-                options.read_options_file(ini_filename=tmp_ini_path)
-            assert 'value "14" is too small' in LOG_LOGGER[-2][1]
+    # out-of-bounds value for an option with validator_args bounds causes it to bail
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Tasks]\nSUPERVISOR_STALE_THRESHOLD = 14")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert 'value "14" is too small' in caplog.messages[-2]
 
-        # invalid choice for "option" type causes it to bail
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Database]\nDATABASE_ENGINE = penguin")
-        with mock.patch.dict(
-            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
-        ):
-            with pytest.raises(SystemExit):
-                options.read_options_file(ini_filename=tmp_ini_path)
-            assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
+    # invalid choice for "option" type causes it to bail
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Database]\nDATABASE_ENGINE = penguin")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert 'value "penguin" is unacceptable' in caplog.messages[-2]
 
-        # invalid choice for postgres ssl mode causes it to bail
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Database]\nDATABASE_SSL_MODE = maybe")
-        with mock.patch.dict(
-            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
-        ):
-            with pytest.raises(SystemExit):
-                options.read_options_file(ini_filename=tmp_ini_path)
-            assert 'value "maybe" is unacceptable' in LOG_LOGGER[-2][1]
+    # invalid choice for postgres ssl mode causes it to bail
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Database]\nDATABASE_SSL_MODE = maybe")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert 'value "maybe" is unacceptable' in caplog.messages[-2]
 
 
-def test_validator_args_enforce_bounds(monkeypatch):
+def test_validator_args_enforce_bounds(monkeypatch, caplog):
     """
     Checks that validator_args on an option spec are passed through to the
     underlying configobj checker (e.g. min/max for integer options).
@@ -200,112 +173,106 @@ def test_validator_args_enforce_bounds(monkeypatch):
     spec["Tasks"]["REGULAR_PRIORITY_WORKERS"]["validator_args"] = {"min": 1}
     monkeypatch.setattr(options, "option_spec", spec)
 
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
 
-        # out-of-bounds values log errors and exit
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Tasks]\nREGULAR_PRIORITY_WORKERS = 0")
-        with mock.patch.dict(
-            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
-        ):
-            with pytest.raises(SystemExit):
-                options.read_options_file(ini_filename=tmp_ini_path)
-            assert 'value "0" is too small' in LOG_LOGGER[-2][1]
+    # out-of-bounds values log errors and exit
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Tasks]\nREGULAR_PRIORITY_WORKERS = 0")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert 'value "0" is too small' in caplog.messages[-2]
 
-        # values within bounds are read as normal
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Tasks]\nREGULAR_PRIORITY_WORKERS = 2")
-        with mock.patch.dict(
-            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
-        ):
-            OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
-            assert OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"] == 2
+    # values within bounds are read as normal
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Tasks]\nREGULAR_PRIORITY_WORKERS = 2")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+        assert OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"] == 2
 
 
-def test_deprecated_values_ini_file(monkeypatch):
+def test_deprecated_values_ini_file(caplog):
     """
     Checks that deprecated options log warnings.
     """
 
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
 
-        # deprecated options in the ini file log warnings
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Server]\nCHERRYPY_START = false")
+    # deprecated options in the ini file log warnings
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Server]\nCHERRYPY_START = false")
+    options.read_options_file(ini_filename=tmp_ini_path)
+    assert any("deprecated" in msg for msg in caplog.messages)
+
+
+def test_deprecated_values_envvars(caplog):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    # deprecated options in the envvars log warnings
+    with open(tmp_ini_path, "w") as f:
+        f.write("\n")
+    with mock.patch.dict(
+        os.environ,
+        {
+            "KOLIBRI_CHERRYPY_START": "false",
+            "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"],
+        },
+        clear=True,
+    ):
         options.read_options_file(ini_filename=tmp_ini_path)
-        assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
+        assert any("deprecated" in msg for msg in caplog.messages)
 
 
-def test_deprecated_values_envvars(monkeypatch):
+def test_deprecated_envvars(caplog):
     """
     Checks that deprecated options log warnings.
     """
 
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
-        # deprecated options in the envvars log warnings
-        with open(tmp_ini_path, "w") as f:
-            f.write("\n")
-        with mock.patch.dict(
-            os.environ,
-            {
-                "KOLIBRI_CHERRYPY_START": "false",
-                "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"],
-            },
-            clear=True,
-        ):
-            options.read_options_file(ini_filename=tmp_ini_path)
-            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
-
-
-def test_deprecated_envvars(monkeypatch):
-    """
-    Checks that deprecated options log warnings.
-    """
-
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
-        # deprecated envvars for otherwise valid options log warnings
-        with open(tmp_ini_path, "w") as f:
-            f.write("\n")
-        with mock.patch.dict(
-            os.environ,
-            {"KOLIBRI_LISTEN_PORT": "1234", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
-            clear=True,
-        ):
-            options.read_options_file(ini_filename=tmp_ini_path)
-            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
-
-
-def test_deprecated_aliases(monkeypatch):
-    """
-    Checks that deprecated options log warnings.
-    """
-
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
-        # deprecated aliases for otherwise valid options log warnings
-        with open(tmp_ini_path, "w") as f:
-            f.write("[Cache]\nCACHE_REDIS_MIN_DB = 7")
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    # deprecated envvars for otherwise valid options log warnings
+    with open(tmp_ini_path, "w") as f:
+        f.write("\n")
+    with mock.patch.dict(
+        os.environ,
+        {"KOLIBRI_LISTEN_PORT": "1234", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
+        clear=True,
+    ):
         options.read_options_file(ini_filename=tmp_ini_path)
-        assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
+        assert any("deprecated" in msg for msg in caplog.messages)
 
 
-def test_deprecated_aliases_envvars(monkeypatch):
+def test_deprecated_aliases(caplog):
     """
     Checks that deprecated options log warnings.
     """
 
-    with activate_log_logger(monkeypatch):
-        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
-        # envvars for deprecated aliases of otherwise valid options log warnings
-        with open(tmp_ini_path, "w") as f:
-            f.write("\n")
-        with mock.patch.dict(os.environ, {"KOLIBRI_CACHE_REDIS_MIN_DB": "1234"}):
-            options.read_options_file(ini_filename=tmp_ini_path)
-            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    # deprecated aliases for otherwise valid options log warnings
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Cache]\nCACHE_REDIS_MIN_DB = 7")
+    options.read_options_file(ini_filename=tmp_ini_path)
+    assert any("deprecated" in msg for msg in caplog.messages)
+
+
+def test_deprecated_aliases_envvars(caplog):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    # envvars for deprecated aliases of otherwise valid options log warnings
+    with open(tmp_ini_path, "w") as f:
+        f.write("\n")
+    with mock.patch.dict(os.environ, {"KOLIBRI_CACHE_REDIS_MIN_DB": "1234"}):
+        options.read_options_file(ini_filename=tmp_ini_path)
+        assert any("deprecated" in msg for msg in caplog.messages)
 
 
 def test_option_writing():
