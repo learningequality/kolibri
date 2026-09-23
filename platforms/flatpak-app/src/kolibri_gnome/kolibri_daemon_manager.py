@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 APP_KEY_COOKIE_NAME = "app_key_cookie"
 AUTH_TOKEN_COOKIE_NAME = "app_auth_token_cookie"
 
+# Not None: a vanished daemon's status reads None, and must not be deduped.
+_UNKNOWN_STATUS = object()
+
 
 class KolibriDaemonManager(GObject.GObject):
     """
@@ -38,7 +41,7 @@ class KolibriDaemonManager(GObject.GObject):
     __dbus_proxy_owner: typing.Optional[str] = None
 
     __soup_session: Soup.Session = None
-    __last_status: typing.Optional[str] = None
+    __last_status: typing.Union[str, None, object] = None
 
     is_stopped = GObject.Property(type=bool, default=False)
     is_started = GObject.Property(type=bool, default=False)
@@ -272,7 +275,7 @@ class KolibriDaemonManager(GObject.GObject):
 
         if dbus_proxy_owner_changed and dbus_proxy_owner:
             dbus_proxy.Hold(result_handler=self.__dbus_proxy_default_result_handler)
-            self.__last_status = None
+            self.__last_status = _UNKNOWN_STATUS
             self.emit("dbus-owner-changed")
 
     def __dbus_proxy_on_notify(
@@ -295,7 +298,8 @@ class KolibriDaemonManager(GObject.GObject):
             self.__last_status = dbus_proxy.props.status
 
     def __update_from_status_text(self, status):
-        is_stopped = status in ("STOPPED", "")
+        # status is None once the daemon's bus name vanishes.
+        is_stopped = status in ("STOPPED", "", None)
         is_started = status == "STARTED"
         has_error = status == "ERROR"
 

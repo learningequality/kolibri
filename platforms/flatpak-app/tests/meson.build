@@ -16,4 +16,6 @@ tests_python_env.append(
     join_paths(meson.project_build_root(), 'src', 'libkolibri_daemon_dbus')
 )
 
+dbus_session_conf = files('dbus-session.conf')
+
 subdir('kolibri_gnome_tests')
