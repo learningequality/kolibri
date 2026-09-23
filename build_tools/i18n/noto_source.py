@@ -95,7 +95,7 @@ def _request(path):
         if not token:
             logging.info(
                 "You can set a GITHUB_TOKEN environment variable with a github API token.\n"
-                + "Generate a github token at https://github.com/settings/tokens and give it read-only permission."
+                "Generate a github token at https://github.com/settings/tokens and give it read-only permission."
             )
         sys.exit(1)
     else:
@@ -241,7 +241,7 @@ def update_manifest(ref=None):
         logging.info("Using head of main")
         ref = _request("git/refs/heads/main")["object"]["sha"]
 
-    logging.info("Generating new manifest for reference '{}'".format(ref))
+    logging.info("Generating new manifest for reference '%s'", ref)
 
     git_tree = _request("git/trees/{}?recursive=1".format(ref))
     font_info = _font_info(git_tree, ref)
@@ -266,7 +266,7 @@ def show_typefaces(ref=None):
         logging.info("Using head of main")
         ref = _request("git/refs/heads/main")["object"]["sha"]
 
-    logging.info("Generating new manifest for reference '{}'".format(ref))
+    logging.info("Generating new manifest for reference '%s'", ref)
 
     git_tree = _request("git/trees/{}?recursive=1".format(ref))
     typefaces = _get_all_typefaces(git_tree)
@@ -300,7 +300,7 @@ def fetch_fonts():
         font_info = FONT_MANIFEST[font_name]
         for weight in WEIGHTS:
             output_path = get_path(font_name, weight)
-            logging.info("Writing {}".format(output_path))
+            logging.info("Writing %s", output_path)
             if weight in font_info:
                 r = requests.get(font_info[weight])
                 r.raise_for_status()

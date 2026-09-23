@@ -86,7 +86,7 @@ def main(filenames):
                 failed_files.append(filepath)
 
     if failed_files:
-        logger.error("\n" + "=" * 80)
+        logger.error("\n%s", "=" * 80)
         logger.error("ERROR: LFS Pointer Check Failed")
         logger.error("=" * 80)
         logger.error("")

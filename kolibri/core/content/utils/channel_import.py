@@ -941,13 +941,13 @@ class ChannelImport:
             mapping = self.schema_mapping.get(model, {})
             row_mapper = self.generate_row_mapper(mapping.get("per_row"))
             table_mapper = self.generate_table_mapper(mapping.get("per_table"))
-            logger.info("Importing {model} data".format(model=model.__name__))
+            logger.info("Importing %s data", model.__name__)
             self.table_import(model, row_mapper, table_mapper)
             self.execute_post_operations(model, mapping.get("post", []))
             logger.debug(
-                "{model} data imported after {seconds} seconds".format(
-                    model=model.__name__, seconds=time.time() - model_start
-                )
+                "%s data imported after %s seconds",
+                model.__name__,
+                time.time() - model_start,
             )
 
     def import_channel_data(self):
@@ -984,9 +984,8 @@ class ChannelImport:
                     )
                     import_ran = True
         logger.debug(
-            "Channel metadata import successfully completed in {} seconds".format(
-                time.time() - start
-            )
+            "Channel metadata import successfully completed in %s seconds",
+            time.time() - start,
         )
 
         return import_ran
@@ -1031,9 +1030,7 @@ class ChannelImport:
             channel.save()
 
             logger.info(
-                "Channel {} successfully imported into the database".format(
-                    self.channel_id
-                )
+                "Channel %s successfully imported into the database", self.channel_id
             )
         return import_ran
 

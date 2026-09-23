@@ -88,7 +88,7 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
         # delete any related removal requests
         related_removals.delete()
 
-        logger.debug("Creating content download request for {}".format(assignment))
+        logger.debug("Creating content download request for %s", assignment)
         obj, created = ContentDownloadRequest.objects.get_or_create(
             source_model=assignment.source_model,
             source_id=assignment.source_id,
@@ -160,9 +160,7 @@ def create_content_removal_requests(facility, removable_assignments):
         )
 
         for contentnode_id in removed_contentnode_ids:
-            logger.debug(
-                "Creating content removal request for {}".format(contentnode_id)
-            )
+            logger.debug("Creating content removal request for %s", contentnode_id)
             ContentRemovalRequest.objects.get_or_create(
                 defaults={
                     "facility_id": facility.id,
@@ -303,9 +301,7 @@ class PreferredDevices:
         # if we're on a metered connection, we only want to download from local peers
         if not peer.is_local and not allow_non_local_download():
             logger.debug(
-                "Non-local peer {} excluded when using metered connection".format(
-                    instance_id
-                )
+                "Non-local peer %s excluded when using metered connection", instance_id
             )
             return None
         # ensure peer is available, unless it's Studio
@@ -313,13 +309,13 @@ class PreferredDevices:
             not instance_id == CENTRAL_CONTENT_BASE_INSTANCE_ID
             and peer.connection_status != ConnectionStatus.Okay
         ):
-            logger.debug("Peer {} is not available".format(instance_id))
+            logger.debug("Peer %s is not available", instance_id)
             return None
         # ensure version is applicable according to filter
         if self._version_filter is not None and not peer.matches_version(
             self._version_filter
         ):
-            logger.debug("Peer {} does not match version filter".format(instance_id))
+            logger.debug("Peer %s does not match version filter", instance_id)
             return None
         return peer
 
@@ -710,9 +706,9 @@ def _get_import_metadata(client, download):
         except NetworkLocationResponseFailure as e:
             if e.response is not None and 400 <= e.response.status_code < 500:
                 logger.debug(
-                    "Metadata request failure: GET {} {}".format(
-                        url_path, e.response.status_code
-                    )
+                    "Metadata request failure: GET %s %s",
+                    url_path,
+                    e.response.status_code,
                 )
                 break
             raise e
@@ -768,7 +764,7 @@ def _import_metadata(client, downloads_needing_metadata_import):
         return True
 
     processed_count = 0
-    logger.info("Importing content metadata for {} nodes".format(total_count))
+    logger.info("Importing content metadata for %s nodes", total_count)
     while downloads_to_process:
         download = downloads_to_process.popleft()
 
@@ -820,11 +816,14 @@ def _import_metadata(client, downloads_needing_metadata_import):
                 removed_downloads = list(removed_downloads_qs)
                 if removed_downloads:
                     logger.info(
-                        f"Queued {len(removed_downloads)} downloads for re-import due to channel upgrade"
+                        "Queued %s downloads for re-import due to channel upgrade",
+                        len(removed_downloads),
                     )
                     for d in removed_downloads:
                         logger.debug(
-                            f"Re-queuing download {d.id} for contentnode {d.contentnode_id} due to channel upgrade"
+                            "Re-queuing download %s for contentnode %s due to channel upgrade",
+                            d.id,
+                            d.contentnode_id,
                         )
                     new_downloads_to_process = [
                         d for d in removed_downloads if not d.has_metadata
@@ -834,24 +833,21 @@ def _import_metadata(client, downloads_needing_metadata_import):
 
             if not import_ran:
                 logger.warning(
-                    "Import of content metadata for {} did not run".format(
-                        download.contentnode_id
-                    )
+                    "Import of content metadata for %s did not run",
+                    download.contentnode_id,
                 )
 
             if processed_count % 10 == 0:
                 logger.info(
-                    "Imported content metadata for {} out of {} nodes".format(
-                        processed_count, total_count
-                    )
+                    "Imported content metadata for %s out of %s nodes",
+                    processed_count,
+                    total_count,
                 )
         else:
             logger.warning(
-                "Failed to import content metadata for {}".format(
-                    download.contentnode_id
-                )
+                "Failed to import content metadata for %s", download.contentnode_id
             )
-    logger.info("Imported content metadata for {} nodes".format(processed_count))
+    logger.info("Imported content metadata for %s nodes", processed_count)
     return total_count == processed_count
 
 
@@ -909,9 +905,8 @@ def process_metadata_import(downloads_needing_metadata_import):
         # if we haven't completed the import by this point, then we can log a warning
         unprocessed_count = downloads_needing_metadata_import.count()
         logger.info(
-            "No acceptable peer device for importing content metadata for {} nodes".format(
-                unprocessed_count
-            )
+            "No acceptable peer device for importing content metadata for %s nodes",
+            unprocessed_count,
         )
 
 
@@ -986,9 +981,7 @@ def _process_content_requests(incomplete_downloads):
                 qs = incomplete_downloads_with_metadata.exclude(id__in=failed_ids)
         else:
             logger.debug(
-                "Did not find suitable download request for free space {}".format(
-                    free_space
-                )
+                "Did not find suitable download request for free space %s", free_space
             )
             if (
                 not has_processed_sync_removals
@@ -1039,9 +1032,7 @@ def process_download_request(download_request):
     :type download_request: ContentDownloadRequest
     """
     logger.info(
-        "Processing content import request for node {}".format(
-            download_request.contentnode_id
-        )
+        "Processing content import request for node %s", download_request.contentnode_id
     )
     # mark request as processing
     download_request.status = ContentRequestStatus.InProgress
@@ -1121,9 +1112,8 @@ def _process_download(download_request, channel_id, peer):
             raise getattr(import_manager, "exception")
         if not count or count == 0:
             logger.warning(
-                "ContentNode files may not have imported successfully: {}".format(
-                    download_request.contentnode_id
-                )
+                "ContentNode files may not have imported successfully: %s",
+                download_request.contentnode_id,
             )
             # if we have no count, we should try the next peer
             return False
@@ -1185,9 +1175,8 @@ def process_user_downloads_for_removal():
         },
     )
     logger.info(
-        "Added removal request for user download of {}".format(
-            largest_user_download.contentnode_id
-        )
+        "Added removal request for user download of %s",
+        largest_user_download.contentnode_id,
     )
 
 

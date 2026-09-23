@@ -58,9 +58,9 @@ def get_urls():
                 )
             )
             logger.warning(
-                "Plugin {} defines a top level URL slug that clashes with other plugins: {}".format(
-                    plugin_instance.module_path, other_modules
-                )
+                "Plugin %s defines a top level URL slug that clashes with other plugins: %s",
+                plugin_instance.module_path,
+                other_modules,
             )
             slug = normalize_slug(plugin_instance.module_path.replace(".", ""))
         if url_module:

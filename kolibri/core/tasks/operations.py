@@ -32,7 +32,7 @@ class CreateModelIfNotExists(migrations.CreateModel):
             # Let the parent class handle the creation
             super().database_forwards(app_label, schema_editor, from_state, to_state)
         else:
-            logger.info(f"Table '{table_name}' already exists. Skipping creation.")
+            logger.info("Table '%s' already exists. Skipping creation.", table_name)
 
     def describe(self):
         return f"Creates the model {self.name} if it does not exist."
@@ -67,7 +67,7 @@ class AddIndexIfNotExists(migrations.AddIndex):
             # Let the parent class handle the index creation
             super().database_forwards(app_label, schema_editor, from_state, to_state)
         else:
-            logger.info(f"Index '{index_name}' already exists. Skipping creation.")
+            logger.info("Index '%s' already exists. Skipping creation.", index_name)
 
     def describe(self):
         return f"Adds the index {self.index} to {self.model_name} if it does not exist."

@@ -151,7 +151,7 @@ class SoudNetworkClient(NetworkClient):
         """
         Request a sync from the device with the given instance_id.
         """
-        logger.debug("{} Requesting SoUD sync with server".format(context))
+        logger.debug("%s Requesting SoUD sync with server", context)
         return self.post(
             reverse_path("kolibri:core:syncqueue"),
             json=context.request_data,
@@ -198,7 +198,7 @@ def request_sync_hook(network_location):
             sync_queue.status = SyncQueueStatus.Pending
             sync_queue.save()
 
-        logger.info("{} Checking SoUD sync".format(context))
+        logger.info("%s Checking SoUD sync", context)
         request_sync(context, network_location=network_location)
 
 
@@ -226,21 +226,19 @@ def validate_sync_queue_for_sync_request(sync_queue):
 def handle_sync_request_response(context, sync_queue, response):
     data = response.json()
     if data["status"] == SyncQueueStatus.Ready:
-        logger.info("{} SoUD sync ready".format(context))
+        logger.info("%s SoUD sync ready", context)
         sync_queue.status = SyncQueueStatus.Ready
         sync_queue.reset_next_attempt(0)  # now
         sync_session = find_client_sync_session(context)
         if sync_session:
             sync_queue.sync_session_id = sync_session.id
     elif data["status"] == SyncQueueStatus.Queued:
-        logger.info("{} SoUD sync queued".format(context))
+        logger.info("%s SoUD sync queued", context)
         sync_queue.status = SyncQueueStatus.Queued
         sync_queue.reset_next_attempt(int(data.get("keep_alive", 0)))
     else:
         logger.warning(
-            "{} Unknown response action for SoUD sync request | {}".format(
-                context, data
-            )
+            "%s Unknown response action for SoUD sync request | %s", context, data
         )
         sync_queue.status = SyncQueueStatus.Pending
 
@@ -260,7 +258,7 @@ def request_sync(context, network_location=None):
     # the SoUD syncing is currently dependent on network discovery, but as long as we have a
     # network location, we can request a sync
     if network_location is None or not network_location.available:
-        logger.info("{} Network location unavailable".format(context))
+        logger.info("%s Network location unavailable", context)
         if sync_queue.sync_session_id:
             # remove sync session
             queue_soud_sync_cleanup(sync_queue.sync_session_id)
@@ -270,7 +268,7 @@ def request_sync(context, network_location=None):
         return
 
     if not context.user:
-        logger.warning("{} User does not exist".format(context))
+        logger.warning("%s User does not exist", context)
         if sync_queue.sync_session_id:
             # remove sync session
             queue_soud_sync_cleanup(sync_queue.sync_session_id)
@@ -282,9 +280,7 @@ def request_sync(context, network_location=None):
             response = client.request_sync_queue(context)
     except (NetworkClientError, NetworkLocationNotFound):
         logger.warning(
-            "{} Unable to request SoUD sync from unavailable network location".format(
-                context
-            )
+            "%s Unable to request SoUD sync from unavailable network location", context
         )
         sync_queue.increment_and_backoff_next_attempt()
     else:
@@ -292,14 +288,15 @@ def request_sync(context, network_location=None):
             handle_sync_request_response(context, sync_queue, response)
         elif response.status_code == status.HTTP_404_NOT_FOUND:
             logger.debug(
-                "{} User was not found requesting SoUD sync from server".format(context)
+                "%s User was not found requesting SoUD sync from server", context
             )
             sync_queue.status = SyncQueueStatus.Ineligible
         else:
             logger.warning(
-                "{} {} response for SoUD sync request | {}".format(
-                    context, response.status_code, response.content
-                )
+                "%s %s response for SoUD sync request | %s",
+                context,
+                response.status_code,
+                response.content,
             )
             sync_queue.status = SyncQueueStatus.Pending
             sync_queue.increment_and_backoff_next_attempt()
@@ -419,7 +416,7 @@ def execute_sync(context):
         call_command(command, **kwargs)
     except NetworkLocation.DoesNotExist:
         cleanup = True
-        logger.debug("{} Network location unavailable".format(context))
+        logger.debug("%s Network location unavailable", context)
         sync_queue.status = SyncQueueStatus.Pending
         sync_queue.increment_and_backoff_next_attempt()
     except Exception as e:

@@ -170,7 +170,7 @@ def transfer_channel(
         url = paths.get_content_database_file_url(
             channel_id, baseurl=baseurl, version=version
         )
-        logger.debug("URL to fetch: {}".format(url))
+        logger.debug("URL to fetch: %s", url)
         filetransfer = transfer.FileDownload(url, dest, cancel_check=job.is_cancelled)
     elif method == COPY_METHOD:
         # If there is a new channel version DB, set that as source path.
@@ -185,7 +185,7 @@ def transfer_channel(
     else:
         raise ValueError("Invalid transfer method specified: {}".format(method))
 
-    logger.debug("Destination: {}".format(dest))
+    logger.debug("Destination: %s", dest)
 
     try:
         start_file_transfer(filetransfer, channel_id, dest, no_upgrade, content_dir)
@@ -196,9 +196,7 @@ def transfer_channel(
         try:
             os.remove(dest)
         except OSError as e:
-            logger.info(
-                "Tried to remove {}, but exception {} occurred.".format(dest, e)
-            )
+            logger.info("Tried to remove %s, but exception %s occurred.", dest, e)
         # Reraise any cancellation.
         job.check_for_cancel()
 
@@ -213,14 +211,12 @@ def export_channel(channel_id, destination):
     job = get_job()
     data_dir = os.path.realpath(destination)
     logger.info(
-        "Exporting channel database for channel id {} to {}".format(
-            channel_id, data_dir
-        )
+        "Exporting channel database for channel id %s to %s", channel_id, data_dir
     )
     src = paths.get_content_database_file_path(channel_id)
     dest = paths.get_content_database_file_path(channel_id, datafolder=data_dir)
-    logger.debug("Source file: {}".format(src))
-    logger.debug("Destination file: {}".format(dest))
+    logger.debug("Source file: %s", src)
+    logger.debug("Destination file: %s", dest)
     with transfer.FileCopy(src, dest, cancel_check=job.is_cancelled) as copy:
         job.update_progress(0, copy.transfer_size)
 

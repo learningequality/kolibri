@@ -40,9 +40,7 @@ class Command(AsyncCommand):
         )
         dataset_id = facility.dataset_id
 
-        logger.info(
-            "Found facility {} <{}> for deletion".format(facility.id, dataset_id)
-        )
+        logger.info("Found facility %s <%s> for deletion", facility.id, dataset_id)
 
         if not noninteractive:
             # ensure the user REALLY wants to do this!
@@ -56,9 +54,8 @@ class Command(AsyncCommand):
         delete_group = get_delete_group_for_facility(facility)
 
         logger.info(
-            "Proceeding with facility deletion. Deleting all data for facility <{}>".format(
-                dataset_id
-            )
+            "Proceeding with facility deletion. Deleting all data for facility <%s>",
+            dataset_id,
         )
 
         with self._delete_context():

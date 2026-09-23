@@ -313,8 +313,6 @@ class Command(AsyncCommand):
                 job.extra_metadata["filename"] = filename
                 job.save_meta()
             else:
-                logger.info(
-                    "Created csv file {} with {} lines".format(filename, total_rows)
-                )
+                logger.info("Created csv file %s with %s lines", filename, total_rows)
 
         translation.deactivate()

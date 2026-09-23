@@ -131,9 +131,9 @@ class ChannelBuilder:
                 setattr(self, key, data[key])
         except KeyError:
             logger.info(
-                "No tree cache found for {} levels and {} children per level".format(
-                    self.levels, self.num_children
-                )
+                "No tree cache found for %s levels and %s children per level",
+                self.levels,
+                self.num_children,
             )
             raise
 

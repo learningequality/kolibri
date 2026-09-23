@@ -75,9 +75,7 @@ def load_plugins_from_file(file_path):
     if file_path.startswith("http"):
         if requests is None:
             raise ImportError("Requests is required to import plugins from urls")
-        logger.info(
-            "Downloading plugins manifest from {file_path}".format(file_path=file_path)
-        )
+        logger.info("Downloading plugins manifest from %s", file_path)
         _, path = tempfile.mkstemp(suffix=".txt", text=True)
         with open(path, "w") as f:
             r = requests.get(file_path)
@@ -226,12 +224,12 @@ def main():
     elif args.plugins:
         build_list = args.plugins
 
-    logger.info("Gathering relevant modules from {}".format(build_list))
+    logger.info("Gathering relevant modules from %s", build_list)
 
     result = initialize_plugins(build_list)
 
     if args.output_file:
-        logger.info("Writing webpack_json output to {}".format(args.output_file))
+        logger.info("Writing webpack_json output to %s", args.output_file)
         with open(args.output_file, "w") as f:
             json.dump(result, f)
     else:

@@ -232,7 +232,7 @@ def create_facility(facility_name=None, preset=None):
     from kolibri.core.auth.models import Facility
 
     facility = Facility.objects.create(name=facility_name)
-    logger.info("Facility with name '{name}' created.".format(name=facility.name))
+    logger.info("Facility with name '%s' created.", facility.name)
 
     # Only set preset data if we have created the facility, otherwise leave previous data intact
     if preset:
@@ -241,7 +241,7 @@ def create_facility(facility_name=None, preset=None):
         for key, value in dataset_data.items():
             setattr(facility.dataset, key, value)
         facility.dataset.save()
-        logger.info("Facility preset changed to {preset}.".format(preset=preset))
+        logger.info("Facility preset changed to %s.", preset)
     return facility
 
 
@@ -267,12 +267,10 @@ def setup_device_and_facility(
                 for key, value in facility_settings.items():
                     setattr(facility.dataset, key, value)
                 facility.dataset.save()
-                logger.info(
-                    "Facility settings updated with {}".format(facility_settings)
-                )
+                logger.info("Facility settings updated with %s", facility_settings)
 
         provision_device(**device_settings)
-        logger.info("Device settings updated with {}".format(device_settings))
+        logger.info("Device settings updated with %s", device_settings)
 
         if username and password and facility:
             try:
@@ -280,15 +278,15 @@ def setup_device_and_facility(
                     username, password, facility=facility
                 )
                 logger.info(
-                    "Superuser created with username '{username}' in facility '{facility}'.".format(
-                        username=username, facility=facility
-                    )
+                    "Superuser created with username '%s' in facility '%s'.",
+                    username,
+                    facility,
                 )
             except ValidationError:
                 logger.warning(
-                    "An account with username '{username}' already exists in facility '{facility}', not creating user account.".format(
-                        username=username, facility=facility
-                    )
+                    "An account with username '%s' already exists in facility '%s', not creating user account.",
+                    username,
+                    facility,
                 )
 
 
@@ -303,9 +301,8 @@ def get_facility_by_name(facility_name):
         if facility_query.exists():
             facility = facility_query.get()
             logger.warning(
-                "Facility with name '{name}' already exists, not modifying preset.".format(
-                    name=facility.name
-                )
+                "Facility with name '%s' already exists, not modifying preset.",
+                facility.name,
             )
     else:
         facility = Facility.get_default_facility() or Facility.objects.first()
@@ -317,15 +314,13 @@ def remove_provisioning_file(file_path):
     try:
         os.unlink(file_path)
         logger.info(
-            "Removed automatic provisioning file {} after successful provisioning".format(
-                file_path
-            )
+            "Removed automatic provisioning file %s after successful provisioning",
+            file_path,
         )
     except OSError:
         logger.warning(
-            "Unable to remove provisioning file {} after successful provisioning".format(
-                file_path
-            ),
+            "Unable to remove provisioning file %s after successful provisioning",
+            file_path,
         )
 
 

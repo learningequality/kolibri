@@ -47,7 +47,7 @@ class Command(BaseCommand):
         )
 
     def _handle_channel(self, channel):
-        logger.info("Adding fake metadata labels to channel: {}".format(channel.name))
+        logger.info("Adding fake metadata labels to channel: %s", channel.name)
         channel_resource_nodes = channel.root.get_descendants().exclude(
             kind=content_kinds.TOPIC
         )
@@ -70,7 +70,7 @@ class Command(BaseCommand):
             )
             node.save()
         annotate_label_bitmasks(channel_resource_nodes)
-        logger.info("Added fake metadata labels to channel: {}".format(channel.name))
+        logger.info("Added fake metadata labels to channel: %s", channel.name)
 
     def handle(self, *args, **options):
         channels = ChannelMetadata.objects.all()
@@ -78,15 +78,12 @@ class Command(BaseCommand):
             channels.filter(id__in=options["channels"])
 
         logger.info(
-            "Adding fake metadata labels to channels: {}".format(
-                ", ".join(channels.values_list("name", flat=True))
-            )
+            "Adding fake metadata labels to channels: %s",
+            ", ".join(channels.values_list("name", flat=True)),
         )
         for channel in channels:
             self._handle_channel(channel)
         ContentCacheKey.update_cache_key()
         logger.info(
-            "Successfully added fake metadata labels to {} channels".format(
-                len(channels)
-            )
+            "Successfully added fake metadata labels to %s channels", len(channels)
         )

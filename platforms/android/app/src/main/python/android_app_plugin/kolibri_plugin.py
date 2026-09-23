@@ -75,9 +75,11 @@ class AndroidJobHook(JobHook):
             # Similarly, retry_intervals are handled by the schedule mechanism, so we don't
             # leverage Android's retry mechanism either.
             logger.info(
-                "Scheduling task {} for job {} with delay {} and high priority {}".format(
-                    job.func, orm_job.id, delay, high_priority
-                )
+                "Scheduling task %s for job %s with delay %s and high priority %s",
+                job.func,
+                orm_job.id,
+                delay,
+                high_priority,
             )
             request_id = Task.enqueueOnce(
                 orm_job.id,
@@ -118,5 +120,5 @@ class AndroidJobHook(JobHook):
             )
 
     def clear(self, job, orm_job):
-        logger.info("Clearing task {} for job {}".format(job.func, orm_job.id))
+        logger.info("Clearing task %s for job %s", job.func, orm_job.id)
         Task.clear(orm_job.id)

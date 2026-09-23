@@ -83,7 +83,7 @@ def conditional_backup(kolibri_version, version_file_contents):
             if len(backups) > 2:
                 for old_backup in backups[2:]:
                     os.remove(os.path.join(default_path, old_backup))
-            logger.info("Backed up database to: {path}".format(path=backup))
+            logger.info("Backed up database to: %s", backup)
         except IncompatibleDatabase:
             logger.warning(
                 "Skipped automatic database backup, not compatible with this DB engine."
@@ -166,14 +166,10 @@ def _copy_preseeded_db(db_name):
                 )
             )
             shutil.copyfile(db_path, target)
-            logger.info(
-                "Copied preseeded database from {} to {}".format(db_path, target)
-            )
+            logger.info("Copied preseeded database from %s to %s", db_path, target)
         except (ImportError, OSError):
             logger.warning(
-                "Unable to copy pre-migrated database from {} to {}".format(
-                    db_path, target
-                )
+                "Unable to copy pre-migrated database from %s to %s", db_path, target
             )
 
 
@@ -291,13 +287,9 @@ def initialize(  # noqa C901
         conditional_backup(kolibri.__version__, version)
 
         if version:
-            logger.info(
-                "Version was {old}, new version: {new}".format(
-                    old=version, new=kolibri.__version__
-                )
-            )
+            logger.info("Version was %s, new version: %s", version, kolibri.__version__)
         else:
-            logger.info("New install, version: {new}".format(new=kolibri.__version__))
+            logger.info("New install, version: %s", kolibri.__version__)
         update(version, kolibri.__version__)
 
     check_content_directory_exists_and_writable()
@@ -318,13 +310,15 @@ def initialize(  # noqa C901
                 logging.error(
                     "The database was not fully migrated. Tried to "
                     "migrate the database and an error occurred: "
-                    "{}".format(e)
+                    "%s",
+                    e,
                 )
                 raise
         except DatabaseInaccessible as e:
             logging.error(
                 "Tried to check that the database was accessible "
-                "and an error occurred: {}".format(e)
+                "and an error occurred: %s",
+                e,
             )
             raise
 

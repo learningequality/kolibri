@@ -39,16 +39,14 @@ class Command(BaseCommand):
             transfer_session=transfer_session, is_push=True, capabilities=capabilities
         )
 
-        logger.info("Proceeding {} to {}".format(transfer_session.pk, target_stage))
+        logger.info("Proceeding %s to %s", transfer_session.pk, target_stage)
         status = transfer_statuses.PENDING
         tries = 0
 
         # retry in case of transaction rollback errors from transaction isolation
         while status not in transfer_statuses.FINISHED_STATES and tries < MAX_RETRIES:
             if tries > 0:
-                logger.info(
-                    "Retrying {} to {}".format(transfer_session.pk, target_stage)
-                )
+                logger.info("Retrying %s to %s", transfer_session.pk, target_stage)
             status = session_controller.proceed_to(
                 target_stage=target_stage,
                 context=context,
@@ -56,9 +54,10 @@ class Command(BaseCommand):
             tries += 1
 
         logger.info(
-            "Proceeded {} to {} with status '{}'".format(
-                transfer_session.pk, target_stage, status
-            )
+            "Proceeded %s to %s with status '%s'",
+            transfer_session.pk,
+            target_stage,
+            status,
         )
 
         if status != transfer_statuses.COMPLETED:

@@ -68,15 +68,13 @@ def import_external_content_dbs():
                 set_content_visibility_from_disk(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logger.warning(
-                    "Tried to import channel {channel_id}, but database file was incompatible".format(
-                        channel_id=channel_id
-                    )
+                    "Tried to import channel %s, but database file was incompatible",
+                    channel_id,
                 )
             except (sqlite3.DatabaseError, DatabaseError):
                 logger.warning(
-                    "Tried to import channel {channel_id}, but database file was corrupted.".format(
-                        channel_id=channel_id
-                    )
+                    "Tried to import channel %s, but database file was corrupted.",
+                    channel_id,
                 )
 
 
@@ -108,38 +106,29 @@ def fix_multiple_trees_with_tree_id1():
             # Double check that we have a content db to import from before deleting any metadata
             if os.path.exists(get_content_database_file_path(channel_id)):
                 logger.warning(
-                    "Deleting and reimporting channel metadata for {channel_id}".format(
-                        channel_id=channel_id
-                    )
+                    "Deleting and reimporting channel metadata for %s", channel_id
                 )
                 ChannelMetadata.objects.get(
                     id=channel_id
                 ).delete_content_tree_and_files()
                 import_channel_from_local_db(channel_id)
                 logger.info(
-                    "Successfully reimported channel metadata for {channel_id}".format(
-                        channel_id=channel_id
-                    )
+                    "Successfully reimported channel metadata for %s", channel_id
                 )
                 count += 1
             else:
                 logger.warning(
-                    "Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(
-                        channel_id=channel_id
-                    )
+                    "Attempted to reimport channel metadata for channel %s but no content database found",
+                    channel_id,
                 )
         if count:
             logger.info(
-                "Successfully reimported channel metadata for {count} channels".format(
-                    count=count
-                )
+                "Successfully reimported channel metadata for %s channels", count
             )
         failed_count = len(sorted_channel_ids) - 1 - count
         if failed_count:
             logger.warning(
-                "Failed to reimport channel metadata for {count} channels".format(
-                    count=failed_count
-                )
+                "Failed to reimport channel metadata for %s channels", failed_count
             )
 
 

@@ -122,7 +122,7 @@ class Command(BaseCommand):
             return True
 
     def import_channel_database(self, channel_id, disk_path):
-        logger.info("Attempting import of channel database at: {}".format(disk_path))
+        logger.info("Attempting import of channel database at: %s", disk_path)
         try:
             import_channel_from_local_db(channel_id)
         except (InvalidSchemaVersionError, FutureSchemaError):
@@ -131,5 +131,5 @@ class Command(BaseCommand):
             logger.warning("Database file was corrupted; skipping.")
 
     def annotate_channel(self, channel_id):
-        logger.info("Annotating availability for channel: {}".format(channel_id))
+        logger.info("Annotating availability for channel: %s", channel_id)
         set_content_visibility_from_disk(channel_id)

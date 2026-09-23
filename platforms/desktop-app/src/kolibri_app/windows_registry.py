@@ -66,7 +66,7 @@ def register_app_user_model_id(icon_path):
             winreg.SetValueEx(key, "IconUri", 0, winreg.REG_SZ, icon_path)
         return True
     except OSError as e:
-        logging.error(f"Failed to register AppUserModelId: {e}")
+        logging.error("Failed to register AppUserModelId: %s", e)
         return False
 
 
@@ -103,7 +103,7 @@ def set_ui_startup_enabled(enabled):
                 logging.info("Disabled Kolibri UI startup on logon.")
             return True
     except (FileNotFoundError, OSError) as e:
-        logging.error(f"Failed to modify UI startup setting: {e}")
+        logging.error("Failed to modify UI startup setting: %s", e)
         return False
 
 
@@ -132,4 +132,4 @@ def update_tray_icon_startup(new_state):
                 except FileNotFoundError:
                     pass  # Key doesn't exist, which is fine.
     except (OSError, PermissionError, winreg.error) as e:
-        logging.error(f"Failed to update tray icon startup: {e}")
+        logging.error("Failed to update tray icon startup: %s", e)

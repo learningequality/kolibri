@@ -131,9 +131,7 @@ def diff_stats(
             os.remove(destination_path)
         except OSError as e:
             logger.info(
-                "Tried to remove {}, but exception {} occurred.".format(
-                    destination_path, e
-                )
+                "Tried to remove %s, but exception %s occurred.", destination_path, e
             )
         # annotate job metadata with diff stats
         job = get_current_job()

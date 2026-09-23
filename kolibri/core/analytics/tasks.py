@@ -49,22 +49,16 @@ def _ping(started, server=DEFAULT_SERVER_URL, checkrate=DEFAULT_PING_CHECKRATE):
         ping_once(started, server=server)
     except NetworkLocationConnectionFailure:
         logger.warning(
-            "Ping failed (could not connect). Trying again in {} minutes.".format(
-                checkrate
-            )
+            "Ping failed (could not connect). Trying again in %s minutes.", checkrate
         )
         raise
     except NetworkLocationResponseTimeout:
         logger.warning(
-            "Ping failed (connection timed out). Trying again in {} minutes.".format(
-                checkrate
-            )
+            "Ping failed (connection timed out). Trying again in %s minutes.", checkrate
         )
         raise
     except NetworkLocationResponseFailure as e:
-        logger.warning(
-            "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
-        )
+        logger.warning("Ping failed (%s)! Trying again in %s minutes.", e, checkrate)
         raise
     finally:
         connection.close()

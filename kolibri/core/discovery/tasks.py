@@ -48,9 +48,7 @@ def _store_dynamic_instance(broadcast_id, instance):
     :rtype: NetworkLocation
     """
     network_location = None
-    logger.debug(
-        "Creating `DynamicNetworkLocation` for instance {}".format(instance.id)
-    )
+    logger.debug("Creating `DynamicNetworkLocation` for instance %s", instance.id)
     try:
         network_location, _ = DynamicNetworkLocation.objects.update_or_create(
             dict(
@@ -72,12 +70,10 @@ def _store_dynamic_instance(broadcast_id, instance):
                 %s
                 The following exception was raised:
                 %s
-                """
-            % (
-                instance.zeroconf_id,
-                instance.device_info,
-                traceback.format_exc(limit=1),
-            )
+                """,
+            instance.zeroconf_id,
+            instance.device_info,
+            traceback.format_exc(limit=1),
         )
     except OperationalError as e:
         if "database is locked" not in str(e):
@@ -101,9 +97,7 @@ def _dispatch_discovery_hooks(network_location, is_connected):
     """
     hook_type = "on_connect" if is_connected else "on_disconnect"
     logger.debug(
-        "Dispatching {} hooks for network location {}".format(
-            hook_type, network_location.id
-        )
+        "Dispatching %s hooks for network location %s", hook_type, network_location.id
     )
     for hook in NetworkLocationDiscoveryHook.registered_hooks:
         # we catch all errors because as a rule of thumb,
@@ -115,10 +109,9 @@ def _dispatch_discovery_hooks(network_location, is_connected):
                 hook.on_disconnect(network_location)
         except Exception as e:
             logger.error(
-                "{}.{} hook failed".format(
-                    hook_type,
-                    hook.__class__.__name__,
-                ),
+                "%s.%s hook failed",
+                hook_type,
+                hook.__class__.__name__,
                 exc_info=e,
             )
 
@@ -138,12 +131,11 @@ def _update_connection_status(network_location):
     except Exception as e:
         logger.error(e)
         logger.warning(
-            "Failed to update connection status for {} location {}".format(
-                "dynamic"
-                if network_location.location_type is LocationTypes.Dynamic
-                else "static",
-                network_location.id,
-            )
+            "Failed to update connection status for %s location %s",
+            "dynamic"
+            if network_location.location_type is LocationTypes.Dynamic
+            else "static",
+            network_location.id,
         )
 
     # don't call hooks if status didn't change to/from Okay
@@ -190,17 +182,15 @@ def _enqueue_network_location_update_with_backoff(network_location):
     # Check if the network location is local before proceeding
     if not network_location.is_local:
         logger.info(
-            "Network location {} is not local. Skipping enqueue.".format(
-                network_location.id
-            )
+            "Network location %s is not local. Skipping enqueue.", network_location.id
         )
         return
     # exponential backoff depending on how many faults/attempts we've had
     next_attempt_minutes = 2**network_location.connection_faults
     logger.debug(
-        "Delaying network location {} connection update {} minutes".format(
-            network_location.id, next_attempt_minutes
-        )
+        "Delaying network location %s connection update %s minutes",
+        network_location.id,
+        next_attempt_minutes,
     )
     current_job = get_current_job()
     if current_job:
@@ -224,7 +214,7 @@ def perform_network_location_update(network_location_id):
         return
 
     logger.debug(
-        "Checking connection status for network location {}".format(network_location.id)
+        "Checking connection status for network location %s", network_location.id
     )
     prior_status = network_location.connection_status
     new_status = _update_connection_status(network_location)
@@ -272,7 +262,7 @@ def add_dynamic_network_location(broadcast_id, instance):
         priority = Priority.HIGH
 
     logger.debug(
-        "Enqueuing connection check for network location {}".format(network_location.id)
+        "Enqueuing connection check for network location %s", network_location.id
     )
     perform_network_location_update.enqueue(
         job_id=generate_job_id(TYPE_CONNECT, network_location.id),
@@ -297,7 +287,7 @@ def remove_dynamic_network_location(broadcast_id, instance):
     except NetworkLocation.DoesNotExist:
         return
 
-    logger.debug("Removing network location {}".format(network_location.id))
+    logger.debug("Removing network location %s", network_location.id)
     _dispatch_discovery_hooks(network_location, False)
     network_location.delete()
 
@@ -320,9 +310,9 @@ def dispatch_broadcast_hooks(hook_type, instance):
         return
 
     logger.debug(
-        "Dispatching {} broadcast hooks with {} network locations".format(
-            hook_type, network_locations.count()
-        )
+        "Dispatching %s broadcast hooks with %s network locations",
+        hook_type,
+        network_locations.count(),
     )
     for hook in NetworkLocationBroadcastHook.registered_hooks:
         # we catch all errors because as a rule of thumb,
@@ -333,10 +323,9 @@ def dispatch_broadcast_hooks(hook_type, instance):
                 hook_method(instance, network_locations)
         except Exception as e:
             logger.error(
-                "{}.{} hook failed".format(
-                    hook_type,
-                    hook.__class__.__name__,
-                ),
+                "%s.%s hook failed",
+                hook_type,
+                hook.__class__.__name__,
                 exc_info=e,
             )
 

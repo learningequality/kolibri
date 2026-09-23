@@ -13,9 +13,9 @@ class WebpackErrorHandler:
 
     def process_exception(self, request, exception):
         if isinstance(exception, WebpackError):
-            logger.error("WebpackError: {}".format(str(exception)))
+            logger.error("WebpackError: %s", exception)
             for key in exception.extra_info:
-                logger.error("{}: {}".format(key, exception.extra_info[key]))
+                logger.error("%s: %s", key, exception.extra_info[key])
             context = {"message": str(exception), "extra_info": exception.extra_info}
             return render(request, "kolibri/webpack_error.html", context)
         return None

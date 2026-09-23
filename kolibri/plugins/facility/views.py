@@ -130,7 +130,7 @@ def exported_csv_info(request, facility_id):
 
 
 def download_csv_file(request, csv_type, facility_id):
-    logger.info("Downloading CSV file for facility {}".format(facility_id))
+    logger.info("Downloading CSV file for facility %s", facility_id)
 
     facility = _get_facility_check_permissions(request, facility_id)
 
@@ -205,8 +205,8 @@ def download_csv_file(request, csv_type, facility_id):
     else:
         filename = None
 
-    logger.info("Downloading CSV file: {}".format(filename))
-    logger.info("{} exists: {}".format(filename, default_storage.exists(filename)))
+    logger.info("Downloading CSV file: %s", filename)
+    logger.info("%s exists: %s", filename, default_storage.exists(filename))
     # if the file does not exist on disk, return a 404
     if filename is None or not default_storage.exists(filename):
         raise Http404("There is no csv export file for {} available".format(csv_type))

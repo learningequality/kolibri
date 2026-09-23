@@ -37,11 +37,11 @@ def open_csv_for_writing(storage_filepath=None, local_filepath=None):
             if default_storage.exists(storage_filepath):
                 default_storage.delete(storage_filepath)
             default_storage.save(storage_filepath, f)
-        logger.info("CSV file {} saved".format(storage_filepath))
+        logger.info("CSV file %s saved", storage_filepath)
     else:
         with open(local_filepath, "w", newline="", encoding="utf-8-sig") as local_fh:
             yield local_fh
-        logger.info("CSV file {} saved".format(local_filepath))
+        logger.info("CSV file %s saved", local_filepath)
 
 
 @contextmanager

@@ -22,9 +22,9 @@ def execute_job(job_id, request_id):
         bool: True if job executed successfully, False otherwise
     """
     logger.info(
-        "Starting Kolibri task worker for job {} (request {})".format(
-            job_id, request_id
-        )
+        "Starting Kolibri task worker for job %s (request %s)",
+        job_id,
+        request_id,
     )
 
     try:
@@ -36,9 +36,9 @@ def execute_job(job_id, request_id):
             supervisor_id=supervisor_id_from_request(request_id),
         )
         logger.info(
-            "Completed Kolibri task worker for job {} (request {})".format(
-                job_id, request_id
-            )
+            "Completed Kolibri task worker for job %s (request %s)",
+            job_id,
+            request_id,
         )
         return True
 

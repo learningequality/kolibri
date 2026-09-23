@@ -83,17 +83,13 @@ class InfiniteLoopThread(Thread):
 
     def run(self):
         self.logger.debug(
-            "Started new {name} thread ID#{id}".format(
-                name=self.thread_name, id=self.thread_id
-            )
+            "Started new %s thread ID#%s", self.thread_name, self.thread_id
         )
 
         while True:
             if self.shutdown_event.wait(self.DEFAULT_TIMEOUT_SECONDS):
                 self.logger.debug(
-                    "{name} shut down event received; closing.".format(
-                        name=self.thread_name
-                    )
+                    "%s shut down event received; closing.", self.thread_name
                 )
                 break
             self.main_loop()
@@ -163,9 +159,10 @@ class ProgressTracker:
         # Ensure that we don't go over the total
         if self.progress > self.total:
             logger.debug(
-                "Attempted to increment progress by {} on current progress {} and total progress {}".format(
-                    increment, self.progress - increment, self.total
-                )
+                "Attempted to increment progress by %s on current progress %s and total progress %s",
+                increment,
+                self.progress - increment,
+                self.total,
             )
             self.progress = min(self.progress, self.total)
 
@@ -210,9 +207,10 @@ class JobProgressMixin:
             )
             if new_progress > self.job.total_progress:
                 logger.debug(
-                    "Attempted to increment progress by {} on current progress {} and total progress {}".format(
-                        increment, self.job.progress, self.job.total_progress
-                    )
+                    "Attempted to increment progress by %s on current progress %s and total progress %s",
+                    increment,
+                    self.job.progress,
+                    self.job.total_progress,
                 )
                 # Only set the job progress to a max of the total progress
                 new_progress = self.job.total_progress

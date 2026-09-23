@@ -65,7 +65,7 @@ def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
         return False
 
     if plugin_name not in plugins_config.ACTIVE_PLUGINS:
-        logger.info(f"Enabling plugin {plugin_name}")
+        logger.info("Enabling plugin %s", plugin_name)
         enable_plugin(plugin_name)
 
     return True

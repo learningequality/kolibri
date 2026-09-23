@@ -98,12 +98,12 @@ def _reenqueue_missing_task(job_id, job):
             job.long_running,
         )
         if request_id:
-            logger.info(f"Re-enqueued missing task: {job_id}")
+            logger.info("Re-enqueued missing task: %s", job_id)
             return True
-        logger.error(f"Failed to re-enqueue task: {job_id}")
+        logger.error("Failed to re-enqueue task: %s", job_id)
         return False
     except Exception as e:
-        logger.error(f"Error re-enqueuing task {job_id}: {e}", exc_info=True)
+        logger.exception("Error re-enqueuing task %s: %s", job_id, e)
         return False
 
 
@@ -116,10 +116,10 @@ def _cancel_orphaned_task(job_id):
     """
     try:
         Task.clear(job_id)
-        logger.info(f"Cancelled orphaned task: {job_id}")
+        logger.info("Cancelled orphaned task: %s", job_id)
         return True
     except Exception as e:
-        logger.error(f"Error cancelling task {job_id}: {e}", exc_info=True)
+        logger.exception("Error cancelling task %s: %s", job_id, e)
         return False
 
 
@@ -139,14 +139,14 @@ def _do_reconciliation():
         _, request_ids = _get_active_work()
         job_storage.reconcile_stalled_jobs(live_supervisor_ids=request_ids)
         logger.info(
-            f"Reconciled stalled jobs against {len(request_ids)} live "
-            "supervisor ids"
+            "Reconciled stalled jobs against %s live supervisor ids",
+            len(request_ids),
         )
 
         kolibri_jobs = _get_kolibri_active_jobs()
         kolibri_job_ids = set(kolibri_jobs.keys())
         logger.info(
-            f"Found {len(kolibri_job_ids)} active jobs in Kolibri database"
+            "Found %s active jobs in Kolibri database", len(kolibri_job_ids)
         )
 
         # Post-reconcile WorkManager snapshot: reconcile's requeue re-enqueues
@@ -157,7 +157,7 @@ def _do_reconciliation():
         # any duplicate to a single worker regardless of snapshot timing.
         workmanager_job_ids, _ = _get_active_work()
         logger.info(
-            f"Found {len(workmanager_job_ids)} active tasks in WorkManager"
+            "Found %s active tasks in WorkManager", len(workmanager_job_ids)
         )
 
         # Re-enqueue missing tasks (in Kolibri but not in WorkManager)
@@ -165,7 +165,7 @@ def _do_reconciliation():
         added_count = 0
         if missing_job_ids:
             logger.info(
-                f"Found {len(missing_job_ids)} missing tasks to re-enqueue"
+                "Found %s missing tasks to re-enqueue", len(missing_job_ids)
             )
             for job_id in missing_job_ids:
                 job = kolibri_jobs.get(job_id)
@@ -177,19 +177,19 @@ def _do_reconciliation():
         cancelled_count = 0
         if orphaned_job_ids:
             logger.info(
-                f"Found {len(orphaned_job_ids)} orphaned tasks to cancel"
+                "Found %s orphaned tasks to cancel", len(orphaned_job_ids)
             )
             for job_id in orphaned_job_ids:
                 if _cancel_orphaned_task(job_id):
                     cancelled_count += 1
 
         logger.info("Task reconciliation completed")
-        logger.info(f"Added: {added_count}, Cancelled: {cancelled_count}")
+        logger.info("Added: %s, Cancelled: %s", added_count, cancelled_count)
 
         return {"added": added_count, "cancelled": cancelled_count}
 
     except Exception as e:
-        logger.error(f"Error in reconciliation logic: {e}", exc_info=True)
+        logger.exception("Error in reconciliation logic: %s", e)
         return {"added": 0, "cancelled": 0}
 
 
@@ -228,7 +228,7 @@ def reconcile_tasks():
         return (result["added"], result["cancelled"])
 
     except Exception as e:
-        logger.error(f"Error during task reconciliation: {e}", exc_info=True)
+        logger.exception("Error during task reconciliation: %s", e)
         return (0, 0)
 
     finally:

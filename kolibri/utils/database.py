@@ -47,7 +47,9 @@ def _collect_and_delete_violating_records(cursor, violations_by_table):
         for rowid in rowids:
             cursor.execute(f"DELETE FROM {bad_table} WHERE rowid = {rowid};")
             logger.info(
-                f"Deleted foreign key constraint violation from {bad_table} table, rowid {rowid}"
+                "Deleted foreign key constraint violation from %s table, rowid %s",
+                bad_table,
+                rowid,
             )
 
     return records_to_backup
@@ -73,7 +75,7 @@ def _backup_records(records_to_backup, db_name):
         )
 
     logger.info(
-        f"Backed up {len(records_to_backup)} violating records to {backup_path}"
+        "Backed up %s violating records to %s", len(records_to_backup), backup_path
     )
 
 

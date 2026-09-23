@@ -54,9 +54,8 @@ class Command(BaseCommand):
         )
 
         logger.info(
-            "Proceeding with user deletion. Deleting all data for user <{}>".format(
-                options["username"]
-            )
+            "Proceeding with user deletion. Deleting all data for user <%s>",
+            options["username"],
         )
         user.delete(hard_delete=True)
         logger.info("Deletion complete. All data for this user has been deleted.")

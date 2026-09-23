@@ -92,7 +92,7 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
         )
         job_id = job_storage.enqueue_job(job)
         set_job_id(context, job_id)
-        logger.info("Enqueued sync_proceed_to: {}".format(job_id))
+        logger.info("Enqueued sync_proceed_to: %s", job_id)
         return State.QUEUED
 
     def _handle_job_state(self, context, target_stage):

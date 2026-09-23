@@ -118,7 +118,8 @@ class KolibriHttpProcess(KolibriServiceProcess):
         elif self.__kolibri_bus.state != "START":
             self.context.start_error = self.context.StartError.INVALID_STATE
             logger.warning(
-                f"Kolibri is unable to start because its state is '{self.__kolibri_bus.state}'"
+                "Kolibri is unable to start because its state is '%s'",
+                self.__kolibri_bus.state,
             )
 
     def _stop_kolibri(self):
@@ -126,7 +127,8 @@ class KolibriHttpProcess(KolibriServiceProcess):
             self.__kolibri_bus.transition("IDLE")
         elif self.__kolibri_bus.state != "IDLE":
             logger.warning(
-                f"Kolibri is unable to stop because its state is '{self.__kolibri_bus.state}"
+                "Kolibri is unable to stop because its state is '%s",
+                self.__kolibri_bus.state,
             )
 
     def _shutdown(self):
@@ -187,7 +189,7 @@ class _KolibriDaemonPlugin(SimplePlugin):
         # problematic because it is unrecoverable, but we don't allow a client
         # to restart Kolibri when it is in an error state either.
         self.context.start_error = self.context.StartError.ERROR
-        logger.error(f"Kolibri failed to start due to an error: {error}")
+        logger.error("Kolibri failed to start due to an error: %s", error)
 
     def STOP(self):
         self.context.base_url = ""

@@ -138,9 +138,9 @@ class DiskChannelResourceExportManager(JobProgressMixin):
         Export the channel database file.
         """
         logger.info(
-            "Exporting channel database for channel id {} to {}".format(
-                self.channel_id, self.destination
-            )
+            "Exporting channel database for channel id %s to %s",
+            self.channel_id,
+            self.destination,
         )
 
         src = paths.get_content_database_file_path(self.channel_id)
@@ -148,8 +148,8 @@ class DiskChannelResourceExportManager(JobProgressMixin):
             self.channel_id, datafolder=self.destination
         )
 
-        logger.debug("Source file: {}".format(src))
-        logger.debug("Destination file: {}".format(dest))
+        logger.debug("Source file: %s", src)
+        logger.debug("Destination file: %s", dest)
 
         with transfer.FileCopy(src, dest, cancel_check=self.is_cancelled) as copy:
 
@@ -180,9 +180,9 @@ class DiskChannelResourceExportManager(JobProgressMixin):
 
         # Update the manifest
         logger.info(
-            "Exporting manifest for channel id {} to {}".format(
-                self.channel_id, self.destination
-            )
+            "Exporting manifest for channel id %s to %s",
+            self.channel_id,
+            self.destination,
         )
         manifest_path = os.path.join(self.destination, "content", "manifest.json")
         content_manifest = ContentManifest()
@@ -197,9 +197,9 @@ class DiskChannelResourceExportManager(JobProgressMixin):
         Copy all content files to the destination.
         """
         logger.info(
-            "Exporting content for channel id {} to {}".format(
-                self.channel_id, self.destination
-            )
+            "Exporting content for channel id %s to %s",
+            self.channel_id,
+            self.destination,
         )
 
         for f in self.files_to_export:

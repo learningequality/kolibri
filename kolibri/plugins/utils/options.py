@@ -84,9 +84,8 @@ def __process_option_defaults(
             )
             if section not in final_spec:
                 logger.error(
-                    "Tried to set a new default in section {}, but this is not a valid section".format(
-                        section
-                    )
+                    "Tried to set a new default in section %s, but this is not a valid section",
+                    section,
                 )
                 continue
             if name in final_spec[section]:
@@ -97,9 +96,9 @@ def __process_option_defaults(
                 final_spec[section][name]["default"] = default
             else:
                 logger.error(
-                    "Tried to set a new default in section {}, for option {} but this is not a valid option".format(
-                        section, name
-                    )
+                    "Tried to set a new default in section %s, for option %s but this is not a valid option",
+                    section,
+                    name,
                 )
 
 

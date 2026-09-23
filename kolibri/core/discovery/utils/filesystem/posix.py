@@ -109,7 +109,7 @@ def get_drive_list():
         if drive["filesystem"] in FILESYSTEM_BLACKLIST or any(
             path.startswith(p) for p in PATH_PREFIX_BLACKLIST
         ):
-            logger.debug("Skipping blacklisted drive '{}'".format(path))
+            logger.debug("Skipping blacklisted drive '%s'", path)
             continue
 
         # skip if we don't have read access to the drive

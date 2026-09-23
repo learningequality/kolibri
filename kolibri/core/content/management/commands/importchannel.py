@@ -140,7 +140,7 @@ class Command(AsyncCommand):
             raw_version = metadata.get("version")
             version = "next" if raw_version is None else raw_version
 
-        logger.info("Downloading data for channel id {}".format(resolved_channel_id))
+        logger.info("Downloading data for channel id %s", resolved_channel_id)
         transfer_channel(
             channel_id=resolved_channel_id,
             method=DOWNLOAD_METHOD,
@@ -166,7 +166,7 @@ class Command(AsyncCommand):
                 )
             )
 
-        logger.info("Copying in data for channel id {}".format(channel_id))
+        logger.info("Copying in data for channel id %s", channel_id)
         transfer_channel(
             channel_id=channel_id,
             method=COPY_METHOD,

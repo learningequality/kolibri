@@ -53,4 +53,4 @@ if "language" not in locale_info:
     locale_info["language"] = "en"
 _ = t.gettext
 
-logging.debug("Locale info = {}".format(locale_info))
+logging.debug("Locale info = %s", locale_info)

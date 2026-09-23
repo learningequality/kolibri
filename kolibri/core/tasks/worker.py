@@ -46,7 +46,7 @@ def execute_job(
                 # Owned by a peer - bail before running a duplicate whose writes
                 # the fence would discard anyway.
                 logger.info(
-                    f"Not executing job {job_id} - it is owned by another supervisor."
+                    "Not executing job %s - it is owned by another supervisor.", job_id
                 )
                 return
 
@@ -187,7 +187,7 @@ class WorkerSupervisor:
         # Cancel only our own running jobs (orphans are reconciliation's), each
         # write fenced on our id so a peer that reclaimed one is not clobbered.
         for job in self.storage.get_running_jobs(supervisor_id=self.supervisor_id):
-            logger.info(f"Canceling job id {job.job_id}.")
+            logger.info("Canceling job id %s.", job.job_id)
             self.storage.mark_job_as_canceling(
                 job.job_id, expected_supervisor_id=self.supervisor_id
             )
@@ -302,7 +302,8 @@ class WorkerSupervisor:
         )
         if not applied:
             logger.info(
-                f"Not dispatching job {job.job_id} - it is no longer owned by this supervisor."
+                "Not dispatching job %s - it is no longer owned by this supervisor.",
+                job.job_id,
             )
             return None
 
@@ -314,9 +315,7 @@ class WorkerSupervisor:
 
         # Check if the job ID already exists in the future_job_mapping dictionary
         if job.job_id in self.future_job_mapping:
-            logger.warn(
-                "Job id {} is already in future_job_mapping.".format(job.job_id)
-            )
+            logger.warning("Job id %s is already in future_job_mapping.", job.job_id)
 
         # assign the futures to a dict, mapping them to a job
         self.job_future_mapping[future] = job

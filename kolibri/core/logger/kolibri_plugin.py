@@ -28,7 +28,7 @@ class ExamLogsCompatibilityOperation(KolibriVersionedSyncOperation):
         exam_attempt_logs_ids = (
             context.transfer_session.get_touched_record_ids_for_model(ExamAttemptLog)
         )
-        logger.info("Migrating {} ExamLogs records".format(len(exam_logs_ids)))
+        logger.info("Migrating %s ExamLogs records", len(exam_logs_ids))
         migrate_from_exam_logs(
             ExamLog.objects.filter(id__in=exam_logs_ids),
             source_attempt_log_ids=exam_attempt_logs_ids,
@@ -47,9 +47,7 @@ class AttemptLogsConsolidationOperation(KolibriVersionedSyncOperation):
             AttemptLog
         )
         logger.info(
-            "Consolidating duplicates in {} AttemptLog records".format(
-                len(attempt_logs_ids)
-            )
+            "Consolidating duplicates in %s AttemptLog records", len(attempt_logs_ids)
         )
         consolidate_quiz_attempt_logs(
             AttemptLog.objects.filter(id__in=attempt_logs_ids)

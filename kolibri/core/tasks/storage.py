@@ -94,11 +94,7 @@ class Storage:
                 max_retries=max_retries,
             )
         except JobRunning:
-            logger.debug(
-                "Attempted to enqueue a running job {job_id}, ignoring.".format(
-                    job_id=job.job_id
-                )
-            )
+            logger.debug("Attempted to enqueue a running job %s, ignoring.", job.job_id)
             return job.job_id
 
     def enqueue_lifo(
@@ -133,11 +129,7 @@ class Storage:
                 max_retries=max_retries,
             )
         except JobRunning:
-            logger.debug(
-                "Attempted to enqueue a running job {job_id}, ignoring.".format(
-                    job_id=job.job_id
-                )
-            )
+            logger.debug("Attempted to enqueue a running job %s, ignoring.", job.job_id)
             return job.job_id
 
     def _enqueue_job_if_not_status(
@@ -608,9 +600,12 @@ class Storage:
                     # Don't let a disowned execution misattribute the job's
                     # worker identity to itself.
                     logger.info(
-                        f"Discarding worker info update of job {job_id} from a "
-                        f"disowned execution (expected owner: {expected_supervisor_id}, "
-                        f"actual owner: {orm_job.supervisor_id})"
+                        "Discarding worker info update of job %s from a "
+                        "disowned execution (expected owner: %s, "
+                        "actual owner: %s)",
+                        job_id,
+                        expected_supervisor_id,
+                        orm_job.supervisor_id,
                     )
                     return
                 if host is not None:
@@ -624,7 +619,7 @@ class Storage:
                 orm_job.save()
             except JobNotFound:
                 logger.error(
-                    f"Tried to update job with id {job_id} but it was not found"
+                    "Tried to update job with id %s but it was not found", job_id
                 )
 
     # Turning off the complexity warning for this function as moving the conditional validation checks
@@ -826,9 +821,14 @@ class Storage:
             return True, True
         if self._is_disowned_write(orm_job, expected_supervisor_id):
             logger.info(
-                f"Discarding update of job {orm_job.id} to state {state} from a "
-                f"disowned execution (current state: {orm_job.state}, expected "
-                f"owner: {expected_supervisor_id}, actual owner: {orm_job.supervisor_id})"
+                "Discarding update of job %s to state %s from a "
+                "disowned execution (current state: %s, expected "
+                "owner: %s, actual owner: %s)",
+                orm_job.id,
+                state,
+                orm_job.state,
+                expected_supervisor_id,
+                orm_job.supervisor_id,
             )
             return True, False
         return False, None
@@ -859,7 +859,9 @@ class Storage:
                 setattr(job, kwarg, kwargs[kwarg])
             else:
                 logger.error(
-                    f"Tried to update job with id {job.job_id} with non-updateable key {kwarg}"
+                    "Tried to update job with id %s with non-updateable key %s",
+                    job.job_id,
+                    kwarg,
                 )
         orm_job.saved_job = job.to_json()
         orm_job.save()
@@ -867,10 +869,12 @@ class Storage:
     def _log_missing_job(self, job_id, state):
         if state:
             logger.error(
-                f"Tried to update job with id {job_id} with state {state} but it was not found"
+                "Tried to update job with id %s with state %s but it was not found",
+                job_id,
+                state,
             )
         else:
-            logger.error(f"Tried to update job with id {job_id} but it was not found")
+            logger.error("Tried to update job with id %s but it was not found", job_id)
 
     def _get_job_and_orm_job(self, job_id, for_update=False):
         queryset = ORMJob.objects.all()
@@ -1085,7 +1089,7 @@ class Storage:
                 # One bad transition must not abort the pass; it rolled back, so
                 # log and let a later pass retry it.
                 logger.exception(
-                    f"Failed to transition job {job_id} with no live supervisor"
+                    "Failed to transition job %s with no live supervisor", job_id
                 )
 
     def reconcile_stalled_jobs(
@@ -1165,4 +1169,4 @@ class Storage:
             # Explicit-live-set mode: the registry is unused cruft.
             deleted_count, _ = ORMSupervisor.objects.all().delete()
         if deleted_count:
-            logger.info(f"Removed {deleted_count} stale supervisors")
+            logger.info("Removed %s stale supervisors", deleted_count)

@@ -709,7 +709,7 @@ class Transfer(ABC):
         raise TransferCanceled("The transfer was canceled.")
 
     def cancel(self):
-        logger.info("Canceling import: {}".format(self.source))
+        logger.info("Canceling import: %s", self.source)
         self.close()
         try:
             self.dest_file_obj.delete()
@@ -727,7 +727,7 @@ class Transfer(ABC):
         # this file.
         if self.checksum and not self._checksum_correct():
             e = "File {} is corrupted.".format(self.source)
-            logger.error("An error occurred during content import: {}".format(e))
+            logger.error("An error occurred during content import: %s", e)
             try:
                 self.dest_file_obj.delete()
             except OSError:
@@ -873,18 +873,16 @@ class FileDownload(Transfer):
                         if not retry:
                             raise
                         # Catch exceptions to check if we should resume file downloading
-                        logger.error("Error reading download stream: {}".format(e))
+                        logger.error("Error reading download stream: %s", e)
                     else:
-                        logger.error(
-                            "Error writing to chunked file, retrying: {}".format(e)
-                        )
+                        logger.error("Error writing to chunked file, retrying: %s", e)
                         self._initialize_dest_file()
                         self._headers_set = False
                         self._set_headers()
                     logger.info(
-                        "Waiting {}s before retrying import: {}".format(
-                            self.retry_wait, self.source
-                        )
+                        "Waiting %ss before retrying import: %s",
+                        self.retry_wait,
+                        self.source,
                     )
                     for i in range(self.retry_wait):
                         self.cancel_check()
@@ -950,7 +948,7 @@ class FileDownload(Transfer):
         response.raise_for_status()
 
         if response.url != self.source:
-            logger.debug("Redirected from {} to {}".format(self.source, response.url))
+            logger.debug("Redirected from %s to %s", self.source, response.url)
             self.source = response.url
 
         self._set_transfer_info_from_response(response)
