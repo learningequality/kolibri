@@ -30,7 +30,7 @@ class ConfigDict(dict):
             try:
                 # Open up the config file and load settings
                 # use default OS encoding
-                with open(conf_file, "r") as kolibri_conf_file:
+                with open(conf_file) as kolibri_conf_file:
                     self.update(json.load(kolibri_conf_file))
                 return
             except json.JSONDecodeError:
@@ -83,19 +83,19 @@ class ConfigDict(dict):
 
     @property
     def ENV_VAR_ENABLED_PLUGINS(self):
-        return set(
+        return {
             p.strip()
             for p in os.environ.get("KOLIBRI_PLUGIN_ENABLE", "").split(",")
             if p.strip()
-        )
+        }
 
     @property
     def ENV_VAR_DISABLED_PLUGINS(self):
-        return set(
+        return {
             p.strip()
             for p in os.environ.get("KOLIBRI_PLUGIN_DISABLE", "").split(",")
             if p.strip()
-        )
+        }
 
     @property
     def ACTIVE_PLUGINS(self):
@@ -334,6 +334,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
                     )
                 )
             return module
+        return None
 
     @property
     def api_url_module(self):
@@ -364,6 +365,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
                     )
                 )
             return module
+        return None
 
     @property
     def root_url_module(self):
@@ -390,6 +392,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
                     )
                 )
             return module
+        return None
 
     @property
     def settings_module(self):
@@ -412,6 +415,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
                     )
                 )
             return module
+        return None
 
     @property
     def options_module(self):
@@ -432,6 +436,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
                     )
                 )
             return module
+        return None
 
     @property
     def option_defaults_module(self):
@@ -450,6 +455,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
                     )
                 )
             return module
+        return None
 
     @property
     def url_slug(self):

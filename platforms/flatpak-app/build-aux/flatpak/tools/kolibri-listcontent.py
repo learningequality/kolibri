@@ -115,7 +115,7 @@ def main(
 
 class OutputWriter(object):
     def __init__(self):
-        self.__content_lists = list()
+        self.__content_lists = []
 
     def write(self, output):
         raise NotImplementedError()
@@ -124,10 +124,9 @@ class OutputWriter(object):
     def by_output_format(output_format):
         if output_format == OutputFormat.INI:
             return OutputWriter_INI()
-        elif output_format == OutputFormat.PLAIN:
+        if output_format == OutputFormat.PLAIN:
             return OutputWriter_Plain()
-        else:
-            raise KeyError(output_format)
+        raise KeyError(output_format)
 
     @property
     def content_lists(self):
@@ -350,8 +349,8 @@ class ContentList(object):
         return os.stat(database_path).st_size
 
     def __get_storage_bytes(self):
-        node_ids = list(node.id for node in self.include_nodes)
-        exclude_node_ids = list(node.id for node in self.exclude_nodes)
+        node_ids = [node.id for node in self.include_nodes]
+        exclude_node_ids = [node.id for node in self.exclude_nodes]
         _, _, storage_bytes = get_import_export_data(
             available=None,
             channel_id=self.channel_id,

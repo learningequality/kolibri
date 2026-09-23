@@ -5,6 +5,8 @@ import uuid
 from datetime import datetime
 from datetime import timedelta
 from importlib import import_module
+from unittest.mock import Mock
+from unittest.mock import patch
 
 from django.conf import settings
 from django.db import connection
@@ -12,8 +14,6 @@ from django.db.models.signals import pre_delete
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
-from mock import Mock
-from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import Certificate
@@ -542,7 +542,7 @@ class FacilityAPITestCase(APITestCase):
             # Merge smaller dict into larger dict, if the smaller dict is a subset of the larger one, the result should be equal to the larger one
             # Generalized dict unpacking can be used in Python 3.5+: assertEqual(larger_dict, {**larger_dict, **smaller_dict})
             # The dict union operator can be used in Python 3.9+: assertEqual(larger_dict, larger_dict | smaller_dict)
-            dict(response.data, **{"name": self.facility1.name}),
+            dict(response.data, name=self.facility1.name),
         )
 
     def test_facility_user_can_get_last_successful_sync(self):

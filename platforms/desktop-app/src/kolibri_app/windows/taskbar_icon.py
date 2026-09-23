@@ -132,18 +132,16 @@ def get_service_start_type():
 
         if start_type == win32service.SERVICE_AUTO_START:
             return "auto"
-        elif start_type == win32service.SERVICE_DISABLED:
+        if start_type == win32service.SERVICE_DISABLED:
             return "disabled"
-        else:
-            return "unknown"
+        return "unknown"
 
     except pywintypes.error as e:
         if e.winerror == winerror.ERROR_SERVICE_DOES_NOT_EXIST:
             logging.info(f"Service '{service_name}' not found.")
             return "not_found"
-        else:
-            logging.error(f"Failed to query service status for '{service_name}': {e}")
-            return "unknown"
+        logging.error(f"Failed to query service status for '{service_name}': {e}")
+        return "unknown"
 
     finally:
         if service_handle:

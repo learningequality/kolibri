@@ -1,8 +1,8 @@
 from types import ModuleType
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
-from mock import MagicMock
-from mock import patch
 
 from kolibri.plugins.utils.options import extend_config_spec
 

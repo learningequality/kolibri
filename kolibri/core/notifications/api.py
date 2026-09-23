@@ -571,6 +571,7 @@ def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
     ):
         help_needed_notification.timestamp = attemptlog.end_timestamp
         return help_needed_notification
+    return None
 
 
 def parse_summarylog(summarylog):

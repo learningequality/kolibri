@@ -31,13 +31,9 @@ class NoSuchProcess(Exception):
     or no longer exists.
     """
 
-    pass
-
 
 class AccessDenied(Exception):
     """Exception raised when permission to perform an action is denied."""
-
-    pass
 
 
 def memoize(fun):
@@ -136,4 +132,4 @@ def open_text(fname, **kwargs):
     """
     kwargs.setdefault("encoding", ENCODING)
     kwargs.setdefault("errors", ENCODING_ERRS)
-    return open(fname, "rt", **kwargs)
+    return open(fname, **kwargs)

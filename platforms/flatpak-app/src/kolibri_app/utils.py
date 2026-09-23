@@ -27,7 +27,7 @@ def getenv_as_bool(key: str, default: bool = False) -> bool:
 
     if value in TRUTHY_STRINGS:
         return True
-    elif value in FALSY_STRINGS:
+    if value in FALSY_STRINGS:
         return False
 
     return default

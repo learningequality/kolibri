@@ -39,11 +39,9 @@ class Command(BaseCommand):
             )
         except FacilityUser.MultipleObjectsReturned:
             raise CommandError(
-                (
-                    "There is more than one user on this device with the username `{username}`. "
-                    "Please specify the facility ID for this user.".format(
-                        username=options["username"]
-                    )
+                "There is more than one user on this device with the username `{username}`. "
+                "Please specify the facility ID for this user.".format(
+                    username=options["username"]
                 )
             )
 

@@ -1,6 +1,6 @@
 import uuid
+from unittest import mock
 
-import mock
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase

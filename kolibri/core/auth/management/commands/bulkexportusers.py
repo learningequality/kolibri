@@ -300,7 +300,7 @@ class Command(AsyncCommand):
                     overwrite=options["overwrite"],
                 ):
                     progress_update(1)
-            except (ValueError, IOError) as e:
+            except (OSError, ValueError) as e:
                 self.overall_error.append(MESSAGES[FILE_WRITE_ERROR].format(e))
                 raise CommandError(self.overall_error[-1])
 

@@ -100,9 +100,8 @@ def _reenqueue_missing_task(job_id, job):
         if request_id:
             logger.info(f"Re-enqueued missing task: {job_id}")
             return True
-        else:
-            logger.error(f"Failed to re-enqueue task: {job_id}")
-            return False
+        logger.error(f"Failed to re-enqueue task: {job_id}")
+        return False
     except Exception as e:
         logger.error(f"Error re-enqueuing task {job_id}: {e}", exc_info=True)
         return False
@@ -221,7 +220,7 @@ def reconcile_tasks():
         # Non-blocking exclusive lock
         try:
             fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except (IOError, OSError):
+        except OSError:
             logger.info("Reconciliation already in progress, skipping")
             return (0, 0)
 
@@ -236,6 +235,6 @@ def reconcile_tasks():
         if lock_fd is not None:
             try:
                 fcntl.flock(lock_fd, fcntl.LOCK_UN)
-            except (IOError, OSError):
+            except OSError:
                 pass
             os.close(lock_fd)

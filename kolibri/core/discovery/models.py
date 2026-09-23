@@ -115,7 +115,6 @@ class NetworkLocation(models.Model):
 
     def _set_fields_for_type(self):
         """Abstract method to set fields for type"""
-        pass
 
     @property
     def since_last_accessed(self):
@@ -210,12 +209,11 @@ class DynamicNetworkLocation(NetworkLocation):
 
         if self.instance_id:
             return super().save(*args, **kwargs)
-        else:
-            raise ValidationError(
-                {
-                    "instance_id": "DynamicNetworkLocations must be created with an instance ID!"
-                }
-            )
+        raise ValidationError(
+            {
+                "instance_id": "DynamicNetworkLocations must be created with an instance ID!"
+            }
+        )
 
 
 class LocalHostname(models.Model):

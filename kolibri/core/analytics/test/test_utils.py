@@ -79,8 +79,8 @@ class BaseDeviceSetupMixin:
 
         # Load in the user data from the csv file to give a predictable source of user data
         data_path = os.path.join(USER_CSV_PATH)
-        with open(data_path, mode="r", encoding="utf-8") as f:
-            users = [data for data in csv.DictReader(f)]
+        with open(data_path, encoding="utf-8") as f:
+            users = list(csv.DictReader(f))
 
         cls.facilities = user_data.get_or_create_facilities(
             n_facilities=cls.n_facilities

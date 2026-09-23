@@ -122,7 +122,7 @@ class Command(AsyncCommand):
 
         # validate url that is passed in
         try:
-            URLValidator()((options["base_url"]))
+            URLValidator()(options["base_url"])
         except ValidationError:
             raise CommandError(
                 "Base URL is not valid. Please retry command and enter a valid URL."

@@ -1,10 +1,10 @@
 import os
 import posixpath
 import sys
+from unittest.mock import patch
 
 import pytest
 from django.test import TestCase
-from mock import patch
 
 from ..utils.filesystem import enumerate_mounted_disk_partitions
 from ..utils.filesystem import EXPORT_FOLDER_NAME
@@ -56,8 +56,7 @@ class patch_popen:
         self.mocked_popen = _get_mocked_popen(cmd_resp)
 
     def __call__(self, f):
-        f = patch("subprocess.Popen", self.mocked_popen)(f)
-        return f
+        return patch("subprocess.Popen", self.mocked_popen)(f)
 
 
 class patch_disk_usage:
@@ -136,7 +135,7 @@ class WindowsFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            {drive.path for drive in self.drives.values()}, set(["C:\\", "D:\\"])
+            {drive.path for drive in self.drives.values()}, {"C:\\", "D:\\"}
         )
 
     def test_drive_writability(self):
@@ -193,7 +192,7 @@ class LinuxFilesystemTestCase(TestCase):
     def test_drive_list_members(self):
         self.assertSetEqual(
             {drive.path for drive in self.drives.values()},
-            set(["/media/user/F571-7814", "/", "/media/user/disk"]),
+            {"/media/user/F571-7814", "/", "/media/user/disk"},
         )
 
     def test_drive_writability(self):
@@ -238,7 +237,7 @@ class OSXFilesystemTestCase(TestCase):
     def test_drive_list_members(self):
         self.assertSetEqual(
             {drive.path for drive in self.drives.values()},
-            set(["/Volumes/HP v125w", "/"]),
+            {"/Volumes/HP v125w", "/"},
         )
 
     def test_drive_writability(self):

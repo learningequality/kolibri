@@ -1,13 +1,13 @@
 import tempfile
 import uuid
+from unittest.mock import call
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.db import connection
 from django.test import TestCase
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
-from mock import call
-from mock import patch
 
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata

@@ -1,9 +1,9 @@
 import datetime
 import time
+from unittest.mock import patch
 
 import pytest
 import pytz
-from mock import patch
 from requests.exceptions import HTTPError
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE

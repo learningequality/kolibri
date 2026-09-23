@@ -92,8 +92,7 @@ def _import_python_module(plugin_name):
                 "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
             ).format(plugin_name)
             raise PluginDoesNotExist(msg)
-        else:
-            raise
+        raise
 
 
 def initialize_plugins_and_hooks(all_classes, plugin_name, initialize_hooks=True):
@@ -130,6 +129,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name, initialize_hooks=True
 
     if len(plugin_objects) > 1:
         raise MultiplePlugins("More than one plugin defined in kolibri_plugin module")
+    return None
 
 
 def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
@@ -192,8 +192,7 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
                 "Plugin '{}' exists but does not have an importable kolibri_plugin module"
             ).format(plugin_name)
             raise PluginDoesNotExist(msg)
-        else:
-            raise
+        raise
     except AppRegistryNotReady:
         msg = (
             "Plugin '{}' loads the Django app registry, which it isn't "
@@ -341,7 +340,7 @@ class PluginUpdateManager:
                     plugin_name
                 )
             )
-            return
+            return None
         for app in plugin_instance.INSTALLED_APPS:
             if not isinstance(app, AppConfig) and isinstance(app, str):
                 app = apps.get_containing_app_config(app)
@@ -356,7 +355,7 @@ class PluginUpdateManager:
                     plugin_name, e
                 )
             )
-            return
+            return None
         if old_version:
             if VersionInfo.parse(
                 normalize_version_to_semver(old_version)
@@ -386,7 +385,7 @@ class PluginUpdateManager:
                     plugin_name, e
                 )
             )
-            return
+            return None
         return new_version
 
     def update_plugins(self):

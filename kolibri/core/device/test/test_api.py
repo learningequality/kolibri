@@ -4,14 +4,14 @@ import tempfile
 import uuid
 from collections import namedtuple
 from datetime import timedelta
+from unittest import mock
+from unittest.mock import patch
 
-import mock
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
-from mock import patch
 from morango.constants import transfer_statuses
 from morango.models import DatabaseIDModel
 from morango.models import InstanceIDModel
@@ -425,15 +425,15 @@ class UserSyncStatusTestCase(APITestCase):
         cls.syncstatus2 = UserSyncStatus.objects.create(**data2)
 
     def _create_transfer_session(self, **data):
-        defaults = dict(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.COMPLETED,
-        )
+        defaults = {
+            "id": uuid.uuid4(),
+            "filter": "no-filter",
+            "push": True,
+            "active": True,
+            "sync_session": self.syncsession1,
+            "last_activity_timestamp": timezone.now(),
+            "transfer_stage_status": transfer_statuses.COMPLETED,
+        }
         defaults.update(data)
         TransferSession.objects.create(**defaults)
 

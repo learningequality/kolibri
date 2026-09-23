@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 import requests
 from django.test import TestCase
 
@@ -239,7 +240,7 @@ class NetworkClientTestCase(TestCase):
     )
     def test_build_for_network_location__previously_not_okay(self):
         network_loc = mock.MagicMock(
-            spec=NetworkLocation(),
+            spec=NetworkLocation,
             base_url="url.qqq",
             connection_status=ConnectionStatus.Unknown,
             location_type=LocationTypes.Dynamic,
@@ -254,7 +255,7 @@ class NetworkClientTestCase(TestCase):
     )
     def test_build_for_network_location__failure(self):
         network_loc = mock.MagicMock(
-            spec=NetworkLocation(),
+            spec=NetworkLocation,
             base_url="url.qqq",
             connection_status=ConnectionStatus.Unknown,
             location_type=LocationTypes.Dynamic,
@@ -267,7 +268,7 @@ class NetworkClientTestCase(TestCase):
     )
     def test_build_for_network_location__no_raise(self):
         network_loc = mock.MagicMock(
-            spec=NetworkLocation(),
+            spec=NetworkLocation,
             base_url="url.qqq",
             connection_status=ConnectionStatus.ConnectionFailure,
             location_type=LocationTypes.Dynamic,
@@ -282,7 +283,7 @@ class NetworkClientTestCase(TestCase):
     )
     def test_build_for_network_location__static(self):
         network_loc = mock.MagicMock(
-            spec=NetworkLocation(),
+            spec=NetworkLocation,
             base_url="url.qqq",
             connection_status=ConnectionStatus.Unknown,
         )
@@ -296,7 +297,7 @@ class NetworkClientTestCase(TestCase):
     )
     def test_build_for_network_location__already_okay(self):
         network_loc = mock.MagicMock(
-            spec=NetworkLocation(),
+            spec=NetworkLocation,
             base_url="https://url.qqq/",
             connection_status=ConnectionStatus.Okay,
         )

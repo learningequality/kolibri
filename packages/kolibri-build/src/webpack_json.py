@@ -83,7 +83,7 @@ def load_plugins_from_file(file_path):
             r = requests.get(file_path)
             f.write(r.content)
         file_path = path
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return [plugin.strip() for plugin in f.readlines() if plugin.strip()]
 
 

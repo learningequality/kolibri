@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from morango.constants import capabilities
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
@@ -111,9 +112,7 @@ class BackgroundInitializeJobOperationTestCase(BaseTestCase):
 
         self.mock_options.get.return_value = {
             "BACKGROUND_INITIALIZATION": True,
-            "BACKGROUND_INITIALIZATION_STAGES": ",".join(
-                [transfer_stages.SERIALIZING, transfer_stages.QUEUING]
-            ),
+            "BACKGROUND_INITIALIZATION_STAGES": f"{transfer_stages.SERIALIZING},{transfer_stages.QUEUING}",
         }
 
     def test_should_handle__is_producer(self):
@@ -186,13 +185,7 @@ class BackgroundFinalizeJobOperationTestCase(BaseTestCase):
 
         self.mock_options.get.return_value = {
             "BACKGROUND_FINALIZATION": True,
-            "BACKGROUND_FINALIZATION_STAGES": ",".join(
-                [
-                    transfer_stages.DEQUEUING,
-                    transfer_stages.DESERIALIZING,
-                    transfer_stages.CLEANUP,
-                ]
-            ),
+            "BACKGROUND_FINALIZATION_STAGES": f"{transfer_stages.DEQUEUING},{transfer_stages.DESERIALIZING},{transfer_stages.CLEANUP}",
         }
 
     def test_should_handle__is_receiver(self):

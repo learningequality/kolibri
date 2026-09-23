@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from requests import exceptions
 
 info = {
@@ -28,14 +29,13 @@ def mock_request(session, method, url, *args, **kwargs):
 
     if url == "https://kolibrihappyurl.qqq/api/public/info/":
         return response
-    elif url == "https://nonkolibrihappyurl.qqq/":
+    if url == "https://nonkolibrihappyurl.qqq/":
         return response
-    elif url.startswith("http://timeoutonport80url.qqq/"):
+    if url.startswith("http://timeoutonport80url.qqq/"):
         raise exceptions.Timeout("Snooooooorrrrrrrre!")
-    elif url.startswith("http://timeoutonport80url.qqq:8080/"):
+    if url.startswith("http://timeoutonport80url.qqq:8080/"):
         return response
-    else:
-        raise exceptions.ConnectionError("Refusing connection to: {}".format(url))
+    raise exceptions.ConnectionError("Refusing connection to: {}".format(url))
 
 
 def mock_happy_no_os_request(happy_url, default_error=exceptions.RequestException):
@@ -63,8 +63,7 @@ def mock_happy_request(happy_url, default_error=exceptions.RequestException):
 
         if url.startswith(happy_url):
             return response
-        else:
-            raise default_error("Refusing connection to: {}".format(url))
+        raise default_error("Refusing connection to: {}".format(url))
 
     return mock_request
 
@@ -78,8 +77,7 @@ def mock_sad_request(
 
         if url.startswith(sad_url):
             return response
-        else:
-            raise default_error("Refusing connection to: {}".format(url))
+        raise default_error("Refusing connection to: {}".format(url))
 
     return mock_request
 

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def choices(sequence, k):
-    return [random.choice(sequence) for _ in range(0, k)]
+    return [random.choice(sequence) for _ in range(k)]
 
 
 class Command(BaseCommand):

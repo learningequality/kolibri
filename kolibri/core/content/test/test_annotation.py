@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import uuid
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
@@ -13,7 +14,6 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 from le_utils.constants import content_kinds
-from mock import patch
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode

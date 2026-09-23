@@ -1,9 +1,9 @@
 import os
 import sys
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase
-from mock import patch
 
 from kolibri.utils.conf import OPTIONS
 
@@ -28,16 +28,16 @@ class ContentMoveDirectoryTestCase(TestCase):
     def _path_exists_side_effect(*args):
         if args[0] == OPTIONS["Paths"]["CONTENT_DIR"]:
             return True
-        elif args[0].startswith(success_path):
+        if args[0].startswith(success_path):
             return False
         return True
 
     def _listdir_side_effect(*args):
         if args[0] == os.path.join(OPTIONS["Paths"]["CONTENT_DIR"], "databases"):
             return ["test.sqlite3"]
-        elif args[0] == os.path.join(OPTIONS["Paths"]["CONTENT_DIR"], "storage"):
+        if args[0] == os.path.join(OPTIONS["Paths"]["CONTENT_DIR"], "storage"):
             return ["test.mp3"]
-        elif args[0] == os.path.join(no_content_path, "databases"):
+        if args[0] == os.path.join(no_content_path, "databases"):
             return ["exists.sqlite3"]
         return []
 

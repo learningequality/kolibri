@@ -353,15 +353,11 @@ def count_removed_resources(destination, channel_id):
 
         for resource_node_ids in _batches(resource_node_id_queryset):
             content_ids_after_upgrade.update(
-                (
-                    ContentNode.objects.filter_by_uuids(
-                        resource_node_ids, validate=False
-                    )
-                    .exclude(kind=content_kinds.TOPIC)
-                    .filter(available=True, channel_id=channel_id)
-                    .values_list("content_id", flat=True)
-                    .distinct()
-                )
+                ContentNode.objects.filter_by_uuids(resource_node_ids, validate=False)
+                .exclude(kind=content_kinds.TOPIC)
+                .filter(available=True, channel_id=channel_id)
+                .values_list("content_id", flat=True)
+                .distinct()
             )
 
     total_resources_after_upgrade = len(content_ids_after_upgrade)
@@ -396,13 +392,11 @@ def _get_available_course_bounds(alias, channel_id):
     )
 
     # lft/rght bounds from the upgrade DB for courses that exist on both sides
-    available_course_bounds = [
+    return [
         courses_on_destination[cid]
         for cid in available_course_ids
         if cid in courses_on_destination
     ]
-
-    return available_course_bounds
 
 
 def get_automatically_updated_resources(destination, channel_id):

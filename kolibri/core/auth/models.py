@@ -183,7 +183,7 @@ class DatasetCache(local):
     def set(self, key, dataset_id):
         if self._active:
             self._cache[key] = dataset_id
-        return None
+        return
 
 
 dataset_cache = DatasetCache()
@@ -646,12 +646,11 @@ class KolibriBaseUserMixin:
         """
         if isinstance(obj, KolibriBaseUserMixin):
             return self.has_role_for_user(kinds, obj)
-        elif isinstance(obj, Collection):
+        if isinstance(obj, Collection):
             return self.has_role_for_collection(kinds, obj)
-        else:
-            raise ValueError(
-                "The `obj` argument to `has_role_for` must be either an instance of KolibriBaseUserMixin or Collection."
-            )
+        raise ValueError(
+            "The `obj` argument to `has_role_for` must be either an instance of KolibriBaseUserMixin or Collection."
+        )
 
     def filter_readable(self, queryset):
         """
@@ -826,7 +825,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         except OSUser.DoesNotExist:
             user = None
             method = self.create_superuser if is_superuser else self.create_user
-            for i in range(0, 10):
+            for i in range(10):
                 try:
                     with transaction.atomic():
                         user = method(
@@ -892,7 +891,7 @@ role_kinds_set = {r[0] for r in role_kinds.choices}
 
 def validate_role_kinds(kinds):
     if isinstance(kinds, str):
-        kinds = set([kinds])
+        kinds = {kinds}
     else:
         try:
             kinds = set(kinds)
@@ -1047,7 +1046,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         if scope_definition_id == ScopeDefinitions.FULL_FACILITY:
             # if request is for full-facility syncing, return True only if user is a Facility Admin
             return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
-        elif scope_definition_id == ScopeDefinitions.SINGLE_USER:
+        if scope_definition_id == ScopeDefinitions.SINGLE_USER:
             # for single-user syncing, return True if this user *is* target user, or is admin for target user
             target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
             if self == target_user:
@@ -1229,16 +1228,19 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         # ensure the superuser has full access to the Django admin
         if self.is_superuser:
             return True
+        return None
 
     def has_perms(self, perm_list, obj=None):
         # ensure the superuser has full access to the Django admin
         if self.is_superuser:
             return True
+        return None
 
     def has_module_perms(self, app_label):
         # ensure the superuser has full access to the Django admin
         if self.is_superuser:
             return True
+        return None
 
 
 class Collection(AbstractFacilityDataModel):
@@ -1760,25 +1762,23 @@ class Facility(Collection):
     def get_or_create(cls, facility_name):
         if cls.objects.count() == 0:
             return cls.objects.create(name=facility_name)
-        else:
-            facility = None
-            try:
-                # We accept the parameter so we may as well try searching for it first
-                facility = cls.objects.get(name=facility_name)
-            except cls.DoesNotExist:
-                # or just fall back to returning the first Facility that exists
-                facility = cls.objects.get()
-                if facility_name:
-                    facility.name = facility_name
-                    facility.save()
-            return facility
+        facility = None
+        try:
+            # We accept the parameter so we may as well try searching for it first
+            facility = cls.objects.get(name=facility_name)
+        except cls.DoesNotExist:
+            # or just fall back to returning the first Facility that exists
+            facility = cls.objects.get()
+            if facility_name:
+                facility.name = facility_name
+                facility.save()
+        return facility
 
     @property
     def on_my_own_setup(self):
         if self.dataset.extra_fields is not None:
             return self.dataset.extra_fields.get("on_my_own_setup", False)
-        else:
-            return False
+        return False
 
     @on_my_own_setup.setter
     def on_my_own_setup(self, value):

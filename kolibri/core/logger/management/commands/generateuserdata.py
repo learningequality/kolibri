@@ -116,8 +116,8 @@ class Command(BaseCommand):
         data_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "user_data.csv")
         )
-        with open(data_path, mode="r", encoding="utf-8") as f:
-            user_data = [data for data in csv.DictReader(f)]
+        with open(data_path, encoding="utf-8") as f:
+            user_data = list(csv.DictReader(f))
 
         n_seed = options["seed"]
         n_facilities = options["facilities"]

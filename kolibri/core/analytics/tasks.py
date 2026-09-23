@@ -83,7 +83,11 @@ def schedule_ping(
             interval=interval * 60,
             repeat=None,
             retry_interval=checkrate * 60,
-            kwargs=dict(started=now.isoformat(), server=server, checkrate=checkrate),
+            kwargs={
+                "started": now.isoformat(),
+                "server": server,
+                "checkrate": checkrate,
+            },
         )
     except JobRunning:
         pass

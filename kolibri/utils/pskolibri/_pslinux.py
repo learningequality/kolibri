@@ -163,7 +163,7 @@ def wrap_exceptions(fun):
     def wrapper(self, *args, **kwargs):
         try:
             return fun(self, *args, **kwargs)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno in (errno.EPERM, errno.EACCES):
                 raise AccessDenied()
             # ESRCH (no such process) can be raised on read() if
@@ -236,7 +236,7 @@ class Process:
         sep = "\x00" if data.endswith("\x00") else " "
         if data.endswith(sep):
             data = data[:-1]
-        return [x for x in data.split(sep)]
+        return data.split(sep)
 
     @wrap_exceptions
     def create_time(self):

@@ -146,5 +146,4 @@ class AccountsServiceUser(Gio.DBusProxy):
         result = self.get_cached_property(name)
         if result is None:
             return None
-        else:
-            return result.unpack()
+        return result.unpack()

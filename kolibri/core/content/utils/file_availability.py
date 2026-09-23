@@ -23,8 +23,6 @@ class LocationError(Exception):
     An exception raised when an import location is invalid.
     """
 
-    pass
-
 
 def generate_checksum_integer_mask(checksums, available_checksums):
     return sum(

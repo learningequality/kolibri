@@ -1,12 +1,12 @@
 import datetime
+from unittest.mock import Mock
+from unittest.mock import patch
 from uuid import uuid4
 
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from mock import Mock
-from mock import patch
 from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import serializers
@@ -47,19 +47,19 @@ from .helpers import provision_device
 
 DUMMY_PASSWORD = "password"
 
-fake_job_defaults = dict(
-    job_id=None,
-    facility_id=None,
-    state=None,
-    exception="",
-    traceback="",
-    percentage_progress=0,
-    cancellable=False,
-    args=(),
-    kwargs={},
-    extra_metadata={},
-    func="",
-)
+fake_job_defaults = {
+    "job_id": None,
+    "facility_id": None,
+    "state": None,
+    "exception": "",
+    "traceback": "",
+    "percentage_progress": 0,
+    "cancellable": False,
+    "args": (),
+    "kwargs": {},
+    "extra_metadata": {},
+    "func": "",
+}
 
 
 def fake_job(**kwargs):
@@ -136,13 +136,13 @@ class FacilityTasksAPITestCase(APITestCase):
 
     def test_startdataportalsync(self, mock_job_storage):
         mock_job_storage.enqueue_job.return_value = 123
-        fake_job_data = dict(
-            job_id=123,
-            state="testing",
-            percentage_progress=42,
-            cancellable=False,
-            extra_metadata=dict(this_is_extra=True),
-        )
+        fake_job_data = {
+            "job_id": 123,
+            "state": "testing",
+            "percentage_progress": 42,
+            "cancellable": False,
+            "extra_metadata": {"this_is_extra": True},
+        }
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
@@ -159,11 +159,11 @@ class FacilityTasksAPITestCase(APITestCase):
         self.assertJobResponse(fake_job_data, response)
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].kwargs,
-            dict(
-                facility=self.facility.id,
-                chunk_size=200,
-                noninteractive=True,
-            ),
+            {
+                "facility": self.facility.id,
+                "chunk_size": 200,
+                "noninteractive": True,
+            },
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].job_id,
@@ -176,13 +176,13 @@ class FacilityTasksAPITestCase(APITestCase):
         dataset_ids = [facility2.dataset_id, facility3.dataset_id]
         FacilityDataset.objects.filter(pk__in=dataset_ids).update(registered=True)
 
-        fake_job_data = dict(
-            job_id=123,
-            state="testing",
-            percentage_progress=42,
-            cancellable=False,
-            extra_metadata=dict(this_is_extra=True),
-        )
+        fake_job_data = {
+            "job_id": 123,
+            "state": "testing",
+            "percentage_progress": 42,
+            "cancellable": False,
+            "extra_metadata": {"this_is_extra": True},
+        }
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
@@ -203,11 +203,11 @@ class FacilityTasksAPITestCase(APITestCase):
 
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].kwargs,
-            dict(
-                facility=facility2.id,
-                chunk_size=200,
-                noninteractive=True,
-            ),
+            {
+                "facility": facility2.id,
+                "chunk_size": 200,
+                "noninteractive": True,
+            },
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].job_id,
@@ -215,11 +215,11 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[1][0][0].kwargs,
-            dict(
-                facility=facility3.id,
-                chunk_size=200,
-                noninteractive=True,
-            ),
+            {
+                "facility": facility3.id,
+                "chunk_size": 200,
+                "noninteractive": True,
+            },
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[1][0][0].job_id,
@@ -237,36 +237,36 @@ class FacilityTasksAPITestCase(APITestCase):
         device = NetworkLocation.objects.create(
             device_name="test device", base_url="https://some.server.test/extra/stuff"
         )
-        extra_metadata = dict(
-            facility=self.facility.id,
-            sync_state="PENDING",
-            bytes_sent=0,
-            bytes_received=0,
-            facility_name="",
-            device_name="",
-            device_id="",
-            baseurl="https://some.server.test/extra/stuff",
-        )
+        extra_metadata = {
+            "facility": self.facility.id,
+            "sync_state": "PENDING",
+            "bytes_sent": 0,
+            "bytes_received": 0,
+            "facility_name": "",
+            "device_name": "",
+            "device_id": "",
+            "baseurl": "https://some.server.test/extra/stuff",
+        }
 
         mock_job_storage.enqueue_job.return_value = 123
-        fake_job_data = dict(
-            job_id=123,
-            state="testing",
-            percentage_progress=42,
-            cancellable=False,
-            extra_metadata=dict(this_is_extra=True),
-        )
+        fake_job_data = {
+            "job_id": 123,
+            "state": "testing",
+            "percentage_progress": 42,
+            "cancellable": False,
+            "extra_metadata": {"this_is_extra": True},
+        }
         fake_job_data["extra_metadata"].update(extra_metadata)
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
-        req_data = dict(
-            facility=self.facility.id,
-            type="kolibri.core.auth.tasks.peerfacilityimport",
-            username="testuser",
-            password="testpass",
-            device_id=device.id,
-        )
+        req_data = {
+            "facility": self.facility.id,
+            "type": "kolibri.core.auth.tasks.peerfacilityimport",
+            "username": "testuser",
+            "password": "testpass",
+            "device_id": device.id,
+        }
 
         network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
@@ -280,14 +280,14 @@ class FacilityTasksAPITestCase(APITestCase):
         self.assertJobResponse(fake_job_data, response)
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].kwargs,
-            dict(
-                baseurl="https://some.server.test/",
-                facility=self.facility.id,
-                no_push=True,
-                no_provision=True,
-                chunk_size=200,
-                noninteractive=True,
-            ),
+            {
+                "baseurl": "https://some.server.test/",
+                "facility": self.facility.id,
+                "no_push": True,
+                "no_provision": True,
+                "chunk_size": 200,
+                "noninteractive": True,
+            },
         )
 
     @patch("kolibri.core.auth.tasks.NetworkClient")
@@ -301,36 +301,36 @@ class FacilityTasksAPITestCase(APITestCase):
         device = NetworkLocation.objects.create(
             device_name="test device", base_url="https://some.server.test/extra/stuff"
         )
-        extra_metadata = dict(
-            facility=self.facility.id,
-            sync_state="PENDING",
-            bytes_sent=0,
-            bytes_received=0,
-            facility_name="",
-            device_name="",
-            device_id="",
-            baseurl="https://some.server.test/extra/stuff",
-        )
+        extra_metadata = {
+            "facility": self.facility.id,
+            "sync_state": "PENDING",
+            "bytes_sent": 0,
+            "bytes_received": 0,
+            "facility_name": "",
+            "device_name": "",
+            "device_id": "",
+            "baseurl": "https://some.server.test/extra/stuff",
+        }
 
         mock_job_storage.enqueue_job.return_value = 123
-        fake_job_data = dict(
-            job_id=123,
-            state="testing",
-            percentage_progress=42,
-            cancellable=False,
-            extra_metadata=dict(this_is_extra=True),
-        )
+        fake_job_data = {
+            "job_id": 123,
+            "state": "testing",
+            "percentage_progress": 42,
+            "cancellable": False,
+            "extra_metadata": {"this_is_extra": True},
+        }
         fake_job_data["extra_metadata"].update(extra_metadata)
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
-        req_data = dict(
-            facility=self.facility.id,
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            username="testuser",
-            password="testpass",
-            device_id=device.id,
-        )
+        req_data = {
+            "facility": self.facility.id,
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "username": "testuser",
+            "password": "testpass",
+            "device_id": device.id,
+        }
 
         network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
@@ -356,25 +356,28 @@ class FacilityTasksAPITestCase(APITestCase):
     def test_startdeletefacility(self, mock_job_storage):
         facility2 = Facility.objects.create(name="facility2")
 
-        extra_metadata = dict(
-            facility=facility2.id,
-            facility_name=facility2.name,
-        )
+        extra_metadata = {
+            "facility": facility2.id,
+            "facility_name": facility2.name,
+        }
 
         mock_job_storage.enqueue_job.return_value = 123
-        fake_job_data = dict(
-            job_id=123,
-            state="testing",
-            cancellable=False,
-            extra_metadata=dict(this_is_extra=True),
-        )
+        fake_job_data = {
+            "job_id": 123,
+            "state": "testing",
+            "cancellable": False,
+            "extra_metadata": {"this_is_extra": True},
+        }
         fake_job_data["extra_metadata"].update(extra_metadata)
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
-            dict(facility=facility2.id, type="kolibri.core.auth.tasks.deletefacility"),
+            {
+                "facility": facility2.id,
+                "type": "kolibri.core.auth.tasks.deletefacility",
+            },
             format="json",
         )
         self.assertEqual(response.status_code, 200)
@@ -402,7 +405,10 @@ class FacilityTasksAPITestCase(APITestCase):
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
-            dict(facility=facility1.id, type="kolibri.core.auth.tasks.deletefacility"),
+            {
+                "facility": facility1.id,
+                "type": "kolibri.core.auth.tasks.deletefacility",
+            },
             format="json",
         )
         self.assertEqual(response.status_code, 403)
@@ -412,9 +418,10 @@ class FacilityTasksAPITestCase(APITestCase):
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
-            dict(
-                facility=self.facility.id, type="kolibri.core.auth.tasks.deletefacility"
-            ),
+            {
+                "facility": self.facility.id,
+                "type": "kolibri.core.auth.tasks.deletefacility",
+            },
             format="json",
         )
         self.assertEqual(response.status_code, 400)
@@ -442,45 +449,49 @@ class FacilityTaskHelperTestCase(TestCase):
     def test_validate_empty_facility_id__validation_error__empty(self):
         with self.assertRaises(serializers.ValidationError):
             SyncJobValidator(
-                data=dict(type="kolibri.core.auth.tasks.peerfacilitysync", facility="")
+                data={
+                    "type": "kolibri.core.auth.tasks.peerfacilitysync",
+                    "facility": "",
+                }
             ).is_valid(raise_exception=True)
 
     def test_validate_non_uuid_facility__validation_error__empty(self):
         with self.assertRaises(serializers.ValidationError):
             SyncJobValidator(
-                data=dict(
-                    type="kolibri.core.auth.tasks.peerfacilitysync",
-                    facility="not a uuid",
-                )
+                data={
+                    "type": "kolibri.core.auth.tasks.peerfacilitysync",
+                    "facility": "not a uuid",
+                }
             ).is_valid(raise_exception=True)
 
     def test_validate_require_sync_session_id_for_resume(self):
         with self.assertRaises(serializers.ValidationError):
             SyncJobValidator(
-                data=dict(
-                    type="kolibri.core.auth.tasks.peerfacilitysync",
-                    facility=self.facility.id,
-                    command="resumesync",
-                )
+                data={
+                    "type": "kolibri.core.auth.tasks.peerfacilitysync",
+                    "facility": self.facility.id,
+                    "command": "resumesync",
+                }
             ).is_valid(raise_exception=True)
 
     def test_validated_data(self):
         facility_id = self.facility.id
         validator = SyncJobValidator(
-            data=dict(
-                type="kolibri.core.auth.tasks.peerfacilitysync", facility=facility_id
-            )
+            data={
+                "type": "kolibri.core.auth.tasks.peerfacilitysync",
+                "facility": facility_id,
+            }
         )
         validator.is_valid(raise_exception=True)
         self.assertEqual(
             validator.validated_data["extra_metadata"],
-            dict(
-                facility_id=facility_id,
-                facility_name=self.facility.name,
-                sync_state=FacilitySyncState.PENDING,
-                bytes_sent=0,
-                bytes_received=0,
-            ),
+            {
+                "facility_id": facility_id,
+                "facility_name": self.facility.name,
+                "sync_state": FacilitySyncState.PENDING,
+                "bytes_sent": 0,
+                "bytes_received": 0,
+            },
         )
 
     def test_dataportalsync_validator_sets_deterministic_job_id(self):
@@ -515,14 +526,14 @@ class FacilityTaskHelperTestCase(TestCase):
     ):
         dataset_id = 456
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://some.server.test/extra/stuff",
+            "username": "tester",
+            "password": "mypassword",
+        }
 
         network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
@@ -534,28 +545,28 @@ class FacilityTaskHelperTestCase(TestCase):
         get_facility_dataset_id.return_value = (facility_id, dataset_id)
         get_client_and_server_certs.return_value = None
 
-        expected = dict(
-            facility_id=facility_id,
-            job_id=peer_sync_job_id(facility_id, self.device.id),
-            args=["sync"],
-            enqueue_args={},
-            kwargs=dict(
-                baseurl="https://some.server.test/",
-                facility=facility_id,
-                chunk_size=200,
-                noninteractive=True,
-            ),
-            extra_metadata=dict(
-                baseurl="https://some.server.test/",
-                facility_id=facility_id,
-                facility_name=self.facility.name,
-                sync_state="PENDING",
-                bytes_sent=0,
-                bytes_received=0,
-                device_name=self.device.device_name,
-                device_id=self.device.id,
-            ),
-        )
+        expected = {
+            "facility_id": facility_id,
+            "job_id": peer_sync_job_id(facility_id, self.device.id),
+            "args": ["sync"],
+            "enqueue_args": {},
+            "kwargs": {
+                "baseurl": "https://some.server.test/",
+                "facility": facility_id,
+                "chunk_size": 200,
+                "noninteractive": True,
+            },
+            "extra_metadata": {
+                "baseurl": "https://some.server.test/",
+                "facility_id": facility_id,
+                "facility_name": self.facility.name,
+                "sync_state": "PENDING",
+                "bytes_sent": 0,
+                "bytes_received": 0,
+                "device_name": self.device.device_name,
+                "device_id": self.device.id,
+            },
+        }
 
         validator = PeerFacilitySyncJobValidator(data=data)
         validator.is_valid(raise_exception=True)
@@ -593,14 +604,14 @@ class FacilityTaskHelperTestCase(TestCase):
         MorangoProfileController,
     ):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilityimport",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilityimport",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://some.server.test/extra/stuff",
+            "username": "tester",
+            "password": "mypassword",
+        }
         network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
         controller = MorangoProfileController.return_value
@@ -616,40 +627,40 @@ class FacilityTaskHelperTestCase(TestCase):
         facility_id = self.facility.id
         self.device.base_url = ""
         self.device.save()
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "username": "tester",
+            "password": "mypassword",
+        }
         with self.assertRaises(serializers.ValidationError):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
 
     def test_validate_peer_sync_job__bad_url(self):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="/com.bad.url.www//:sptth",
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "/com.bad.url.www//:sptth",
+            "username": "tester",
+            "password": "mypassword",
+        }
         with self.assertRaises(serializers.ValidationError):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
 
     @patch("kolibri.core.auth.tasks.NetworkClient")
     def test_validate_peer_sync_job__cannot_connect(self, NetworkClient):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://www.notfound.never",
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://www.notfound.never",
+            "username": "tester",
+            "password": "mypassword",
+        }
         NetworkClient.build_for_address.side_effect = NetworkLocationNotFound()
         with self.assertRaises(ResourceGoneError):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
@@ -661,14 +672,14 @@ class FacilityTaskHelperTestCase(TestCase):
         self, get_facility_dataset_id, NetworkClient, MorangoProfileController
     ):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://some.server.test/extra/stuff",
+            "username": "tester",
+            "password": "mypassword",
+        }
         client = NetworkClient.return_value
         client.base_url = "https://some.server.test/"
 
@@ -684,12 +695,12 @@ class FacilityTaskHelperTestCase(TestCase):
         self,
     ):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://some.server.test/extra/stuff",
+        }
 
         with self.assertRaises(serializers.ValidationError):
             PeerFacilityImportJobValidator(data=data).is_valid(raise_exception=True)
@@ -706,14 +717,14 @@ class FacilityTaskHelperTestCase(TestCase):
         MorangoProfileController,
     ):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-            username="tester",
-            password="mypassword",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://some.server.test/extra/stuff",
+            "username": "tester",
+            "password": "mypassword",
+        }
 
         client = NetworkClient.return_value
         client.base_url = "https://some.server.test/"
@@ -740,12 +751,12 @@ class FacilityTaskHelperTestCase(TestCase):
         MorangoProfileController,
     ):
         facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-        )
+        data = {
+            "type": "kolibri.core.auth.tasks.peerfacilitysync",
+            "facility": facility_id,
+            "device_id": self.device.id,
+            "baseurl": "https://some.server.test/extra/stuff",
+        }
 
         client = NetworkClient.return_value
         client.base_url = "https://some.server.test/"
@@ -863,13 +874,13 @@ class SoudTasksTestCase(TestCase):
 
 class CleanUpSyncsTaskValidatorTestCase(TestCase):
     def setUp(self):
-        self.kwargs = dict(
-            type=cleanupsync.__name__,
-            push=True,
-            pull=False,
-            sync_filter=uuid4().hex,
-            client_instance_id=uuid4().hex,
-        )
+        self.kwargs = {
+            "type": cleanupsync.__name__,
+            "push": True,
+            "pull": False,
+            "sync_filter": uuid4().hex,
+            "client_instance_id": uuid4().hex,
+        }
 
     def test_validator__no_push_no_pull(self):
         self.kwargs.pop("push")
@@ -913,12 +924,12 @@ class CleanUpSyncsTaskValidatorTestCase(TestCase):
 
 class CleanUpSyncsTaskTestCase(TestCase):
     def setUp(self):
-        self.kwargs = dict(
-            push=True,
-            pull=False,
-            sync_filter=uuid4().hex,
-            client_instance_id=uuid4().hex,
-        )
+        self.kwargs = {
+            "push": True,
+            "pull": False,
+            "sync_filter": uuid4().hex,
+            "client_instance_id": uuid4().hex,
+        }
 
     @patch("kolibri.core.auth.tasks.CleanUpSyncsValidator")
     def test_runs_validator(self, mock_validator):

@@ -116,6 +116,7 @@ def get_url_by_role(role, full_facility_import=False, on_my_own_device=False):
 
     if obj:
         return obj.url
+    return None
 
 
 class RootURLRedirectView(RedirectView):

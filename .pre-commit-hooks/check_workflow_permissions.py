@@ -64,9 +64,9 @@ def normalise(permissions):
         return None
     if isinstance(permissions, str):
         if permissions == "write-all":
-            return {scope: "write" for scope in ALL_SCOPES}
+            return dict.fromkeys(ALL_SCOPES, "write")
         if permissions == "read-all":
-            return {scope: "read" for scope in ALL_SCOPES}
+            return dict.fromkeys(ALL_SCOPES, "read")
         return dict.fromkeys(ALL_SCOPES, "none")
     expanded = dict.fromkeys(ALL_SCOPES, "none")
     expanded.update(permissions)

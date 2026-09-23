@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.test import TestCase
 
 from kolibri.core.auth.models import Facility
@@ -19,7 +20,7 @@ class BaseTestCase(TestCase):
 
     def setUp(self):
         self.mock_location = mock.MagicMock(
-            spec=NetworkLocation(),
+            spec=NetworkLocation,
             id="mock_location_id",
             instance_id=None,
             connection_status=ConnectionStatus.Unknown,

@@ -7,7 +7,7 @@ stopwords_path = os.path.abspath(
         os.path.dirname(__file__), os.path.pardir, "constants", "stopwords-all.json"
     )
 )
-with open(stopwords_path, mode="r", encoding="utf-8") as f:
+with open(stopwords_path, encoding="utf-8") as f:
     stopwords = json.load(f)
 
 # load into a set

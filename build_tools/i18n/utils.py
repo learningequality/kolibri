@@ -18,8 +18,7 @@ def to_locale(language):
                 language[p + 1].upper() + language[p + 2 :].lower(),
             )
         return "{}_{}".format(language[:p].lower(), language[p + 1 :].upper())
-    else:
-        return language.lower()
+    return language.lower()
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -45,7 +44,7 @@ def available_languages():
     Returns all available languages including English and in-context language.
     Callers should filter as needed.
     """
-    with open(LANGUAGE_INFO_PATH, mode="r", encoding="utf-8") as f:
+    with open(LANGUAGE_INFO_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 

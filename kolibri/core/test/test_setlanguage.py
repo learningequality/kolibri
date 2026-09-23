@@ -28,7 +28,7 @@ class I18NTests(TestCase):
         The set_language view can be used to change the session language.
         """
         lang_code = self._get_inactive_language_code()
-        post_data = dict(language=lang_code)
+        post_data = {"language": lang_code}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -44,7 +44,7 @@ class I18NTests(TestCase):
         """
         lang_code = self._get_inactive_language_code()
         next_url = reverse("kolibri:kolibri.plugins.learn:learn")
-        post_data = dict(language=lang_code, next=next_url)
+        post_data = {"language": lang_code, "next": next_url}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -60,7 +60,7 @@ class I18NTests(TestCase):
         """
         lang_code = self._get_inactive_language_code()
         next_url = "/not/a/real/url"
-        post_data = dict(language=lang_code, next=next_url)
+        post_data = {"language": lang_code, "next": next_url}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -74,7 +74,7 @@ class I18NTests(TestCase):
         The set_language view can be used to change the session language.
         """
         lang_code = self._get_inactive_language_code()
-        post_data = dict(language=lang_code)
+        post_data = {"language": lang_code}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -98,7 +98,7 @@ class I18NTests(TestCase):
         The user is redirected to the "next" argument.
         """
         lang_code = self._get_inactive_language_code()
-        post_data = dict(language=lang_code)
+        post_data = {"language": lang_code}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -107,7 +107,7 @@ class I18NTests(TestCase):
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         next_url = reverse("kolibri:kolibri.plugins.learn:learn")
-        post_data = dict(next=next_url)
+        post_data = {"next": next_url}
         current_language = get_language()
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
@@ -125,7 +125,7 @@ class I18NTests(TestCase):
         The user is redirected to user redirect if the "next" argument is invalid.
         """
         lang_code = self._get_inactive_language_code()
-        post_data = dict(language=lang_code)
+        post_data = {"language": lang_code}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -134,7 +134,7 @@ class I18NTests(TestCase):
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         next_url = "/not/a/real/url"
-        post_data = dict(next=next_url)
+        post_data = {"next": next_url}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         current_language = get_language()
         self.assertEqual(response.status_code, 200)
@@ -149,7 +149,7 @@ class I18NTests(TestCase):
         The set_language view is forbidden to be accessed via GET
         """
         lang_code = self._get_inactive_language_code()
-        post_data = dict(language=lang_code)
+        post_data = {"language": lang_code}
         response = self.client.get(reverse("kolibri:core:set_language"), data=post_data)
         self.assertEqual(type(response), HttpResponseNotAllowed)
 
@@ -158,7 +158,7 @@ class I18NTests(TestCase):
         The set_language view returns 200 for AJAX calls by default.
         """
         lang_code = self._get_inactive_language_code()
-        post_data = dict(language=lang_code)
+        post_data = {"language": lang_code}
         response = self.client.post(
             reverse("kolibri:core:set_language"),
             post_data,

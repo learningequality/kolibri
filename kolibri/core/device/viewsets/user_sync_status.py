@@ -99,18 +99,18 @@ class UserSyncStatusSerializer(serializers.ModelSerializer):
         recent = last_synced and (timezone.now() - last_synced < sync_diff)
         if transfer_status in transfer_statuses.IN_PROGRESS_STATES:
             return SYNCING
-        elif transfer_status == transfer_statuses.ERRORED:
+        if transfer_status == transfer_statuses.ERRORED:
             return UNABLE_TO_SYNC
-        elif recent:
+        if recent:
             if device_status == DeviceStatus.InsufficientStorage[0]:
                 return INSUFFICIENT_STORAGE
-            elif (
+            if (
                 device_status is not None
                 and device_status_sentiment == StatusSentiment.Negative
             ):
                 return UNABLE_TO_SYNC
             return RECENTLY_SYNCED
-        elif obj.status == SyncQueueStatus.Queued:
+        if obj.status == SyncQueueStatus.Queued:
             return QUEUED
         return NOT_RECENTLY_SYNCED
 
@@ -199,7 +199,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             .values("last_removal"),
             output_field=DateTimeTzField(),
         )
-        queryset = queryset.annotate(
+        return queryset.annotate(
             transfer_status=Subquery(most_recent_sync_status),
             device_status=Subquery(
                 most_recent_synced_device_status.values("status")[:1]
@@ -211,4 +211,3 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             last_download_removed=last_download_removal,
             sync_downloads_in_progress=has_in_progress_sync_initiated_download,
         )
-        return queryset

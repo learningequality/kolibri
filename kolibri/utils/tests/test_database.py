@@ -4,8 +4,7 @@ import os
 import sqlite3
 import tempfile
 import unittest
-
-from mock import patch
+from unittest.mock import patch
 
 from kolibri.utils.database import sqlite_check_foreign_keys
 
@@ -108,7 +107,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
         )
 
         # Verify JSON file contains the deleted data in Django fixture format
-        with open(json_files[0], "r", encoding="utf-8") as jsonfile:
+        with open(json_files[0], encoding="utf-8") as jsonfile:
             data = json.load(jsonfile)
             self.assertIsInstance(data, list, "JSON should be a list of records")
             self.assertEqual(
@@ -162,7 +161,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
         )
 
         # Verify JSON file contains the deleted data
-        with open(json_files[0], "r", encoding="utf-8") as jsonfile:
+        with open(json_files[0], encoding="utf-8") as jsonfile:
             data = json.load(jsonfile)
             self.assertIsInstance(data, list, "JSON should be a list of records")
             self.assertEqual(
@@ -233,7 +232,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
         )
 
         # Verify JSON file contains the deleted data
-        with open(json_files[0], "r", encoding="utf-8") as jsonfile:
+        with open(json_files[0], encoding="utf-8") as jsonfile:
             data = json.load(jsonfile)
             self.assertIsInstance(data, list, "JSON should be a list of records")
             self.assertEqual(
@@ -288,7 +287,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
         )
 
         # Verify JSON file contains both deleted records
-        with open(json_files[0], "r", encoding="utf-8") as jsonfile:
+        with open(json_files[0], encoding="utf-8") as jsonfile:
             data = json.load(jsonfile)
             self.assertIsInstance(data, list, "JSON should be a list of records")
             self.assertEqual(

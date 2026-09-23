@@ -1,8 +1,8 @@
 import json
 import uuid
 from contextlib import contextmanager
+from unittest import mock
 
-import mock
 from django.test import SimpleTestCase
 from morango.constants import transfer_statuses
 from morango.errors import MorangoSkipOperation

@@ -335,8 +335,7 @@ class KolibriWebViewStack(Gtk.Stack):
         self, webview: WebKit.WebView, navigation_action: WebKit.NavigationAction
     ) -> typing.Optional[WebKit.WebView]:
         target_url = navigation_action.get_request().get_uri()
-        new_webview = self.emit("open-new-window", target_url, self.__main_webview)
-        return new_webview
+        return self.emit("open-new-window", target_url, self.__main_webview)
 
     def __main_webview_back_forward_list_on_changed(
         self, back_forward_list: WebKit.BackForwardList, *args

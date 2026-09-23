@@ -92,7 +92,7 @@ def conditional_backup(kolibri_version, version_file_contents):
 
 def get_version():
     try:
-        with open(version_file(), "r") as f:
+        with open(version_file()) as f:
             version = f.read()
         return version.strip() if version else ""
     except OSError:
@@ -169,7 +169,7 @@ def _copy_preseeded_db(db_name):
             logger.info(
                 "Copied preseeded database from {} to {}".format(db_path, target)
             )
-        except (ImportError, IOError, OSError):
+        except (ImportError, OSError):
             logger.warning(
                 "Unable to copy pre-migrated database from {} to {}".format(
                     db_path, target

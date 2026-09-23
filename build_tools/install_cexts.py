@@ -64,7 +64,7 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
     if platform_split[0] == "win32":
         return os.path.join(path, "Windows", "x86")
     # Windows 64-bit
-    elif platform_split[0] == "win":
+    if platform_split[0] == "win":
         return os.path.join(path, "Windows", "AMD64")
 
     # Prior to CPython 3.3, there were two ABI-incompatible ways of building CPython
@@ -91,7 +91,7 @@ def run_pip_install(
     python version, implementation and abi using `pip install` with cache_path as
     the cache directory.
     """
-    return_code = subprocess.call(
+    return subprocess.call(
         [
             sys.executable,
             "-m",
@@ -117,8 +117,6 @@ def run_pip_install(
             "{}=={}".format(name, pk_version),
         ]
     )
-
-    return return_code
 
 
 DEFAULT_MAX_WORKERS = 8
@@ -161,7 +159,7 @@ def install_one(task):
     index_url = task["index_url"]
     cache_path = task["cache_path"]
 
-    filename = "-".join([package_name, package_version, abi, platform])
+    filename = f"{package_name}-{package_version}-{abi}-{platform}"
 
     # Calculate the path that the package will be installed into
     # Cryptography builds for Linux target Python 3.6+ but the only existing

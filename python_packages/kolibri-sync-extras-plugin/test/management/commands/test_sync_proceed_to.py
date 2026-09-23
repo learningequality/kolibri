@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from morango.constants import capabilities
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses

@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import override_settings
@@ -6,7 +7,6 @@ from django.test import TestCase
 from django.urls import clear_url_caches
 from django.urls import reverse
 from django.utils import translation
-from mock import patch
 
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.utils.conf import OPTIONS

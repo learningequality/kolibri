@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from morango.sync.context import SessionContext
 
 from kolibri.core.auth.sync_operations import KolibriSyncOperations

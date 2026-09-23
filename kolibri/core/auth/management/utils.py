@@ -62,10 +62,8 @@ def _interactive_client_facility_selection():
         facility = facilities[int(idx) - 1]
     except IndexError:
         raise CommandError(
-            (
-                "{idx} is not in the range of (1, {range})".format(
-                    idx=idx, range=len(facilities)
-                )
+            "{idx} is not in the range of (1, {range})".format(
+                idx=idx, range=len(facilities)
             )
         )
     return facility
@@ -80,10 +78,8 @@ def _interactive_server_facility_selection(facilities):
         return facilities[int(idx) - 1]
     except IndexError:
         raise CommandError(
-            (
-                "{idx} is not in the range of (1, {range})".format(
-                    idx=idx, range=len(facilities)
-                )
+            "{idx} is not in the range of (1, {range})".format(
+                idx=idx, range=len(facilities)
             )
         )
 
@@ -101,23 +97,18 @@ def get_facility(facility_id=None, noninteractive=False):
             facility = Facility.objects.get()
         except Facility.DoesNotExist:
             raise CommandError(
-                (
-                    "There are no facilities on this device. "
-                    "Please initialize your Kolibri installation by starting the server, loading Kolibri in the browser, "
-                    "and completing the setup instructions. "
-                )
+                "There are no facilities on this device. "
+                "Please initialize your Kolibri installation by starting the server, loading Kolibri in the browser, "
+                "and completing the setup instructions. "
             )
         except Facility.MultipleObjectsReturned:
             if noninteractive:
                 raise CommandError(
-                    (
-                        "There are multiple facilities on this device. "
-                        "Please pass in a facility ID by passing in --facility {ID} after the command."
-                    )
+                    "There are multiple facilities on this device. "
+                    "Please pass in a facility ID by passing in --facility {ID} after the command."
                 )
-            else:
-                # in interactive mode, allow user to select facility
-                facility = _interactive_client_facility_selection()
+            # in interactive mode, allow user to select facility
+            facility = _interactive_client_facility_selection()
 
     return facility
 
@@ -141,10 +132,8 @@ def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
 
     if noninteractive and len(facilities) > 1:
         raise CommandError(
-            (
-                "There are multiple facilities on the server. "
-                "Please pass in a facility ID by passing in --facility {ID} after the command."
-            )
+            "There are multiple facilities on the server. "
+            "Please pass in a facility ID by passing in --facility {ID} after the command."
         )
 
     facility = (
@@ -258,9 +247,8 @@ def get_client_and_server_certs(
         if not username or not password:
             if noninteractive:
                 raise CommandError("Server username and/or password not specified")
-            else:
-                username = input("Please enter username: ")
-                password = getpass.getpass("Please enter password: ")
+            username = input("Please enter username: ")
+            password = getpass.getpass("Please enter password: ")
 
         userargs = username
         if facility_id:
@@ -365,6 +353,7 @@ def run_once(f):
             result = f(*args, **kwargs)
             wrapper.has_run = True
             return result
+        return None
 
     wrapper.has_run = False
     return wrapper
@@ -694,11 +683,11 @@ class MorangoSyncCommand(AsyncCommand):
             self.update_progress(
                 current_progress=progress,
                 message=stats_msg(transfer_session),
-                extra_data=dict(
-                    bytes_sent=transfer_session.bytes_sent,
-                    bytes_received=transfer_session.bytes_received,
-                    sync_state=sync_state,
-                ),
+                extra_data={
+                    "bytes_sent": transfer_session.bytes_sent,
+                    "bytes_received": transfer_session.bytes_received,
+                    "sync_state": sync_state,
+                },
             )
 
         signal_group.started.connect(started)
@@ -732,9 +721,7 @@ class MorangoSyncCommand(AsyncCommand):
                     logger.info("No records transferred")
 
         def handler(transfer_session):
-            self.update_progress(
-                message=message, extra_data=dict(sync_state=sync_state)
-            )
+            self.update_progress(message=message, extra_data={"sync_state": sync_state})
 
         signal_group.started.connect(started)
         signal_group.started.connect(handler)

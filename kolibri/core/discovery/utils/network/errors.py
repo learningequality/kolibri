@@ -21,15 +21,11 @@ class NetworkLocationConnectionFailure(NetworkClientError):
     Connecting to the network location failed before we could read anything about the server
     """
 
-    pass
-
 
 class NetworkLocationResponseTimeout(NetworkClientError):
     """
     Successfully connected to the network location but the request timed out
     """
-
-    pass
 
 
 class NetworkLocationResponseFailure(NetworkClientError):
@@ -48,15 +44,11 @@ class NetworkLocationInvalidResponse(NetworkClientError):
     doesn't appear to be a compatible Kolibri or Studio instance
     """
 
-    pass
-
 
 class NetworkLocationConflict(NetworkError):
     """
     When a conflict occurs, like the instance ID doesn't match what we expect
     """
-
-    pass
 
 
 class InvalidNetworkLocationFormat(NetworkClientError):

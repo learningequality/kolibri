@@ -44,5 +44,4 @@ def registerfacility(token, facility):
     data["signature"] = client_cert.sign(message)
 
     # attempt to claim the facility
-    response = client.post("portal/api/public/v1/registerfacility/", data=data)
-    return response
+    return client.post("portal/api/public/v1/registerfacility/", data=data)

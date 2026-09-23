@@ -5,8 +5,8 @@ Also tests whether the users with permissions can create logs.
 
 import datetime
 import uuid
+from unittest import mock
 
-import mock
 import pytz
 from django.core.management import call_command
 from django.core.management.base import CommandError

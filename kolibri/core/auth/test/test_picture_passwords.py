@@ -1,8 +1,9 @@
-import mock
+from unittest import mock
+from unittest.mock import patch
+
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
-from mock import patch
 from morango.sync.utils import mute_signals
 
 from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET

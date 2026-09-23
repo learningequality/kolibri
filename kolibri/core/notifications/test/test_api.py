@@ -1,11 +1,11 @@
 import uuid
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
-from mock import patch
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.test.helpers import create_superuser
@@ -250,13 +250,11 @@ class NotificationsAPITestCase(APITestCase):
         # dont save completed lesson if there are more resources to complete
         notifications = create_notification.call_args_list
         assert not any(
-            [
-                (
-                    call[1] == NotificationEventType.Completed
-                    and call[0] == NotificationObjectType.Lesson
-                )
-                for call in notifications
-            ]
+            (
+                call[1] == NotificationEventType.Completed
+                and call[0] == NotificationObjectType.Lesson
+            )
+            for call in notifications
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -734,9 +732,7 @@ class NotificationsAPITestCase(APITestCase):
         )
         parse_attemptslog(attemptlog2)
         notifications = create_notification.call_args_list
-        assert not any(
-            [call[1] == NotificationEventType.Help for call in notifications]
-        )
+        assert not any(call[1] == NotificationEventType.Help for call in notifications)
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
@@ -890,9 +886,7 @@ class NotificationsAPITestCase(APITestCase):
         parse_attemptslog(attemptlog)
 
         notifications = create_notification.call_args_list
-        assert not any(
-            [call[1] == NotificationEventType.Help for call in notifications]
-        )
+        assert not any(call[1] == NotificationEventType.Help for call in notifications)
 
     def test_parse_attemptlog_updates_needs_help_notification_if_user_keeps_failing(
         self,
@@ -1884,7 +1878,7 @@ class CourseSessionNotificationsTestCase(APITestCase):
         interaction_history = [
             {"type": "answer", "correct": 0} for _ in range(num_failed_interactions)
         ]
-        attemptlog = AttemptLog.objects.create(
+        return AttemptLog.objects.create(
             masterylog=masterylog,
             sessionlog=sessionlog,
             user=self.user1,
@@ -1897,7 +1891,6 @@ class CourseSessionNotificationsTestCase(APITestCase):
             error=False,
             interaction_history=interaction_history,
         )
-        return attemptlog
 
     def test_course_content_attempt_creates_help_notification(self):
         attemptlog = self._create_course_exercise_attemptlog(
@@ -2007,7 +2000,7 @@ class PrePostTestNotificationsTestCase(APITestCase):
             kind=content_kinds.QUIZ,
         )
         now = local_now()
-        masterylog = MasteryLog.objects.create(
+        return MasteryLog.objects.create(
             summarylog=summarylog,
             user=self.user1,
             start_timestamp=now,
@@ -2020,7 +2013,6 @@ class PrePostTestNotificationsTestCase(APITestCase):
                 "test_type": "pre",
             },
         )
-        return masterylog
 
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_prepost_test_started_notification(self, mock_save):

@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.test import SimpleTestCase
 from morango.sync.context import CompositeSessionContext
 from morango.sync.context import LocalSessionContext

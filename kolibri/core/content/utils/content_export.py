@@ -68,11 +68,11 @@ def export_file(f, data_dir, total_bytes_to_transfer):
     except InvalidStorageFilenameError:
         # If any files have an invalid storage file name, don't export them.
         job.update_progress(job.progress + f["file_size"], total_bytes_to_transfer)
-        return
+        return None
     # if the file already exists, add its size to our overall progress, and skip
     if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
         job.update_progress(job.progress + f["file_size"], total_bytes_to_transfer)
-        return
+        return None
     with transfer.FileCopy(srcpath, dest, cancel_check=job.is_cancelled) as copy:
 
         def progress_update(length):
@@ -84,5 +84,5 @@ def export_file(f, data_dir, total_bytes_to_transfer):
             job.extra_metadata["file_size"] = job.progress
             job.extra_metadata["total_resources"] = 0
             job.save_meta()
-            return
+            return None
         return dest

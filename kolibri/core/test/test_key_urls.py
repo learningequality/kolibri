@@ -1,8 +1,9 @@
+from unittest.mock import patch
+
 import requests
 from django.conf import settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from mock import patch
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import clear_process_cache

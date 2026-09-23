@@ -69,8 +69,7 @@ class FileFinder(finders.FileSystemFinder):
                 raise ValueError(
                     "Cannot use unprefixed locations for dynamic locations"
                 )
-            else:
-                prefix = prefix.rstrip("/")
+            prefix = prefix.rstrip("/")
             if (prefix, root) not in self.locations:
                 self.locations.append((prefix, root))
             self.prefixes.add(prefix)
@@ -88,6 +87,7 @@ class FileFinder(finders.FileSystemFinder):
         path = _get_file_path(root, path, prefix)
         if path and os.path.exists(path):
             return path
+        return None
 
 
 class SlicedFile(BufferedIOBase):
@@ -129,7 +129,7 @@ class TruncatableFileEntry(FileEntry):
             stat_path = "{}.{}".format(path, "file_size")
             if stat_cache is None or stat_path not in stat_cache:
                 if os.path.exists(stat_path):
-                    with open(stat_path, "r") as f:
+                    with open(stat_path) as f:
                         self.file_size = int(f.read())
                     if stat_cache is not None:
                         stat_cache[stat_path] = self.file_size
@@ -245,6 +245,7 @@ class EndRangeStaticFile(StaticFile):
         for encoding_re, path, headers in self.alternatives:
             if accept_encoding == "*" or encoding_re.search(accept_encoding):
                 return path, headers
+        return None
 
 
 class StreamingStaticFile(EndRangeStaticFile):

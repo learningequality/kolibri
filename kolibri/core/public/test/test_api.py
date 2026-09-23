@@ -1,8 +1,8 @@
 import platform
 import time
 import uuid
+from unittest import mock
 
-import mock
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -219,7 +219,7 @@ class PublicAPITestCase(APITestCase):
         for key, value in expected.items():
             self.assertEqual(data[key], value)
         # we don't care what order these elements are in
-        self.assertSetEqual(set(["en", "es"]), set(data["included_languages"]))
+        self.assertSetEqual({"en", "es"}, set(data["included_languages"]))
 
     def test_public_channel_lookup_no_version(self):
         response = self.client.get(
@@ -270,7 +270,7 @@ class PublicAPITestCase(APITestCase):
 
         self.assertEqual(
             set(self._public_channel_v2_item(self.channel_id2)["included_languages"]),
-            set(["sw", "ar"]),
+            {"sw", "ar"},
         )
 
     def test_public_channel_v2_excludes_unlisted_channels(self):
@@ -282,8 +282,8 @@ class PublicAPITestCase(APITestCase):
 
         set_device_settings(allow_peer_unlisted_channel_import=True)
         self.assertEqual(
-            set(channel["id"] for channel in self._public_channel_v2_list()),
-            set([self.channel_id1, self.channel_id2]),
+            {channel["id"] for channel in self._public_channel_v2_list()},
+            {self.channel_id1, self.channel_id2},
         )
 
     def test_public_channel_v2_list_is_ordered_by_order_column(self):
@@ -456,7 +456,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_stale_queue_should_sync(self):
-        for i in range(0, 10):
+        for i in range(10):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -482,7 +482,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_skip_the_queue_should_sync(self):
-        for i in range(0, 10):
+        for i in range(10):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -508,7 +508,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_full_queue_should_queue(self):
-        for i in range(0, MAX_CONCURRENT_SYNCS):
+        for i in range(MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -537,7 +537,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
 
     def test_create_active_transfer_should_queue(self):
-        for i in range(0, 2):
+        for i in range(2):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -597,7 +597,7 @@ class SyncQueueViewSetTestCase(APITestCase):
             keep_alive=10,
             last_sync=100,
         )
-        for i in range(0, MAX_CONCURRENT_SYNCS):
+        for i in range(MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -626,7 +626,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
 
     def test_update_full_queue_should_scale_keep_alive(self):
-        for i in range(0, 3):
+        for i in range(3):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",

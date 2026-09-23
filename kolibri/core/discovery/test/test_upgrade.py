@@ -1,10 +1,10 @@
 import unittest
+from unittest.mock import patch
 
 from django.conf import settings
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
 from django.test import TestCase
-from mock import patch
 
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.upgrade import move_network_location_entries

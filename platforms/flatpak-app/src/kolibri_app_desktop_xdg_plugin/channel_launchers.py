@@ -305,7 +305,7 @@ class ChannelLauncher_FromDatabase(ChannelLauncher):
 
     def write_channel_icon(self):
         if not self.__channel_icon:
-            return
+            return None
 
         icon_name = self.desktop_id
         icon_file_path = self.get_icon_file_path(
@@ -455,8 +455,7 @@ class ChannelIcon(object):
 
         if image_is_square(self.__icon_inner_fill_image):
             return self.__icon_inner_fill_image
-        else:
-            return self.__icon_inner_tile_image
+        return self.__icon_inner_tile_image
 
     def __apply_icon_mask(self, icon_image):
         # The icon mask is a rounded rectangle matching the GNOME icon set.

@@ -30,9 +30,9 @@ def _get_drive_name(drive, path):
     description = drive.get("Description")
     if caption and description:
         return "{} ({})".format(caption, description)
-    elif caption:
+    if caption:
         return caption
-    elif description:
+    if description:
         return description
     return path
 
@@ -199,7 +199,7 @@ def _get_drive_list_powershell():
     # Read and parse the JSON file
     if os.path.exists(temp_file_path) and os.path.getsize(temp_file_path) > 0:
         # Open the file with utf-8-sig encoding to handle BOM
-        with open(temp_file_path, "r", encoding="utf-8-sig") as f:
+        with open(temp_file_path, encoding="utf-8-sig") as f:
             content = f.read().strip()
 
             disks_data = json.loads(content or "[]")

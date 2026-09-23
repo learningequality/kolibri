@@ -189,8 +189,7 @@ class ContentNodeFilter(FilterSet):
     def filter_exclude_content_ids(self, queryset, name, value):
         if not value:
             return queryset
-        else:
-            return queryset.exclude_by_content_ids(value.split(","))
+        return queryset.exclude_by_content_ids(value.split(","))
 
     def filter_include_coach_content(self, queryset, name, value):
         if value:

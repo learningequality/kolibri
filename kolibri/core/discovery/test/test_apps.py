@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.apps import apps
 from django.db import router
 from django.db.models.signals import post_migrate

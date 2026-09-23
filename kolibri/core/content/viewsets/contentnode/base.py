@@ -300,7 +300,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         if self._should_proxy_request(request):
             if self.get_queryset().filter(admin_imported=True, pk=pk).exists():
                 # Used in the update method for remote request retrieval
-                self.locally_admin_imported_ids = set([pk])
+                self.locally_admin_imported_ids = {pk}
             else:
                 # Used in the update method for remote request retrieval
                 self.locally_admin_imported_ids = set()

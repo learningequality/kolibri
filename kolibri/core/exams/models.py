@@ -204,7 +204,7 @@ class DraftExam(AbstractExam):
         """
         Convert this draft exam to an exam object.
         """
-        exam = Exam(
+        return Exam(
             title=self.title,
             question_count=self.question_count,
             question_sources=self.question_sources,
@@ -216,7 +216,6 @@ class DraftExam(AbstractExam):
             instant_report_visibility=self.instant_report_visibility,
             date_created=self.date_created,
         )
-        return exam
 
 
 class Exam(AbstractExam, AbstractFacilityDataModel):
@@ -253,7 +252,7 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
         # one exam can contain multiple questions from multiple exercises,
         # hence multiple content nodes
         one_to_many=True,
-        filters=dict(active=True),
+        filters={"active": True},
         lookup_field="question_sources",
         lookup_func=exam_assignment_lookup,
     )

@@ -301,7 +301,6 @@ class KolibriVersionedSyncOperation(KolibriSyncOperationMixin, LocalOperation):
 
         :type context: morango.sync.context.LocalSessionContext
         """
-        pass
 
     def downgrade(self, context):
         """
@@ -309,7 +308,6 @@ class KolibriVersionedSyncOperation(KolibriSyncOperationMixin, LocalOperation):
 
         :type context: morango.sync.context.LocalSessionContext
         """
-        pass
 
 
 class KolibriSingleUserSyncOperation(KolibriSyncOperationMixin, LocalOperation):

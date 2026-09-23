@@ -1,9 +1,9 @@
 import sys
 import tempfile
+from unittest.mock import patch
 
 from django.db.utils import OperationalError
 from django.test import TestCase
-from mock import patch
 
 from kolibri.utils import sanity_checks
 from kolibri.utils.sanity_checks import DatabaseNotMigrated

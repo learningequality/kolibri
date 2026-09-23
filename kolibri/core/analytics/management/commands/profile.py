@@ -70,9 +70,9 @@ class Command(BaseCommand):
         if os.path.exists(PROFILE_LOCK):
             command_pid = None
             try:
-                with open(PROFILE_LOCK, "r") as f:
+                with open(PROFILE_LOCK) as f:
                     command_pid = int(f.readline())
-            except (IOError, TypeError, ValueError):
+            except (OSError, TypeError, ValueError):
                 remove_lock()
             if command_pid:
                 if pid_exists(command_pid):
@@ -151,7 +151,7 @@ class Command(BaseCommand):
         active_sessions, active_users, active_users_minute = get_db_info()
         used_cpu, used_memory, total_memory, total_processes = get_machine_info()
         timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
-        collected_information = (
+        return (
             timestamp,
             active_sessions,
             active_users,
@@ -163,5 +163,3 @@ class Command(BaseCommand):
             kolibri_cpu,
             kolibri_mem,
         )
-
-        return collected_information

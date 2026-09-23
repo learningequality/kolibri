@@ -53,8 +53,7 @@ def _map_contentnodes(request, content_ids):
         if content_ids
         else []
     )
-    contentnode_map = {c["id"]: c for c in contentnodes}
-    return contentnode_map
+    return {c["id"]: c for c in contentnodes}
 
 
 def _consolidate_lessons_data(request, lessons):
@@ -79,11 +78,9 @@ def _consolidate_lessons_data(request, lessons):
     for lesson in lessons:
         lesson["progress"] = {
             "resource_progress": sum(
-                (
-                    progress_map[resource["content_id"]]
-                    for resource in lesson["resources"]
-                    if resource["content_id"] in progress_map
-                )
+                progress_map[resource["content_id"]]
+                for resource in lesson["resources"]
+                if resource["content_id"] in progress_map
             ),
             "total_resources": len(lesson["resources"]),
         }

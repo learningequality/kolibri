@@ -700,7 +700,7 @@ class FacilityUserTestCase(TestCase):
         self.facility = Facility.objects.create()
         self.device_settings = DeviceSettings.objects.create()
 
-        user = FacilityUser.deserialize(dict(username="bob", password=""))
+        user = FacilityUser.deserialize({"username": "bob", "password": ""})
         self.assertEqual("bob", user.username)
         self.assertEqual(NOT_SPECIFIED, user.password)
 

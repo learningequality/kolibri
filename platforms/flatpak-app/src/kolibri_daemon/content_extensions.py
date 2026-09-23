@@ -72,8 +72,7 @@ class ContentExtensionsList(object):
         if len(extension_str_split) == 2:
             extension_ref, extension_commit = extension_str_split
             return ContentExtension.from_ref(extension_ref, extension_commit)
-        else:
-            return None
+        return None
 
     def write_to_cache(self):
         with self.CONTENT_EXTENSIONS_STATE_PATH.open("w") as file:
@@ -102,7 +101,7 @@ class ContentExtensionsList(object):
         old: ContentExtensionsList, new: ContentExtensionsList
     ) -> typing.Generator[ContentExtensionCompare, None, None]:
         changed_extensions = old.__extensions.symmetric_difference(new.__extensions)
-        changed_refs = set(extension.ref for extension in changed_extensions)
+        changed_refs = {extension.ref for extension in changed_extensions}
         for ref in changed_refs:
             old_extension = old.get_extension(ref)
             new_extension = new.get_extension(ref)
@@ -140,8 +139,7 @@ class ContentExtension(object):
         if match:
             name = match.group("name")
             return cls(ref, name, commit, content_json=None)
-        else:
-            return None
+        return None
 
     @classmethod
     def from_json(cls, json_obj: dict) -> ContentExtension:
@@ -208,7 +206,7 @@ class ContentExtension(object):
 
     @property
     def channel_ids(self) -> set:
-        return set(channel.channel_id for channel in self.__channels)
+        return {channel.channel_id for channel in self.__channels}
 
     def get_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         return next(
@@ -296,21 +294,18 @@ class ContentExtensionCompare(object):
     def __old_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         if self.__old_extension:
             return self.__old_extension.get_channel(channel_id)
-        else:
-            return None
+        return None
 
     def __new_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         if self.__new_extension:
             return self.__new_extension.get_channel(channel_id)
-        else:
-            return None
+        return None
 
     @property
     def __extension_dir(self) -> typing.Optional[Path]:
         if self.__new_extension:
             return self.__new_extension.base_dir
-        else:
-            return None
+        return None
 
     @property
     def __all_channel_ids(self) -> set:
@@ -320,15 +315,13 @@ class ContentExtensionCompare(object):
     def __old_channel_ids(self) -> set:
         if self.__old_extension:
             return self.__old_extension.channel_ids
-        else:
-            return set()
+        return set()
 
     @property
     def __new_channel_ids(self) -> set:
         if self.__new_extension:
             return self.__new_extension.channel_ids
-        else:
-            return set()
+        return set()
 
 
 class ContentChannelCompare(object):

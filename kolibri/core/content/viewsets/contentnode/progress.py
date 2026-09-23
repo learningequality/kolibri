@@ -52,14 +52,13 @@ class ContentNodeProgressViewset(TreeQueryMixin, GenericViewSet, ListModelMixin)
         if user.is_anonymous:
             user = None
 
-        queryset = queryset.annotate(
+        return queryset.annotate(
             last_interacted=Subquery(
                 ContentSummaryLog.objects.filter(
                     content_id=OuterRef("content_id"), user=user
                 ).values_list("end_timestamp")[:1]
             )
         )
-        return queryset
 
     def generate_response(self, request, queryset):
         if request.user.is_anonymous:

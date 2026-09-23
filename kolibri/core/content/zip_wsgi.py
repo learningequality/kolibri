@@ -137,7 +137,7 @@ def django_response_to_wsgi(response, environ, start_response):
     return response
 
 
-allowed_methods = set(["GET", "OPTIONS"])
+allowed_methods = {"GET", "OPTIONS"}
 
 # This is also included in packages/sandbox/src/h5p.html
 # ideally, we should never ever update this code
@@ -348,18 +348,17 @@ def _zip_content_from_request(request):  # noqa: C901
             return create_error_response(
                 "{filename} is not a valid zip file".format(filename=zipped_filename)
             )
-        else:
-            try:
-                zipped_url = get_content_storage_remote_url(
-                    zipped_filename, baseurl=remote_baseurl
+        try:
+            zipped_url = get_content_storage_remote_url(
+                zipped_filename, baseurl=remote_baseurl
+            )
+            zipped_path = RemoteFile(zipped_path, zipped_url)
+        except Exception:
+            return create_error_response(
+                "{filename} is either not available on the remote {baseurl}, or cannot be fetched".format(
+                    filename=zipped_filename, baseurl=remote_baseurl
                 )
-                zipped_path = RemoteFile(zipped_path, zipped_url)
-            except Exception:
-                return create_error_response(
-                    "{filename} is either not available on the remote {baseurl}, or cannot be fetched".format(
-                        filename=zipped_filename, baseurl=remote_baseurl
-                    )
-                )
+            )
 
     # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
     # the zipped_filename and embedded_filepath are defined by the regex capturing groups in the URL defined

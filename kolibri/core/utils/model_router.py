@@ -42,7 +42,7 @@ class KolibriModelRouter(ABC):
         ):
             return True
         # No opinion if neither object is ain self.MODEL_CLASSES.
-        elif (
+        if (
             obj1._meta.model not in self.MODEL_CLASSES
             and obj2._meta.model not in self.MODEL_CLASSES
         ):
@@ -61,7 +61,7 @@ class KolibriModelRouter(ABC):
         ):
             # The self.MODEL_CLASSES model should be migrated only on the self.DB_NAME database.
             return db == self.DB_NAME
-        elif db == self.DB_NAME:
+        if db == self.DB_NAME:
             # Ensure that all other apps don't get migrated on the self.DB_NAME database.
             return False
 

@@ -45,7 +45,6 @@ lint = [
     "ruff",
 ]
 test = [
-    "mock",
     "pytest",
     "pytest-django",
     "pytest-env",

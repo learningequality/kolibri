@@ -127,10 +127,9 @@ class KolibriDaemonManager(GObject.GObject):
     def get_absolute_url(self, url: str = "") -> typing.Optional[str]:
         if self.is_url_in_scope(url):
             return url
-        elif self.__dbus_proxy.props.base_url:
+        if self.__dbus_proxy.props.base_url:
             return urljoin(self.__dbus_proxy.props.base_url, url)
-        else:
-            return None
+        return None
 
     def get_debug_info(self) -> dict:
         return {

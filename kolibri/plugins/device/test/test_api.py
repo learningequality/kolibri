@@ -1,6 +1,6 @@
 import uuid
+from unittest import mock
 
-import mock
 from django.db.models import Q
 from django.urls import reverse
 

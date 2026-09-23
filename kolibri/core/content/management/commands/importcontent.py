@@ -258,7 +258,7 @@ class Command(BaseCommand):
                     fail_on_error=fail_on_error,
                     content_dir=content_dir,
                 )
-            elif detect_manifest:
+            if detect_manifest:
                 return manager_class.from_manifest(
                     channel_id,
                     path=path,

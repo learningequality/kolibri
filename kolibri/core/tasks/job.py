@@ -100,13 +100,13 @@ def default_status_text(job):
     if job.state == State.COMPLETED:
         # Translators: Message shown to indicate that a background process has finished successfully.
         return _("Complete")
-    elif job.state == State.FAILED or job.state == State.CANCELED:
+    if job.state == State.FAILED or job.state == State.CANCELED:
         # Translators: Message shown to indicate that a background process has failed.
         return _("Failed")
-    elif job.state == State.CANCELED:
+    if job.state == State.CANCELED:
         # Translators: Message shown to indicate that a background process has been cancelled.
         return _("Cancelled")
-    elif job.state == State.RUNNING and job.percentage_progress:
+    if job.state == State.RUNNING and job.percentage_progress:
         # Translators: Message shown to indicate the percentage completed of a background process.
         return _("In progress - {percent}%").format(
             percent=round(job.percentage_progress * 100)

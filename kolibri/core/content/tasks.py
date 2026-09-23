@@ -85,9 +85,10 @@ class ChannelValidator(JobValidator):
             {
                 "kwargs": {},
                 "args": [data["channel_id"]],
-                "extra_metadata": dict(
-                    channel_name=data["channel_name"], channel_id=data["channel_id"]
-                ),
+                "extra_metadata": {
+                    "channel_name": data["channel_name"],
+                    "channel_id": data["channel_id"],
+                },
             }
         )
         return job_data
@@ -146,7 +147,7 @@ class LocalMixin(metaclass=serializers.SerializerMetaclass):
 
     def validate(self, data):
         job_data = super().validate(data)
-        job_data["extra_metadata"].update(dict(drive_id=data["drive_id"]))
+        job_data["extra_metadata"].update({"drive_id": data["drive_id"]})
         job_data["args"] += [data["drive_id"]]
         return job_data
 
@@ -223,7 +224,7 @@ class RemoteImportMixin(metaclass=serializers.SerializerMetaclass):
             peer["base_url"] = baseurl
         except NetworkLocationNotFound:
             raise ResourceGoneError()
-        job_data["extra_metadata"].update(dict(peer_id=peer["id"]))
+        job_data["extra_metadata"].update({"peer_id": peer["id"]})
         job_data["kwargs"]["baseurl"] = peer["base_url"]
         job_data["kwargs"]["peer_id"] = peer["id"]
         if data.get("token"):
@@ -308,9 +309,10 @@ class ResourceNodeValidator(JobValidator):
             {
                 "kwargs": {},
                 "args": [data["node_id"]],
-                "extra_metadata": dict(
-                    resource_name=data["node_name"], node_id=data["node_id"]
-                ),
+                "extra_metadata": {
+                    "resource_name": data["node_name"],
+                    "node_id": data["node_id"],
+                },
             }
         )
         return job_data
@@ -346,7 +348,7 @@ class RemoteResourceImportValidator(ResourceNodeValidator):
             peer["base_url"] = client.base_url
         except NetworkLocationNotFound:
             raise ResourceGoneError()
-        job_data["extra_metadata"].update(dict(peer_id=peer["id"]))
+        job_data["extra_metadata"].update({"peer_id": peer["id"]})
         job_data["kwargs"]["baseurl"] = peer["base_url"]
         job_data["kwargs"]["peer_id"] = peer["id"]
         return job_data

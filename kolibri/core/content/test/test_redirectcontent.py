@@ -1,9 +1,9 @@
 import uuid
+from unittest.mock import patch
 from urllib.parse import urlencode
 
 from django.test import TestCase
 from django.urls import reverse
-from mock import patch
 
 from kolibri.core.content.models import ContentNode
 

@@ -375,7 +375,7 @@ def restart():
 
 @main.command(
     cls=KolibriDjangoCommand,
-    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+    context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
     help="Django management commands. See also 'kolibri manage help'",
 )
 @click.pass_context
@@ -473,8 +473,8 @@ def apply(plugin_names):
 def list():
     plugins = [plugin for plugin in iterate_plugins()]
     lang = "en"
-    max_name_len = max((len(plugin.name(lang)) for plugin in plugins))
-    max_module_path_len = max((len(plugin.module_path) for plugin in plugins))
+    max_name_len = max(len(plugin.name(lang)) for plugin in plugins)
+    max_module_path_len = max(len(plugin.module_path) for plugin in plugins)
     available_plugins = "Available plugins"
     plugin_id = "Plugin identifier"
     status = "Status"

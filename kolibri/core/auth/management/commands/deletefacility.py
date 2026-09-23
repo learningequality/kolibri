@@ -88,8 +88,7 @@ class Command(AsyncCommand):
                 )
                 if strict:
                     raise CommandError("{}, aborting!".format(msg))
-                else:
-                    logger.warning(msg)
+                logger.warning(msg)
 
         logger.info("Deletion complete.")
 

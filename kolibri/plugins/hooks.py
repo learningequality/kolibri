@@ -439,7 +439,6 @@ class KolibriHook(metaclass=KolibriHookMeta):
         """
         A dummy property that we set on classes that are not intended to be abstract in the register_hook function above.
         """
-        pass
 
     @property
     def unique_id(self):

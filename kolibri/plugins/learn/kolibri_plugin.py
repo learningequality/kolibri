@@ -120,6 +120,7 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
                 + kind_slug
                 + node.id
             )
+        return None
 
 
 @retry_on_db_lock

@@ -1,7 +1,6 @@
 import threading
 import time
-
-from mock import patch
+from unittest.mock import patch
 
 from kolibri.core.tasks.utils import InfiniteLoopThread
 
@@ -25,8 +24,13 @@ class TestBaseCloseableThread:
         Make sure to use the actual threading module.
         """
 
+        ran = threading.Event()
         with patch.object(threading, "_time"):
-            t = InfiniteLoopThread(lambda: id(1), thread_name="test")
+            t = InfiniteLoopThread(ran.set, thread_name="test")
             t.start()
             time.sleep(1)
+            assert t.is_alive()
         t.shutdown()
+        t.join(timeout=5)
+        assert ran.is_set()
+        assert not t.is_alive()

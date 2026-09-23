@@ -463,7 +463,7 @@ class LaunchpadWrapper:
 
         failures = []
         for series_name, pkgs in by_series.items():
-            names = sorted(set(p.source_package_name for p in pkgs))
+            names = sorted({p.source_package_name for p in pkgs})
             log.info(
                 "Promoting %s from %s to %s",
                 ", ".join(names),
@@ -636,12 +636,13 @@ def main():
 
     if args.command == "copy-to-series":
         return cmd_copy_to_series(args)
-    elif args.command == "check-source":
+    if args.command == "check-source":
         return cmd_check_source(args)
-    elif args.command == "promote":
+    if args.command == "promote":
         return cmd_promote(args)
-    elif args.command == "wait-for-published":
+    if args.command == "wait-for-published":
         return cmd_wait_for_published(args)
+    return None
 
 
 if __name__ == "__main__":

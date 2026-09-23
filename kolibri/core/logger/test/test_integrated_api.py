@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import uuid
+from unittest.mock import patch
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.http.cookie import SimpleCookie
@@ -11,7 +12,6 @@ from django.urls import reverse
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from le_utils.constants import modalities
-from mock import patch
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -1155,7 +1155,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             "answer": {"response": "hinty mchintyson"},
             "correct": 0,
         }
-        for i in range(0, self.mastery_model["n"] + 5):
+        for i in range(self.mastery_model["n"] + 5):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -1182,7 +1182,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         }
         self.mastery_log.mastery_criterion = {"type": "unknown"}
         self.mastery_log.save()
-        for i in range(0, 15):
+        for i in range(15):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -1209,7 +1209,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         }
         self.mastery_log.mastery_criterion = {"type": exercises.NUM_CORRECT_IN_A_ROW_2}
         self.mastery_log.save()
-        for i in range(0, 15):
+        for i in range(15):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -1240,7 +1240,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
         self.mastery_log.mastery_level = -10
         self.mastery_log.save()
-        for i in range(0, 15):
+        for i in range(15):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -1271,7 +1271,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             "answer": {"response": "hinty mchintyson"},
             "correct": 0,
         }
-        for i in range(0, 15):
+        for i in range(15):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -1292,7 +1292,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             user=self.user,
             mastery_level=-10,
         )
-        for i in range(0, 15):
+        for i in range(15):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -1431,7 +1431,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             "coach_assigned": True,
         }
         self.mastery_log.save()
-        for i in range(0, 15):
+        for i in range(15):
             AttemptLog.objects.create(
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,

@@ -4,10 +4,10 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest.mock import call
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
-from mock import call
-from mock import MagicMock
-from mock import patch
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError

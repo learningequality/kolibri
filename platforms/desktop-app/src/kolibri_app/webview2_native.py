@@ -85,8 +85,7 @@ _PTR_SIZE = ctypes.sizeof(LPVOID)
 def _vtable_slot(this_ptr, index):
     """Read pointer at vtbl[index] of the COM object at ``this_ptr``."""
     vtbl_addr = LPVOID.from_address(this_ptr).value
-    fn_addr = LPVOID.from_address(vtbl_addr + index * _PTR_SIZE).value
-    return fn_addr
+    return LPVOID.from_address(vtbl_addr + index * _PTR_SIZE).value
 
 
 def _query_interface(this_ptr, iid):

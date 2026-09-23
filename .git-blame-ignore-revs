@@ -15,3 +15,11 @@ e59c54a53fe4305700d4ced05134ab95b7436b1e
 
 # Reformatted imports after enabling ruff isort rules
 51b7e61d74714aed5d82555114066fb5cc4b814e
+
+# Ruff mechanical rewrites (UP026, then safe, unsafe and hand-applied fixes)
+a3e48446b8cfaf2582673fadd19d1abadb8cd543
+be52b3082e064e767f75b0e3d2a81e2bf800974c
+91eb648e35946c164ace36be2e9288f4fee9b9cf
+b3dd77a131224e779d3cce2b579aaf82157f9116
+570f7d9720cf42c67adc5d3d0c8f9cae0cc03be8
+e602393bf2b36cab1701a31d907c49552c92fb04

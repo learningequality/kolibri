@@ -167,7 +167,7 @@ def language_list(value):
     if not out:
         raise VdtValueError(value)
 
-    return sorted(list(out))
+    return sorted(out)
 
 
 def path(value):
@@ -268,6 +268,7 @@ def storage_option(value, *opts):
                 "Are storage requirements installed?",
             )
             raise VdtValueError(value)
+    return None
 
 
 def cache_option(value):

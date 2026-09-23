@@ -349,10 +349,10 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         )
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
+            any(x["total"] == 1 and x["correct"] == 0 for x in response.data)
         )
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 1, response.data))
+            any(x["total"] == 1 and x["correct"] == 1 for x in response.data)
         )
 
     def test_coach_difficult_no_assigned_by_lesson_id(self):
@@ -407,10 +407,10 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         )
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
+            any(x["total"] == 1 and x["correct"] == 0 for x in response.data)
         )
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 1, response.data))
+            any(x["total"] == 1 and x["correct"] == 1 for x in response.data)
         )
 
     def test_coach_difficult_both_assigned_by_lesson_id_group_id(self):
@@ -742,10 +742,10 @@ class QuizDifficultQuestionTestCase(APITestCase):
         response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
+            any(x["total"] == 1 and x["correct"] == 0 for x in response.data)
         )
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 1, response.data))
+            any(x["total"] == 1 and x["correct"] == 1 for x in response.data)
         )
 
     def test_coach_difficult_by_group_id(self):
@@ -764,10 +764,10 @@ class QuizDifficultQuestionTestCase(APITestCase):
         response = self._get_quiz_difficulties(for_group=True)
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
+            any(x["total"] == 1 and x["correct"] == 0 for x in response.data)
         )
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 1, response.data))
+            any(x["total"] == 1 and x["correct"] == 1 for x in response.data)
         )
 
     def test_coach_difficult_both_assigned_by_group_id(self):
@@ -1223,10 +1223,10 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         )
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
+            any(x["total"] == 1 and x["correct"] == 0 for x in response.data)
         )
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 1, response.data))
+            any(x["total"] == 1 and x["correct"] == 1 for x in response.data)
         )
 
     def test_coach_difficult_no_assigned_by_lesson_id(self):
@@ -1281,10 +1281,10 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         )
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
+            any(x["total"] == 1 and x["correct"] == 0 for x in response.data)
         )
         self.assertTrue(
-            any(map(lambda x: x["total"] == 1 and x["correct"] == 1, response.data))
+            any(x["total"] == 1 and x["correct"] == 1 for x in response.data)
         )
 
     def test_coach_difficult_both_assigned_by_lesson_id_group_id(self):

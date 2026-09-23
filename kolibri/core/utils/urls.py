@@ -23,8 +23,7 @@ def reverse_path(viewname, urlconf=None, args=None, kwargs=None, current_app=Non
     )
     # Remove any configured URL prefix from the URL that is specific to this deployment
     prefix_length = len(OPTIONS["Deployment"]["URL_PATH_PREFIX"])
-    reversed_path = reversed_path[prefix_length:]
-    return reversed_path
+    return reversed_path[prefix_length:]
 
 
 def reverse_remote(

@@ -3,9 +3,9 @@ Tests for `kolibri.utils.server` module.
 """
 
 import os
+from unittest import mock
 from unittest import TestCase
 
-import mock
 import pytest
 
 from kolibri.utils import server

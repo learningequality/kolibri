@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.test import TestCase
 
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
@@ -13,7 +14,7 @@ class NetworkDiscoveryForSoUDHookTestCase(TestCase):
         self.hook = NetworkLocationDiscoveryHook.get_hook(
             "kolibri.plugins.learn.NetworkDiscoveryForSoUDHook"
         )
-        self.mock_location = mock.MagicMock(spec=NetworkLocation())
+        self.mock_location = mock.MagicMock(spec=NetworkLocation)
         self.mock_location.is_kolibri = True
         begin_patcher = mock.patch("kolibri.core.device.soud.request_sync_hook")
         self.mock_begin = begin_patcher.start()

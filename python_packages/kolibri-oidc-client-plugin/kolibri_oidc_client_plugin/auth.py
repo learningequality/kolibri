@@ -33,21 +33,19 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
 
         if len(users) == 1:
             return self.update_user(users[0], user_info)
-        elif len(users) > 1:
+        if len(users) > 1:
             # In the rare case that two user accounts have the same email address,
             # bail. Randomly selecting one seems really wrong.
             msg = "Multiple users returned"
             raise SuspiciousOperation(msg)
-        elif self.get_settings("OIDC_CREATE_USER", True):
-            user = self.create_user(user_info)
-            return user
-        else:
-            logger.debug(
-                "Login failed: No user with username  %s found, and "
-                "OIDC_CREATE_USER is False",
-                username,
-            )
-            return None
+        if self.get_settings("OIDC_CREATE_USER", True):
+            return self.create_user(user_info)
+        logger.debug(
+            "Login failed: No user with username  %s found, and "
+            "OIDC_CREATE_USER is False",
+            username,
+        )
+        return None
 
     def verify_claims(self, claims):
         """Verify the provided claims to decide if authentication should be allowed."""

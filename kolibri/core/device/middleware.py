@@ -61,6 +61,7 @@ class KolibriLocaleMiddleware:
             return request.get_full_path(force_append_slash=path_needs_slash).replace(
                 script_prefix, "%s%s/" % (script_prefix, language), 1
             )
+        return None
 
     def __call__(self, request):
         # First get the language code, and whether this was calculated from the path

@@ -1,7 +1,7 @@
 import json
 import uuid
+from unittest import mock
 
-import mock
 from django.test import TestCase
 from morango.constants import transfer_statuses
 from morango.errors import MorangoSkipOperation
@@ -37,22 +37,22 @@ def _make_broken_store(
     serialized = json.dumps(
         {"picture_password": picture_password, "username": "remote_user"}
     )
-    defaults = dict(
-        id=store_id,
-        serialized=serialized,
-        deleted=False,
-        last_saved_instance=uuid.uuid4().hex,
-        last_saved_counter=1,
-        hard_deleted=False,
-        model_name=FacilityUser.morango_model_name,
-        profile=PROFILE_FACILITY_DATA,
-        partition="{}:user-ro:{}".format(dataset_id, store_id),
-        source_id=store_id,
-        dirty_bit=True,
-        deserialization_exception=_INTEGRITY_ERROR_EXCEPTION,
-        deserialization_error="UNIQUE constraint failed: kolibriauth_facilityuser.dataset_id, kolibriauth_facilityuser.picture_password",
-        last_transfer_session_id=transfer_session_id,
-    )
+    defaults = {
+        "id": store_id,
+        "serialized": serialized,
+        "deleted": False,
+        "last_saved_instance": uuid.uuid4().hex,
+        "last_saved_counter": 1,
+        "hard_deleted": False,
+        "model_name": FacilityUser.morango_model_name,
+        "profile": PROFILE_FACILITY_DATA,
+        "partition": "{}:user-ro:{}".format(dataset_id, store_id),
+        "source_id": store_id,
+        "dirty_bit": True,
+        "deserialization_exception": _INTEGRITY_ERROR_EXCEPTION,
+        "deserialization_error": "UNIQUE constraint failed: kolibriauth_facilityuser.dataset_id, kolibriauth_facilityuser.picture_password",
+        "last_transfer_session_id": transfer_session_id,
+    }
     defaults.update(overrides)
     Store.objects.create(**defaults)
     return store_id

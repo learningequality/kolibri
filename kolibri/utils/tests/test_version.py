@@ -37,8 +37,7 @@ def _sanitize(name):
     name = name.replace(".", "_")
     name = name.replace("+", "_")
     name = name.replace("-", "_")
-    name = name.replace(",", "_")
-    return name
+    return name.replace(",", "_")
 
 
 def _name_func(test_func, param_num, params):

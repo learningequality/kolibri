@@ -65,9 +65,9 @@ class Context:
         queue, _ = SyncQueue.objects.get_or_create(
             user_id=self.user_id,
             instance_id=self.instance_id,
-            defaults=dict(
-                status=SyncQueueStatus.Pending,
-            ),
+            defaults={
+                "status": SyncQueueStatus.Pending,
+            },
         )
         return queue
 
@@ -86,7 +86,7 @@ class Context:
     @cached_property
     def request_data(self):
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-        return dict(user=self.user_id, instance=instance_model.id)
+        return {"user": self.user_id, "instance": instance_model.id}
 
     def __str__(self):
         return "[user={}] [server={}]".format(self.user_id, self.instance_id)
@@ -207,12 +207,12 @@ def validate_sync_queue_for_sync_request(sync_queue):
         # if ready, the server has told us to sync so we shouldn't request a queue position until
         # we've synced
         return False
-    elif sync_queue.attempts > MAX_ATTEMPTS:
+    if sync_queue.attempts > MAX_ATTEMPTS:
         # if we have tried to sync more than 5 times, we should stop trying, unless provided
         # with a network location, which means a potential network change and possible chance for
         # success
         return False
-    elif (
+    if (
         sync_queue.status == SyncQueueStatus.Queued
         and sync_queue.attempt_at > attempt_execute_window()
     ):
@@ -390,13 +390,13 @@ def execute_sync(context):
     sync_session_id = sync_queue.sync_session_id
     cleanup = False
     command = "sync"
-    kwargs = dict(
-        user=context.user_id,
-        baseurl=context.network_location.base_url,
-        keep_alive=True,
-        noninteractive=True,
-        no_provision=True,
-    )
+    kwargs = {
+        "user": context.user_id,
+        "baseurl": context.network_location.base_url,
+        "keep_alive": True,
+        "noninteractive": True,
+        "no_provision": True,
+    }
 
     if sync_session_id:
         command = "resumesync"

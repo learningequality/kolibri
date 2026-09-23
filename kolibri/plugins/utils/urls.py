@@ -25,7 +25,7 @@ def find_duplicate_slugs():
     duplicate_slugs = {}
     for key, value in slugs.items():
         if len(value) > 1:
-            if all(map(lambda x: x.startswith("kolibri.plugins"), value)):
+            if all(x.startswith("kolibri.plugins") for x in value):
                 # If we have multiple kolibri core plugins setting the same url slug, we should error out.
                 # This is not acceptable.
                 raise RuntimeError(

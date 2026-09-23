@@ -8,8 +8,8 @@ import os
 import sys
 import tempfile
 from contextlib import contextmanager
+from unittest import mock
 
-import mock
 import pytest
 
 from kolibri.utils import options
@@ -140,7 +140,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
 
         # non-numeric arguments for an integer option in the ini file cause it to bail
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Deployment]", "HTTP_PORT = abba"]))
+            f.write("[Deployment]\nHTTP_PORT = abba")
         with mock.patch.dict(
             os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
@@ -150,7 +150,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
 
         # non-numeric arguments for an integer option in the env var cause it to bail, even when ini file is ok
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Deployment]", "HTTP_PORT = 1278"]))
+            f.write("[Deployment]\nHTTP_PORT = 1278")
         with mock.patch.dict(
             os.environ,
             {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
@@ -162,7 +162,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
 
         # out-of-bounds value for an option with validator_args bounds causes it to bail
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Tasks]", "SUPERVISOR_STALE_THRESHOLD = 14"]))
+            f.write("[Tasks]\nSUPERVISOR_STALE_THRESHOLD = 14")
         with mock.patch.dict(
             os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
@@ -172,7 +172,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
 
         # invalid choice for "option" type causes it to bail
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Database]", "DATABASE_ENGINE = penguin"]))
+            f.write("[Database]\nDATABASE_ENGINE = penguin")
         with mock.patch.dict(
             os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
@@ -182,7 +182,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
 
         # invalid choice for postgres ssl mode causes it to bail
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Database]", "DATABASE_SSL_MODE = maybe"]))
+            f.write("[Database]\nDATABASE_SSL_MODE = maybe")
         with mock.patch.dict(
             os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
@@ -205,7 +205,7 @@ def test_validator_args_enforce_bounds(monkeypatch):
 
         # out-of-bounds values log errors and exit
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Tasks]", "REGULAR_PRIORITY_WORKERS = 0"]))
+            f.write("[Tasks]\nREGULAR_PRIORITY_WORKERS = 0")
         with mock.patch.dict(
             os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
@@ -215,7 +215,7 @@ def test_validator_args_enforce_bounds(monkeypatch):
 
         # values within bounds are read as normal
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Tasks]", "REGULAR_PRIORITY_WORKERS = 2"]))
+            f.write("[Tasks]\nREGULAR_PRIORITY_WORKERS = 2")
         with mock.patch.dict(
             os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
@@ -233,7 +233,7 @@ def test_deprecated_values_ini_file(monkeypatch):
 
         # deprecated options in the ini file log warnings
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Server]", "CHERRYPY_START = false"]))
+            f.write("[Server]\nCHERRYPY_START = false")
         options.read_options_file(ini_filename=tmp_ini_path)
         assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
@@ -288,7 +288,7 @@ def test_deprecated_aliases(monkeypatch):
         _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
         # deprecated aliases for otherwise valid options log warnings
         with open(tmp_ini_path, "w") as f:
-            f.write("\n".join(["[Cache]", "CACHE_REDIS_MIN_DB = 7"]))
+            f.write("[Cache]\nCACHE_REDIS_MIN_DB = 7")
         options.read_options_file(ini_filename=tmp_ini_path)
         assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 

@@ -62,8 +62,7 @@ class InfoViewSet(viewsets.ViewSet):
 def _get_channel_list(version, params, identifier=None):
     if version == "v1":
         return _get_channel_list_v1(params, identifier=identifier)
-    else:
-        raise LookupError()
+    raise LookupError()
 
 
 def _get_channel_list_v1(params, identifier=None):
@@ -234,11 +233,11 @@ class QueueDeserializer(serializers.Serializer):
 
 class SyncQueueAPIView(APIView):
     def get_response_data(self, queue_object):
-        return dict(
-            id=queue_object.id,
-            status=queue_object.status,
-            keep_alive=queue_object.keep_alive,
-        )
+        return {
+            "id": queue_object.id,
+            "status": queue_object.status,
+            "keep_alive": queue_object.keep_alive,
+        }
 
     def check_queue(self, queue_object):
         # first, ensure no expired devices are in the queue
@@ -319,9 +318,9 @@ class SyncQueueAPIView(APIView):
             queue_object, created = SyncQueue.objects.get_or_create(
                 user_id=user_id,
                 instance_id=instance_id,
-                defaults=dict(
-                    status=SyncQueueStatus.Queued,
-                ),
+                defaults={
+                    "status": SyncQueueStatus.Queued,
+                },
             )
 
         if not created:

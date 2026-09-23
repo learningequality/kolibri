@@ -100,7 +100,7 @@ class SQLiteBitwiseORAggregate(Aggregate):
     @property
     def template(self):
         return " + ".join(
-            "max(%(expressions)s&{})".format(2**i) for i in range(0, self.num_bits)
+            "max(%(expressions)s&{})".format(2**i) for i in range(self.num_bits)
         )
 
 

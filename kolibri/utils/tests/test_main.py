@@ -4,12 +4,12 @@ Tests for `kolibri.utils.main` module.
 
 import os
 import unittest
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
 from django.conf import settings
 from django.db.utils import OperationalError
-from mock import MagicMock
-from mock import patch
 
 import kolibri
 from kolibri.utils import main
