@@ -150,9 +150,9 @@ class CourseSessionSerializer(ModelSerializer):
 
     def validate(self, attrs):
         # first condition is for creating object, second is for updating
-        collection = attrs.get("collection") or getattr(self.instance, "collection")
+        collection = attrs.get("collection") or self.instance.collection
 
-        if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
+        if self.initial_data.get("learner_ids"):
             if (
                 len(self.initial_data["learner_ids"])
                 != FacilityUser.objects.filter(

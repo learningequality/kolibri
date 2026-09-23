@@ -95,7 +95,7 @@ class SourceFieldEntry(FieldMapEntry):
     missing relations.
     """
 
-    __slots__ = ("source", "to_repr", "default")
+    __slots__ = ("default", "source", "to_repr")
 
     # Narrows the base's Optional: this entry always has a backing column.
     source: str

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def add_requirements_to_base():
-    if "EXTRA_REQUIREMENTS" in os.environ and os.environ["EXTRA_REQUIREMENTS"]:
+    if os.environ.get("EXTRA_REQUIREMENTS"):
         file_path = os.environ["EXTRA_REQUIREMENTS"]
         # We have been passed a URL, not a local file path
         if file_path.startswith("http"):

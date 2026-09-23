@@ -215,7 +215,7 @@ def set_env():
     monkey_patch_markdown()
     monkey_patch_distutils()
 
-    from kolibri import dist as kolibri_dist  # noqa
+    from kolibri import dist as kolibri_dist
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 

@@ -540,8 +540,7 @@ class ContentNodeAPIBase:
         self.assertEqual(response.data["error"], "Invalid UUID format.")
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_long(self):
@@ -564,8 +563,7 @@ class ContentNodeAPIBase:
         self._recurse_and_assert([response.data], [root])
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_next__gt(self):
@@ -591,8 +589,7 @@ class ContentNodeAPIBase:
         )
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_more(self):

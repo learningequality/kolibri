@@ -16,7 +16,7 @@ class VersionUpgrade:
     Class for version upgrade operations
     """
 
-    __slots__ = ["OLD_VERSION", "NEW_VERSION", "upgrade", "module"]
+    __slots__ = ["NEW_VERSION", "OLD_VERSION", "module", "upgrade"]
 
     def __init__(self, old_version=None, new_version=None, upgrade=None):
         # Semver version range specification for the previous version

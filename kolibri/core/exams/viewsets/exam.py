@@ -119,7 +119,7 @@ class ExamSerializer(ModelSerializer):
         }
 
     def _validate_learner_ids(self, collection):
-        if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
+        if self.initial_data.get("learner_ids"):
             learner_ids = list(set(self.initial_data["learner_ids"]))
             if (
                 len(learner_ids)
@@ -172,7 +172,7 @@ class ExamSerializer(ModelSerializer):
     def validate(self, attrs):
         title = attrs.get("title")
         # first condition is for creating object, second is for updating
-        collection = attrs.get("collection") or getattr(self.instance, "collection")
+        collection = attrs.get("collection") or self.instance.collection
         self._validate_learner_ids(collection)
 
         self._validate_disallowed_draft_fields(attrs)

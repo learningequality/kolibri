@@ -471,7 +471,7 @@ class PicturePasswordAuthScopeTestCase(TestCase):
     @classmethod
     def _set_has_roles(cls, user):
         """This is annotated by the auth scope querysets"""
-        setattr(user, "has_roles", user.roles.count() > 0)
+        user.has_roles = user.roles.count() > 0
         return user
 
     def test_authenticate__returns_learner_for_valid_picture_password(self):
@@ -536,7 +536,7 @@ class BasicUserAuthScopeTestCase(TestCase):
     @classmethod
     def _set_has_roles(cls, user):
         """This is annotated by the auth scope querysets"""
-        setattr(user, "has_roles", user.roles.count() > 0)
+        user.has_roles = user.roles.count() > 0
         return user
 
     def test_iter_candidate_users__returns_case_insensitive_match(

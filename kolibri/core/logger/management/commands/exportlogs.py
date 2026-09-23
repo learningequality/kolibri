@@ -103,7 +103,7 @@ class Command(AsyncCommand):
         except ValueError:
             return False
 
-    def handle_async(self, *args, **options):  # noqa: C901
+    def handle_async(self, *args, **options):
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)

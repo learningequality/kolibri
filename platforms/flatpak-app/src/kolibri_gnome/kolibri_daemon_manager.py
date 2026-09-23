@@ -41,7 +41,7 @@ class KolibriDaemonManager(GObject.GObject):
     __dbus_proxy_owner: typing.Optional[str] = None
 
     __soup_session: Soup.Session = None
-    __last_status: typing.Union[str, None, object] = None
+    __last_status: typing.Union[str, object, None] = None
 
     is_stopped = GObject.Property(type=bool, default=False)
     is_started = GObject.Property(type=bool, default=False)

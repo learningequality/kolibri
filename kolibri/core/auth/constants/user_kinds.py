@@ -4,10 +4,10 @@ This module contains constants representing the kinds of user that can be logged
 
 from django.utils.translation import gettext_lazy as _
 
-from .role_kinds import ADMIN  # noqa F401
-from .role_kinds import ASSIGNABLE_COACH  # noqa F401
+from .role_kinds import ADMIN
+from .role_kinds import ASSIGNABLE_COACH
 from .role_kinds import choices
-from .role_kinds import COACH  # noqa F401
+from .role_kinds import COACH
 
 LEARNER = "learner"
 SUPERUSER = "superuser"

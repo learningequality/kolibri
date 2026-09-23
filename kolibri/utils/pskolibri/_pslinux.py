@@ -198,7 +198,7 @@ def boot_time():
 class Process:
     """Linux process implementation."""
 
-    __slots__ = ["pid", "_name", "_ppid", "_procfs_path"]
+    __slots__ = ["_name", "_ppid", "_procfs_path", "pid"]
 
     def __init__(self, pid):
         self.pid = pid

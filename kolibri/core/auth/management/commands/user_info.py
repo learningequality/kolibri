@@ -52,7 +52,7 @@ class Command(BaseCommand):
             try:
                 managers.append(getattr(user, related_object.get_accessor_name()))
             # regular users do not have device permissions
-            except (DevicePermissions.DoesNotExist,):
+            except DevicePermissions.DoesNotExist:
                 pass
 
         # write data for each model to a file

@@ -272,12 +272,12 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
         # If archive is True during the save op, but there is no date_archived then
         # this is the save that is archiving the object and we need to datestamp it
         if getattr(self, "archive", False) is True:
-            if getattr(self, "date_archived") is None:
+            if self.date_archived is None:
                 self.date_archived = timezone.now()
         # If active is True during the save op, but there is no date_activated then
         # this is the save that is archiving the object and we need to datestamp it
         if getattr(self, "active", False) is True:
-            if getattr(self, "date_activated") is None:
+            if self.date_activated is None:
                 self.date_activated = timezone.now()
         # Remove any empty sections from the question sources
         # No need to update the question count here, as sections with no questions

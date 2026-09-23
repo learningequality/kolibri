@@ -12,8 +12,8 @@ from kolibri.core.utils.values_viewset.engine import ValuesEngine
 from kolibri.core.utils.values_viewset.method_fields import ValuesMethodField
 
 __all__ = [
-    "OutputValidationError",
     "TOP_LEVEL_PATH",
+    "OutputValidationError",
     "ValuesEngine",
     "ValuesMethodField",
 ]

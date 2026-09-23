@@ -231,11 +231,11 @@ class LogContext:
     """
 
     __slots__ = (
-        "node_id",
-        "quiz_id",
+        "course_session_id",
         "lesson_id",
         "mastery_level",
-        "course_session_id",
+        "node_id",
+        "quiz_id",
         "unit_id",
     )
 

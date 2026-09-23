@@ -104,8 +104,8 @@ class KolibriCoreConfig(AppConfig):
 
             default_storage.get_available_name("kolibri")
 
-    @staticmethod  # noqa C901
-    def check_redis_settings():  # noqa C901
+    @staticmethod
+    def check_redis_settings():
         """
         Check that Redis settings are sensible, and use the lower level Redis client to make updates
         if we are configured to do so, and if we should, otherwise make some logging noise.

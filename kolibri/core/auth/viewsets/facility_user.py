@@ -317,7 +317,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                 )
 
         # first condition is for creating object, second is for updating
-        facility = attrs.get("facility") or getattr(self.instance, "facility")
+        facility = attrs.get("facility") or self.instance.facility
         if (
             "password" in attrs
             and attrs["password"] == NOT_SPECIFIED

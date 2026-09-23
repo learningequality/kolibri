@@ -45,10 +45,7 @@ default_settings_template = "settings_path = '{path}'"
 
 
 def set_default_settings_module():
-    if (
-        "DEFAULT_SETTINGS_MODULE" in os.environ
-        and os.environ["DEFAULT_SETTINGS_MODULE"]
-    ):
+    if os.environ.get("DEFAULT_SETTINGS_MODULE"):
         default_settings_path = os.environ["DEFAULT_SETTINGS_MODULE"]
         with open(os.path.join(build_config_path, "default_settings.py"), "w") as f:
             # Just write out settings_path = '<settings_path>'
@@ -60,7 +57,7 @@ run_time_plugin_template = "DEFAULT_PLUGINS = {plugins}\n"
 
 
 def set_run_time_plugins():
-    if "RUN_TIME_PLUGINS" in os.environ and os.environ["RUN_TIME_PLUGINS"]:
+    if os.environ.get("RUN_TIME_PLUGINS"):
         runtime_plugins = load_plugins_from_file(os.environ["RUN_TIME_PLUGINS"])
         with open(os.path.join(build_config_path, "default_plugins.py"), "w") as f:
             # Just write out 'plugins = [...]' <-- list of plugins

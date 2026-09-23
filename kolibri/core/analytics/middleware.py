@@ -65,7 +65,7 @@ def cherrypy_access_log_middleware(get_response):
 
         log_message = '{h} {l} {u} "{r}" {s} {b} "{ref}" "{ua}"'.format(
             h=request.META.get("REMOTE_ADDR", "unknown"),
-            l="-",  # noqa ignore:E741
+            l="-",
             u="-",
             r="{} {}".format(request.method, request.path_info.replace('"', "\\")),
             s=response.status_code,

@@ -1087,8 +1087,7 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         )
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql",
         "Postgresql only test",
     )
     def test_import_too_long_content_tags(self):
@@ -1100,8 +1099,7 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         assert len(long_imported_tag.tag_name) == max_length
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql",
         "Postgresql only test",
     )
     def test_utf_test_keeps_its_length(self):

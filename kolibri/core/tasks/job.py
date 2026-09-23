@@ -426,7 +426,7 @@ class Job:
             self.job_id, expected_supervisor_id=self._supervisor_id
         )
 
-        setattr(current_state_tracker, "job", self)
+        current_state_tracker.job = self
 
         self._retry_in_delay = None
         self._retry_in_kwargs = {}
@@ -469,7 +469,7 @@ class Job:
                 exception=exception,
                 **self._retry_in_kwargs,
             )
-        setattr(current_state_tracker, "job", None)
+        current_state_tracker.job = None
 
     @property
     def task(self):

@@ -241,7 +241,7 @@ class ParamValidator:
         return param
 
 
-def query_params_required(**kwargs):  # noqa: C901
+def query_params_required(**kwargs):
     """
     Request fn decorator that builds up a list of params and automatically returns a 400 if they are invalid.
     The validated params are passed to the wrapped function as kwargs.
@@ -295,7 +295,7 @@ def query_params_required(**kwargs):  # noqa: C901
             self.kwargs = kwargs
             super(cls, self).initial(request, *args, **kwargs)
 
-        setattr(cls, "initial", initial)
+        cls.initial = initial
 
         return cls
 
@@ -331,7 +331,7 @@ def cache_no_user_data(view_func):
 
     def calculate_spa_etag(*args, **kwargs):
         # Clear the local thread 'response' property
-        setattr(_response, "response", None)
+        _response.response = None
 
         request = args[0]
         etag = cache.get(CACHE_KEY_TEMPLATE.format(request.path))
@@ -342,7 +342,7 @@ def cache_no_user_data(view_func):
 
         if not etag:
             response = view_func(*args, **kwargs)
-            setattr(_response, "response", response)
+            _response.response = response
             etag = render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
         return etag
 

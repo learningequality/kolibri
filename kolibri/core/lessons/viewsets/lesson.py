@@ -91,7 +91,7 @@ class LessonSerializer(ModelSerializer):
     def validate(self, attrs):
         title = attrs.get("title")
         # first condition is for creating object, second is for updating
-        collection = attrs.get("collection") or getattr(self.instance, "collection")
+        collection = attrs.get("collection") or self.instance.collection
 
         learner_ids = attrs.get("learner_ids")
         if learner_ids:

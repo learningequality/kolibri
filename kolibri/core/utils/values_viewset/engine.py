@@ -118,7 +118,7 @@ class _LevelExpander:
     The keying is fixed for every row, so it is bound once here.
     """
 
-    __slots__ = ("_map_row", "_extra_cols", "_raw_pk_name", "_link", "_forward_links")
+    __slots__ = ("_extra_cols", "_forward_links", "_link", "_map_row", "_raw_pk_name")
 
     def __init__(
         self,
@@ -180,15 +180,15 @@ class ValuesEngine:
 
     # Fixed instance shape — ``__init__`` fills these in, nothing else is set.
     __slots__ = (
-        "_values",
-        "_field_map",
-        "_scalar_fetch",
         "_auto_fetch",
+        "_field_map",
+        "_has_method_fields",
         "_nested_cache",
+        "_plans",
+        "_scalar_fetch",
         "_top_model",
         "_validation_schema",
-        "_has_method_fields",
-        "_plans",
+        "_values",
     )
 
     def __init__(

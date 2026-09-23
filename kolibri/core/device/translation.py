@@ -55,7 +55,7 @@ def get_settings_language():
         return settings.LANGUAGE_CODE
 
 
-def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
+def get_language_from_request_and_is_from_path(request):
     """
     Analyzes the request to find what language the user wants the system to
     show. Only languages listed in settings.LANGUAGES are taken into account.
@@ -121,7 +121,7 @@ def i18n_patterns(urls, prefix=None):
             if hasattr(url, "urlpatterns") and url.urlpatterns:
                 recurse_urls_and_set(url.urlpatterns)
             elif hasattr(url, "callback") and url.callback:
-                setattr(url.callback, "translated", True)
+                url.callback.translated = True
 
     recurse_urls_and_set(urls)
     return [

@@ -1006,7 +1006,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     def get_permission(self, permission):
         try:
-            return getattr(self.devicepermissions, "is_superuser") or getattr(
+            return self.devicepermissions.is_superuser or getattr(
                 self.devicepermissions, permission
             )
         except ObjectDoesNotExist:

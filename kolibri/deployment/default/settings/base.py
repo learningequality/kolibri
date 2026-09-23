@@ -30,7 +30,7 @@ from kolibri.utils.logger import get_logging_config
 
 try:
     isolation_level = None
-    import psycopg2  # noqa
+    import psycopg2
 
     isolation_level = psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE
 except ImportError:

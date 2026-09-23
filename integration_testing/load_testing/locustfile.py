@@ -46,7 +46,7 @@ DEFAULT_RETRY_DELAY = float(os.environ.get("KOLIBRI_RETRY_DELAY", 5.0))
 
 # Load HAR file at module level (before worker processes fork)
 # This prevents blocking I/O in on_start() which can cause worker heartbeat failures
-def _load_and_parse_har(har_path):  # noqa: C901
+def _load_and_parse_har(har_path):
     """
     Load and parse HAR file at module level into request list.
 

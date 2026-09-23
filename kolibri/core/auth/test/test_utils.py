@@ -184,12 +184,12 @@ class TeleportUserTestCase(TestCase):
         sess_logs.append(ex_csessl)
         summ_logs.append(ex_csmlog)
 
-        setattr(cls, "user_1", user)
-        setattr(cls, "user_1_sess_logs", sess_logs)
-        setattr(cls, "user_1_summ_logs", summ_logs)
-        setattr(cls, "user_1_masterylog", masterylog)
-        setattr(cls, "user_1_attemptlog", attemptlog)
-        setattr(cls, "user_1_usersessionlog", usersessionlog)
+        cls.user_1 = user
+        cls.user_1_sess_logs = sess_logs
+        cls.user_1_summ_logs = summ_logs
+        cls.user_1_masterylog = masterylog
+        cls.user_1_attemptlog = attemptlog
+        cls.user_1_usersessionlog = usersessionlog
 
         cls.user_1_id = cls.user_1.id
 

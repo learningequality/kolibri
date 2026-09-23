@@ -205,7 +205,7 @@ def handle_from_pid(pid):
 class Process:
     """Wrapper class around underlying C implementation."""
 
-    __slots__ = ["pid", "_name", "_ppid"]
+    __slots__ = ["_name", "_ppid", "pid"]
 
     def __init__(self, pid):
         self.pid = pid

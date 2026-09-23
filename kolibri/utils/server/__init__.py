@@ -1156,7 +1156,7 @@ def get_urls(listen_port=None):
         return e.status_code, []
 
 
-def get_installer_version(installer_type):  # noqa: C901
+def get_installer_version(installer_type):
     def get_debian_pkg_version(package):
         """
         In case we want to distinguish between dpkg and apt installations

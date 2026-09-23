@@ -37,7 +37,7 @@ DEFAULT_SYNC_READ_TIMEOUT = DEFAULT_READ_TIMEOUT / (len(HTTP_PORTS) + len(HTTPS_
 
 
 class NetworkClient(SameHostSession):
-    __slots__ = ("base_url", "timeout", "session", "device_info", "remote_ip")
+    __slots__ = ("base_url", "device_info", "remote_ip", "session", "timeout")
 
     def __init__(self, base_url, timeout=None):
         """

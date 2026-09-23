@@ -254,7 +254,7 @@ def set_django_settings_and_python_path(django_settings, pythonpath):
         sys.path.insert(0, pythonpath)
 
 
-def initialize(  # noqa C901
+def initialize(
     skip_update=False,
     settings=None,
     debug=False,

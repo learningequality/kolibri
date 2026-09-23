@@ -11,7 +11,7 @@ from rest_framework.test import APITransactionTestCase
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.device.models import clear_device_settings_memo
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.utils import provision_device as _provision_device  # noqa
+from kolibri.core.device.utils import provision_device as _provision_device
 
 from ..models import Classroom
 from ..models import Facility
