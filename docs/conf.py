@@ -117,7 +117,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Kolibri developer documentation"
-copyright = "{year:d}, Learning Equality".format(year=datetime.now().year)
+copyright = f"{datetime.now().year:d}, Learning Equality"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -256,9 +256,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
         if facilities:
-            return "FacilityDataset for {}".format(
-                Facility.objects.get(id=facilities[0].id)
-            )
+            return f"FacilityDataset for {Facility.objects.get(id=facilities[0].id)}"
         return "FacilityDataset (no associated Facility)"
 
     def save(self, *args, **kwargs):
@@ -268,21 +266,18 @@ class FacilityDataset(FacilityDataSyncableModel):
     def ensure_compatibility(self, *args, **kwargs):
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
             raise IncompatibleDeviceSettingError(
-                "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
-                "values incompatible together.".format(
-                    self.learner_can_login_with_no_password,
-                    self.learner_can_edit_password,
-                )
+                "Device Settings "
+                f"[learner_can_login_with_no_password={self.learner_can_login_with_no_password}] "
+                f"& [learner_can_edit_password={self.learner_can_edit_password}] "
+                "values incompatible together."
             )
         if (
             self.picture_password_settings is not None
             and self.learner_can_edit_password
         ):
             raise IncompatibleDeviceSettingError(
-                "Device Settings [picture_password_settings is set] & [learner_can_edit_password={}] "
-                "values incompatible together.".format(
-                    self.learner_can_edit_password,
-                )
+                f"Device Settings [picture_password_settings is set] & [learner_can_edit_password={self.learner_can_edit_password}] "
+                "values incompatible together."
             )
 
     def calculate_source_id(self):
@@ -302,7 +297,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         return source_id_value
 
     def calculate_partition(self):
-        return "{id}:allusers-ro".format(id=self.ID_PLACEHOLDER)
+        return f"{self.ID_PLACEHOLDER}:allusers-ro"
 
     def get_root_certificate(self):
         return Certificate.objects.get(id=self.id)
@@ -351,7 +346,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
 
     @classmethod
     def get_related_dataset_cache_key(cls, id, db_table):
-        return "{id}_{db_table}_dataset".format(id=id, db_table=db_table)
+        return f"{id}_{db_table}_dataset"
 
     def cached_related_dataset_lookup(self, related_obj_name):
         """
@@ -418,17 +413,11 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         user = getattr(self, field_name)
         is_deserialization = save_kwargs.get("update_dirty_bit_to") is False
         if self._state.adding and not is_deserialization and user is None:
-            raise IntegrityError(
-                "{model}.{field} may not be null".format(
-                    model=type(self).__name__, field=field_name
-                )
-            )
+            raise IntegrityError(f"{type(self).__name__}.{field_name} may not be null")
         if user and user.dataset_id != self.dataset_id:
             if not user.is_superuser:
                 raise IntegrityError(
-                    "{model}.{field} must belong to the same dataset".format(
-                        model=type(self).__name__, field=field_name
-                    )
+                    f"{type(self).__name__}.{field_name} must belong to the same dataset"
                 )
             setattr(self, field_name, None)
 
@@ -838,7 +827,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
                     pass
             if not user:
                 raise ValidationError(
-                    "Error creating FacilityUser for OS user: {}".format(os_username)
+                    f"Error creating FacilityUser for OS user: {os_username}"
                 )
             return user
 
@@ -865,21 +854,13 @@ def validate_birth_year(value):
 
     try:
         if int(value) < 1900:
-            error = (
-                "Birth year {value} is invalid, as it is prior to the year 1900".format(
-                    value=value
-                )
-            )
+            error = f"Birth year {value} is invalid, as it is prior to the year 1900"
 
         elif int(value) > 3000:
-            error = (
-                "Birth year {value} is invalid, as it is after the year 3000".format(
-                    value=value
-                )
-            )
+            error = f"Birth year {value} is invalid, as it is after the year 3000"
 
     except ValueError:
-        error = "{value} is not a valid value for birth_year".format(value=value)
+        error = f"{value} is not a valid value for birth_year"
 
     if error != "":
         raise ValidationError(error)
@@ -1018,9 +999,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         return Q(**{q: True})
 
     def calculate_partition(self):
-        return "{dataset_id}:user-ro:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER
-        )
+        return f"{self.dataset_id}:user-ro:{self.ID_PLACEHOLDER}"
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("facility")
@@ -1197,9 +1176,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         return queryset.none()
 
     def __str__(self):
-        return '"{user}"@"{facility}"'.format(
-            user=self.full_name or self.username, facility=self.facility
-        )
+        return f'"{self.full_name or self.username}"@"{self.facility}"'
 
     def save(self, *args, **kwargs):
         # Call the parent save method first
@@ -1281,7 +1258,7 @@ class Collection(AbstractFacilityDataModel):
         super().__init__(*args, **kwargs)
 
     def calculate_partition(self):
-        return "{dataset_id}:allusers-ro".format(dataset_id=self.dataset_id)
+        return f"{self.dataset_id}:allusers-ro"
 
     def clean_fields(self, exclude=None, sync_filter=None):
         self._ensure_kind()
@@ -1333,9 +1310,7 @@ class Collection(AbstractFacilityDataModel):
 
         # ensure the specified role kind is valid
         if role_kind not in role_kinds_set:
-            raise InvalidRoleKind(
-                "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
-            )
+            raise InvalidRoleKind(f"'{role_kind}' is not a valid role kind.")
 
         # ensure the provided user is a FacilityUser
         if not isinstance(user, FacilityUser):
@@ -1358,9 +1333,7 @@ class Collection(AbstractFacilityDataModel):
 
         # ensure the specified role kind is valid
         if role_kind not in role_kinds_set:
-            raise InvalidRoleKind(
-                "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
-            )
+            raise InvalidRoleKind(f"'{role_kind}' is not a valid role kind.")
 
         # ensure the provided user is a FacilityUser
         if not isinstance(user, FacilityUser):
@@ -1432,7 +1405,7 @@ class Collection(AbstractFacilityDataModel):
         return None
 
     def __str__(self):
-        return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
+        return f'"{self.name}" ({self.kind})'
 
 
 class Membership(AbstractFacilityDataModel):
@@ -1475,12 +1448,10 @@ class Membership(AbstractFacilityDataModel):
         unique_together = (("user", "collection"),)
 
     def calculate_partition(self):
-        return "{dataset_id}:user-ro:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.user_id
-        )
+        return f"{self.dataset_id}:user-ro:{self.user_id}"
 
     def calculate_source_id(self):
-        return "{collection_id}".format(collection_id=self.collection_id)
+        return f"{self.collection_id}"
 
     def infer_dataset(self, *args, **kwargs):
         user_dataset_id = self.cached_related_dataset_lookup("user")
@@ -1492,9 +1463,7 @@ class Membership(AbstractFacilityDataModel):
         return user_dataset_id
 
     def __str__(self):
-        return "{user}'s membership in {collection}".format(
-            user=self.user, collection=self.collection
-        )
+        return f"{self.user}'s membership in {self.collection}"
 
     def validate_membership(self):
         if self.collection.kind == collection_kinds.FACILITY:
@@ -1569,14 +1538,10 @@ class Role(AbstractFacilityDataModel):
         unique_together = (("user", "collection", "kind"),)
 
     def calculate_partition(self):
-        return "{dataset_id}:user-ro:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.user_id
-        )
+        return f"{self.dataset_id}:user-ro:{self.user_id}"
 
     def calculate_source_id(self):
-        return "{collection_id}:{kind}".format(
-            collection_id=self.collection_id, kind=self.kind
-        )
+        return f"{self.collection_id}:{self.kind}"
 
     def infer_dataset(self, *args, **kwargs):
         user_dataset_id = self.cached_related_dataset_lookup("user")
@@ -1588,9 +1553,7 @@ class Role(AbstractFacilityDataModel):
         return user_dataset_id
 
     def __str__(self):
-        return "{user}'s {kind} role for {collection}".format(
-            user=self.user, kind=self.kind, collection=self.collection
-        )
+        return f"{self.user}'s {self.kind} role for {self.collection}"
 
     def validate_role(self):
         if (

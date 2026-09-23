@@ -60,7 +60,7 @@ class ConsolidateBase(TestCase):
         )
         for i in range(3):
             AttemptLog.objects.create(
-                item="item_{i}".format(i=i),
+                item=f"item_{i}",
                 start_timestamp=local_now(),
                 end_timestamp=local_now(),
                 time_spent=uniform(1.0, 10.0),
@@ -129,7 +129,7 @@ class ConsolidateAttemptLogsCoachQuizTestCase(ConsolidateBase, TestCase):
         for i in range(3):
             try:
                 AttemptLog.objects.get(
-                    item="item_{i}".format(i=i),
+                    item=f"item_{i}",
                     user=self.user,
                     masterylog=self.mastery_log,
                 )

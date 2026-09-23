@@ -220,14 +220,14 @@ class NetworkClient(SameHostSession):
             requests.exceptions.InvalidJSONError,
         ) as e:
             raise errors.NetworkLocationConnectionFailure(
-                "Unable to connect: {}".format(url)
+                f"Unable to connect: {url}"
             ) from e
         except (
             requests.exceptions.ReadTimeout,
             requests.exceptions.TooManyRedirects,
         ) as e:
             raise errors.NetworkLocationResponseTimeout(
-                "Response timeout: {}".format(url)
+                f"Response timeout: {url}"
             ) from e
         except (
             requests.exceptions.HTTPError,
@@ -236,7 +236,7 @@ class NetworkClient(SameHostSession):
             requests.exceptions.RequestException,
         ) as e:
             raise errors.NetworkLocationResponseFailure(
-                "Response failure: {}".format(url), response=response
+                f"Response failure: {url}", response=response
             ) from e
 
     def connect(self, raise_if_unavailable=True):  # noqa: C901
@@ -273,13 +273,13 @@ class NetworkClient(SameHostSession):
         if response.status_code != 200:
             if raise_if_unavailable:
                 raise errors.NetworkLocationInvalidResponse(
-                    "Response status {}".format(response.status_code)
+                    f"Response status {response.status_code}"
                 )
             return False
         if not parsed_url.path.rstrip("/").endswith("/api/public/info"):
             if raise_if_unavailable:
                 raise errors.NetworkLocationInvalidResponse(
-                    "Request redirected to {}".format(parsed_url.path)
+                    f"Request redirected to {parsed_url.path}"
                 )
             return False
 
@@ -313,6 +313,4 @@ class NetworkClient(SameHostSession):
 
 
 def get_user_agent():
-    return "Kolibri/{0} python-requests/{1}".format(
-        kolibri.__version__, requests.__version__
-    )
+    return f"Kolibri/{kolibri.__version__} python-requests/{requests.__version__}"

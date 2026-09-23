@@ -31,9 +31,7 @@ def infer_facility(facility_id, facility=None):
                 facility = Facility.objects.get(name=facility_id)
             except Facility.DoesNotExist:
                 raise ValueError(
-                    "Facility matching identifier {facility} was not found".format(
-                        facility=facility_id
-                    )
+                    f"Facility matching identifier {facility_id} was not found"
                 )
     elif facility is not None:
         return facility
@@ -169,7 +167,7 @@ def csv_file_generator(
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if local_filepath and not overwrite and os.path.exists(local_filepath):
-        raise ValueError("{} already exists".format(local_filepath))
+        raise ValueError(f"{local_filepath} already exists")
 
     queryset = FacilityUser.objects.filter(facility=facility)
 

@@ -145,7 +145,7 @@ def _create_attemptlog(examattemptlog, sessionlog_id, masterylog_id):
             setattr(attemptlog, field, value)
     attemptlog.sessionlog_id = sessionlog_id
     attemptlog.masterylog_id = masterylog_id
-    attemptlog.item = "{}:{}".format(examattemptlog.content_id, attemptlog.item)
+    attemptlog.item = f"{examattemptlog.content_id}:{attemptlog.item}"
     attemptlog.id = attemptlog.calculate_uuid()
     return attemptlog
 

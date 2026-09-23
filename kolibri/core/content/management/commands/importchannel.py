@@ -47,9 +47,7 @@ class Command(AsyncCommand):
             "--baseurl",
             type=str,
             default=default_studio_url,
-            help="The host we will download the content from. Defaults to {}".format(
-                default_studio_url
-            ),
+            help=f"The host we will download the content from. Defaults to {default_studio_url}",
         )
         network_subparser.add_argument(
             "--no_upgrade",
@@ -116,16 +114,12 @@ class Command(AsyncCommand):
             raise CommandError(str(e))
 
         if metadata is None:
-            raise CommandError(
-                "Token '{}' not found on content server.".format(identifier)
-            )
+            raise CommandError(f"Token '{identifier}' not found on content server.")
 
         channel_id = metadata.get("id")
         if not channel_id:
             raise CommandError(
-                "Invalid response: token '{}' resolved to a channel without an ID.".format(
-                    identifier
-                )
+                f"Invalid response: token '{identifier}' resolved to a channel without an ID."
             )
         return channel_id, metadata
 
@@ -161,9 +155,7 @@ class Command(AsyncCommand):
     def copy_channel(self, channel_id, source_path, no_upgrade, content_dir):
         if not is_valid_uuid(channel_id):
             raise CommandError(
-                "Invalid channel ID '{}'. Disk import requires a UUID, not a token.".format(
-                    channel_id
-                )
+                f"Invalid channel ID '{channel_id}'. Disk import requires a UUID, not a token."
             )
 
         logger.info("Copying in data for channel id %s", channel_id)

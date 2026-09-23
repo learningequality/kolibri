@@ -355,9 +355,7 @@ class ExamAssignment(AbstractFacilityDataModel):
         return self.cached_related_dataset_lookup("exam")
 
     def calculate_source_id(self):
-        return "{exam_id}:{collection_id}".format(
-            exam_id=self.exam_id, collection_id=self.collection_id
-        )
+        return f"{self.exam_id}:{self.collection_id}"
 
     def calculate_partition(self):
         return self.dataset_id
@@ -410,9 +408,7 @@ class IndividualSyncableExam(AbstractFacilityDataModel):
         return self.exam_id
 
     def calculate_partition(self):
-        return "{dataset_id}:user-ro:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.user_id
-        )
+        return f"{self.dataset_id}:user-ro:{self.user_id}"
 
     @classmethod
     def serialize_exam(cls, exam):

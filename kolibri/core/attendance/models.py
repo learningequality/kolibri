@@ -45,7 +45,7 @@ class AttendanceSession(AbstractFacilityDataModel):
     date_modified = DateTimeTzField(default=local_now)
 
     def __str__(self):
-        return "AttendanceSession for {}".format(self.collection)
+        return f"AttendanceSession for {self.collection}"
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
@@ -100,15 +100,10 @@ class AttendanceRecord(AbstractFacilityDataModel):
         return self.attendance_session.collection
 
     def __str__(self):
-        return "AttendanceRecord for {} in {}".format(
-            self.user, self.attendance_session
-        )
+        return f"AttendanceRecord for {self.user} in {self.attendance_session}"
 
     def calculate_source_id(self):
-        return "{attendance_session_id}:{user_id}".format(
-            attendance_session_id=self.attendance_session_id,
-            user_id=self.user_id,
-        )
+        return f"{self.attendance_session_id}:{self.user_id}"
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("attendance_session")

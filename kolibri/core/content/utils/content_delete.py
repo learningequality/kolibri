@@ -98,7 +98,7 @@ def delete_content(
     try:
         channel = ChannelMetadata.objects.get(pk=channel_id)
     except ChannelMetadata.DoesNotExist:
-        raise KeyError("Channel matching id {id} does not exist".format(id=channel_id))
+        raise KeyError(f"Channel matching id {channel_id} does not exist")
 
     (
         total_resource_number,

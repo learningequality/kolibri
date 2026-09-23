@@ -76,7 +76,7 @@ class ContentManifest:
         try:
             manifest_data = json.load(fp)
         except JSONDecodeError as error:
-            raise ContentManifestParseError("Error decoding JSON: {}".format(error))
+            raise ContentManifestParseError(f"Error decoding JSON: {error}")
 
         self.read_dict(manifest_data, validate=validate)
 
@@ -106,9 +106,7 @@ class ContentManifest:
 
         if expected_channels_list_hash != actual_channels_list_hash:
             raise ContentManifestParseError(
-                "channel list hash '{}' is invalid (expected '{}')".format(
-                    actual_channels_list_hash, expected_channels_list_hash
-                )
+                f"channel list hash '{actual_channels_list_hash}' is invalid (expected '{expected_channels_list_hash}')"
             )
 
     def write(self, path):

@@ -72,7 +72,7 @@ def normalize_version_to_semver(version):
     # make sure dev versions are sorted nicely relative to one another
     dev = (dev or "").replace("+", ".").replace("-", ".")
 
-    return "{}-{}{}".format(numeric, after, dev).strip("-")
+    return f"{numeric}-{after}{dev}".strip("-")
 
 
 def truncate_version(version, truncation_level=PATCH_VERSION):

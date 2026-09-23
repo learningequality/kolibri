@@ -69,7 +69,7 @@ def scaffold_plugin(
     :raises ValueError: on an unknown surface or an unusable name.
     """
     if surface not in SURFACES:
-        raise ValueError("Unknown surface: {}".format(surface))
+        raise ValueError(f"Unknown surface: {surface}")
 
     names = derive_names(readable_name)
     target_dir = str(target_dir)
@@ -103,7 +103,7 @@ def scaffold_plugin(
         mode=mode,
         surface=surface,
         entry_point_name=entry_point_name,
-        webpack_asset_tag="{{% webpack_asset '{}.app' %}}".format(entry_point_name),
+        webpack_asset_tag=f"{{% webpack_asset '{entry_point_name}.app' %}}",
     )
 
     files_written = render_tree(COMMON_FILES + SURFACES[surface], context, plugin_root)
@@ -128,7 +128,7 @@ def scaffold_plugin(
             "No enclosing pyproject.toml was found for module mode. Add this "
             'line to the [project.entry-points."kolibri.plugins"] table of the '
             "pyproject.toml that ships this module:\n"
-            '    "{name}" = "{name}"'.format(name=entry_point_name)
+            f'    "{entry_point_name}" = "{entry_point_name}"'
         )
 
     return ScaffoldResult(

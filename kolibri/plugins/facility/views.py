@@ -209,7 +209,7 @@ def download_csv_file(request, csv_type, facility_id):
     logger.info("%s exists: %s", filename, default_storage.exists(filename))
     # if the file does not exist on disk, return a 404
     if filename is None or not default_storage.exists(filename):
-        raise Http404("There is no csv export file for {} available".format(csv_type))
+        raise Http404(f"There is no csv export file for {csv_type} available")
 
     # generate a file response
     response = FileResponse(default_storage.open(filename, "rb"))

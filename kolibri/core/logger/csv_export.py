@@ -96,7 +96,7 @@ def get_cached_content_data(item):
 
 def get_cached_channel_name(obj):
     channel_id = obj["channel_id"]
-    key = "{id}_ChannelMetadata_name".format(id=channel_id)
+    key = f"{channel_id}_ChannelMetadata_name"
     channel_name = cache.get(key)
     if channel_name is None:
         try:
@@ -291,12 +291,10 @@ def csv_file_generator(
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if local_filepath and not overwrite and os.path.exists(local_filepath):
-        raise ValueError("{} already exists".format(local_filepath))
+        raise ValueError(f"{local_filepath} already exists")
 
     if log_type not in ("summary", "session"):
-        raise ValueError(
-            "Impossible to create a csv export file for {}".format(log_type)
-        )
+        raise ValueError(f"Impossible to create a csv export file for {log_type}")
 
     log_info = classes_info[log_type]
     start = start_date if start_date is None else parser.parse(start_date)

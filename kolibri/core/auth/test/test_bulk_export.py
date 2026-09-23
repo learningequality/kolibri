@@ -123,7 +123,7 @@ class UserExportTestCase(TestCase):
         ]
         for learner in enrolled_learners:
             class_number = learner["username"][12:13]
-            assert learner["enrolled"] == "classroom{}".format(class_number)
+            assert learner["enrolled"] == f"classroom{class_number}"
 
     def test_passwords_as_asterisks(self):
         for row in self.csv_rows:

@@ -182,7 +182,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             "pre",
         )
         hash_digest = hashlib.md5(key.encode("utf-8")).hexdigest()
-        expected_source_id = "{}:{}".format(self.course_session.id, hash_digest)
+        expected_source_id = f"{self.course_session.id}:{hash_digest}"
 
         calculated_source_id = assignment.calculate_source_id()
         self.assertEqual(calculated_source_id, expected_source_id)

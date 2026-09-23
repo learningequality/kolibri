@@ -11,9 +11,7 @@ from kolibri.deployment.default.urls import urlpatterns
 
 def webpack_redirect_view(request):
     return HttpResponseRedirect(
-        "http://127.0.0.1:3000/__open-in-editor?{query}".format(
-            query=request.GET.urlencode()
-        )
+        f"http://127.0.0.1:3000/__open-in-editor?{request.GET.urlencode()}"
     )
 
 

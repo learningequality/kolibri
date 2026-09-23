@@ -137,7 +137,7 @@ class ChannelLauncher(object):
 
     @property
     def desktop_file_name(self):
-        return "{}.desktop".format(self.desktop_id)
+        return f"{self.desktop_id}.desktop"
 
     @property
     def search_provider_file_path(self):
@@ -147,7 +147,7 @@ class ChannelLauncher(object):
 
     @property
     def search_provider_file_name(self):
-        return "{}.ini".format(self.desktop_id)
+        return f"{self.desktop_id}.ini"
 
     def get_icon_file_path(self, file_name, size="256x256"):
         return os.path.join(self.__context.icon_theme_dir, size, "apps", file_name)
@@ -232,7 +232,7 @@ class ChannelLauncher_FromDatabase(ChannelLauncher):
 
     @property
     def channel_version(self):
-        return "{}~{}".format(self.__channelmetadata.version, self.FORMAT_VERSION)
+        return f"{self.__channelmetadata.version}~{self.FORMAT_VERSION}"
 
     @cached_property
     def __channel_icon(self):
@@ -254,9 +254,7 @@ class ChannelLauncher_FromDatabase(ChannelLauncher):
         desktop_file_parser.set(
             "Desktop Entry",
             "Exec",
-            "gio open {dispatch_uri_scheme}://{channel_id}".format(
-                dispatch_uri_scheme=DISPATCH_URI_SCHEME, channel_id=self.channel_id
-            ),
+            f"gio open {DISPATCH_URI_SCHEME}://{self.channel_id}",
         )
         desktop_file_parser.set("Desktop Entry", "X-Endless-LaunchMaximized", "True")
         desktop_file_parser.set(

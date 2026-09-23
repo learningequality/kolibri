@@ -151,9 +151,7 @@ class CourseSession(AbstractFacilityDataModel):
     )
 
     def __str__(self):
-        return "CourseSession {} for Classroom {}".format(
-            self.title, self.collection.name
-        )
+        return f"CourseSession {self.title} for Classroom {self.collection.name}"
 
     def get_resume_data(self, user):
         """
@@ -299,7 +297,7 @@ class CourseSession(AbstractFacilityDataModel):
         In any case, the active unit, and active test will always be the same for all users assigned to the course, so this
         additional effort would be to set critical priority for current resources.
         """
-        cache_key = "COURSE_SESSION_ASSIGNED_USER_{}".format(self.pk)
+        cache_key = f"COURSE_SESSION_ASSIGNED_USER_{self.pk}"
         if cache_key not in process_cache:
             user = FacilityUser.objects.filter(
                 memberships__collection__assigned_courses__course_session=self,
@@ -310,7 +308,7 @@ class CourseSession(AbstractFacilityDataModel):
         return user
 
     def _get_cached_resume_data(self, user):
-        cache_key = "COURSE_SESSION_RESUME_DATA_{}_{}".format(self.pk, user.pk)
+        cache_key = f"COURSE_SESSION_RESUME_DATA_{self.pk}_{user.pk}"
         if cache_key not in process_cache:
             resume_data = self.get_resume_data(user)
             process_cache.set(
@@ -321,7 +319,7 @@ class CourseSession(AbstractFacilityDataModel):
         return resume_data
 
     def _get_cached_unit(self, unit_id):
-        cache_key = "COURSE_SESSION_UNIT_{}_{}".format(self.pk, unit_id)
+        cache_key = f"COURSE_SESSION_UNIT_{self.pk}_{unit_id}"
         if cache_key not in process_cache:
             unit = (
                 ContentNode.objects.filter(id=unit_id, parent_id=self.course)
@@ -508,9 +506,7 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
         return self.cached_related_dataset_lookup("course_session")
 
     def calculate_source_id(self):
-        return "{course_session_id}:{collection_id}".format(
-            course_session_id=self.course_session_id, collection_id=self.collection_id
-        )
+        return f"{self.course_session_id}:{self.collection_id}"
 
     def calculate_partition(self):
         """
@@ -605,12 +601,9 @@ class UnitTestAssignment(AbstractFacilityDataModel):
 
     def __str__(self):
         return (
-            "UnitTestAssignment {} ({}) for CourseSession {} in Collection {}".format(
-                self.unit_contentnode_id,
-                self.test_type,
-                self.course_session.title,
-                self.collection.name,
-            )
+            f"UnitTestAssignment {self.unit_contentnode_id} ({self.test_type}) "
+            f"for CourseSession {self.course_session.title} "
+            f"in Collection {self.collection.name}"
         )
 
     def calculate_source_id(self):
@@ -623,14 +616,9 @@ class UnitTestAssignment(AbstractFacilityDataModel):
         unit_contentnode_id, collection_id, and test_type to ensure uniqueness
         while staying within the 96-character limit for _morango_source_id.
         """
-        key = "{}:{}:{}:{}".format(
-            self.morango_model_name,
-            self.unit_contentnode_id,
-            self.collection_id,
-            self.test_type,
-        )
+        key = f"{self.morango_model_name}:{self.unit_contentnode_id}:{self.collection_id}:{self.test_type}"
         hash_digest = hashlib.md5(key.encode("utf-8")).hexdigest()
-        return "{}:{}".format(self.course_session_id, hash_digest)
+        return f"{self.course_session_id}:{hash_digest}"
 
     def infer_dataset(self, *args, **kwargs):
         """

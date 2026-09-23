@@ -56,7 +56,7 @@ class BookmarksFilterset(FilterSet):
             contentnode = ContentNode.objects.get(pk=value)
         except ContentNode.DoesNotExist:
             raise ValidationError(
-                "ContentNode for contentnode_id {} does not exist".format(value)
+                f"ContentNode for contentnode_id {value} does not exist"
             )
         descendant_ids = contentnode.get_descendants(include_self=True).values_list(
             "id", flat=True

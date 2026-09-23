@@ -89,7 +89,7 @@ DOWNLOAD_URL = (
 def _request(path):
     url = "https://api.github.com/repos/notofonts/notofonts.github.io/" + path
     token = os.environ.get("GITHUB_TOKEN")
-    headers = {"Authorization": "token {}".format(token)} if token else {}
+    headers = {"Authorization": f"token {token}"} if token else {}
     r = requests.get(url, headers=headers)
     if r.status_code == 403:
         logger.error("You've hit the Github API rate limit.")
@@ -244,7 +244,7 @@ def update_manifest(ref=None):
 
     logger.info("Generating new manifest for reference '%s'", ref)
 
-    git_tree = _request("git/trees/{}?recursive=1".format(ref))
+    git_tree = _request(f"git/trees/{ref}?recursive=1")
     font_info = _font_info(git_tree, ref)
 
     new_manifest = {KEY_REF: ref, KEY_FONTS: font_info}
@@ -269,7 +269,7 @@ def show_typefaces(ref=None):
 
     logger.info("Generating new manifest for reference '%s'", ref)
 
-    git_tree = _request("git/trees/{}?recursive=1".format(ref))
+    git_tree = _request(f"git/trees/{ref}?recursive=1")
     typefaces = _get_all_typefaces(git_tree)
 
     for typeface in sorted(typefaces):
@@ -328,4 +328,4 @@ def fetch_fonts():
 
 @functools.cache
 def get_path(font_name, weight):
-    return os.path.join(TTF_PATH, "{}-{}.ttf".format(font_name, weight))
+    return os.path.join(TTF_PATH, f"{font_name}-{weight}.ttf")

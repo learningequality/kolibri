@@ -198,9 +198,7 @@ class ParamValidator:
             self.field = value
         else:
             raise InvalidQueryParamsException(
-                "Invalid option: '__{suffix}' in param '{param_name}'".format(
-                    suffix=suffix, param_name=self.param_name
-                )
+                f"Invalid option: '__{suffix}' in param '{self.param_name}'"
             )
 
     def validate(self, request):

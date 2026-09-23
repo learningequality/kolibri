@@ -158,7 +158,7 @@ def csv_file_generator(
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if local_filepath and not overwrite and os.path.exists(local_filepath):
-        raise ValueError("{} already exists".format(local_filepath))
+        raise ValueError(f"{local_filepath} already exists")
 
     queryset = FacilityUser.objects.filter(facility=facility)
 

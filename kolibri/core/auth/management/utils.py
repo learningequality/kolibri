@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 def confirm_or_exit(message):
     answer = ""
     while answer not in ["yes", "n", "no"]:
-        answer = input("{} [Type 'yes' or 'no'.] ".format(message)).lower()
+        answer = input(f"{message} [Type 'yes' or 'no'.] ").lower()
     if answer != "yes":
         logger.info("Canceled! Exiting without touching the database.")
         sys.exit(1)
@@ -56,16 +56,12 @@ def _interactive_client_facility_selection():
     facilities = Facility.objects.all().order_by("name")
     message = "Please choose a facility:\n"
     for idx, facility in enumerate(facilities):
-        message += "{}. {}\n".format(idx + 1, facility.name)
+        message += f"{idx + 1}. {facility.name}\n"
     idx = input(message)
     try:
         facility = facilities[int(idx) - 1]
     except IndexError:
-        raise CommandError(
-            "{idx} is not in the range of (1, {range})".format(
-                idx=idx, range=len(facilities)
-            )
-        )
+        raise CommandError(f"{idx} is not in the range of (1, {len(facilities)})")
     return facility
 
 
@@ -77,11 +73,7 @@ def _interactive_server_facility_selection(facilities):
     try:
         return facilities[int(idx) - 1]
     except IndexError:
-        raise CommandError(
-            "{idx} is not in the range of (1, {range})".format(
-                idx=idx, range=len(facilities)
-            )
-        )
+        raise CommandError(f"{idx} is not in the range of (1, {len(facilities)})")
 
 
 def get_facility(facility_id=None, noninteractive=False):
@@ -90,7 +82,7 @@ def get_facility(facility_id=None, noninteractive=False):
         try:
             facility = Facility.objects.get(id=facility_id)
         except Facility.DoesNotExist:
-            raise CommandError("Facility with ID {} does not exist".format(facility_id))
+            raise CommandError(f"Facility with ID {facility_id} does not exist")
     # if no id passed in, assume only one facility on device
     else:
         try:
@@ -120,15 +112,13 @@ def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     response = client.get(facility_url)
     facilities = response.json()
     if not facilities:
-        raise CommandError("There are no facilities available at: {}".format(baseurl))
+        raise CommandError(f"There are no facilities available at: {baseurl}")
     # if provided, look up identifier in list of dataset and facility ids
     if identifier:
         for obj in facilities:
             if identifier == obj["dataset"] or identifier == obj.get("id"):
                 return identifier, obj["dataset"]
-        raise CommandError(
-            "Facility with ID {} does not exist on server".format(identifier)
-        )
+        raise CommandError(f"Facility with ID {identifier} does not exist on server")
 
     if noninteractive and len(facilities) > 1:
         raise CommandError(
@@ -158,12 +148,10 @@ def get_baseurl(address):
         return NetworkClient.discover_from_address(address).base_url
     except URLParseError:
         raise CommandError(
-            "Base URL/IP: {} is not valid. Please retry command and enter a valid URL/IP.".format(
-                address
-            )
+            f"Base URL/IP: {address} is not valid. Please retry command and enter a valid URL/IP."
         )
     except NetworkLocationNotFound:
-        raise CommandError("Unable to connect to: {}".format(address))
+        raise CommandError(f"Unable to connect to: {address}")
 
 
 def get_network_connection(address):
@@ -235,9 +223,7 @@ def get_client_and_server_certs(
 
     if not server_certs:
         raise CommandError(
-            "Server does not have needed certificate with scope '{}'".format(
-                server_scope
-            )
+            f"Server does not have needed certificate with scope '{server_scope}'"
         )
     server_cert = server_certs[0]
 
@@ -523,7 +509,7 @@ class MorangoSyncCommand(AsyncCommand):
         )
         self._transfer_tracker_adapter(
             sync_client.signals.transferring,
-            "Receiving data ({})".format(self.TRANSFER_MESSAGE),
+            f"Receiving data ({self.TRANSFER_MESSAGE})",
             State.PULLING,
             noninteractive,
         )
@@ -576,7 +562,7 @@ class MorangoSyncCommand(AsyncCommand):
         )
         self._transfer_tracker_adapter(
             sync_client.signals.transferring,
-            "Sending data ({})".format(self.TRANSFER_MESSAGE),
+            f"Sending data ({self.TRANSFER_MESSAGE})",
             State.PUSHING,
             noninteractive,
         )

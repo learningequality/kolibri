@@ -24,7 +24,7 @@ class DatabaseNotMigrated(SanityException):
         super().__init__(
             "An exception occurred for which it is assumed that the "
             "database is not fully migrated.\n\n"
-            "Exception: {}".format(str(self.db_exception))
+            f"Exception: {self.db_exception}"
         )
 
 
@@ -33,7 +33,7 @@ class DatabaseInaccessible(SanityException):
         self.db_exception = kwargs.get("db_exception")
         super().__init__(
             "Not able to access the database while checking it.\n\n"
-            "Exception: {}".format(str(self.db_exception))
+            f"Exception: {self.db_exception}"
         )
 
 

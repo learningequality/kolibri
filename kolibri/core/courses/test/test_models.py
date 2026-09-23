@@ -439,7 +439,7 @@ class CourseSessionGetContentDownloadPriorityTestCase(TestCase):
             content_id=uuid.uuid4().hex,
             parent=course_node,
             available=True,
-            title="Unit {}".format(suffix),
+            title=f"Unit {suffix}",
             modality=modalities.UNIT,
         )
         lesson = ContentNode.objects.create(
@@ -448,7 +448,7 @@ class CourseSessionGetContentDownloadPriorityTestCase(TestCase):
             content_id=uuid.uuid4().hex,
             parent=unit,
             available=True,
-            title="Lesson {}".format(suffix),
+            title=f"Lesson {suffix}",
             modality=modalities.LESSON,
         )
         resource = ContentNode.objects.create(
@@ -457,7 +457,7 @@ class CourseSessionGetContentDownloadPriorityTestCase(TestCase):
             content_id=uuid.uuid4().hex,
             parent=lesson,
             available=True,
-            title="Resource {}".format(suffix),
+            title=f"Resource {suffix}",
         )
         return unit, lesson, resource
 

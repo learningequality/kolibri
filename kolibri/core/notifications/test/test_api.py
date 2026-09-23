@@ -2298,7 +2298,7 @@ class PrePostTestNotificationsTestCase(APITestCase):
                 masterylog=masterylog,
                 sessionlog=sessionlog,
                 user=self.user1,
-                item="test_item_{}".format(i),
+                item=f"test_item_{i}",
                 start_timestamp=now,
                 end_timestamp=now + timedelta(seconds=5),
                 time_spent=5.0,

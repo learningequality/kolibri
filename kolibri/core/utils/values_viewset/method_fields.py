@@ -127,6 +127,6 @@ class _SourcesProxy:
         if child is not None:
             return _SourcesProxy(self._raw, child)
         raise AttributeError(
-            "{!r} not declared — ValuesMethodField exposes sources only: "
-            "{}. Add to sources=, or inline the logic.".format(name, spec.declared)
+            f"{name!r} not declared — ValuesMethodField exposes sources only: "
+            f"{spec.declared}. Add to sources=, or inline the logic."
         )

@@ -109,10 +109,10 @@ class KolibriInstanceTestCase(SimpleTestCase):
         properties = properties or MOCK_PROPERTIES.copy()
         return ServiceInfo(
             SERVICE_TYPE,
-            "test.{}".format(SERVICE_TYPE),
+            f"test.{SERVICE_TYPE}",
             address=socket.inet_aton(MOCK_INTERFACE_IP),
             port=MOCK_PORT,
-            server="test.{}.".format(LOCAL_DOMAIN),
+            server=f"test.{LOCAL_DOMAIN}.",
             properties=properties,
         )
 
@@ -167,9 +167,7 @@ class KolibriInstanceTestCase(SimpleTestCase):
         self.assertEqual(MOCK_INTERFACE_IP, instance.ip)
         self.assertEqual(MOCK_PORT, instance.port)
         self.assertEqual(info.name, instance.name)
-        self.assertEqual(
-            "http://{}:{}/".format(MOCK_INTERFACE_IP, MOCK_PORT), instance.base_url
-        )
+        self.assertEqual(f"http://{MOCK_INTERFACE_IP}:{MOCK_PORT}/", instance.base_url)
 
     def test_from_service_info__bytes_str(self):
         info = self._build_info(

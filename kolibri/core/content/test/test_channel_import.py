@@ -1389,8 +1389,8 @@ class UnversionedChecksumsBatchingTestCase(ContentImportTestBase):
             data["content_file"].append(
                 dict(
                     template,
-                    id="{:032x}".format(i + 1),
-                    checksum="{:032x}".format(i + 1),
+                    id=f"{i + 1:032x}",
+                    checksum=f"{i + 1:032x}",
                     contentnode_id=contentnode_id,
                 )
             )
@@ -1415,7 +1415,7 @@ class BatchedRowImportTestCase(ContentImportTestBase):
         template = data["content_contenttag"][0]
         for i in range(2 * BATCH_SIZE + 1 - len(data["content_contenttag"])):
             data["content_contenttag"].append(
-                dict(template, id="{:032x}".format(i + 1), tag_name="tag{}".format(i))
+                dict(template, id=f"{i + 1:032x}", tag_name=f"tag{i}")
             )
         return data
 
@@ -1445,8 +1445,8 @@ class ReferentiallyBrokenChannelTestCase(TransactionTestCase):
         data["content_file"].append(
             dict(
                 data["content_file"][0],
-                id="{:032x}".format(1),
-                contentnode_id="{:032x}".format(2),
+                id=f"{1:032x}",
+                contentnode_id=f"{2:032x}",
             )
         )
         build_content_db_from_frozen_schema(

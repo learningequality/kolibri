@@ -214,7 +214,7 @@ class KolibriSyncOperationMixin(BaseOperation):
         :return: A boolean
         """
         storage = self._get_storage(context)
-        key = "{}:{}".format(context.transfer_session.id, context.stage)
+        key = f"{context.transfer_session.id}:{context.stage}"
         return key in storage.get(self.history_key, [])
 
     def mark_handled(self, context):
@@ -224,9 +224,7 @@ class KolibriSyncOperationMixin(BaseOperation):
         :type context: morango.sync.context.SessionContext
         """
         operation_history = self._get_storage(context).get(self.history_key, [])
-        operation_history.append(
-            "{}:{}".format(context.transfer_session.id, context.stage)
-        )
+        operation_history.append(f"{context.transfer_session.id}:{context.stage}")
         self._update_storage(context, {self.history_key: operation_history})
 
     def handle(self, context):
@@ -271,7 +269,7 @@ class KolibriVersionedSyncOperation(KolibriSyncOperationMixin, LocalOperation):
 
     @property
     def version_threshold(self):
-        return "<{}".format(self.version)
+        return f"<{self.version}"
 
     def handle_initial(self, context):
         """

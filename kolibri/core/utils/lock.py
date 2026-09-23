@@ -25,7 +25,7 @@ class PostgresLock:
         self.key = key
 
     def execute(self):
-        query = "SELECT pg_advisory_xact_lock({key}) AS lock;".format(key=self.key)
+        query = f"SELECT pg_advisory_xact_lock({self.key}) AS lock;"
         with connection.cursor() as c:
             c.execute(query)
 
@@ -70,9 +70,7 @@ def db_lock():
             yield
     else:
         raise NotImplementedError(
-            "kolibri.core.utils.cache.DatabaseLock not implemented for vendor {vendor}".format(
-                vendor=connection.vendor
-            )
+            f"kolibri.core.utils.cache.DatabaseLock not implemented for vendor {connection.vendor}"
         )
 
 

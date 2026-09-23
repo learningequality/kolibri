@@ -51,7 +51,7 @@ class UnavailableContentDeletion(TestCase):
         self.file.save()
 
         # actually store a dummy local file
-        self.filename = "{}.{}".format(self.hash, self.extension)
+        self.filename = f"{self.hash}.{self.extension}"
 
         self.path = get_content_storage_file_path(self.filename)
         path_dir = os.path.dirname(self.path)

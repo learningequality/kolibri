@@ -19,7 +19,7 @@ def main():
     # Since the log files can contain multiple runs, make the first printout very visible to quickly show
     # when a new run starts in the log files.
     logging.info("Kolibri App Initializing")
-    logging.info("Started at: {}".format(datetime.datetime.now()))
+    logging.info(f"Started at: {datetime.datetime.now()}")
     if tray_only:
         logging.info("Starting in tray-only mode")
 

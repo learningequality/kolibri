@@ -26,7 +26,7 @@ def add_env_var_to_docker():
             # removing the prefix.
             if env.startswith(BUILD_ENV_PREFIX):
                 key = env.replace(BUILD_ENV_PREFIX, "")
-                f.write("\n{key}={value}".format(key=key, value=envs[env]))
+                f.write(f"\n{key}={envs[env]}")
                 logger.info(
                     "Writing value of environment variable %s to Docker env.list\n", key
                 )

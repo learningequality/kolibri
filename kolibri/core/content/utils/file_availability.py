@@ -50,11 +50,9 @@ def get_available_checksums_from_remote(channel_id, peer_id):
             id=peer_id
         )
     except NetworkLocation.DoesNotExist:
-        raise LocationError("Peer with id {} does not exist".format(peer_id))
+        raise LocationError(f"Peer with id {peer_id} does not exist")
 
-    CACHE_KEY = "PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}".format(
-        baseurl=baseurl, channel_id=channel_id
-    )
+    CACHE_KEY = f"PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}"
     if CACHE_KEY not in process_cache:
         channel_checksums = (
             LocalFile.objects.filter(
@@ -153,7 +151,7 @@ def get_available_checksums_from_disk(channel_id, drive_id):
     try:
         basepath = get_mounted_drive_by_id(drive_id).datafolder
     except KeyError:
-        raise LocationError("Drive with id {} does not exist".format(drive_id))
+        raise LocationError(f"Drive with id {drive_id} does not exist")
 
     try:
         content_dir = get_content_storage_dir_path(datafolder=basepath)

@@ -51,7 +51,7 @@ class KolibriApp(wx.App):
         if WINDOWS:
             self.task_bar_icon = KolibriTaskBarIcon(self)
 
-        instance_name = "{}_{}".format(APP_NAME, wx.GetUserId())
+        instance_name = f"{APP_NAME}_{wx.GetUserId()}"
         self._checker = wx.SingleInstanceChecker(instance_name)
 
         if self._checker.IsAnotherRunning():
@@ -240,7 +240,7 @@ class KolibriApp(wx.App):
             return {}
 
     def load_kolibri(self, listen_port, root_url=None):
-        self.kolibri_origin = "http://localhost:{}".format(listen_port)
+        self.kolibri_origin = f"http://localhost:{listen_port}"
 
         if self.server_start_timer:
             self.server_start_timer.Stop()
@@ -248,7 +248,7 @@ class KolibriApp(wx.App):
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.get_state()
-        logging.debug("Persisted State: {}".format(saved_state))
+        logging.debug(f"Persisted State: {saved_state}")
 
         # activate app mode
         next_url = None

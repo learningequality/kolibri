@@ -55,9 +55,7 @@ class Command(AsyncCommand):
         )
         if not server_certs:
             raise CommandError(
-                "Server does not have any certificates for dataset_id: {}".format(
-                    dataset_id
-                )
+                f"Server does not have any certificates for dataset_id: {dataset_id}"
             )
         server_cert = server_certs[0]
 
@@ -96,9 +94,7 @@ class Command(AsyncCommand):
                     "Please enter username of account that will become the superuser on this device: "
                 )
             if not FacilityUser.objects.filter(username=username).exists():
-                self.stderr.write(
-                    "User with username {} does not exist".format(username)
-                )
+                self.stderr.write(f"User with username {username} does not exist")
                 username = None
                 continue
 

@@ -54,7 +54,7 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
     # here, we delete and exclude such databases to avoid errors when we try to connect to them
     db_files_to_remove = set({})
     for db_name in valid_db_names:
-        filename = os.path.join(content_database_dir, "{}.sqlite3".format(db_name))
+        filename = os.path.join(content_database_dir, f"{db_name}.sqlite3")
         if not os.path.exists(filename) or os.path.getsize(filename) == 0:
             db_files_to_remove.add(db_name)
             os.remove(filename)
@@ -85,9 +85,7 @@ def read_channel_metadata_from_db_file(channeldbpath):
             iter(source.rows("content_channelmetadata")), None
         )
         if source_channel_metadata is None:
-            raise ValueError(
-                "No channel metadata in database file {}".format(channeldbpath)
-            )
+            raise ValueError(f"No channel metadata in database file {channeldbpath}")
         source_channel_metadata["inferred_schema_version"] = inferred_schema_version
 
     # Adds an attribute `root_id` when `root_id` does not exist to match with

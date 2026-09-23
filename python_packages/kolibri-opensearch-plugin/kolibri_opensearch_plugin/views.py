@@ -55,7 +55,7 @@ class Search(View):
         feed = feedgenerator.Atom1Feed(
             title="Kolibri search results",
             link=request.build_absolute_uri(),
-            description="Kolibri search results for query {value}".format(value=value),
+            description=f"Kolibri search results for query {value}",
         )
 
         for result in results:

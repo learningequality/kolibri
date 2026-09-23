@@ -42,22 +42,18 @@ def check_debian_user(noinput=False):
         return
 
     sys.stderr.write(
-        (
-            "You are running this command as the user '{current_user}', "
-            "but Kolibri was originally installed to run as the user '{kolibri_user}'.\n"
-            "This may result in unexpected behavior, "
-            "because the two users will each use their own local databases and content.\n\n"
-        ).format(current_user=current_user, kolibri_user=kolibri_user)
+        f"You are running this command as the user '{current_user}', "
+        f"but Kolibri was originally installed to run as the user '{kolibri_user}'.\n"
+        "This may result in unexpected behavior, "
+        "because the two users will each use their own local databases and content.\n\n"
     )
     sys.stderr.write(
-        (
-            "If you'd like to run the command as '{}', you can try:\n\n"
-            "    sudo su {} -c '<command>'\n\n"
-        ).format(kolibri_user, kolibri_user)
+        f"If you'd like to run the command as '{kolibri_user}', you can try:\n\n"
+        f"    sudo su {kolibri_user} -c '<command>'\n\n"
     )
     cont = input(
         "Alternatively, would you like to continue and "
-        "run the command as '{}'? [y/N] ".format(current_user)
+        f"run the command as '{current_user}'? [y/N] "
     )
     if not cont.strip().lower() == "y":
         # Remove the previously created KOLIBRI_HOME directory

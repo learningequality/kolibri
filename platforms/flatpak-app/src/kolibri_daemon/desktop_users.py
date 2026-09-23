@@ -65,7 +65,7 @@ class UserInfo(typing.NamedTuple):
                 map_fn=cls.from_accounts_service_user,
             )
         else:
-            out_future.set_exception(Exception("Unknown user_id ({})".format(user_id)))
+            out_future.set_exception(Exception(f"Unknown user_id ({user_id})"))
 
         return out_future
 

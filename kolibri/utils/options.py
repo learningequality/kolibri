@@ -306,7 +306,7 @@ class LazyImportFunction:
         if self._fn is None:
             fn = import_string(self.module_name)
             if not callable(fn):
-                raise ImportError("Module {} is not callable".format(self.module_name))
+                raise ImportError(f"Module {self.module_name} is not callable")
             self._fn = fn
             update_wrapper(self, self._fn)
         return self._fn(*args, **kwargs)
@@ -862,21 +862,19 @@ def _get_option_spec():
             if "deprecated_aliases" in attrs:
                 attrs["deprecated_envvars"] = attrs.get("deprecated_envvars", ())
                 for alias in attrs["deprecated_aliases"]:
-                    alias_ev = "KOLIBRI_{}".format(alias)
+                    alias_ev = f"KOLIBRI_{alias}"
                     if alias_ev not in envvars:
                         attrs["deprecated_envvars"] += (alias_ev,)
 
             opt_envvars = attrs.get("envvars", ()) + attrs.get("deprecated_envvars", ())
-            default_envvar = "KOLIBRI_{}".format(optname.upper())
+            default_envvar = f"KOLIBRI_{optname.upper()}"
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
             else:
                 logger.warning(
                     "Duplicate environment variable for options %s", default_envvar
                 )
-                default_envvar = "KOLIBRI_{}_{}".format(
-                    section.upper(), optname.upper()
-                )
+                default_envvar = f"KOLIBRI_{section.upper()}_{optname.upper()}"
             if default_envvar not in opt_envvars:
                 attrs["envvars"] = (default_envvar,) + opt_envvars
     return option_spec
@@ -894,7 +892,7 @@ def get_configspec():
     lines = []
 
     for section, opts in option_spec.items():
-        lines.append("[{section}]".format(section=section))
+        lines.append(f"[{section}]")
         for name, attrs in opts.items():
             default = attrs.get("default", "")
             if isinstance(default, list) and not default:
@@ -905,7 +903,7 @@ def get_configspec():
                 + [
                     # Pass any extra arguments through to the checker function,
                     # e.g. min/max bounds for integer options.
-                    "{key}={value!r}".format(key=key, value=value)
+                    f"{key}={value!r}"
                     for key, value in attrs.get("validator_args", {}).items()
                 ]
                 + [
@@ -913,7 +911,7 @@ def get_configspec():
                         default_list="','".join(default)
                     )
                     if isinstance(default, list)
-                    else "default='{default}'".format(default=default)
+                    else f"default='{default}'"
                 ]
             )
             line = "{name} = {type}({args})".format(
@@ -1107,11 +1105,7 @@ def update_options_file(section, key, value, ini_filename="options.ini"):
     validation = conf.validate(_get_validator(), preserve_errors=True)
     if validation is not True:
         error = validation.get(section, {}).get(key) or "unknown error"
-        raise ValueError(
-            "Unable to set {key} in {file}: {error}".format(
-                key=key, file=ini_filename, error=error
-            )
-        )
+        raise ValueError(f"Unable to set {key} in {ini_filename}: {error}")
 
     # write the settings file back to disk
     conf.write()

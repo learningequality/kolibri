@@ -14,8 +14,8 @@ def bytes_for_humans(size, suffix="B"):
     for prefix in BYTES_PREFIXES[:-1]:
         if size < PREFIX_FACTOR_BYTES:
             if prefix == "":
-                return "{}{}".format(size, suffix)
-            return "{:.2f}{}{}".format(size, prefix, suffix)
+                return f"{size}{suffix}"
+            return f"{size:.2f}{prefix}{suffix}"
         size /= PREFIX_FACTOR_BYTES
     return "{:.2f}{}{}".format(size, "P", suffix)
 
@@ -39,19 +39,17 @@ def bytes_from_humans(size, suffix="B"):
     # Be lenient by making all input uppercase to maximize chance of a match.
     size = size.upper()
     for i, prefix in enumerate(BYTES_PREFIXES):
-        regex = "(([0-9]*[.])?[0-9]+){}{}".format(prefix, suffix)
+        regex = f"(([0-9]*[.])?[0-9]+){prefix}{suffix}"
         match = re.match(regex, size)
         if match:
             return int(float(match.groups()[0]) * PREFIX_FACTOR_BYTES**i)
-    raise ValueError("Could not parse bytes value from {}".format(size))
+    raise ValueError(f"Could not parse bytes value from {size}")
 
 
 class ChoicesEnum:
     @classmethod
     def choices(cls):
-        choices_list = [
-            (getattr(cls, m), "{}".format(m)) for m in cls.__dict__ if m[0] != "_"
-        ]
+        choices_list = [(getattr(cls, m), f"{m}") for m in cls.__dict__ if m[0] != "_"]
         return tuple(sorted(choices_list))
 
     @classmethod

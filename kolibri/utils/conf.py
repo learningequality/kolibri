@@ -34,9 +34,7 @@ NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
 if not os.path.exists(KOLIBRI_HOME):
     parent = os.path.dirname(KOLIBRI_HOME)
     if not os.path.exists(parent):
-        raise RuntimeError(
-            "The parent of your KOLIBRI_HOME does not exist: {}".format(parent)
-        )
+        raise RuntimeError(f"The parent of your KOLIBRI_HOME does not exist: {parent}")
     os.mkdir(KOLIBRI_HOME)
 
 # Create a folder named logs inside KOLIBRI_HOME to store all the log files.

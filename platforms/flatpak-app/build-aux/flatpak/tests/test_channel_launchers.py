@@ -17,9 +17,7 @@ from kolibri_app_desktop_xdg_plugin import path_utils
 def _thumbnail_data_uri(size=(300, 200), mimetype="image/png", fmt="PNG"):
     buffer = BytesIO()
     Image.new("RGBA", size, (10, 120, 200, 255)).save(buffer, fmt)
-    return "data:{};base64,{}".format(
-        mimetype, base64.b64encode(buffer.getvalue()).decode()
-    )
+    return f"data:{mimetype};base64,{base64.b64encode(buffer.getvalue()).decode()}"
 
 
 class FakeChannel:

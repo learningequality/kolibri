@@ -39,7 +39,7 @@ def move_network_location_entries():
             if len(locations) < BATCH_SIZE:
                 break
         cursor = connection.cursor()
-        cursor.execute("DROP TABLE {}".format(NetworkLocation._meta.db_table))
+        cursor.execute(f"DROP TABLE {NetworkLocation._meta.db_table}")
     except (OperationalError, ProgrammingError):
         # This will happen if the default database has not been migrated with the network location table
         # this may happen if we are upgrading from a version before the NetworkLocation model existed

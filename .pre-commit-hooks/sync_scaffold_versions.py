@@ -104,7 +104,7 @@ def sync():
         name, spec = match.group(1), match.group(2)
         want = pins.get(name)
         if want and spec != want:
-            return '"{}": "{}"'.format(name, want)
+            return f'"{name}": "{want}"'
         return match.group(0)
 
     updated = text[:start] + re.sub(
@@ -116,10 +116,8 @@ def sync():
     with io.open(MANIFEST_FILE, "w", encoding="utf-8") as f:
         f.write(updated)
     sys.stderr.write(
-        "Updated scaffolder fallback version pins in {} to match the pnpm "
-        "workspace/catalog. Review and re-stage the change.\n".format(
-            os.path.relpath(MANIFEST_FILE, ROOT)
-        )
+        f"Updated scaffolder fallback version pins in {os.path.relpath(MANIFEST_FILE, ROOT)} to match the pnpm "
+        "workspace/catalog. Review and re-stage the change.\n"
     )
     return 1
 

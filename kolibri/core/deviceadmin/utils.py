@@ -51,9 +51,7 @@ def get_dtm_from_backup_name(fname):
         date = label.split("_")[0]
         time = label.split("_")[1]
         return "{date} {time}".format(date=date, time=time.replace("-", ":"))
-    raise ValueError(
-        "Tried to get date component of unparsed filename: {}".format(fname)
-    )
+    raise ValueError(f"Tried to get date component of unparsed filename: {fname}")
 
 
 def is_full_version(fname):
@@ -65,7 +63,7 @@ def is_full_version(fname):
     """
     # Can contain suffixes denoting alpha, beta, post, dev etc.
     full_version = kolibri.__version__
-    return fname.startswith("db-v{}_".format(full_version))
+    return fname.startswith(f"db-v{full_version}_")
 
 
 def dbbackup(old_version, dest_folder=None):
@@ -159,7 +157,7 @@ def search_latest(search_root, fallback_version):
     newest_dtm = ""
 
     # All file names have to be according to the fall back version.
-    prefix = "db-v{}".format(fallback_version)
+    prefix = f"db-v{fallback_version}"
 
     backups = os.listdir(search_root)
     backups = filter(lambda f: f.endswith(".dump"), backups)

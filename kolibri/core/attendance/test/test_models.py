@@ -155,7 +155,7 @@ class AttendanceRecordTestCase(TestCase):
             attendance_session=self.session,
             user=self.learner,
         )
-        expected = "{}:{}".format(self.session.id, self.learner.id)
+        expected = f"{self.session.id}:{self.learner.id}"
         self.assertEqual(record.calculate_source_id(), expected)
 
     def test_calculate_partition(self):

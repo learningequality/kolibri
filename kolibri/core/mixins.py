@@ -48,9 +48,9 @@ def inline_literal(param):
     if isinstance(param, int):
         return str(param)
     if isinstance(param, UUID):
-        return "'{}'".format(param)
+        return f"'{param}'"
     if isinstance(param, str) and INLINABLE_RE.match(param):
-        return "'{}'".format(param)
+        return f"'{param}'"
     return None
 
 
@@ -185,9 +185,7 @@ def validate_uuids(ids):
                 UUID(identifier, version=4)
         except (TypeError, ValueError):
             # the value is not a valid hex code for a UUID, so we don't return any results
-            raise UUIDValidationError(
-                "{} did not pass UUID validation".format(identifier)
-            )
+            raise UUIDValidationError(f"{identifier} did not pass UUID validation")
     return ids
 
 
@@ -218,7 +216,7 @@ class FilterByUUIDQuerysetMixin:
                     # the value is not a valid hex code for a UUID, so we don't return any results
                     return self.none()
             lookup = InlineIn.lookup_name
-        kwargs = {"{}__{}".format(field_name, lookup): ids}
+        kwargs = {f"{field_name}__{lookup}": ids}
         if include:
             return self.filter(**kwargs)
         return self.exclude(**kwargs)
@@ -238,7 +236,7 @@ def checksums_q(field_name, checksums):
     """
     if not all(checksum_re.match(checksum) for checksum in checksums):
         return Q(pk__in=[])
-    return Q(**{"{}__{}".format(field_name, InlineIn.lookup_name): checksums})
+    return Q(**{f"{field_name}__{InlineIn.lookup_name}": checksums})
 
 
 class FilterByChecksumQuerysetMixin:

@@ -49,12 +49,10 @@ def _is_local_host(host):
 
 def _block(api, host, port):
     raise BlockedNetworkAccessError(
-        "A test attempted real network access via {api} to {host}:{port}. "
+        f"A test attempted real network access via {api} to {host}:{port}. "
         "Tests must not make requests to external services - mock them "
         "instead, e.g. by patching requests.Session.request "
-        "(see kolibri/core/discovery/test/helpers.py).".format(
-            api=api, host=host, port=port
-        )
+        "(see kolibri/core/discovery/test/helpers.py)."
     )
 
 

@@ -205,7 +205,7 @@ class SoudExecuteSyncsTestCase(TestCase):
 
     def _mock_side_effect(self, mock_func, context):
         updates = self.side_effects[id(mock_func)].get(
-            "{}:{}".format(context.user_id, context.instance_id)
+            f"{context.user_id}:{context.instance_id}"
         )
         if updates:
             SyncQueue.objects.filter(
@@ -213,9 +213,9 @@ class SoudExecuteSyncsTestCase(TestCase):
             ).update(**updates.pop(0))
 
     def _add_side_effect(self, mock_func, queue, **updates):
-        self.side_effects[id(mock_func)][
-            "{}:{}".format(queue.user_id, queue.instance_id)
-        ].append(updates)
+        self.side_effects[id(mock_func)][f"{queue.user_id}:{queue.instance_id}"].append(
+            updates
+        )
 
     def _create_queue(
         self, status=SyncQueueStatus.Pending, user_id=None, instance_id=None
@@ -225,7 +225,7 @@ class SoudExecuteSyncsTestCase(TestCase):
         self.queue_index += 1
 
         for mock_func in (self.mock_execute_sync, self.mock_request_sync):
-            self.side_effects[id(mock_func)]["{}:{}".format(user_id, instance_id)] = []
+            self.side_effects[id(mock_func)][f"{user_id}:{instance_id}"] = []
 
         return SyncQueue.objects.create(
             user_id=user_id,
@@ -254,7 +254,7 @@ class SoudExecuteSyncsTestCase(TestCase):
             self.assertIsInstance(args[0], Context)
             self.assertFalse(
                 args[0].user_id == user_id and args[0].instance_id == instance_id,
-                "Unexpected call with context: {}".format(args[0]),
+                f"Unexpected call with context: {args[0]}",
             )
 
     def test_none(self):

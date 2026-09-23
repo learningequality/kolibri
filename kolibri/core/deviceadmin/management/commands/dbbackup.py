@@ -49,6 +49,4 @@ class Command(BaseCommand):
         dest_folder = options.get("dest_folder", None)
 
         backup = dbbackup(kolibri.__version__, dest_folder=dest_folder)
-        self.stdout.write(
-            self.style.SUCCESS("Backed up database to: {path}".format(path=backup))
-        )
+        self.stdout.write(self.style.SUCCESS(f"Backed up database to: {backup}"))

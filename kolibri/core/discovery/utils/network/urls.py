@@ -107,7 +107,7 @@ def is_valid_ipv6_address(ip):
 def parse_address_into_components(address):  # noqa C901
     # if it looks to be an IPv6 address, make sure it is surrounded by square brackets
     if address.count(":") > 2 and re.match(r"^[a-f0-9\:]+$", address):
-        address = "[{}]".format(address)
+        address = f"[{address}]"
 
     # ensure that there's a scheme on the address
     if "://" not in address:
@@ -142,7 +142,7 @@ def parse_address_into_components(address):  # noqa C901
     if p_scheme not in ("http", "https"):
         raise errors.InvalidScheme(p_scheme)
     if is_valid_ipv6_address(p_hostname):
-        p_hostname = "[{}]".format(p_hostname)
+        p_hostname = f"[{p_hostname}]"
     elif not (is_valid_hostname(p_hostname) or is_valid_ipv4_address(p_hostname)):
         raise errors.InvalidHostname(p_hostname)
 
@@ -175,13 +175,6 @@ def get_normalized_url_variations(address):
                 ):
                     port_component = ""
                 else:
-                    port_component = ":{port}".format(port=port)
-                urls.append(
-                    "{scheme}://{hostname}{port}{path}".format(
-                        scheme=scheme,
-                        hostname=p_hostname,
-                        port=port_component,
-                        path=path,
-                    )
-                )
+                    port_component = f":{port}"
+                urls.append(f"{scheme}://{p_hostname}{port_component}{path}")
     return urls

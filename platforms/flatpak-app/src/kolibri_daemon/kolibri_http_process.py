@@ -107,7 +107,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
         fn = self.__commands.get(command, None)
 
         if not callable(fn):
-            raise ValueError("Unknown command '{}'".format(command))
+            raise ValueError(f"Unknown command '{command}'")
 
         return fn()
 

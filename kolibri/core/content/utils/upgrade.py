@@ -378,7 +378,7 @@ def _get_available_course_bounds(alias, channel_id):
         for node_id, lft, rght in _destination_nodes(alias)
         .filter(
             channel_id=channel_id,
-            options__contains='"modality": "{}"'.format(modalities.COURSE),
+            options__contains=f'"modality": "{modalities.COURSE}"',
         )
         .values_list("id", "lft", "rght")
     }
@@ -524,9 +524,7 @@ def get_import_data_for_update(
     update_stats = process_cache.get(CHANNEL_UPDATE_STATS_CACHE_KEY.format(channel_id))
     if not update_stats:
         raise ValueError(
-            "Tried to get update content nodes for channel {} that has no precalculated update stats".format(
-                channel_id
-            )
+            f"Tried to get update content nodes for channel {channel_id} that has no precalculated update stats"
         )
 
     # By default don't filter node ids by their underlying file importability

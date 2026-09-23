@@ -114,7 +114,7 @@ def run_pip_install(
             cache_path,
             "--only-binary=:all:",
             "--no-deps",
-            "{}=={}".format(name, pk_version),
+            f"{name}=={pk_version}",
         ]
     )
 
@@ -189,7 +189,7 @@ def install_one(task):
 
     if install_return == 1:
         if index_url == PYPI_DOWNLOAD:
-            raise RuntimeError("Installation failed for package {}.".format(filename))
+            raise RuntimeError(f"Installation failed for package {filename}.")
         # Ignore Piwheels installation failure because the website is not always
         # stable. Nothing was installed, so there is no dist-info to clean up.
         return
@@ -299,7 +299,7 @@ def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
             files = BeautifulSoup(r.content, "html.parser")
             tasks.extend(parse_package_page(files, pk_version, link, cache_path))
         else:
-            sys.exit("\nUnable to find package {} on {}.\n".format(name, link))
+            sys.exit(f"\nUnable to find package {name} on {link}.\n")
     return tasks
 
 

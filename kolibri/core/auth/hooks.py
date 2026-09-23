@@ -66,4 +66,4 @@ class FacilityDataSyncHook(KolibriHook):
         :return: A list of callable functions or Morango operations
         :rtype: callable[]|morango.sync.operations.BaseOperation[]
         """
-        return getattr(self, "{}_operations".format(context.stage), [])
+        return getattr(self, f"{context.stage}_operations", [])

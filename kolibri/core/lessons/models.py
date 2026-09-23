@@ -92,7 +92,7 @@ class Lesson(AbstractFacilityDataModel):
         return learners
 
     def __str__(self):
-        return "Lesson {} for Classroom {}".format(self.title, self.collection.name)
+        return f"Lesson {self.title} for Classroom {self.collection.name}"
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
@@ -148,9 +148,7 @@ class LessonAssignment(AbstractFacilityDataModel):
     )
 
     def __str__(self):
-        return "Lesson Assignment {} for Collection {}".format(
-            self.lesson.title, self.collection.name
-        )
+        return f"Lesson Assignment {self.lesson.title} for Collection {self.collection.name}"
 
     # Morango fields
     morango_model_name = "lessonassignment"
@@ -175,9 +173,7 @@ class LessonAssignment(AbstractFacilityDataModel):
         return self.cached_related_dataset_lookup("lesson")
 
     def calculate_source_id(self):
-        return "{lesson_id}:{collection_id}".format(
-            lesson_id=self.lesson_id, collection_id=self.collection_id
-        )
+        return f"{self.lesson_id}:{self.collection_id}"
 
     def calculate_partition(self):
         return self.dataset_id
@@ -229,9 +225,7 @@ class IndividualSyncableLesson(AbstractFacilityDataModel):
         return self.lesson_id
 
     def calculate_partition(self):
-        return "{dataset_id}:user-ro:{user_id}".format(
-            dataset_id=self.dataset_id, user_id=self.user_id
-        )
+        return f"{self.dataset_id}:user-ro:{self.user_id}"
 
     @classmethod
     def serialize_lesson(cls, lesson):

@@ -5,7 +5,7 @@ def get_job_key(context):
     """
     A sync could have multiple transfer sessions, so we'll key by the transfer session ID
     """
-    return "{}_{}_job_id".format(context.transfer_session.id, context.stage)
+    return f"{context.transfer_session.id}_{context.stage}_job_id"
 
 
 def get_job_id(context):

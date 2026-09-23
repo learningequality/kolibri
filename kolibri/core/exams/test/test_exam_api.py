@@ -576,9 +576,7 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
 
         MASTERY_LOGS = 0
         for i in range(10):
-            user = FacilityUser.objects.create(
-                username="u{}".format(i), facility=self.facility
-            )
+            user = FacilityUser.objects.create(username=f"u{i}", facility=self.facility)
 
             self.classroom.add_member(user)
 

@@ -65,9 +65,7 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
         if e.response.status_code == 404:
             return None
         raise LocationError(
-            "Failed to look up channel {} on remote {}: HTTP {}".format(
-                identifier, baseurl, e.response.status_code
-            )
+            f"Failed to look up channel {identifier} on remote {baseurl}: HTTP {e.response.status_code}"
         )
 
     channels = resp.json()
@@ -78,7 +76,7 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
         matching = [c for c in channels if c.get("id") == channel_id]
         if not matching:
             raise LocationError(
-                "Token '{}' does not resolve to channel {}".format(token, channel_id)
+                f"Token '{token}' does not resolve to channel {channel_id}"
             )
         channel_info = matching[0]
     else:
@@ -88,8 +86,8 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
                 for c in channels
             )
             raise LocationError(
-                "Token '{}' matches multiple channels: {}. "
-                "Use a channel ID instead.".format(token, channel_list)
+                f"Token '{token}' matches multiple channels: {channel_list}. "
+                "Use a channel ID instead."
             )
         channel_info = channels[0]
 
@@ -639,7 +637,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                 baseurl = NetworkClient.build_for_address(peer["base_url"]).base_url
             except (NetworkLocation.DoesNotExist, NetworkLocationNotFound):
                 raise LocationError(
-                    "The network location with the id {} does not exist".format(peer_id)
+                    f"The network location with the id {peer_id} does not exist"
                 )
 
         self.baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
@@ -775,9 +773,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
             drive = get_mounted_drive_by_id(drive_id)
         except KeyError:
             raise LocationError(
-                "The external drive with given drive id {} does not exist.".format(
-                    drive_id
-                )
+                f"The external drive with given drive id {drive_id} does not exist."
             )
         return drive["path"]
 

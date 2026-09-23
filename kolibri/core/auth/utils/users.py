@@ -58,9 +58,7 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
             user_info_url,
             params=params,
             auth=(
-                "username={}&{}={}".format(
-                    username, FACILITY_CREDENTIAL_KEY, facility_id
-                ),
+                f"username={username}&{FACILITY_CREDENTIAL_KEY}={facility_id}",
                 password,
             ),
         )
@@ -127,9 +125,7 @@ def get_remote_user_info(client, facility_id, adminUsername, adminPassword, user
             user_info_url,
             params=params,
             auth=(
-                "username={}&{}={}".format(
-                    adminUsername, FACILITY_CREDENTIAL_KEY, facility_id
-                ),
+                f"username={adminUsername}&{FACILITY_CREDENTIAL_KEY}={facility_id}",
                 adminPassword,
             ),
         )

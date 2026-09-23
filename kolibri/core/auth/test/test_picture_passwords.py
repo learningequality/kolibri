@@ -146,7 +146,7 @@ class AssignPicturePasswordTestCase(TestCase):
         self.assertNotEqual(new_learner.picture_password, existing.picture_password)
 
     def test_assigns_unique_sequences_to_multiple_learners(self):
-        learners = [self._create_learner("l{}".format(i)) for i in range(10)]
+        learners = [self._create_learner(f"l{i}") for i in range(10)]
         for learner in learners:
             assign_picture_password(learner, self.facility)
 
@@ -162,7 +162,7 @@ class AssignPicturePasswordTestCase(TestCase):
         small_set = {1: {}, 2: {}, 3: {}}
         all_seqs = sorted(get_all_valid_sequences(small_set))
         for i, seq in enumerate(all_seqs):
-            learner = self._create_learner("fill{}".format(i))
+            learner = self._create_learner(f"fill{i}")
             learner.picture_password = seq
             learner.save(update_fields=["picture_password"])
 

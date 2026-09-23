@@ -183,7 +183,7 @@ class EndRangeStaticFile(StaticFile):
             return self.get_range_not_satisfiable_response(file_handle, size)
         if file_handle is not None:
             file_handle = SlicedFile(file_handle, start, end)
-        headers.append(("Content-Range", "bytes {}-{}/{}".format(start, end, size)))
+        headers.append(("Content-Range", f"bytes {start}-{end}/{size}"))
         headers.append(("Content-Length", str(end - start + 1)))
         return Response(HTTPStatus.PARTIAL_CONTENT, headers, file_handle)
 
@@ -389,7 +389,7 @@ class DynamicWhiteNoise(WhiteNoise):
                 stat_cache = {path: file_stat}
                 for ext in compressed_file_extensions:
                     try:
-                        comp_path = "{}.{}".format(path, ext)
+                        comp_path = f"{path}.{ext}"
                         stat_cache[comp_path] = os.stat(comp_path)
                     except OSError:
                         pass

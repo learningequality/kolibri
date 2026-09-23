@@ -68,7 +68,7 @@ def log_permissions(user_field):
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_updated_by=(role_kinds.ADMIN,),
             can_be_deleted_by=(role_kinds.ADMIN,),
-            collection_field="{}__memberships__collection_id".format(user_field),
+            collection_field=f"{user_field}__memberships__collection_id",
         )
     )
 
@@ -98,10 +98,8 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         if self.user_id:
-            return "{dataset_id}:user-rw:{user_id}".format(
-                dataset_id=self.dataset_id, user_id=self.user_id
-            )
-        return "{dataset_id}:anonymous".format(dataset_id=self.dataset_id)
+            return f"{self.dataset_id}:user-rw:{self.user_id}"
+        return f"{self.dataset_id}:anonymous"
 
 
 class ContentSessionLog(BaseLogModel):
@@ -269,9 +267,7 @@ class MasteryLog(BaseLogModel):
         return self.cached_related_dataset_lookup("user")
 
     def calculate_source_id(self):
-        return "{summarylog_id}:{mastery_level}".format(
-            summarylog_id=self.summarylog_id, mastery_level=self.mastery_level
-        )
+        return f"{self.summarylog_id}:{self.mastery_level}"
 
 
 class BaseAttemptLog(BaseLogModel):
@@ -354,7 +350,7 @@ class ExamLog(BaseLogModel):
     completion_timestamp = DateTimeTzField(blank=True, null=True)
 
     def calculate_source_id(self):
-        return "{exam_id}:{user_id}".format(exam_id=self.exam_id, user_id=self.user_id)
+        return f"{self.exam_id}:{self.user_id}"
 
     def calculate_partition(self):
         return self.dataset_id

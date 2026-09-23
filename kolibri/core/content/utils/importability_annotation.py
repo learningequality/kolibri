@@ -208,9 +208,7 @@ def register_key_as_cached(key, channel_id):
 
 
 def get_channel_stats_from_disk(channel_id, drive_id):
-    CACHE_KEY = "DISK_CHANNEL_STATS_{drive_id}_{channel_id}".format(
-        drive_id=drive_id, channel_id=channel_id
-    )
+    CACHE_KEY = f"DISK_CHANNEL_STATS_{drive_id}_{channel_id}"
     if CACHE_KEY not in process_cache:
         checksums = get_available_checksums_from_disk(channel_id, drive_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
@@ -222,9 +220,7 @@ def get_channel_stats_from_disk(channel_id, drive_id):
 
 
 def get_channel_stats_from_peer(channel_id, peer_id):
-    CACHE_KEY = "PEER_CHANNEL_STATS_{peer_id}_{channel_id}".format(
-        peer_id=peer_id, channel_id=channel_id
-    )
+    CACHE_KEY = f"PEER_CHANNEL_STATS_{peer_id}_{channel_id}"
     if CACHE_KEY not in process_cache:
         checksums = get_available_checksums_from_remote(channel_id, peer_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
@@ -236,7 +232,7 @@ def get_channel_stats_from_peer(channel_id, peer_id):
 
 
 def get_channel_stats_from_studio(channel_id):
-    CACHE_KEY = "STUDIO_CHANNEL_STATS_{channel_id}".format(channel_id=channel_id)
+    CACHE_KEY = f"STUDIO_CHANNEL_STATS_{channel_id}"
     if CACHE_KEY not in process_cache:
         channel_stats = get_channel_annotation_stats(channel_id)
         process_cache.set(CACHE_KEY, channel_stats, 3600)

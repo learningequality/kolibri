@@ -58,11 +58,7 @@ class MultiplePlugins(Exception):
 
 
 def plugin_url(plugin_class, url_name):
-    return reverse(
-        "kolibri:{namespace}:{url_name}".format(
-            namespace=plugin_class.class_module_path(), url_name=url_name
-        )
-    )
+    return reverse(f"kolibri:{plugin_class.class_module_path()}:{url_name}")
 
 
 def _is_plugin(class_definition):
@@ -88,9 +84,7 @@ def _import_python_module(plugin_name):
     except ImportError as e:
         exc_message = str(e)
         if exc_message.startswith("No module named"):
-            msg = (
-                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
-            ).format(plugin_name)
+            msg = f"Plugin '{plugin_name}' does not seem to exist. Is it on the PYTHONPATH?"
             raise PluginDoesNotExist(msg)
         raise
 
@@ -104,23 +98,17 @@ def initialize_plugins_and_hooks(all_classes, plugin_name, initialize_hooks=True
             plugin_objects.append(class_definition())
             if not was_configured and django_settings.configured:
                 raise PluginLoadsApp(
-                    "Initializing plugin class {} in plugin {} caused Django settings to be configured".format(
-                        class_definition.__name__, plugin_name
-                    )
+                    f"Initializing plugin class {class_definition.__name__} in plugin {plugin_name} caused Django settings to be configured"
                 )
         elif issubclass(class_definition, KolibriHook) and initialize_hooks:
             class_definition.add_hook_to_registries()
             if not was_configured and django_settings.configured:
                 raise PluginLoadsApp(
-                    "Initializing hook class {} in plugin {} caused Django settings to be configured".format(
-                        class_definition.__name__, plugin_name
-                    )
+                    f"Initializing hook class {class_definition.__name__} in plugin {plugin_name} caused Django settings to be configured"
                 )
     if len(plugin_objects) == 0:
         raise PluginDoesNotExist(
-            "Plugin '{}' exists but does not define a KolibriPluginBase derived class".format(
-                plugin_name
-            )
+            f"Plugin '{plugin_name}' exists but does not define a KolibriPluginBase derived class"
         )
     if len(plugin_objects) == 1:
         plugin_instance = plugin_objects[0]
@@ -155,9 +143,7 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
         plugin_module = importlib.import_module(plugin_module_name)
         if not was_configured and django_settings.configured:
             raise PluginLoadsApp(
-                "Importing plugin module {} caused Django settings to be configured".format(
-                    plugin_name
-                )
+                f"Importing plugin module {plugin_name} caused Django settings to be configured"
             )
         logger.debug("Loaded kolibri plugin: %s", plugin_name)
         # If no exception is thrown, use this to find the plugin class.
@@ -187,17 +173,15 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
 
     except ImportError as e:
         exc_message = str(e)
-        if "No module named '{}'".format(plugin_module_name) in exc_message:
-            msg = (
-                "Plugin '{}' exists but does not have an importable kolibri_plugin module"
-            ).format(plugin_name)
+        if f"No module named '{plugin_module_name}'" in exc_message:
+            msg = f"Plugin '{plugin_name}' exists but does not have an importable kolibri_plugin module"
             raise PluginDoesNotExist(msg)
         raise
     except AppRegistryNotReady:
         msg = (
-            "Plugin '{}' loads the Django app registry, which it isn't "
+            f"Plugin '{plugin_name}' loads the Django app registry, which it isn't "
             "allowed to do while enabling or disabling itself."
-        ).format(plugin_name)
+        )
         raise PluginLoadsApp(msg)
 
 

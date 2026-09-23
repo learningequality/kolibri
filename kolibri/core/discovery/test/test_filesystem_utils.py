@@ -18,7 +18,7 @@ def _get_mocked_popen(cmd_resp):
         def __init__(self, cmd, *args, **kwargs):
             if cmd not in cmd_resp:
                 raise Exception(
-                    "subprocess.Popen called for an unmocked command '{}'!".format(cmd)
+                    f"subprocess.Popen called for an unmocked command '{cmd}'!"
                 )
             self.response = cmd_resp[cmd]
 
@@ -34,7 +34,7 @@ def _get_mocked_popen(cmd_resp):
 def _get_mocked_disk_usage(disk_sizes):
     def mock_disk_usage(path):
         if path not in disk_sizes:
-            raise Exception("Disk usage not mocked for path '{}'!".format(path))
+            raise Exception(f"Disk usage not mocked for path '{path}'!")
 
         sizes = disk_sizes[path]
 
@@ -76,9 +76,7 @@ def patch_os_access(readable, writable):
                 lookup = writable
 
             if path not in lookup:
-                raise Exception(
-                    "os.access() called for an unmocked path '{}'!".format(path)
-                )
+                raise Exception(f"os.access() called for an unmocked path '{path}'!")
 
             return lookup[path]
 
@@ -99,7 +97,7 @@ def patch_os_path_exists_for_kolibri_folder(folder_lookup):
 
             if base_path not in folder_lookup:
                 raise Exception(
-                    "os.path.exists() called for an unmocked path '{}'!".format(path)
+                    f"os.path.exists() called for an unmocked path '{path}'!"
                 )
 
             return folder_lookup[base_path]

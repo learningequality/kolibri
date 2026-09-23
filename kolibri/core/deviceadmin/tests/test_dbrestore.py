@@ -32,9 +32,7 @@ MOCK_DATABASES = {
 MOCK_DATABASES_FILE = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(
-            tempfile.mkdtemp(), "test{}.db".format(random.randint(0, 100000))
-        ),
+        "NAME": os.path.join(tempfile.mkdtemp(), f"test{random.randint(0, 100000)}.db"),
         "OPTIONS": {"timeout": 100},
     }
 }
@@ -130,11 +128,11 @@ def test_restore_from_latest():
 
         # Also add in a file with an old time stamp to ensure its ignored
         sql = "syntax error;"
-        fbroken = "db-v{}_2015-08-02_00-00-00.dump".format(kolibri.__version__)
+        fbroken = f"db-v{kolibri.__version__}_2015-08-02_00-00-00.dump"
         open(os.path.join(default_backup_folder(), fbroken), "w").write(sql)
 
         # Add an unparsable file name
-        fbroken = "db-v{}_.dump".format(kolibri.__version__)
+        fbroken = f"db-v{kolibri.__version__}_.dump"
         open(os.path.join(default_backup_folder(), fbroken), "w").write(sql)
 
         # Restore it into a new test database setting
@@ -217,10 +215,10 @@ def test_search_latest():
     major_version = ".".join(kolibri.__version__.split(".")[:2])
 
     files = [
-        "db-v{}_2015-08-02_00-00-00.dump".format(kolibri.__version__),
-        "db-v{}_2016-08-02_00-00-00.dump".format(kolibri.__version__),
-        "db-v{}_2017-07-02_00-00-00.dump".format(major_version),
-        "db-v{}_2017-08-02_00-00-00.dump".format(kolibri.__version__),
+        f"db-v{kolibri.__version__}_2015-08-02_00-00-00.dump",
+        f"db-v{kolibri.__version__}_2016-08-02_00-00-00.dump",
+        f"db-v{major_version}_2017-07-02_00-00-00.dump",
+        f"db-v{kolibri.__version__}_2017-08-02_00-00-00.dump",
     ]
 
     latest = files[-1]

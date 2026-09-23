@@ -92,7 +92,7 @@ def attached_database(alias, path, name):
     Attach the content database at path under name, detached when the block exits.
     """
     if not name.isidentifier():
-        raise ValueError("Invalid attached database name: {}".format(name))
+        raise ValueError(f"Invalid attached database name: {name}")
     with connections[alias].cursor() as cursor:
         # The schema name cannot be bound as a parameter; isidentifier makes it
         # safe to inline.

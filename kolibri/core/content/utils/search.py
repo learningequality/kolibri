@@ -51,7 +51,7 @@ for key, labels in metadata_lookup.items():
     bitmask_lookup = {}
     i = 0
     while labels[i : i + 64]:
-        bitmask_field_name = "{}_bitmask_{}".format(key, i)
+        bitmask_field_name = f"{key}_bitmask_{i}"
         bitmask_fieldnames[bitmask_field_name] = []
         for j, label in enumerate(labels):
             info = {
@@ -99,9 +99,7 @@ class SQLiteBitwiseORAggregate(Aggregate):
 
     @property
     def template(self):
-        return " + ".join(
-            "max(%(expressions)s&{})".format(2**i) for i in range(self.num_bits)
-        )
+        return " + ".join(f"max(%(expressions)s&{2**i})" for i in range(self.num_bits))
 
 
 def get_available_metadata_labels(  # noqa: C901

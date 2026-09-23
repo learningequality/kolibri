@@ -46,7 +46,7 @@ def _make_broken_store(
         "hard_deleted": False,
         "model_name": FacilityUser.morango_model_name,
         "profile": PROFILE_FACILITY_DATA,
-        "partition": "{}:user-ro:{}".format(dataset_id, store_id),
+        "partition": f"{dataset_id}:user-ro:{store_id}",
         "source_id": store_id,
         "dirty_bit": True,
         "deserialization_exception": _INTEGRITY_ERROR_EXCEPTION,

@@ -24,7 +24,7 @@ class Command(BaseCommand):
     def _register(self, token, facility):
         registerfacility(token, facility)
         self.stdout.write(
-            "Facility: {} has been successfully registered.".format(facility.name)
+            f"Facility: {facility.name} has been successfully registered."
         )
 
     def handle(self, *args, **options):
@@ -38,9 +38,7 @@ class Command(BaseCommand):
             self._register(token, facility)
         except Certificate.DoesNotExist:
             raise CommandError(
-                "This device does not own a certificate for Facility: {}".format(
-                    facility.name
-                )
+                f"This device does not own a certificate for Facility: {facility.name}"
             )
         # an invalid nonce/register response
         except NetworkLocationResponseFailure as e:
@@ -51,25 +49,19 @@ class Command(BaseCommand):
                 # if the facility does not exist on data portal, try syncing and retry registering
                 if not noninteractive:
                     confirm_or_exit(
-                        "Facility: {} does not exist on data portal server. Would you like to initiate a syncing session?".format(
-                            facility.name
-                        )
+                        f"Facility: {facility.name} does not exist on data portal server. Would you like to initiate a syncing session?"
                     )
                     call_command(
                         "sync", facility=facility_id, noninteractive=noninteractive
                     )
                     confirm_or_exit(
-                        "Facility: {} has been synced. Would you like to retry registering?".format(
-                            facility.name
-                        )
+                        f"Facility: {facility.name} has been synced. Would you like to retry registering?"
                     )
                     return self._register(token, facility)
 
             # display nice error messages for other Http errors
             raise CommandError(
-                "{status} Client Error: For url: {url} Reason: {reason}".format(
-                    status=e.response.status_code, url=e.response.url, reason=message
-                )
+                f"{e.response.status_code} Client Error: For url: {e.response.url} Reason: {message}"
             )
         # handle any other invalid response
         except NetworkClientError as e:

@@ -54,7 +54,7 @@ def filter_in(manager: Manager, path: str, pks: Sequence[Pk]) -> QuerySet:
     variables`` on an unpaginated list. See ``InlineIn``, which binds instead
     for any pk it cannot safely inline.
     """
-    return manager.filter(**{"{}__{}".format(path, InlineIn.lookup_name): pks})
+    return manager.filter(**{f"{path}__{InlineIn.lookup_name}": pks})
 
 
 def pk_key(pk: Pk) -> PkKey:

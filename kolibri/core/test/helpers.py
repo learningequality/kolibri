@@ -15,13 +15,9 @@ def setup_test_app(package, label=None):
     app_config.apps = apps
     if label is None:
         containing_app_config = apps.get_containing_app_config(package)
-        label = "{}_tests".format(containing_app_config.label)
+        label = f"{containing_app_config.label}_tests"
     if label in apps.app_configs:
-        raise ValueError(
-            "There's already an app registered with the '{label}' label.".format(
-                label=label
-            )
-        )
+        raise ValueError(f"There's already an app registered with the '{label}' label.")
     app_config.label = label
     apps.app_configs[app_config.label] = app_config
     app_config.import_models()

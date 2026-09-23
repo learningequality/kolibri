@@ -458,7 +458,7 @@ class SyncQueueViewSetTestCase(APITestCase):
     def test_create_stale_queue_should_sync(self):
         for i in range(10):
             learner = FacilityUser.objects.create(
-                username="test{}".format(i),
+                username=f"test{i}",
                 password="***",
                 facility=self.facility,
             )
@@ -484,7 +484,7 @@ class SyncQueueViewSetTestCase(APITestCase):
     def test_create_skip_the_queue_should_sync(self):
         for i in range(10):
             learner = FacilityUser.objects.create(
-                username="test{}".format(i),
+                username=f"test{i}",
                 password="***",
                 facility=self.facility,
             )
@@ -510,7 +510,7 @@ class SyncQueueViewSetTestCase(APITestCase):
     def test_create_full_queue_should_queue(self):
         for i in range(MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
-                username="test{}".format(i),
+                username=f"test{i}",
                 password="***",
                 facility=self.facility,
             )
@@ -539,7 +539,7 @@ class SyncQueueViewSetTestCase(APITestCase):
     def test_create_active_transfer_should_queue(self):
         for i in range(2):
             learner = FacilityUser.objects.create(
-                username="test{}".format(i),
+                username=f"test{i}",
                 password="***",
                 facility=self.facility,
             )
@@ -599,7 +599,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
         for i in range(MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
-                username="test{}".format(i),
+                username=f"test{i}",
                 password="***",
                 facility=self.facility,
             )
@@ -628,7 +628,7 @@ class SyncQueueViewSetTestCase(APITestCase):
     def test_update_full_queue_should_scale_keep_alive(self):
         for i in range(3):
             learner = FacilityUser.objects.create(
-                username="test{}".format(i),
+                username=f"test{i}",
                 password="***",
                 facility=self.facility,
             )

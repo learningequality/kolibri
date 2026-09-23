@@ -92,7 +92,7 @@ class BaseDeviceSetupMixin:
             # create superuser and login session
             for i in range(cls.n_superusers):
                 superuser = create_superuser(
-                    facility=facility, username="superuser{}".format(i)
+                    facility=facility, username=f"superuser{i}"
                 )
                 facility.add_role(superuser, role_kinds.ADMIN)
                 UserSessionLog.objects.create(

@@ -76,7 +76,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         hook = cls.get_hook(unique_id)
         if hook:
             return hook
-        raise WebpackError("No bundle with that name is loaded: '{}'".format(unique_id))
+        raise WebpackError(f"No bundle with that name is loaded: '{unique_id}'")
 
     @property
     def _stats_file_content(self):
@@ -124,7 +124,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if not getattr(settings, "DEVELOPER_MODE", False):
                 if any(regex.match(filename) for regex in IGNORE_PATTERNS):
                     continue
-            relpath = "{0}/{1}".format(self.unique_id, filename)
+            relpath = f"{self.unique_id}/{filename}"
             if getattr(settings, "DEVELOPER_MODE", False):
                 try:
                     f["url"] = f["publicPath"]
@@ -144,7 +144,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         Python module path. This should give a globally unique id for the module
         and prevent accidental or malicious collisions.
         """
-        return "{}.{}".format(self._module_path, self.bundle_id)
+        return f"{self._module_path}.{self.bundle_id}"
 
     def get_stats(self):
         """
@@ -155,16 +155,14 @@ class WebpackBundleHook(hooks.KolibriHook):
             return json.loads(
                 files(self._module_path)
                 .joinpath("build")
-                .joinpath("{plugin}_stats.json".format(plugin=self.unique_id))
+                .joinpath(f"{self.unique_id}_stats.json")
                 .read_text()
             )
         except OSError as e:
-            raise WebpackError(
-                "Error accessing stats file '{}': {}".format(self.unique_id, e)
-            )
+            raise WebpackError(f"Error accessing stats file '{self.unique_id}': {e}")
 
     def frontend_message_file(self, lang_code):
-        message_file_name = "{name}-messages.json".format(name=self.unique_id)
+        message_file_name = f"{self.unique_id}-messages.json"
         for path in getattr(settings, "LOCALE_PATHS", []):
             file_path = os.path.join(
                 path, to_locale(lang_code), "LC_MESSAGES", message_file_name

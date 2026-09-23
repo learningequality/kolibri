@@ -19,7 +19,7 @@ class FacilityUsernameViewSetTestCase(APITestCase):
         # 25 learner users with no roles so they pass the queryset filter
         cls.users = [
             FacilityUserFactory.create(
-                facility=cls.facility, username="testuser{:02d}".format(i)
+                facility=cls.facility, username=f"testuser{i:02d}"
             )
             for i in range(25)
         ]

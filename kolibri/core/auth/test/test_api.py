@@ -674,15 +674,10 @@ class FacilityAPITestCase(APITestCase):
     def test_public_facilityuser_endpoint(self):
         credentials = base64.b64encode(
             str.encode(
-                "username={}&{}={}:{}".format(
-                    self.user1.username,
-                    FACILITY_CREDENTIAL_KEY,
-                    self.facility1.id,
-                    DUMMY_PASSWORD,
-                )
+                f"username={self.user1.username}&{FACILITY_CREDENTIAL_KEY}={self.facility1.id}:{DUMMY_PASSWORD}"
             )
         ).decode("ascii")
-        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        self.client.credentials(HTTP_AUTHORIZATION=f"Basic {credentials}")
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
             format="json",
@@ -690,15 +685,10 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         credentials = base64.b64encode(
             str.encode(
-                "username={}&{}={}:{}".format(
-                    self.superuser.username,
-                    FACILITY_CREDENTIAL_KEY,
-                    self.facility1.id,
-                    DUMMY_PASSWORD,
-                )
+                f"username={self.superuser.username}&{FACILITY_CREDENTIAL_KEY}={self.facility1.id}:{DUMMY_PASSWORD}"
             )
         ).decode("ascii")
-        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        self.client.credentials(HTTP_AUTHORIZATION=f"Basic {credentials}")
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
             {"facility_id": self.facility1.id},
@@ -727,15 +717,10 @@ class FacilityAPITestCase(APITestCase):
         )
         credentials = base64.b64encode(
             str.encode(
-                "username={}&{}={}:{}".format(
-                    self.superuser.username,
-                    FACILITY_CREDENTIAL_KEY,
-                    self.facility1.id,
-                    DUMMY_PASSWORD,
-                )
+                f"username={self.superuser.username}&{FACILITY_CREDENTIAL_KEY}={self.facility1.id}:{DUMMY_PASSWORD}"
             )
         ).decode("ascii")
-        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        self.client.credentials(HTTP_AUTHORIZATION=f"Basic {credentials}")
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
             {"facility_id": self.facility1.id},
@@ -3208,8 +3193,9 @@ class MembershipAPITestCase(APITestCase):
 
     def test_delete_classroom_membership(self):
         self.login_superuser()
-        url = reverse("kolibri:core:membership-list") + "?user={}&collection={}".format(
-            self.user.id, self.classroom.id
+        url = (
+            reverse("kolibri:core:membership-list")
+            + f"?user={self.user.id}&collection={self.classroom.id}"
         )
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)

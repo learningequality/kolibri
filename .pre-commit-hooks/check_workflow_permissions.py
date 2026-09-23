@@ -95,7 +95,7 @@ def requested_by(callee):
         own = normalise(job.get("permissions"))
         effective = own if own is not None else workflow_level
         if effective is not None:
-            yield "job '{}'".format(job_id), effective
+            yield f"job '{job_id}'", effective
 
 
 def local_callee(job):

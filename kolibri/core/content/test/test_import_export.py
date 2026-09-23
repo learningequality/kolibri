@@ -1364,8 +1364,8 @@ class ImportContentTestCase(TestCase):
     ):
         content = os.urandom(ChunkedFile.chunk_size + 731)
         checksum = hashlib.md5(content).hexdigest()
-        upstream_url = "https://upstream.example.org/{}.mp4".format(checksum)
-        dest = paths.get_content_storage_file_path("{}.mp4".format(checksum))
+        upstream_url = f"https://upstream.example.org/{checksum}.mp4"
+        dest = paths.get_content_storage_file_path(f"{checksum}.mp4")
         partial = ChunkedFile(dest)
         partial.file_size = len(content)
         partial.write_chunk(0, content[: ChunkedFile.chunk_size])
@@ -1396,7 +1396,7 @@ class ImportContentTestCase(TestCase):
                 url,
                 {
                     "content-length": str(len(body)),
-                    "content-range": "bytes {}-{}/{}".format(start, end, len(content)),
+                    "content-range": f"bytes {start}-{end}/{len(content)}",
                     "etag": '"not-the-md5"',
                 },
                 body,
@@ -1424,9 +1424,7 @@ class ImportContentTestCase(TestCase):
             self.assertEqual(downloaded.read(), content)
         session.get.assert_called_once_with(
             upstream_url,
-            headers={
-                "Range": "bytes={}-{}".format(ChunkedFile.chunk_size, len(content) - 1)
-            },
+            headers={"Range": f"bytes={ChunkedFile.chunk_size}-{len(content) - 1}"},
             stream=True,
             timeout=Transfer.DEFAULT_TIMEOUT,
         )
@@ -2356,11 +2354,9 @@ class ImportContentTestCase(TestCase):
         self.assertEqual(
             [r.getMessage() for r in logs.records],
             [
-                "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
-                    channel_id=self.the_channel_id,
-                    manifest_version=self.the_channel_version - 1,
-                    local_version=self.the_channel_version,
-                )
+                f"Manifest entry for {self.the_channel_id} "
+                f"has a different version ({self.the_channel_version - 1}) "
+                f"than the installed channel ({self.the_channel_version})"
             ],
         )
 

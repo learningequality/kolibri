@@ -115,7 +115,7 @@ def get_requests_info():
     _, port = get_kolibri_process_info()
 
     def get_time(url):
-        base_url = "http://localhost:{}".format(port)
+        base_url = f"http://localhost:{port}"
         client = NetworkClient.build_for_address(base_url)
         try:
             response = client.get(url)
@@ -128,9 +128,9 @@ def get_requests_info():
         recommended_url = (
             "/api/content/contentnode_slim/popular/?include_coach_content=false"
         )
-        recommended_time = "{:.2f} s".format(get_time(recommended_url))
+        recommended_time = f"{get_time(recommended_url):.2f} s"
         channels_url = "/api/content/channel/?available=true"
-        channels_time = "{:.2f} s".format(get_time(channels_url))
+        channels_time = f"{get_time(channels_url):.2f} s"
     else:
         homepage_time = recommended_time = channels_time = None
 

@@ -184,13 +184,11 @@ class CalculateImportExportSizeView(APIView):
         except LocationError:
             if drive_id:
                 raise ValidationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
+                    f"The external drive with given drive id {drive_id} does not exist."
                 )
             if peer_id:
                 raise ValidationError(
-                    "The network location with the id {} does not exist".format(peer_id)
+                    f"The network location with the id {peer_id} does not exist"
                 )
 
         return Response(
@@ -225,7 +223,7 @@ class DeviceChannelOrderView(APIView):
         total_channels = queryset.count()
         if len(ids) != total_channels:
             raise ParseError(
-                "Expected {} ids, but only received {}".format(total_channels, len(ids))
+                f"Expected {total_channels} ids, but only received {len(ids)}"
             )
         if queryset.filter_by_uuids(ids).count() != len(ids):
             raise ParseError(

@@ -121,7 +121,7 @@ def create_dummy_facility_data(
     # create the Collection hierarchy
     facility = data["facility"] = Facility.objects.create(dataset=dataset)
     data["classrooms"] = [
-        Classroom.objects.create(parent=facility, name="classroom{}".format(i))
+        Classroom.objects.create(parent=facility, name=f"classroom{i}")
         for i in range(classroom_count)
     ]
     data["learnergroups"] = []

@@ -29,7 +29,7 @@ class SourceDB:
     def __init__(self, path):
         self.path = path
         self._connection = sqlite3.connect(
-            "{}?mode=ro".format(Path(path).absolute().as_uri()), uri=True
+            f"{Path(path).absolute().as_uri()}?mode=ro", uri=True
         )
         self._connection.row_factory = sqlite3.Row
 
@@ -59,9 +59,7 @@ class SourceDB:
         return {
             name: [
                 row["name"]
-                for row in self._connection.execute(
-                    'PRAGMA table_info("{}")'.format(name)
-                )
+                for row in self._connection.execute(f'PRAGMA table_info("{name}")')
             ]
             for name in names
         }
@@ -85,15 +83,11 @@ class SourceDB:
         caller which never iterates still gets the error.
         """
         if table not in self._shape:
-            raise ValueError("No table named {} in {}".format(table, self.path))
+            raise ValueError(f"No table named {table} in {self.path}")
         selection = (
-            "*"
-            if columns is None
-            else ", ".join('"{}"'.format(column) for column in columns)
+            "*" if columns is None else ", ".join(f'"{column}"' for column in columns)
         )
-        cursor = self._connection.execute(
-            'SELECT {} FROM "{}"'.format(selection, table)
-        )
+        cursor = self._connection.execute(f'SELECT {selection} FROM "{table}"')
         return (dict(row) for row in cursor)
 
     @cached_property
@@ -113,6 +107,4 @@ class SourceDB:
                 for table, columns in for_version(version).items()
             ):
                 return version
-        raise SchemaNotFoundError(
-            "No matching schema found for database {}".format(self.path)
-        )
+        raise SchemaNotFoundError(f"No matching schema found for database {self.path}")

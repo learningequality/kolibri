@@ -86,7 +86,7 @@ def convert_to_sqlite_value(python_value):
     if python_value is None:
         return "null"
     if isinstance(python_value, dict) or isinstance(python_value, list):
-        return '"{}"'.format(json.dumps(python_value))
+        return f'"{json.dumps(python_value)}"'
     return repr(python_value)
 
 
@@ -596,7 +596,7 @@ class ChannelImport:
             method=self._sqlite_method(model),
             table=model._meta.db_table,
             # quote column names in case they are sql keywords (ex. order)
-            destcols=", ".join('"{}"'.format(col) for col in dest_columns),
+            destcols=", ".join(f'"{col}"' for col in dest_columns),
             sourcevals=", ".join(source_vals),
             alias=SOURCE_DB_ALIAS,
         )
@@ -618,7 +618,7 @@ class ChannelImport:
             method=self._sqlite_method(model),
             table=model._meta.db_table,
             # quote column names in case they are sql keywords (ex. order)
-            destcols=", ".join('"{}"'.format(column) for column in column_names),
+            destcols=", ".join(f'"{column}"' for column in column_names),
             placeholders=", ".join(["%s"] * len(column_names)),
         )
 
@@ -689,9 +689,7 @@ class ChannelImport:
                         # from either the value we tried to set (EXCLUDED) or the original value
                         # (SOURCE) - this should have the effect of replacing columns for which
                         # we have a value to insert, but ignoring columns that we do not.
-                        "{column} = COALESCE(EXCLUDED.{column}, SOURCE.{column})".format(
-                            column=column_name
-                        )
+                        f"{column_name} = COALESCE(EXCLUDED.{column_name}, SOURCE.{column_name})"
                         for column_name in column_names
                         if column_name != pk_name
                     )
@@ -868,9 +866,7 @@ class ChannelImport:
                     ]
                     # match on each field this model has that foreignkeys onto ContentNode
                     where = " OR ".join(
-                        '"{column}" IN (SELECT id FROM "{contentnode}" WHERE tree_id = %s)'.format(
-                            column=column, contentnode=contentnode_table
-                        )
+                        f'"{column}" IN (SELECT id FROM "{contentnode_table}" WHERE tree_id = %s)'
                         for column in columns
                     )
                     params = [old_tree_id] * len(columns)
@@ -881,20 +877,13 @@ class ChannelImport:
                 if self._can_use_optimized_pre_deletion(model) and not isinstance(
                     model._meta.pk, AutoField
                 ):
-                    where = '({where}) AND NOT "{pk_name}" IN (SELECT id FROM {alias}."{table}")'.format(
-                        where=where,
-                        pk_name=model._meta.pk.column,
-                        table=table,
-                        alias=SOURCE_DB_ALIAS,
-                    )
+                    where = f'({where}) AND NOT "{model._meta.pk.column}" IN (SELECT id FROM {SOURCE_DB_ALIAS}."{table}")'
 
                 # check that the import operation hasn't since been cancelled
                 self.check_cancelled()
 
                 cursor.execute(
-                    'DELETE FROM "{table}" WHERE {where}'.format(
-                        table=table, where=where
-                    ),
+                    f'DELETE FROM "{table}" WHERE {where}',
                     params,
                 )
 
@@ -929,9 +918,7 @@ class ChannelImport:
                 handler = getattr(self, operation)
             except AttributeError:
                 raise AttributeError(
-                    "Post operation {} specified for model {} but none found on class".format(
-                        operation, model
-                    )
+                    f"Post operation {operation} specified for model {model} but none found on class"
                 )
             handler()
 
@@ -1243,20 +1230,14 @@ def _check_schema_supported(schema_version):
         version_number = int(schema_version)
     except (TypeError, ValueError):
         raise InvalidSchemaVersionError(
-            "Tried to import invalid schema version {version}".format(
-                version=schema_version
-            )
+            f"Tried to import invalid schema version {schema_version}"
         )
     if version_number > int(CONTENT_SCHEMA_VERSION):
         raise FutureSchemaError(
-            "Tried to import schema version, {version}, which is not supported by this version of Kolibri.".format(
-                version=schema_version
-            )
+            f"Tried to import schema version, {schema_version}, which is not supported by this version of Kolibri."
         )
     raise InvalidSchemaVersionError(
-        "Tried to import unsupported schema version {version}".format(
-            version=schema_version
-        )
+        f"Tried to import unsupported schema version {schema_version}"
     )
 
 

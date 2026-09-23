@@ -759,10 +759,10 @@ def set_channel_ancestors(channel_id):
 
     table = ContentNode._meta.db_table
     if connection.vendor == "sqlite":
-        parent_id = "{}.parent_id".format(table)
+        parent_id = f"{table}.parent_id"
     else:
         # The column is a uuid on PostgreSQL, and the JSON needs the undashed hex.
-        parent_id = "replace(cast({}.parent_id as varchar(36)), '-', '')".format(table)
+        parent_id = f"replace(cast({table}.parent_id as varchar(36)), '-', '')"
     sql = _ANCESTORS_SQL.format(table=table, parent_id=parent_id)
 
     start = datetime.datetime.now()

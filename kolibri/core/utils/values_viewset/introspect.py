@@ -313,7 +313,7 @@ def _introspect_nested_field(
     if parent_model is None:
         raise TypeError(
             "Auto-defer requires a Meta.model on the parent serializer to "
-            "resolve the fetch relation for '{}'.".format(field_name)
+            f"resolve the fetch relation for '{field_name}'."
         )
     info = _resolve_auto_fetch_info(parent_model, field, field_name, is_many)
     auto_fetch = make_auto_fetch(
@@ -372,11 +372,9 @@ def _resolve_auto_fetch_info(
         relation = parent_model._meta.get_field(source)
     except FieldDoesNotExist:
         raise TypeError(
-            "Cannot resolve auto-fetch for nested field '{}': source '{}' "
-            "is not a relation on {}. Add '{}' to deferred_fields explicitly "
-            "and implement consolidate() to handle the fetch.".format(
-                field_name, source, parent_model.__name__, field_name
-            )
+            f"Cannot resolve auto-fetch for nested field '{field_name}': source '{source}' "
+            f"is not a relation on {parent_model.__name__}. Add '{field_name}' to deferred_fields explicitly "
+            "and implement consolidate() to handle the fetch."
         )
 
     if getattr(relation, "one_to_many", False):
@@ -421,11 +419,9 @@ def _resolve_auto_fetch_info(
         )
 
     raise TypeError(
-        "Cannot auto-defer nested field '{}': source '{}' on {} did not "
-        "resolve to a supported relation. Add '{}' to deferred_fields "
-        "explicitly and implement consolidate() to handle the fetch.".format(
-            field_name, source, parent_model.__name__, field_name
-        )
+        f"Cannot auto-defer nested field '{field_name}': source '{source}' on {parent_model.__name__} did not "
+        f"resolve to a supported relation. Add '{field_name}' to deferred_fields "
+        "explicitly and implement consolidate() to handle the fetch."
     )
 
 
@@ -461,12 +457,10 @@ def _introspect_regular_field(
 
     if isinstance(field, SerializerMethodField):
         raise TypeError(
-            "{}.{}: ValuesViewset does not support plain "
+            f"{serializer_class.__name__}.{field_name}: ValuesViewset does not support plain "
             "SerializerMethodField. Use ValuesMethodField(sources=(...)) "
             "to declare which row columns the method reads, or a typed "
-            "field with source= for simple traversals.".format(
-                serializer_class.__name__, field_name
-            )
+            "field with source= for simple traversals."
         )
 
     source_path = _get_source_path(field, field_name, "")
@@ -497,8 +491,7 @@ def _prefix_auto_fetch_paths(
 ) -> Tuple[AutoFetch, ...]:
     """Prepend ``prefix__`` to each auto-fetch entry's child_path."""
     return tuple(
-        entry.with_child_path("{}__{}".format(prefix, entry.child_path))
-        for entry in auto_fetch
+        entry.with_child_path(f"{prefix}__{entry.child_path}") for entry in auto_fetch
     )
 
 
