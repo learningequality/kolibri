@@ -77,14 +77,14 @@ def test_valid_name_validator():
         check("bob 123")
 
     check = b.valid_name(username=False)
-    check("bob 123") is None
+    assert check("bob 123") is None
     with pytest.raises(ValueError):
         check("bob123-..")
     with pytest.raises(ValueError):
         check(None)
 
     check = b.valid_name(allow_null=True)
-    check(None) is None
+    check(None)
 
 
 def test_not_empty():
