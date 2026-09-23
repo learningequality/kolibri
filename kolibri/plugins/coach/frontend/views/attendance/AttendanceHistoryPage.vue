@@ -15,6 +15,7 @@
           <h1>{{ attendanceHistoryTitle$() }}</h1>
         </KGridItem>
         <KGridItem
+          v-show="!$isPrint"
           :layout="{ alignment: 'right' }"
           :layout4="{ span: 4 }"
           :layout8="{ span: 3 }"
@@ -98,7 +99,6 @@
   import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
   import usePagination from 'kolibri-common/composables/usePagination';
-  import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import { now } from 'kolibri/utils/serverClock';
   import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -123,7 +123,6 @@
     components: {
       BackLink,
       CoachAppBarPage,
-      KDateRange,
       PaginationActions,
       ReportsControls,
     },
