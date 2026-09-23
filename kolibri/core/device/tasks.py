@@ -11,6 +11,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.deprovision import deprovision
 from kolibri.core.auth.viewsets.facility import FacilitySerializer
+from kolibri.core.decorators import warm_cached_views as warm_cached_view_bodies
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser
@@ -23,6 +24,7 @@ from kolibri.core.device.viewsets.initialize_app import NoFacilityFacilityUserSe
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import FirstProvisioning
 from kolibri.core.tasks.permissions import IsDeviceUnusable
+from kolibri.core.tasks.schedules import Enqueue
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.token_generator import TokenGenerator
@@ -31,6 +33,11 @@ logger = logging.getLogger(__name__)
 
 PROVISION_TASK_QUEUE = "device_provision"
 DEPROVISION_TASK_QUEUE = "device_deprovision"
+
+
+@register_task(job_id="warm_cached_views", schedule=Enqueue())
+def warm_cached_views():
+    warm_cached_view_bodies()
 
 
 class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
