@@ -194,8 +194,8 @@ class ServerPlugin(BaseServerPlugin):
             return "unknown interface (dynamic?)"
         if isinstance(self.httpserver.bind_addr, tuple):
             host, port = self.httpserver.bind_addr
-            return "%s:%s" % (host, port)
-        return "socket file: %s" % self.httpserver.bind_addr
+            return f"{host}:{port}"
+        return f"socket file: {self.httpserver.bind_addr}"
 
 
 class KolibriServerPlugin(ServerPlugin):
@@ -660,7 +660,7 @@ class ThreadWait(SimplePlugin):
             if t.daemon or isinstance(t, threading._MainThread):
                 continue
 
-            self.bus.log("Waiting for thread %s." % t.getName())
+            self.bus.log(f"Waiting for thread {t.getName()}.")
             t.join()
 
     EXIT.priority = 100

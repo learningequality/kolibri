@@ -273,10 +273,9 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
         if lookup_url_kwarg not in self.kwargs:
             raise AssertionError(
-                "Expected view %s to be called with a URL keyword argument "
-                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                f"Expected view {self.__class__.__name__} to be called with a URL keyword argument "
+                f'named "{lookup_url_kwarg}". Fix your URL conf, or set the `.lookup_field` '
                 "attribute on the view correctly."
-                % (self.__class__.__name__, lookup_url_kwarg)
             )
 
         return {self.lookup_field: self.kwargs[lookup_url_kwarg]}
@@ -329,7 +328,7 @@ class BaseValuesViewset(viewsets.GenericViewSet):
             return self.serialize(self.filter_queryset(queryset))[0]
         except (IndexError, ValueError, TypeError):
             raise Http404(
-                "No %s matches the given query." % queryset.model._meta.object_name
+                f"No {queryset.model._meta.object_name} matches the given query."
             )
 
 

@@ -278,7 +278,7 @@ class KolibriInstance:
         """
         if not service_info.name.endswith(SERVICE_TYPE):
             raise AssertionError(
-                "Invalid service name; must end with '%s'" % SERVICE_TYPE
+                f"Invalid service name; must end with '{SERVICE_TYPE}'"
             )
 
         # parse out device info

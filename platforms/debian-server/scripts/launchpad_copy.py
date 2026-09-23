@@ -275,17 +275,13 @@ class LaunchpadWrapper:
                     )
             return True, None
         if source.status != "Published":
-            return False, "  but it is %s in %s" % (
-                source.status.lower(),
-                target_series_name,
-            )
+            return False, f"  but it is {source.status.lower()} in {target_series_name}"
         if not self.has_published_binaries(ppa, name, version, target_series_name):
             builds = self.get_builds_for(ppa, name, version, target_series_name)
             if builds:
-                return False, "  but it isn't built yet for %s (state: %s) - %s" % (
-                    target_series_name,
-                    builds[0].buildstate,
-                    builds[0].web_link,
+                return (
+                    False,
+                    f"  but it isn't built yet for {target_series_name} (state: {builds[0].buildstate}) - {builds[0].web_link}",
                 )
         return False, None
 
@@ -370,7 +366,7 @@ class LaunchpadWrapper:
             package,
             version,
             ppa_name,
-            " for series: %s" % ", ".join(sorted(expected)) if expected else "",
+            " for series: {}".format(", ".join(sorted(expected))) if expected else "",
         )
 
         while time.time() < deadline:

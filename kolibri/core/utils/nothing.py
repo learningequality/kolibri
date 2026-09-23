@@ -5,7 +5,7 @@ class Nothing:
         self.kind = kind
 
     def __repr__(self):
-        return "Nothing(%s)" % self.kind
+        return f"Nothing({self.kind})"
 
     def __bool__(self):
         return False

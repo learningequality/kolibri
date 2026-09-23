@@ -66,7 +66,7 @@ elif WINDOWS:
     from kolibri.utils.pskolibri import _pswindows as _psplatform
 
 else:  # pragma: no cover
-    raise NotImplementedError("platform %s is not supported" % sys.platform)
+    raise NotImplementedError(f"platform {sys.platform} is not supported")
 
 # elif MACOS:
 #     from kolibri.utils.pskolibri import _psosx as _psplatform
@@ -219,7 +219,7 @@ class Process:
             pid = os.getpid()
         else:
             if pid < 0:
-                raise ValueError("pid must be a positive integer (got %s)" % pid)
+                raise ValueError(f"pid must be a positive integer (got {pid})")
         self._pid = pid
         self._create_time = None
         # used for caching on Windows only (on POSIX ppid may change)

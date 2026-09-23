@@ -292,7 +292,7 @@ class KolibriPluginBase(metaclass=SingletonMeta):
 
     def _return_module(self, module_name):
         if module_has_submodule(sys.modules[self.module_path], module_name):
-            models_module_name = "%s.%s" % (self.module_path, module_name)
+            models_module_name = f"{self.module_path}.{module_name}"
             try:
                 return import_module(models_module_name)
             except Exception as e:

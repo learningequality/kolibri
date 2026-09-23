@@ -899,7 +899,7 @@ def get_configspec():
                 raise RuntimeError("For an empty list don't specify a default")
             the_type = attrs["type"]
             args = (
-                ["%r" % op for op in attrs.get("options", [])]
+                [f"{op!r}" for op in attrs.get("options", [])]
                 + [
                     # Pass any extra arguments through to the checker function,
                     # e.g. min/max bounds for integer options.

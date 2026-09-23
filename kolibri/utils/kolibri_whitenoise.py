@@ -206,7 +206,7 @@ class EndRangeStaticFile(StaticFile):
             )
             if encoding:
                 headers["Content-Encoding"] = encoding
-                encoding_re = re.compile(r"\b%s\b" % encoding)
+                encoding_re = re.compile(rf"\b{encoding}\b")
                 if encoding == "gzip":
                     gzipped_file = file_entry
             else:
