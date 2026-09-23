@@ -178,7 +178,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C90", "T20", "I"]
+select = ["E", "F", "W", "C90", "T20", "I", "UP015", "UP024", "UP026", "UP034", "PIE", "C4", "RET", "FLY"]
 ignore = ["E203", "E721", "E741"]
 # Exclude migrations from linting (auto-generated code) but still format them
 exclude = ["kolibri/*/migrations/*"]
