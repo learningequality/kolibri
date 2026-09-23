@@ -571,7 +571,7 @@ class KolibriBroadcast:
                 self.zeroconf.check_service(service, False)
             except NonUniqueNameException:
                 # if there's a name conflict, append incrementing integer until no conflict
-                zeroconf_id = "%s-%d" % (self.instance.id, i)
+                zeroconf_id = f"{self.instance.id}-{i}"
                 service = None
 
             if i > SERVICE_RENAME_ATTEMPTS:

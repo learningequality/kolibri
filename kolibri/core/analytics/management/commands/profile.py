@@ -89,7 +89,7 @@ class Command(BaseCommand):
         file_timestamp = time.strftime("%Y%m%d_%H%M%S")
         try:
             with open(PROFILE_LOCK, "w") as f:
-                f.write("%d" % this_pid)
+                f.write(str(this_pid))
                 f.write(f"\n{file_timestamp}")
         except OSError:
             logger.error(

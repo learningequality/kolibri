@@ -66,7 +66,7 @@ def _posix_become_daemon(
         if os.fork() > 0:
             sys.exit(0)  # kill off parent
     except OSError as e:
-        sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
+        sys.stderr.write(f"fork #1 failed: ({e.errno}) {e.strerror}\n")
         sys.exit(1)
     os.setsid()
     os.chdir(our_home_dir)
@@ -77,7 +77,7 @@ def _posix_become_daemon(
         if os.fork() > 0:
             os._exit(0)
     except OSError as e:
-        sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
+        sys.stderr.write(f"fork #2 failed: ({e.errno}) {e.strerror}\n")
         os._exit(1)
     if sys.platform != "darwin":  # This block breaks on OS X
         # Fix courtesy of https://github.com/serverdensity/python-daemon/blob/master/daemon.py#L94

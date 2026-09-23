@@ -125,7 +125,7 @@ def add_security_headers(request, response):
 
 
 def django_response_to_wsgi(response, environ, start_response):
-    status = "%d %s" % (response.status_code, response.reason_phrase)
+    status = f"{response.status_code} {response.reason_phrase}"
     response_headers = [(str(k), str(v)) for k, v in response.items()]
     for c in response.cookies.values():
         response_headers.append((str("Set-Cookie"), str(c.output(header=""))))

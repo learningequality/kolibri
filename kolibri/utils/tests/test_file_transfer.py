@@ -112,13 +112,9 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         if "x-goog-stored-content-length" in headers:
             headers["x-goog-stored-content-length"] = len(data)
         if end is not None:
-            headers["content-range"] = "bytes {}-{}/{}".format(
-                # have to take 1 away as it has been coerced to fit an exclusive
-                # range for a Python list slice.
-                start,
-                end - 1,
-                self.file_size,
-            )
+            # have to take 1 away as it has been coerced to fit an exclusive
+            # range for a Python list slice.
+            headers["content-range"] = f"bytes {start}-{end - 1}/{self.file_size}"
         return headers
 
     def mock_get_request(self, url, headers=None, **kwargs):

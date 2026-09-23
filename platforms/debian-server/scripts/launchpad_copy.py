@@ -66,13 +66,7 @@ class DebugFormatter(logging.Formatter):
         LAST_LOG_TIME = now
         delta_requests = REQUESTS - LAST_REQUESTS
         LAST_REQUESTS = REQUESTS
-        return "\n%.3fs (%+.3fs) [%d/+%d] %s" % (
-            elapsed,
-            delta,
-            REQUESTS,
-            delta_requests,
-            msg,
-        )
+        return f"\n{elapsed:.3f}s ({delta:+.3f}s) [{REQUESTS}/+{delta_requests}] {msg}"
 
 
 def enable_http_debugging():
@@ -366,7 +360,7 @@ class LaunchpadWrapper:
             package,
             version,
             ppa_name,
-            " for series: {}".format(", ".join(sorted(expected))) if expected else "",
+            f" for series: {', '.join(sorted(expected))}" if expected else "",
         )
 
         while time.time() < deadline:
