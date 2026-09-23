@@ -499,7 +499,7 @@ CSP_DEFAULT_SRC = (
     "'self'",
     "data:",
     "blob:",
-    *tuple(conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"]),
+    *conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"],
 )
 
 # Use a stricter script source policy to prevent data: from being used
@@ -508,7 +508,7 @@ CSP_DEFAULT_SRC = (
 CSP_SCRIPT_SRC = (
     "'self'",
     "blob:",
-    *tuple(conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"]),
+    *conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"],
 )
 
 # Allow inline styles, as we rely on them heavily in our templates

@@ -467,7 +467,7 @@ class ExamViewset(ValuesViewset):
         # Exclude Exam-only fields not present on DraftExam, and the assignment_collections
         # annotation (not available for DraftExam). Add DraftExam-specific JSONFields.
         draft_values = (
-            *tuple(v for v in self.values if v not in _EXAM_ONLY_FIELDS),
+            *(v for v in self.values if v not in _EXAM_ONLY_FIELDS),
             "assignments",
             "learner_ids",
         )

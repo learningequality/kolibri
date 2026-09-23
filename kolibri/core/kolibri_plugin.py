@@ -69,7 +69,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         tags = [
             *self.plugin_data_tag(),
             self._polyfill_loader_tag(),
-            *list(self.js_and_css_tags()),
+            *self.js_and_css_tags(),
             *self.navigation_tags(),
         ]
 

@@ -75,7 +75,7 @@ class KolibriServer:
 
     def manage(self, *args):
         subprocess.call(
-            ["kolibri", "manage", *list(args)],
+            ["kolibri", "manage", *args],
             env=self.env,
         )
 

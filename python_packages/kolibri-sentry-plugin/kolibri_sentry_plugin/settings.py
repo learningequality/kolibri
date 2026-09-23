@@ -23,5 +23,5 @@ CSP_CONNECT_SRC = (
     "data:",
     "blob:",
     "*.sentry.io",
-    *tuple(conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"]),
+    *conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"],
 )
