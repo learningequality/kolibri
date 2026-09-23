@@ -64,7 +64,7 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
     if platform_split[0] == "win32":
         return os.path.join(path, "Windows", "x86")
     # Windows 64-bit
-    elif platform_split[0] == "win":
+    if platform_split[0] == "win":
         return os.path.join(path, "Windows", "AMD64")
 
     # Prior to CPython 3.3, there were two ABI-incompatible ways of building CPython

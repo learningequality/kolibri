@@ -172,7 +172,7 @@ class MetricsMiddleware(MiddlewareMixin):
         if MetricsMiddleware.disabled and conf.OPTIONS["Server"]["PROFILE"]:
             if os.path.exists(PROFILE_LOCK):
                 try:
-                    with open(PROFILE_LOCK, "r") as f:
+                    with open(PROFILE_LOCK) as f:
                         MetricsMiddleware.command_pid = int(f.readline())
                         file_timestamp = f.readline()
                         if SUPPORTED_OS:
@@ -203,7 +203,7 @@ class MetricsMiddleware(MiddlewareMixin):
                                         "Longest time up to now",
                                     )
                                 )
-                except (IOError, TypeError, ValueError):
+                except (OSError, TypeError, ValueError):
                     # Kolibri command PID file has been deleted or it's corrupted
                     try:
                         os.remove(PROFILE_LOCK)

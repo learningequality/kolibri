@@ -34,7 +34,7 @@ def add_requirements_to_base():
                 f.write(r.content)
             file_path = path
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 requirements = [
                     requirement.strip()
                     for requirement in f.readlines()

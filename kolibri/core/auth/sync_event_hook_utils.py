@@ -87,7 +87,7 @@ def _local_event_handler(func):
                     raise StopIteration("No local context found")
             except StopIteration:
                 # no local context, so we can't do anything
-                return
+                return None
 
         kwargs = _extract_kwargs_from_context(local_context)
         return func(**kwargs)

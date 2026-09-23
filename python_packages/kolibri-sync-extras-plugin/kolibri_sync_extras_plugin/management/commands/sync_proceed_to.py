@@ -67,14 +67,13 @@ class Command(BaseCommand):
                 raise SyncProceedToError(
                     "Failed to finalize {}".format(transfer_session.pk)
                 ) from context.error
-            elif tries >= MAX_RETRIES:
+            if tries >= MAX_RETRIES:
                 # the only finished states are completed or errored, so in this case we must have
                 # exceeded our retry attempts
                 raise SyncProceedToError(
                     "Exceeded retry attempts to finalize {}".format(transfer_session.pk)
                 )
-            else:
-                # this should really never happen
-                raise RuntimeError(
-                    "Unexpected failure finalizing {}".format(transfer_session.pk)
-                )
+            # this should really never happen
+            raise RuntimeError(
+                "Unexpected failure finalizing {}".format(transfer_session.pk)
+            )

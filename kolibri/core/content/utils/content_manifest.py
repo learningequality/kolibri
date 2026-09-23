@@ -57,7 +57,7 @@ class ContentManifest:
 
         for filename in filenames:
             try:
-                with open(filename, "r") as fp:
+                with open(filename) as fp:
                     self.read_file(fp, validate=validate)
             except FileNotFoundError:
                 pass

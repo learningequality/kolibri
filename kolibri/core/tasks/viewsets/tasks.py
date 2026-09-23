@@ -47,7 +47,7 @@ class TasksViewSet(viewsets.GenericViewSet):
         """
         Add this purely to avoid warnings from DRF YASG schema generation.
         """
-        return None
+        return
 
     def validate_create_req_data(self, request):
         """
@@ -112,10 +112,9 @@ class TasksViewSet(viewsets.GenericViewSet):
     def _handle_repeat_query_param(self, repeating):
         if repeating == "true":
             return True
-        elif repeating == "false":
+        if repeating == "false":
             return False
-        else:
-            return None
+        return None
 
     def list(self, request):
         """
@@ -165,7 +164,7 @@ class TasksViewSet(viewsets.GenericViewSet):
                 retry_interval=enqueue_args.get("retry_interval", None),
                 max_retries=enqueue_args.get("max_retries", None),
             )
-        elif enqueue_args.get("enqueue_in"):
+        if enqueue_args.get("enqueue_in"):
             return job_storage.enqueue_in(
                 enqueue_args["enqueue_in"],
                 job,

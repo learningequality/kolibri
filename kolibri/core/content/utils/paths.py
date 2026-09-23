@@ -300,7 +300,6 @@ def get_sandbox_html_filename():
             os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "../build/sandbox_filename")
             ),
-            mode="r",
             encoding="utf-8",
         ) as f:
             SANDBOX_FILENAME = f.read().strip()

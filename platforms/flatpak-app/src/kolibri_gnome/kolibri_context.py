@@ -131,13 +131,12 @@ class BaseKolibriContext(GObject.GObject):
 
         if node_type == "c":
             return self._get_kolibri_content_path(node_id, url_search)
-        elif node_type == "t":
+        if node_type == "t":
             # As a special case, don't include the search property for topic
             # nodes. This means Kolibri will always show a simple browsing
             # interface for a topic, instead of a search interface.
             return self._get_kolibri_topic_path(node_id, None)
-        else:
-            return self._get_kolibri_library_path(url_search)
+        return self._get_kolibri_library_path(url_search)
 
     def _get_kolibri_content_path(
         self, node_id: str, search: typing.Optional[str] = None
@@ -145,8 +144,7 @@ class BaseKolibriContext(GObject.GObject):
         if search:
             query = {"keywords": search, "last": "TOPICS_TOPIC_SEARCH"}
             return f"{LEARN_PATH_PREFIX}topics/c/{node_id}?{urlencode(query)}"
-        else:
-            return f"{LEARN_PATH_PREFIX}topics/c/{node_id}"
+        return f"{LEARN_PATH_PREFIX}topics/c/{node_id}"
 
     def _get_kolibri_topic_path(
         self, node_id: str, search: typing.Optional[str] = None
@@ -154,15 +152,13 @@ class BaseKolibriContext(GObject.GObject):
         if search:
             query = {"keywords": search}
             return f"{LEARN_PATH_PREFIX}topics/t/{node_id}/search?{urlencode(query)}"
-        else:
-            return f"{LEARN_PATH_PREFIX}topics/t/{node_id}"
+        return f"{LEARN_PATH_PREFIX}topics/t/{node_id}"
 
     def _get_kolibri_library_path(self, search: typing.Optional[str] = None) -> str:
         if search:
             query = {"keywords": search}
             return f"{LEARN_PATH_PREFIX}library?{urlencode(query)}"
-        else:
-            return f"{LEARN_PATH_PREFIX}home"
+        return f"{LEARN_PATH_PREFIX}home"
 
     def url_to_x_kolibri_app(self, url: str) -> str:
         return urlsplit(url)._replace(scheme=APP_URI_SCHEME, netloc="").geturl()
@@ -301,7 +297,7 @@ class KolibriContext(BaseKolibriContext):
         if url_tuple.scheme == KOLIBRI_URI_SCHEME:
             target_url = self.parse_kolibri_url_tuple(url_tuple)
             return self.__kolibri_daemon.get_absolute_url(target_url)
-        elif url_tuple.scheme == APP_URI_SCHEME:
+        if url_tuple.scheme == APP_URI_SCHEME:
             target_url = self.parse_x_kolibri_app_url_tuple(url_tuple)
             return self.__kolibri_daemon.get_absolute_url(target_url)
         return url
@@ -544,15 +540,13 @@ class KolibriChannelContext(KolibriContext):
         if search:
             query = {"keywords": search}
             return f"{self.__default_path}/search?{urlencode(query)}"
-        else:
-            return self.__default_path
+        return self.__default_path
 
     def open_external_url(self, url: str) -> typing.Optional[str]:
         if self.is_url_for_kolibri_app(url):
             # For would-be internal URLs, redirect to the default URL.
             return self.default_url
-        else:
-            return super().open_external_url(url)
+        return super().open_external_url(url)
 
     def is_url_in_scope(self, url: str) -> bool:
         # Allow the user to navigate to login and account management pages, as
@@ -571,12 +565,11 @@ class KolibriChannelContext(KolibriContext):
 
         if re.match(STATIC_PATHS_RE, url_path):
             return True
-        elif re.match(SYSTEM_PATHS_RE, url_path):
+        if re.match(SYSTEM_PATHS_RE, url_path):
             return True
-        elif re.match(CONTENT_PATHS_RE, url_path):
+        if re.match(CONTENT_PATHS_RE, url_path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
-        else:
-            return False
+        return False
 
     def __is_learn_fragment_in_channel(self, fragment: str) -> bool:
         fragment = fragment.lstrip("/")
@@ -663,5 +656,4 @@ class KolibriSetupContext(KolibriContext):
         if self.__is_url_for_setup_complete(url):
             self.emit("setup-complete")
             return None
-        else:
-            return super().open_external_url(url)
+        return super().open_external_url(url)

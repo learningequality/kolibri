@@ -422,8 +422,7 @@ class LoginTokenManager(object):
         if login_token and login_token.key == token_key:
             self.__login_tokens.get(user_id, None)
             return login_token
-        else:
-            return None
+        return None
 
     def __revoke_expired_tokens(self):
         self.__login_tokens = {

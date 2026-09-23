@@ -53,13 +53,12 @@ def _value_to_variant(value: typing.Union[bytes, int, float, str]) -> GLib.Varia
 
     if isinstance(value, bool):
         return GLib.Variant("b", value)
-    elif isinstance(value, bytes):
+    if isinstance(value, bytes):
         return GLib.Variant("y", value)
-    elif isinstance(value, int):
+    if isinstance(value, int):
         return GLib.Variant("x", value)
-    elif isinstance(value, float):
+    if isinstance(value, float):
         return GLib.Variant("d", value)
-    elif isinstance(value, str):
+    if isinstance(value, str):
         return GLib.Variant("s", value)
-    else:
-        raise ValueError("Unknown value type", value)
+    raise ValueError("Unknown value type", value)

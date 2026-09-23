@@ -569,7 +569,7 @@ def _get_lang_strings(locale_dir):
             continue
 
         file_path = os.path.join(locale_dir, file_name)
-        with open(file_path, mode="r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lang_strings = json.load(f).values()
 
         for s in lang_strings:

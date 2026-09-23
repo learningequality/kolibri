@@ -127,21 +127,18 @@ class ParamValidator:
         try:
             if self.eq and param != self.eq:
                 raise InvalidQueryParamsException("must be equal to %s!" % self.eq)
-            else:
-                if self.lt and param >= self.lt:
-                    raise InvalidQueryParamsException("must be less than %s!" % self.lt)
-                if self.lte and param > self.lte:
-                    raise InvalidQueryParamsException(
-                        "must be less than or equal to %s!" % self.lte
-                    )
-                if self.gt and param <= self.gt:
-                    raise InvalidQueryParamsException(
-                        "must be greater than %s!" % self.gt
-                    )
-                if self.gte and param < self.gte:
-                    raise InvalidQueryParamsException(
-                        "must be greater than or equal to %s!" % self.gte
-                    )
+            if self.lt and param >= self.lt:
+                raise InvalidQueryParamsException("must be less than %s!" % self.lt)
+            if self.lte and param > self.lte:
+                raise InvalidQueryParamsException(
+                    "must be less than or equal to %s!" % self.lte
+                )
+            if self.gt and param <= self.gt:
+                raise InvalidQueryParamsException("must be greater than %s!" % self.gt)
+            if self.gte and param < self.gte:
+                raise InvalidQueryParamsException(
+                    "must be greater than or equal to %s!" % self.gte
+                )
         except InvalidQueryParamsException as e:
             msg = str(e)
             msg = ("Length " if self.param_type == str else "Value ") + msg
@@ -234,8 +231,7 @@ class ParamValidator:
         if param is None:  # but not False, because that's a valid boolean param
             if not self.optional:
                 raise MissingRequiredParamsException(self.param_name)
-            else:
-                return self.default
+            return self.default
 
         # check type, value
         if self.many:
@@ -244,10 +240,9 @@ class ParamValidator:
             else:
                 params = param if isinstance(param, list) else (param,)
             return [self.check_type(p) for p in params if self.check_value(p)]
-        else:
-            param = self.check_type(param)
-            self.check_value(param)
-            return param
+        param = self.check_type(param)
+        self.check_value(param)
+        return param
 
 
 def query_params_required(**kwargs):  # noqa: C901
@@ -336,8 +331,7 @@ def cache_no_user_data(view_func):
             ).hexdigest()
             cache.set(cache_key, etag, CACHE_TIMEOUT)
             return etag
-        else:
-            return None
+        return None
 
     def calculate_spa_etag(*args, **kwargs):
         # Clear the local thread 'response' property

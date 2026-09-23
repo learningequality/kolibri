@@ -207,12 +207,12 @@ def validate_sync_queue_for_sync_request(sync_queue):
         # if ready, the server has told us to sync so we shouldn't request a queue position until
         # we've synced
         return False
-    elif sync_queue.attempts > MAX_ATTEMPTS:
+    if sync_queue.attempts > MAX_ATTEMPTS:
         # if we have tried to sync more than 5 times, we should stop trying, unless provided
         # with a network location, which means a potential network change and possible chance for
         # success
         return False
-    elif (
+    if (
         sync_queue.status == SyncQueueStatus.Queued
         and sync_queue.attempt_at > attempt_execute_window()
     ):

@@ -504,7 +504,7 @@ class KolibriClient:
 
             if job["status"] == "COMPLETED":
                 return job
-            elif job["status"] in ["FAILED", "CANCELED"]:
+            if job["status"] in ["FAILED", "CANCELED"]:
                 error_msg = job.get("exception", "Unknown error")
                 raise Exception(f"Job {job_id} {job['status']}: {error_msg}")
 

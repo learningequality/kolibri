@@ -58,12 +58,12 @@ class EnqueueArgsSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Specify either `enqueue_at` or `enqueue_in`. Cannot specify both."
             )
-        elif not data.get("enqueue_at") and not data.get("enqueue_in"):
+        if not data.get("enqueue_at") and not data.get("enqueue_in"):
             if "repeat" in data:
                 raise serializers.ValidationError(
                     "`repeat` can only be specified when either `enqueue_in` or `enqueue_at` is specified."
                 )
-            elif "repeat_interval" in data:
+            if "repeat_interval" in data:
                 raise serializers.ValidationError(
                     "`repeat_interval` can only be specified when either `enqueue_in` or `enqueue_at` is specified."
                 )
@@ -72,7 +72,7 @@ class EnqueueArgsSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     "`repeat_interval` must be specified when `repeat` is specified."
                 )
-            elif "repeat_interval" in data and "repeat" not in data:
+            if "repeat_interval" in data and "repeat" not in data:
                 raise serializers.ValidationError(
                     "`repeat` must be specified when `repeat_interval` is specified."
                 )

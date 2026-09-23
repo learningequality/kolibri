@@ -82,7 +82,7 @@ class BaseLogModel(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         if self.user_id:
             return self.cached_related_dataset_lookup("user")
-        elif self.dataset_id:
+        if self.dataset_id:
             # confirm that there exists a facility with that dataset_id
             try:
                 return Facility.objects.get(dataset_id=self.dataset_id).dataset_id

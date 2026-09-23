@@ -19,11 +19,11 @@ class SimpleForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(0, 3):
+        for i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
-            for j in range(0, 4):
+            for j in range(4):
                 models.ExamAttemptLog.objects.create(
                     item=str(j),
                     user=user,
@@ -80,11 +80,11 @@ class RepeatedForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(0, 3):
+        for i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
-            for j in range(0, 4):
+            for j in range(4):
                 models.ExamAttemptLog.objects.create(
                     item=str(j),
                     user=user,
@@ -134,11 +134,11 @@ class UpdatedForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(0, 3):
+        for i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
-            for j in range(0, 4):
+            for j in range(4):
                 models.ExamAttemptLog.objects.create(
                     item=str(j),
                     user=user,
@@ -222,11 +222,11 @@ class UpdatedExamAttemptLogOnlyForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(0, 3):
+        for i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
-            for j in range(0, 4):
+            for j in range(4):
                 models.ExamAttemptLog.objects.create(
                     item=str(j),
                     user=user,

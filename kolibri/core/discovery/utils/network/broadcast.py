@@ -779,7 +779,7 @@ class KolibriBroadcast:
         """
         # ignore events about ourselves
         if self.instance.is_broadcasting and self.instance.service_info.name == name:
-            return
+            return None
 
         logger.debug("Received UPDATE event for Zeroconf service: {}".format(name))
 
@@ -800,7 +800,7 @@ class KolibriBroadcast:
                     current_instance == instance
                     and instance.last_seen - current_instance.last_seen < SERVICE_TTL
                 ):
-                    return
+                    return None
             self.other_instances[name] = instance
             logger.info(
                 "Kolibri instance '%s' updated zeroconf network; device info: %s"

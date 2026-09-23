@@ -33,7 +33,7 @@ languages = dict(settings.LANGUAGES)
 def json_file_contents(parser, arg):
     if not os.path.exists(arg) or not os.path.isfile(arg):
         return parser.error("The file '{}' does not exist".format(arg))
-    with open(arg, "r") as f:
+    with open(arg) as f:
         try:
             return json.load(f)
         except json.JSONDecodeError as e:

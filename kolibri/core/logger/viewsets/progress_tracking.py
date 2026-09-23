@@ -250,7 +250,7 @@ class LogContext:
 
     def __getitem__(self, key):
         if key not in self.__slots__:
-            return
+            return None
         return getattr(self, key, None)
 
     def __contains__(self, key):
@@ -280,7 +280,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         """
         Add this purely to avoid warnings from DRF YASG schema generation.
         """
-        return None
+        return
 
     def _precache_dataset_id(self, user):
         if user is None or user.is_anonymous:
@@ -688,7 +688,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             return {
                 "type": interaction_types.ERROR,
             }
-        elif validated_data["hinted"]:
+        if validated_data["hinted"]:
             return {
                 "type": interaction_types.HINT,
                 "answer": validated_data["answer"],
@@ -820,16 +820,15 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                         user=user,
                         item=interaction["item"],
                     )
-                else:
-                    # If this is an anonymous user, then the best we can do is
-                    # try to update any previous attempt from this session.
-                    # In this case, both the user and masterylog_id will be null.
-                    return AttemptLog.objects.get(
-                        masterylog_id__isnull=True,
-                        sessionlog_id=session_id,
-                        user__isnull=True,
-                        item=interaction["item"],
-                    )
+                # If this is an anonymous user, then the best we can do is
+                # try to update any previous attempt from this session.
+                # In this case, both the user and masterylog_id will be null.
+                return AttemptLog.objects.get(
+                    masterylog_id__isnull=True,
+                    sessionlog_id=session_id,
+                    user__isnull=True,
+                    item=interaction["item"],
+                )
             except AttemptLog.DoesNotExist:
                 pass
 
@@ -908,8 +907,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         try:
             if user.is_anonymous:
                 return ContentSessionLog.objects.get(id=session_id, user__isnull=True)
-            else:
-                return ContentSessionLog.objects.get(id=session_id, user=user)
+            return ContentSessionLog.objects.get(id=session_id, user=user)
         except (ValueError, ContentSessionLog.DoesNotExist):
             raise Http404(
                 "ContentSessionLog with id {} does not exist".format(session_id)
@@ -942,7 +940,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         self, user, sessionlog, end_timestamp, validated_data, context
     ):
         if user.is_anonymous:
-            return
+            return None
         summarylog = ContentSummaryLog.objects.get(
             content_id=sessionlog.content_id, user=user
         )

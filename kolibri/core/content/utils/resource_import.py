@@ -147,7 +147,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         if "exclude_node_ids" in kwargs:
             raise TypeError("Unexpected keyword argument exclude_node_ids")
         if isinstance(manifest_file, str):
-            manifest_file = open(manifest_file, "r")
+            manifest_file = open(manifest_file)
         content_manifest = ContentManifest()
         content_manifest.read_file(manifest_file)
         node_ids = content_manifest.get_node_ids_for_channel(channel_id)
@@ -189,14 +189,12 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             files_to_download - iterable of dicts of localfile data id, file_size, extension, upstream_url
             total_bytes_to_transfer - total size of all files to be transferred
         """
-        pass
 
     @abstractmethod
     def create_file_transfer(self, f, filename, dest):
         """
         Must return a FileTransfer object that can be submitted to a worker to run the file transfer.
         """
-        pass
 
     def get_channel_database_size(self):
         """

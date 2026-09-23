@@ -401,10 +401,9 @@ class Storage:
                 job_id=job_to_restart.job_id,
             )
             return self.enqueue_job(job, queue=orm_job.queue, priority=orm_job.priority)
-        else:
-            raise JobNotRestartable(
-                "Cannot restart job with state={}".format(job_to_restart.state)
-            )
+        raise JobNotRestartable(
+            "Cannot restart job with state={}".format(job_to_restart.state)
+        )
 
     def check_job_canceled(self, job_id, expected_supervisor_id=NO_VALUE):
         try:

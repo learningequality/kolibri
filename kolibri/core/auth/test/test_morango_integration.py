@@ -1481,7 +1481,7 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
                 assigned_by_id=self.teacher.id,
             )
             return ExamAssignment.objects.using(alias).get(exam__title=title).id
-        elif kind == "lesson":
+        if kind == "lesson":
             self.laptop_a.create_model(
                 Lesson,
                 title=title,

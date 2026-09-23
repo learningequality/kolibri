@@ -350,7 +350,7 @@ class ChunkedFile(TransferFileBase):
 
     def write_all(self, data_generator, progress_callback=None):
         self.write_chunks(
-            range(0, self.chunks_count),
+            range(self.chunks_count),
             data_generator,
             progress_callback=progress_callback,
         )
@@ -857,7 +857,7 @@ class FileDownload(Transfer):
 
     def finalize(self):
         if not self.finalize_download:
-            return
+            return None
         return super().finalize()
 
     def _catch_exception_and_retry(func):

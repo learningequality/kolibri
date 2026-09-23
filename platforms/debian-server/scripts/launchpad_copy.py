@@ -636,11 +636,11 @@ def main():
 
     if args.command == "copy-to-series":
         return cmd_copy_to_series(args)
-    elif args.command == "check-source":
+    if args.command == "check-source":
         return cmd_check_source(args)
-    elif args.command == "promote":
+    if args.command == "promote":
         return cmd_promote(args)
-    elif args.command == "wait-for-published":
+    if args.command == "wait-for-published":
         return cmd_wait_for_published(args)
 
 

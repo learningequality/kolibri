@@ -79,11 +79,9 @@ def _consolidate_lessons_data(request, lessons):
     for lesson in lessons:
         lesson["progress"] = {
             "resource_progress": sum(
-                (
-                    progress_map[resource["content_id"]]
-                    for resource in lesson["resources"]
-                    if resource["content_id"] in progress_map
-                )
+                progress_map[resource["content_id"]]
+                for resource in lesson["resources"]
+                if resource["content_id"] in progress_map
             ),
             "total_resources": len(lesson["resources"]),
         }

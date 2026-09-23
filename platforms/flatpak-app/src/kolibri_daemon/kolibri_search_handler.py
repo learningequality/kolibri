@@ -52,10 +52,7 @@ class SearchHandler(object):
             return "t/{node_id}?{channel_id}".format(
                 node_id=node_id, channel_id=channel_id
             )
-        else:
-            return "c/{node_id}?{channel_id}".format(
-                node_id=node_id, channel_id=channel_id
-            )
+        return "c/{node_id}?{channel_id}".format(node_id=node_id, channel_id=channel_id)
 
     @staticmethod
     def _item_id_to_node_id(item_id: str) -> str:

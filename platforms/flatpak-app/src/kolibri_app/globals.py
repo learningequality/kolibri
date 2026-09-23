@@ -75,11 +75,10 @@ def get_version(kolibri_version: str) -> str:
             vcs_tag=config.VCS_TAG,
             kolibri_version=kolibri_version,
         )
-    else:
-        return _("{kolibri_version} ({app_version})").format(
-            app_version=config.PROJECT_VERSION,
-            kolibri_version=kolibri_version,
-        )
+    return _("{kolibri_version} ({app_version})").format(
+        app_version=config.PROJECT_VERSION,
+        kolibri_version=kolibri_version,
+    )
 
 
 def get_current_language() -> typing.Optional[str]:

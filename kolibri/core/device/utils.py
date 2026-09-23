@@ -367,7 +367,7 @@ def provision_from_file(file_path):
         raise ValidationError("File {} does not exist".format(file_path))
 
     try:
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             options = json.load(f)
     except OSError:
         raise ValidationError("File {} could not be opened".format(file_path))

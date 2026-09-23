@@ -22,7 +22,7 @@ class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
         """
         Add this purely to avoid warnings from DRF YASG schema generation.
         """
-        return None
+        return
 
     def list(self, request):
         path = request.query_params.get("path")

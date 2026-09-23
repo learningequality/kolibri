@@ -16,7 +16,6 @@ class NetworkLocationDiscoveryHook(KolibriHook):
         :param network_location: The `NetworkLocation` model for instance discovered and verified
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
-        pass
 
     def on_disconnect(self, network_location):
         """
@@ -24,7 +23,6 @@ class NetworkLocationDiscoveryHook(KolibriHook):
         :param network_location: The `NetworkLocation` model for instance no long available
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
-        pass
 
 
 @define_hook
@@ -41,4 +39,3 @@ class NetworkLocationBroadcastHook(KolibriHook):
             other accessible Kolibri instances
         :type network_locations: kolibri.core.discovery.models.NetworkLocation[]
         """
-        pass

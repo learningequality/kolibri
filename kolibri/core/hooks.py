@@ -97,4 +97,3 @@ class LogoutRedirectHook(KolibriHook):
         """
         A property to be overriden by the class using this hook to provide the needed url to redirect
         """
-        pass

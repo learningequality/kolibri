@@ -80,7 +80,7 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
             return self.filter_by_uuids(deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
-        elif connection.vendor == "postgresql":
+        if connection.vendor == "postgresql":
             return self.order_by("content_id").distinct("content_id")
 
     def filter_by_content_ids(self, content_ids, validate=True):
@@ -293,7 +293,7 @@ class LocalFileQueryset(
                     )
                 )
                 yield True, file
-            except (IOError, OSError, InvalidStorageFilenameError):
+            except (OSError, InvalidStorageFilenameError):
                 yield False, file
         self.get_unused_files().update(available=False)
 
@@ -349,7 +349,7 @@ class LocalFile(base_models.LocalFile):
         try:
             os.remove(paths.get_content_storage_file_path(self.get_filename()))
             deleted = True
-        except (IOError, OSError, InvalidStorageFilenameError):
+        except (OSError, InvalidStorageFilenameError):
             deleted = False
 
         self.available = False
@@ -364,8 +364,6 @@ class AssessmentMetaData(base_models.AssessmentMetaData):
     user's state of knowledge and allow them to practice to Mastery.
     ContentNodes with this metadata may also be able to be used within quizzes and exams.
     """
-
-    pass
 
 
 class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):

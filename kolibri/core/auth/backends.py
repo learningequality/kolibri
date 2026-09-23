@@ -36,7 +36,6 @@ class AuthScope(abc.ABC):
         Determines candidate users for checking authorization
         :return: An iterator over candidate FacilityUser objects
         """
-        pass
 
     @abc.abstractmethod
     def matches_credentials(self, user):
@@ -45,7 +44,6 @@ class AuthScope(abc.ABC):
         :param user: A FacilityUser object
         :return: A boolean indicating authorization
         """
-        pass
 
     def __str__(self):
         return self.__class__.__name__

@@ -353,15 +353,11 @@ def count_removed_resources(destination, channel_id):
 
         for resource_node_ids in _batches(resource_node_id_queryset):
             content_ids_after_upgrade.update(
-                (
-                    ContentNode.objects.filter_by_uuids(
-                        resource_node_ids, validate=False
-                    )
-                    .exclude(kind=content_kinds.TOPIC)
-                    .filter(available=True, channel_id=channel_id)
-                    .values_list("content_id", flat=True)
-                    .distinct()
-                )
+                ContentNode.objects.filter_by_uuids(resource_node_ids, validate=False)
+                .exclude(kind=content_kinds.TOPIC)
+                .filter(available=True, channel_id=channel_id)
+                .values_list("content_id", flat=True)
+                .distinct()
             )
 
     total_resources_after_upgrade = len(content_ids_after_upgrade)

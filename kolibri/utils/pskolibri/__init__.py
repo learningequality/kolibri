@@ -235,8 +235,7 @@ class Process:
         except NoSuchProcess:
             if not _ignore_nsp:
                 raise NoSuchProcess()
-            else:
-                self._gone = True
+            self._gone = True
         # This pair is supposed to indentify a Process instance
         # univocally over time (the PID alone is not enough as
         # it might refer to a process whose PID has been reused).

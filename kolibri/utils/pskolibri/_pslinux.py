@@ -163,7 +163,7 @@ def wrap_exceptions(fun):
     def wrapper(self, *args, **kwargs):
         try:
             return fun(self, *args, **kwargs)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno in (errno.EPERM, errno.EACCES):
                 raise AccessDenied()
             # ESRCH (no such process) can be raised on read() if

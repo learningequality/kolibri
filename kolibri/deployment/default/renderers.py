@@ -11,13 +11,13 @@ class LightBrowsableAPIRenderer(BrowsableAPIRenderer):
         """
         Don't render the filter form.
         """
-        return None
+        return
 
     def get_rendered_html_form(self, data, view, method, request):
         """
         Don't render the HTML form.
         """
-        return None
+        return
 
     def get_context(self, data, accepted_media_type, renderer_context):
         """

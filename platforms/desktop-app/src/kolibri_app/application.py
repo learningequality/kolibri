@@ -222,11 +222,9 @@ class KolibriApp(wx.App):
 
     def get_state(self):
         try:
-            with open(
-                os.path.join(KOLIBRI_HOME, STATE_FILE), "r", encoding="utf-8"
-            ) as f:
+            with open(os.path.join(KOLIBRI_HOME, STATE_FILE), encoding="utf-8") as f:
                 return json.load(f)
-        except (IOError, PermissionError, ValueError):
+        except (OSError, PermissionError, ValueError):
             return {}
 
     def save_state(self, view=None):
@@ -238,7 +236,7 @@ class KolibriApp(wx.App):
                 os.path.join(KOLIBRI_HOME, STATE_FILE), "w", encoding="utf-8"
             ) as f:
                 return json.dump(state, f)
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             return {}
 
     def load_kolibri(self, listen_port, root_url=None):

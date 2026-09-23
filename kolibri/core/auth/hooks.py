@@ -31,7 +31,6 @@ class FacilityDataSyncHook(KolibriHook):
         :type single_user_id: str
         :type context: morango.sync.context.LocalSessionContext
         """
-        pass
 
     def post_transfer(
         self,
@@ -49,7 +48,6 @@ class FacilityDataSyncHook(KolibriHook):
         :type single_user_id: str
         :type context: morango.sync.context.LocalSessionContext
         """
-        pass
 
     def get_sync_operations(self, context):
         """

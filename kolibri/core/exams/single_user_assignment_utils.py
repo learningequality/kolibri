@@ -59,9 +59,8 @@ def _get_classroom_id_from_syncable_exam(syncableexam):
     """
     if syncableexam.collection.kind == collection_kinds.CLASSROOM:
         return syncableexam.collection.id
-    else:
-        # For learner groups and ad hoc groups, get parent classroom
-        return syncableexam.collection.parent.id
+    # For learner groups and ad hoc groups, get parent classroom
+    return syncableexam.collection.parent.id
 
 
 def update_assignments_from_individual_syncable_exams(user_id):

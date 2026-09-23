@@ -86,15 +86,13 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                     detail="The username can not be found",
                     code=error_constants.INVALID_USERNAME,
                 )
-            else:
-                raise AuthenticationFailed(
-                    detail="Password is required", code=error_constants.MISSING_PASSWORD
-                )
-        else:
             raise AuthenticationFailed(
-                detail="Authentication failed",
-                code=error_constants.AUTHENTICATION_FAILED,
+                detail="Password is required", code=error_constants.MISSING_PASSWORD
             )
+        raise AuthenticationFailed(
+            detail="Authentication failed",
+            code=error_constants.AUTHENTICATION_FAILED,
+        )
     auth_info = sanitize_remote_list(_RemoteFacilityUserSerializer, response.json())
     # The peer authenticated the request with username__iexact, so its entry for
     # the typed username need not equal it exactly.
@@ -137,15 +135,14 @@ def get_remote_user_info(client, facility_id, adminUsername, adminPassword, user
         )
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 404:
+        if response.status_code == 404:
             raise NotFound()
-        elif response.status_code in (401, 403):
+        if response.status_code in (401, 403):
             raise AuthenticationFailed(
                 detail="Authentication failed",
                 code=error_constants.AUTHENTICATION_FAILED,
             )
-        else:
-            raise ResourceGoneError()
+        raise ResourceGoneError()
     except NetworkLocationConnectionFailure:
         raise ResourceGoneError()
     except NetworkLocationResponseFailure as e:

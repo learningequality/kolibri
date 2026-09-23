@@ -67,7 +67,7 @@ def get_or_create_facilities(**options):
             "Generating {n} facility object(s)".format(n=n_to_create),
             verbosity=verbosity,
         )
-        for i in range(0, n_to_create):
+        for i in range(n_to_create):
             facility_name = "Facility{i}".format(i=i + 1)
             if device_name:
                 # If specified, prepend the device name to the facility.
@@ -96,7 +96,7 @@ def get_or_create_classrooms(**options):
             ),
             verbosity,
         )
-        for i in range(0, n_to_create):
+        for i in range(n_to_create):
             class_name = "Class{i}{a}".format(i=i + 1, a=random.choice("ABCD"))
             if device_name:
                 # Prepend the facility name to the class to easily identify the class during
@@ -139,7 +139,7 @@ def get_or_create_classroom_users(**options):
             ),
             verbosity=verbosity,
         )
-        for i in range(0, n_to_create):
+        for i in range(n_to_create):
             # Get the first base data that does not have a matching user already
             base_data = user_data[n_in_classroom + i]
             # Randomly create the name from 1 to 3 of the three user name fields
@@ -202,7 +202,7 @@ def add_channel_activity_for_user(**options):  # noqa: C901
         verbosity=verbosity,
     )
     # Generate a content interaction history for this many content items
-    for i in range(0, n_content_items):
+    for i in range(n_content_items):
         # Use this to randomly select a content node to generate the interaction for
         index = random.randint(0, default_channel_content.count() - 1)
         random_node = default_channel_content[index]
@@ -210,7 +210,7 @@ def add_channel_activity_for_user(**options):  # noqa: C901
         # We will generate between 1 and 5 content session logs for this content item
         session_logs = []
 
-        for j in range(0, random.randint(1, 5)):
+        for j in range(random.randint(1, 5)):
             # How many minutes did they spend in this session? Up to 15
             duration = random.random() * 15
             # Assume they spent some of this session time not doing anything - the lazy...
@@ -331,7 +331,7 @@ def add_channel_activity_for_user(**options):  # noqa: C901
                 # How long did they spend on these n questions?
                 timespan = session_log.end_timestamp - session_log.start_timestamp
                 # Index through each individual question
-                for k in range(0, n):
+                for k in range(n):
                     if complete:
                         # If this is the session where they completed the exercise, always
                         # make them get it right
@@ -442,7 +442,7 @@ def create_lessons_for_classroom(**options):
         # don't add more than 10 resources per Lesson:
         n_content_items = min(random.randint(0, channel_content.count() - 1), 10)
         lesson_content = []
-        for i in range(0, n_content_items):
+        for i in range(n_content_items):
             # Use this to randomly select a content node to generate the interaction for
             random_node = random.choice(channel_content)
             content = {
@@ -502,7 +502,7 @@ def create_exams_for_classrooms(**options):
         exam_content = []
         content_ids = []
         assessment_ids = []
-        for i in range(0, n_content_items):
+        for i in range(n_content_items):
             # Use this to randomly select an exercise content node to generate the interaction for
             random_node = random.choice(exercise_content)
             # grab this exercise node's assessment ids

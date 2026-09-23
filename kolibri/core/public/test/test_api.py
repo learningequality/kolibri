@@ -456,7 +456,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_stale_queue_should_sync(self):
-        for i in range(0, 10):
+        for i in range(10):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -482,7 +482,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_skip_the_queue_should_sync(self):
-        for i in range(0, 10):
+        for i in range(10):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -508,7 +508,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_full_queue_should_queue(self):
-        for i in range(0, MAX_CONCURRENT_SYNCS):
+        for i in range(MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -537,7 +537,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
 
     def test_create_active_transfer_should_queue(self):
-        for i in range(0, 2):
+        for i in range(2):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -597,7 +597,7 @@ class SyncQueueViewSetTestCase(APITestCase):
             keep_alive=10,
             last_sync=100,
         )
-        for i in range(0, MAX_CONCURRENT_SYNCS):
+        for i in range(MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -626,7 +626,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
 
     def test_update_full_queue_should_scale_keep_alive(self):
-        for i in range(0, 3):
+        for i in range(3):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",

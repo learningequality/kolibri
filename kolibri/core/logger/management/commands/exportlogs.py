@@ -167,7 +167,7 @@ class Command(AsyncCommand):
                         overwrite=options["overwrite"],
                     ):
                         progress_update(1)
-                except (ValueError, IOError) as e:
+                except (OSError, ValueError) as e:
                     self.overall_error = str(MESSAGES[FILE_WRITE_ERROR].format(e))
 
         if job:
@@ -177,10 +177,9 @@ class Command(AsyncCommand):
         else:
             if self.overall_error:
                 raise CommandError(self.overall_error)
-            else:
-                logger.info(
-                    "Created csv file {} with {} lines".format(filename, total_rows)
-                )
+            logger.info(
+                "Created csv file {} with {} lines".format(filename, total_rows)
+            )
 
         translation.deactivate()
 

@@ -135,7 +135,7 @@ class KolibriSessionMiddleware(SessionMiddleware):
     def process_view(self, request, callback, callback_args, callback_kwargs):
         if self._is_exempt(callback):
             setattr(request, SESSION_EXEMPT, True)
-        return None
+        return
 
     def process_response(self, request, response):
         if self._is_exempt(request):

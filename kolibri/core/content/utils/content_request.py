@@ -262,11 +262,9 @@ class PreferredDevices:
         filters.update(subset_of_users_device=False)
         instance_ids = list(
             set(
-                (
-                    SyncSession.objects.order_by("-last_activity_timestamp")
-                    .values_list("server_instance_id", flat=True)
-                    .distinct()
-                )
+                SyncSession.objects.order_by("-last_activity_timestamp")
+                .values_list("server_instance_id", flat=True)
+                .distinct()
             )
         )
         return cls(
@@ -525,15 +523,11 @@ class InsufficientStorage(Exception):
     Dedicated exception with which we can halt content request processing for insufficient storage
     """
 
-    pass
-
 
 class NoPeerAvailable(Exception):
     """
     Dedicated exception with which we can halt content request processing when we don't have a peer
     """
-
-    pass
 
 
 class AlreadyAvailable(Exception):
@@ -541,8 +535,6 @@ class AlreadyAvailable(Exception):
     Dedicated exception with which we can halt content request processing when we detect
     that the content is already available
     """
-
-    pass
 
 
 def _create_related_download_requests_if_needed(incomplete_downloads):
@@ -1127,7 +1119,7 @@ def _process_download(download_request, channel_id, peer):
         # re-raise if there's an exception
         if getattr(import_manager, "exception", None):
             raise getattr(import_manager, "exception")
-        elif not count or count == 0:
+        if not count or count == 0:
             logger.warning(
                 "ContentNode files may not have imported successfully: {}".format(
                     download_request.contentnode_id

@@ -117,8 +117,6 @@ class RunningException(PortOccupied):
     Raised when server already appears to be running
     """
 
-    pass
-
 
 class Server(BaseServer):
     def error_log(self, msg="", level=20, traceback=False):
@@ -612,7 +610,7 @@ class ProcessControlPlugin(Monitor):
         mtime = self.get_mtime()
         if mtime > self.mtime:
             # The file has been deleted or modified.
-            with open(PROCESS_CONTROL_FLAG, "r") as f:
+            with open(PROCESS_CONTROL_FLAG) as f:
                 try:
                     command = f.read().strip()
                 except OSError:
@@ -995,7 +993,7 @@ def _read_pid_file(filename):
         return None, None, None, STATUS_STOPPED
 
     try:
-        with open(filename, "r") as f:
+        with open(filename) as f:
             pid_file_lines = f.readlines()
         pid, port, zip_port, status = pid_file_lines
         pid = int(pid.strip())
@@ -1003,7 +1001,7 @@ def _read_pid_file(filename):
         zip_port = int(zip_port.strip()) if zip_port.strip() else None
         status = int(status.strip())
         return pid, port, zip_port, status
-    except (TypeError, ValueError, IOError, OSError):
+    except (TypeError, ValueError, OSError):
         pass
     return None, None, None, STATUS_PID_FILE_INVALID
 
@@ -1199,8 +1197,7 @@ def get_installer_version(installer_type):  # noqa: C901
 
     if installer_type in version_funcs:
         return version_funcs[installer_type]()
-    else:
-        return None
+    return None
 
 
 def installation_type(cmd_line=None):  # noqa:C901
@@ -1267,7 +1264,6 @@ def installation_type(cmd_line=None):  # noqa:C901
         version = get_installer_version(install_type)
         if version:
             return installation_types.install_type_map[install_type].format(version)
-        else:
-            return installation_types.install_type_map[install_type].split(" - ")[0]
+        return installation_types.install_type_map[install_type].split(" - ")[0]
 
     return install_type

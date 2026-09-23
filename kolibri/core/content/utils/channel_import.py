@@ -448,7 +448,7 @@ class ChannelImport:
                 value = get_attribute(record, col_map, _missing)
                 if value is not _missing:
                     return value
-                elif hasattr(self, col_map):
+                if hasattr(self, col_map):
                     # Otherwise, check to see if the import class has an attribute with this name
                     # We assume that if it is, then it is either a literal value or a callable method
                     # that accepts the row data as its only argument, and if so, return the result of
@@ -457,14 +457,12 @@ class ChannelImport:
                     if callable(mapping):
                         return mapping(record)
                     return mapping
-                else:
-                    # If neither of these true, we specified a column mapping that is invalid
-                    raise AttributeError(
-                        "Column mapping specified but no valid column name or method found"
-                    )
-            else:
-                # Otherwise, we can just get the value directly from the record
-                return self.base_row_mapper(record, column)
+                # If neither of these true, we specified a column mapping that is invalid
+                raise AttributeError(
+                    "Column mapping specified but no valid column name or method found"
+                )
+            # Otherwise, we can just get the value directly from the record
+            return self.base_row_mapper(record, column)
 
         # Return the mapper function for repeated use
         return mapper
@@ -666,13 +664,11 @@ class ChannelImport:
             if not merge:
                 separator = "\t"
                 data_string_iterator = StringIteratorIO(
-                    (
-                        separator.join(
-                            map(clean_csv_value, generate_data_with_default(record))
-                        )
-                        + "\n"
-                        for record in results
+                    separator.join(
+                        map(clean_csv_value, generate_data_with_default(record))
                     )
+                    + "\n"
+                    for record in results
                 )
 
                 cursor.copy_from(

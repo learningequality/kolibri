@@ -123,7 +123,7 @@ def get_node_by_criteria(client, channel_id, criteria):
                 return node
         return None
 
-    elif "modality" in criteria:
+    if "modality" in criteria:
         # Filter by options.modality field
         target_modality = criteria["modality"]
         for node in nodes:
@@ -137,9 +137,8 @@ def get_node_by_criteria(client, channel_id, criteria):
                 return node
         return None
 
-    else:
-        # Simple kind-based query - return first match
-        return nodes[0] if nodes else None
+    # Simple kind-based query - return first match
+    return nodes[0] if nodes else None
 
 
 def generate_lesson_resources(client, channel_id):
@@ -204,7 +203,7 @@ def load_lesson_resources():
     if not os.path.exists(LESSON_RESOURCES_PATH):
         return None
 
-    with open(LESSON_RESOURCES_PATH, "r") as f:
+    with open(LESSON_RESOURCES_PATH) as f:
         return json.load(f)
 
 

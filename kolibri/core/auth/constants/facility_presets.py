@@ -4,7 +4,7 @@ import os
 presets_file = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "./facility_configuration_presets.json")
 )
-with open(presets_file, mode="r", encoding="utf-8") as f:
+with open(presets_file, encoding="utf-8") as f:
     presets = json.load(f)
 
 choices = [(key, key) for key in presets]

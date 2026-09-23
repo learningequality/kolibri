@@ -72,7 +72,7 @@ def uuid4_hex():
 
 
 def choices(sequence, k):
-    return [random.choice(sequence) for _ in range(0, k)]
+    return [random.choice(sequence) for _ in range(k)]
 
 
 class ChannelBuilder:
@@ -158,12 +158,10 @@ class ChannelBuilder:
         # localfile_data() keys by raw DB column names, not model attnames.
         column_to_attname = {f.column: f.attname for f in LocalFile._meta.fields}
         LocalFile.objects.bulk_create(
-            (
-                LocalFile(**{column_to_attname.get(k, k): v for k, v in l.items()})
-                for l in self.localfiles.values()
-            )
+            LocalFile(**{column_to_attname.get(k, k): v for k, v in l.items()})
+            for l in self.localfiles.values()
         )
-        File.objects.bulk_create((File(**f) for f in self.files.values()))
+        File.objects.bulk_create(File(**f) for f in self.files.values())
 
     def remove_from_default_db(self):
         File.objects.filter(id__in=self.files.keys()).delete()
@@ -272,7 +270,7 @@ class ChannelBuilder:
 
     def duplicate_resources(self, num_resources):
         self.duplicated_resources = []
-        for i in range(0, num_resources):
+        for i in range(num_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -286,7 +284,7 @@ class ChannelBuilder:
     def move_resources(self, num_resources):
         self.moved_resources = []
         self.deleted_resources = []
-        for i in range(0, num_resources):
+        for i in range(num_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -302,7 +300,7 @@ class ChannelBuilder:
     def upgrade(self, new_resources=0, updated_resources=0, deleted_resources=0):
         self.new_resources = []
         self.updated_thumbnails = []
-        for i in range(0, new_resources):
+        for i in range(new_resources):
             parent = self.recurse_tree_until_leaf_container(self.root_node)
             child = self.generate_leaf(parent["id"])
             parent["children"].append(child)
@@ -314,7 +312,7 @@ class ChannelBuilder:
 
         self.updated_resources = []
         self.updated_resource_localfiles = []
-        for i in range(0, updated_resources):
+        for i in range(updated_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -324,7 +322,7 @@ class ChannelBuilder:
             self.modified.add(child["id"])
 
         self.deleted_resources = []
-        for i in range(0, deleted_resources):
+        for i in range(deleted_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -365,7 +363,7 @@ class ChannelBuilder:
 
     def recurse_and_generate(self, parent_id, levels):
         children = []
-        for i in range(0, self.num_children):
+        for i in range(self.num_children):
             if levels == 0:
                 node = self.generate_leaf(parent_id)
             else:

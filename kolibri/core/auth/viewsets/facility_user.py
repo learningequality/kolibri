@@ -337,11 +337,10 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         # if we are updating object, and this `instance` is the same object, return data
         if self.instance and obj.id == self.instance.id:
             return attrs
-        else:
-            raise serializers.ValidationError(
-                "An account with that username already exists.",
-                code=error_constants.USERNAME_ALREADY_EXISTS,
-            )
+        raise serializers.ValidationError(
+            "An account with that username already exists.",
+            code=error_constants.USERNAME_ALREADY_EXISTS,
+        )
 
 
 class DeletedFacilityUserSerializer(FacilityUserSerializer):
@@ -495,9 +494,8 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
             except JobRunning:
                 pass  # Task is already running, do nothing
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            # Bulk deletion
-            return self.bulk_destroy(request, *args, **kwargs)
+        # Bulk deletion
+        return self.bulk_destroy(request, *args, **kwargs)
 
     def perform_bulk_destroy(self, objects):
         # Prevents superuser self-deletion during bulk operations (#13483).

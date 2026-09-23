@@ -32,4 +32,3 @@ class AsyncCommand(JobProgressMixin, BaseCommand):
         """
         handle_async should be reimplemented by any Subclass of AsyncCommand.
         """
-        pass

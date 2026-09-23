@@ -60,7 +60,7 @@ def open_csv_for_reading(storage_filepath=None, local_filepath=None):
             yield encoded_fh
             encoded_fh.flush()
     else:
-        with open(local_filepath, "r", newline="", encoding="utf-8-sig") as local_fh:
+        with open(local_filepath, newline="", encoding="utf-8-sig") as local_fh:
             yield local_fh
 
 

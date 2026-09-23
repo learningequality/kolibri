@@ -265,7 +265,7 @@ class ExamSerializer(ModelSerializer):
                 raise ValidationError(
                     "Cannot change an Exam to a DraftExam", code=error_constants.INVALID
                 )
-            elif instance_is_draft and not new_draft_value:
+            if instance_is_draft and not new_draft_value:
                 instance = self._publish_draft(instance, validated_data)
                 instance_is_draft = False
             # Update the scalar fields
@@ -584,8 +584,7 @@ class ExamViewset(ValuesViewset):
         try:
             if is_draft:
                 return self.serialize_draft(self.get_draft_queryset().filter(pk=pk))[0]
-            else:
-                return self.serialize(self.get_queryset().filter(pk=pk))[0]
+            return self.serialize(self.get_queryset().filter(pk=pk))[0]
         except (IndexError, ValueError, TypeError):
             raise Http404("No Exam matches the given query.")
 

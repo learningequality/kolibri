@@ -32,4 +32,3 @@ class KolibriProcessHook(KolibriHook):
         Can also set a relative priority for the plugin to run in the lifecycle
         by setting a priority property on the method.
         """
-        pass

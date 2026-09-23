@@ -119,15 +119,13 @@ class KolibriServiceContext(object):
         if self.__changed_event.is_set():
             self.__changed_event.clear()
             return True
-        else:
-            return False
+        return False
 
     @property
     def is_bus_ready(self) -> typing.Optional[bool]:
         if self.__is_bus_ready_set_event.is_set():
             return bool(self.__is_bus_ready_value.value)
-        else:
-            return None
+        return None
 
     @is_bus_ready.setter
     def is_bus_ready(self, is_bus_ready: typing.Optional[bool]):
@@ -149,8 +147,7 @@ class KolibriServiceContext(object):
     def is_starting(self) -> typing.Optional[bool]:
         if self.__is_starting_set_event.is_set():
             return bool(self.__is_starting_value.value)
-        else:
-            return None
+        return None
 
     @is_starting.setter
     def is_starting(self, is_starting: typing.Optional[bool]):
@@ -172,8 +169,7 @@ class KolibriServiceContext(object):
     def is_started(self) -> typing.Optional[bool]:
         if self.__is_started_set_event.is_set():
             return bool(self.__is_started_value.value)
-        else:
-            return None
+        return None
 
     @is_started.setter
     def is_started(self, is_started: typing.Optional[bool]):
@@ -195,8 +191,7 @@ class KolibriServiceContext(object):
     def is_stopped(self) -> typing.Optional[bool]:
         if self.__is_stopped_set_event.is_set():
             return bool(self.__is_stopped_value.value)
-        else:
-            return None
+        return None
 
     @is_stopped.setter
     def is_stopped(self, is_stopped: typing.Optional[bool]):
@@ -218,8 +213,7 @@ class KolibriServiceContext(object):
     def is_exited(self) -> typing.Optional[bool]:
         if self.__is_exited_set_event.is_set():
             return bool(self.__is_exited_value.value)
-        else:
-            return None
+        return None
 
     @is_exited.setter
     def is_exited(self, is_exited: typing.Optional[bool]):
@@ -241,8 +235,7 @@ class KolibriServiceContext(object):
     def start_error(self) -> KolibriServiceContext.StartError:
         if self.__start_error_set_event.is_set():
             return self.StartError(self.__start_error_value.value)
-        else:
-            return self.StartError.NONE
+        return self.StartError.NONE
 
     @start_error.setter
     def start_error(
@@ -266,8 +259,7 @@ class KolibriServiceContext(object):
     def app_key(self) -> typing.Optional[str]:
         if self.__app_key_set_event.is_set():
             return self.__app_key_value.value.decode("ascii")
-        else:
-            return None
+        return None
 
     @app_key.setter
     def app_key(self, app_key: typing.Optional[str]):
@@ -289,8 +281,7 @@ class KolibriServiceContext(object):
     def app_initialize_url(self) -> typing.Optional[str]:
         if self.__app_initialize_url_set_event.is_set():
             return self.__app_initialize_url_value.value.decode("ascii")
-        else:
-            return None
+        return None
 
     @app_initialize_url.setter
     def app_initialize_url(self, app_initialize_url: typing.Optional[str]):
@@ -314,8 +305,7 @@ class KolibriServiceContext(object):
     def is_device_provisioned(self) -> typing.Optional[bool]:
         if self.__is_device_provisioned_set_event.is_set():
             return bool(self.__is_device_provisioned_value.value)
-        else:
-            return None
+        return None
 
     @is_device_provisioned.setter
     def is_device_provisioned(self, is_device_provisioned: typing.Optional[bool]):
@@ -337,8 +327,7 @@ class KolibriServiceContext(object):
     def base_url(self) -> typing.Optional[str]:
         if self.__base_url_set_event.is_set():
             return self.__base_url_value.value.decode("ascii")
-        else:
-            return None
+        return None
 
     @base_url.setter
     def base_url(self, base_url: typing.Optional[str]):
@@ -360,8 +349,7 @@ class KolibriServiceContext(object):
     def extra_url(self) -> typing.Optional[str]:
         if self.__extra_url_set_event.is_set():
             return self.__extra_url_value.value.decode("ascii")
-        else:
-            return None
+        return None
 
     @extra_url.setter
     def extra_url(self, extra_url: typing.Optional[str]):
@@ -383,8 +371,7 @@ class KolibriServiceContext(object):
     def kolibri_home(self) -> typing.Optional[str]:
         if self.__kolibri_home_set_event.is_set():
             return self.__kolibri_home_value.value.decode("ascii")
-        else:
-            return None
+        return None
 
     @kolibri_home.setter
     def kolibri_home(self, kolibri_home: typing.Optional[str]):
@@ -406,8 +393,7 @@ class KolibriServiceContext(object):
     def kolibri_version(self) -> typing.Optional[str]:
         if self.__kolibri_version_set_event.is_set():
             return self.__kolibri_version_value.value.decode("ascii")
-        else:
-            return None
+        return None
 
     @kolibri_version.setter
     def kolibri_version(self, kolibri_version: typing.Optional[str]):
@@ -431,12 +417,11 @@ class KolibriServiceContext(object):
     def status(self) -> KolibriServiceContext.Status:
         if self.is_starting:
             return self.Status.STARTING
-        elif self.is_started:
+        if self.is_started:
             return self.Status.STARTED
-        elif self.start_error != self.StartError.NONE:
+        if self.start_error != self.StartError.NONE:
             return self.Status.ERROR
-        else:
-            return self.Status.STOPPED
+        return self.Status.STOPPED
 
     def is_running(self) -> bool:
         return self.status in [self.Status.STARTING, self.Status.STARTED]

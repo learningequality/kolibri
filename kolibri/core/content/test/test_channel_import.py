@@ -670,7 +670,7 @@ class ContentImportTestBase(TransactionTestCase):
     def setUp(self):
         try:
             self.set_content_fixture()
-        except (IOError, EOFError):
+        except (OSError, EOFError):
             logger.error(
                 "No content schema and/or data for {name}".format(name=self.schema_name)
             )

@@ -176,7 +176,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         lang_code = get_language()
         frontend_message_file = self.frontend_message_file(lang_code)
         if frontend_message_file:
-            with open(frontend_message_file, mode="r", encoding="utf-8") as f:
+            with open(frontend_message_file, encoding="utf-8") as f:
                 message_file_content = json.load(f)
             return message_file_content
 

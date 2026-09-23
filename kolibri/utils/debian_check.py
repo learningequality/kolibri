@@ -25,7 +25,7 @@ def check_debian_user(noinput=False):
     if install_type not in ["dpkg", "apt"] and not install_type.startswith("kolibri"):
         return
 
-    with open("/etc/kolibri/username", "r") as f:
+    with open("/etc/kolibri/username") as f:
         kolibri_user = f.read().rstrip()
 
     current_user = getpass.getuser()

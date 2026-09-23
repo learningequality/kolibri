@@ -33,7 +33,7 @@ FONTS_SOURCE = os.path.abspath(os.path.join(os.path.dirname(__file__), "noto_sou
 
 FONT_MANIFEST_NAME = "manifest.json"
 FONT_MANIFEST_PATH = os.path.join(FONTS_SOURCE, FONT_MANIFEST_NAME)
-with open(FONT_MANIFEST_PATH, "r") as mf:
+with open(FONT_MANIFEST_PATH) as mf:
     MANIFEST = json.load(mf)
 
 EXCLUDED_TYPEFACES = set(

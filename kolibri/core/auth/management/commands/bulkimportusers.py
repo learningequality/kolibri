@@ -178,7 +178,7 @@ def valid_uuid(allow_null=True):
 
     def checker(v):
         if allow_null and (v is None or v == ""):
-            return None
+            return
         try:
             UUID(v).version
         except (ValueError, TypeError):

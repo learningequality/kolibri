@@ -774,7 +774,7 @@ class CleanUpSyncsValidator(JobValidator):
     def validate(self, data):
         if data.get("pull") is None and data.get("push") is None:
             raise serializers.ValidationError("Either pull or push must be specified")
-        elif data.get("pull") is data.get("push"):
+        if data.get("pull") is data.get("push"):
             raise serializers.ValidationError(
                 "Only one of pull or push needs to be specified"
             )
@@ -786,7 +786,7 @@ class CleanUpSyncsValidator(JobValidator):
             raise serializers.ValidationError(
                 "Either client_instance_id or server_instance_id must be specified"
             )
-        elif (
+        if (
             data.get("client_instance_id") is not None
             and data.get("server_instance_id") is not None
         ):

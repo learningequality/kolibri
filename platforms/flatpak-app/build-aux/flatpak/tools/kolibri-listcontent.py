@@ -124,10 +124,9 @@ class OutputWriter(object):
     def by_output_format(output_format):
         if output_format == OutputFormat.INI:
             return OutputWriter_INI()
-        elif output_format == OutputFormat.PLAIN:
+        if output_format == OutputFormat.PLAIN:
             return OutputWriter_Plain()
-        else:
-            raise KeyError(output_format)
+        raise KeyError(output_format)
 
     @property
     def content_lists(self):

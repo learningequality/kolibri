@@ -96,9 +96,8 @@ class InfiniteLoopThread(Thread):
                     )
                 )
                 break
-            else:
-                self.main_loop()
-                continue
+            self.main_loop()
+            continue
 
     def main_loop(self):
         """

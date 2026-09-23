@@ -70,9 +70,9 @@ class Command(BaseCommand):
         if os.path.exists(PROFILE_LOCK):
             command_pid = None
             try:
-                with open(PROFILE_LOCK, "r") as f:
+                with open(PROFILE_LOCK) as f:
                     command_pid = int(f.readline())
-            except (IOError, TypeError, ValueError):
+            except (OSError, TypeError, ValueError):
                 remove_lock()
             if command_pid:
                 if pid_exists(command_pid):
