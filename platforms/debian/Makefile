@@ -1,4 +1,5 @@
 .ONESHELL:
+.DELETE_ON_ERROR:
 
 DIST_DIR:=./dist
 
@@ -22,8 +23,11 @@ dist/VERSION: build_src/kolibri-*.tar.gz
 	rm -rf $$ARCHIVE_ROOT
 
 
-dist/%.orig.tar.gz: dist/VERSION
-	$(eval RELEASE_VERSION:= $(shell cat $(DIST_DIR)/VERSION))
+dist/DEB_VERSION: dist/VERSION
+	python3 build_tools/generate_changelog.py --version-file $< --print-debian-version > $@
+
+dist/%.orig.tar.gz: dist/DEB_VERSION
+	$(eval RELEASE_VERSION:= $(shell cat $(DIST_DIR)/DEB_VERSION))
 	cp build_src/kolibri-*.tar.gz $(DIST_DIR)/kolibri-source_$(RELEASE_VERSION).orig.tar.gz
 
 

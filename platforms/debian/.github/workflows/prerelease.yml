@@ -83,10 +83,8 @@ jobs:
         env:
           UBUNTU_REVISION: ${{ inputs.ubuntu-revision }}
         run: |
-          make dist/VERSION
-          VERSION=$(cat dist/VERSION)
-          # Convert to Debian version format (match version_to_debian in generate_changelog.py)
-          DEB_VERSION=$(echo "$VERSION" | sed 's/-\(alpha\|beta\|rc\)/~\1/g' | sed 's/\.dev/~dev/g')
+          make dist/DEB_VERSION
+          DEB_VERSION=$(cat dist/DEB_VERSION)
           FULL_VERSION="${DEB_VERSION}-0ubuntu${UBUNTU_REVISION}"
           echo "version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
           echo "Package version: $FULL_VERSION"

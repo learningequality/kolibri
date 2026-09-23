@@ -138,9 +138,7 @@ if [ -f ../build_tools/python_versions.env ]; then
     done
 fi
 
-# Convert to Debian version format so this matches the filename dpkg-buildpackage
-# produces from the generated changelog (version_to_debian in generate_changelog.py).
-DEB_VERSION=`cat VERSION | sed 's/-\(alpha\|beta\|rc\)/~\1/g' | sed 's/\.dev/~dev/g'`
+DEB_VERSION=`cat DEB_VERSION`
 
 # Debian packaging revision (the N in -0ubuntuN). Bump to re-release the
 # same upstream version after a packaging-only fix.

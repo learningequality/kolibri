@@ -80,21 +80,30 @@ PACKAGE_NAME = "kolibri-source"
 MAINTAINER = "Learning Equality <accounts@learningequality.org>"
 
 
+DEBIAN_PRERELEASE_NAMES = {"a": "alpha", "b": "beta", "rc": "rc"}
+
+
 def version_to_debian(version_str):
     """Convert a Kolibri version to Debian version format.
 
-    Replaces prerelease hyphens with ~ so they sort before the
-    corresponding release in dpkg (~ sorts before anything).
-    The .dev suffix is also converted to ~dev.
+    Prereleases and .dev get a ~ so they sort before the corresponding
+    release in dpkg (~ sorts before anything). Accepts both the tag
+    spelling and the PEP 440 spelling of the sdist VERSION file.
 
     Examples:
         '0.19.1'        -> '0.19.1'        (stable: unchanged)
-        '0.19.2-alpha0' -> '0.19.2~alpha0' (hyphen becomes tilde)
+        '0.19.2-alpha0' -> '0.19.2~alpha0'
+        '0.20.0a1'      -> '0.20.0~alpha1'
         '0.19.2-rc1'    -> '0.19.2~rc1'
         '0.20.0.dev0'   -> '0.20.0~dev0'
     """
-    result = re.sub(r"-(alpha|beta|rc)", r"~\1", version_str)
-    result = re.sub(r"\.dev", r"~dev", result)
+    version = Version(normalize_version(version_str))
+    result = version.base_version
+    if version.pre:
+        name, number = version.pre
+        result += f"~{DEBIAN_PRERELEASE_NAMES[name]}{number}"
+    if version.dev is not None:
+        result += f"~dev{version.dev}"
     return result
 
 
@@ -181,8 +190,7 @@ def filter_new_releases(releases, latest_existing, build_version):
     - Returns filtered list sorted by version ascending
     """
     latest_key = kolibri_version_key(latest_existing)
-    # Ensure build_version has no v prefix for consistent comparison
-    build_version = strip_v_prefix(build_version) if build_version else build_version
+    build_key = kolibri_version_key(strip_v_prefix(build_version)) if build_version else None
     filtered = []
 
     for release in releases:
@@ -198,7 +206,7 @@ def filter_new_releases(releases, latest_existing, build_version):
             continue
 
         # Skip prereleases unless it's the current build version
-        if release["prerelease"] and version != build_version:
+        if release["prerelease"] and version_key != build_key:
             continue
 
         filtered.append(release)
@@ -383,7 +391,7 @@ def main(debian_changelog_path, version_path, packaging_changelog_path,
         f.write(updated)
 
 
-if __name__ == "__main__":
+def cli(argv=None):
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -405,6 +413,18 @@ if __name__ == "__main__":
         "--ubuntu-revision", type=int, default=1,
         help="Debian packaging revision, the N in -0ubuntuN (default: %(default)s)"
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--print-debian-version", action="store_true",
+        help="Print the Debian upstream version of --version-file and exit"
+    )
+    args = parser.parse_args(argv)
+    if args.print_debian_version:
+        with open(args.version_file) as f:
+            print(version_to_debian(f.read().strip()))
+        return
     main(args.debian_changelog, args.version_file, args.packaging_changelog,
          ubuntu_revision=args.ubuntu_revision)
+
+
+if __name__ == "__main__":
+    cli()
