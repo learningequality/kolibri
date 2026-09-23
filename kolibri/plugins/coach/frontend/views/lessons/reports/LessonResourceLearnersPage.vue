@@ -34,8 +34,6 @@
 
           <ReportsResourcesStats
             :avgTime="getGroupRecipientsAvgTime(group.id)"
-            :className="className"
-            :lessonName="lesson.title"
             data-testid="group-resources-stats"
           />
 
@@ -75,8 +73,6 @@
       <template v-else>
         <ReportsResourcesStats
           :avgTime="allRecipientsAvgTime"
-          :className="className"
-          :lessonName="lesson.title"
           data-testid="summary-resources-stats"
         />
 

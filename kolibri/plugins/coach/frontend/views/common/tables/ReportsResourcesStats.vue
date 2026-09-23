@@ -1,7 +1,7 @@
 <template>
 
-  <HeaderTable v-if="avgTime || $isPrint">
-    <HeaderTableRow v-if="$isPrint">
+  <HeaderTable v-if="avgTime || ($isPrint && (className || lessonName))">
+    <HeaderTableRow v-if="$isPrint && className">
       <template #key>
         {{ coachString('classLabel') }}
       </template>
@@ -9,7 +9,7 @@
         {{ className }}
       </template>
     </HeaderTableRow>
-    <HeaderTableRow v-if="$isPrint">
+    <HeaderTableRow v-if="$isPrint && lessonName">
       <template #key>
         {{ coachString('lessonLabel') }}
       </template>

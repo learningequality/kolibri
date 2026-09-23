@@ -77,7 +77,7 @@
         <template #value>
           {{ licenseName }}
           <InfoIcon
-            v-if="licenseDescription"
+            v-if="licenseDescription && !$isPrint"
             :tooltipText="licenseDescription"
             :iconAriaLabel="licenseDescription"
           />
@@ -89,6 +89,14 @@
       >
         <template #value>
           {{ resource.license_owner }}
+        </template>
+      </HeaderTableRow>
+      <HeaderTableRow v-if="$isPrint">
+        <template #key>
+          {{ coachString('classLabel') }}
+        </template>
+        <template #value>
+          {{ className }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow v-if="$isPrint && group">
