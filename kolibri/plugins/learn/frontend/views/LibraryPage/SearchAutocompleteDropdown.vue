@@ -19,7 +19,7 @@
       >
         <h3
           class="section-header"
-          :style="{ color: $themePalette.grey.v_600 }"
+          :style="{ color: $themeTokens.annotation }"
           aria-hidden="true"
         >
           {{ searchHistory$() }}
@@ -59,7 +59,6 @@
             <span
               v-if="item.channel_title"
               class="item-channel"
-              :style="{ color: $themePalette.grey.v_500 }"
             >
               {{ item.channel_title }}
             </span>
@@ -93,7 +92,7 @@
       >
         <h3
           class="section-header"
-          :style="{ color: $themePalette.grey.v_600 }"
+          :style="{ color: $themeTokens.annotation }"
           aria-hidden="true"
         >
           {{ recentSearches$() }}
@@ -115,7 +114,6 @@
           <KIcon
             icon="search"
             class="item-icon"
-            :style="{ fill: $themePalette.grey.v_500 }"
           />
           <div class="item-content">
             <span class="item-title">{{ term }}</span>
@@ -252,7 +250,7 @@
           <span
             v-if="item.channel_title"
             class="item-channel"
-            :style="{ color: $themePalette.grey.v_500 }"
+            :style="{ color: $themeTokens.annotation }"
           >
             {{ item.channel_title }}
           </span>
