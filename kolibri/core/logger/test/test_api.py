@@ -201,7 +201,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         )
         assert os.path.basename(expected_file_path) in files_uploaded
         assert os.path.basename(expected_users_csv_file_path) in files_uploaded
-        assert mock_enqueue.has_calls(2)
+        assert mock_enqueue.call_count == 2
 
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
@@ -384,7 +384,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         )
         assert os.path.basename(expected_file_path) in files_uploaded
         assert os.path.basename(expected_users_csv_file_path) in files_uploaded
-        assert mock_enqueue.has_calls(2)
+        assert mock_enqueue.call_count == 2
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
