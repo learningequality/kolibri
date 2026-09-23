@@ -1,3 +1,4 @@
+import hashlib
 import itertools
 import json
 import os
@@ -43,6 +44,7 @@ from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import get_content_nodes_data
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.import_export_content import get_import_export_nodes
+from kolibri.core.content.utils.import_export_content import LOCALFILE_TRANSFER_FIELDS
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
@@ -55,6 +57,9 @@ from kolibri.core.content.utils.resource_import import (
 )
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.utils import conf
+from kolibri.utils.file_transfer import ChunkedFile
 from kolibri.utils.file_transfer import Transfer
 from kolibri.utils.file_transfer import TransferCanceled
 from kolibri.utils.file_transfer import TransferFailed
@@ -359,42 +364,55 @@ class GetContentNodesDataTestCase(TestCase):
             self.c1_node_id,
             self.c2c1_node_id,
         ]
+        upstream_url = (
+            "https://upstream.example.org/6bdfea4a01830fdd4a585181c0b8068c.mp4"
+        )
+        LocalFile.objects.filter(id="6bdfea4a01830fdd4a585181c0b8068c").update(
+            upstream_url=upstream_url
+        )
 
         expected_files_list = [
             {
                 "id": "4c30dc7619f74f97ae2ccd4fffd09bf2",
                 "file_size": None,
                 "extension": "mp3",
+                "upstream_url": None,
             },
             {
                 "id": "8ad3fffedf144cba9492e16daec1e39a",
                 "file_size": None,
                 "extension": "vtt",
+                "upstream_url": None,
             },
             {
                 "id": "6bdfea4a01830fdd4a585181c0b8068c",
                 "file_size": None,
                 "extension": "mp4",
+                "upstream_url": upstream_url,
             },
             {
                 "id": "211523265f53825b82f70ba19218a02e",
                 "file_size": None,
                 "extension": "mp4",
+                "upstream_url": None,
             },
             {
                 "id": "2cea0feba5f930c81661c5c759943964",
                 "file_size": 1,
                 "extension": "jpeg",
+                "upstream_url": None,
             },
             {
                 "id": "5437c68903de934521128d7656a3b572",
                 "file_size": 1,
                 "extension": "jpeg",
+                "upstream_url": None,
             },
             {
                 "id": "2318e5a9d6a24ae8f96e9110006e0c53",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
         ]
 
@@ -416,36 +434,43 @@ class GetContentNodesDataTestCase(TestCase):
                 "id": "4c30dc7619f74f97ae2ccd4fffd09bf2",
                 "file_size": None,
                 "extension": "mp3",
+                "upstream_url": None,
             },
             {
                 "id": "8ad3fffedf144cba9492e16daec1e39a",
                 "file_size": None,
                 "extension": "vtt",
+                "upstream_url": None,
             },
             {
                 "id": "2cea0feba5f930c81661c5c759943964",
                 "file_size": 1,
                 "extension": "jpeg",
+                "upstream_url": None,
             },
             {
                 "id": "5437c68903de934521128d7656a3b572",
                 "file_size": 1,
                 "extension": "jpeg",
+                "upstream_url": None,
             },
             {
                 "id": "2318e5a9d6a24ae8f96e9110006e0c53",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
             {
                 "id": "37c5c250fbc66e597ae7d604846e9df2",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
             {
                 "id": "c6f26814b067da30e1cb6239512dc1da",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
         ]
 
@@ -470,26 +495,31 @@ class GetContentNodesDataTestCase(TestCase):
                 "id": "2cea0feba5f930c81661c5c759943964",
                 "file_size": 1,
                 "extension": "jpeg",
+                "upstream_url": None,
             },
             {
                 "id": "5437c68903de934521128d7656a3b572",
                 "file_size": 1,
                 "extension": "jpeg",
+                "upstream_url": None,
             },
             {
                 "id": "2318e5a9d6a24ae8f96e9110006e0c53",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
             {
                 "id": "37c5c250fbc66e597ae7d604846e9df2",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
             {
                 "id": "c6f26814b067da30e1cb6239512dc1da",
                 "file_size": 1,
                 "extension": "png",
+                "upstream_url": None,
             },
         ]
 
@@ -1197,7 +1227,7 @@ class ImportContentTestCase(TestCase):
     ):
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.all().values("id", "file_size", "extension").first()],
+            [LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         manager = RemoteChannelResourceImportManager(
@@ -1243,7 +1273,7 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock.return_value.run.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.all().values("id", "file_size", "extension").first()],
+            [LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         manager = RemoteChannelResourceImportManager(
@@ -1256,9 +1286,7 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock.assert_called_with(
             "notest",
             local_path,
-            LocalFile.objects.all()
-            .values("id", "file_size", "extension")
-            .first()["id"],
+            LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS).first()["id"],
             session=Any(Session),
             cancel_check=is_cancelled_mock,
             timeout=Transfer.DEFAULT_TIMEOUT,
@@ -1268,6 +1296,139 @@ class ImportContentTestCase(TestCase):
         self.annotation_mock.mark_local_files_as_available.assert_not_called()
         self.annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
         self.annotation_mock.recurse_annotation_up_tree.assert_not_called()
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_download_url(
+        self,
+        is_cancelled_mock,
+        FileDownloadMock,
+        local_path_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd, local_path = tempfile.mkstemp()
+        os.close(fd)
+        local_path_mock.return_value = local_path
+        f = LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()
+        get_import_export_mock.return_value = (1, [f], 10)
+        filename = paths.get_content_file_name(f)
+        upstream_url = "https://upstream.example.org/" + filename
+        central = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+        central_url = paths.get_content_storage_remote_url(filename, baseurl=central)
+        peer = "http://192.168.1.5:8080/"
+        peer_url = paths.get_content_storage_remote_url(filename, baseurl=peer)
+        for peer_id, baseurl, file_upstream_url, expected_url in (
+            (None, None, upstream_url, upstream_url),
+            (None, central + "/", upstream_url, upstream_url),
+            (CENTRAL_CONTENT_BASE_INSTANCE_ID, central, upstream_url, upstream_url),
+            (None, peer, upstream_url, peer_url),
+            (None, None, None, central_url),
+            (None, None, "", central_url),
+        ):
+            with self.subTest(
+                peer_id=peer_id, baseurl=baseurl, upstream_url=file_upstream_url
+            ):
+                f["upstream_url"] = file_upstream_url
+                FileDownloadMock.reset_mock()
+                RemoteChannelResourceImportManager(
+                    self.the_channel_id, peer_id=peer_id, baseurl=baseurl
+                ).run()
+                FileDownloadMock.assert_called_once_with(
+                    expected_url,
+                    local_path,
+                    f["id"],
+                    session=Any(Session),
+                    cancel_check=is_cancelled_mock,
+                    timeout=Transfer.DEFAULT_TIMEOUT,
+                )
+
+    @patch("kolibri.core.content.utils.resource_import.SameHostSession")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_from_upstream_url_resumes_and_verifies(
+        self,
+        is_cancelled_mock,
+        session_class_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        content = os.urandom(ChunkedFile.chunk_size + 731)
+        checksum = hashlib.md5(content).hexdigest()
+        upstream_url = "https://upstream.example.org/{}.mp4".format(checksum)
+        dest = paths.get_content_storage_file_path("{}.mp4".format(checksum))
+        partial = ChunkedFile(dest)
+        partial.file_size = len(content)
+        partial.write_chunk(0, content[: ChunkedFile.chunk_size])
+
+        def response(url, headers, body=b""):
+            mock_response = MagicMock()
+            mock_response.url = url
+            mock_response.headers = headers
+            mock_response.iter_content = lambda chunk_size: (
+                body[i : i + chunk_size] for i in range(0, len(body), chunk_size)
+            )
+            return mock_response
+
+        def head(url, **kwargs):
+            return response(
+                url,
+                {
+                    "content-length": str(len(content)),
+                    "accept-ranges": "bytes",
+                    "etag": '"not-the-md5"',
+                },
+            )
+
+        def get(url, headers=None, **kwargs):
+            start, end = map(int, headers["Range"].replace("bytes=", "").split("-"))
+            body = content[start : end + 1]
+            return response(
+                url,
+                {
+                    "content-length": str(len(body)),
+                    "content-range": "bytes {}-{}/{}".format(start, end, len(content)),
+                    "etag": '"not-the-md5"',
+                },
+                body,
+            )
+
+        session = session_class_mock.return_value
+        session.head.side_effect = head
+        session.get.side_effect = get
+        get_import_export_mock.return_value = (
+            1,
+            [
+                {
+                    "id": checksum,
+                    "file_size": len(content),
+                    "extension": "mp4",
+                    "upstream_url": upstream_url,
+                }
+            ],
+            len(content),
+        )
+
+        RemoteChannelResourceImportManager(self.the_channel_id).run()
+
+        with open(dest, "rb") as downloaded:
+            self.assertEqual(downloaded.read(), content)
+        session.get.assert_called_once_with(
+            upstream_url,
+            headers={
+                "Range": "bytes={}-{}".format(ChunkedFile.chunk_size, len(content) - 1)
+            },
+            stream=True,
+            timeout=Transfer.DEFAULT_TIMEOUT,
+        )
 
     @patch(
         "kolibri.core.content.utils.resource_import.transfer.Transfer._checksum_correct",
@@ -1312,7 +1473,7 @@ class ImportContentTestCase(TestCase):
         LocalFile.objects.update(file_size=1)
         get_import_export_mock.return_value = (
             1,
-            list(LocalFile.objects.all().values("id", "file_size", "extension")[:3]),
+            list(LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS)[:3]),
             10,
         )
         manager = RemoteChannelResourceImportManager(
@@ -1344,7 +1505,7 @@ class ImportContentTestCase(TestCase):
         # Local version of test above
         get_import_export_mock.return_value = (
             1,
-            list(LocalFile.objects.all().values("id", "file_size", "extension")),
+            list(LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS)),
             10,
         )
         manager = DiskChannelResourceImportManager(
@@ -1392,7 +1553,7 @@ class ImportContentTestCase(TestCase):
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.all().values("id", "file_size", "extension").first()],
+            [LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         manager = DiskChannelResourceImportManager(
@@ -1404,9 +1565,7 @@ class ImportContentTestCase(TestCase):
         FileCopyMock.assert_called_with(
             local_src_path,
             local_dest_path,
-            LocalFile.objects.all()
-            .values("id", "file_size", "extension")
-            .first()["id"],
+            LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS).first()["id"],
             cancel_check=is_cancelled_mock,
         )
         cancel_mock.assert_called_with()
@@ -1445,7 +1604,7 @@ class ImportContentTestCase(TestCase):
                         "6bdfea4a01830fdd4a585181c0b8068c",
                         "211523265f53825b82f70ba19218a02e",
                     ]
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
             ),
             10,
         )
@@ -1494,7 +1653,7 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__pk=self.c2c1_node_id
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
             ),
             10,
         )
@@ -1535,7 +1694,7 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         get_import_export_mock.return_value = (
             1,
-            list(LocalFile.objects.all().values("id", "file_size", "extension")),
+            list(LocalFile.objects.all().values(*LOCALFILE_TRANSFER_FIELDS)),
             10,
         )
         with self.assertRaises(HTTPError):
@@ -1587,7 +1746,7 @@ class ImportContentTestCase(TestCase):
                         "6bdfea4a01830fdd4a585181c0b8068c",
                         "211523265f53825b82f70ba19218a02e",
                     ]
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
             ),
             10,
         )
@@ -1636,7 +1795,7 @@ class ImportContentTestCase(TestCase):
                     # Use explicit order by to make sure the first item in the pk list
                     # is returned first.
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("-id")
             ),
             2201062 + 336974,
@@ -1692,7 +1851,7 @@ class ImportContentTestCase(TestCase):
                         "6bdfea4a01830fdd4a585181c0b8068c",
                         "211523265f53825b82f70ba19218a02e",
                     ]
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
             ),
             10,
         )
@@ -1731,7 +1890,7 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         manager = DiskChannelResourceImportManager(
@@ -1760,7 +1919,7 @@ class ImportContentTestCase(TestCase):
         getsize_mock.side_effect = ["1", OSError("Permission denied")]
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         with self.assertRaises(OSError):
@@ -1795,7 +1954,7 @@ class ImportContentTestCase(TestCase):
             1,
             [
                 LocalFile.objects.filter(files__contentnode=self.c1_node_id)
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .first()
             ],
             10,
@@ -1863,7 +2022,7 @@ class ImportContentTestCase(TestCase):
             1,
             list(
                 LocalFile.objects.filter(files__contentnode=self.c1_node_id).values(
-                    "id", "file_size", "extension"
+                    *LOCALFILE_TRANSFER_FIELDS
                 )
             ),
             10,
@@ -1923,7 +2082,7 @@ class ImportContentTestCase(TestCase):
                         "6bdfea4a01830fdd4a585181c0b8068c",
                         "211523265f53825b82f70ba19218a02e",
                     ]
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
             ),
             10,
         )
@@ -1984,7 +2143,7 @@ class ImportContentTestCase(TestCase):
                     # Add explicit order by to ensure they are returned in the order we
                     # later assert.
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("-id")
             ),
             10,
@@ -2444,7 +2603,7 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
 
@@ -2496,7 +2655,7 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__pk=self.c2c1_node_id
-                ).values("id", "file_size", "extension")
+                ).values(*LOCALFILE_TRANSFER_FIELDS)
             ),
             10,
         )
@@ -2542,7 +2701,7 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
 
@@ -2577,7 +2736,7 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
 
@@ -2618,7 +2777,7 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock.return_value.dest = local_path
         get_import_export_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         manager = RemoteChannelResourceImportManager(
@@ -2629,7 +2788,7 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock.assert_called_with(
             "notest",
             local_path,
-            LocalFile.objects.values("id", "file_size", "extension").first()["id"],
+            LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()["id"],
             session=Any(Session),
             cancel_check=is_cancelled_mock,
             timeout=5,
@@ -2685,7 +2844,7 @@ class ImportContentTestCase(TestCase):
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("id")[:1]
             ),
             1,
@@ -2728,7 +2887,7 @@ class ImportContentTestCase(TestCase):
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("id")[:1]
             ),
             1,
@@ -2766,7 +2925,7 @@ class ImportContentTestCase(TestCase):
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("id")[:1]
             ),
             1,
@@ -2804,7 +2963,7 @@ class ImportContentTestCase(TestCase):
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("id")[:1]
             ),
             1,
@@ -2842,7 +3001,7 @@ class ImportContentTestCase(TestCase):
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
                 )
-                .values("id", "file_size", "extension")
+                .values(*LOCALFILE_TRANSFER_FIELDS)
                 .order_by("id")[:1]
             ),
             1,
@@ -2934,7 +3093,7 @@ class ExportContentTestCase(TestCase):
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
@@ -2976,7 +3135,7 @@ class ExportContentTestCase(TestCase):
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
@@ -3000,7 +3159,7 @@ class ExportContentTestCase(TestCase):
     ):
         get_content_nodes_data_mock.return_value = (
             1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            [LocalFile.objects.values(*LOCALFILE_TRANSFER_FIELDS).first()],
             10,
         )
 

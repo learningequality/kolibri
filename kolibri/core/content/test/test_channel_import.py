@@ -69,6 +69,8 @@ from .test_content_app import ContentNodeTestBase
 
 logger = logging.getLogger(__name__)
 
+UPSTREAM_URL = "https://upstream.example.org/9f9438fe6b0d42dd8e913d7d04cfb2b2.mp4"
+
 
 def dict_source():
     """
@@ -872,6 +874,9 @@ class NaiveImportTestBase(ContentNodeTestBase):
 
     legacy_schema = None
 
+    def _schema_at_least(self, version):
+        return self.name.isdigit() and int(self.name) >= version
+
     def test_no_update_old_version(self):
         channel = ChannelMetadata.objects.first()
         channel.version += 1
@@ -962,12 +967,8 @@ class NaiveImportTestBase(ContentNodeTestBase):
     @pytest.mark.usefixtures("alternate_existing_channel")
     def test_learning_activity_set(self):
         # Do this to avoid doing this test on more up to date versions
-        try:
-            int_version = int(self.name)
-            if int_version >= 5:
-                return
-        except ValueError:
-            pass
+        if self._schema_at_least(5):
+            return
         for kind, learning_activity in kind_activity_map.items():
             # For each defined mapping, make sure none have not been mapped
             self.assertEqual(
@@ -991,11 +992,8 @@ class NaiveImportTestBase(ContentNodeTestBase):
 
     def test_included_presets_set(self):
         # Skip on schema versions that already publish included_presets.
-        try:
-            if int(self.name) >= 6:
-                return
-        except ValueError:
-            pass
+        if self._schema_at_least(6):
+            return
 
         # A pre-V6 source lacks the column, so the backfill must set each
         # renderable file's own-preset bit and leave every other file NULL.
@@ -1039,6 +1037,12 @@ class NaiveImportTestBase(ContentNodeTestBase):
     def test_local_file_file_size_imported(self):
         lf = LocalFile.objects.get(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2")
         self.assertEqual(lf.file_size, 1234)
+
+    def test_local_file_upstream_url_imported(self):
+        lf = LocalFile.objects.get(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2")
+        self.assertEqual(
+            lf.upstream_url, UPSTREAM_URL if self._schema_at_least(7) else None
+        )
 
 
 class NaiveImportTestCase(NaiveImportTestBase, ContentImportTestBase):
@@ -1109,6 +1113,10 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         """
         imported_tag = ContentTag.objects.get(id=self.utf_tag_id)
         assert len(imported_tag.tag_name) == len(self.utf_tag_name)
+
+
+class Version6ImportTestCase(NaiveImportTestCase):
+    name = VERSION_6
 
 
 class Version4ImportTestCase(NaiveImportTestCase):

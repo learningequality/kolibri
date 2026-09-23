@@ -22,6 +22,7 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
 from kolibri.core.content.utils.content_types_tools import renderable_files_presets
+from kolibri.core.content.utils.import_export_content import LOCALFILE_TRANSFER_FIELDS
 from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_disk,
 )
@@ -520,7 +521,7 @@ def _get_files_for_available_courses(channel_id):
                 available=False,
                 files__supplementary=False,
                 files__contentnode__in=course_descendants,
-            ).values("id", "file_size", "extension")
+            ).values(*LOCALFILE_TRANSFER_FIELDS)
         )
     return []
 
@@ -578,7 +579,7 @@ def get_import_data_for_update(
 
             files_to_transfer = LocalFile.objects.filter(
                 available=False, files__contentnode__in=batch_nodes
-            ).values("id", "file_size", "extension")
+            ).values(*LOCALFILE_TRANSFER_FIELDS)
 
             queried_file_objects.extend(files_to_transfer)
 
@@ -593,7 +594,7 @@ def get_import_data_for_update(
             files__contentnode__in=ContentNode.objects.filter(
                 available=True, channel_id=channel_id
             ),
-        ).values("id", "file_size", "extension")
+        ).values(*LOCALFILE_TRANSFER_FIELDS)
     )
 
     queried_file_objects.extend(_get_files_for_available_courses(channel_id))

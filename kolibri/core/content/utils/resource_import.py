@@ -31,6 +31,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import is_central_content_base_url
 from kolibri.core.tasks.utils import fd_safe_executor
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.urls import reverse_path
@@ -185,7 +186,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         """
         Must return:
             total_resource_count - total number of resources to be imported
-            files_to_download - iterable of dicts of localfile data id, file_size, extension
+            files_to_download - iterable of dicts of localfile data id, file_size, extension, upstream_url
             total_bytes_to_transfer - total size of all files to be transferred
         """
         pass
@@ -651,6 +652,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                 )
 
         self.baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+        self.central_source = is_central_content_base_url(self.baseurl)
         self.token = token
         _listing = lookup_channel_listing_status(
             channel_id=channel_id, token=token, baseurl=baseurl
@@ -729,7 +731,10 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         )
 
     def create_file_transfer(self, f, filename, dest):
-        url = paths.get_content_storage_remote_url(filename, baseurl=self.baseurl)
+        if self.central_source and f["upstream_url"]:
+            url = f["upstream_url"]
+        else:
+            url = paths.get_content_storage_remote_url(filename, baseurl=self.baseurl)
         return transfer.FileDownload(
             url,
             dest,

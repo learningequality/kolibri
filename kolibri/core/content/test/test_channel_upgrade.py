@@ -545,6 +545,7 @@ class CourseImportDataTestCase(TestCase):
             file_size=500,
             extension="mp4",
             available=False,
+            upstream_url="https://upstream.example.org/primary.mp4",
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -599,6 +600,14 @@ class CourseImportDataTestCase(TestCase):
         _, files_to_download, _ = get_import_data_for_update(self.channel_id)
         downloaded_ids = {f["id"] for f in files_to_download}
         self.assertIn(self.primary_lf.id, downloaded_ids)
+
+    def test_primary_file_carries_upstream_url(self):
+        _, files_to_download, _ = get_import_data_for_update(self.channel_id)
+        files = {f["id"]: f for f in files_to_download}
+        self.assertEqual(
+            files[self.primary_lf.id]["upstream_url"],
+            "https://upstream.example.org/primary.mp4",
+        )
 
     def test_supplementary_file_excluded_for_new_course_descendant(self):
         _, files_to_download, _ = get_import_data_for_update(self.channel_id)
