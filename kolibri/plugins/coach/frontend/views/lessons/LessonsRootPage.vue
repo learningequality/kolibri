@@ -7,14 +7,12 @@
     <KPageContainer>
       <CoachHeader :title="coreString('lessonsLabel')">
         <template #actions>
-          <div class="lesson-button">
-            <KRouterLink
-              primary
-              appearance="raised-button"
-              :text="coachString('newLessonAction')"
-              :to="newLessonRoute"
-            />
-          </div>
+          <KRouterLink
+            primary
+            appearance="raised-button"
+            :text="coachString('newLessonAction')"
+            :to="newLessonRoute"
+          />
         </template>
       </CoachHeader>
       <div>
@@ -498,12 +496,6 @@
   .total-size {
     padding: 0;
     margin-bottom: 16px;
-  }
-
-  @media print {
-    .lesson-button {
-      display: none;
-    }
   }
 
   .visibility-loader {

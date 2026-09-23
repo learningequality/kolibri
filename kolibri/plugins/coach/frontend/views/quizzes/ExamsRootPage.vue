@@ -8,7 +8,6 @@
         <template #actions>
           <KButton
             v-if="practiceQuizzesExist && hasChannels"
-            class="new-quiz-button"
             primary
             hasDropdown
             appearance="raised-button"
@@ -561,12 +560,6 @@
 
   .button-col {
     vertical-align: middle;
-  }
-
-  @media print {
-    .new-quiz-button {
-      display: none;
-    }
   }
 
 </style>

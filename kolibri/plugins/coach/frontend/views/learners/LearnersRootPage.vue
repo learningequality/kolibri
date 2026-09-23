@@ -18,7 +18,10 @@
           />
         </template>
       </CoachHeader>
-      <div class="filter">
+      <div
+        v-show="!$isPrint"
+        class="filter"
+      >
         <KSelect
           v-model="recipientSelected"
           :label="coachString('recipientsLabel')"

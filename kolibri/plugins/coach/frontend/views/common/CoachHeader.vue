@@ -3,7 +3,7 @@
   <div class="header-container">
     <div class="header">
       <h1>{{ title }}</h1>
-      <div>
+      <div v-show="!$isPrint">
         <slot name="actions"></slot>
       </div>
     </div>
