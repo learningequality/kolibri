@@ -519,13 +519,14 @@ class TaskUtilitiesTestCase(TestCase):
         mock_get_current_job.return_value = current_job_mock
         self.network_location.is_local = False
 
-        with mock.patch("kolibri.core.discovery.tasks.logger") as mock_logger:
+        with self.assertLogs("kolibri.core.discovery.tasks", level="INFO") as logs:
             _enqueue_network_location_update_with_backoff(self.network_location)
-            # 'retry_in' should not be called since is_local is False
-            current_job_mock.retry_in.assert_not_called()
-            # Verify the function logged the appropriate message
-            mock_logger.info.assert_called_once_with(
-                "Network location {} is not local. Skipping enqueue.".format(
-                    self.network_location.id
-                )
-            )
+        # 'retry_in' should not be called since is_local is False
+        current_job_mock.retry_in.assert_not_called()
+        # Verify the function logged the appropriate message
+        self.assertEqual(
+            [r.getMessage() for r in logs.records],
+            [
+                f"Network location {self.network_location.id} is not local. Skipping enqueue."
+            ],
+        )
