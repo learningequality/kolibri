@@ -217,7 +217,7 @@ class LaunchpadWrapper:
     def perform_queued_copies(self, ppa):
         first = True
         failures = []
-        for (source_series, target_series, pocket), packages in self.queue.items():
+        for (_source_series, target_series, pocket), packages in self.queue.items():
             if not packages:
                 continue
             if first:

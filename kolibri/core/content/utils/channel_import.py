@@ -70,7 +70,8 @@ no_schema_models = [
 
 models_to_exclude = [
     apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages"),
-] + no_schema_models
+    *no_schema_models,
+]
 
 
 SOURCE_DB_ALIAS = "sourcedb"

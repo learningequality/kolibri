@@ -248,7 +248,7 @@ class SessionViewSet(viewsets.ViewSet):
     def _get_error_response(self, errors):
         error_list = []
         response_status = status.HTTP_400_BAD_REQUEST
-        for field, field_errors in errors.items():
+        for _field, field_errors in errors.items():
             for error in field_errors:
                 error_list.append(error)
                 if (

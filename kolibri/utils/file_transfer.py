@@ -390,7 +390,7 @@ class ChunkedFile(TransferFileBase):
         if full_range:
             for chunk_index, _, chunk_end in generator:
                 if chunk_index == indices[-1] + 1:
-                    indices = indices + (chunk_index,)
+                    indices = (*indices, chunk_index)
                     range_end = chunk_end
                 else:
                     break
@@ -880,7 +880,7 @@ class FileDownload(Transfer):
                         self.retry_wait,
                         self.source,
                     )
-                    for i in range(self.retry_wait):
+                    for _i in range(self.retry_wait):
                         self.cancel_check()
                         sleep(1)
 

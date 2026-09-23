@@ -376,7 +376,7 @@ def test_lazy_function_import():
 
     try:
         dummy_function()
-        assert False, "Correct function was not imported"
+        raise AssertionError("Correct function was not imported")
     except RuntimeError:
         pass
 

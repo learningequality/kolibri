@@ -33,7 +33,7 @@ from .sync_event_hook_utils import this_side_using_single_user_cert
 
 logger = logging.getLogger(__name__)
 SORTED_STAGES = sorted(transfer_stages.ALL, key=lambda s: transfer_stages.precedence(s))
-PREVIOUS_STAGES = dict(zip(SORTED_STAGES, [None] + SORTED_STAGES[:-1]))
+PREVIOUS_STAGES = dict(zip(SORTED_STAGES, [None, *SORTED_STAGES[:-1]]))
 
 
 class KolibriLocalInitializeOperation(InitializeOperation):

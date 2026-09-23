@@ -33,8 +33,8 @@ class BaseTestTransfer(unittest.TestCase):
         chunked_file.file_size = self.file_size = (1024 * 1024) + 731
 
         # Create dummy chunks
-        self.chunks_count = int(
-            math.ceil(float(self.file_size) / float(ChunkedFile.chunk_size))
+        self.chunks_count = math.ceil(
+            float(self.file_size) / float(ChunkedFile.chunk_size)
         )
 
         os.makedirs(self.dest + ".chunks", exist_ok=True)

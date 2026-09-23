@@ -1317,7 +1317,7 @@ class Collection(AbstractFacilityDataModel):
             raise UserIsNotFacilityUser("You can only add roles for FacilityUsers.")
 
         # create the necessary role, if it doesn't already exist
-        role, created = Role.objects.get_or_create(
+        role, _created = Role.objects.get_or_create(
             user=user, collection=self, kind=role_kind
         )
 
@@ -1366,7 +1366,7 @@ class Collection(AbstractFacilityDataModel):
             )
 
         # create the necessary membership, if it doesn't already exist
-        membership, created = Membership.objects.get_or_create(
+        membership, _created = Membership.objects.get_or_create(
             user=user, collection=self
         )
 

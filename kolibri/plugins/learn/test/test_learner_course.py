@@ -453,7 +453,7 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(get_request.data.get("lesson_count"), 2)
 
     def test_learner_course_resume__course_not_started(self):
-        course, course_session, units = self._create_course(
+        _course, course_session, _units = self._create_course(
             units=3, lessons=3, resources=3
         )
         # no unit tests started
@@ -471,7 +471,7 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["resume_position"], None)
 
     def test_learner_course_resume__pre_test_active(self):
-        course, course_session, units = self._create_course(
+        _course, course_session, units = self._create_course(
             units=5, lessons=5, resources=5
         )
         # unit 3 pre test active
@@ -495,7 +495,7 @@ class LearnerCourseTestCase(APITestCase):
                 activated_by=self.coach,
             )
 
-        unit, lessons = units[2]
+        unit, _lessons = units[2]
         UnitTestAssignment.objects.create(
             course_session=course_session,
             unit_contentnode_id=unit.id,
@@ -519,7 +519,7 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["resume_position"], None)
 
     def test_learner_course_resume__post_test_active(self):
-        course, course_session, units = self._create_course(
+        _course, course_session, units = self._create_course(
             units=5, lessons=5, resources=5
         )
         # unit 4 post test active
@@ -543,7 +543,7 @@ class LearnerCourseTestCase(APITestCase):
                 activated_by=self.coach,
             )
 
-        unit, lessons = units[3]
+        unit, _lessons = units[3]
         UnitTestAssignment.objects.create(
             course_session=course_session,
             unit_contentnode_id=unit.id,
@@ -576,7 +576,7 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["resume_position"], None)
 
     def test_learner_course_resume__resume_position_first_resource(self):
-        course, course_session, units = self._create_course(
+        _course, course_session, units = self._create_course(
             units=2, lessons=5, resources=5
         )
         unit, lessons = units[0]
@@ -610,7 +610,7 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["resume_position"]["resource_id"], resume_resource.id)
 
     def test_learner_course_resume__resume_position(self):
-        course, course_session, units = self._create_course(
+        _course, course_session, units = self._create_course(
             units=5, lessons=5, resources=5
         )
         # 3 units completed
@@ -634,7 +634,7 @@ class LearnerCourseTestCase(APITestCase):
                 activated_by=self.coach,
             )
 
-            for lesson, lesson_resources in lessons:
+            for _lesson, lesson_resources in lessons:
                 for resource in lesson_resources:
                     log = ContentSummaryLog.objects.get(
                         user=self.learner, content_id=resource.content_id
@@ -686,7 +686,7 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["resume_position"]["resource_id"], resume_resource.id)
 
     def test_learner_course_resume__course_complete(self):
-        course, course_session, units = self._create_course(
+        _course, course_session, units = self._create_course(
             units=5, lessons=5, resources=5
         )
         # All units completed
@@ -710,7 +710,7 @@ class LearnerCourseTestCase(APITestCase):
                 activated_by=self.coach,
             )
 
-            for lesson, lesson_resources in lessons:
+            for _lesson, lesson_resources in lessons:
                 for resource in lesson_resources:
                     log = ContentSummaryLog.objects.get(
                         user=self.learner, content_id=resource.content_id

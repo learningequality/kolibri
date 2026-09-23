@@ -164,7 +164,7 @@ class TestJobStorage:
     def test_does_not_enqueue_a_function(self, storage_fixture):
         try:
             storage_fixture.enqueue_job(id)
-            assert False, "Enqueued something that isn't a job."
+            raise AssertionError("Enqueued something that isn't a job.")
         except ValueError:
             pass
 
@@ -212,7 +212,7 @@ class TestJobStorage:
         # sleep for half a second to make us switch to another thread
         time.sleep(0.5)
 
-        for i in range(2):
+        for _i in range(2):
             job = storage_fixture.get_job(job_id)
             assert job.state in [State.QUEUED, State.RUNNING, State.COMPLETED]
 

@@ -32,7 +32,7 @@ class KolibriSyncOperationsTestCase(SimpleTestCase):
     )
     def test_handle(self, mock_get_operations):
         mock_get_operations.return_value = []
-        for i in range(2):
+        for _i in range(2):
             other_operation = mock.MagicMock(spec_set=BaseOperation)()
             other_operation.return_value = False
             mock_get_operations.return_value.append(other_operation)

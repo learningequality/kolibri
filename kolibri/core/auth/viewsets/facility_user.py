@@ -84,7 +84,8 @@ class FacilityUserFilter(FilterSet):
     USER_TYPE_CHOICES = (
         ("learner", "learner"),
         ("superuser", "superuser"),
-    ) + role_kinds.choices
+        *role_kinds.choices,
+    )
 
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
@@ -345,7 +346,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
 class DeletedFacilityUserSerializer(FacilityUserSerializer):
     class Meta(FacilityUserSerializer.Meta):
-        fields = FacilityUserSerializer.Meta.fields + ("date_deleted",)
+        fields = (*FacilityUserSerializer.Meta.fields, "date_deleted")
 
 
 class PublicFacilityUserSerializer(serializers.ModelSerializer):
@@ -532,7 +533,7 @@ class DeletedFacilityUserViewSet(
     filterset_class = FacilityUserFilter
 
     search_fields = FacilityUserViewSet.search_fields
-    ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
+    ordering_fields = (*FacilityUserViewSet.ordering_fields, "date_deleted")
 
     @decorators.action(detail=False, methods=["post"])
     def restore(self, request):

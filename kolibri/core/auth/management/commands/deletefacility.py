@@ -71,7 +71,7 @@ class Command(AsyncCommand):
             # no the deleting step
             with self.start_progress(total=total_count) as update_progress:
                 update_progress(increment=0, message="Deleting database objects")
-                count, stats = delete_group.delete(update_progress)
+                count, _stats = delete_group.delete(update_progress)
                 total_deleted += count
                 # clear related cache
                 dataset_cache.clear()

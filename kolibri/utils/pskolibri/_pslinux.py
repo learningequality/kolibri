@@ -224,7 +224,7 @@ class Process:
         rpar = data.rfind(b")")
         name = data[data.find(b"(") + 1 : rpar]
         others = data[rpar + 2 :].split()
-        return [name] + others
+        return [name, *others]
 
     @wrap_exceptions
     def cmdline(self):

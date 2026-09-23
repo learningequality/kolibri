@@ -60,7 +60,7 @@ class DeprovisionCommandTestCase(TestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        facility, superuser = setup_device()
+        facility, _superuser = setup_device()
         ContentSessionLogFactory.create(
             content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
         )

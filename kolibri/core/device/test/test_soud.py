@@ -241,7 +241,7 @@ class SoudExecuteSyncsTestCase(TestCase):
         user_id = user_id or self.user_id
         instance_id = instance_id or self.instance_id
         calls = mock_func.mock_calls
-        _, args, kwargs = calls[call_index]
+        _, args, _kwargs = calls[call_index]
         self.assertIsInstance(args[0], Context)
         self.assertEqual(args[0].user_id, user_id)
         self.assertEqual(args[0].instance_id, instance_id)
@@ -250,7 +250,7 @@ class SoudExecuteSyncsTestCase(TestCase):
         user_id = user_id or self.user_id
         instance_id = instance_id or self.instance_id
         calls = mock_func.mock_calls
-        for _, args, kwargs in calls:
+        for _, args, _kwargs in calls:
             self.assertIsInstance(args[0], Context)
             self.assertFalse(
                 args[0].user_id == user_id and args[0].instance_id == instance_id,

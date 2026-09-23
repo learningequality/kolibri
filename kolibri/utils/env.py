@@ -100,13 +100,13 @@ def prepend_cext_path(dist_path):
     # If either the abi3 or arch directory exists, add the noarch directory to sys.path
     if abi3_dir_exists or arch_dir_exists:
         # Add the noarch (OpenSSL) modules to sys.path
-        sys.path = [str(noarch_dir)] + sys.path
+        sys.path = [str(noarch_dir), *sys.path]
 
     if abi3_dir_exists:
-        sys.path = [str(abi3_dirname)] + sys.path
+        sys.path = [str(abi3_dirname), *sys.path]
     if arch_dir_exists:
         # If the directory of platform-specific cextensions (cryptography) exists,
-        sys.path = [str(arch_dirname)] + sys.path
+        sys.path = [str(arch_dirname), *sys.path]
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
         logging.StreamHandler(sys.stdout)
@@ -217,7 +217,7 @@ def set_env():
 
     from kolibri import dist as kolibri_dist
 
-    sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
+    sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__)), *sys.path]
 
     if not os.environ.get("KOLIBRI_NO_C_EXTENSIONS", False):
         # Add path for c extensions to sys.path

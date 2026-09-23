@@ -40,9 +40,7 @@ class TestChunkedFile(unittest.TestCase):
         self.chunked_file.file_size = self.file_size
 
         # Create dummy chunks
-        self.chunks_count = int(
-            math.ceil(float(self.file_size) / float(self.chunk_size))
-        )
+        self.chunks_count = math.ceil(float(self.file_size) / float(self.chunk_size))
         self.data = _write_test_data_to_chunked_file(self.chunked_file)
 
     def tearDown(self):

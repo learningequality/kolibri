@@ -229,7 +229,7 @@ class ImportTestCase(TestCase):
 
         with open_csv_for_reading(local_filepath=new_filename) as source:
             reader = csv.DictReader(source, strict=True)
-            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+            per_line_errors, _classes, _users, _roles = cmd.csv_values_validation(
                 reader, header_translation, self.facility
             )
         assert len(per_line_errors) == 1

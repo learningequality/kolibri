@@ -34,7 +34,7 @@ def get_device_language():
 
 def get_accept_headers_language(request):
     accept = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
-    for accept_lang, unused in parse_accept_lang_header(accept):
+    for accept_lang, _unused in parse_accept_lang_header(accept):
         if accept_lang == "*":
             break
 

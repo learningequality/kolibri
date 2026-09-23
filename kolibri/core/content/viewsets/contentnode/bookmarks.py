@@ -63,7 +63,7 @@ class ContentNodeBookmarkSerializer(ContentNodeSerializer):
     bookmark = BookmarkSerializer(read_only=True)
 
     class Meta(ContentNodeSerializer.Meta):
-        fields = ContentNodeSerializer.Meta.fields + ("bookmark",)
+        fields = (*ContentNodeSerializer.Meta.fields, "bookmark")
 
 
 class ContentNodeBookmarksViewset(
@@ -73,7 +73,7 @@ class ContentNodeBookmarksViewset(
 
     # Not a relation on ContentNode, so auto-deferral cannot reach it: the
     # bookmark rows are the queryset this viewset serializes nodes for.
-    deferred_fields = InternalContentNodeMixin.deferred_fields + ("bookmark",)
+    deferred_fields = (*InternalContentNodeMixin.deferred_fields, "bookmark")
 
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (

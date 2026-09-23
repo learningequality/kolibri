@@ -1808,14 +1808,14 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         return facility, root, c1, c2, c2c1, c2c3
 
     def test_contentnode_progress_list_endpoint(self):
-        facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
+        facility, _root, _c1, _c2, c2c1, _c2c3 = self._setup_contentnode_progress()
 
         response = self.client.get(reverse("kolibri:core:contentnodeprogress-list"))
 
         def get_progress_fraction(node):
-            return list(
+            return next(
                 filter(lambda x: x["content_id"] == node.content_id, response.data)
-            )[0]["progress"]
+            )["progress"]
 
         # check that there is no progress when not logged in
         self.assertEqual(len(response.data), 0)
@@ -2133,7 +2133,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
     def test_resume_zero_cache(self):
-        user, expected_content_ids = self._create_summary_logs()
+        user, _expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         response = self.client.get(
             reverse("kolibri:core:usercontentnode-list"), data={"resume": True}

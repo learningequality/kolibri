@@ -30,7 +30,7 @@ def generate_wsgi_application():
     base_content_path = "/" + paths.get_content_url(
         conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
     ).lstrip("/")
-    content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
+    content_dirs = [paths.get_content_dir_path(), *paths.get_content_fallback_paths()]
 
     # Must be imported after get_wsgi_application is called
     # as this depends on the NetworkClient (which depends on Django models)

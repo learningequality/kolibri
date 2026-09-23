@@ -216,7 +216,7 @@ class Process:
     def cmdline(self):
         try:
             # pass as the startupinfo keyword argument:
-            out, err = subprocess.Popen(
+            out, _err = subprocess.Popen(
                 "wmic path win32_process get Processid,Commandline",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -261,7 +261,7 @@ class Process:
         t = self._get_raw_meminfo()
         rss = t[2]  # wset
         vms = t[7]  # pagefile
-        return pmem(*(rss, vms) + t)
+        return pmem(*(rss, vms, *t))
 
     @wrap_exceptions
     def cpu_times(self):

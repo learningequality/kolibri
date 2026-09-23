@@ -142,7 +142,7 @@ class LocalFileRemote(TransactionTestCase):
             test_channel_id, self.location.id
         )
         self.assertEqual(len(checksums), 1)
-        self.assertTrue(local_file_qs.filter(id=list(checksums)[0]).exists())
+        self.assertTrue(local_file_qs.filter(id=next(iter(checksums))).exists())
 
     @patch("kolibri.core.content.utils.file_availability.NetworkClient")
     def test_set_two_files_in_channel(self, networkclient_mock):
@@ -154,7 +154,7 @@ class LocalFileRemote(TransactionTestCase):
             test_channel_id, self.location.id
         )
         self.assertEqual(len(checksums), 2)
-        self.assertTrue(local_file_qs.filter(id=list(checksums)[0]).exists())
+        self.assertTrue(local_file_qs.filter(id=next(iter(checksums))).exists())
         self.assertTrue(local_file_qs.filter(id=list(checksums)[1]).exists())
 
     @patch("kolibri.core.content.utils.file_availability.NetworkClient")

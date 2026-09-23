@@ -27,7 +27,7 @@ def generate_alt_wsgi_application():
         paths.zip_content_path_prefix()
     ).lstrip("/")
 
-    content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
+    content_dirs = [paths.get_content_dir_path(), *paths.get_content_fallback_paths()]
 
     content_static_path = os.path.join(
         os.path.dirname(kolibri.core.content.__file__), "static"

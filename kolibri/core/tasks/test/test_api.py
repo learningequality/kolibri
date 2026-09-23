@@ -743,7 +743,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             "repeat_interval": 60,
         }
 
-        job, validated_enq_args = self.registered_task.validate_job_data(
+        _job, _validated_enq_args = self.registered_task.validate_job_data(
             user=self.superuser, data={"enqueue_args": enqueue_args}
         )
 
@@ -999,7 +999,7 @@ class EnqueueArgsUpdateAPITestCase(BaseAPITestCase):
             "repeat_interval": 60,
         }
 
-        job, validated_enq_args = self.registered_task.validate_job_data(
+        _job, _validated_enq_args = self.registered_task.validate_job_data(
             user=self.superuser, data={"enqueue_args": enqueue_args}
         )
 

@@ -286,7 +286,7 @@ class CourseSessionSerializer(ModelSerializer):
 
         new_assignments = []
         for collection in collections:
-            assignment, created = CourseSessionAssignment.objects.get_or_create(
+            assignment, _created = CourseSessionAssignment.objects.get_or_create(
                 course_session=instance,
                 collection=collection,
                 defaults={"assigned_by": self.context["request"].user},
@@ -308,7 +308,7 @@ class CourseSessionSerializer(ModelSerializer):
                 new_memberships = []
                 # Ensure all new memberships exist
                 for learner in learners:
-                    membership, created = Membership.objects.get_or_create(
+                    membership, _created = Membership.objects.get_or_create(
                         collection=adhoc_collection,
                         user=learner,
                     )

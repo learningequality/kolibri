@@ -55,8 +55,9 @@ class PublicSignUpViewSet(BaseSignUpViewSet):
         serializer_kwargs = {"data": request.data}
         serializer_kwargs.setdefault("context", self.get_serializer_context())
         for serializer_class in [
-            self.get_serializer_class()
-        ] + self.legacy_serializer_classes:
+            self.get_serializer_class(),
+            *self.legacy_serializer_classes,
+        ]:
             serializer = serializer_class(**serializer_kwargs)
             try:
                 serializer.is_valid(raise_exception=True)

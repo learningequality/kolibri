@@ -14,7 +14,8 @@ SUPERUSER = "superuser"
 ANONYMOUS = "anonymous"
 CAN_MANAGE_CONTENT = "can manage content"
 
-choices = choices + (
+choices = (
+    *choices,
     (LEARNER, "Learner"),
     (SUPERUSER, "Superadmin"),
     (ANONYMOUS, "Anonymous"),

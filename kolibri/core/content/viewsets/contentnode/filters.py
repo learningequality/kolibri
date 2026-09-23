@@ -72,7 +72,7 @@ class ContentNodeFilter(FilterSet):
     ids = UUIDInFilter(method="filter_ids")
     kind = ChoiceFilter(
         method="filter_kind",
-        choices=(content_kinds.choices + (("content", "Resource"),)),
+        choices=((*content_kinds.choices, ("content", "Resource"))),
     )
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")

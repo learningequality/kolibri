@@ -63,7 +63,7 @@ class UnavailableContentDeletion(TestCase):
 
     def delete_content(self):
         num_deleted = 0
-        for deleted, file in LocalFile.objects.delete_unused_files():
+        for deleted, _file in LocalFile.objects.delete_unused_files():
             if deleted:
                 num_deleted += 1
         return num_deleted

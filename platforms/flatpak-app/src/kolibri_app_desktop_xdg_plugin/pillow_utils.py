@@ -17,7 +17,7 @@ def pil_formats_for_mimetype(mimetype):
 def center_xy(base_size, paste_size):
     if len(base_size) > 2 or len(paste_size) > 2:
         raise ValueError()
-    x1, y1 = [int((a - b) / 2) for a, b in zip(base_size, paste_size)]
+    x1, y1 = [int((a - b) / 2) for a, b in zip(base_size, paste_size, strict=False)]
     return [x1, y1, x1 + paste_size[0], y1 + paste_size[1]]
 
 

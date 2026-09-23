@@ -1091,7 +1091,7 @@ class UnitReportScoringTests(UnitReportAPIBase):
         actual_order = [lr["id"] for lr in response.data["learners"]]
 
         tied_ids = sorted([str(self.learner2.id), str(self.learner3.id)])
-        self.assertEqual(actual_order, tied_ids + [str(self.learner1.id)])
+        self.assertEqual(actual_order, [*tied_ids, str(self.learner1.id)])
 
     def test_num_questions_counts_multi_lo_items_for_each_lo(self):
         """An item mapping to multiple LOs increments num_questions for each mapped LO."""

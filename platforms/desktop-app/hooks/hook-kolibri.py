@@ -141,7 +141,7 @@ def datas_filter(item):
 
 
 # Collect certifi explicitly because it does not get added otherwise.
-hiddenimports = collect_submodules("kolibri", submodule_filter) + ["certifi"]
+hiddenimports = [*collect_submodules("kolibri", submodule_filter), "certifi"]
 
 datas = []
 

@@ -28,7 +28,7 @@ class DeviceInfoView(views.APIView):
         }
 
         if request.user.is_superuser:
-            status, urls = get_urls()
+            _status, urls = get_urls()
             if not urls:
                 # Will not return anything when running the debug server, so at least return the current URL
                 urls = [

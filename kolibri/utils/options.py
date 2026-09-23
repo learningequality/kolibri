@@ -876,7 +876,7 @@ def _get_option_spec():
                 )
                 default_envvar = f"KOLIBRI_{section.upper()}_{optname.upper()}"
             if default_envvar not in opt_envvars:
-                attrs["envvars"] = (default_envvar,) + opt_envvars
+                attrs["envvars"] = (default_envvar, *opt_envvars)
     return option_spec
 
 

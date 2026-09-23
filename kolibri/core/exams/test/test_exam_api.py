@@ -109,7 +109,7 @@ class BaseExamTest:
     def make_basic_sections(self, no_of_sec):
         sections = []
         questions = self.make_basic_questions(3)
-        for i in range(1, no_of_sec + 1):
+        for _i in range(1, no_of_sec + 1):
             section = {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
@@ -864,13 +864,14 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
 
     def test_logged_in_admin_exam_can_update_and_publish_remove_empty_sections(self):
         self.login_as_admin()
-        self.exam.question_sources = self.make_basic_sections(1) + [
+        self.exam.question_sources = [
+            *self.make_basic_sections(1),
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": [],
                 "learners_see_fixed_order": False,
-            }
+            },
         ]
         self.exam.save()
         response = self.patch_updated_exam(self.exam.id, {"draft": False})

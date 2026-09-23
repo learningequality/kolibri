@@ -154,10 +154,7 @@ class UserContentNodeFilter(ContentNodeFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = contentnode_filter_fields + [
-            "resume",
-            "lesson",
-        ]
+        fields = [*contentnode_filter_fields, "resume", "lesson"]
 
 
 class UserContentNodeViewset(

@@ -34,7 +34,7 @@ class DeviceProvisionTestCase(TestCase):
         self.assertTrue(Facility.objects.filter(name="test").exists())
 
     def test_create_facility_set_preset(self):
-        preset = list(presets.keys())[0]
+        preset = next(iter(presets.keys()))
         facility = create_facility(facility_name="test", preset=preset)
         dataset_data = mappings[preset]
         for key, value in dataset_data.items():
@@ -79,7 +79,7 @@ class DeviceProvisionCommandTestCase(TestCase):
 
     def setUp(self):
         clear_process_cache()
-        self.preset = list(presets.keys())[0]
+        self.preset = next(iter(presets.keys()))
         call_command(
             "provisiondevice",
             facility="test",

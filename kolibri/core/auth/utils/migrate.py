@@ -202,7 +202,8 @@ def fork_facility(facility):
         Classroom,
         LearnerGroup,
         AdHocGroup,
-    ] + syncable_models.get_models("facilitydata")
+        *syncable_models.get_models("facilitydata"),
+    ]
     for Model in facility_dataset_models:
         # This should prevent any repeats caused by our explicit copying of FacilityDataset and our explicit
         # ordered inclusion of the Collection proxy models above.

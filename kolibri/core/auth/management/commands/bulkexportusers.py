@@ -293,7 +293,7 @@ class Command(AsyncCommand):
 
         with self.start_progress(total=total_rows) as progress_update:
             try:
-                for row in csv_file_generator(
+                for _row in csv_file_generator(
                     facility,
                     storage_filepath=storage_filepath,
                     local_filepath=local_filepath,

@@ -537,7 +537,7 @@ class ForkFacilityTestCase(TestCase):
         content_identifiers = [(uuid.uuid4().hex, uuid.uuid4().hex) for i in range(3)]
         ex_identifiers = (uuid.uuid4().hex, uuid.uuid4().hex)
         cls.count = 2
-        for i in range(1, 1 + cls.count):
+        for _i in range(1, 1 + cls.count):
             user = FacilityUserFactory.create(facility=cls.facility)
             coach = FacilityUserFactory.create(facility=cls.facility)
             classroom = ClassroomFactory.create(parent=cls.facility)

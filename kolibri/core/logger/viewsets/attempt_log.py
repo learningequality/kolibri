@@ -39,7 +39,7 @@ class AttemptLogDiffSerializer(AttemptLogSerializer):
     diff__correct = serializers.IntegerField(allow_null=True, read_only=True)
 
     class Meta(AttemptLogSerializer.Meta):
-        fields = AttemptLogSerializer.Meta.fields + ("diff__correct",)
+        fields = (*AttemptLogSerializer.Meta.fields, "diff__correct")
 
 
 class AttemptFilter(BaseLogFilter):

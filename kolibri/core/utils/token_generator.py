@@ -34,7 +34,7 @@ class TokenGenerator(PasswordResetTokenGenerator):
             return False
         # Parse the token
         try:
-            ts_b36, hash = token.split("-")
+            ts_b36, _hash = token.split("-")
         except ValueError:
             return False
 
