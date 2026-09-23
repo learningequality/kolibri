@@ -101,6 +101,7 @@ class LaunchpadWrapper:
 
     def __init__(self):
         self.queue = defaultdict(set)
+        self._series = {}
 
     @functools.cached_property
     def lp(self):
@@ -129,11 +130,12 @@ class LaunchpadWrapper:
     def release_ppa(self):
         return self.get_ppa(RELEASE_PPA_NAME)
 
-    @functools.cache
     def get_series(self, name):
-        ppa = self.proposed_ppa
-        log.debug("Locating the series: %s...", name)
-        return ppa.distribution.getSeries(name_or_version=name)
+        if name not in self._series:
+            ppa = self.proposed_ppa
+            log.debug("Locating the series: %s...", name)
+            self._series[name] = ppa.distribution.getSeries(name_or_version=name)
+        return self._series[name]
 
     def get_published_sources(self, ppa, series_name=None, status=None):
         kwargs = {}
