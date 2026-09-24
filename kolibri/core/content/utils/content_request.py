@@ -666,7 +666,8 @@ def _get_import_metadata(client, download):
     and merges them into a single dict.
 
     Returns ``None`` when the remote peer responds with a 4xx error (e.g. 404
-    — node not found on that peer).  Other network errors are re-raised.
+    — node not found on that peer), or, with ``import_descendants``, when it
+    responds unpaginated.  Other network errors are re-raised.
 
     :param client: An active network client pointed at the remote peer
     :type client: NetworkClient
@@ -700,7 +701,15 @@ def _get_import_metadata(client, download):
 
         try:
             json_response = client.get(url_path).json()
-            metadata_list.append(json_response.get("results", {}))
+            # Studio and Kolibri <0.19.3 ignore max_results and descendants,
+            # returning the ancestors' metadata unpaginated.
+            if import_descendants and "results" not in json_response:
+                logger.debug(
+                    "Unpaginated metadata cannot include descendants: GET %s",
+                    url_path,
+                )
+                return None
+            metadata_list.append(json_response.get("results", json_response))
             more = json_response.get("more", None)
             has_more = more is not None
         except NetworkLocationResponseFailure as e:
