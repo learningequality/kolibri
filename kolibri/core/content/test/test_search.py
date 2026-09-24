@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.test import SimpleTestCase
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
@@ -7,6 +8,7 @@ from parameterized import parameterized
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.utils.search import _build_bitmask_data
 from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.content.utils.search import get_available_metadata_labels
@@ -186,6 +188,19 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         except Exception as e:
             self.fail(f"get_available_metadata_labels raised {e}")
         self.assertEqual(labels[field], [])
+
+
+class BuildBitmaskDataTestCase(SimpleTestCase):
+    def test_labels_past_64_each_land_in_one_field(self):
+        labels = [f"label{n}" for n in range(65)]
+        metadata_bitmasks, bitmask_fieldnames = _build_bitmask_data(
+            {"categories": labels}
+        )
+        infos = [info for field in bitmask_fieldnames.values() for info in field]
+        self.assertCountEqual([info["label"] for info in infos], labels)
+        self.assertLess(max(info["bits"] for info in infos), 2**64)
+        for info in metadata_bitmasks["categories"].values():
+            self.assertIn(info, bitmask_fieldnames[info["bitmask_field_name"]])
 
 
 class AnnotateModalityTestCase(TestCase):

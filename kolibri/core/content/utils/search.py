@@ -37,34 +37,35 @@ metadata_lookup = {
 }
 
 
-metadata_bitmasks = {}
-
-bitmask_fieldnames = {}
-
 empty_labels = {
     "languages": [],
     "channels": [],
+    **{key: [] for key in metadata_lookup},
 }
 
 
-for key, labels in metadata_lookup.items():
-    bitmask_lookup = {}
-    i = 0
-    while labels[i : i + 64]:
-        bitmask_field_name = f"{key}_bitmask_{i}"
-        bitmask_fieldnames[bitmask_field_name] = []
-        for j, label in enumerate(labels):
-            info = {
-                "bitmask_field_name": bitmask_field_name,
-                "field_name": key,
-                "bits": 2**j,
-                "label": label,
-            }
-            bitmask_lookup[label] = info
-            bitmask_fieldnames[bitmask_field_name].append(info)
-        i += 64
-    metadata_bitmasks[key] = bitmask_lookup
-    empty_labels[key] = []
+def _build_bitmask_data(labels_by_field):
+    bitmasks = {}
+    infos_by_field_name = {}
+    for key, labels in labels_by_field.items():
+        bitmask_lookup = {}
+        for i in range(0, len(labels), 64):
+            bitmask_field_name = f"{key}_bitmask_{i}"
+            infos_by_field_name[bitmask_field_name] = []
+            for j, label in enumerate(labels[i : i + 64]):
+                info = {
+                    "bitmask_field_name": bitmask_field_name,
+                    "field_name": key,
+                    "bits": 2**j,
+                    "label": label,
+                }
+                bitmask_lookup[label] = info
+                infos_by_field_name[bitmask_field_name].append(info)
+        bitmasks[key] = bitmask_lookup
+    return bitmasks, infos_by_field_name
+
+
+metadata_bitmasks, bitmask_fieldnames = _build_bitmask_data(metadata_lookup)
 
 
 def _get_available_languages(base_queryset):
