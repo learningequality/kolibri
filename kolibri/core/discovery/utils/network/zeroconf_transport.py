@@ -282,6 +282,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             on_rebind()
             # `update_interfaces` will broadcast the new instance if it was updated
             self.zeroconf.update_interfaces(interfaces=self.interfaces)
+            self._rebrowse()
 
     def unregister(self):
         """Stops advertising our instance and drops our `.local` aliases."""
@@ -304,12 +305,24 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         self._is_known = is_known
 
         self._ensure_zeroconf()
+        self._browse()
+
+    def _browse(self):
         # manually add our service browser to Zeroconf so it's automatically cleaned up on close
         self.zeroconf.browsers["bus"] = ServiceBrowser(
             self.zeroconf,
             SERVICE_TYPE,
             handlers=[self._handle_service_change],
         )
+
+    def _rebrowse(self):
+        # a zeroconf browser reports each service only once and survives
+        # `update_interfaces`; a new one first replays every cached pointer,
+        # including peers on interfaces just left
+        self.zeroconf.remove_service_listener("bus")
+        for record in list(self.zeroconf.cache.entries_with_name(SERVICE_TYPE)):
+            self.zeroconf.cache.remove(record)
+        self._browse()
 
     def stop_listening(self):
         """Stops discovering peers and closes Zeroconf."""

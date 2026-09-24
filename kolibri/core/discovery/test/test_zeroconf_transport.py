@@ -1,16 +1,27 @@
+import queue
 import socket
+import time
+import uuid
 from unittest import mock
 
 import pytest
 from django.test import SimpleTestCase
+from django.test import TestCase
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
 from zeroconf import ServiceStateChange
 from zeroconf import Zeroconf
 
+from ..models import DynamicNetworkLocation
+from ..tasks import add_dynamic_network_location
+from ..tasks import dispatch_broadcast_hooks
+from ..tasks import remove_dynamic_network_location
+from ..tasks import reset_connection_states
 from ..utils.network.broadcast import KolibriInstance
+from ..utils.network.broadcast import NetworkDiscoveryBackend
 from ..utils.network.broadcast import SERVICE_TTL
 from ..utils.network.broadcast import SERVICE_TYPE
+from ..utils.network.search import NetworkLocationListener
 from ..utils.network.zeroconf_transport import BARE_LOCAL_LABEL
 from ..utils.network.zeroconf_transport import EVENT_UPDATE_LOCAL_NAMES
 from ..utils.network.zeroconf_transport import filter_lan_addresses
@@ -19,11 +30,13 @@ from ..utils.network.zeroconf_transport import LOCAL_NAME_BARE
 from ..utils.network.zeroconf_transport import LOCAL_NAME_DEVICE
 from ..utils.network.zeroconf_transport import slugify_device_name
 from ..utils.network.zeroconf_transport import ZeroconfNetworkDiscovery
+from .test_network_broadcast import BROADCAST_MODULE
 from .test_network_broadcast import build_service_info
 from .test_network_broadcast import KolibriTestInstanceListener
 from .test_network_broadcast import MOCK_ID
 from .test_network_broadcast import MOCK_INTERFACE_IP
 from .test_network_broadcast import MOCK_PORT
+from .test_network_broadcast import MOCK_PROPERTIES
 
 MOCK_LAN_IP = "192.168.1.5"
 # A second RFC1918 address on a different subnet, e.g. a Docker/Hyper-V bridge,
@@ -32,6 +45,9 @@ MOCK_LAN_IP = "192.168.1.5"
 MOCK_SECONDARY_LAN_IP = "172.27.63.113"
 MOCK_CGNAT_IP = "100.64.0.5"  # Tailscale-style CGNAT address, not LAN-reachable
 MOCK_LINK_LOCAL_IP = "169.254.1.1"
+LOOPBACK_IP = "127.0.0.1"
+# seconds; covers `register_service` probing and a peer answering a query
+DISCOVERY_TIMEOUT = 15
 PEER_SERVICE_NAME = f"peer.{SERVICE_TYPE}"
 ZEROCONF_MODULE = "kolibri.core.discovery.utils.network.zeroconf_transport."
 ZEROCONF_NEEDS_UPDATE = getattr(Zeroconf, "update_interfaces", None) is None
@@ -621,3 +637,115 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
         self._handle(PEER_SERVICE_NAME, ServiceStateChange.Updated)
         self.on_update.assert_not_called()
         self.on_remove.assert_not_called()
+
+
+class ZeroconfRebindTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        super().setUp()
+        # confines every `Zeroconf` bound to `InterfaceChoice.All` to loopback
+        self._patch("zeroconf.get_all_addresses", return_value=[LOOPBACK_IP])
+        # a Kolibri elsewhere on the host that stops answering queries blocks
+        # our browser for 10s per event, so peers here use a type of their own
+        self.service_type = f"Kolibri{uuid.uuid4().hex[:8]}._sub._http._tcp.local."
+        for module in (BROADCAST_MODULE, ZEROCONF_MODULE):
+            self._patch(module + "SERVICE_TYPE", new=self.service_type)
+        self.get_all_addresses = self._patch(
+            ZEROCONF_MODULE + "get_all_addresses", return_value=[LOOPBACK_IP]
+        )
+        self._patch(LOCAL_HOSTNAMES_MODULE + "sync_local_hostnames.enqueue")
+        self._patch(
+            "kolibri.core.discovery.tasks.perform_network_location_update.enqueue"
+        )
+        self.tasks = queue.Queue()
+        for task in (
+            reset_connection_states,
+            add_dynamic_network_location,
+            remove_dynamic_network_location,
+            dispatch_broadcast_hooks,
+        ):
+            self._patch(
+                f"kolibri.core.discovery.tasks.{task.__name__}.enqueue",
+                side_effect=self._queue(task),
+            )
+        self.backend = NetworkDiscoveryBackend(
+            KolibriInstance(
+                MOCK_ID,
+                ip=MOCK_INTERFACE_IP,
+                port=MOCK_PORT,
+                device_info={"instance_id": MOCK_ID},
+            )
+        )
+        self.backend.add_listener(NetworkLocationListener)
+        self.backend.start_broadcast()
+        self.peers = []
+        self.addCleanup(self._close_peers)
+        self.addCleanup(self.backend.stop_broadcast)
+
+    def _patch(self, target, **kwargs):
+        patcher = mock.patch(target, **kwargs)
+        self.addCleanup(patcher.stop)
+        return patcher.start()
+
+    def _close_peers(self):
+        for peer in self.peers:
+            peer.close()
+
+    def _queue(self, task):
+        return lambda args, **kwargs: self.tasks.put((task, args))
+
+    def _advertise(self):
+        peer_id = uuid.uuid4().hex
+        peer = Zeroconf(interfaces=[LOOPBACK_IP])
+        self.peers.append(peer)
+        peer.register_service(
+            ServiceInfo(
+                self.service_type,
+                f"{peer_id}.{self.service_type}",
+                address=socket.inet_aton(MOCK_INTERFACE_IP),
+                port=MOCK_PORT,
+                server=f"{peer_id}.kolibri.local.",
+                properties={**MOCK_PROPERTIES, b"instance_id": f'"{peer_id}"'},
+            ),
+            ttl=SERVICE_TTL,
+        )
+        return peer_id, peer
+
+    def _stored(self):
+        return dict(
+            DynamicNetworkLocation.objects.values_list("instance_id", "broadcast_id")
+        )
+
+    def _run_tasks_until_stored(self, peer_id):
+        deadline = time.monotonic() + DISCOVERY_TIMEOUT
+        while self._stored().get(peer_id) != self.backend.id:
+            try:
+                task, args = self.tasks.get(timeout=deadline - time.monotonic())
+            except (queue.Empty, ValueError):
+                self.fail(f"{peer_id} was not stored under the current broadcast")
+            task(*args)
+
+    def _rebind(self):
+        self.get_all_addresses.return_value = [LOOPBACK_IP, MOCK_LAN_IP]
+        self.backend.update_broadcast()
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_rebind_restores_a_peer_still_advertising(self):
+        peer_id, _ = self._advertise()
+        self._run_tasks_until_stored(peer_id)
+        self._rebind()
+        self._run_tasks_until_stored(peer_id)
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_rebind_drops_a_peer_that_stopped_advertising(self):
+        gone_id, gone = self._advertise()
+        self._run_tasks_until_stored(gone_id)
+        with mock.patch.object(gone, "send"):
+            gone.close()
+        self._rebind()
+        # a replayed cached pointer is reported before any peer that answers
+        # the new browser, so this one arriving means the other never will
+        late_id, _ = self._advertise()
+        self._run_tasks_until_stored(late_id)
+        self.assertEqual({late_id: self.backend.id}, self._stored())

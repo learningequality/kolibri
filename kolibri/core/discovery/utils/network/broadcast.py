@@ -401,6 +401,7 @@ class NetworkDiscoveryBackend(EventBusHost):
         new_id = uuid.uuid4().hex
         logger.debug("Updating broadcast with new ID: %s, old ID: %s", new_id, self.id)
         self.id = new_id
+        self.other_instances = {}
         # call the unregister listeners so that we enqueue necessary tasks to delete old
         # locations from the database
         self.events.publish(EVENT_UNREGISTER_INSTANCE, self.instance)
