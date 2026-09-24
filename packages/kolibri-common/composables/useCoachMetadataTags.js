@@ -62,11 +62,13 @@ export function useCoachMetadataTags(contentNode) {
     if (!contentNode.learning_activities) return [];
 
     if (contentNode.learning_activities.length > 1) {
-      return createTag(
-        coreStrings.$tr('multipleLearningActivities'),
-        'multipleLearningActivities',
-        'allActivities',
-      );
+      return [
+        createTag(
+          coreStrings.$tr('multipleLearningActivities'),
+          'multipleLearningActivities',
+          'allActivities',
+        ),
+      ];
     } else {
       return contentNode.learning_activities.map(activity => {
         let icon;
