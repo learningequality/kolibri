@@ -45,7 +45,7 @@
           {{ topic.title }}
         </span>
       </h2>
-      <p :style="{ color: $themeTokens.annotation }">
+      <p :style="{ color: 'var(--tokens-annotation)' }">
         {{ topic.description }}
       </p>
     </div>

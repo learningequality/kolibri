@@ -3,7 +3,10 @@
   <div>
     <div
       class="attendance-card"
-      :style="{ borderColor: $themeTokens.fineLine, backgroundColor: $themePalette.grey.v_100 }"
+      :style="{
+        borderColor: 'var(--tokens-fineLine)',
+        backgroundColor: 'var(--palette-grey-v100)',
+      }"
     >
       <PaginatedListContainer
         v-if="allItems.length > 0"
@@ -37,7 +40,7 @@
             </div>
           </div>
 
-          <div :style="{ backgroundColor: $themeTokens.surface }">
+          <div :style="{ backgroundColor: 'var(--tokens-surface)' }">
             <KTable
               :headers="tableHeaders"
               :rows="getTableRows(items)"
@@ -53,7 +56,7 @@
                     v-if="content.previouslyEnrolled"
                     :id="`learner-name-removed-${content.id}`"
                     class="previously-enrolled-name"
-                    :style="{ color: $themeTokens.annotation }"
+                    :style="{ color: 'var(--tokens-annotation)' }"
                   >
                     {{ previouslyEnrolledLabel$({ name: content.name }) }}
                   </span>
@@ -70,7 +73,7 @@
                     <span
                       v-if="content.present"
                       class="present-label"
-                      :style="{ color: $themeTokens.annotation }"
+                      :style="{ color: 'var(--tokens-annotation)' }"
                     >
                       {{ presentLabel$() }}
                     </span>
@@ -85,7 +88,7 @@
                     <span
                       v-if="isPresent(content.id)"
                       class="present-label"
-                      :style="{ color: $themeTokens.primary }"
+                      :style="{ color: 'var(--tokens-primary)' }"
                     >
                       {{ presentLabel$() }}
                     </span>
@@ -106,7 +109,7 @@
 
     <BottomAppBar>
       <div class="bottom-bar-content">
-        <div :style="{ color: $themeTokens.annotation }">
+        <div :style="{ color: 'var(--tokens-annotation)' }">
           <span>{{ learnersLabel$() }}</span>
           {{ ' ' }}
           <span>{{ presentCount$({ count: presentCount }) }}</span>

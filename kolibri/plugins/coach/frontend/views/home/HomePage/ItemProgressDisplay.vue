@@ -2,7 +2,7 @@
 
   <router-link
     class="link"
-    :style="{ color: $themeTokens.text }"
+    :style="{ color: 'var(--tokens-text)' }"
     :class="themeClass"
     :to="to"
   >

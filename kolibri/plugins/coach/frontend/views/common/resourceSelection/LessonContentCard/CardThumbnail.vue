@@ -9,7 +9,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="thumbnail-icon"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
     />
   </div>
 
@@ -47,7 +47,7 @@
     computed: {
       thumbnailBackground() {
         return {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },

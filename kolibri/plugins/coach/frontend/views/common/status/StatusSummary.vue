@@ -40,7 +40,7 @@
     <LearnerProgressCount
       v-else-if="total === notStarted && !showAll"
       class="item"
-      :style="{ color: $themeTokens.textDisabled }"
+      :style="{ color: 'var(--tokens-textDisabled)' }"
       :verb="VERBS.notStarted"
       :icon="ICONS.nothing"
       :total="total"
@@ -89,7 +89,7 @@
       <LearnerProgressCount
         v-if="showItem(!verbose) || includeNotStarted"
         class="item"
-        :style="{ color: $themeTokens.textDisabled }"
+        :style="{ color: 'var(--tokens-textDisabled)' }"
         :verb="VERBS.notStarted"
         :icon="ICONS.nothing"
         :total="total"

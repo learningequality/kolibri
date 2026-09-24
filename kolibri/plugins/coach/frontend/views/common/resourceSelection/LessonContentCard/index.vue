@@ -3,15 +3,15 @@
   <router-link
     :to="link"
     class="content-card"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
   >
     <div
       :class="windowIsSmall ? 'mobile-text' : 'text'"
-      :style="{ color: $themeTokens.text }"
+      :style="{ color: 'var(--tokens-text)' }"
     >
       <div
         :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       >
         <component
           :is="headingElement"
@@ -29,13 +29,13 @@
         :text="content.description"
         :maxLines="3"
         class="description"
-        :style="{ color: $themeTokens.annotation }"
+        :style="{ color: 'var(--tokens-annotation)' }"
       />
       <div>
         <span
           v-if="message"
           class="message"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ message }}
         </span>

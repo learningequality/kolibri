@@ -44,7 +44,7 @@
         >
           <div
             class="exercise-section"
-            :style="{ backgroundColor: $themeTokens.surface }"
+            :style="{ backgroundColor: 'var(--tokens-surface)' }"
           >
             <KCheckbox
               :label="coreString('showCorrectAnswerLabel')"

@@ -39,7 +39,7 @@
         <div
           v-if="assignmentInvalidText"
           :style="{
-            color: $themeTokens.error,
+            color: 'var(--tokens-error)',
           }"
         >
           {{ assignmentInvalidText }}

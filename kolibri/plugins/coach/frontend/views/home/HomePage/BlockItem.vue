@@ -3,7 +3,7 @@
   <div
     class="block-item"
     :class="{ small: windowIsSmall }"
-    :style="{ borderBottomColor: $themeTokens.fineLine }"
+    :style="{ borderBottomColor: 'var(--tokens-fineLine)' }"
   >
     <slot></slot>
   </div>

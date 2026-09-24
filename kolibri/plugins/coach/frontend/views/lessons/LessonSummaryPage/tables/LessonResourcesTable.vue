@@ -17,7 +17,7 @@
             v-for="(tableRow, index) in entries"
             :key="tableRow.node_id"
           >
-            <tr :style="{ backgroundColor: $themeTokens.surface }">
+            <tr :style="{ backgroundColor: 'var(--tokens-surface)' }">
               <td>
                 <div class="resource-title">
                   <DraggableHandle v-if="editable">

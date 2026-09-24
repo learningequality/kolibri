@@ -21,7 +21,7 @@
         class="notification-card"
         :notification="notification"
         :lastQuery="backLinkQuery"
-        :style="{ borderBottomColor: $themeTokens.fineLine }"
+        :style="{ borderBottomColor: 'var(--tokens-fineLine)' }"
       />
     </div>
 
