@@ -42,7 +42,8 @@ class LocalFileByDisk(TransactionTestCase):
             os.makedirs(second_dir)
         except OSError:
             pass
-        open(os.path.join(second_dir, prefix + "." + suffix), "w+b")
+        with open(os.path.join(second_dir, prefix + "." + suffix), "w+b"):
+            pass
 
     def createmock_content_file1(self):
         self.createmock_content_file(file_id_1, suffix="mp4")

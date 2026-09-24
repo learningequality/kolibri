@@ -116,14 +116,14 @@ def get_log_status(log, content_id_to_node_ids, needs_help, completed):
     matching_node_ids = content_id_to_node_ids.get(log["content_id"], [])
     for node_id in matching_node_ids:
         key = (log["user_id"], node_id)
-        if key in needs_help:
-            # Check if we have not already registered completion of the content node
-            # or if we have and the timestamp is earlier than that on the needs_help event
-            if key not in completed or completed[key] < needs_help[key]:
-                return HELP_NEEDED
-    if log["kind"] == content_kinds.EXERCISE:
-        if not log["attempts_exist"]:
-            return NOT_STARTED
+        # Check if we have not already registered completion of the content node
+        # or if we have and the timestamp is earlier than that on the needs_help event
+        if key in needs_help and (
+            key not in completed or completed[key] < needs_help[key]
+        ):
+            return HELP_NEEDED
+    if log["kind"] == content_kinds.EXERCISE and not log["attempts_exist"]:
+        return NOT_STARTED
     return STARTED
 
 

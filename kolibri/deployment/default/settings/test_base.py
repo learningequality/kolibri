@@ -48,6 +48,7 @@ def test_get_session_cookie_age_preserves_configured_value():
 def test_session_settings_wired_from_auto_logout_time():
     assert base.SESSION_EXPIRE_AT_BROWSER_CLOSE is False
     # Not hardcoded — derived from the AUTO_LOGOUT_TIME option.
-    assert base.SESSION_COOKIE_AGE == _get_session_cookie_age(
-        conf.OPTIONS["Deployment"]["AUTO_LOGOUT_TIME"]
+    assert (
+        _get_session_cookie_age(conf.OPTIONS["Deployment"]["AUTO_LOGOUT_TIME"])
+        == base.SESSION_COOKIE_AGE
     )

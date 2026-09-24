@@ -85,9 +85,7 @@ class FalseThenTrue:
 
     def __call__(self):
         self.count += 1
-        if self.count > self.times:
-            return True
-        return False
+        return self.count > self.times
 
 
 @contextmanager

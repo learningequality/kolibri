@@ -250,10 +250,7 @@ class PermissionsFromAny(BasePermissions):
         Private helper method to do the corresponding method calls on children permissions instances,
         and succeed as soon as one of them succeeds, or fail if none of them do.
         """
-        for perm in self.perms:
-            if getattr(perm, method_name)(user, obj):
-                return True
-        return False
+        return any(getattr(perm, method_name)(user, obj) for perm in self.perms)
 
     def user_can_create_object(self, user, obj):
         return self._permissions_from_any(user, obj, "user_can_create_object")
@@ -298,10 +295,7 @@ class PermissionsFromAll(BasePermissions):
         Private helper method to do the corresponding method calls on children permissions instances,
         and fail as soon as one of them fails, or succeed if all of them succeed.
         """
-        for perm in self.perms:
-            if not getattr(perm, method_name)(user, obj):
-                return False
-        return True
+        return all(getattr(perm, method_name)(user, obj) for perm in self.perms)
 
     def user_can_create_object(self, user, obj):
         return self._permissions_from_all(user, obj, "user_can_create_object")

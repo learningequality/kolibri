@@ -165,15 +165,14 @@ class RootURLRedirectView(RedirectView):
             url = get_url_by_role(user_kinds.ANONYMOUS)
         if url:
             next_url = self.request.GET.get("next")
-            if next_url:
-                # Step 2: Validate the next_url
-                if url_has_allowed_host_and_scheme(
-                    next_url,
-                    allowed_hosts={self.request.get_host()},
-                    require_https=self.request.is_secure(),
-                ):
-                    # Step 3: Append next_url to the base url if it's valid
-                    url = f"{url}?next={next_url}"
+            # Step 2: Validate the next_url
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={self.request.get_host()},
+                require_https=self.request.is_secure(),
+            ):
+                # Step 3: Append next_url to the base url if it's valid
+                url = f"{url}?next={next_url}"
             return url
 
         raise Http404(

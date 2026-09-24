@@ -234,7 +234,7 @@ def _field_matches_inferred_type(
         # with no default does an identity type-coercion (the annotation's
         # output_field already returns the right Python type), so skip
         # to_representation.
-        if declared_field.default is empty and isinstance(
+        return declared_field.default is empty and isinstance(
             declared_field,
             (
                 drf_serializers.IntegerField,
@@ -242,9 +242,7 @@ def _field_matches_inferred_type(
                 drf_serializers.BooleanField,
                 drf_serializers.CharField,
             ),
-        ):
-            return True
-        return False
+        )
 
     # Relation field: values() returns the raw FK value (already the PK), but
     # PrimaryKeyRelatedField.to_representation expects a model instance. So when

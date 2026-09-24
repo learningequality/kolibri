@@ -144,13 +144,13 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             raise TypeError("Unexpected keyword argument node_ids")
         if "exclude_node_ids" in kwargs:
             raise TypeError("Unexpected keyword argument exclude_node_ids")
-        if isinstance(manifest_file, str):
-            manifest_file = open(manifest_file)
         content_manifest = ContentManifest()
-        content_manifest.read_file(manifest_file)
+        with (
+            open(manifest_file) if isinstance(manifest_file, str) else manifest_file
+        ) as manifest:
+            content_manifest.read_file(manifest)
         node_ids = content_manifest.get_node_ids_for_channel(channel_id)
         exclude_node_ids = None
-        manifest_file.close()
         return cls(
             channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, **kwargs
         )

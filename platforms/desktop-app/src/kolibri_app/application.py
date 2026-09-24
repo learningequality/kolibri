@@ -172,10 +172,9 @@ class KolibriApp(wx.App):
 
     def on_server_start_timer(self, event):
         """Called periodically while server is starting."""
-        if WINDOWS:
-            # Only show notification again if server is still not ready
-            if not self.kolibri_url:
-                self.task_bar_icon.notify_server_starting()
+        # Only show notification again if server is still not ready
+        if WINDOWS and not self.kolibri_url:
+            self.task_bar_icon.notify_server_starting()
 
     def shutdown(self):
         """Shutdown the server."""

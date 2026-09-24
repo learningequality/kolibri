@@ -45,19 +45,21 @@ class Command(BaseCommand):
             error = e.response.json()[0]
             message = error["metadata"].get("message") or e.response.text
             # handle facility not existing response from portal server
-            if error["id"] == error_constants.FACILITY_DOES_NOT_EXIST:
-                # if the facility does not exist on data portal, try syncing and retry registering
-                if not noninteractive:
-                    confirm_or_exit(
-                        f"Facility: {facility.name} does not exist on data portal server. Would you like to initiate a syncing session?"
-                    )
-                    call_command(
-                        "sync", facility=facility_id, noninteractive=noninteractive
-                    )
-                    confirm_or_exit(
-                        f"Facility: {facility.name} has been synced. Would you like to retry registering?"
-                    )
-                    return self._register(token, facility)
+            # if the facility does not exist on data portal, try syncing and retry registering
+            if (
+                error["id"] == error_constants.FACILITY_DOES_NOT_EXIST
+                and not noninteractive
+            ):
+                confirm_or_exit(
+                    f"Facility: {facility.name} does not exist on data portal server. Would you like to initiate a syncing session?"
+                )
+                call_command(
+                    "sync", facility=facility_id, noninteractive=noninteractive
+                )
+                confirm_or_exit(
+                    f"Facility: {facility.name} has been synced. Would you like to retry registering?"
+                )
+                return self._register(token, facility)
 
             # display nice error messages for other Http errors
             raise CommandError(

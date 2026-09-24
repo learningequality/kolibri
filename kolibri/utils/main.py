@@ -219,19 +219,22 @@ def _post_django_initialization():
     # which causes premature registration of Kolibri plugins.
     from kolibri.deployment.default.cache import CACHES
 
-    if "process_cache" in CACHES:  # usually it means not using redis
-        if "DatabaseCache" not in CACHES["process_cache"]["BACKEND"]:
-            try:
-                process_cache.cull()
-            except sqlite3.DatabaseError:
-                shutil.rmtree(process_cache.directory, ignore_errors=True)
-                os.mkdir(process_cache.directory)
-                process_cache._cache = FanoutCache(
-                    process_cache.directory,
-                    settings.CACHES["process_cache"]["SHARDS"],
-                    settings.CACHES["process_cache"]["TIMEOUT"],
-                    **settings.CACHES["process_cache"]["OPTIONS"],
-                )
+    # process_cache in CACHES usually means not using redis
+    if (
+        "process_cache" in CACHES
+        and "DatabaseCache" not in CACHES["process_cache"]["BACKEND"]
+    ):
+        try:
+            process_cache.cull()
+        except sqlite3.DatabaseError:
+            shutil.rmtree(process_cache.directory, ignore_errors=True)
+            os.mkdir(process_cache.directory)
+            process_cache._cache = FanoutCache(
+                process_cache.directory,
+                settings.CACHES["process_cache"]["SHARDS"],
+                settings.CACHES["process_cache"]["TIMEOUT"],
+                **settings.CACHES["process_cache"]["OPTIONS"],
+            )
 
 
 def _upgrades_after_django_setup(updated, version):

@@ -2,7 +2,7 @@ import os
 import sys
 
 # Redirect stdout to devnull until we can setup logging.
-devnull = open(os.devnull, "w")
+devnull = open(os.devnull, "w")  # noqa: SIM115
 sys.stdout = devnull
 sys.stderr = devnull
 

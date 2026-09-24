@@ -152,12 +152,13 @@ class EndRangeStaticFile(StaticFile):
             # This is the only modification - if we have a gzip compressed file
             # but have a non compressed path, then we need to wrap the file handle
             # in a GzipFile object to decompress it.
+            # The WSGI server closes the handle once it has streamed the Response.
             if path.endswith(COMPRESSED_FILE_FOR_REGULAR_PATH):
                 file_handle = GzipFile(
-                    fileobj=open(path[: -len(COMPRESSED_FILE_FOR_REGULAR_PATH)], "rb")
+                    fileobj=open(path[: -len(COMPRESSED_FILE_FOR_REGULAR_PATH)], "rb")  # noqa: SIM115
                 )
             else:
-                file_handle = open(path, "rb")
+                file_handle = open(path, "rb")  # noqa: SIM115
         else:
             file_handle = None
         range_header = request_headers.get("HTTP_RANGE")

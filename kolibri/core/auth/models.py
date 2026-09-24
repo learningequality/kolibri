@@ -850,7 +850,7 @@ class SoftDeletedFacilityUserModelManager(BaseFacilityUserModelManager):
 def validate_birth_year(value):
     error = ""
 
-    if value == NOT_SPECIFIED or value == DEFERRED:
+    if value in (NOT_SPECIFIED, DEFERRED):
         return
 
     try:
@@ -1030,9 +1030,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
             target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
             if self == target_user:
                 return True
-            if self.has_role_for_user(role_kinds.ADMIN, target_user):
-                return True
-            return False
+            return self.has_role_for_user(role_kinds.ADMIN, target_user)
         return False
 
     @property
@@ -1476,13 +1474,12 @@ class Membership(AbstractFacilityDataModel):
         if (
             self.collection.kind == collection_kinds.LEARNERGROUP
             or self.collection.kind == collection_kinds.ADHOCLEARNERSGROUP
-        ):
-            if not Membership.objects.filter(
-                collection_id=self.collection.parent_id, user=self.user
-            ).exists():
-                raise InvalidMembershipError(
-                    "Cannot create membership for a user in a LearnerGroup or AdHocGroup when they are not a member of the parent Classrooom"
-                )
+        ) and not Membership.objects.filter(
+            collection_id=self.collection.parent_id, user=self.user
+        ).exists():
+            raise InvalidMembershipError(
+                "Cannot create membership for a user in a LearnerGroup or AdHocGroup when they are not a member of the parent Classrooom"
+            )
 
     def save(self, *args, **kwargs):
         self.validate_membership()
@@ -1565,23 +1562,27 @@ class Role(AbstractFacilityDataModel):
             raise InvalidRoleKind(
                 "Cannot assign roles to Learner Groups or AdHoc Groups"
             )
-        if self.collection.kind == collection_kinds.CLASSROOM:
-            # We only support coaches to be assigned at the classroom level currently
-            if self.kind != role_kinds.COACH:
-                raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
+        # We only support coaches to be assigned at the classroom level currently
+        if (
+            self.collection.kind == collection_kinds.CLASSROOM
+            and self.kind != role_kinds.COACH
+        ):
+            raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
 
     def ensure_coach_role_at_facility(self):
-        if self.collection.kind == collection_kinds.CLASSROOM:
-            if not Role.objects.filter(
+        if (
+            self.collection.kind == collection_kinds.CLASSROOM
+            and not Role.objects.filter(
                 user=self.user, collection_id=self.collection.parent_id
-            ).exists():
-                # If the user doesn't already have a facility role, then create the assignable coach role for the user
-                # at the facility level.
-                Role.objects.create(
-                    user=self.user,
-                    collection_id=self.collection.parent_id,
-                    kind=role_kinds.ASSIGNABLE_COACH,
-                )
+            ).exists()
+        ):
+            # If the user doesn't already have a facility role, then create the assignable coach role for the user
+            # at the facility level.
+            Role.objects.create(
+                user=self.user,
+                collection_id=self.collection.parent_id,
+                kind=role_kinds.ASSIGNABLE_COACH,
+            )
 
     def save(self, *args, **kwargs):
         self.validate_role()

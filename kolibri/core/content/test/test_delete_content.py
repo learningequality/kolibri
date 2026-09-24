@@ -58,9 +58,8 @@ class UnavailableContentDeletion(TestCase):
         path_dir = os.path.dirname(self.path)
         if not os.path.exists(path_dir):
             os.makedirs(path_dir)
-        tempfile = open(self.path, "w")
-        tempfile.write("wow")
-        tempfile.close()
+        with open(self.path, "w") as tempfile:
+            tempfile.write("wow")
 
     def delete_content(self):
         num_deleted = 0

@@ -48,7 +48,4 @@ class TokenGenerator(PasswordResetTokenGenerator):
             return False
 
         # Check the timestamp is within limit
-        if (time.time() - ts) > TOKEN_EXPIRE_LIMIT:
-            return False
-
-        return True
+        return time.time() - ts <= TOKEN_EXPIRE_LIMIT

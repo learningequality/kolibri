@@ -21,9 +21,7 @@ class RandomBitMaskTestCase(TestCase):
         annotate_label_bitmasks(ContentNode.objects.all())
 
     @parameterized.expand(
-        (field, label)
-        for field in metadata_lookup.keys()
-        for label in metadata_lookup[field]
+        (field, label) for field in metadata_lookup for label in metadata_lookup[field]
     )
     def test_bitmasks(self, field, label):
         self.assertEqual(
@@ -36,7 +34,7 @@ class RandomBitMaskTestCase(TestCase):
 class ConstrainedBitMaskTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        for field in metadata_lookup.keys():
+        for field in metadata_lookup:
             for label in metadata_lookup[field]:
                 ContentNode.objects.create(
                     content_id=uuid4().hex,
@@ -58,9 +56,7 @@ class ConstrainedBitMaskTestCase(TestCase):
         annotate_label_bitmasks(ContentNode.objects.all())
 
     @parameterized.expand(
-        (field, label)
-        for field in metadata_lookup.keys()
-        for label in metadata_lookup[field]
+        (field, label) for field in metadata_lookup for label in metadata_lookup[field]
     )
     def test_bitmasks(self, field, label):
         self.assertEqual(
@@ -70,7 +66,7 @@ class ConstrainedBitMaskTestCase(TestCase):
         )
 
     def test_bitmasks_and_not_or(self):
-        for field in metadata_lookup.keys():
+        for field in metadata_lookup:
             node = ContentNode.objects.create(
                 content_id=uuid4().hex,
                 channel_id=uuid4().hex,
@@ -130,9 +126,7 @@ class RandomMetadataLabelsTestCase(TestCase):
         self._run_test_for_qs(ContentNode.objects.filter(kind=kind))
 
     @parameterized.expand(
-        (field, label)
-        for field in metadata_lookup.keys()
-        for label in metadata_lookup[field]
+        (field, label) for field in metadata_lookup for label in metadata_lookup[field]
     )
     def test_labels(self, field, label):
         self._run_test_for_qs(ContentNode.objects.has_all_labels(field, [label]))
@@ -141,7 +135,7 @@ class RandomMetadataLabelsTestCase(TestCase):
 class ConstrainedMetadataLabelsTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        for field in metadata_lookup.keys():
+        for field in metadata_lookup:
             for label in metadata_lookup[field]:
                 ContentNode.objects.create(
                     content_id=uuid4().hex,
@@ -163,9 +157,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         annotate_label_bitmasks(ContentNode.objects.all())
 
     @parameterized.expand(
-        (field, label)
-        for field in metadata_lookup.keys()
-        for label in metadata_lookup[field]
+        (field, label) for field in metadata_lookup for label in metadata_lookup[field]
     )
     def test_labels(self, field, label):
         metadata_labels = get_available_metadata_labels(

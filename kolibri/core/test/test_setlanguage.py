@@ -20,7 +20,7 @@ class I18NTests(TestCase):
         """Return language code for a language which is not activated."""
         current_language = get_language()
         return next(
-            code for code, name in settings.LANGUAGES if not code == current_language
+            code for code, name in settings.LANGUAGES if code != current_language
         )
 
     def test_setlang(self):

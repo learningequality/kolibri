@@ -289,10 +289,7 @@ class Application(Adw.Application):
         file_chooser.show()
         nested_loop.run()
 
-        if not download.get_destination():
-            return False
-
-        return True
+        return bool(download.get_destination())
 
     def __download_file_chooser_on_response(
         self,

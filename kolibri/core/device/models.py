@@ -460,9 +460,7 @@ class SyncQueue(models.Model):
             return False
         # if the device has missed its rendezvous time by more than half the sync interval
         half_life = OPTIONS["Deployment"]["SYNC_INTERVAL"] / 2
-        if self.attempt_at < (time.time() - half_life):
-            return False
-        return True
+        return self.attempt_at >= time.time() - half_life
 
     @property
     def attempt_at(self):

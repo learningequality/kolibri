@@ -94,7 +94,7 @@ def test_inno_tag_matches_the_compiler_version_the_build_installs():
         r"innosetup[^\n\d]*--version=([\d.]+)",
         BUILD_WORKFLOW.read_text(encoding="utf-8"),
     ).group(1)
-    assert INNO_TAG == f"is-{version.replace('.', '_')}"
+    assert f"is-{version.replace('.', '_')}" == INNO_TAG
 
 
 def test_every_unofficial_inno_file_is_vendored():

@@ -358,11 +358,10 @@ class Job:
         )
 
     def check_for_cancel(self):
-        if self.cancellable:
-            if self.storage.check_job_canceled(
-                self.job_id, expected_supervisor_id=self._supervisor_id
-            ):
-                raise UserCancelledError()
+        if self.cancellable and self.storage.check_job_canceled(
+            self.job_id, expected_supervisor_id=self._supervisor_id
+        ):
+            raise UserCancelledError()
 
     def is_cancelled(self):
         try:

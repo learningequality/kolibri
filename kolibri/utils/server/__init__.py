@@ -496,7 +496,8 @@ class DaemonizePlugin(SimplePlugin):
         kwargs = {}
         # Truncate the file
         if os.path.isfile(DAEMON_LOG):
-            open(DAEMON_LOG, "w").truncate()
+            with open(DAEMON_LOG, "w") as f:
+                f.truncate()
         kwargs["out_log"] = DAEMON_LOG
         kwargs["err_log"] = DAEMON_LOG
 

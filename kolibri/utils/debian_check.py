@@ -55,7 +55,7 @@ def check_debian_user(noinput=False):
         "Alternatively, would you like to continue and "
         f"run the command as '{current_user}'? [y/N] "
     )
-    if not cont.strip().lower() == "y":
+    if cont.strip().lower() != "y":
         # Remove the previously created KOLIBRI_HOME directory
         rmtree(KOLIBRI_HOME)
         sys.exit(0)

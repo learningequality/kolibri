@@ -958,10 +958,10 @@ class TestTransferNoFullRangesDownloadByteRangeSupportNotReported(
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
         super().setUp()
-        self.copy_source = tempfile.NamedTemporaryFile(delete=False).name
         # Test FileCopy iterator
-        with open(self.copy_source, "wb") as testfile:
+        with tempfile.NamedTemporaryFile(delete=False) as testfile:
             testfile.write(self.content)
+        self.copy_source = testfile.name
 
     def test_copy_run(self):
         with FileCopy(self.copy_source, self.dest, self.checksum) as fc:

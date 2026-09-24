@@ -185,8 +185,8 @@ def test_get_range_response(mock_stat, mock_file):
 
     request_headers = {"HTTP_RANGE": "bytes=0-499"}
     path, headers = static_file.get_path_and_headers(request_headers)
-    file_handle = open(path, "rb")
-    response = static_file.get_range_response("bytes=0-499", headers, file_handle)
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response("bytes=0-499", headers, file_handle)
 
     assert isinstance(response, Response)
     assert response.status == HTTPStatus.PARTIAL_CONTENT

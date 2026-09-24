@@ -28,9 +28,7 @@ class ContentMoveDirectoryTestCase(TestCase):
     def _path_exists_side_effect(*args):
         if args[0] == OPTIONS["Paths"]["CONTENT_DIR"]:
             return True
-        if args[0].startswith(success_path):
-            return False
-        return True
+        return not args[0].startswith(success_path)
 
     def _listdir_side_effect(*args):
         if args[0] == os.path.join(OPTIONS["Paths"]["CONTENT_DIR"], "databases"):

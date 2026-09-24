@@ -131,9 +131,7 @@ class KolibriCommand(click.Command):
     allow_extra_args = True
 
     def __init__(self, *args, **kwargs):
-        kwargs["params"] = base_params + (
-            kwargs["params"] if "params" in kwargs else []
-        )
+        kwargs["params"] = base_params + kwargs.get("params", [])
         super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
@@ -161,9 +159,7 @@ class KolibriGroupCommand(click.Group):
     allow_extra_args = True
 
     def __init__(self, *args, **kwargs):
-        kwargs["params"] = base_params + (
-            kwargs["params"] if "params" in kwargs else []
-        )
+        kwargs["params"] = base_params + kwargs.get("params", [])
         super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
@@ -191,9 +187,7 @@ class KolibriDjangoCommand(click.Command):
     allow_extra_args = True
 
     def __init__(self, *args, **kwargs):
-        kwargs["params"] = initialize_params + (
-            kwargs["params"] if "params" in kwargs else []
-        )
+        kwargs["params"] = initialize_params + kwargs.get("params", [])
         super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):

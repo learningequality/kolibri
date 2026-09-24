@@ -81,9 +81,8 @@ def main(filenames):
     failed_files = []
 
     for filepath in filenames:
-        if has_lfs_filter(filepath):
-            if not is_lfs_pointer(filepath):
-                failed_files.append(filepath)
+        if has_lfs_filter(filepath) and not is_lfs_pointer(filepath):
+            failed_files.append(filepath)
 
     if failed_files:
         logger.error("\n%s", "=" * 80)

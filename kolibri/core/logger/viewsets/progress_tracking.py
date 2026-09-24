@@ -896,14 +896,18 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             wrap_to_save_queue(
                 quiz_answered_notification, attemptlog, context["quiz_id"]
             )
-        if "course_session_id" in context and "lesson_id" not in context:
-            if created and "unit_id" in context:
-                wrap_to_save_queue(
-                    quiz_answered_notification,
-                    attemptlog,
-                    attemptlog.masterylog.summarylog.content_id,
-                    context["course_session_id"],
-                )
+        if (
+            "course_session_id" in context
+            and "lesson_id" not in context
+            and created
+            and "unit_id" in context
+        ):
+            wrap_to_save_queue(
+                quiz_answered_notification,
+                attemptlog,
+                attemptlog.masterylog.summarylog.content_id,
+                context["course_session_id"],
+            )
 
     def _get_session_log(self, session_id, user):
         try:

@@ -94,18 +94,17 @@ class LessonSerializer(ModelSerializer):
         collection = attrs.get("collection") or self.instance.collection
 
         learner_ids = attrs.get("learner_ids")
-        if learner_ids:
-            if (
-                len(learner_ids)
-                != FacilityUser.objects.filter(
-                    memberships__collection=collection,
-                    id__in=[u.id for u in learner_ids],
-                ).count()
-            ):
-                raise ValidationError(
-                    "Some learner_ids are not members of the collection that this lesson is contained in",
-                    code=error_constants.INVALID,
-                )
+        if learner_ids and (
+            len(learner_ids)
+            != FacilityUser.objects.filter(
+                memberships__collection=collection,
+                id__in=[u.id for u in learner_ids],
+            ).count()
+        ):
+            raise ValidationError(
+                "Some learner_ids are not members of the collection that this lesson is contained in",
+                code=error_constants.INVALID,
+            )
 
         lessons = Lesson.objects.filter(title__iexact=title, collection=collection)
         if not lessons.exists() or (

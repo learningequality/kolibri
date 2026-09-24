@@ -3,7 +3,7 @@ from kolibri.core.auth.models import FacilityUser
 
 
 def get_members_or_user(collection_kind, collection_id):
-    if "user" == collection_kind:
+    if collection_kind == "user":
         return FacilityUser.objects.filter(pk=collection_id)
     return (
         Collection.objects.filter(kind=collection_kind)

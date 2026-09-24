@@ -29,9 +29,8 @@ try:
     import cffi
 
     if sys.version_info > (3, 13):
-        if hasattr(cffi, "__version_info__"):
-            if cffi.__version_info__ < (1, 17, 1):
-                raise ImportError
+        if hasattr(cffi, "__version_info__") and cffi.__version_info__ < (1, 17, 1):
+            raise ImportError
 
     import OpenSSL
 
@@ -82,16 +81,11 @@ def retry_import(e):
         * False - Does not need retry.
     """
 
-    if (
-        isinstance(e, ConnectionError)
-        or isinstance(e, Timeout)
-        or isinstance(e, ChunkedEncodingError)
+    return (
+        isinstance(e, (ConnectionError, Timeout, ChunkedEncodingError))
         or (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE)
         or (isinstance(e, SSLERROR) and "decryption failed or bad record mac" in str(e))
-    ):
-        return True
-
-    return False
+    )
 
 
 class ChunkedFileDoesNotExist(Exception):
@@ -449,11 +443,10 @@ class ChunkedFile(TransferFileBase):
         except ValueError:
             return False
         start_chunk, end_chunk = self._chunk_range_for_byte_range(start, end)
-        for chunk_index in range(start_chunk, end_chunk + 1):
-            if not self.chunk_complete(chunk_index):
-                return False
-
-        return True
+        return all(
+            self.chunk_complete(chunk_index)
+            for chunk_index in range(start_chunk, end_chunk + 1)
+        )
 
     def md5_checksum(self):
         if not self.is_complete():
@@ -532,7 +525,8 @@ class TransferFile(TransferFileBase):
     def write(self, data):
         """Write data to the transfer file."""
         if self._file_obj is None:
-            self._file_obj = open(self._tmp_filepath, "wb")
+            # Owned by this object until close().
+            self._file_obj = open(self._tmp_filepath, "wb")  # noqa: SIM115
         self._file_obj.write(data)
         self.hasher.update(data)
         self._bytes_written += len(data)
@@ -1071,7 +1065,8 @@ class FileCopy(Transfer):
         self.total_size = os.path.getsize(self.source)
         self.transfer_size = self.total_size
         self.dest_file_obj.file_size = self.total_size
-        self.source_file_obj = open(self.source, "rb")
+        # Owned by this object until close().
+        self.source_file_obj = open(self.source, "rb")  # noqa: SIM115
         self.started = True
 
     def run(self, progress_update=None):
@@ -1104,7 +1099,8 @@ class RemoteFile(ChunkedFile):
     @property
     def dest_file_handle(self):
         if self._dest_file_handle is None and os.path.exists(self.filepath):
-            self._dest_file_handle = open(self.filepath, "rb")
+            # Owned by this object until close().
+            self._dest_file_handle = open(self.filepath, "rb")  # noqa: SIM115
             self._dest_file_handle.seek(self.position)
         return self._dest_file_handle
 

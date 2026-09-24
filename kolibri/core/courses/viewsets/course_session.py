@@ -152,18 +152,17 @@ class CourseSessionSerializer(ModelSerializer):
         # first condition is for creating object, second is for updating
         collection = attrs.get("collection") or self.instance.collection
 
-        if self.initial_data.get("learner_ids"):
-            if (
-                len(self.initial_data["learner_ids"])
-                != FacilityUser.objects.filter(
-                    memberships__collection=collection,
-                    id__in=self.initial_data["learner_ids"],
-                ).count()
-            ):
-                raise ValidationError(
-                    "Some learner_ids are not members of the collection that this course session is contained in",
-                    code=error_constants.INVALID,
-                )
+        if self.initial_data.get("learner_ids") and (
+            len(self.initial_data["learner_ids"])
+            != FacilityUser.objects.filter(
+                memberships__collection=collection,
+                id__in=self.initial_data["learner_ids"],
+            ).count()
+        ):
+            raise ValidationError(
+                "Some learner_ids are not members of the collection that this course session is contained in",
+                code=error_constants.INVALID,
+            )
 
         return attrs
 

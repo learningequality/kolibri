@@ -234,7 +234,8 @@ def _lock_kolibri_home(home):
             home,
         )
         return
-    _home_lock_file = open(os.path.join(home, "benchmark.lock"), "w")
+    # Held until exit: closing it releases the lock.
+    _home_lock_file = open(os.path.join(home, "benchmark.lock"), "w")  # noqa: SIM115
     try:
         fcntl.flock(_home_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError as e:

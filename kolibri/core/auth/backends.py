@@ -209,8 +209,8 @@ class FacilityUserBackend:
         :keyword picture_password: a dot-separated picture sequence string
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
-        picture_password = kwargs.get("picture_password", None)
+        facility = kwargs.get(FACILITY_CREDENTIAL_KEY)
+        picture_password = kwargs.get("picture_password")
 
         scopes = []
 

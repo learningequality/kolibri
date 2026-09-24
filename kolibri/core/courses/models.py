@@ -652,14 +652,15 @@ class UnitTestAssignment(AbstractFacilityDataModel):
             )
 
         # Ensure assignment collection is the same as or a child of the course_session's collection
-        if self.course_session and self.collection:
-            if (
-                self.collection_id != self.course_session.collection_id
-                and self.collection.parent_id != self.course_session.collection_id
-            ):
-                raise IntegrityError(
-                    "UnitTestAssignment collection must be the same as or a child of the CourseSession's collection"
-                )
+        if (
+            self.course_session
+            and self.collection
+            and self.collection_id != self.course_session.collection_id
+            and self.collection.parent_id != self.course_session.collection_id
+        ):
+            raise IntegrityError(
+                "UnitTestAssignment collection must be the same as or a child of the CourseSession's collection"
+            )
 
         self.enforce_authoring_user_field("activated_by", **kwargs)
 

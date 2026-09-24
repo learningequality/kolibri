@@ -81,10 +81,11 @@ def _posix_become_daemon(
         os._exit(1)
     if sys.platform != "darwin":  # This block breaks on OS X
         # Fix courtesy of https://github.com/serverdensity/python-daemon/blob/master/daemon.py#L94
-        si = open("/dev/null")
-        so = open(out_log, "a+", buffering)
-        se = open(err_log, "a+", buffering)
-        os.dup2(si.fileno(), sys.stdin.fileno())
+        with open("/dev/null") as si:
+            os.dup2(si.fileno(), sys.stdin.fileno())
+        # These back sys.stdout and sys.stderr for the life of the daemon.
+        so = open(out_log, "a+", buffering)  # noqa: SIM115
+        se = open(err_log, "a+", buffering)  # noqa: SIM115
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
         # Set custom file descriptors so that they get proper buffering.
@@ -102,12 +103,13 @@ def _windows_become_daemon(our_home_dir=".", out_log=None, err_log=None, umask=0
     old_stderr = sys.stderr
     old_stdout = sys.stdout
 
+    # These back sys.stderr and sys.stdout for the life of the process.
     if err_log:
-        sys.stderr = open(err_log, "a", buffering)
+        sys.stderr = open(err_log, "a", buffering)  # noqa: SIM115
     else:
         sys.stderr = _WindowsNullDevice()
     if out_log:
-        sys.stdout = open(out_log, "a", buffering)
+        sys.stdout = open(out_log, "a", buffering)  # noqa: SIM115
     else:
         sys.stdout = _WindowsNullDevice()
 
