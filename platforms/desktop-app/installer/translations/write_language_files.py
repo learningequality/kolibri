@@ -88,7 +88,7 @@ def write_languages(languages_path, locale_dir):
         files = ",".join(messages_files(locale_code, definition, locale_dir))
         lines.append(f'Name: "{name}"; MessagesFile: "{files}"')
     languages_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"  -> {languages_path.name}")  # noqa: T201
+    print(f"  -> {languages_path.name}")
 
 
 def write_lang_options(output_dir):
@@ -98,7 +98,7 @@ def write_lang_options(output_dir):
         lines.extend(f"{key}={value}" for key, value in lang_options(definition))
         path = output_dir / f"{locale_code}.isl"
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-        print(f"  -> {path.name}")  # noqa: T201
+        print(f"  -> {path.name}")
 
 
 def main(translations_dir):

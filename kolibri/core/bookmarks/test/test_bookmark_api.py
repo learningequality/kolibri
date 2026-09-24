@@ -89,10 +89,10 @@ class BookmarkAPITestCase(APITestCase):
         Ensures that the user gets their bookmarks back when they request them
         and that they only get *theirs*.
         """
-        bookmark, _ = Bookmark.objects.get_or_create(
+        _bookmark, _ = Bookmark.objects.get_or_create(
             **self.base_data(self.user, model_data=True)
         )
-        other_users_bookmark, _ = Bookmark.objects.get_or_create(
+        _other_users_bookmark, _ = Bookmark.objects.get_or_create(
             **self.base_data(self.user2, model_data=True)
         )
 

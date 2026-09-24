@@ -150,10 +150,10 @@ class CalculateImportExportSizeView(APIView):
     def post(self, request):
         try:
             channel_id = self.request.data["channel_id"]
-        except KeyError:
+        except KeyError as e:
             raise ValidationError(
                 "channel_id is required for calculating file size and resource counts"
-            )
+            ) from e
         drive_id = self.request.data.get("drive_id")
         peer_id = self.request.data.get("peer_id")
         for_export = self.request.data.get("export")
@@ -181,15 +181,15 @@ class CalculateImportExportSizeView(APIView):
                 drive_id=drive_id,
                 peer_id=peer_id,
             )
-        except LocationError:
+        except LocationError as e:
             if drive_id:
                 raise ValidationError(
                     f"The external drive with given drive id {drive_id} does not exist."
-                )
+                ) from e
             if peer_id:
                 raise ValidationError(
                     f"The network location with the id {peer_id} does not exist"
-                )
+                ) from e
 
         return Response(
             {
@@ -217,8 +217,8 @@ class DeviceChannelOrderView(APIView):
                 raise AssertionError
             if not all(map(validate_uuid, ids)):
                 raise AssertionError
-        except AssertionError:
-            raise ParseError("Array of ids not sent in body of request")
+        except AssertionError as e:
+            raise ParseError("Array of ids not sent in body of request") from e
         queryset = ChannelMetadata.objects.filter(root__available=True)
         total_channels = queryset.count()
         if len(ids) != total_channels:

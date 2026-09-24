@@ -214,8 +214,8 @@ def validate_port_number(value):
 def port(value):
     try:
         return validate_port_number(int(value))
-    except ValueError:
-        raise VdtTypeError(value)
+    except ValueError as e:
+        raise VdtTypeError(value) from e
 
 
 def origin_or_port(value):
@@ -228,10 +228,10 @@ def origin_or_port(value):
     if value != "":
         try:
             value = validate_port_number(int(value))
-        except ValueError:
+        except ValueError as e:
             url = urlparse(value)
             if not url.scheme or not url.netloc:
-                raise VdtValueError(value)
+                raise VdtValueError(value) from e
             value = urlunparse((url.scheme, url.netloc, "", "", "", ""))
     return value
 
@@ -239,8 +239,8 @@ def origin_or_port(value):
 def validate_bytes(value):
     try:
         value = bytes_from_humans(value)
-    except ValueError:
-        raise VdtValueError(value)
+    except ValueError as e:
+        raise VdtValueError(value) from e
     return value
 
 
@@ -262,12 +262,12 @@ def storage_option(value, *opts):
             from storages.backends.gcloud import GoogleCloudStorage  # noqa
 
             return value
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as e:
             logger.error(
                 "Google Cloud Storage backend is not available.",
                 "Are storage requirements installed?",
             )
-            raise VdtValueError(value)
+            raise VdtValueError(value) from e
     return None
 
 
@@ -286,11 +286,11 @@ def cache_option(value):
             from kolibri.core.utils.cache import RedisCache  # noqa
             import redis  # noqa
         return value
-    except ImportError:
+    except ImportError as e:
         logger.error(
             "Redis cache backend is not available, are Redis packages installed?"
         )
-        raise VdtValueError(value)
+        raise VdtValueError(value) from e
 
 
 class LazyImportFunction:
@@ -326,8 +326,8 @@ def lazy_import_callback(value):
     try:
         # Check that the string is at least parseable as a module name
         ast.parse(value)
-    except SyntaxError:
-        raise VdtValueError(value)
+    except SyntaxError as e:
+        raise VdtValueError(value) from e
     # We seem to have something that is somewhat valid, so return a function
     # that does the import and tries to invoke the returned function.
 
@@ -876,7 +876,7 @@ def _get_option_spec():
                 )
                 default_envvar = f"KOLIBRI_{section.upper()}_{optname.upper()}"
             if default_envvar not in opt_envvars:
-                attrs["envvars"] = (default_envvar,) + opt_envvars
+                attrs["envvars"] = (default_envvar, *opt_envvars)
     return option_spec
 
 

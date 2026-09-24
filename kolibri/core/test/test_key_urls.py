@@ -1,3 +1,4 @@
+from typing import ClassVar
 from unittest.mock import patch
 
 import requests
@@ -162,7 +163,7 @@ class AllUrlsTest(APITestCase):
 
     # Allow codes that may indicate a poorly formed response
     # 412 is returned from endpoints that have required GET params when these are not supplied
-    allowed_http_codes = [200, 301, 302, 400, 401, 403, 404, 405, 412]
+    allowed_http_codes: ClassVar[list] = [200, 301, 302, 400, 401, 403, 404, 405, 412]
 
     def setUp(self):
         provision_device()

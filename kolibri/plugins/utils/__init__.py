@@ -85,7 +85,7 @@ def _import_python_module(plugin_name):
         exc_message = str(e)
         if exc_message.startswith("No module named"):
             msg = f"Plugin '{plugin_name}' does not seem to exist. Is it on the PYTHONPATH?"
-            raise PluginDoesNotExist(msg)
+            raise PluginDoesNotExist(msg) from e
         raise
 
 
@@ -175,14 +175,14 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
         exc_message = str(e)
         if f"No module named '{plugin_module_name}'" in exc_message:
             msg = f"Plugin '{plugin_name}' exists but does not have an importable kolibri_plugin module"
-            raise PluginDoesNotExist(msg)
+            raise PluginDoesNotExist(msg) from e
         raise
-    except AppRegistryNotReady:
+    except AppRegistryNotReady as e:
         msg = (
             f"Plugin '{plugin_name}' loads the Django app registry, which it isn't "
             "allowed to do while enabling or disabling itself."
         )
-        raise PluginLoadsApp(msg)
+        raise PluginLoadsApp(msg) from e
 
 
 def enable_plugin(plugin_name, initialize_hooks=False):

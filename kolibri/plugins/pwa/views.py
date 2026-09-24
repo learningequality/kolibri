@@ -29,7 +29,7 @@ class PwaManifestView(TemplateView):
         # otherwise it may interfere with other PWAs from the same domain.
         context["id"] = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 
-        # Background colour should match what’s used for the main part of the
+        # Background colour should match what's used for the main part of the
         # app, which is the #main-wrapper div.
         context["background_color"] = (
             theme.get("brandColors", {}).get("grey", {}).get("v_100", "#f5f5f5")
@@ -65,7 +65,7 @@ class PwaManifestView(TemplateView):
         # it gets implemented by more web engines[1]. So the use of it in Kolibri
         # will need to be checked in future to see if either more platforms need
         # to be supported, or if all support for it needs to be removed because
-        # it’s been dropped from the standard. If so, Kolibri will be left with
+        # it's been dropped from the standard. If so, Kolibri will be left with
         # a couple of deprecated config keys.
         related_apps = []
 

@@ -4,6 +4,7 @@ import logging
 import time
 from contextlib import ExitStack
 from itertools import islice
+from typing import ClassVar
 
 from django.apps import apps
 from django.core.management.base import CommandError
@@ -70,7 +71,8 @@ no_schema_models = [
 
 models_to_exclude = [
     apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages"),
-] + no_schema_models
+    *no_schema_models,
+]
 
 
 SOURCE_DB_ALIAS = "sourcedb"
@@ -268,7 +270,7 @@ class ChannelImport:
     #
     # See NoVersionChannelImport for an annotated example.
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         ContentNode: {
             "per_row": {
                 "tree_id": "available_tree_id",
@@ -916,10 +918,10 @@ class ChannelImport:
         for operation in post_operations:
             try:
                 handler = getattr(self, operation)
-            except AttributeError:
+            except AttributeError as e:
                 raise AttributeError(
                     f"Post operation {operation} specified for model {model} but none found on class"
-                )
+                ) from e
             handler()
 
     def _import_models(self):
@@ -1033,7 +1035,7 @@ class NoIncludedPresetsChannelImport(ChannelImport):
     preset, and maps the legacy file_size column to file_size_bigint.
     """
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         ContentNode: {
             "per_row": {
                 "tree_id": "available_tree_id",
@@ -1075,7 +1077,7 @@ class NoLearningActivitiesChannelImport(NoIncludedPresetsChannelImport):
     Class defining the schema mapping for importing content databases before learning activities metadata was added
     """
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         **NoIncludedPresetsChannelImport.schema_mapping,
         ContentNode: {
             "per_row": {
@@ -1100,7 +1102,7 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
     from the old version of the Kolibri content databases into the database for the current version of Kolibri.
     """
 
-    schema_mapping = {
+    schema_mapping: ClassVar[dict] = {
         # The top level keys of the schema_mapping are the Content Django Models that are to be imported
         ContentNode: {
             # For each model's mappings, can defined both 'per_row' and 'per_table' mappings.
@@ -1228,10 +1230,10 @@ def _check_schema_supported(schema_version):
         return
     try:
         version_number = int(schema_version)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as e:
         raise InvalidSchemaVersionError(
             f"Tried to import invalid schema version {schema_version}"
-        )
+        ) from e
     if version_number > int(CONTENT_SCHEMA_VERSION):
         raise FutureSchemaError(
             f"Tried to import schema version, {schema_version}, which is not supported by this version of Kolibri."
@@ -1317,11 +1319,11 @@ def import_channel_by_id(
             contentfolder=contentfolder,
             version_requested=version_requested,
         )
-    except InvalidSchemaVersionError:
+    except InvalidSchemaVersionError as e:
         raise CommandError(
             "Database file had an invalid database schema, the file may be corrupted or have been modified."
-        )
-    except FutureSchemaError:
+        ) from e
+    except FutureSchemaError as e:
         raise KolibriUpgradeError(
             "Database file uses a future database schema that this version of Kolibri does not support."
-        )
+        ) from e

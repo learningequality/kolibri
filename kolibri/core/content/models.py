@@ -17,6 +17,7 @@ See base_models.py for when a new export schema version is needed.
 
 import os
 import uuid
+from typing import ClassVar
 
 from django.db import connection
 from django.db import models
@@ -102,18 +103,18 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
 
         filters = {}
         annotations = {}
-        for bitmask_fieldname, bits in bits.items():
+        for bitmask_fieldname, field_bits in bits.items():
             annotation_fieldname = "{}_{}".format(bitmask_fieldname, "masked")
             # To get the correct result, i.e. an AND that all the labels are present,
             # we need to check that the aggregated value is euqal to the bits.
             # If we wanted an OR (which would check for any being present),
             # we would have to use GREATER THAN 0 here.
-            filters[annotation_fieldname] = bits
+            filters[annotation_fieldname] = field_bits
             # This ensures that the annotated value is the result of the AND operation
             # so if all the values are present, the result will be the same as the bits
             # but if any are missing, it will not be equal to the bits, but will only be
             # 0 if none of the bits are present.
-            annotations[annotation_fieldname] = F(bitmask_fieldname).bitand(bits)
+            annotations[annotation_fieldname] = F(bitmask_fieldname).bitand(field_bits)
 
         return self.annotate(**annotations).filter(**filters)
 
@@ -221,11 +222,11 @@ class ContentNode(base_models.ContentNode):
 
     class Meta:
         ordering = ("lft",)
-        index_together = [
+        index_together: ClassVar[list] = [
             ["level", "channel_id", "kind"],
             ["level", "channel_id", "available"],
         ]
-        indexes = [
+        indexes: ClassVar[list] = [
             models.Index(fields=["modality"]),
         ]
 
@@ -261,7 +262,7 @@ class File(base_models.File):
     """
 
     class Meta:
-        ordering = ["priority"]
+        ordering: ClassVar[list] = ["priority"]
 
     class Admin:
         pass
@@ -408,7 +409,7 @@ class ChannelMetadata(base_models.ChannelMetadata):
         pass
 
     class Meta:
-        ordering = ["order"]
+        ordering: ClassVar[list] = ["order"]
 
     def __str__(self):
         return self.name

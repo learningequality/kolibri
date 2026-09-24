@@ -13,6 +13,7 @@ Eventually, it may also store user feedback on the content and the software.
 
 import logging
 from datetime import timedelta
+from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
@@ -386,7 +387,7 @@ class GenerateCSVLogRequest(models.Model):
     This model provides a record of a user's request to generate session and summary log files
     """
 
-    LOG_TYPE_CHOICES = [
+    LOG_TYPE_CHOICES: ClassVar[list] = [
         ("session", "Session"),
         ("summary", "Summary"),
     ]

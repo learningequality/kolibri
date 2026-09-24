@@ -190,9 +190,9 @@ def wrap_exceptions(fun):
             return fun(self, *args, **kwargs)
         except OSError as err:
             if err.errno in ACCESS_DENIED_ERRSET:
-                raise AccessDenied()
+                raise AccessDenied() from err
             if err.errno == errno.ESRCH:
-                raise NoSuchProcess()
+                raise NoSuchProcess() from err
             raise
 
     return wrapper
@@ -205,7 +205,7 @@ def handle_from_pid(pid):
 class Process:
     """Wrapper class around underlying C implementation."""
 
-    __slots__ = ["pid", "_name", "_ppid"]
+    __slots__ = ["_name", "_ppid", "pid"]
 
     def __init__(self, pid):
         self.pid = pid
@@ -216,7 +216,7 @@ class Process:
     def cmdline(self):
         try:
             # pass as the startupinfo keyword argument:
-            out, err = subprocess.Popen(
+            out, _err = subprocess.Popen(
                 "wmic path win32_process get Processid,Commandline",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -226,14 +226,10 @@ class Process:
             pass
         elements = out.split()
         b_pid = str(self.pid).encode("ascii")
-        found = False
         for pos, element in enumerate(elements):
             if element == b_pid:
-                found = True
-                break
-        if not found:
-            raise NoSuchProcess()
-        return elements[pos - 1].decode("utf-8", "slashescape")
+                return elements[pos - 1].decode("utf-8", "slashescape")
+        raise NoSuchProcess()
 
     @wrap_exceptions
     def create_time(self):
@@ -261,7 +257,7 @@ class Process:
         t = self._get_raw_meminfo()
         rss = t[2]  # wset
         vms = t[7]  # pagefile
-        return pmem(*(rss, vms) + t)
+        return pmem(*(rss, vms, *t))
 
     @wrap_exceptions
     def cpu_times(self):

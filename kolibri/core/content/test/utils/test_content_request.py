@@ -531,7 +531,7 @@ class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
         )
 
     def test_has_metadata__yes(self):
-        _, node = self._create_resources(self.request.contentnode_id)
+        _, _node = self._create_resources(self.request.contentnode_id)
         qs = completed_downloads_queryset().filter(has_metadata=True)
         self.assertEqual(
             qs.count(),
@@ -546,7 +546,7 @@ class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
         )
 
     def test_total_size__not_available(self):
-        _, node = self._create_resources(self.request.contentnode_id)
+        _, _node = self._create_resources(self.request.contentnode_id)
 
         qs = completed_downloads_queryset()
         self.assertEqual(
@@ -555,7 +555,7 @@ class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
         )
 
     def test_total_size__available(self):
-        _, node = self._create_resources(self.request.contentnode_id, available=True)
+        _, _node = self._create_resources(self.request.contentnode_id, available=True)
 
         qs = completed_downloads_queryset()
         self.assertEqual(
@@ -635,19 +635,19 @@ class PreferredDevicesTestCase(BaseTestCase):
         self.assertEqual(peers[0].instance_id, netloc.instance_id)
 
     def test_sync_peers(self):
-        (sync_session2, network_location2) = self._create_sync_and_network_location(
+        (_sync_session2, network_location2) = self._create_sync_and_network_location(
             sync_overrides={
                 "last_activity_timestamp": timezone.now() - timedelta(days=1),
             }
         )
-        (sync_session1, network_location1) = self._create_sync_and_network_location()
+        (_sync_session1, network_location1) = self._create_sync_and_network_location()
         instance = PreferredDevices.build_from_sync_sessions()
         peer_ids = {location.id for location in instance}
         self.assertEqual(len(peer_ids), 2)
         self.assertEqual(peer_ids, {network_location1.id, network_location2.id})
 
     def test_sync_peers__with_version_filter(self):
-        (sync_session2, network_location2) = self._create_sync_and_network_location(
+        (_sync_session2, _network_location2) = self._create_sync_and_network_location(
             sync_overrides={
                 "last_activity_timestamp": timezone.now() - timedelta(days=1),
             },
@@ -655,7 +655,7 @@ class PreferredDevicesTestCase(BaseTestCase):
                 "kolibri_version": "0.15.0",
             },
         )
-        (sync_session1, network_location1) = self._create_sync_and_network_location()
+        (_sync_session1, network_location1) = self._create_sync_and_network_location()
         instance = PreferredDevices.build_from_sync_sessions(version_filter=">=0.16.0")
         peers = list(instance)
         self.assertEqual(len(peers), 1)
@@ -849,7 +849,7 @@ class InternalProcessContentRequestsTestCase(BaseQuerysetTestCase):
     def test_no_free_space__sync_removal(self):
         self.assertEqual(self.qs.count(), 1)
 
-        sync_session, _ = self._create_sync_and_network_location()
+        _sync_session, _ = self._create_sync_and_network_location()
         removal = ContentRemovalRequest(
             facility=self.facility,
             source_model=Facility.morango_model_name,
@@ -871,7 +871,7 @@ class InternalProcessContentRequestsTestCase(BaseQuerysetTestCase):
     def test_no_free_space__user_removal(self):
         self.assertEqual(self.qs.count(), 1)
 
-        sync_session, _ = self._create_sync_and_network_location()
+        _sync_session, _ = self._create_sync_and_network_location()
         removal = ContentRemovalRequest.build_for_user(self.learner)
         removal.contentnode_id = uuid.uuid4().hex
         removal.save()
@@ -887,7 +887,7 @@ class InternalProcessContentRequestsTestCase(BaseQuerysetTestCase):
     def test_no_free_space__user_downloads(self):
         self.assertEqual(self.qs.count(), 1)
 
-        sync_session, _ = self._create_sync_and_network_location()
+        _sync_session, _ = self._create_sync_and_network_location()
         download = ContentDownloadRequest.build_for_user(self.learner)
         download.contentnode_id = uuid.uuid4().hex
         download.status = ContentRequestStatus.Completed

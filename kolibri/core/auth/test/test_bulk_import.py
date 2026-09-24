@@ -77,14 +77,14 @@ def test_valid_name_validator():
         check("bob 123")
 
     check = b.valid_name(username=False)
-    check("bob 123") is None
+    assert check("bob 123") is None
     with pytest.raises(ValueError):
         check("bob123-..")
     with pytest.raises(ValueError):
         check(None)
 
     check = b.valid_name(allow_null=True)
-    check(None) is None
+    check(None)
 
 
 def test_not_empty():
@@ -229,7 +229,7 @@ class ImportTestCase(TestCase):
 
         with open_csv_for_reading(local_filepath=new_filename) as source:
             reader = csv.DictReader(source, strict=True)
-            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+            per_line_errors, _classes, _users, _roles = cmd.csv_values_validation(
                 reader, header_translation, self.facility
             )
         assert len(per_line_errors) == 1

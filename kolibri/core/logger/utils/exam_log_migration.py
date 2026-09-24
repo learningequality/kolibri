@@ -252,7 +252,7 @@ def _handle_unprocessed_attemptlog_ids(unprocessed_attempt_log_ids):
             )
 
 
-def migrate_from_exam_logs(source_logs, source_attempt_log_ids=None):  # noqa C901
+def migrate_from_exam_logs(source_logs, source_attempt_log_ids=None):
     """
     This function performs a forward migration to generate logs of the following kinds:
     ContentSummaryLog

@@ -6,6 +6,7 @@ import time
 import uuid
 from collections import namedtuple
 from ipaddress import ip_address
+from typing import ClassVar
 
 from magicbus.base import Bus
 from magicbus.plugins import SimplePlugin
@@ -149,16 +150,16 @@ class KolibriInstance:
     """
 
     __slots__ = (
-        "id",
-        "zeroconf_id",
-        "ip",
-        "port",
-        "host",
-        "is_self",
         "device_info",
-        "service_info",
-        "prefix",
+        "host",
+        "id",
+        "ip",
+        "is_self",
         "last_seen",
+        "port",
+        "prefix",
+        "service_info",
+        "zeroconf_id",
     )
 
     def __init__(
@@ -364,7 +365,7 @@ class KolibriBroadcastEvents(Bus):
     # Adding `Exception` here will re-raise all errors, but making it easier to debug.
     throws = (Exception,)
 
-    event_map = {
+    event_map: ClassVar[dict] = {
         ServiceStateChange.Added: EVENT_ADD_SERVICE,
         ServiceStateChange.Removed: EVENT_REMOVE_SERVICE,
         ServiceStateChange.Updated: EVENT_UPDATE_SERVICE,
@@ -423,13 +424,13 @@ class KolibriBroadcast:
     """
 
     __slots__ = (
+        "events",
         "id",
         "instance",
         "interfaces",
-        "events",
+        "local_names",
         "other_instances",
         "zeroconf",
-        "local_names",
     )
 
     def __init__(self, instance, interfaces=InterfaceChoice.All):

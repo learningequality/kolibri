@@ -241,7 +241,7 @@ class SoudExecuteSyncsTestCase(TestCase):
         user_id = user_id or self.user_id
         instance_id = instance_id or self.instance_id
         calls = mock_func.mock_calls
-        _, args, kwargs = calls[call_index]
+        _, args, _kwargs = calls[call_index]
         self.assertIsInstance(args[0], Context)
         self.assertEqual(args[0].user_id, user_id)
         self.assertEqual(args[0].instance_id, instance_id)
@@ -250,7 +250,7 @@ class SoudExecuteSyncsTestCase(TestCase):
         user_id = user_id or self.user_id
         instance_id = instance_id or self.instance_id
         calls = mock_func.mock_calls
-        for _, args, kwargs in calls:
+        for _, args, _kwargs in calls:
             self.assertIsInstance(args[0], Context)
             self.assertFalse(
                 args[0].user_id == user_id and args[0].instance_id == instance_id,
@@ -349,7 +349,7 @@ class SoudExecuteSyncsTestCase(TestCase):
 
     def test_ordering(self):
         queues = []
-        for i in range(WINDOW_SEC + 2):
+        for _ in range(WINDOW_SEC + 2):
             queue = self._create_queue(
                 instance_id=uuid.uuid4().hex, status=SyncQueueStatus.Pending
             )
@@ -369,7 +369,7 @@ class SoudExecuteSyncsTestCase(TestCase):
                 self.mock_request_sync, instance_id=queue.instance_id, call_index=i
             )
 
-        for i, queue in enumerate(queues[WINDOW_SEC:]):
+        for queue in queues[WINDOW_SEC:]:
             self.assertNotCalledWithContext(
                 self.mock_request_sync, instance_id=queue.instance_id
             )

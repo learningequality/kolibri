@@ -7,6 +7,7 @@ import time
 import unittest
 import uuid
 from base64 import urlsafe_b64decode
+from typing import ClassVar
 from unittest import mock
 
 import pytz
@@ -193,7 +194,7 @@ class ContentNodeTestBase:
 
 
 class ContentNodeQuerysetTestCase(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @classmethod
@@ -237,7 +238,7 @@ def infer_learning_activity(kind):
 
 
 class ContentNodeAPIBase:
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     baseurl = None
 
@@ -299,11 +300,6 @@ class ContentNodeAPIBase:
         thumbnail = None
         files = []
         for f in expected.files.all():
-            ("local_file__id",)
-            ("local_file__available",)
-            ("local_file__file_size",)
-            ("local_file__extension",)
-            ("lang_id",)
             file = {}
             for field in [
                 "id",
@@ -540,8 +536,7 @@ class ContentNodeAPIBase:
         self.assertEqual(response.data["error"], "Invalid UUID format.")
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_long(self):
@@ -564,8 +559,7 @@ class ContentNodeAPIBase:
         self._recurse_and_assert([response.data], [root])
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_next__gt(self):
@@ -591,8 +585,7 @@ class ContentNodeAPIBase:
         )
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_more(self):
@@ -1811,14 +1804,14 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         return facility, root, c1, c2, c2c1, c2c3
 
     def test_contentnode_progress_list_endpoint(self):
-        facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
+        facility, _root, _c1, _c2, c2c1, _c2c3 = self._setup_contentnode_progress()
 
         response = self.client.get(reverse("kolibri:core:contentnodeprogress-list"))
 
         def get_progress_fraction(node):
-            return list(
+            return next(
                 filter(lambda x: x["content_id"] == node.content_id, response.data)
-            )[0]["progress"]
+            )["progress"]
 
         # check that there is no progress when not logged in
         self.assertEqual(len(response.data), 0)
@@ -2136,7 +2129,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
     def test_resume_zero_cache(self):
-        user, expected_content_ids = self._create_summary_logs()
+        user, _expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         response = self.client.get(
             reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
@@ -2513,11 +2506,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             files = []
 
             for f in expected.files.all():
-                ("local_file__id",)
-                ("local_file__available",)
-                ("local_file__file_size",)
-                ("local_file__extension",)
-                ("lang_id",)
                 file = {}
                 for field in [
                     "id",
@@ -2636,11 +2624,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             files = []
 
             for f in expected.files.all():
-                ("local_file__id",)
-                ("local_file__available",)
-                ("local_file__file_size",)
-                ("local_file__extension",)
-                ("lang_id",)
                 file = {}
                 for field in [
                     "id",
@@ -2817,7 +2800,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
 
 
 class ContentNodeBookmarksAPITestCase(APITestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     databases = "__all__"
 
     @classmethod

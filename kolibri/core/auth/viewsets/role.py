@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.db import transaction
 from django_filters.rest_framework import CharFilter
@@ -107,7 +108,7 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = ("id", "kind", "collection", "user")
         list_serializer_class = RoleListSerializer
-        validators = []
+        validators: ClassVar[list] = []
 
 
 class RoleFilter(FilterSet):
@@ -122,7 +123,7 @@ class RoleFilter(FilterSet):
 
     class Meta:
         model = Role
-        fields = ["user", "collection", "kind", "user_ids", "by_ids"]
+        fields: ClassVar[list] = ["user", "collection", "kind", "user_ids", "by_ids"]
 
 
 class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):

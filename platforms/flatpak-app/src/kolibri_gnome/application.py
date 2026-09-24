@@ -41,7 +41,7 @@ class Application(Adw.Application):
     application_name = GObject.Property(type=str, default=_("Kolibri"))
     zoom_level = GObject.Property(type=float, default=1.0)
 
-    __zoom_steps = [0.5, 0.75, 1.0, 1.25, 1.5]
+    __zoom_steps: typing.ClassVar[list] = [0.5, 0.75, 1.0, 1.25, 1.5]
     __default_zoom_step: int = 2
     __current_zoom_step: int = 2
 

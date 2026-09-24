@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 class RemoteChannelViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
 
-    http_method_names = ["get"]
+    http_method_names: ClassVar[list] = ["get"]
 
     def _make_channel_endpoint_request(
         self, identifier=None, baseurl=None, keyword=None, language=None
@@ -53,7 +54,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             ):
                 raise Http404(
                     "The requested channel does not exist on the content server"
-                )
+                ) from e
             raise
         # map the channel list into the format the Kolibri client-side expects
         return list(map(self._studio_response_to_kolibri_response, resp.json()))
@@ -137,7 +138,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             ):
                 raise Http404(
                     "The requested channel does not exist on the content server"
-                )
+                ) from e
             raise
         return Response(self._studio_response_to_kolibri_response(resp.json()))
 

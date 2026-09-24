@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import ClassVar
 
 from django.db.utils import DatabaseError
 from django.utils.functional import cached_property
@@ -49,7 +50,13 @@ class ClassroomNotificationsFilter(FilterSet):
 
     class Meta:
         model = LearnerProgressNotification
-        fields = ["before", "after", "classroom_id", "learner_id", "group_id"]
+        fields: ClassVar[list] = [
+            "before",
+            "after",
+            "classroom_id",
+            "learner_id",
+            "group_id",
+        ]
 
     def filter_before(self, queryset, name, value):
         # Don't allow arbitrary backwards lookups

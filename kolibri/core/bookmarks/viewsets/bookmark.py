@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
@@ -22,7 +24,7 @@ class BookmarksSerializer(ModelSerializer):
             "user",
         )
         read_only_fields = ("id",)
-        extra_kwargs = {
+        extra_kwargs: ClassVar[dict] = {
             "channel_id": {"required": False},
             "content_id": {"required": False},
             "user": {"write_only": True},
@@ -31,12 +33,12 @@ class BookmarksSerializer(ModelSerializer):
     def validate(self, data):
         try:
             contentnode = ContentNode.objects.get(pk=data["contentnode_id"])
-        except ContentNode.DoesNotExist:
+        except ContentNode.DoesNotExist as e:
             raise ValidationError(
                 "ContentNode for contentnode_id {} does not exist".format(
                     data["contentnode_id"]
                 )
-            )
+            ) from e
 
         data.setdefault("channel_id", contentnode.channel_id)
         data.setdefault("content_id", contentnode.content_id)
@@ -49,15 +51,15 @@ class BookmarksFilterset(FilterSet):
 
     class Meta:
         model = Bookmark
-        fields = ["contentnode_id"]
+        fields: ClassVar[list] = ["contentnode_id"]
 
     def filter_descendant_of(self, queryset, name, value):
         try:
             contentnode = ContentNode.objects.get(pk=value)
-        except ContentNode.DoesNotExist:
+        except ContentNode.DoesNotExist as e:
             raise ValidationError(
                 f"ContentNode for contentnode_id {value} does not exist"
-            )
+            ) from e
         descendant_ids = contentnode.get_descendants(include_self=True).values_list(
             "id", flat=True
         )

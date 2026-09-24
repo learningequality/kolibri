@@ -197,6 +197,18 @@ class TestLaunchpadWrapper:
         wrapper = LaunchpadWrapper()
         assert len(wrapper.queue) == 0
 
+    def test_get_series_fetches_each_series_once(self):
+        wrapper = LaunchpadWrapper()
+        wrapper.proposed_ppa = MagicMock()
+        get_series = wrapper.proposed_ppa.distribution.getSeries
+
+        first = wrapper.get_series("noble")
+        second = wrapper.get_series("noble")
+        wrapper.get_series("jammy")
+
+        assert get_series.call_count == 2
+        assert first is second
+
     def test_perform_queued_copies_calls_sync_sources(self):
         wrapper = LaunchpadWrapper()
         wrapper.queue_copy(

@@ -10,7 +10,7 @@ from kolibri.plugins.utils.options import extend_config_spec
 def test_raise_if_overwrite_core_option():
     base_config_spec = {"Server": {"DEPLOY": {"type": "string"}}}
     plugin_options_mock = ModuleType("options_mock")
-    setattr(plugin_options_mock, "option_spec", base_config_spec)
+    plugin_options_mock.option_spec = base_config_spec
     plugin_mock = MagicMock(options_module=plugin_options_mock)
     plugins = [plugin_mock]
     with pytest.raises(ValueError):
@@ -24,10 +24,10 @@ def test_warn_if_multiple_plugins_add_option():
         "Lever": {"DEPLOY": {"type": "string", "default": "you got served"}}
     }
     plugin_options_mock1 = ModuleType("options_mock")
-    setattr(plugin_options_mock1, "option_spec", plugin_config_spec)
+    plugin_options_mock1.option_spec = plugin_config_spec
     plugin_mock1 = MagicMock(options_module=plugin_options_mock1, module_path="test1")
     plugin_options_mock2 = ModuleType("options_mock")
-    setattr(plugin_options_mock2, "option_spec", plugin_config_spec)
+    plugin_options_mock2.option_spec = plugin_config_spec
     plugin_mock2 = MagicMock(options_module=plugin_options_mock2, module_path="test2")
     plugin_mock1._module_path.return_value = "test1"
     plugin_mock1._module_path.return_value = "test2"
@@ -44,7 +44,7 @@ def test_can_update_default():
     }
     plugin_default_spec = {"Server": {"DEPLOY": "you got served"}}
     plugin_option_defaults_mock = ModuleType("option_defaults_mock")
-    setattr(plugin_option_defaults_mock, "option_defaults", plugin_default_spec)
+    plugin_option_defaults_mock.option_defaults = plugin_default_spec
     plugin_mock = MagicMock(option_defaults_module=plugin_option_defaults_mock)
     plugins = [plugin_mock]
     with patch("kolibri.plugins.utils.options.registered_plugins", plugins):
@@ -61,7 +61,7 @@ def test_can_add_to_base_section():
     }
     plugin_config_spec = {"Server": {"GOODBOY": {"type": "string"}}}
     plugin_options_mock = ModuleType("options_mock")
-    setattr(plugin_options_mock, "option_spec", plugin_config_spec)
+    plugin_options_mock.option_spec = plugin_config_spec
     plugin_mock = MagicMock(options_module=plugin_options_mock)
     plugins = [plugin_mock]
     with patch("kolibri.plugins.utils.options.registered_plugins", plugins):
@@ -78,7 +78,7 @@ def test_can_add_section():
     }
     plugin_config_spec = {"Bursar": {"GOODBOY": {"type": "string"}}}
     plugin_options_mock = ModuleType("options_mock")
-    setattr(plugin_options_mock, "option_spec", plugin_config_spec)
+    plugin_options_mock.option_spec = plugin_config_spec
     plugin_mock = MagicMock(options_module=plugin_options_mock)
     plugins = [plugin_mock]
     with patch("kolibri.plugins.utils.options.registered_plugins", plugins):
@@ -94,11 +94,11 @@ def test_can_add_to_plugin_section():
     plugin_config_spec1 = {"Bursar": {"GOODBOY": {"type": "string"}}}
     plugin_mock1 = MagicMock()
     plugin_options_mock1 = ModuleType("options_mock")
-    setattr(plugin_options_mock1, "option_spec", plugin_config_spec1)
+    plugin_options_mock1.option_spec = plugin_config_spec1
     plugin_mock1 = MagicMock(options_module=plugin_options_mock1)
     plugin_config_spec2 = {"Bursar": {"BADBOY": {"type": "string"}}}
     plugin_options_mock2 = ModuleType("options_mock")
-    setattr(plugin_options_mock2, "option_spec", plugin_config_spec2)
+    plugin_options_mock2.option_spec = plugin_config_spec2
     plugin_mock2 = MagicMock(options_module=plugin_options_mock2)
     plugins = [plugin_mock1, plugin_mock2]
     with patch("kolibri.plugins.utils.options.registered_plugins", plugins):

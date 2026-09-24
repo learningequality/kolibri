@@ -129,7 +129,7 @@ class JobValidator(serializers.Serializer):
             value = self.validate(value)
             value["enqueue_args"] = enqueue_args
         except (ValidationError, DjangoValidationError) as exc:
-            raise ValidationError(detail=serializers.as_serializer_error(exc))
+            raise ValidationError(detail=serializers.as_serializer_error(exc)) from exc
 
         if not isinstance(value, dict):
             raise TypeError("Validator must return a dict.")

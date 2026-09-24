@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -32,7 +34,7 @@ _PROGRESS_VALUES = (
 
 class ContentNodeProgressViewset(TreeQueryMixin, GenericViewSet, ListModelMixin):
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    ordering_fields = ["last_interacted"]
+    ordering_fields: ClassVar[list] = ["last_interacted"]
     ordering = ("lft", "id")
     filterset_class = UserContentNodeFilter
     # Use same pagination class as ContentNodeViewset so we can

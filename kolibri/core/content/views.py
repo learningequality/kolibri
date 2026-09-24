@@ -91,7 +91,7 @@ class ChannelThumbnailView(View):
         try:
             header, b_64_thumbnail = channel.thumbnail.split(",", 1)
             mimetype = header.split(":")[1].split(";")[0]
-        except ValueError:
-            raise Http404("No thumbnail available")
+        except ValueError as e:
+            raise Http404("No thumbnail available") from e
         thumbnail = urlsafe_b64decode(b_64_thumbnail)
         return HttpResponse(thumbnail, content_type=mimetype)

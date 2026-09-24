@@ -28,8 +28,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
             self.assertTrue(connection.in_atomic_block)
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql",
         "Postgresql only test",
     )
     def test_postgres_locking(self):
@@ -45,8 +44,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
             self.assertTrue(results[0])
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.sqlite3",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3",
         "SQLite only test",
     )
     def test_sqlite_locking(self):
@@ -59,8 +57,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         self.assertFalse(SQLiteLock.objects.all().exists())
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.postgresql",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql",
         "Postgresql only test",
     )
     def test_retry_on_db_lock__no_handling_unless_sqlite(self):
@@ -81,8 +78,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         self.assertNotEqual(wrapped, _func)
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.sqlite3",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3",
         "SQLite only test",
     )
     def test_retry_on_db_lock__retry(self):
@@ -96,8 +92,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         self.assertTrue(result)
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.sqlite3",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3",
         "SQLite only test",
     )
     def test_retry_on_db_lock__retry__maximum_attempts(self):

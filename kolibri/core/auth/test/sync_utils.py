@@ -27,7 +27,7 @@ CUSTOM_INSTANCE_INFO = {"kolibri": "0.14.7"}
 def get_free_tcp_port():
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tcp.bind(("", 0))
-    addr, port = tcp.getsockname()
+    _addr, port = tcp.getsockname()
     tcp.close()
     return port
 
@@ -75,7 +75,7 @@ class KolibriServer:
 
     def manage(self, *args):
         subprocess.call(
-            ["kolibri", "manage"] + list(args),
+            ["kolibri", "manage", *args],
             env=self.env,
         )
 
@@ -136,7 +136,7 @@ class KolibriServer:
     def _wait_for_server_start(self, timeout=20):
         # At a 0.5s interval each of the suite's dozens of server starts waits a
         # quarter second on average after the server is already up.
-        for i in range(timeout * 10):
+        for _i in range(timeout * 10):
             try:
                 resp = requests.get(self.baseurl + "api/public/info/", timeout=3)
                 if resp.status_code > 0:

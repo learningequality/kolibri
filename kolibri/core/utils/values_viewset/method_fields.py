@@ -66,7 +66,7 @@ class _SourceSpec:
     so a level reads its own names off the head and hands the tail down.
     """
 
-    __slots__ = ("columns", "nested", "declared")
+    __slots__ = ("columns", "declared", "nested")
 
     def __init__(self, paths: Sequence[Tuple[List[str], str]], declared: List[str]):
         # The whole field's sources, threaded down so the AttributeError names

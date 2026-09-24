@@ -30,7 +30,7 @@ from kolibri.utils.logger import get_logging_config
 
 try:
     isolation_level = None
-    import psycopg2  # noqa
+    import psycopg2
 
     isolation_level = psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE
 except ImportError:
@@ -495,20 +495,25 @@ TESTING = False
 
 # Content Security Policy header settings
 # https://django-csp.readthedocs.io/en/latest/configuration.html
-CSP_DEFAULT_SRC = ("'self'", "data:", "blob:") + tuple(
-    conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"]
+CSP_DEFAULT_SRC = (
+    "'self'",
+    "data:",
+    "blob:",
+    *conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"],
 )
 
 # Use a stricter script source policy to prevent data: from being used
 # we still allow blob: as a source for scripts, as this is used for
 # processing graphie scripts in Perseus.
-CSP_SCRIPT_SRC = ("'self'", "blob:") + tuple(
-    conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"]
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "blob:",
+    *conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"],
 )
 
 # Allow inline styles, as we rely on them heavily in our templates
 # and the Aphrodite CSS in JS library generates inline styles
-CSP_STYLE_SRC = CSP_DEFAULT_SRC + ("'unsafe-inline'",)
+CSP_STYLE_SRC = (*CSP_DEFAULT_SRC, "'unsafe-inline'")
 
 # Explicitly allow iframe embedding from the our zipcontent origin
 # This is necessary for the zipcontent app to work

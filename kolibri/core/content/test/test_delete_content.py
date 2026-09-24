@@ -1,6 +1,7 @@
 import hashlib
 import os
 import uuid
+from typing import ClassVar
 from unittest.mock import patch
 
 from django.core.management import call_command
@@ -63,7 +64,7 @@ class UnavailableContentDeletion(TestCase):
 
     def delete_content(self):
         num_deleted = 0
-        for deleted, file in LocalFile.objects.delete_unused_files():
+        for deleted, _file in LocalFile.objects.delete_unused_files():
             if deleted:
                 num_deleted += 1
         return num_deleted
@@ -101,7 +102,7 @@ class DeleteContentTestCase(TestCase):
     """
 
     databases = "__all__"
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def _get_node_ids(self):
         return list(

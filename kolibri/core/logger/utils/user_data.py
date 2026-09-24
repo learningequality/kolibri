@@ -436,7 +436,7 @@ def create_lessons_for_classroom(**options):
         # don't add more than 10 resources per Lesson:
         n_content_items = min(random.randint(0, channel_content.count() - 1), 10)
         lesson_content = []
-        for i in range(n_content_items):
+        for _i in range(n_content_items):
             # Use this to randomly select a content node to generate the interaction for
             random_node = random.choice(channel_content)
             content = {

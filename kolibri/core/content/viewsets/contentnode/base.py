@@ -171,7 +171,7 @@ class ContentNodeSerializer(BaseContentNodeSerializer):
     admin_imported = BooleanField(default=False)
 
     class Meta(BaseContentNodeSerializer.Meta):
-        fields = BaseContentNodeSerializer.Meta.fields + ("admin_imported",)
+        fields = (*BaseContentNodeSerializer.Meta.fields, "admin_imported")
 
 
 class BaseContentNodeMixin:

@@ -67,7 +67,7 @@ class KolibriModelSerializer(ModelSerializer):
             else:
                 value = self.to_internal_value(data)
         except (ValidationError, DjangoValidationError) as exc:
-            raise ValidationError(detail=as_serializer_error(exc))
+            raise ValidationError(detail=as_serializer_error(exc)) from exc
 
         return value
 

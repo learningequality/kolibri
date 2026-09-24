@@ -108,9 +108,9 @@ def check_database_is_migrated():
         connection.close()
         return
     except (OperationalError, ProgrammingError) as e:
-        raise DatabaseNotMigrated(db_exception=e)
+        raise DatabaseNotMigrated(db_exception=e) from e
     except Exception as e:
-        raise DatabaseInaccessible(db_exception=e)
+        raise DatabaseInaccessible(db_exception=e) from e
 
 
 def check_default_options_exist():

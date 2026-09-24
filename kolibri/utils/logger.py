@@ -469,7 +469,7 @@ def _replace_handlers_with_queue(queue) -> LoggerHandlerMap:
     logger_handlers: LoggerHandlerMap = {}
 
     # Set up logging for all loggers
-    for logger_name in list(logging.root.manager.loggerDict.keys()) + [""]:
+    for logger_name in [*logging.root.manager.loggerDict.keys(), ""]:
         logger = logging.getLogger(logger_name)
         if logger.handlers:
             # Store the original handlers

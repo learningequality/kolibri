@@ -88,25 +88,25 @@ class JobTest(TestCase):
             self.job.retry_in(dt)
 
     def test_job_retry_in_running(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         try:
             self.job.retry_in(dt)
             self.assertEqual(self.job._retry_in_delay, dt)
             self.assertEqual({}, self.job._retry_in_kwargs)
         except Exception:
-            setattr(current_state_tracker, "job", None)
+            current_state_tracker.job = None
 
     def test_job_retry_in_unexpected_keyword_argument(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         kwargs = {"invalid_arg": "value"}
         with self.assertRaises(ValueError):
             self.job.retry_in(dt, **kwargs)
-        setattr(current_state_tracker, "job", None)
+        current_state_tracker.job = None
 
     def test_job_retry_in_with_priority(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         kwargs = {"priority": Priority.LOW}
         try:
@@ -114,10 +114,10 @@ class JobTest(TestCase):
             self.assertEqual(self.job._retry_in_delay, dt)
             self.assertEqual(kwargs, self.job._retry_in_kwargs)
         except Exception:
-            setattr(current_state_tracker, "job", None)
+            current_state_tracker.job = None
 
     def test_job_retry_in_with_repeat(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         kwargs = {"repeat": 3}
         try:
@@ -125,10 +125,10 @@ class JobTest(TestCase):
             self.assertEqual(self.job._retry_in_delay, dt)
             self.assertEqual(kwargs, self.job._retry_in_kwargs)
         except Exception:
-            setattr(current_state_tracker, "job", None)
+            current_state_tracker.job = None
 
     def test_job_retry_in_with_interval(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         kwargs = {"interval": 5 * 60}
         try:
@@ -136,10 +136,10 @@ class JobTest(TestCase):
             self.assertEqual(self.job._retry_in_delay, dt)
             self.assertEqual(kwargs, self.job._retry_in_kwargs)
         except Exception:
-            setattr(current_state_tracker, "job", None)
+            current_state_tracker.job = None
 
     def test_job_retry_in_with_retry_interval(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         kwargs = {"retry_interval": 60 * 60}
         try:
@@ -147,46 +147,46 @@ class JobTest(TestCase):
             self.assertEqual(self.job._retry_in_delay, dt)
             self.assertEqual(kwargs, self.job._retry_in_kwargs)
         except Exception:
-            setattr(current_state_tracker, "job", None)
+            current_state_tracker.job = None
 
     def test_job_retry_in_invalid_priority(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         invalid_priority = "invalid_priority"
         kwargs = {"priority": invalid_priority}
         with self.assertRaises(ValueError):
             self.job.retry_in(dt, **kwargs)
-        setattr(current_state_tracker, "job", None)
+        current_state_tracker.job = None
 
     def test_job_retry_in_invalid_interval(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         invalid_interval = -1  # Invalid negative interval
         kwargs = {"interval": invalid_interval}
         with self.assertRaises(ValueError):
             self.job.retry_in(dt, **kwargs)
-        setattr(current_state_tracker, "job", None)
+        current_state_tracker.job = None
 
     def test_job_retry_in_invalid_retry_interval(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         invalid_retry_interval = 0  # Invalid zero retry interval
         kwargs = {"retry_interval": invalid_retry_interval}
         with self.assertRaises(ValueError):
             self.job.retry_in(dt, **kwargs)
-        setattr(current_state_tracker, "job", None)
+        current_state_tracker.job = None
 
     def test_job_retry_in_invalid_repeat(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         invalid_repeat = -1  # Invalid negative repeat
         kwargs = {"repeat": invalid_repeat}
         with self.assertRaises(ValueError):
             self.job.retry_in(dt, **kwargs)
-        setattr(current_state_tracker, "job", None)
+        current_state_tracker.job = None
 
     def test_job_retry_in_all_allowable_values(self):
-        setattr(current_state_tracker, "job", self.job)
+        current_state_tracker.job = self.job
         dt = timedelta(seconds=15)
         priority = Priority.HIGH
         interval = 60 * 5
@@ -203,7 +203,7 @@ class JobTest(TestCase):
             self.assertEqual(self.job._retry_in_delay, dt)
             self.assertEqual(kwargs, self.job._retry_in_kwargs)
         except Exception:
-            setattr(current_state_tracker, "job", None)
+            current_state_tracker.job = None
 
     # Test generated by Claude 3.7 Sonnet and tweaked
 

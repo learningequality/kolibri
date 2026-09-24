@@ -178,7 +178,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         self.assertEqual(set(metadata_labels[field]), set(expected), f"{field} {label}")
 
     @parameterized.expand(
-        field for field in (list(metadata_lookup.keys()) + ["channels", "languages"])
+        field for field in [*metadata_lookup.keys(), "channels", "languages"]
     )
     def test_labels_empty_queryset(self, field):
         try:

@@ -13,8 +13,8 @@ def _validate_settings_module(settings_module):
     if isinstance(settings_module, str):
         try:
             return importlib.import_module(settings_module)
-        except ImportError:
-            raise ValueError(f"Invalid settings module path {settings_module}")
+        except ImportError as e:
+            raise ValueError(f"Invalid settings module path {settings_module}") from e
     elif not isinstance(settings_module, ModuleType):
         raise TypeError(
             "Invalid argument for apply_settings - requires module or module path"
@@ -49,7 +49,8 @@ def _validate_module_setting(
                 plugin_module=module_path,
                 setting=setting,
                 plugins=", ".join(plugin_settings[setting]),
-            )
+            ),
+            stacklevel=1,
         )
         plugin_settings[setting].append(module_path)
     else:

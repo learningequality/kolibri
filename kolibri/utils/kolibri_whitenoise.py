@@ -227,7 +227,7 @@ class EndRangeStaticFile(StaticFile):
         if files[None].stat.st_size == 0:
             stat_path = "{}.{}".format(path, "file_size")
             if stat_cache is not None and stat_path in stat_cache:
-                setattr(files[None], "file_size", stat_cache[stat_path])
+                files[None].file_size = stat_cache[stat_path]
         if encodings:
             for encoding, alt_path in encodings.items():
                 try:

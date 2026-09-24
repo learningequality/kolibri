@@ -109,8 +109,8 @@ class FacilityImportViewSet(ViewSet):
         # Get the Facility User object
         try:
             facilityuser = FacilityUser.objects.get(id=user_id)
-        except (Exception, FacilityUser.DoesNotExist):
-            raise NotFound()
+        except (Exception, FacilityUser.DoesNotExist) as e:
+            raise NotFound() from e
 
         # Test for password and admin role
         if (
@@ -154,5 +154,5 @@ class FacilityImportViewSet(ViewSet):
             )
             return Response({"username": superuser.username})
 
-        except ValidationError:
-            raise ValidationError(detail="duplicate", code="duplicate_username")
+        except ValidationError as e:
+            raise ValidationError(detail="duplicate", code="duplicate_username") from e

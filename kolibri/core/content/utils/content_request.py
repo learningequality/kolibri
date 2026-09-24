@@ -1105,7 +1105,7 @@ def _process_download(download_request, channel_id, peer):
 
         # re-raise if there's an exception
         if getattr(import_manager, "exception", None):
-            raise getattr(import_manager, "exception")
+            raise import_manager.exception
         if not count or count == 0:
             logger.warning(
                 "ContentNode files may not have imported successfully: %s",

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django_filters.rest_framework import BaseInFilter
@@ -115,7 +117,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes: ClassVar[list] = [IsAuthenticated]
 
     def get_queryset(self):
         return ContentDownloadRequest.objects.filter(

@@ -150,9 +150,9 @@ class CourseSessionSerializer(ModelSerializer):
 
     def validate(self, attrs):
         # first condition is for creating object, second is for updating
-        collection = attrs.get("collection") or getattr(self.instance, "collection")
+        collection = attrs.get("collection") or self.instance.collection
 
-        if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
+        if self.initial_data.get("learner_ids"):
             if (
                 len(self.initial_data["learner_ids"])
                 != FacilityUser.objects.filter(
@@ -173,7 +173,7 @@ class CourseSessionSerializer(ModelSerializer):
         try:
             return field.run_validation(raw_value)
         except ValidationError as exc:
-            raise ValidationError({field_name: exc.detail})
+            raise ValidationError({field_name: exc.detail}) from exc
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
@@ -202,10 +202,10 @@ class CourseSessionSerializer(ModelSerializer):
                 course = ContentNode.objects.filter(modality=modalities.COURSE).get(
                     id=course_id
                 )
-            except (ContentNode.DoesNotExist, ValueError):
+            except (ContentNode.DoesNotExist, ValueError) as e:
                 raise ValidationError(
                     {"course": [f'Invalid pk "{course_id}" - object does not exist.']}
-                )
+                ) from e
             instance["title"] = course.title
             instance["description"] = course.description
             instance["course"] = course.id
@@ -286,7 +286,7 @@ class CourseSessionSerializer(ModelSerializer):
 
         new_assignments = []
         for collection in collections:
-            assignment, created = CourseSessionAssignment.objects.get_or_create(
+            assignment, _created = CourseSessionAssignment.objects.get_or_create(
                 course_session=instance,
                 collection=collection,
                 defaults={"assigned_by": self.context["request"].user},
@@ -308,7 +308,7 @@ class CourseSessionSerializer(ModelSerializer):
                 new_memberships = []
                 # Ensure all new memberships exist
                 for learner in learners:
-                    membership, created = Membership.objects.get_or_create(
+                    membership, _created = Membership.objects.get_or_create(
                         collection=adhoc_collection,
                         user=learner,
                     )

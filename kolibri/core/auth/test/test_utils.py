@@ -184,12 +184,12 @@ class TeleportUserTestCase(TestCase):
         sess_logs.append(ex_csessl)
         summ_logs.append(ex_csmlog)
 
-        setattr(cls, "user_1", user)
-        setattr(cls, "user_1_sess_logs", sess_logs)
-        setattr(cls, "user_1_summ_logs", summ_logs)
-        setattr(cls, "user_1_masterylog", masterylog)
-        setattr(cls, "user_1_attemptlog", attemptlog)
-        setattr(cls, "user_1_usersessionlog", usersessionlog)
+        cls.user_1 = user
+        cls.user_1_sess_logs = sess_logs
+        cls.user_1_summ_logs = summ_logs
+        cls.user_1_masterylog = masterylog
+        cls.user_1_attemptlog = attemptlog
+        cls.user_1_usersessionlog = usersessionlog
 
         cls.user_1_id = cls.user_1.id
 
@@ -537,7 +537,7 @@ class ForkFacilityTestCase(TestCase):
         content_identifiers = [(uuid.uuid4().hex, uuid.uuid4().hex) for i in range(3)]
         ex_identifiers = (uuid.uuid4().hex, uuid.uuid4().hex)
         cls.count = 2
-        for i in range(1, 1 + cls.count):
+        for _i in range(1, 1 + cls.count):
             user = FacilityUserFactory.create(facility=cls.facility)
             coach = FacilityUserFactory.create(facility=cls.facility)
             classroom = ClassroomFactory.create(parent=cls.facility)

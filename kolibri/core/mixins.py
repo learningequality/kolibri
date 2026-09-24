@@ -183,9 +183,11 @@ def validate_uuids(ids):
         try:
             if not isinstance(identifier, UUID):
                 UUID(identifier, version=4)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as e:
             # the value is not a valid hex code for a UUID, so we don't return any results
-            raise UUIDValidationError(f"{identifier} did not pass UUID validation")
+            raise UUIDValidationError(
+                f"{identifier} did not pass UUID validation"
+            ) from e
     return ids
 
 

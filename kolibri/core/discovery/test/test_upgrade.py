@@ -15,8 +15,7 @@ class TestNetworkLocationUpgrade(TestCase):
     databases = "__all__"
 
     @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.sqlite3",
+        settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3",
         "SQLite only test",
     )
     def test_successful_move_locations(self):

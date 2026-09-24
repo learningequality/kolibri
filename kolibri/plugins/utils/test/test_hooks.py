@@ -197,7 +197,7 @@ def test_registered_hook_on_non_abstract_raises(single_hook_set):
     _, _, OverrideImpl = single_hook_set
     Override = hooks.register_hook(OverrideImpl)
     try:
-        Override.registered_hook
+        _ = Override.registered_hook
         pytest.fail("registered_hook accessed on a non-abstract hook did not raise")
     except TypeError:
         pass

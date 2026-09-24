@@ -32,7 +32,8 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
-urlpatterns = urlpatterns + [
+urlpatterns = [
+    *urlpatterns,
     re_path(r"^__open-in-editor/", webpack_redirect_view),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
@@ -45,9 +46,7 @@ urlpatterns = urlpatterns + [
         name="schema-swagger-ui",
     ),
     re_path(
-        r"^redoc/$",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc",
+        r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
     ),
     re_path(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("profile/", include("silk.urls", namespace="silk")),

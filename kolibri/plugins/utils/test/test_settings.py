@@ -146,7 +146,7 @@ def test_settings_append_installed_apps(django_settings):
     plugins = [plugin_mock]
     with patch("kolibri.plugins.utils.settings.registered_plugins", plugins):
         apply_settings(module_mock)
-        assert getattr(module_mock, "INSTALLED_APPS")[0].name == "test"
+        assert module_mock.INSTALLED_APPS[0].name == "test"
 
 
 def test_settings_append_locale_path_external(django_settings):
@@ -158,7 +158,7 @@ def test_settings_append_locale_path_external(django_settings):
         return_value="test",
     ):
         apply_settings(module_mock)
-        assert getattr(module_mock, "LOCALE_PATHS") == ("test",)
+        assert module_mock.LOCALE_PATHS == ("test",)
 
 
 def test_settings_not_append_locale_path_internal(django_settings):

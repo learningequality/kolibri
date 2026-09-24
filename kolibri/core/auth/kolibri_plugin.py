@@ -1,5 +1,6 @@
 import logging
 import uuid
+from typing import ClassVar
 
 from morango.sync.operations import LocalOperation
 
@@ -93,13 +94,15 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
 
 @register_hook
 class AuthSyncHook(FacilityDataSyncHook):
-    initializing_operations = [
+    initializing_operations: ClassVar[list] = [
         KolibriLocalInitializeOperation(),
         KolibriNetworkInitializeOperation(),
     ]
-    serializing_operations = [SingleFacilityUserChangeClearingOperation()]
-    deserializing_operations = [PicturePasswordCollisionOperation()]
-    cleanup_operations = [CleanUpTaskOperation()]
+    serializing_operations: ClassVar[list] = [
+        SingleFacilityUserChangeClearingOperation()
+    ]
+    deserializing_operations: ClassVar[list] = [PicturePasswordCollisionOperation()]
+    cleanup_operations: ClassVar[list] = [CleanUpTaskOperation()]
 
     def post_transfer(
         self,

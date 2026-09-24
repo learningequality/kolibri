@@ -29,7 +29,9 @@ class ContentExtensionsList(object):
 
     __extensions: set[ContentExtension]
 
-    def __init__(self, extensions: set[ContentExtension] = set()):
+    def __init__(self, extensions: set[ContentExtension] | None = None):
+        if extensions is None:
+            extensions = set()
         self.__extensions = set(extensions)
 
     @classmethod

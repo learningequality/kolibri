@@ -231,11 +231,11 @@ class LogContext:
     """
 
     __slots__ = (
-        "node_id",
-        "quiz_id",
+        "course_session_id",
         "lesson_id",
         "mastery_level",
-        "course_session_id",
+        "node_id",
+        "quiz_id",
         "unit_id",
     )
 
@@ -744,10 +744,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                         update_fields += ("end_timestamp",)
                     masterylog.save(update_fields=update_fields)
                 return masterylog.id
-            except MasteryLog.DoesNotExist:
+            except MasteryLog.DoesNotExist as e:
                 raise ValidationError(
                     "Invalid mastery_level value, this session has not been started."
-                )
+                ) from e
         return None
 
     def _update_attempt(self, attemptlog, interaction, update_fields, end_timestamp):
@@ -811,8 +811,8 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     masterylog_id=masterylog_id,
                     user=user,
                 )
-            except AttemptLog.DoesNotExist:
-                raise ValidationError("Invalid attemptlog id specified")
+            except AttemptLog.DoesNotExist as e:
+                raise ValidationError("Invalid attemptlog id specified") from e
         elif interaction.get("replace", False):
             try:
                 if user:
@@ -910,8 +910,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             if user.is_anonymous:
                 return ContentSessionLog.objects.get(id=session_id, user__isnull=True)
             return ContentSessionLog.objects.get(id=session_id, user=user)
-        except (ValueError, ContentSessionLog.DoesNotExist):
-            raise Http404(f"ContentSessionLog with id {session_id} does not exist")
+        except (ValueError, ContentSessionLog.DoesNotExist) as e:
+            raise Http404(
+                f"ContentSessionLog with id {session_id} does not exist"
+            ) from e
 
     def _normalize_progress(self, progress):
         # Round progress to three decimal places

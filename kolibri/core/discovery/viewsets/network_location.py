@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators
 from rest_framework import serializers
@@ -69,7 +71,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
                     data["base_url"], e.__class__.__name__
                 ),
                 code=e.code,
-            )
+            ) from e
         data["base_url"] = client.base_url
         data["last_known_ip"] = client.remote_ip
         data["connection_status"] = ConnectionStatus.Okay
@@ -81,10 +83,10 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = [
+    filter_backends: ClassVar[list] = [DjangoFilterBackend]
+    filterset_fields: ClassVar[list] = [
         "id",
         "subset_of_users_device",
         "instance_id",
@@ -174,7 +176,7 @@ class _RemoteFacilitySerializer(serializers.Serializer):
 
 class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
     queryset = NetworkLocation.objects.all()
-    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
     # Schema-generation stub. Not _RemoteFacilitySerializer: that describes one
     # entry of retrieve()'s "facilities" list, not the response body.
     serializer_class = serializers.Serializer
@@ -198,8 +200,8 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
                     facilities = sanitize_remote_list(
                         _RemoteFacilitySerializer, response.json()
                     )
-        except (errors.NetworkClientError, NetworkLocation.DoesNotExist):
-            raise NotFound()
+        except (errors.NetworkClientError, NetworkLocation.DoesNotExist) as e:
+            raise NotFound() from e
 
         # Step 3: Respond with the list of facilities, and append device info
         # for convenience

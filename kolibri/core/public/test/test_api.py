@@ -73,9 +73,7 @@ class LocalFileFactory(ModelFactory):
         return {"available": True, "file_size": 10}
 
 
-def create_mini_channel(
-    channel_name="channel", channel_id=uuid.uuid4(), root_lang="en"
-):
+def create_mini_channel(channel_id, channel_name="channel", root_lang="en"):
     root = ContentNodeFactory.create(
         kind=content_kinds.TOPIC, channel_id=channel_id, lang_id=root_lang
     )

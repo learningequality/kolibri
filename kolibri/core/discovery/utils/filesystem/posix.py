@@ -81,7 +81,7 @@ def get_drive_list():
 
     try:
         drivelist = subprocess.Popen("mount", shell=True, stdout=subprocess.PIPE)
-        drivelisto, err = drivelist.communicate()
+        drivelisto, _err = drivelist.communicate()
         # Some Android devices at least now use the LINUX_MOUNT_PARSER format.
         # Try it and revert to RAW_MOUNT_PARSER if we can't find any matches with it.
         if on_android() and not MOUNT_PARSER.match(drivelisto.decode()):
@@ -241,7 +241,7 @@ def _try_to_get_drive_info_from_diskutil(device):
     diskutilp = subprocess.Popen(
         f"diskutil info {device}", shell=True, stdout=subprocess.PIPE
     )
-    diskutil_output, err = diskutilp.communicate()
+    diskutil_output, _err = diskutilp.communicate()
 
     rows = [
         line.split(":", 1)

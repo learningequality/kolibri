@@ -132,7 +132,7 @@ def get_import_export_data(
     )
 
 
-def get_import_export_nodes(  # noqa: C901
+def get_import_export_nodes(
     channel_id,
     node_ids=None,
     exclude_node_ids=None,

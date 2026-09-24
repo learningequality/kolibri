@@ -230,10 +230,12 @@ class TasksViewSet(viewsets.GenericViewSet):
             job = job_storage.get_job(job_id=pk)
             registered_task = TaskRegistry[job.func]
             registered_task.check_job_permissions(request.user, job, self)
-        except JobNotFound:
-            raise Http404(f"Job with {pk} not found")
-        except KeyError:
-            raise Http404(f"Job with {pk} found but '{job.func}' is not registered.")
+        except JobNotFound as e:
+            raise Http404(f"Job with {pk} not found") from e
+        except KeyError as e:
+            raise Http404(
+                f"Job with {pk} found but '{job.func}' is not registered."
+            ) from e
         return job
 
     def retrieve(self, request, pk=None):
@@ -288,10 +290,10 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         try:
             restarted_job_id = job_storage.restart_job(job_id=job_to_restart.job_id)
-        except JobNotRestartable:
+        except JobNotRestartable as e:
             raise serializers.ValidationError(
                 f"Cannot restart job with state: {job_to_restart.state}"
-            )
+            ) from e
 
         job_response = self._job_to_response(
             job_storage.get_job(job_id=restarted_job_id)

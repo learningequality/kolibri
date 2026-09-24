@@ -62,12 +62,12 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                 password,
             ),
         )
-    except NetworkLocationConnectionFailure:
-        raise ResourceGoneError()
+    except NetworkLocationConnectionFailure as e:
+        raise ResourceGoneError() from e
     except (
         CommandError,
         NetworkLocationResponseFailure,
-    ):
+    ) as err:
         if password == NOT_SPECIFIED or not password:
             facility_info_url = reverse_path(
                 "kolibri:core:publicfacility-detail",
@@ -83,14 +83,14 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                 raise AuthenticationFailed(
                     detail="The username can not be found",
                     code=error_constants.INVALID_USERNAME,
-                )
+                ) from err
             raise AuthenticationFailed(
                 detail="Password is required", code=error_constants.MISSING_PASSWORD
-            )
+            ) from err
         raise AuthenticationFailed(
             detail="Authentication failed",
             code=error_constants.AUTHENTICATION_FAILED,
-        )
+        ) from err
     auth_info = sanitize_remote_list(_RemoteFacilityUserSerializer, response.json())
     # The peer authenticated the request with username__iexact, so its entry for
     # the typed username need not equal it exactly.
@@ -139,14 +139,14 @@ def get_remote_user_info(client, facility_id, adminUsername, adminPassword, user
                 code=error_constants.AUTHENTICATION_FAILED,
             )
         raise ResourceGoneError()
-    except NetworkLocationConnectionFailure:
-        raise ResourceGoneError()
+    except NetworkLocationConnectionFailure as e:
+        raise ResourceGoneError() from e
     except NetworkLocationResponseFailure as e:
         if e.response is not None and e.response.status_code in (401, 403):
             raise AuthenticationFailed(
                 detail="Authentication failed",
                 code=error_constants.AUTHENTICATION_FAILED,
-            )
-        raise ResourceGoneError()
-    except CommandError:
-        raise ResourceGoneError()
+            ) from e
+        raise ResourceGoneError() from e
+    except CommandError as e:
+        raise ResourceGoneError() from e

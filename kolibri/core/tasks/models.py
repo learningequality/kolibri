@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db import models
 from morango.models import UUIDField
 
@@ -66,7 +68,7 @@ class Job(models.Model):
 
     class Meta:
         db_table = "jobs"
-        indexes = [
+        indexes: ClassVar[list] = [
             models.Index(
                 fields=["queue", "scheduled_time"], name="queue__scheduled_time"
             ),
@@ -106,5 +108,5 @@ class KolibriTasksRouter(KolibriModelRouter):
     All other models will be routed to the default database.
     """
 
-    MODEL_CLASSES = {Job, Supervisor}
+    MODEL_CLASSES: ClassVar[set] = {Job, Supervisor}
     DB_NAME = JOB_STORAGE

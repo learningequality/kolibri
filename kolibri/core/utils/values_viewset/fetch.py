@@ -140,7 +140,7 @@ class ScalarFetchEntry(ScalarFetch):
     pointing at the parent.
     """
 
-    __slots__ = ("field_name", "target_model", "link", "leaf_source")
+    __slots__ = ("field_name", "leaf_source", "link", "target_model")
 
     def __init__(
         self,
@@ -179,7 +179,7 @@ class ParentPathScalarFetch(ScalarFetch):
     plain joins, i.e. base-manager semantics, matching a forward FK.
     """
 
-    __slots__ = ("field_name", "target_model", "reverse_path", "leaf_source")
+    __slots__ = ("field_name", "leaf_source", "reverse_path", "target_model")
 
     def __init__(
         self,
@@ -239,12 +239,12 @@ class ReverseAutoFetch(AutoFetch):
     """
 
     __slots__ = (
-        "field_name",
-        "target_model",
-        "link",
-        "is_many",
         "child_path",
+        "field_name",
+        "is_many",
+        "link",
         "shares_parents",
+        "target_model",
         "to_one_relation",
     )
 
@@ -335,7 +335,7 @@ class ForwardAutoFetch(AutoFetch):
     query, resolved later by ``engine._resolve_deferred_forward_refs``.
     """
 
-    __slots__ = ("field_name", "target_model", "link", "child_path")
+    __slots__ = ("child_path", "field_name", "link", "target_model")
 
     @property
     def link_columns(self) -> Tuple[str, ...]:

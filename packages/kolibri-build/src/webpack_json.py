@@ -45,8 +45,8 @@ def resource_filename(package, resource):
     """Get the filename of a resource in a package."""
     try:
         return str(files(package) / resource)
-    except (ModuleNotFoundError, AttributeError, TypeError):
-        raise FileNotFoundError(f"Resource {resource} not found in {package}")
+    except (ModuleNotFoundError, AttributeError, TypeError) as e:
+        raise FileNotFoundError(f"Resource {resource} not found in {package}") from e
 
 
 def resource_isdir(package, resource):
@@ -217,7 +217,7 @@ def main():
     sys.path.insert(0, plugin_path)
 
     # Put environment variable setting first to allow customized builds within buildkite through env vars
-    if "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
+    if os.environ.get("BUILD_TIME_PLUGINS"):
         build_list = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
     elif args.plugin_file:
         build_list = load_plugins_from_file(args.plugin_file)

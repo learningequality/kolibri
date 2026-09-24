@@ -60,8 +60,10 @@ def _interactive_client_facility_selection():
     idx = input(message)
     try:
         facility = facilities[int(idx) - 1]
-    except IndexError:
-        raise CommandError(f"{idx} is not in the range of (1, {len(facilities)})")
+    except IndexError as e:
+        raise CommandError(
+            f"{idx} is not in the range of (1, {len(facilities)})"
+        ) from e
     return facility
 
 
@@ -72,8 +74,10 @@ def _interactive_server_facility_selection(facilities):
     idx = input(message)
     try:
         return facilities[int(idx) - 1]
-    except IndexError:
-        raise CommandError(f"{idx} is not in the range of (1, {len(facilities)})")
+    except IndexError as e:
+        raise CommandError(
+            f"{idx} is not in the range of (1, {len(facilities)})"
+        ) from e
 
 
 def get_facility(facility_id=None, noninteractive=False):
@@ -81,24 +85,24 @@ def get_facility(facility_id=None, noninteractive=False):
     if facility_id:
         try:
             facility = Facility.objects.get(id=facility_id)
-        except Facility.DoesNotExist:
-            raise CommandError(f"Facility with ID {facility_id} does not exist")
+        except Facility.DoesNotExist as e:
+            raise CommandError(f"Facility with ID {facility_id} does not exist") from e
     # if no id passed in, assume only one facility on device
     else:
         try:
             facility = Facility.objects.get()
-        except Facility.DoesNotExist:
+        except Facility.DoesNotExist as e:
             raise CommandError(
                 "There are no facilities on this device. "
                 "Please initialize your Kolibri installation by starting the server, loading Kolibri in the browser, "
                 "and completing the setup instructions. "
-            )
-        except Facility.MultipleObjectsReturned:
+            ) from e
+        except Facility.MultipleObjectsReturned as e:
             if noninteractive:
                 raise CommandError(
                     "There are multiple facilities on this device. "
                     "Please pass in a facility ID by passing in --facility {ID} after the command."
-                )
+                ) from e
             # in interactive mode, allow user to select facility
             facility = _interactive_client_facility_selection()
 
@@ -146,12 +150,12 @@ def get_baseurl(address):
     # validate base url
     try:
         return NetworkClient.discover_from_address(address).base_url
-    except URLParseError:
+    except URLParseError as e:
         raise CommandError(
             f"Base URL/IP: {address} is not valid. Please retry command and enter a valid URL/IP."
-        )
-    except NetworkLocationNotFound:
-        raise CommandError(f"Unable to connect to: {address}")
+        ) from e
+    except NetworkLocationNotFound as e:
+        raise CommandError(f"Unable to connect to: {address}") from e
 
 
 def get_network_connection(address):

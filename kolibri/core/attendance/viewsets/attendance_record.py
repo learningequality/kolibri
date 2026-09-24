@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.db import transaction
 from django_filters.rest_framework import CharFilter
@@ -47,7 +48,7 @@ class AttendanceRecordFilter(FilterSet):
 
     class Meta:
         model = AttendanceRecord
-        fields = ["attendance_session"]
+        fields: ClassVar[list] = ["attendance_session"]
 
 
 class BulkUpdateRecordSerializer(Serializer):

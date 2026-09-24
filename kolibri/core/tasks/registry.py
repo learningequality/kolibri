@@ -297,10 +297,10 @@ class RegisteredTask:
 
         try:
             job = self._ready_job(**validated_data)
-        except TypeError:
+        except TypeError as e:
             raise serializers.ValidationError(
                 "Invalid job data returned from validator."
-            )
+            ) from e
 
         return job, enqueue_args_validated_data
 

@@ -426,8 +426,8 @@ class PeerSyncJobValidator(SyncJobValidator):
                 pass
         try:
             baseurl = self._get_base_url(data["baseurl"])
-        except NetworkClientError:
-            raise ResourceGoneError()
+        except NetworkClientError as e:
+            raise ResourceGoneError() from e
 
         if data.get("device_id", None) is not None:
             device_name = data["device_id"].nickname or data["device_id"].device_name
@@ -676,9 +676,9 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         try:
             user_info = self._get_user_info(data)
         except AuthenticationFailed as e:
-            raise ValidationError(detail=str(e.detail), code=e.detail.code)
-        except (NetworkClientError, ConnectionError):
-            raise ResourceGoneError()
+            raise ValidationError(detail=str(e.detail), code=e.detail.code) from e
+        except (NetworkClientError, ConnectionError) as e:
+            raise ResourceGoneError() from e
 
         full_name = user_info["full_name"]
         roles = user_info["roles"]
@@ -701,8 +701,8 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
             validate_and_create_sync_credentials(
                 baseurl, facility_id, username, password, user_id=user_id
             )
-        except (NetworkClientError, ConnectionError):
-            raise ResourceGoneError()
+        except (NetworkClientError, ConnectionError) as e:
+            raise ResourceGoneError() from e
 
         job_data["extra_metadata"]["user_id"] = user_id
         job_data["extra_metadata"]["username"] = user_info["username"]
@@ -740,7 +740,7 @@ def peeruserimport(command, **kwargs):
         call_command(command, **kwargs)
     except CommandError as e:
         if "Unable to connect" in str(e):
-            raise NetworkClientError()
+            raise NetworkClientError() from e
         raise
 
 

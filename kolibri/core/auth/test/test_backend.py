@@ -372,7 +372,7 @@ class FacilityAuthScopeTestCase(TestCase):
     def test_dataset_id__raises_permission_denied_for_missing_facility_pk(self):
         auth_scope = _NoMatchFacilityAuthScope(str(uuid.uuid4()))
         with self.assertRaises(PermissionDenied):
-            auth_scope.dataset_id
+            _ = auth_scope.dataset_id
 
     def test_is_subset_of_users_device__returns_false_for_full_facility_import(self):
         auth_scope = _NoMatchFacilityAuthScope(self.facility)
@@ -471,7 +471,7 @@ class PicturePasswordAuthScopeTestCase(TestCase):
     @classmethod
     def _set_has_roles(cls, user):
         """This is annotated by the auth scope querysets"""
-        setattr(user, "has_roles", user.roles.count() > 0)
+        user.has_roles = user.roles.count() > 0
         return user
 
     def test_authenticate__returns_learner_for_valid_picture_password(self):
@@ -536,7 +536,7 @@ class BasicUserAuthScopeTestCase(TestCase):
     @classmethod
     def _set_has_roles(cls, user):
         """This is annotated by the auth scope querysets"""
-        setattr(user, "has_roles", user.roles.count() > 0)
+        user.has_roles = user.roles.count() > 0
         return user
 
     def test_iter_candidate_users__returns_case_insensitive_match(

@@ -103,7 +103,7 @@ class SourceDBTestCase(FrozenSchemaDBMixin, TestCase):
         sqlite3.connect(db_path).close()
         with self.assertRaises(SchemaNotFoundError):
             with SourceDB(db_path) as source:
-                source.schema_version
+                _ = source.schema_version
 
     def test_the_connection_is_read_only(self):
         with SourceDB(self.build(VERSION_6)) as source:

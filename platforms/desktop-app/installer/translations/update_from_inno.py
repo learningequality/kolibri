@@ -127,7 +127,7 @@ def download(inno_dir, tag):
     inno_dir.mkdir(parents=True, exist_ok=True)
     for path in vendored_files():
         (inno_dir / Path(path).name).write_bytes(fetch(path, tag))
-        print(f"  -> {path}")  # noqa: T201
+        print(f"  -> {path}")
 
 
 def write_english_messages(default_isl, output_path):
@@ -139,15 +139,15 @@ def write_english_messages(default_isl, output_path):
     lines = ["[Messages]"]
     lines.extend(f"{key}={messages[key]}" for key in TRANSLATED_MESSAGES)
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"  -> {output_path}")  # noqa: T201
+    print(f"  -> {output_path}")
 
 
 def main(translations_dir, tag, english_messages):
-    print("Fetching the unofficial Inno Setup language files...")  # noqa: T201
+    print("Fetching the unofficial Inno Setup language files...")
     download(translations_dir / "inno", tag)
 
     if english_messages:
-        print("Writing the English [Messages] source...")  # noqa: T201
+        print("Writing the English [Messages] source...")
         write_english_messages(
             fetch(INNO_DEFAULT, tag),
             translations_dir / "locale" / "en" / "messages.isl",

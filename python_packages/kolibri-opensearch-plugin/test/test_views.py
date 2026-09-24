@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.test import RequestFactory
 from django.test import TestCase
 
@@ -20,7 +22,7 @@ class DescriptorViewTestCase(TestCase):
 
 
 class SearchViewTestCase(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def test_missing_q_returns_412(self):
         request = RequestFactory().get("/opensearch/search/")

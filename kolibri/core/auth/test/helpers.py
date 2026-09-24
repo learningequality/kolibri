@@ -11,7 +11,7 @@ from rest_framework.test import APITransactionTestCase
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.device.models import clear_device_settings_memo
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.utils import provision_device as _provision_device  # noqa
+from kolibri.core.device.utils import provision_device as _provision_device
 
 from ..models import Classroom
 from ..models import Facility
@@ -175,7 +175,9 @@ def create_dummy_facility_data(
 
     data["all_users"] = data["facility"].get_members()
     data["all_collections"] = (
-        [data["facility"]] + data["classrooms"] + sum(data["learnergroups"], [])
+        [data["facility"]]
+        + data["classrooms"]
+        + [group for groups in data["learnergroups"] for group in groups]
     )
 
     # create Roles linking users with Collections

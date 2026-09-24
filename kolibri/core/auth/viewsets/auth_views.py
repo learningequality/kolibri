@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -55,8 +56,8 @@ class IsPINValidView(views.APIView):
         try:
             dataset = FacilityDataset.objects.get(pk=pk)
             saved_pin_code = (dataset.extra_fields or {}).get("pin_code")
-        except FacilityDataset.DoesNotExist:
-            raise Http404("Facility not found")
+        except FacilityDataset.DoesNotExist as e:
+            raise Http404("Facility not found") from e
 
         return Response({"is_pin_valid": saved_pin_code == input_pin_code})
 
@@ -102,7 +103,7 @@ class UserIdParamSerializer(serializers.Serializer):
 
 
 class DeleteImportedUserView(views.APIView):
-    permission_classes = [KolibriAuthPermissions]
+    permission_classes: ClassVar[list] = [KolibriAuthPermissions]
 
     def delete(self, request, user_id):
         serializer = UserIdParamSerializer(data={"user_id": user_id})
@@ -116,8 +117,8 @@ class DeleteImportedUserView(views.APIView):
             delete_imported_user(user)
 
             return Response({"user_id": user.id})
-        except FacilityUser.DoesNotExist:
-            raise Http404("User does not exist")
+        except FacilityUser.DoesNotExist as e:
+            raise Http404("User does not exist") from e
 
 
 class SetNonSpecifiedPasswordView(views.APIView):
@@ -136,8 +137,8 @@ class SetNonSpecifiedPasswordView(views.APIView):
 
         try:
             user = FacilityUser.objects.get(username=username, facility=facility_id)
-        except (ValueError, ObjectDoesNotExist):
-            raise Http404(error_message)
+        except (ValueError, ObjectDoesNotExist) as e:
+            raise Http404(error_message) from e
 
         if user.password != NOT_SPECIFIED or hasattr(user, "os_user"):
             raise Http404(error_message)
@@ -154,7 +155,7 @@ class _RemoteFacilityUserSearchSerializer(serializers.Serializer):
 
 
 class RemoteFacilityUserViewset(views.APIView):
-    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
 
     def get(self, request):
         baseurl = request.query_params.get("baseurl", "")
@@ -164,8 +165,8 @@ class RemoteFacilityUserViewset(views.APIView):
             raise RestValidationError(detail="Both username and facility are required")
         try:
             client = NetworkClient.build_for_address(baseurl)
-        except NetworkLocationNotFound:
-            raise RestValidationError(detail=f"Unknown peer: {baseurl}")
+        except NetworkLocationNotFound as e:
+            raise RestValidationError(detail=f"Unknown peer: {baseurl}") from e
         url = reverse_path("kolibri:core:publicsearchuser-list")
         try:
             response = client.get(
@@ -183,7 +184,7 @@ class RemoteFacilityUserViewset(views.APIView):
 
 
 class RemoteFacilityUserAuthenticatedViewset(views.APIView):
-    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
 
     def post(self, request):
         baseurl = request.data.get("baseurl", "")
@@ -197,10 +198,10 @@ class RemoteFacilityUserAuthenticatedViewset(views.APIView):
             facility_info = get_remote_users_info(
                 baseurl, facility_id, username, password
             )
-        except AuthenticationFailed:
-            raise PermissionDenied()
-        except NetworkLocationNotFound:
-            raise RestValidationError(detail=f"Unknown peer: {baseurl}")
+        except AuthenticationFailed as e:
+            raise PermissionDenied() from e
+        except NetworkLocationNotFound as e:
+            raise RestValidationError(detail=f"Unknown peer: {baseurl}") from e
 
         user_info = facility_info["user"]
         roles = user_info["roles"]

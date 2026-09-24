@@ -38,14 +38,14 @@ class ContentAssignmentManager:
     """
 
     __slots__ = (
-        "model",
-        "name",
-        "one_to_many",
+        "channel_version_field",
+        "content_download_priority_func",
         "filters",
         "lookup_field",
         "lookup_func",
-        "content_download_priority_func",
-        "channel_version_field",
+        "model",
+        "name",
+        "one_to_many",
         "related_change_lookup",
     )
 

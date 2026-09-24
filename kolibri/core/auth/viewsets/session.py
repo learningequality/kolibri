@@ -56,8 +56,8 @@ class CreateSessionSerializer(serializers.Serializer):
         default=None,
         allow_null=True,
         allow_blank=False,
-        # Format is exactly three dot-separated integers, each 1–2 digits
-        # (icon indices 0–99), e.g. "3.7.12". min/max_length are a fast
+        # Format is exactly three dot-separated integers, each 1-2 digits
+        # (icon indices 0-99), e.g. "3.7.12". min/max_length are a fast
         # pre-check; the regex is the authoritative format constraint.
         min_length=5,
         max_length=8,
@@ -149,7 +149,7 @@ class CreateSessionSerializer(serializers.Serializer):
             unauthenticated_user = FacilityUser.objects.get(
                 username__iexact=username, facility=facility
             )
-        except (ValueError, ObjectDoesNotExist):
+        except (ValueError, ObjectDoesNotExist) as e:
             raise RestValidationError(
                 detail={
                     "username": [
@@ -162,7 +162,7 @@ class CreateSessionSerializer(serializers.Serializer):
                         }
                     ]
                 }
-            )
+            ) from e
         except FacilityUser.MultipleObjectsReturned:
             # Handle case of multiple matching usernames
             unauthenticated_user = FacilityUser.objects.filter(
@@ -248,7 +248,7 @@ class SessionViewSet(viewsets.ViewSet):
     def _get_error_response(self, errors):
         error_list = []
         response_status = status.HTTP_400_BAD_REQUEST
-        for field, field_errors in errors.items():
+        for _field, field_errors in errors.items():
             for error in field_errors:
                 error_list.append(error)
                 if (

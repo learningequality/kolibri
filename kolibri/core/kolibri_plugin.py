@@ -66,12 +66,12 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         as the global object to register them does not exist yet.
         Instead they are loaded through plugin data.
         """
-        tags = (
-            self.plugin_data_tag()
-            + [self._polyfill_loader_tag()]
-            + list(self.js_and_css_tags())
-            + self.navigation_tags()
-        )
+        tags = [
+            *self.plugin_data_tag(),
+            self._polyfill_loader_tag(),
+            *self.js_and_css_tags(),
+            *self.navigation_tags(),
+        ]
 
         return mark_safe("\n".join(tags))
 

@@ -147,7 +147,7 @@ def _load_font(path):
         sys.exit(1)
     try:
         return subset.load_font(path, FONT_TOOLS_OPTIONS, dontLoadGlyphNames=True)
-    except FileNotFoundError as e:  # noqa F821
+    except FileNotFoundError as e:
         logger.error("Could not load font: %s", e)
         logger.error("You may need to run: `make i18n-download-source-fonts`")
         sys.exit(1)
@@ -277,7 +277,7 @@ CSS_HEADER = """
 def _list_to_ranges(input_list):
     """
     Iterator of ranges of contiguous numbers from a list of integers.
-    Ranges returned are [x, y) – in other words, y is non-inclusive.
+    Ranges returned are [x, y) - in other words, y is non-inclusive.
     (from: http://code.activestate.com/recipes/496682/)
     """
     new_list = list(input_list)

@@ -30,11 +30,6 @@ from .bulkimportusers import FILE_WRITE_ERROR
 from .bulkimportusers import MESSAGES
 from .bulkimportusers import NO_FACILITY
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 logger = logging.getLogger(__name__)
 
 CSV_EXPORT_FILENAMES = {"user": "log_export/{}_{}_users.csv"}
@@ -293,7 +288,7 @@ class Command(AsyncCommand):
 
         with self.start_progress(total=total_rows) as progress_update:
             try:
-                for row in csv_file_generator(
+                for _row in csv_file_generator(
                     facility,
                     storage_filepath=storage_filepath,
                     local_filepath=local_filepath,
@@ -302,7 +297,7 @@ class Command(AsyncCommand):
                     progress_update(1)
             except (OSError, ValueError) as e:
                 self.overall_error.append(MESSAGES[FILE_WRITE_ERROR].format(e))
-                raise CommandError(self.overall_error[-1])
+                raise CommandError(self.overall_error[-1]) from e
 
             # freeze error messages translations:
             self.overall_error = [str(msg) for msg in self.overall_error]

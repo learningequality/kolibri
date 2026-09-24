@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 from unittest.mock import patch
 
 from django.core.management import call_command
@@ -57,10 +58,10 @@ class DeprovisionCommandTestCase(TestCase):
     """
 
     databases = "__all__"
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
-        facility, superuser = setup_device()
+        facility, _superuser = setup_device()
         ContentSessionLogFactory.create(
             content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
         )

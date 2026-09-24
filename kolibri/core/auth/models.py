@@ -21,6 +21,7 @@ user gains through the ``Role``.
 
 import logging
 from threading import local
+from typing import ClassVar
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
@@ -119,7 +120,7 @@ class SessionRouter(KolibriModelRouter):
     Determine how to route database calls for custom Session model.
     """
 
-    MODEL_CLASSES = {Session}
+    MODEL_CLASSES: ClassVar[set] = {Session}
     DB_NAME = SESSIONS
 
 
@@ -364,7 +365,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
             try:
                 dataset_id = getattr(self, related_obj_name).dataset_id
             except ObjectDoesNotExist as e:
-                raise ValidationError(e)
+                raise ValidationError(e) from e
             dataset_cache.set(key, dataset_id)
         return dataset_id
 
@@ -391,7 +392,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         try:
             self.ensure_dataset()
         except KolibriValidationError as e:
-            raise IntegrityError(str(e))
+            raise IntegrityError(str(e)) from e
 
     def enforce_authoring_user_field(self, field_name, **save_kwargs):
         """
@@ -810,7 +811,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         try:
             os_user = OSUser.objects.get(os_username=os_username)
             return os_user.user
-        except OSUser.DoesNotExist:
+        except OSUser.DoesNotExist as e:
             user = None
             method = self.create_superuser if is_superuser else self.create_user
             for i in range(10):
@@ -828,7 +829,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
             if not user:
                 raise ValidationError(
                     f"Error creating FacilityUser for OS user: {os_username}"
-                )
+                ) from e
             return user
 
 
@@ -875,10 +876,10 @@ def validate_role_kinds(kinds):
     else:
         try:
             kinds = set(kinds)
-        except TypeError:
+        except TypeError as e:
             raise TypeError(
                 "kinds argument must be a string or an iterable coerceable to a set"
-            )
+            ) from e
     if not role_kinds_set.issuperset(kinds):
         raise InvalidRoleKind("kinds argument must only contain valid role kind names")
     return kinds
@@ -1006,7 +1007,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     def get_permission(self, permission):
         try:
-            return getattr(self.devicepermissions, "is_superuser") or getattr(
+            return self.devicepermissions.is_superuser or getattr(
                 self.devicepermissions, permission
             )
         except ObjectDoesNotExist:
@@ -1317,7 +1318,7 @@ class Collection(AbstractFacilityDataModel):
             raise UserIsNotFacilityUser("You can only add roles for FacilityUsers.")
 
         # create the necessary role, if it doesn't already exist
-        role, created = Role.objects.get_or_create(
+        role, _created = Role.objects.get_or_create(
             user=user, collection=self, kind=role_kind
         )
 
@@ -1342,10 +1343,10 @@ class Collection(AbstractFacilityDataModel):
         # make sure the user has the role to begin with
         try:
             role = Role.objects.get(user=user, collection=self, kind=role_kind)
-        except Role.DoesNotExist:
+        except Role.DoesNotExist as e:
             raise UserDoesNotHaveRoleError(
                 "User does not have this role for this collection."
-            )
+            ) from e
 
         # delete the appropriate role, if it exists
         role.delete()
@@ -1366,7 +1367,7 @@ class Collection(AbstractFacilityDataModel):
             )
 
         # create the necessary membership, if it doesn't already exist
-        membership, created = Membership.objects.get_or_create(
+        membership, _created = Membership.objects.get_or_create(
             user=user, collection=self
         )
 
@@ -1633,7 +1634,7 @@ class CollectionProxyManager(SyncableModelManager):
 
 class Facility(Collection):
     # don't require that we have a dataset set during validation, so we're not forced to generate one unnecessarily
-    FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
+    FIELDS_TO_EXCLUDE_FROM_VALIDATION: ClassVar[list] = ["dataset"]
 
     morango_model_name = "facility"
 

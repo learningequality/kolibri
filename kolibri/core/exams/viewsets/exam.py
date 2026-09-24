@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -108,7 +109,7 @@ class ExamSerializer(ModelSerializer):
             "date_archived",
             "date_activated",
         )
-        extra_kwargs = {
+        extra_kwargs: ClassVar[dict] = {
             "seed": {"read_only": True},
             "question_count": {"read_only": True},
             "creator": {"read_only": True},
@@ -119,7 +120,7 @@ class ExamSerializer(ModelSerializer):
         }
 
     def _validate_learner_ids(self, collection):
-        if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
+        if self.initial_data.get("learner_ids"):
             learner_ids = list(set(self.initial_data["learner_ids"]))
             if (
                 len(learner_ids)
@@ -172,7 +173,7 @@ class ExamSerializer(ModelSerializer):
     def validate(self, attrs):
         title = attrs.get("title")
         # first condition is for creating object, second is for updating
-        collection = attrs.get("collection") or getattr(self.instance, "collection")
+        collection = attrs.get("collection") or self.instance.collection
         self._validate_learner_ids(collection)
 
         self._validate_disallowed_draft_fields(attrs)
@@ -416,13 +417,13 @@ class ExamSerializer(ModelSerializer):
 class ExamFilter(FilterSet):
     class Meta:
         model = Exam
-        fields = ["collection"]
+        fields: ClassVar[list] = ["collection"]
 
 
 class DraftExamFilter(FilterSet):
     class Meta:
         model = DraftExam
-        fields = ["collection"]
+        fields: ClassVar[list] = ["collection"]
 
 
 class ExamPermissions(KolibriAuthPermissions):
@@ -466,7 +467,8 @@ class ExamViewset(ValuesViewset):
         # Build DraftExam's column list from this viewset's derived values.
         # Exclude Exam-only fields not present on DraftExam, and the assignment_collections
         # annotation (not available for DraftExam). Add DraftExam-specific JSONFields.
-        draft_values = tuple(v for v in self.values if v not in _EXAM_ONLY_FIELDS) + (
+        draft_values = (
+            *(v for v in self.values if v not in _EXAM_ONLY_FIELDS),
             "assignments",
             "learner_ids",
         )
@@ -557,8 +559,8 @@ class ExamViewset(ValuesViewset):
             instance = (
                 draft_queryset.get(pk=pk) if is_draft else exam_queryset.get(pk=pk)
             )
-        except (IndexError, ValueError, TypeError, ObjectDoesNotExist):
-            raise Http404("No Exam matches the given query.")
+        except (IndexError, ValueError, TypeError, ObjectDoesNotExist) as e:
+            raise Http404("No Exam matches the given query.") from e
 
         # May raise a permission denied
         self.check_object_permissions(self.request, instance)
@@ -585,8 +587,8 @@ class ExamViewset(ValuesViewset):
             if is_draft:
                 return self.serialize_draft(self.get_draft_queryset().filter(pk=pk))[0]
             return self.serialize(self.get_queryset().filter(pk=pk))[0]
-        except (IndexError, ValueError, TypeError):
-            raise Http404("No Exam matches the given query.")
+        except (IndexError, ValueError, TypeError) as e:
+            raise Http404("No Exam matches the given query.") from e
 
     def consolidate(self, items, queryset):
         if items:

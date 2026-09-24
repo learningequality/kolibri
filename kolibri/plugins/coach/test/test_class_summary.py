@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from typing import ClassVar
 
 from django.urls import reverse
 from django.utils import timezone
@@ -35,7 +36,7 @@ DUMMY_PASSWORD = "password"
 class ClassSummaryTestCase(EvaluationMixin, APITestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @classmethod

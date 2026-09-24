@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.core.exceptions import PermissionDenied
 from django.core.validators import MinLengthValidator
@@ -53,7 +54,7 @@ class FacilityDatasetFilter(FilterSet):
 
     class Meta:
         model = FacilityDataset
-        fields = ["facility_id"]
+        fields: ClassVar[list] = ["facility_id"]
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
@@ -142,8 +143,8 @@ class FacilityDatasetViewSet(ValuesViewset):
             dataset.reset_to_default_settings()
             data = FacilityDatasetSerializer(dataset).data
             return Response(data)
-        except FacilityDataset.DoesNotExist:
-            raise Http404("Facility does not exist")
+        except FacilityDataset.DoesNotExist as e:
+            raise Http404("Facility does not exist") from e
 
     @decorators.action(methods=["post", "patch"], detail=True, url_path="update-pin")
     def update_pin(self, request, pk):
@@ -162,8 +163,8 @@ class FacilityDatasetViewSet(ValuesViewset):
             dataset.extra_fields["pin_code"] = pin_code
             dataset.save()
             return Response(FacilityDatasetSerializer(dataset).data)
-        except FacilityDataset.DoesNotExist:
-            raise Http404("Facility not found")
+        except FacilityDataset.DoesNotExist as e:
+            raise Http404("Facility not found") from e
 
     @decorators.action(
         methods=["patch"],

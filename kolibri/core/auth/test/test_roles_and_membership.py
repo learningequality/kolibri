@@ -151,10 +151,11 @@ class MembershipWithinFacilityTestCase(TestCase):
 
     def test_learnergroup_membership(self):
         for i, classroom_users in enumerate(self.data["learners_one_group"]):
-            for j, learnergroup_users in enumerate(classroom_users):
+            for j, _learnergroup_users in enumerate(classroom_users):
                 learnergroup = self.data["learnergroups"][i][j]
-                actual_members = [self.data["learners_one_group"][i][j]] + [
-                    self.data["learner_all_groups"]
+                actual_members = [
+                    self.data["learners_one_group"][i][j],
+                    self.data["learner_all_groups"],
                 ]
                 returned_members = learnergroup.get_members()
                 self.assertSetEqual(set(actual_members), set(returned_members))

@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import uuid
 from collections import namedtuple
+from typing import ClassVar
 from unittest.mock import patch
 
 from django.test import TransactionTestCase
@@ -25,7 +26,7 @@ file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
 class LocalFileByDisk(TransactionTestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -125,7 +126,7 @@ local_file_qs = LocalFile.objects.filter(
 class LocalFileRemote(TransactionTestCase):
     databases = "__all__"
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     def setUp(self):
         super().setUp()
@@ -142,7 +143,7 @@ class LocalFileRemote(TransactionTestCase):
             test_channel_id, self.location.id
         )
         self.assertEqual(len(checksums), 1)
-        self.assertTrue(local_file_qs.filter(id=list(checksums)[0]).exists())
+        self.assertTrue(local_file_qs.filter(id=next(iter(checksums))).exists())
 
     @patch("kolibri.core.content.utils.file_availability.NetworkClient")
     def test_set_two_files_in_channel(self, networkclient_mock):
@@ -154,7 +155,7 @@ class LocalFileRemote(TransactionTestCase):
             test_channel_id, self.location.id
         )
         self.assertEqual(len(checksums), 2)
-        self.assertTrue(local_file_qs.filter(id=list(checksums)[0]).exists())
+        self.assertTrue(local_file_qs.filter(id=next(iter(checksums))).exists())
         self.assertTrue(local_file_qs.filter(id=list(checksums)[1]).exists())
 
     @patch("kolibri.core.content.utils.file_availability.NetworkClient")

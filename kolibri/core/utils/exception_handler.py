@@ -30,7 +30,7 @@ def _return_errors(data, path=None):
     errors = []
     if isinstance(data, dict):
         for key, value in data.items():
-            new_path = path + [key]
+            new_path = [*path, key]
             # handle drf error responses
             if isinstance(value, list):
                 for detail in value:

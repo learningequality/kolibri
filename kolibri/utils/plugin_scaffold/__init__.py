@@ -18,13 +18,13 @@ from kolibri.utils.plugin_scaffold.manifest import SURFACE_CHOICES
 from kolibri.utils.plugin_scaffold.scaffold import scaffold_plugin
 
 __all__ = [
-    "scaffold_plugin",
     "BACKEND_ONLY",
     "CONTENT_VIEWER",
-    "SINGLE_PAGE_APP",
     "GLOBAL_INJECTOR",
-    "SURFACE_CHOICES",
-    "MODE_PACKAGE",
-    "MODE_MODULE",
     "MODE_CHOICES",
+    "MODE_MODULE",
+    "MODE_PACKAGE",
+    "SINGLE_PAGE_APP",
+    "SURFACE_CHOICES",
+    "scaffold_plugin",
 ]

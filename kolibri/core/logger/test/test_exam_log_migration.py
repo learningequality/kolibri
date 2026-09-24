@@ -19,7 +19,7 @@ class SimpleForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(3):
+        for _i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
@@ -80,7 +80,7 @@ class RepeatedForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(3):
+        for _i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
@@ -134,7 +134,7 @@ class UpdatedForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(3):
+        for _i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)
@@ -222,7 +222,7 @@ class UpdatedExamAttemptLogOnlyForwardMigrateTestCase(TestCase):
         cls.exam = Exam.objects.create(
             title="quiz", question_count=5, collection=cls.facility, creator=coach
         )
-        for i in range(3):
+        for _i in range(3):
             user = FacilityUserFactory.create(facility=cls.facility)
 
             examlog = models.ExamLog.objects.create(user=user, exam=cls.exam)

@@ -134,8 +134,8 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         # in-progress.
         try:
             quiz = Exam.objects.all().values("active", "collection_id").get(pk=pk)
-        except Exam.DoesNotExist:
-            raise Http404
+        except Exam.DoesNotExist as e:
+            raise Http404 from e
         quiz_active = quiz["active"]
         queryset = AttemptLog.objects.filter(
             FacilityUser.get_is_active_q("sessionlog"),

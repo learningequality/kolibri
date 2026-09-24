@@ -31,19 +31,19 @@ class Command(BaseCommand):
                 )
             else:
                 user = FacilityUser.objects.get(username=options["username"])
-        except FacilityUser.DoesNotExist:
+        except FacilityUser.DoesNotExist as e:
             raise CommandError(
                 "User with username `{username}` does not exist.".format(
                     username=options["username"]
                 )
-            )
-        except FacilityUser.MultipleObjectsReturned:
+            ) from e
+        except FacilityUser.MultipleObjectsReturned as e:
             raise CommandError(
                 "There is more than one user on this device with the username `{username}`. "
                 "Please specify the facility ID for this user.".format(
                     username=options["username"]
                 )
-            )
+            ) from e
 
         # ensure the user REALLY wants to do this!
         confirm_or_exit(

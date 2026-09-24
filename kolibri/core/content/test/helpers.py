@@ -9,6 +9,7 @@ import tempfile
 import uuid
 from contextlib import closing
 from itertools import chain
+from typing import ClassVar
 
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
@@ -79,7 +80,7 @@ class ChannelBuilder:
     channel for use during testing.
     """
 
-    __TREE_CACHE = {}
+    __TREE_CACHE: ClassVar[dict] = {}
 
     tree_keys = (
         "channel",
@@ -268,7 +269,7 @@ class ChannelBuilder:
 
     def duplicate_resources(self, num_resources):
         self.duplicated_resources = []
-        for i in range(num_resources):
+        for _i in range(num_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -282,7 +283,7 @@ class ChannelBuilder:
     def move_resources(self, num_resources):
         self.moved_resources = []
         self.deleted_resources = []
-        for i in range(num_resources):
+        for _i in range(num_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -298,7 +299,7 @@ class ChannelBuilder:
     def upgrade(self, new_resources=0, updated_resources=0, deleted_resources=0):
         self.new_resources = []
         self.updated_thumbnails = []
-        for i in range(new_resources):
+        for _i in range(new_resources):
             parent = self.recurse_tree_until_leaf_container(self.root_node)
             child = self.generate_leaf(parent["id"])
             parent["children"].append(child)
@@ -310,7 +311,7 @@ class ChannelBuilder:
 
         self.updated_resources = []
         self.updated_resource_localfiles = []
-        for i in range(updated_resources):
+        for _i in range(updated_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -320,7 +321,7 @@ class ChannelBuilder:
             self.modified.add(child["id"])
 
         self.deleted_resources = []
-        for i in range(deleted_resources):
+        for _i in range(deleted_resources):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
@@ -361,7 +362,7 @@ class ChannelBuilder:
 
     def recurse_and_generate(self, parent_id, levels):
         children = []
-        for i in range(self.num_children):
+        for _i in range(self.num_children):
             if levels == 0:
                 node = self.generate_leaf(parent_id)
             else:

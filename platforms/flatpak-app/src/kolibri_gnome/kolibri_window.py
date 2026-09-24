@@ -34,7 +34,7 @@ class KolibriWindow(Adw.ApplicationWindow):
 
     __present_on_main_webview_ready: bool = True
 
-    __gsignals__ = {
+    __gsignals__: typing.ClassVar[dict] = {
         "open-in-browser": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "open-new-window": (
             GObject.SIGNAL_RUN_FIRST,
@@ -55,7 +55,7 @@ class KolibriWindow(Adw.ApplicationWindow):
         related_webview: typing.Optional[WebKit.WebView] = None,
         **kwargs,
     ):
-        super().__init__(application=application, *args, **kwargs)
+        super().__init__(*args, application=application, **kwargs)
 
         self.__context = context
 

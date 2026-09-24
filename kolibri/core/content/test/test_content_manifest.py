@@ -1,4 +1,5 @@
 import tempfile
+from typing import ClassVar
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -17,7 +18,7 @@ class ContentManifestTestCase(TestCase):
     Test case for utils.content_manifest.ContentManifest
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     the_channel_version = 0
     the_channel_version_2 = 99
@@ -422,7 +423,7 @@ class GetContentNodesSelectorsTestCase(TestCase):
     Test case for utils.content_manifest.get_content_nodes_selectors
     """
 
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     the_channel_version = 0
 

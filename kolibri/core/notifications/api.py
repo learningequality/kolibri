@@ -89,7 +89,7 @@ def get_assignments(user, summarylog, attempt=False):
 
     learner_collections_set = set(learner_collections)
     # Try to find out if the lesson is being executed assigned to a Classroom or to a LearnerGroup:
-    for lesson, contentnode_id in lesson_resources:
+    for lesson, _ in lesson_resources:
         lesson["assignment_collections"] = list(
             set(lesson["assignment_collections"]).intersection(learner_collections_set)
         )

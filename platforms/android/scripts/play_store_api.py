@@ -31,10 +31,10 @@ def _get_credentials():
 
     try:
         SERVICE_ACCOUNT_JSON = json.loads(os.environ["SERVICE_ACCOUNT_JSON"])
-    except ValueError:
+    except ValueError as e:
         raise RuntimeError(
             "SERVICE_ACCOUNT_JSON environment variable is not valid JSON."
-        )
+        ) from e
 
     return service_account.Credentials.from_service_account_info(
         SERVICE_ACCOUNT_JSON, scopes=SCOPES
@@ -258,9 +258,9 @@ if __name__ == "__main__":
     elif sys.argv[1] == "release":
         try:
             release_app(sys.argv[2])
-        except IndexError:
+        except IndexError as e:
             raise RuntimeError(
                 "You must specify the version code of the release to promote to production."
-            )
+            ) from e
     else:
         raise RuntimeError(f"Unknown command {sys.argv[1]}")

@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
@@ -48,15 +49,16 @@ class SignUpViewSet(BaseSignUpViewSet):
 @method_decorator(csrf_exempt, name="dispatch")
 class PublicSignUpViewSet(BaseSignUpViewSet):
     # Does not log in the user. Supports legacy_serializer_classes for API stability.
-    legacy_serializer_classes = []
+    legacy_serializer_classes: ClassVar[list] = []
 
     def create(self, request, *args, **kwargs):
         exception = None
         serializer_kwargs = {"data": request.data}
         serializer_kwargs.setdefault("context", self.get_serializer_context())
         for serializer_class in [
-            self.get_serializer_class()
-        ] + self.legacy_serializer_classes:
+            self.get_serializer_class(),
+            *self.legacy_serializer_classes,
+        ]:
             serializer = serializer_class(**serializer_kwargs)
             try:
                 serializer.is_valid(raise_exception=True)

@@ -79,7 +79,7 @@ def get_content_fallback_paths():
 
 
 def get_all_content_dir_paths():
-    return [get_content_dir_path()] + get_content_fallback_paths()
+    return [get_content_dir_path(), *get_content_fallback_paths()]
 
 
 def existing_file_path_in_content_fallback_dirs(subpath):

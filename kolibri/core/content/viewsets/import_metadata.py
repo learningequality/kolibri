@@ -55,14 +55,14 @@ class ImportMetadataViewset(GenericViewSet):
                 raise ValidationError(self._error_message(False))
             if int(content_schema) < int(self.min_content_schema):
                 raise ValidationError(self._error_message(True))
-        except ValueError:
+        except ValueError as e:
             raise ValidationError(
                 "Schema version is not parseable by this version of Kolibri"
-            )
-        except AttributeError:
+            ) from e
+        except AttributeError as e:
             raise ValidationError(
                 "Schema version is not known by this version of Kolibri"
-            )
+            ) from e
         return content_schema
 
     def _get_retrieve_queryset(self):
@@ -186,8 +186,8 @@ class ImportMetadataViewset(GenericViewSet):
         """
         try:
             UUID(pk)
-        except ValueError:
-            raise ValidationError({"error": "Invalid UUID format."})
+        except ValueError as e:
+            raise ValidationError({"error": "Invalid UUID format."}) from e
 
         content_schema = request.query_params.get(
             "schema_version", self.default_content_schema

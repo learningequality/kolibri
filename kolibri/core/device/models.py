@@ -1,6 +1,7 @@
 import platform
 import time
 from copy import deepcopy
+from typing import ClassVar
 from uuid import uuid4
 
 from django.conf import settings
@@ -167,7 +168,7 @@ class DeviceSettings(models.Model):
     This class stores data about settings particular to this device
     """
 
-    LANDING_PAGE_CHOICES = [
+    LANDING_PAGE_CHOICES: ClassVar[list] = [
         (LANDING_PAGE_SIGN_IN, "Sign-in page"),
         (LANDING_PAGE_LEARN, "Learn page"),
     ]
@@ -284,7 +285,7 @@ class ContentCacheKey(models.Model):
 
     @classmethod
     def update_cache_key(cls):
-        cache_key, created = cls.objects.get_or_create()
+        cache_key, _created = cls.objects.get_or_create()
         cache_key.key = time.time()
         cache_key.save()
         cache.set(CONTENT_CACHE_KEY_CACHE_KEY, cache_key.key, 5000)
@@ -321,7 +322,7 @@ class DeviceAppKey(models.Model):
 
     @classmethod
     def update_app_key(cls):
-        app_key, created = cls.objects.get_or_create()
+        app_key, _created = cls.objects.get_or_create()
         app_key.key = uuid4().hex
         app_key.save()
         cache.set(APP_KEY_CACHE_KEY, app_key.key, 5000)
@@ -497,7 +498,7 @@ class SyncQueueRouter(KolibriModelRouter):
     All other models will be routed to the default database.
     """
 
-    MODEL_CLASSES = {SyncQueue}
+    MODEL_CLASSES: ClassVar[set] = {SyncQueue}
     DB_NAME = SYNC_QUEUE
     HINT_KEY = "is_syncqueue"
 

@@ -254,7 +254,7 @@ def set_leaf_nodes_invisible(
 
     logger.info(
         "Removing availability of non-topic ContentNode objects in %s batches of %s",
-        int(ceil(max_rght / dynamic_chunksize)),
+        ceil(max_rght / dynamic_chunksize),
         dynamic_chunksize,
     )
 
@@ -303,7 +303,7 @@ def set_leaf_node_availability_from_local_file_availability(
 
     logger.info(
         "Setting availability of non-topic ContentNode objects based on LocalFile availability in %s batches of %s",
-        int(ceil(max_rght / dynamic_chunksize)),
+        ceil(max_rght / dynamic_chunksize),
         dynamic_chunksize,
     )
 

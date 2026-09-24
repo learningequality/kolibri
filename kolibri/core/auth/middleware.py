@@ -17,26 +17,26 @@ def get_anonymous_user_model():
     """
     try:
         app_name = settings.AUTH_ANONYMOUS_USER_MODEL.split(".")[0]
-    except AttributeError:
-        raise ImproperlyConfigured("AUTH_ANONYMOUS_USER_MODEL is not a string")
+    except AttributeError as e:
+        raise ImproperlyConfigured("AUTH_ANONYMOUS_USER_MODEL is not a string") from e
     try:
         model_name = settings.AUTH_ANONYMOUS_USER_MODEL.split(".")[1]
         app = apps.get_app_config(app_name)
         models_module = app.models_module
-    except IndexError:
+    except IndexError as e:
         raise ImproperlyConfigured(
             "AUTH_ANONYMOUS_USER_MODEL must be of the form 'app_label.model_name'"
-        )
-    except LookupError:
+        ) from e
+    except LookupError as e:
         raise ImproperlyConfigured(
             f"AUTH_ANONYMOUS_USER_MODEL refers to an app '{app_name}' that has not been installed"
-        )
+        ) from e
     try:
         return getattr(models_module, model_name)
-    except AttributeError:
+    except AttributeError as e:
         raise ImproperlyConfigured(
             f"AUTH_ANONYMOUS_USER_MODEL refers to a model '{model_name}' that does not exist in the app '{app_name}'"
-        )
+        ) from e
 
 
 USER_SESSION_CACHE_KEY = "USER_BY_SESSION_CACHE_{}"

@@ -16,7 +16,7 @@ class VersionUpgrade:
     Class for version upgrade operations
     """
 
-    __slots__ = ["OLD_VERSION", "NEW_VERSION", "upgrade", "module"]
+    __slots__ = ["NEW_VERSION", "OLD_VERSION", "module", "upgrade"]
 
     def __init__(self, old_version=None, new_version=None, upgrade=None):
         # Semver version range specification for the previous version
@@ -26,10 +26,10 @@ class VersionUpgrade:
         try:
             if not self._old:
                 raise AssertionError
-        except AssertionError:
+        except AssertionError as e:
             raise TypeError(
                 "Unparseable semver version or range passed to upgrade object for old_version"
-            )
+            ) from e
         # Semver version range specification for the new version
         # of Kolibri when this should be applied.
         # If None - should be applied to all.
@@ -37,10 +37,10 @@ class VersionUpgrade:
         try:
             if not self._new:
                 raise AssertionError
-        except AssertionError:
+        except AssertionError as e:
             raise TypeError(
                 "Unparseable semver version or range passed to upgrade object for new_version"
-            )
+            ) from e
         if not callable(upgrade):
             raise TypeError("Upgrade argument must be a function or other callable")
         self.upgrade = upgrade

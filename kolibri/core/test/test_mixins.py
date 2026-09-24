@@ -60,17 +60,17 @@ class InlineInTestCase(TestCase):
         self.assertIn(self.checksum, sql)
 
     def test_a_quote_falls_back_to_binding(self):
-        sql, params = self.sql_for(["' OR '1'='1"])
+        _sql, params = self.sql_for(["' OR '1'='1"])
         self.assertEqual(("' OR '1'='1",), params)
 
     def test_a_placeholder_falls_back_to_binding(self):
         # Inlined, `%s` would survive into the SQL string that the SQLite backend
         # rewrites to `?`, shifting every parameter bound after it.
-        sql, params = self.sql_for(["%s"])
+        _sql, params = self.sql_for(["%s"])
         self.assertEqual(("%s",), params)
 
     def test_one_unsafe_value_binds_the_whole_list(self):
-        sql, params = self.sql_for([self.checksum, "%s"])
+        _sql, params = self.sql_for([self.checksum, "%s"])
         self.assertEqual({self.checksum, "%s"}, set(params))
 
     def test_integers_are_inlined_unquoted(self):
@@ -86,7 +86,7 @@ class InlineInTestCase(TestCase):
         # Django's own UUIDField prepares a UUID instance on a backend with a
         # native uuid type, and 32-char hex on one without. Binding either costs
         # a deferred fetch one variable per parent.
-        sql, params = IndividualSyncableExam.objects.filter(
+        _sql, params = IndividualSyncableExam.objects.filter(
             exam_id__inline_in=[uuid.uuid4()]
         ).query.sql_with_params()
         self.assertEqual((), params)

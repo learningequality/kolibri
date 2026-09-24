@@ -105,10 +105,7 @@ noinput_option = click.Option(
 
 base_params = [debug_option, debug_database_option, noinput_option, pythonpath_option]
 
-initialize_params = base_params + [
-    settings_option,
-    skip_update_option,
-]
+initialize_params = [*base_params, settings_option, skip_update_option]
 
 initialize_kwargs = {param.name: param.default for param in initialize_params}
 
@@ -202,8 +199,8 @@ class KolibriDjangoCommand(click.Command):
     def invoke(self, ctx):
         try:
             initialize(**get_initialize_params())
-        except Exception:
-            raise click.ClickException(traceback.format_exc())
+        except Exception as e:
+            raise click.ClickException(traceback.format_exc()) from e
 
         # Remove parameters that are not for Django management command
         for param in initialize_params:
@@ -377,13 +374,13 @@ def restart():
 def manage(ctx):
     if ctx.args:
         logger.info("Invoking command %s", " ".join(ctx.args))
-    execute_from_command_line(["kolibri manage"] + ctx.args)
+    execute_from_command_line(["kolibri manage", *ctx.args])
 
 
 @main.command(cls=KolibriDjangoCommand, help="Launch a Django shell")
 @click.pass_context
 def shell(ctx):
-    execute_from_command_line(["kolibri manage", "shell"] + ctx.args)
+    execute_from_command_line(["kolibri manage", "shell", *ctx.args])
 
 
 @main.command(cls=KolibriGroupCommand, help="Manage Kolibri plugins")
@@ -582,7 +579,7 @@ def create(name, target_dir, mode, surface, description, author, email, url_slug
     except (FileExistsError, LookupError, ValueError) as e:
         exception = click.ClickException(str(e))
         exception.exit_code = 2
-        raise exception
+        raise exception from e
 
     click.echo(f"Created {surface} plugin at {result.plugin_root}")
     for path in result.files_written:

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.core.management import call_command
 from django.test import TestCase
 
@@ -17,7 +19,7 @@ n_lessons = 2
 
 
 class GenerateUserDataTest(TestCase):
-    fixtures = ["content_test.json"]
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):

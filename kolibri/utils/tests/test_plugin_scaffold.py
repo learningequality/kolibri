@@ -35,7 +35,7 @@ from kolibri.utils.plugin_scaffold import scaffold_plugin
 from kolibri.utils.plugin_scaffold import SINGLE_PAGE_APP
 
 FRONTEND_SURFACES = [CONTENT_VIEWER, SINGLE_PAGE_APP, GLOBAL_INJECTOR]
-ALL_SURFACES = [BACKEND_ONLY] + FRONTEND_SURFACES
+ALL_SURFACES = [BACKEND_ONLY, *FRONTEND_SURFACES]
 
 
 def _scaffold(target, mode, surface, name="My Thing"):

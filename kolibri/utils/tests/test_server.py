@@ -203,7 +203,7 @@ class GetUrlsTestCase(TestCase):
     def test_get_urls__no_local_hostnames(self, mock_hostnames):
         mock_hostnames.return_value = []
         with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "127.0.0.1"}):
-            status, urls = server.get_urls(listen_port=1234)
+            _status, urls = server.get_urls(listen_port=1234)
         self.assertEqual(["http://127.0.0.1:1234/"], urls)
 
     @mock.patch.object(server, "get_local_hostnames")

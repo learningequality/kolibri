@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 from uuid import UUID
 
 from django.contrib.auth import update_session_auth_hash
@@ -84,7 +85,8 @@ class FacilityUserFilter(FilterSet):
     USER_TYPE_CHOICES = (
         ("learner", "learner"),
         ("superuser", "superuser"),
-    ) + role_kinds.choices
+        *role_kinds.choices,
+    )
 
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
@@ -202,7 +204,7 @@ class FacilityUserFilter(FilterSet):
 
     class Meta:
         model = FacilityUser
-        fields = [
+        fields: ClassVar[list] = [
             "member_of",
             "related_to__in",
             "user_type",
@@ -249,7 +251,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FacilityUser
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs: ClassVar[dict] = {"password": {"write_only": True}}
         fields = (
             "id",
             "username",
@@ -298,7 +300,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             try:
                 facility.dataset.validate_demographic_data(extra_demographics)
             except DjangoValidationError as e:
-                raise serializers.ValidationError({"extra_demographics": e.message})
+                raise serializers.ValidationError(
+                    {"extra_demographics": e.message}
+                ) from e
 
     def validate(self, attrs):
         username = attrs.get("username", None)
@@ -307,17 +311,17 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             try:
                 validate_username_allowed_chars(username)
             except DjangoValidationError as e:
-                raise serializers.ValidationError({"username": e.message})
+                raise serializers.ValidationError({"username": e.message}) from e
 
             try:
                 validate_username_max_length(username)
             except DjangoValidationError as e:
                 raise serializers.ValidationError(
                     {"username": e.message}, code=error_constants.MAX_LENGTH
-                )
+                ) from e
 
         # first condition is for creating object, second is for updating
-        facility = attrs.get("facility") or getattr(self.instance, "facility")
+        facility = attrs.get("facility") or self.instance.facility
         if (
             "password" in attrs
             and attrs["password"] == NOT_SPECIFIED
@@ -345,7 +349,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
 class DeletedFacilityUserSerializer(FacilityUserSerializer):
     class Meta(FacilityUserSerializer.Meta):
-        fields = FacilityUserSerializer.Meta.fields + ("date_deleted",)
+        fields = (*FacilityUserSerializer.Meta.fields, "date_deleted")
 
 
 class PublicFacilityUserSerializer(serializers.ModelSerializer):
@@ -380,8 +384,8 @@ class FacilitySearchUsernameSerializer(serializers.ModelSerializer):
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all().order_by("id")
     serializer_class = PublicFacilityUserSerializer
-    authentication_classes = [BasicMultiArgumentAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes: ClassVar[list] = [BasicMultiArgumentAuthentication]
+    permission_classes: ClassVar[list] = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
@@ -532,7 +536,7 @@ class DeletedFacilityUserViewSet(
     filterset_class = FacilityUserFilter
 
     search_fields = FacilityUserViewSet.search_fields
-    ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
+    ordering_fields = (*FacilityUserViewSet.ordering_fields, "date_deleted")
 
     @decorators.action(detail=False, methods=["post"])
     def restore(self, request):

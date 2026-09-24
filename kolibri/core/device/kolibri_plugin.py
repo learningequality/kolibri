@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 from django.db.models import OuterRef
 from django.db.models import Subquery
@@ -120,4 +121,4 @@ class LearnerDeviceStatusOperation(KolibriVersionedSyncOperation):
 
 @register_hook
 class LearnerDeviceStatusHook(FacilityDataSyncHook):
-    initializing_operations = [LearnerDeviceStatusOperation()]
+    initializing_operations: ClassVar[list] = [LearnerDeviceStatusOperation()]
