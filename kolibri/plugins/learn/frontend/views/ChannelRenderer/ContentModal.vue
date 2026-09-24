@@ -73,7 +73,7 @@
           appBarColor: this.$themeTokens.primary,
           textColor: this.$themeTokens.textInverted,
           backdropColor: 'rgba(0, 0, 0, 0.7)',
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
         };
       },
       toolbarStyle() {

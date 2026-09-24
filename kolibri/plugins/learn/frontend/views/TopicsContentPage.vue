@@ -62,7 +62,7 @@
         :content="content"
         :lessonId="lessonId"
         :style="{
-          backgroundColor: content.assessmentmetadata ? '' : $themeTokens.textInverted,
+          backgroundColor: content.assessmentmetadata ? '' : 'var(--tokens-textInverted)',
         }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"

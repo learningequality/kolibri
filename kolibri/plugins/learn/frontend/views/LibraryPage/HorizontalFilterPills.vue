@@ -38,7 +38,7 @@
     >
       <span
         class="pill-divider"
-        :style="{ backgroundColor: $themePalette.grey.v_300 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
       ></span>
       <KButton
         data-testid="all-filters-pill"
@@ -82,7 +82,7 @@
 
   import { computed } from 'vue';
   import { get } from '@vueuse/core';
-  import { themeTokens, themeBrand, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { CategoriesLookup } from 'kolibri/constants';
   import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -201,17 +201,17 @@
       function pillOverridesFor(entry) {
         if (isFilterActive(entry.termKey, entry.value)) {
           return {
-            backgroundColor: themeBrand().primary.v_100,
+            backgroundColor: 'var(--brand-primary-v100)',
             border: `1px solid ${themeTokens().primary}`,
             // primaryDark for WCAG AA contrast on the v_100 background
-            color: themeTokens().primaryDark,
+            color: 'var(--tokens-primaryDark)',
             fontWeight: 'bold',
           };
         }
         return {
-          backgroundColor: themeTokens().surface,
+          backgroundColor: 'var(--tokens-surface)',
           border: `1px solid ${themePalette().grey.v_300}`,
-          color: themeTokens().text,
+          color: 'var(--tokens-text)',
           fontWeight: 'normal',
         };
       }

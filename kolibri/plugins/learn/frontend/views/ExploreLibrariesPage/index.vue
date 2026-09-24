@@ -158,8 +158,8 @@
       },
       pageHeaderStyle() {
         return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
+          backgroundColor: 'var(--tokens-surface)',
+          color: 'var(--tokens-text)',
         };
       },
     },

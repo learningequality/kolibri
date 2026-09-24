@@ -5,7 +5,7 @@
       <div
         class="content-wrapper"
         :style="{
-          backgroundColor: $themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
         }"
       >
         <KCircularLoader v-if="submitting" />
@@ -67,7 +67,7 @@
       <div
         class="bottom-bar"
         :style="{
-          background: $themeTokens.surface,
+          background: 'var(--tokens-surface)',
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
       >

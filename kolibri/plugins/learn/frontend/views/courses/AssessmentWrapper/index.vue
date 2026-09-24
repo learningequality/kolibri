@@ -50,7 +50,7 @@
           </UiAlert>
           <div
             class="content-wrapper"
-            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+            :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
           >
             <ContentViewer
               ref="contentViewer"
@@ -79,7 +79,7 @@
       <div
         class="bottom-bar"
         :style="{
-          backgroundColor: $themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
       >
@@ -93,7 +93,7 @@
               <span
                 v-if="success"
                 class="completed"
-                :style="{ color: $themeTokens.annotation }"
+                :style="{ color: 'var(--tokens-annotation)' }"
               >
                 {{ coreString('completedLabel') }}
               </span>

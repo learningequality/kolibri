@@ -27,7 +27,7 @@
         <div
           v-if="collectionTitle"
           class="collection-title"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ collectionTitle }}
         </div>

@@ -11,7 +11,7 @@
     <p
       v-if="completed || isQuiz"
       class="completion-label"
-      :style="{ color: $themePalette.grey.v_800 }"
+      :style="{ color: 'var(--palette-grey-v800)' }"
     >
       <ProgressIcon
         :progress="progress"
@@ -30,7 +30,7 @@
       :delay="false"
       :progress="progress * 100"
       type="determinate"
-      :style="{ backgroundColor: $themeTokens.fineLine }"
+      :style="{ backgroundColor: 'var(--tokens-fineLine)' }"
     />
   </div>
 

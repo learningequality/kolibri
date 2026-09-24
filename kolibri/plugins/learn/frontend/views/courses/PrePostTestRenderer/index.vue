@@ -5,7 +5,7 @@
       <div
         class="content-wrapper"
         :style="{
-          backgroundColor: $themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
         }"
       >
         <KCircularLoader v-if="submitting" />
@@ -53,7 +53,7 @@
             <p
               v-if="questionsUnanswered"
               class="alert"
-              :style="{ backgroundColor: $themePalette.yellow.v_100 }"
+              :style="{ backgroundColor: 'var(--palette-yellow-v100)' }"
             >
               <KIcon
                 icon="warning"
@@ -75,7 +75,7 @@
       <div
         class="bottom-bar"
         :style="{
-          background: $themeTokens.surface,
+          background: 'var(--tokens-surface)',
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
       >

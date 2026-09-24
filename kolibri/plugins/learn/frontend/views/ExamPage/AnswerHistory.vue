@@ -3,7 +3,7 @@
   <AccordionContainer
     :hideTopActions="true"
     :items="sections"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
   >
     <AccordionItem
       v-for="(section, index) in sections"
@@ -49,7 +49,7 @@
           v-if="isExpanded(index)"
           class="spacing-items"
           :style="{
-            backgroundColor: $themePalette.grey.v_200,
+            backgroundColor: 'var(--palette-grey-v200)',
           }"
         >
           <span

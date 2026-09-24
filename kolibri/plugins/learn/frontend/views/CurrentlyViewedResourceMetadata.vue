@@ -224,8 +224,8 @@
       },
       chipStyle() {
         return {
-          backgroundColor: this.$themeBrand.primary.v400,
-          color: this.$themeTokens.textInverted,
+          backgroundColor: 'var(--brand-primary-v400)',
+          color: 'var(--tokens-textInverted)',
           '::selection': {
             color: this.$themeTokens.text,
           },

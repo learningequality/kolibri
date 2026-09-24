@@ -11,7 +11,7 @@
             :checked="areAllSelected"
             :indeterminate="areAnySelected && !areAllSelected"
             :disabled="!areAnyAvailable"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
             @change="selectAll($event)"
           />
         </th>
@@ -30,7 +30,7 @@
           <tr
             v-for="download in paginatedDownloads"
             :key="download.contentnode_id"
-            :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
+            :style="download.status !== 'COMPLETED' ? { color: 'var(--tokens-annotation)' } : {}"
           >
             <td :class="{ 'small-resource-details': !windowIsLarge }">
               <KCheckbox
@@ -42,7 +42,7 @@
                   v-if="download.metadata"
                   :icon="getIcon(download.metadata.learning_activities)"
                   :label="download.metadata.title"
-                  :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
+                  :style="nonCompleteStatus(download) ? { color: 'var(--tokens-annotation)' } : {}"
                 />
               </KCheckbox>
               <div

@@ -27,7 +27,7 @@
         <div
           v-if="collectionTitle"
           class="collection-title"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ collectionTitle }}
         </div>
@@ -48,7 +48,7 @@
       <div
         v-else-if="collectionTitle"
         class="collection-title"
-        :style="{ color: $themeTokens.annotation }"
+        :style="{ color: 'var(--tokens-annotation)' }"
       >
         {{ collectionTitle }}
       </div>
@@ -61,7 +61,7 @@
       >
         <div
           class="course-label"
-          :style="{ backgroundColor: $themePalette.blue.v_100 }"
+          :style="{ backgroundColor: 'var(--palette-blue-v100)' }"
         >
           <KIcon
             icon="course"
@@ -70,7 +70,7 @@
           />
           <span
             class="label-text"
-            :style="{ color: $themeTokens.primary }"
+            :style="{ color: 'var(--tokens-primary)' }"
           >{{ courseLabel }}</span>
         </div>
         <span

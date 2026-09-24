@@ -50,7 +50,7 @@
         :prevEnabled="prevEnabled"
         :nextEnabled="nextEnabled"
         :style="{
-          backgroundColor: $themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
         @prev="handlePrev"
