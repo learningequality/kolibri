@@ -12,7 +12,7 @@
       :shouldValidate="isFormSubmitted"
     />
 
-    <p :style="{ color: $themeTokens.annotation }">
+    <p :style="{ color: 'var(--tokens-annotation)' }">
       {{ coreString('rememberThisAccountInformation') }}
     </p>
 

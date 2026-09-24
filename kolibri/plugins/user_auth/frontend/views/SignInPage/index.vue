@@ -57,7 +57,7 @@
                 v-if="simpleSignIn && suggestions.length"
                 v-show="showDropdown"
                 class="suggestions"
-                :style="{ backgroundColor: $themeTokens.surface }"
+                :style="{ backgroundColor: 'var(--tokens-surface)' }"
               >
                 <UiAutocompleteSuggestion
                   v-for="(suggestion, i) in suggestions"
@@ -488,7 +488,7 @@
       },
       suggestionStyle(i) {
         return {
-          backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_300 : '',
+          backgroundColor: this.highlightedIndex === i ? 'var(--palette-grey-v300)' : '',
         };
       },
     },

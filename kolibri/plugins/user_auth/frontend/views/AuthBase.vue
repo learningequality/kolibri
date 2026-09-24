@@ -10,7 +10,7 @@
               landscape: showLandscapeLayout,
               shaking,
             }"
-            :style="{ backgroundColor: $themeTokens.surface }"
+            :style="{ backgroundColor: 'var(--tokens-surface)' }"
           >
             <div
               :class="{
@@ -35,7 +35,7 @@
                 <h1
                   v-if="themeConfig.signIn.showTitle"
                   class="kolibri-title"
-                  :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+                  :style="[{ color: 'var(--tokens-primary)' }, themeConfig.signIn.titleStyle]"
                 >
                   {{ logoText }}
                 </h1>
@@ -121,7 +121,7 @@
                   v-if="allowAlternateSignIn"
                   class="alternative-link small-text"
                   :style="{
-                    borderColor: $themeTokens.text,
+                    borderColor: 'var(--tokens-text)',
                   }"
                 >
                   <KRouterLink
@@ -135,7 +135,7 @@
                   v-if="showGuestAccess"
                   class="alternative-link small-text"
                   :style="{
-                    borderColor: $themeTokens.text,
+                    borderColor: 'var(--tokens-text)',
                   }"
                 >
                   <KExternalLink
@@ -158,7 +158,7 @@
       <div class="table-row">
         <div
           class="footer-cell table-cell"
-          :style="{ backgroundColor: $themeTokens.surface }"
+          :style="{ backgroundColor: 'var(--tokens-surface)' }"
         >
           <LanguageSwitcherFooter />
           <div class="small-text">
@@ -330,7 +330,7 @@
         if (this.themeConfig.signIn.background) {
           const scrimOpacity = this.themeConfig.signIn.scrimOpacity;
           return {
-            backgroundColor: this.$themeTokens.primary,
+            backgroundColor: 'var(--tokens-primary)',
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
@@ -338,7 +338,7 @@
             filter: 'blur(2px)',
           };
         }
-        return { backgroundColor: this.$themeBrand.primary.v_400 };
+        return { backgroundColor: 'var(--brand-primary-v400)' };
       },
       guestURL() {
         return urls['kolibri:core:guest']();

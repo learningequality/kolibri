@@ -14,7 +14,7 @@
 
     <p
       class="error-page-subtext"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
     >
       {{ $tr('errorPageAdditionalGuidance') }}
     </p>

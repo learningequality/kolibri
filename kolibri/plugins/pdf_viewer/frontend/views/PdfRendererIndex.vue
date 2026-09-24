@@ -214,7 +214,7 @@
       },
       pdfViewerStyle() {
         const style = {
-          backgroundColor: this.embeddedInline ? this.$themeTokens.surface : this.$themeTokens.text,
+          backgroundColor: this.embeddedInline ? 'var(--tokens-surface)' : 'var(--tokens-text)',
         };
         if (this.embeddedInline && !this.mobileEmbedded) {
           // The mobile-embedded preview gets its card border from EmbeddedReadCard.

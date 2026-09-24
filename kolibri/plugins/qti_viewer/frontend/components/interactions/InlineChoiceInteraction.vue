@@ -57,7 +57,7 @@
 <script>
 
   import { computed, inject } from 'vue';
-  import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
+  import { themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import {
@@ -96,8 +96,6 @@
 
   const { placeholder$, notAnswered$, answered$, notAnsweredGap$, answeredGap$ } =
     inlineChoiceStrings;
-
-  const $themeTokens = themeTokens();
 
   export default {
     name: 'InlineChoiceInteraction',
@@ -157,11 +155,11 @@
         return numbered ? notAnsweredGap$({ number, total }) : notAnswered$();
       });
 
-      const rootStyles = computed(() => ({ color: $themeTokens.text }));
+      const rootStyles = computed(() => ({ color: 'var(--tokens-text)' }));
       const triggerStyles = computed(() => ({
-        color: $themeTokens.text,
-        backgroundColor: $themeTokens.surface,
-        borderColor: isAnswered.value ? $themeTokens.primary : $themeTokens.fineLine,
+        color: 'var(--tokens-text)',
+        backgroundColor: 'var(--tokens-surface)',
+        borderColor: isAnswered.value ? 'var(--tokens-primary)' : 'var(--tokens-fineLine)',
       }));
 
       function onSelect(option) {

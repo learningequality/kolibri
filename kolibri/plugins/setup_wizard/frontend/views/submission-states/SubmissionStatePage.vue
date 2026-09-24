@@ -8,7 +8,7 @@
 
     <h1
       class="submission-state-page-header"
-      :style="{ color: $themeTokens.primary }"
+      :style="{ color: 'var(--tokens-primary)' }"
     >
       {{ header }}
     </h1>

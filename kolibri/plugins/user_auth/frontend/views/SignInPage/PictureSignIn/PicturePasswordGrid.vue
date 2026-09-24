@@ -38,7 +38,7 @@
       <div
         class="progress-area"
         aria-hidden="true"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
       >
         <template v-for="(slot, i) in progressSlots">
           <KIcon
@@ -51,7 +51,7 @@
             v-else
             :key="'empty-' + i"
             class="progress-empty"
-            :style="{ backgroundColor: $themeTokens.fineLine }"
+            :style="{ backgroundColor: 'var(--tokens-fineLine)' }"
           ></div>
         </template>
       </div>
@@ -95,7 +95,6 @@
   import { computed, ref, watch } from 'vue';
   import { PICTURE_PASSWORD_SET } from 'kolibri/constants';
   import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
@@ -114,8 +113,6 @@
     components: { PicturePasswordOption },
 
     setup(props, { emit }) {
-      const $themeTokens = themeTokens();
-      const $themePalette = themePalette();
       const { sendPoliteMessage } = useKLiveRegion();
       const { elementWidth } = useKResponsiveElement();
 
@@ -318,7 +315,7 @@
       };
 
       const submitButtonStyle = computed(() => ({
-        backgroundColor: submitEnabled.value ? $themeTokens.primary : $themePalette.grey.v_200,
+        backgroundColor: submitEnabled.value ? 'var(--tokens-primary)' : 'var(--palette-grey-v200)',
         cursor: submitEnabled.value ? 'pointer' : 'not-allowed',
       }));
 
