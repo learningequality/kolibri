@@ -9,7 +9,7 @@
       }"
       :style="[
         headerContainerStyleOverrides,
-        immersive ? { backgroundColor: $themeTokens.appBar } : {},
+        immersive ? { backgroundColor: 'var(--tokens-appBar)' } : {},
       ]"
     >
       <KIconButton
@@ -38,7 +38,7 @@
               v-if="subtitle"
               class="subtitle"
               :style="{
-                color: $themeTokens.annotation,
+                color: 'var(--tokens-annotation)',
               }"
             >
               {{ subtitle }}
@@ -67,7 +67,7 @@
       v-if="$slots.bottomNavigation"
       ref="fixedBottombar"
       class="bottom-navigation"
-      :style="{ backgroundColor: $themeTokens.surface }"
+      :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <slot name="bottomNavigation"></slot>
     </div>

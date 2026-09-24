@@ -7,7 +7,7 @@
     <template #header>
       <KGrid
         class="page-status"
-        :style="{ backgroundColor: $themeTokens.surface }"
+        :style="{ backgroundColor: 'var(--tokens-surface)' }"
       >
         <KGridItem
           v-if="windowIsSmall"
@@ -71,7 +71,7 @@
         :value="pastTriesOptions[tryIndex]"
         :label="$tr('attemptDropdownLabel')"
         :options="pastTriesOptions"
-        :style="{ background: $themePalette.grey.v_200 }"
+        :style="{ background: 'var(--palette-grey-v200)' }"
         appearance="flat-button"
         class="try-selection"
         @change="navigateToTry"
@@ -124,7 +124,7 @@
           v-if="exercise && exercise.available"
           class="exercise-container"
           :class="windowIsSmall ? 'mobile-exercise-container' : ''"
-          :style="{ backgroundColor: $themeTokens.surface }"
+          :style="{ backgroundColor: 'var(--tokens-surface)' }"
         >
           <h3 v-if="questionNumberInSectionLabel">{{ questionNumberInSectionLabel }}</h3>
 

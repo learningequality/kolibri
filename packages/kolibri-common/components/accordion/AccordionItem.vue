@@ -37,7 +37,7 @@
               <span
                 v-if="title"
                 :style="{
-                  color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
+                  color: disabledTitle ? 'var(--tokens-textDisabled)' : 'inherit',
                 }"
               >
                 {{ title }}

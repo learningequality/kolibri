@@ -13,14 +13,14 @@
         v-if="interaction.correct"
         class="svg-item"
         icon="correct"
-        :style="[svgItemBorder, { fill: $themeTokens.correct }]"
+        :style="[svgItemBorder, { fill: 'var(--tokens-correct)' }]"
         data-testid="correctAnswerIcon"
       />
       <KIcon
         v-if="!interaction.correct"
         class="svg-item"
         icon="incorrect"
-        :style="[svgItemBorder, { fill: $themeTokens.incorrect }]"
+        :style="[svgItemBorder, { fill: 'var(--tokens-incorrect)' }]"
         data-testid="incorrectAnswerIcon"
       />
     </template>
@@ -28,14 +28,14 @@
       v-else-if="isHint"
       class="svg-item"
       icon="hint"
-      :style="[svgItemBorder, { fill: $themeTokens.annotation }]"
+      :style="[svgItemBorder, { fill: 'var(--tokens-annotation)' }]"
       data-testid="hintIcon"
     />
     <KIcon
       v-else-if="isError"
       class="svg-item"
       icon="helpNeeded"
-      :style="[svgItemBorder, { fill: $themeTokens.annotation }]"
+      :style="[svgItemBorder, { fill: 'var(--tokens-annotation)' }]"
       data-testid="helpNeededIcon"
     />
   </div>

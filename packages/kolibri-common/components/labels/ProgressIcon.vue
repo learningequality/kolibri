@@ -69,7 +69,7 @@
       iconStyle(bgColor) {
         return {
           backgroundColor: bgColor,
-          color: this.$themeTokens.textInverted,
+          color: 'var(--tokens-textInverted)',
         };
       },
     },

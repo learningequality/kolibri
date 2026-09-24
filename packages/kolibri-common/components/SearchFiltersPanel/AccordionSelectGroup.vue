@@ -282,7 +282,7 @@
       accordionHeaderStyles(selected) {
         return {
           padding: `0.25em 0 0.25em ${selected ? '0.5em' : '0.75em'}`,
-          background: selected ? this.selectedHighlightColor : this.$themePalette.grey.v_100,
+          background: selected ? this.selectedHighlightColor : 'var(--palette-grey-v100)',
           borderLeft: selected ? `0.25em solid ${this.$themeTokens.primary}` : 'none',
         };
       },

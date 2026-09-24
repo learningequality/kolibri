@@ -62,7 +62,7 @@
     computed: {
       activityStyles() {
         return {
-          color: this.$themeTokens.text,
+          color: 'var(--tokens-text)',
           width: '80px',
           height: '80px',
           border: '2px solid transparent',
@@ -74,9 +74,9 @@
       },
       activityActiveStyles() {
         return {
-          backgroundColor: this.$themeBrand.primary.v_100,
+          backgroundColor: 'var(--brand-primary-v100)',
           border: '2px',
-          borderColor: this.$themeTokens.primary,
+          borderColor: 'var(--tokens-primary)',
           borderStyle: 'solid',
           borderRadius: '4px',
         };

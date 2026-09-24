@@ -2,7 +2,7 @@
 
   <div
     class="alert banner-spacing"
-    :style="{ backgroundColor: $themePalette.yellow.v_200 }"
+    :style="{ backgroundColor: 'var(--palette-yellow-v200)' }"
   >
     <div>
       <KIcon

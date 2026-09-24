@@ -58,7 +58,7 @@
             v-if="$slots.bottomNavigation"
             ref="fixedBottombar"
             class="bottom-navigation"
-            :style="{ backgroundColor: $themeTokens.surface }"
+            :style="{ backgroundColor: 'var(--tokens-surface)' }"
           >
             <slot name="bottomNavigation"></slot>
           </div>
@@ -189,7 +189,7 @@
       // Styling properties
       headerStyles() {
         return {
-          backgroundColor: this.immersive ? this.$themeTokens.appBar : this.$themeTokens.surface,
+          backgroundColor: this.immersive ? 'var(--tokens-appBar)' : 'var(--tokens-surface)',
           borderBottom: this.hideHeaderBorder
             ? 'none'
             : `1px solid ${this.$themePalette.grey.v_400}`,
@@ -201,8 +201,8 @@
           width: this.responsiveWidth,
           top: 0,
           position: 'fixed',
-          color: this.$themeTokens.text,
-          backgroundColor: this.$themeTokens.surface,
+          color: 'var(--tokens-text)',
+          backgroundColor: 'var(--tokens-surface)',
           'z-index': 12,
         };
       },

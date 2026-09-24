@@ -137,7 +137,7 @@
 <script>
 
   import { computed, nextTick, ref, watch } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { injectKeypad } from '../../composables/useKeypad';
   import useScrollContainer from '../../composables/useScrollContainer';
@@ -211,7 +211,7 @@
       const keyStyles = {
         ...keyBtnBaseStyles,
         border: `1px solid ${fineLine}`,
-        backgroundColor: themePalette().grey.v_100,
+        backgroundColor: 'var(--palette-grey-v100)',
       };
 
       const { upArrow$, downArrow$, leftArrow$, rightArrow$ } = translator;
@@ -221,7 +221,7 @@
       // Drop shadow is applied via the %dropshadow-2dp placeholder in the
       // style block; only the themed colours need to be computed here.
       const keypadBodyStyle = {
-        background: themeTokens().surface,
+        background: 'var(--tokens-surface)',
         border: `1px solid ${fineLine}`,
         borderBottom: 'none',
       };

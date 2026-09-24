@@ -2,7 +2,7 @@
 
   <p
     class="url-preview"
-    :style="{ color: $themeTokens.annotation }"
+    :style="{ color: 'var(--tokens-annotation)' }"
   >
     {{ previewText }}
   </p>

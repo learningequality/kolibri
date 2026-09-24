@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.surface }">
+  <div :style="{ backgroundColor: 'var(--tokens-surface)' }">
     <h3
       id="answer-history-label"
       class="header"
@@ -76,7 +76,7 @@
             v-if="title"
             class="accordion-header"
             :style="{
-              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_200 : '',
+              backgroundColor: index === currentSectionIndex ? 'var(--palette-grey-v200)' : '',
             }"
           >
             <KButton
@@ -120,7 +120,7 @@
                 class="attempt-item"
                 :style="{
                   backgroundColor: isSelected(section.startQuestionNumber + qIndex)
-                    ? $themePalette.grey.v_200
+                    ? 'var(--palette-grey-v200)'
                     : '',
                 }"
               >
