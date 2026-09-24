@@ -471,13 +471,15 @@ class ContentNodeAPIBase:
         self.assertEqual(response.content, b"")
         self.assertEqual(response.headers["ETag"], f'"{cache_key}"')
 
-    def _recurse_and_assert(self, data, nodes, recursion_depth=0):
+    def _recurse_and_assert(
+        self, data, nodes, recursion_depth=0, with_admin_imported=True
+    ):
         recursion_depths = []
         nodes_by_id = {n.id: n for n in nodes}
         for actual in data:
             expected = nodes_by_id[actual["id"]]
             children = actual.pop("children", None)
-            self._assert_node(actual, expected)
+            self._assert_node(actual, expected, with_admin_imported=with_admin_imported)
             if children:
                 child_nodes = content.ContentNode.objects.filter(
                     available=True, parent=expected
@@ -502,6 +504,7 @@ class ContentNodeAPIBase:
                         children["results"],
                         child_nodes,
                         recursion_depth=recursion_depth + 1,
+                        with_admin_imported=with_admin_imported,
                     )
                 )
         return recursion_depth if not recursion_depths else max(recursion_depths)
@@ -1945,6 +1948,35 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             reverse("kolibri:core:publiccontentnode-detail", kwargs={"pk": node.id})
         )
         self._assert_node(response.data, node, with_admin_imported=False)
+
+    def test_publiccontentnode_tree(self):
+        root = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse(
+                "kolibri:core:publiccontentnode_tree-detail", kwargs={"pk": root.id}
+            )
+        )
+        self._recurse_and_assert([response.data], [root], with_admin_imported=False)
+
+    def test_contentnode_tree_bad_pk_not_proxied(self):
+        # An unreachable peer 404s, so a 400 proves the pk was rejected locally.
+        response = self.client.get(
+            reverse(
+                "kolibri:core:contentnode_tree-detail", kwargs={"pk": "not-a-uuid"}
+            ),
+            {"baseurl": "http://127.0.0.1:1"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_publiccontentnode_tree_bad_pk(self):
+        response = self.client.get(
+            reverse(
+                "kolibri:core:publiccontentnode_tree-detail",
+                kwargs={"pk": "not-a-uuid"},
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["error"], "Invalid UUID format.")
 
     def test_publiccontentnode_list_search(self):
         # The search filter lives on BaseContentNodeMixin so the public endpoint
