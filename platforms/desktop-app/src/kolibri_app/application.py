@@ -2,6 +2,7 @@ import atexit
 import json
 import os
 import webbrowser
+from urllib.parse import urlencode
 
 import wx
 
@@ -255,15 +256,18 @@ class KolibriApp(wx.App):
             next_url = saved_state[URL]
 
         if root_url:
-            # On Windows, root_url is provided by the server process
-            final_url = f"{root_url}?next={next_url}" if next_url else root_url
+            # On Windows, root_url is provided by the server process, and
+            # always carries an auth_token query parameter
+            final_url = (
+                f"{root_url}&{urlencode({'next': next_url})}" if next_url else root_url
+            )
         else:
             # On other platforms, we construct the URL ourselves
             final_url = self.kolibri_origin + app_initialize_url(
                 auth_token=self.server_manager.auth_token, next_url=next_url
             )
         self.kolibri_url = final_url
-        logging.info(f"Loading Kolibri at: {final_url}")
+        logging.info(f"Loading Kolibri at: {self.kolibri_origin}")
 
         # Show notification that server is ready
         if WINDOWS:
