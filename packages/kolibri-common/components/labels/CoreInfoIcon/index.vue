@@ -4,12 +4,12 @@
     <UiIcon
       ref="icon"
       class="info-icon"
-      :style="{ color: $themeTokens.primary }"
+      :style="{ color: 'var(--tokens-primary)' }"
       :iconAriaLabel="iconAriaLabel"
     >
       <KIcon
         icon="info"
-        :style="{ fill: $themeTokens.primary }"
+        :style="{ fill: 'var(--tokens-primary)' }"
       />
     </UiIcon>
     <KTooltip

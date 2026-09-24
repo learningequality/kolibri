@@ -59,7 +59,7 @@
         <span
           v-if="questionsCorrectAnnotation"
           class="try-annotation"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >{{ questionsCorrectAnnotation }}</span>
       </td>
     </tr>
@@ -76,7 +76,7 @@
         <span
           v-if="timeSpentAnnotation"
           class="try-annotation"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >{{ timeSpentAnnotation }}</span>
       </td>
     </tr>

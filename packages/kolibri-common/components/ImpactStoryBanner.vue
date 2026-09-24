@@ -4,7 +4,7 @@
     v-if="notification"
     class="impact-story-banner"
     :class="{ stacked: windowIsSmall }"
-    :style="{ backgroundColor: $themePalette.blue.v_100 }"
+    :style="{ backgroundColor: 'var(--palette-blue-v100)' }"
   >
     <div class="text-column">
       <h2 class="banner-title">

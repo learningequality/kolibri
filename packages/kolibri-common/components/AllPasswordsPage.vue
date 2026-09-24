@@ -120,7 +120,7 @@
       >
         <p
           class="preview-label"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ printFormatPreviewLabel$() }}
         </p>

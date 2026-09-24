@@ -14,7 +14,7 @@
       :indeterminate="allIsIndeterminate"
       :disabled="disabled || !users || users.length === 0"
       class="select-all"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
       data-testid="selectAllCheckbox"
       @change="selectAll($event)"
     />
@@ -137,7 +137,7 @@
                       :icon="isCoach ? 'coach' : 'person'"
                       :label="user.full_name"
                       data-testid="fullName"
-                      :style="{ color: $themeTokens.text }"
+                      :style="{ color: 'var(--tokens-text)' }"
                     />
                     <UserTypeDisplay
                       aria-hidden="true"
@@ -152,7 +152,7 @@
                     <KLabeledIcon
                       :icon="isCoach ? 'coach' : 'person'"
                       :label="user.full_name"
-                      :style="{ color: $themeTokens.text }"
+                      :style="{ color: 'var(--tokens-text)' }"
                       data-testid="fullName"
                     />
                     <UserTypeDisplay
@@ -173,7 +173,7 @@
                 </td>
                 <td
                   data-testid="username"
-                  :style="{ color: $themeTokens.text }"
+                  :style="{ color: 'var(--tokens-text)' }"
                 >
                   <span dir="auto">
                     {{ user.username }}
@@ -265,7 +265,7 @@
                     :icon="isCoach ? 'coach' : 'person'"
                     :label="user.full_name"
                     data-testid="fullName"
-                    :style="{ color: $themeTokens.text }"
+                    :style="{ color: 'var(--tokens-text)' }"
                   />
                   <UserTypeDisplay
                     aria-hidden="true"
@@ -280,7 +280,7 @@
                   <KLabeledIcon
                     :icon="isCoach ? 'coach' : 'person'"
                     :label="user.full_name"
-                    :style="{ color: $themeTokens.text }"
+                    :style="{ color: 'var(--tokens-text)' }"
                     data-testid="fullName"
                   />
                   <UserTypeDisplay
@@ -301,7 +301,7 @@
               </td>
               <td
                 data-testid="username"
-                :style="{ color: $themeTokens.text }"
+                :style="{ color: 'var(--tokens-text)' }"
               >
                 <span dir="auto">
                   {{ user.username }}

@@ -53,7 +53,7 @@
         <span
           v-if="suggestedTimeAnnotation"
           class="try-annotation"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >{{ suggestedTimeAnnotation }}</span>
       </td>
     </tr>

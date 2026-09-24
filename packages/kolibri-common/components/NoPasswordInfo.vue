@@ -3,11 +3,11 @@
   <div class="no-password-info">
     <span
       class="no-password-title"
-      :style="{ color: $themeTokens.text }"
+      :style="{ color: 'var(--tokens-text)' }"
     >{{ noPicturePasswordDescription$() }}</span>
     <span
       class="no-password-subtitle"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
     >{{ noPasswordSignInDescription$() }}</span>
   </div>
 

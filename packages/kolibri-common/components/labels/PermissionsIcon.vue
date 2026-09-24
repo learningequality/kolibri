@@ -69,11 +69,11 @@
       iconStyle() {
         if (this.hasSuperAdminPermission) {
           return {
-            fill: this.lightIcon ? this.$themePalette.yellow.v_200 : this.$themeTokens.superAdmin,
+            fill: this.lightIcon ? 'var(--palette-yellow-v200)' : 'var(--tokens-superAdmin)',
           };
         } else {
           return {
-            fill: this.lightIcon ? this.$themeTokens.disabled : this.$themeTokens.text,
+            fill: this.lightIcon ? this.$themeTokens.disabled : 'var(--tokens-text)',
           };
         }
       },

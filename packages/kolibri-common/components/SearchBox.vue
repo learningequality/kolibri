@@ -9,8 +9,8 @@
       class="search-box-row"
       role="presentation"
       :style="{
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themePalette.grey.v_400,
+        backgroundColor: 'var(--tokens-surface)',
+        borderColor: 'var(--palette-grey-v400)',
         maxWidth: maxWidth,
         fontSize: '16px',
       }"

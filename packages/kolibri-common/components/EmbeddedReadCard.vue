@@ -35,7 +35,7 @@
 <script>
 
   import { computed } from 'vue';
-  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
 
   /**
@@ -58,13 +58,13 @@
     setup(props, { emit }) {
       const readLabel = computed(() => coreString('read'));
       const cardStyle = computed(() => ({
-        backgroundColor: themePalette().grey.v_100,
+        backgroundColor: 'var(--palette-grey-v100)',
         border: `1px solid ${themeTokens().fineLine}`,
         borderRadius: '4px',
       }));
       const pillStyle = computed(() => ({
-        backgroundColor: themeTokens().primary,
-        color: themeTokens().textInverted,
+        backgroundColor: 'var(--tokens-primary)',
+        color: 'var(--tokens-textInverted)',
       }));
 
       function emitRead() {

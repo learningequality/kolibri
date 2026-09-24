@@ -221,7 +221,7 @@
       // Drop shadow is applied via the %dropshadow-2dp placeholder in the
       // style block; only the themed colours need to be computed here.
       const keypadBodyStyle = {
-        background: themeTokens().surface,
+        background: 'var(--tokens-surface)',
         border: `1px solid ${fineLine}`,
         borderBottom: 'none',
       };
