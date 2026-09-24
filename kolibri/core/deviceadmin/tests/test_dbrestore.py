@@ -129,11 +129,13 @@ def test_restore_from_latest():
         # Also add in a file with an old time stamp to ensure its ignored
         sql = "syntax error;"
         fbroken = f"db-v{kolibri.__version__}_2015-08-02_00-00-00.dump"
-        open(os.path.join(default_backup_folder(), fbroken), "w").write(sql)
+        with open(os.path.join(default_backup_folder(), fbroken), "w") as dump:
+            dump.write(sql)
 
         # Add an unparsable file name
         fbroken = f"db-v{kolibri.__version__}_.dump"
-        open(os.path.join(default_backup_folder(), fbroken), "w").write(sql)
+        with open(os.path.join(default_backup_folder(), fbroken), "w") as dump:
+            dump.write(sql)
 
         # Restore it into a new test database setting
         with override_settings(DATABASES=MOCK_DATABASES):
@@ -224,7 +226,8 @@ def test_search_latest():
     latest = files[-1]
 
     for f in files:
-        open(os.path.join(search_root, f), "w").write("")
+        with open(os.path.join(search_root, f), "w") as dump:
+            dump.write("")
 
     __, search_fname = os.path.split(search_latest(search_root, major_version))
     assert search_fname == latest

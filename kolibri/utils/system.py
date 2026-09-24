@@ -81,10 +81,10 @@ def _posix_become_daemon(
         os._exit(1)
     if sys.platform != "darwin":  # This block breaks on OS X
         # Fix courtesy of https://github.com/serverdensity/python-daemon/blob/master/daemon.py#L94
-        si = open("/dev/null")
+        with open("/dev/null") as si:
+            os.dup2(si.fileno(), sys.stdin.fileno())
         so = open(out_log, "a+", buffering)
         se = open(err_log, "a+", buffering)
-        os.dup2(si.fileno(), sys.stdin.fileno())
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
         # Set custom file descriptors so that they get proper buffering.

@@ -11,17 +11,18 @@ def convert_svg_to_image(
     svg_file_path, output_file_path, input_size=200, final_size=None, padding=None
 ):
     ext = os.path.splitext(output_file_path)[1].lower()
-    temp_png_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as temp_png_file:
+        temp_png_path = temp_png_file.name
     # Scale up, but don't scale down, as we don't want to lose quality
     cairosvg.svg2png(
         url=svg_file_path,
-        write_to=temp_png_file.name,
+        write_to=temp_png_path,
         scale=final_size / input_size
         if final_size and final_size > input_size
         else 1.0,
     )
 
-    with Image.open(temp_png_file.name) as img:
+    with Image.open(temp_png_path) as img:
         # Convert image to RGBA if not already in that mode
         if img.mode != "RGBA":
             img = img.convert("RGBA")

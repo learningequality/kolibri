@@ -147,7 +147,8 @@ class DeviceProvisionFileTestCase(TestCase):
             },
             "superuser": {"username": "provisioned_superuser", "password": "password"},
         }
-        json.dump(cls.provisioning, open(cls.provision_file, "w"))
+        with open(cls.provision_file, "w") as f:
+            json.dump(cls.provisioning, f)
         provision_from_file(cls.provision_file)
 
     def test_create_facility(self):
@@ -222,7 +223,8 @@ class DeviceProvisionFileUnhappyTestCase(TestCase):
 
     def provision(self):
         clear_process_cache()
-        json.dump(self.provisioning, open(self.provision_file, "w"))
+        with open(self.provision_file, "w") as f:
+            json.dump(self.provisioning, f)
         provision_from_file(self.provision_file)
 
     def test_provisioned_raises_error(self):
