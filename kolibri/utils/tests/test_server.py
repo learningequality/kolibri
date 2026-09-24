@@ -81,10 +81,12 @@ class TestServerInstallation:
 class TestServerServices:
     @mock.patch("kolibri.core.analytics.tasks.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
-    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
+    )
     def test_required_services_initiate_on_start(
         self,
-        mock_kolibri_broadcast,
+        mock_network_discovery_backend,
         initialize_workers,
         schedule_ping,
     ):
@@ -95,7 +97,7 @@ class TestServerServices:
         # Do we initialize workers when services start?
         initialize_workers.assert_called_once()
 
-        mock_kolibri_broadcast.assert_not_called()
+        mock_network_discovery_backend.assert_not_called()
 
     def test_services_shutdown_on_stop(self):
         # Initialize and ready services plugin for testing
@@ -138,36 +140,54 @@ class TestZeroConfPlugin:
     @mock.patch(
         "kolibri.core.discovery.utils.network.broadcast.build_broadcast_instance"
     )
-    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
+    )
     def test_required_services_initiate_on_start(
-        self, mock_kolibri_broadcast, mock_build_instance, *args
+        self, mock_network_discovery_backend, mock_build_instance, *args
     ):
         # Start zeroconf services
         zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
         zeroconf_plugin.START()
 
-        mock_kolibri_broadcast.assert_not_called()
+        mock_network_discovery_backend.assert_not_called()
 
         zeroconf_plugin.SERVING(1234)
         zeroconf_plugin.RUN()
 
         # Do we register ourselves on zeroconf?
-        mock_kolibri_broadcast.assert_called()
-        mock_kolibri_broadcast().start_broadcast.assert_called_once_with()
+        mock_network_discovery_backend.assert_called()
+        mock_network_discovery_backend().start_broadcast.assert_called_once_with()
         mock_build_instance.assert_called_once_with(1234)
 
         zeroconf_plugin.STOP()
 
-    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
-    def test_services_shutdown_on_stop(self, mock_kolibri_broadcast):
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
+    )
+    def test_services_shutdown_on_stop(self, mock_network_discovery_backend):
         zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
-        broadcast = mock_kolibri_broadcast()
-        zeroconf_plugin.broadcast = broadcast
+        backend = mock_network_discovery_backend()
+        zeroconf_plugin.backend = backend
         # Now, let us stop services plugin
         zeroconf_plugin.STOP()
 
         # Do we unregister ourselves from zeroconf network?
-        broadcast.stop_broadcast.assert_called_once()
+        backend.stop_broadcast.assert_called_once()
+
+    def test_monitor_tick_before_backend_created_is_noop(self):
+        # the monitor thread starts on START, one transition before RUN builds
+        # the backend
+        zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
+        assert zeroconf_plugin.backend is None
+        zeroconf_plugin.run()
+
+    def test_monitor_tick_updates_the_broadcast(self):
+        zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
+        backend = mock.Mock()
+        zeroconf_plugin.backend = backend
+        zeroconf_plugin.run()
+        backend.update_broadcast.assert_called_once_with()
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
