@@ -111,9 +111,7 @@ def submodule_filter(name):
         return False
     if "test" in name:
         return False
-    if "redis" in name:
-        return False
-    return True
+    return "redis" not in name
 
 
 module_locales = ["rest_framework", "django_filters", "mptt"]

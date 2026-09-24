@@ -411,9 +411,10 @@ class LessonUser(HttpUser):
         path = self._parameterize_url(path)
 
         # Ensure session exists for trackprogress updates
-        if is_trackprogress_update:
-            if not self._ensure_trackprogress_session(req["method"]):
-                return False
+        if is_trackprogress_update and not self._ensure_trackprogress_session(
+            req["method"]
+        ):
+            return False
 
         # Execute request with retry logic
         response = self._make_request_with_retry(req["method"], path, **kwargs)

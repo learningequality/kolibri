@@ -91,7 +91,7 @@ roles_map = {
 
 def not_specified(field, obj):
     val = obj[field]
-    return None if (val == NOT_SPECIFIED or val == DEFERRED) else val
+    return None if val in (NOT_SPECIFIED, DEFERRED) else val
 
 
 def kind_of_roles(field, obj):

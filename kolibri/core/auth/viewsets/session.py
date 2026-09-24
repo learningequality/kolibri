@@ -88,11 +88,13 @@ class CreateSessionSerializer(serializers.Serializer):
             user = self._check_os_user(request, username)
 
         # user_id/auth_token authentication
-        if user is None and user_id and auth_token:
-            if TokenGenerator().check_token(user_id, auth_token):
-                user = FacilityUser.objects.filter(
-                    id=user_id, facility=facility
-                ).first()
+        if (
+            user is None
+            and user_id
+            and auth_token
+            and TokenGenerator().check_token(user_id, auth_token)
+        ):
+            user = FacilityUser.objects.filter(id=user_id, facility=facility).first()
 
         # picture password authentication
         if user is None and picture_password is not None:

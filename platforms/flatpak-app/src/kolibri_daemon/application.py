@@ -120,7 +120,7 @@ class PublicDBusInterface(object):
             self.__skeleton.unexport_from_connection(connection)
 
     def __hold_for_client(self, connection: Gio.DBusConnection, name: str):
-        if name in self.__hold_clients.keys():
+        if name in self.__hold_clients:
             return
 
         watch_id = Gio.bus_watch_name_on_connection(

@@ -98,9 +98,7 @@ class KolibriInstance:
             return False
         if self.device_info != other.device_info:
             return False
-        if self.prefix != other.prefix:
-            return False
-        return True
+        return self.prefix == other.prefix
 
     @property
     def name(self):

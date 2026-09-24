@@ -183,7 +183,7 @@ class ParamValidator:
                 raise AssertionError
             setattr(self, suffix, value)
         elif suffix in NUM_PARTS:
-            if not (isinstance(value, int) or isinstance(value, float)):
+            if not isinstance(value, (int, float)):
                 raise AssertionError
             setattr(self, suffix, value)
         elif suffix == "default":

@@ -123,9 +123,8 @@ def _user_is_admin_for_own_facility(user, obj=None):
         return False
 
     # if we've been given an object, make sure it too is from the same dataset (facility)
-    if obj:
-        if not hasattr(obj, "dataset_id") or not user.dataset_id == obj.dataset_id:
-            return False
+    if obj and (not hasattr(obj, "dataset_id") or user.dataset_id != obj.dataset_id):
+        return False
     try:
         facility = Facility.objects.get(dataset_id=user.dataset_id)
         return user.has_role_for_collection(role_kinds.ADMIN, facility)

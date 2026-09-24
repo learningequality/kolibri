@@ -306,7 +306,7 @@ class PreferredDevices:
             return None
         # ensure peer is available, unless it's Studio
         if (
-            not instance_id == CENTRAL_CONTENT_BASE_INSTANCE_ID
+            instance_id != CENTRAL_CONTENT_BASE_INSTANCE_ID
             and peer.connection_status != ConnectionStatus.Okay
         ):
             logger.debug("Peer %s is not available", instance_id)

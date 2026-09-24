@@ -121,9 +121,8 @@ def get_log_status(log, content_id_to_node_ids, needs_help, completed):
             # or if we have and the timestamp is earlier than that on the needs_help event
             if key not in completed or completed[key] < needs_help[key]:
                 return HELP_NEEDED
-    if log["kind"] == content_kinds.EXERCISE:
-        if not log["attempts_exist"]:
-            return NOT_STARTED
+    if log["kind"] == content_kinds.EXERCISE and not log["attempts_exist"]:
+        return NOT_STARTED
     return STARTED
 
 

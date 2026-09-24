@@ -190,15 +190,15 @@ class ContentAssignmentManager:
     @classmethod
     def get_content_download_priority(cls, assignment):
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
-            if manager.model.morango_model_name == assignment.source_model:
-                if manager.content_download_priority_func:
-                    instance = cls._get_cached_model_instance(
-                        manager, assignment.source_id
+            if (
+                manager.model.morango_model_name == assignment.source_model
+                and manager.content_download_priority_func
+            ):
+                instance = cls._get_cached_model_instance(manager, assignment.source_id)
+                if instance:
+                    return manager.content_download_priority_func(
+                        instance, assignment.contentnode_id
                     )
-                    if instance:
-                        return manager.content_download_priority_func(
-                            instance, assignment.contentnode_id
-                        )
 
         return ContentRequestPriority.REGULAR
 

@@ -48,7 +48,7 @@ class GetAllValidSequencesTestCase(TestCase):
             self.assertEqual(len(ids), SEQUENCE_LENGTH)
 
     def test_sequences_only_contain_ids_from_picture_set(self):
-        valid_ids = {str(k) for k in PICTURE_PASSWORD_SET.keys()}
+        valid_ids = {str(k) for k in PICTURE_PASSWORD_SET}
         for seq_str in get_all_valid_sequences(PICTURE_PASSWORD_SET):
             for pic_id in seq_str.split("."):
                 self.assertIn(pic_id, valid_ids)

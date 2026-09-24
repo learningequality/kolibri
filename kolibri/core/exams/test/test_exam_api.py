@@ -28,9 +28,7 @@ class BaseExamTest:
 
     @property
     def draft(self):
-        if self.class_object == models.DraftExam:
-            return True
-        return False
+        return self.class_object == models.DraftExam
 
     def assertExamExists(self, **params):
         self.assertTrue(self.class_object.objects.filter(**params).exists())

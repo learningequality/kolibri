@@ -12,9 +12,8 @@ def __validate_config_option(
 ):
     # Raise an error if someone tries to overwrite a base option
     # except for the default value.
-    if section in base_config_spec:
-        if name in base_config_spec[section]:
-            raise ValueError("Cannot overwrite a core Kolibri options spec option")
+    if section in base_config_spec and name in base_config_spec[section]:
+        raise ValueError("Cannot overwrite a core Kolibri options spec option")
 
     # Warn if a plugin tries to add an option that another plugin has already added
     if section in plugin_specs:

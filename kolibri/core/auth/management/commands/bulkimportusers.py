@@ -289,7 +289,7 @@ class Validator:
 
     def check_classroom(self, row, username):
         def append_users(class_list, key):
-            class_list_normalized = {c.lower(): c for c in class_list.keys()}
+            class_list_normalized = {c.lower(): c for c in class_list}
             try:
                 classes_list = [c.strip() for c in row.get(key, None).split(",")]
                 for classroom in classes_list:
@@ -549,10 +549,11 @@ class Command(AsyncCommand):
         for field in values:
             if field == "uuid":
                 continue  # uuid can't be updated
-            if field != "password" or values["password"] is not None:
-                if getattr(user_obj, field) != values[field]:
-                    changed = True
-                    setattr(user_obj, field, values[field])
+            if field == "password" and values["password"] is None:
+                continue  # keep the existing password
+            if getattr(user_obj, field) != values[field]:
+                changed = True
+                setattr(user_obj, field, values[field])
         return changed
 
     def build_users_objects(self, users):  # noqa C901
@@ -796,7 +797,7 @@ class Command(AsyncCommand):
                     db_class.add_coach(user)
 
     def add_roles(self, users, roles):
-        for role in roles.keys():
+        for role in roles:
             for username in roles[role]:
                 # db validation might have rejected a csv validated user:
                 if username in users:
@@ -824,7 +825,7 @@ class Command(AsyncCommand):
             # enrolled:
             to_remove = user.memberships.filter(collection__kind=CLASSROOM)
             username = user.username
-            if username in users_enrolled.keys():
+            if username in users_enrolled:
                 to_remove.exclude(
                     collection__name__in=users_enrolled[username]
                 ).delete()
@@ -833,7 +834,7 @@ class Command(AsyncCommand):
 
             # assigned:
             to_remove = user.roles.filter(collection__kind=CLASSROOM)
-            if username in users_assigned.keys():
+            if username in users_assigned:
                 to_remove.exclude(
                     collection__name__in=users_assigned[username]
                 ).delete()

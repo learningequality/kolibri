@@ -169,46 +169,49 @@ class MetricsMiddleware(MiddlewareMixin):
         """
         Do the needed checks to enable the Middleware if possible
         """
-        if MetricsMiddleware.disabled and conf.OPTIONS["Server"]["PROFILE"]:
-            if os.path.exists(PROFILE_LOCK):
-                try:
-                    with open(PROFILE_LOCK) as f:
-                        MetricsMiddleware.command_pid = int(f.readline())
-                        file_timestamp = f.readline()
-                        if SUPPORTED_OS:
-                            MetricsMiddleware.disabled = False
-                            self.requests_profiling_file = os.path.join(
-                                conf.KOLIBRI_HOME,
-                                "performance",
-                                f"{file_timestamp}_requests_performance.csv",
+        if (
+            MetricsMiddleware.disabled
+            and conf.OPTIONS["Server"]["PROFILE"]
+            and os.path.exists(PROFILE_LOCK)
+        ):
+            try:
+                with open(PROFILE_LOCK) as f:
+                    MetricsMiddleware.command_pid = int(f.readline())
+                    file_timestamp = f.readline()
+                    if SUPPORTED_OS:
+                        MetricsMiddleware.disabled = False
+                        self.requests_profiling_file = os.path.join(
+                            conf.KOLIBRI_HOME,
+                            "performance",
+                            f"{file_timestamp}_requests_performance.csv",
+                        )
+                        with open(
+                            self.requests_profiling_file, mode="a"
+                        ) as profile_file:
+                            profile_writer = csv.writer(
+                                profile_file,
+                                delimiter=",",
+                                quotechar='"',
+                                quoting=csv.QUOTE_MINIMAL,
                             )
-                            with open(
-                                self.requests_profiling_file, mode="a"
-                            ) as profile_file:
-                                profile_writer = csv.writer(
-                                    profile_file,
-                                    delimiter=",",
-                                    quotechar='"',
-                                    quoting=csv.QUOTE_MINIMAL,
+                            profile_writer.writerow(
+                                (
+                                    "Date",
+                                    "Path",
+                                    "Duration",
+                                    "Memory before (Kb)",
+                                    "Memory after (Kb)",
+                                    "Load before (%)",
+                                    "Load after(%)",
+                                    "Longest time up to now",
                                 )
-                                profile_writer.writerow(
-                                    (
-                                        "Date",
-                                        "Path",
-                                        "Duration",
-                                        "Memory before (Kb)",
-                                        "Memory after (Kb)",
-                                        "Load before (%)",
-                                        "Load after(%)",
-                                        "Longest time up to now",
-                                    )
-                                )
-                except (OSError, TypeError, ValueError):
-                    # Kolibri command PID file has been deleted or it's corrupted
-                    try:
-                        os.remove(PROFILE_LOCK)
-                    except OSError:
-                        pass  # lock file was deleted by other process
+                            )
+            except (OSError, TypeError, ValueError):
+                # Kolibri command PID file has been deleted or it's corrupted
+                try:
+                    os.remove(PROFILE_LOCK)
+                except OSError:
+                    pass  # lock file was deleted by other process
 
     def process_response(self, request, response):
         """

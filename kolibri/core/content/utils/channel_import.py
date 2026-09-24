@@ -87,7 +87,7 @@ def convert_to_sqlite_value(python_value):
         return "1" if python_value else "0"
     if python_value is None:
         return "null"
-    if isinstance(python_value, dict) or isinstance(python_value, list):
+    if isinstance(python_value, (dict, list)):
         return f'"{json.dumps(python_value)}"'
     return repr(python_value)
 

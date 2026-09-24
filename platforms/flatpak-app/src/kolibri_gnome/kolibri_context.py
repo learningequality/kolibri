@@ -636,19 +636,13 @@ class KolibriSetupContext(KolibriContext):
         url_tuple = urlsplit(url)
         url_path = url_tuple.path.lstrip("/")
 
-        if re.match(SETUP_PATHS_RE, url_path):
-            return True
-
-        return False
+        return bool(re.match(SETUP_PATHS_RE, url_path))
 
     def __is_url_for_setup_complete(self, url: str) -> bool:
         url_tuple = urlsplit(url)
         url_path = url_tuple.path.lstrip("/")
 
-        if re.match(SETUP_COMPLETE_PATHS_RE, url_path):
-            return True
-
-        return False
+        return bool(re.match(SETUP_COMPLETE_PATHS_RE, url_path))
 
     def open_external_url(self, url: str) -> typing.Optional[str]:
         if self.__is_url_for_setup_complete(url):

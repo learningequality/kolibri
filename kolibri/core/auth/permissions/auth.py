@@ -59,9 +59,7 @@ class AnyUserCanReadFacilities(DenyAll):
     """
 
     def user_can_read_object(self, user, obj):
-        if obj.kind == FACILITY:
-            return True
-        return False
+        return obj.kind == FACILITY
 
     def readable_by_user_filter(self, user):
         return Q(kind=FACILITY)
@@ -84,7 +82,7 @@ class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
 
         # if we've been given an object, make sure it too is from the same dataset (facility)
         if obj:
-            if not user.dataset_id == obj.id:
+            if user.dataset_id != obj.id:
                 return False
         else:
             obj = FacilityDataset.objects.get(id=user.dataset_id)
@@ -164,9 +162,7 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
         if not self._user_is_coach_for_group(user, obj.collection):
             return False
         # Membership user must already be a member of the collection
-        if not obj.user.is_member_of(obj.collection.parent):
-            return False
-        return True
+        return obj.user.is_member_of(obj.collection.parent)
 
     def user_can_create_object(self, user, obj):
         return self._user_should_be_able_to_manage(user, obj)
