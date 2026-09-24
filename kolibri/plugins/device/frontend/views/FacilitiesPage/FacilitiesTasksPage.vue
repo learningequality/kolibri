@@ -24,7 +24,7 @@
           v-for="(task, idx) in activeFacilityTasks"
           :key="idx"
           class="task-panel"
-          :style="{ borderBottomColor: $themePalette.grey.v_300 }"
+          :style="{ borderBottomColor: 'var(--palette-grey-v300)' }"
           :task="task"
           @cancel="cancel(task)"
           @clear="clear(task)"

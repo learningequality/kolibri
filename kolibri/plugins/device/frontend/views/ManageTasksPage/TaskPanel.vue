@@ -9,12 +9,12 @@
         <KIcon
           v-if="taskIsFailed"
           icon="helpNeeded"
-          :style="{ fill: $themeTokens.error }"
+          :style="{ fill: 'var(--tokens-error)' }"
         />
         <KIcon
           v-else-if="taskIsCompleted"
           icon="done"
-          :style="{ fill: $themeTokens.success }"
+          :style="{ fill: 'var(--tokens-success)' }"
         />
         <KCircularLoader
           v-else-if="taskIsRunning"
@@ -24,7 +24,7 @@
         <KIcon
           v-else
           icon="inProgress"
-          :style="{ fill: $themeTokens.annotation }"
+          :style="{ fill: 'var(--tokens-annotation)' }"
         />
       </transition>
     </div>
@@ -32,7 +32,7 @@
     <div class="details">
       <p
         class="details-status"
-        :style="{ color: $themeTokens.annotation }"
+        :style="{ color: 'var(--tokens-annotation)' }"
       >
         {{ statusText }}
       </p>
@@ -49,7 +49,7 @@
             :type="loaderType"
             :delay="false"
             :progress="task.percentage * 100"
-            :style="{ backgroundColor: $themeTokens.fineLine }"
+            :style="{ backgroundColor: 'var(--tokens-fineLine)' }"
           />
           <span
             v-if="taskPercentage"
@@ -63,7 +63,7 @@
             class="k-linear-loader"
             type="indeterminate"
             :delay="false"
-            :style="{ backgroundColor: $themeTokens.fineLine }"
+            :style="{ backgroundColor: 'var(--tokens-fineLine)' }"
           />
         </template>
       </div>
@@ -85,7 +85,7 @@
       </template>
       <p
         class="details-startedby"
-        :style="{ color: $themeTokens.annotation }"
+        :style="{ color: 'var(--tokens-annotation)' }"
       >
         {{ startedByText }}
       </p>

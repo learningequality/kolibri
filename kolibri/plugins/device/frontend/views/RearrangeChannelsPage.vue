@@ -28,7 +28,7 @@
                 <div
                   :class="$computedClass(itemClass)"
                   class="item"
-                  :style="{ backgroundColor: $themeTokens.surface }"
+                  :style="{ backgroundColor: 'var(--tokens-surface)' }"
                 >
                   <DragSortWidget
                     class="sort-widget"

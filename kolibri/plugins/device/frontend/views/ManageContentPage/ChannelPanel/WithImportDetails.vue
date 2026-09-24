@@ -52,7 +52,7 @@
           <KIcon
             class="update-icon"
             icon="error"
-            :style="{ fill: $themeTokens.primary }"
+            :style="{ fill: 'var(--tokens-primary)' }"
           />
           {{ $tr('newVersionMessage') }}
           <KRouterLink
@@ -67,7 +67,7 @@
           <KIcon
             class="check-icon"
             icon="correct"
-            :style="{ fill: $themeTokens.success }"
+            :style="{ fill: 'var(--tokens-success)' }"
           />
           <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
         </div>

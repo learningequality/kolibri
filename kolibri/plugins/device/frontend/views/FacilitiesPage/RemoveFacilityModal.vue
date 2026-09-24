@@ -10,7 +10,7 @@
   >
     <!-- Can Remove Facility state -->
     <template v-if="canRemove">
-      <p :style="{ color: $themeTokens.error }">
+      <p :style="{ color: 'var(--tokens-error)' }">
         {{ $tr('willLoseAccessWarning', { facilityName }) }}
       </p>
       <p>
