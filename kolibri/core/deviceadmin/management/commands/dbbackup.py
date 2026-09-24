@@ -46,7 +46,7 @@ class Command(BaseCommand):
             # Great, it's not running!
             pass
 
-        dest_folder = options.get("dest_folder", None)
+        dest_folder = options.get("dest_folder")
 
         backup = dbbackup(kolibri.__version__, dest_folder=dest_folder)
         self.stdout.write(self.style.SUCCESS(f"Backed up database to: {backup}"))

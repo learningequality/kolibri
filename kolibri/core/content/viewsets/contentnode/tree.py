@@ -38,7 +38,7 @@ class TreeQueryMixin:
 
         try:
             depth = int(depth)
-            if 1 > depth or depth > 2:
+            if depth < 1 or depth > 2:
                 raise ValueError
         except ValueError as e:
             raise ValidationError(
@@ -48,7 +48,7 @@ class TreeQueryMixin:
         if next__gt is not None:
             try:
                 next__gt = int(next__gt)
-                if 1 > next__gt:
+                if next__gt < 1:
                     raise ValueError
             except ValueError as e:
                 raise ValidationError(

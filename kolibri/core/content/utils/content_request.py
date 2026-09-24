@@ -552,7 +552,7 @@ def _create_related_download_requests_if_needed(incomplete_downloads):
         contentnodes_map[contentnode.id] = contentnode
 
     for download_request in incomplete_downloads:
-        contentnode = contentnodes_map.get(download_request.contentnode_id, None)
+        contentnode = contentnodes_map.get(download_request.contentnode_id)
         if not contentnode:
             continue
 

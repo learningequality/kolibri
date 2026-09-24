@@ -359,7 +359,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         Recommend items that are similar to this piece of content.
         """
         queryset = self.filter_queryset(self.get_queryset())
-        pk = kwargs.get("pk", None)
+        pk = kwargs.get("pk")
         node = get_object_or_404(queryset, pk=pk)
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset & node.get_siblings(include_self=False).exclude(

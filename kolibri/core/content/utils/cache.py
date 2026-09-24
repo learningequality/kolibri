@@ -51,7 +51,7 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
             request = args[0]
             request = kwargs.get("request", request)
         except IndexError:
-            request = kwargs.get("request", None)
+            request = kwargs.get("request")
         # Prevent the Django caching middleware from caching
         # this response, as we want to cache it ourselves
         request._cache_update_cache = False

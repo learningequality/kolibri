@@ -189,7 +189,7 @@ def download_csv_file(request, csv_type, facility_id):
         ).replace("-", "_"),
     }
 
-    if csv_type in CSV_EXPORT_FILENAMES.keys():
+    if csv_type in CSV_EXPORT_FILENAMES:
         if csv_type == "user":
             filename = CSV_EXPORT_FILENAMES[csv_type].format(
                 facility.name, facility.id[:4]

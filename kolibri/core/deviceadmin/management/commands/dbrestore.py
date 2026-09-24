@@ -115,7 +115,7 @@ class Command(BaseCommand):
 
         latest = options["latest"]
         select = options["select"]
-        use_backup = options.get("dump_file", None)
+        use_backup = options.get("dump_file")
 
         logger.info("Beginning database restore")
 
