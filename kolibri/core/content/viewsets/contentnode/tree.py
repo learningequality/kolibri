@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import Http404
 from django.utils.decorators import method_decorator
-from rest_framework import status
+from rest_framework import serializers
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
@@ -13,6 +13,7 @@ from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.cache import remote_metadata_cache
 
 from ..remote import RemoteMixin
+from .base import BaseContentNodeMixin
 from .base import filter_public_channel_nodes
 from .base import InternalContentNodeMixin
 
@@ -125,8 +126,15 @@ class TreeQueryMixin:
 
 
 class BaseContentNodeTreeViewset(
-    InternalContentNodeMixin, TreeQueryMixin, BaseValuesViewset
+    BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset
 ):
+    def get_tree_queryset(self, request, pk):
+        try:
+            UUID(pk)
+        except ValueError as e:
+            raise serializers.ValidationError({"error": "Invalid UUID format."}) from e
+        return super().get_tree_queryset(request, pk)
+
     def retrieve(self, request, pk=None):
         """
         A nested, paginated representation of the children and grandchildren of a specific node
@@ -224,17 +232,12 @@ class BaseContentNodeTreeViewset(
 
 
 @method_decorator(remote_metadata_cache, name="dispatch")
-class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
+class ContentNodeTreeViewset(
+    InternalContentNodeMixin, BaseContentNodeTreeViewset, RemoteMixin
+):
     def retrieve(self, request, pk=None):
         if pk is None:
             raise Http404
-
-        try:
-            UUID(pk)
-        except ValueError:
-            return Response(
-                {"error": "Invalid UUID format."}, status=status.HTTP_400_BAD_REQUEST
-            )
 
         if self._should_proxy_request(request):
             try:

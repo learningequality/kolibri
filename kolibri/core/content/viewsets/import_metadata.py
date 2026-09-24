@@ -3,6 +3,7 @@ from uuid import UUID
 from django.core.exceptions import EmptyResultSet
 from django.db import connection
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
@@ -12,6 +13,7 @@ from kolibri.core.content import models
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.core.content.contentschema.columns import for_version
+from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 
 
@@ -22,6 +24,7 @@ class ImportMetadataPagination(ValuesViewsetCursorPagination):
     page_size_query_param = "max_results"
 
 
+@method_decorator(public_metadata_cache, name="dispatch")
 class ImportMetadataViewset(GenericViewSet):
     queryset = models.ContentNode.objects.all()
     pagination_class = ImportMetadataPagination

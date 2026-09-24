@@ -296,6 +296,29 @@ class PublicAPITestCase(APITestCase):
             [self.channel_id2, self.channel_id1],
         )
 
+    def test_public_channel_v2_has_exercise_matches_contains_exercise(self):
+        # Both channels must list, or an ignored filter still returns only channel2.
+        set_device_settings(allow_peer_unlisted_channel_import=True)
+        ContentNodeFactory.create(
+            parent=ChannelMetadata.objects.get(id=self.channel_id2).root,
+            kind=content_kinds.EXERCISE,
+            channel_id=self.channel_id2,
+        )
+        url = reverse("kolibri:core:publicchannel-list")
+        contains = [
+            c["id"] for c in self.client.get(url, {"contains_exercise": "true"}).json()
+        ]
+        has = [c["id"] for c in self.client.get(url, {"has_exercise": "true"}).json()]
+        self.assertEqual(contains, [self.channel_id2])
+        self.assertEqual(has, contains)
+
+    def test_public_channel_v2_has_no_filter_options(self):
+        response = self.client.get(
+            reverse("kolibri:core:publicchannel-list") + "filter_options/",
+            {"id": self.channel_id2},
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_public_checksum_lookup_no_checksums(self):
         response = self.client.post(
             reverse("kolibri:core:get_public_file_checksums", kwargs={"version": "v1"}),

@@ -36,11 +36,15 @@ class ChannelMetadataFilter(FilterSet):
     contains_exercise = BooleanFilter(
         method="filter_contains_exercise", label="Has exercises"
     )
+    # Studio's v2 channel endpoint only accepts has_exercise.
+    has_exercise = BooleanFilter(
+        method="filter_contains_exercise", label="Has exercises"
+    )
     contains_quiz = BooleanFilter(method="filter_contains_quiz", label="Has quizzes")
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ("available", "contains_exercise", "contains_quiz")
+        fields = ("available", "contains_exercise", "has_exercise", "contains_quiz")
 
     def filter_contains_exercise(self, queryset, name, value):
         queryset = queryset.annotate(
@@ -152,6 +156,11 @@ class BaseChannelMetadataMixin:
             item["included_languages"] = included_languages[item["id"]]
         return items
 
+
+@method_decorator(remote_metadata_cache, name="dispatch")
+class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
+    serializer_class = ChannelMetadataSerializer
+
     @action(detail=False)
     def filter_options(self, request, **kwargs):
         channel_id = self.request.query_params.get("id")
@@ -181,11 +190,6 @@ class BaseChannelMetadataMixin:
         }
 
         return Response(data)
-
-
-@method_decorator(remote_metadata_cache, name="dispatch")
-class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    serializer_class = ChannelMetadataSerializer
 
 
 @method_decorator(public_metadata_cache, name="dispatch")
