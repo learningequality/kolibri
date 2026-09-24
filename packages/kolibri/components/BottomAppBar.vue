@@ -2,7 +2,7 @@
 
   <div
     class="bottom"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
     :class="{ 'bottom-sm': windowIsSmall }"
   >
     <div class="inner-bottom">

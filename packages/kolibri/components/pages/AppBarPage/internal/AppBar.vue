@@ -90,9 +90,9 @@
                 v-if="pointsDisplayed"
                 class="points-popover"
                 :style="{
-                  color: $themeTokens.text,
+                  color: 'var(--tokens-text)',
                   padding: '8px',
-                  backgroundColor: $themeTokens.surface,
+                  backgroundColor: 'var(--tokens-surface)',
                 }"
               >
                 {{ $tr('pointsMessage', { points: totalPoints }) }}

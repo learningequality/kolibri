@@ -11,8 +11,8 @@
         backgroundColor: appBarBgColor
           ? appBarBgColor
           : isFullscreen
-            ? $themeTokens.appBar
-            : $themePalette.black,
+            ? 'var(--tokens-appBar)'
+            : 'var(--palette-black)',
       }"
       @nav-icon-click="$emit('navIconClick')"
     >
