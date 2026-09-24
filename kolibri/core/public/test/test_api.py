@@ -312,6 +312,13 @@ class PublicAPITestCase(APITestCase):
         self.assertEqual(contains, [self.channel_id2])
         self.assertEqual(has, contains)
 
+    def test_public_channel_v2_has_no_filter_options(self):
+        response = self.client.get(
+            reverse("kolibri:core:publicchannel-list") + "filter_options/",
+            {"id": self.channel_id2},
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_public_checksum_lookup_no_checksums(self):
         response = self.client.post(
             reverse("kolibri:core:get_public_file_checksums", kwargs={"version": "v1"}),

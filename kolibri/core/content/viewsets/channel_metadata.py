@@ -156,6 +156,11 @@ class BaseChannelMetadataMixin:
             item["included_languages"] = included_languages[item["id"]]
         return items
 
+
+@method_decorator(remote_metadata_cache, name="dispatch")
+class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
+    serializer_class = ChannelMetadataSerializer
+
     @action(detail=False)
     def filter_options(self, request, **kwargs):
         channel_id = self.request.query_params.get("id")
@@ -185,11 +190,6 @@ class BaseChannelMetadataMixin:
         }
 
         return Response(data)
-
-
-@method_decorator(remote_metadata_cache, name="dispatch")
-class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    serializer_class = ChannelMetadataSerializer
 
 
 @method_decorator(public_metadata_cache, name="dispatch")

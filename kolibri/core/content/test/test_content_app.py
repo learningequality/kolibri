@@ -7,6 +7,7 @@ import time
 import unittest
 import uuid
 from base64 import urlsafe_b64decode
+from collections import Counter
 from typing import ClassVar
 from unittest import mock
 
@@ -1449,6 +1450,20 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(len(with_filter_response.data), 1)
         self.assertEqual(with_filter_response.data[0]["name"], "testing")
+
+    def test_channelmetadata_filter_options(self):
+        response = self.client.get(
+            reverse("kolibri:core:channel-filter-options"), {"id": self.the_channel_id}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data["available_kinds"],
+            Counter(
+                content.ContentNode.objects.filter(
+                    channel_id=self.the_channel_id
+                ).values_list("kind", flat=True)
+            ),
+        )
 
     def test_channelmetadata_contains_quiz_filter(self):
         no_quiz_channel = content.ContentNode.objects.create(
