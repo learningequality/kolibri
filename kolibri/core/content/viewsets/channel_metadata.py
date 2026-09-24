@@ -36,11 +36,15 @@ class ChannelMetadataFilter(FilterSet):
     contains_exercise = BooleanFilter(
         method="filter_contains_exercise", label="Has exercises"
     )
+    # Studio's v2 channel endpoint only accepts has_exercise.
+    has_exercise = BooleanFilter(
+        method="filter_contains_exercise", label="Has exercises"
+    )
     contains_quiz = BooleanFilter(method="filter_contains_quiz", label="Has quizzes")
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ("available", "contains_exercise", "contains_quiz")
+        fields = ("available", "contains_exercise", "has_exercise", "contains_quiz")
 
     def filter_contains_exercise(self, queryset, name, value):
         queryset = queryset.annotate(
