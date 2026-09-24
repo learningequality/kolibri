@@ -15,7 +15,7 @@
         v-for="user in filteredUsers"
         :key="user.id"
         class="user-list-item"
-        :style="{ borderBottomColor: $themeTokens.fineLine }"
+        :style="{ borderBottomColor: 'var(--tokens-fineLine)' }"
       >
         <div class="user-info">
           <KIcon
@@ -54,7 +54,7 @@
         <p
           v-else
           class="imported"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ importedLabel$() }}
         </p>
@@ -63,7 +63,7 @@
     <div v-else>
       <p
         :style="{
-          color: $themeTokens.textDisabled,
+          color: 'var(--tokens-textDisabled)',
           textAlign: 'center',
           marginTop: '32px',
         }"
@@ -81,7 +81,6 @@
   import { computed, ref, toRefs } from 'vue';
   import { UserKinds } from 'kolibri/constants';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
 
@@ -96,7 +95,7 @@
 
       const annotationStyle = {
         fontSize: '12px',
-        color: themeTokens().annotation,
+        color: 'var(--tokens-annotation)',
       };
 
       const filteredUsers = computed(() => {

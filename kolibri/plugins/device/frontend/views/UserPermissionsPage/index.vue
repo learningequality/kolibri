@@ -68,7 +68,7 @@
           <ul
             class="checkbox-description"
             :style="{
-              color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation,
+              color: superuserDisabled ? 'var(--tokens-textDisabled)' : 'var(--tokens-annotation)',
             }"
           >
             <li>{{ $tr('superAdminExplanation1') }}</li>
@@ -182,7 +182,7 @@
         );
       },
       superuserLabelStyle() {
-        return { color: this.superuserDisabled ? this.$themeTokens.textDisabled : '' };
+        return { color: this.superuserDisabled ? 'var(--tokens-textDisabled)' : '' };
       },
     },
     watch: {

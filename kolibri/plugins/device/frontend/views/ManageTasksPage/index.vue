@@ -50,7 +50,7 @@
           :task="task"
           class="task-panel"
           :appBarTitle="$tr('appBarTitle')"
-          :style="{ borderBottomColor: $themePalette.grey.v_300 }"
+          :style="{ borderBottomColor: 'var(--palette-grey-v300)' }"
           @clickclear="handleClickClear(task)"
           @clickcancel="handleClickCancel(task)"
           @restart="restartTask(task)"
