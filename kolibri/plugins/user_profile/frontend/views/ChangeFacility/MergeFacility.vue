@@ -14,7 +14,7 @@
           <KIcon
             v-if="taskCompleted"
             icon="check"
-            :style="{ fill: $themeTokens.success }"
+            :style="{ fill: 'var(--tokens-success)' }"
             data-testid="syncStatusIcon"
           />
           <KCircularLoader
@@ -28,7 +28,7 @@
       <div class="details">
         <p
           class="details-status"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ taskInfo() }}
         </p>
@@ -54,7 +54,7 @@
             type="determinate"
             :delay="false"
             :progress="percentage * 100"
-            :style="{ backgroundColor: $themeTokens.fineLine }"
+            :style="{ backgroundColor: 'var(--tokens-fineLine)' }"
           />
           <span class="details-percentage">
             {{ $formatNumber(percentage, { style: 'percent' }) }}

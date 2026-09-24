@@ -37,7 +37,7 @@
         :style="{
           backgroundColor: tempTheme.backgroundColor,
           color: tempTheme.textColor,
-          borderColor: $themeTokens.fineLine,
+          borderColor: 'var(--tokens-fineLine)',
         }"
       >
         <h3>{{ thisIsASampleText$() }}</h3>

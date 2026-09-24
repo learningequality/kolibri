@@ -30,7 +30,7 @@
         v-if="patternErrorId"
         :id="patternErrorId"
         class="qti-text-entry-interaction-error"
-        :style="{ color: $themeTokens.error }"
+        :style="{ color: 'var(--tokens-error)' }"
       >
         <KIcon
           icon="error"

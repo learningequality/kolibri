@@ -16,7 +16,7 @@
     <template #aboveform>
       <p
         v-if="error"
-        :style="{ color: $themeTokens.error }"
+        :style="{ color: 'var(--tokens-error)' }"
       >
         {{ coreString('invalidCredentialsError') }}
       </p>

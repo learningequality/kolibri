@@ -25,7 +25,7 @@
       <p>{{ enterCredentials$() }}</p>
       <p
         v-if="error && !useAdmin"
-        :style="{ color: $themeTokens.error }"
+        :style="{ color: 'var(--tokens-error)' }"
       >
         {{ coreString('invalidCredentialsError') }}
       </p>
@@ -78,7 +78,7 @@
         <p>{{ adminModalMessage }}</p>
         <p
           v-if="error && useAdmin"
-          :style="{ color: $themeTokens.error }"
+          :style="{ color: 'var(--tokens-error)' }"
         >
           {{ coreString('invalidCredentialsError') }}
         </p>

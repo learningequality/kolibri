@@ -2,7 +2,7 @@
 
   <div
     class="side-bar"
-    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+    :style="{ backgroundColor: 'var(--palette-grey-v200)' }"
   >
     <slot></slot>
   </div>

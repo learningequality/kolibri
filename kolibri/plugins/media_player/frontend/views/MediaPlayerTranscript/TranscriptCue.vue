@@ -87,12 +87,12 @@
       },
       textStyle() {
         return {
-          'border-color': this.$themeTokens.fineLine,
+          'border-color': 'var(--tokens-fineLine)',
         };
       },
       timeStyle() {
         return {
-          color: this.active ? this.$themeTokens.text : this.$themeTokens.annotation,
+          color: this.active ? 'var(--tokens-text)' : 'var(--tokens-annotation)',
         };
       },
     },
