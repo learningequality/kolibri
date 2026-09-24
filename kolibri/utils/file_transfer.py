@@ -525,7 +525,8 @@ class TransferFile(TransferFileBase):
     def write(self, data):
         """Write data to the transfer file."""
         if self._file_obj is None:
-            self._file_obj = open(self._tmp_filepath, "wb")
+            # Owned by this object until close().
+            self._file_obj = open(self._tmp_filepath, "wb")  # noqa: SIM115
         self._file_obj.write(data)
         self.hasher.update(data)
         self._bytes_written += len(data)
@@ -1064,7 +1065,8 @@ class FileCopy(Transfer):
         self.total_size = os.path.getsize(self.source)
         self.transfer_size = self.total_size
         self.dest_file_obj.file_size = self.total_size
-        self.source_file_obj = open(self.source, "rb")
+        # Owned by this object until close().
+        self.source_file_obj = open(self.source, "rb")  # noqa: SIM115
         self.started = True
 
     def run(self, progress_update=None):
@@ -1097,7 +1099,8 @@ class RemoteFile(ChunkedFile):
     @property
     def dest_file_handle(self):
         if self._dest_file_handle is None and os.path.exists(self.filepath):
-            self._dest_file_handle = open(self.filepath, "rb")
+            # Owned by this object until close().
+            self._dest_file_handle = open(self.filepath, "rb")  # noqa: SIM115
             self._dest_file_handle.seek(self.position)
         return self._dest_file_handle
 
