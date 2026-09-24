@@ -393,7 +393,8 @@ class WindowsServerManager:
             try:
                 if self._connect_to_pipe():
                     self._pipe_retry_count = 0
-                    self._process_pipe_messages()
+                    if self._process_pipe_messages():
+                        break
             except pywintypes.error as e:
                 if self._handle_pipe_error(e):
                     break
@@ -442,11 +443,16 @@ class WindowsServerManager:
 
                 # Parse JSON message from client
                 message = json.loads(text_data)
-                logging.debug(f"Pipe client received message: {message}")
+                logging.debug(f"Pipe client received message: {message.get('type')}")
+                if message.get("type") == "server_error":
+                    logging.error("The server could not identify this Windows user.")
+                    wx.CallAfter(self.app.notify_server_failed)
+                    return True
                 wx.CallAfter(self._handle_pipe_message, message)
             else:
                 # Pipe closed by server - break inner loop to reconnect
                 break
+        return False
 
     def _should_exit_on_pipe_error(self, e):
         """Check if pipe error should cause thread to exit immediately."""
