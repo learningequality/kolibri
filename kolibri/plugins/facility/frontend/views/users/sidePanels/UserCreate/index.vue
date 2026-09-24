@@ -22,7 +22,7 @@
       />
       <div
         v-if="showErrorWarning"
-        :style="{ color: $themeTokens.error }"
+        :style="{ color: 'var(--tokens-error)' }"
         class="warning-text"
       >
         <span>{{ defaultErrorMessage$() }}</span>
@@ -70,11 +70,11 @@
           <div
             v-if="userCreationBlocked"
             class="learner-limit-message"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             <KIcon
               icon="warning"
-              :style="{ fill: $themePalette.yellow.v_600 }"
+              :style="{ fill: 'var(--palette-yellow-v600)' }"
             />
             <span>
               {{ learnerCreationDisabled$() }}

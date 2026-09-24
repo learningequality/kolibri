@@ -99,7 +99,7 @@
           icon="infoOutline"
           :color="$themePalette.red.v_600"
         />
-        <span :style="{ color: $themePalette.red.v_600 }">
+        <span :style="{ color: 'var(--palette-red-v600)' }">
           {{ discardWarning$() }}
         </span>
       </CloseConfirmationGuard>
@@ -128,7 +128,6 @@
   import { useRoute } from 'vue-router/composables';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { injectPreviousRoute, useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -189,7 +188,7 @@
 
       const separatorStyles = {
         height: '1px',
-        backgroundColor: themeTokens().fineLine,
+        backgroundColor: 'var(--tokens-fineLine)',
         marginBottom: '24px',
       };
 

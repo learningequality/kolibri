@@ -14,7 +14,7 @@
     </p>
     <p
       class="caution"
-      :style="{ color: $themeTokens.error }"
+      :style="{ color: 'var(--tokens-error)' }"
     >
       {{ $tr('caution') }}
     </p>
