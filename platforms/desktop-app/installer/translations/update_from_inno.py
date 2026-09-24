@@ -9,7 +9,7 @@ bumping the Inno Setup version in
 and commit the result.
 
 With --english-messages, also rewrite the English [Messages] source Crowdin
-translates.
+translates, keeping only TRANSLATED_MESSAGES; the rest fall back to Default.isl.
 """
 
 import argparse
@@ -23,6 +23,85 @@ from write_language_files import UNOFFICIAL_DIR
 
 INNO_TAG = "is-6_6_1"
 SOURCE_URL = "https://raw.githubusercontent.com/jrsoftware/issrc/{tag}/Files/{path}"
+
+# The main install and uninstall path, seeded from the messages
+# learningequality/kolibri-installer-windows had translated.
+TRANSLATED_MESSAGES = (
+    "SetupAppTitle",
+    "SetupWindowTitle",
+    "UninstallAppTitle",
+    "UninstallAppFullTitle",
+    "InformationTitle",
+    "ConfirmTitle",
+    "ErrorTitle",
+    "SetupLdrStartupMessage",
+    "SetupAlreadyRunning",
+    "WindowsVersionNotSupported",
+    "ExitSetupTitle",
+    "ExitSetupMessage",
+    "ButtonBack",
+    "ButtonNext",
+    "ButtonInstall",
+    "ButtonOK",
+    "ButtonCancel",
+    "ButtonYes",
+    "ButtonNo",
+    "ButtonFinish",
+    "ButtonBrowse",
+    "ButtonWizardBrowse",
+    "ButtonNewFolder",
+    "SelectLanguageTitle",
+    "SelectLanguageLabel",
+    "ClickNext",
+    "BrowseDialogTitle",
+    "BrowseDialogLabel",
+    "NewFolderName",
+    "WizardSelectDir",
+    "SelectDirDesc",
+    "SelectDirLabel3",
+    "SelectDirBrowseLabel",
+    "DiskSpaceGBLabel",
+    "DiskSpaceMBLabel",
+    "DiskSpaceWarningTitle",
+    "WizardSelectTasks",
+    "SelectTasksDesc",
+    "SelectTasksLabel2",
+    "WizardSelectProgramGroup",
+    "SelectStartMenuFolderDesc",
+    "SelectStartMenuFolderLabel3",
+    "SelectStartMenuFolderBrowseLabel",
+    "MustEnterGroupName",
+    "BadGroupName",
+    "WizardReady",
+    "ReadyLabel1",
+    "ReadyLabel2a",
+    "ReadyLabel2b",
+    "ReadyMemoDir",
+    "ReadyMemoGroup",
+    "ReadyMemoTasks",
+    "WizardPreparing",
+    "PreparingDesc",
+    "CannotContinue",
+    "WizardInstalling",
+    "InstallingLabel",
+    "FinishedHeadingLabel",
+    "FinishedLabelNoIcons",
+    "FinishedLabel",
+    "ClickFinish",
+    "AbortRetryIgnoreCancel",
+    "StatusCreateDirs",
+    "StatusExtractFiles",
+    "StatusCreateIcons",
+    "StatusCreateRegistryEntries",
+    "StatusSavingUninstall",
+    "StatusRunProgram",
+    "ConfirmUninstall",
+    "UninstallStatusLabel",
+    "UninstalledAll",
+    "UninstalledMost",
+    "WizardUninstalling",
+    "StatusUninstalling",
+)
 
 
 def vendored_files():
@@ -56,8 +135,9 @@ def write_english_messages(default_isl, output_path):
     config.optionxform = str
     config.read_string(default_isl.decode("utf-8-sig"))
 
+    messages = config["Messages"]
     lines = ["[Messages]"]
-    lines.extend(f"{key}={value}" for key, value in config["Messages"].items())
+    lines.extend(f"{key}={messages[key]}" for key in TRANSLATED_MESSAGES)
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"  -> {output_path}")  # noqa: T201
 
