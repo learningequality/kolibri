@@ -5,7 +5,8 @@ Runs the real app headlessly (virtual X display, private D-Bus, no Wayland) and
 asserts the 0.19 app-mode flow from the Kolibri server access log -- the
 requests the app's WebKit view actually makes -- plus an HTTP probe:
 
-  1. Fresh first run: the app-mode initialize endpoint is hit and the setup
+  1. Fresh first run: a search-only activation leaves Kolibri stopped until
+     the app starts; then the app-mode initialize endpoint is hit and the setup
      wizard is reached (exercises the daemon, the 0.19 hooks, and the
      front-end's daemon-provided initialize URL).
   2. Auto-provisioned (landing_page=learn via KOLIBRI_HOME/options.ini): the
@@ -14,6 +15,9 @@ requests the app's WebKit view actually makes -- plus an HTTP probe:
      second, app-owned origin bound without needing imported content.
   3. In the same run, the GNOME Shell search provider answers a query, which
      exercises the daemon's in-process calls into Kolibri's content API.
+  4. Still in that run: the daemon is one process, the desktop user is signed
+     in, and Kolibri comes back after a D-Bus Stop and after the daemon is
+     sent SIGTERM.
 
 The log is the signal because headless WebKitGTK does not expose web content
 over AT-SPI. A hard SIGALRM timeout guarantees the test can never hang.
@@ -21,11 +25,13 @@ over AT-SPI. A hard SIGALRM timeout guarantees the test can never hang.
 Usage: smoke_test.py [BUNDLE.flatpak]   # installs the bundle first if given
 """
 
+import getpass
 import json
 import os
 import re
 import signal
 import socket
+import sqlite3
 import subprocess
 import sys
 import time
@@ -38,7 +44,7 @@ KOLIBRI_LOG = KOLIBRI_HOME / "logs" / "kolibri.txt"
 PROVISION_FILE = KOLIBRI_HOME / "provision.json"
 OPTIONS_FILE = KOLIBRI_HOME / "options.ini"
 
-TIMEOUT_S = int(os.environ.get("SMOKE_TIMEOUT", "420"))  # hard cap on the run
+TIMEOUT_S = int(os.environ.get("SMOKE_TIMEOUT", "600"))  # hard cap on the run
 PHASE_WAIT_S = 200  # per-phase wait for the expected requests to appear
 
 # Keep CI runs out of the telemetry stats: DISABLE_PING stops the startup
@@ -187,9 +193,12 @@ def _wait_for(predicate, timeout):
     return False
 
 
+# Kolibri logs e.g. "Kolibri running on: http://127.0.0.1:45335/" on each start.
+SERVER_URL_RE = re.compile(r"Kolibri running on: (http://127\.0\.0\.1:\d+)/")
+
+
 def _server_url():
-    # Kolibri logs e.g. "Kolibri running on: http://127.0.0.1:45335/".
-    matches = re.findall(r"Kolibri running on: (http://127\.0\.0\.1:\d+)/", _log_text())
+    matches = SERVER_URL_RE.findall(_log_text())
     return matches[-1] if matches else None
 
 
@@ -201,30 +210,139 @@ def _http_ok(url):
         return False
 
 
-def _search_provider_answers():
-    # The daemon's search handler calls Kolibri's content viewsets in-process,
-    # so a Kolibri API change breaks it with no request in the server log. It
-    # fails the call rather than returning no results.
+def _gdbus_call(name, object_path, method, *args):
     result = subprocess.run(
         [
             "gdbus",
             "call",
             "--session",
             "--dest",
-            f"{APP_ID}.SearchProvider",
+            f"{APP_ID}.{name}",
             "--object-path",
-            "/" + APP_ID.replace(".", "/") + "/SearchProvider",
+            "/" + APP_ID.replace(".", "/") + object_path,
             "--method",
-            "org.gnome.Shell.SearchProvider2.GetInitialResultSet",
-            "['kolibri']",
+            method,
+            *args,
         ],
         capture_output=True,
         text=True,
         timeout=60,
     )
     if result.returncode != 0:
-        print(f"  search provider error: {result.stderr.strip()}", flush=True)
-    return result.returncode == 0
+        print(f"  {name} {method} error: {result.stderr.strip()}", flush=True)
+        return None
+    return result.stdout.strip()
+
+
+def _search_provider_answers():
+    # The daemon's search handler calls Kolibri's content viewsets in-process,
+    # so a Kolibri API change breaks it with no request in the server log. It
+    # fails the call rather than returning no results.
+    return (
+        _gdbus_call(
+            "SearchProvider",
+            "/SearchProvider",
+            "org.gnome.Shell.SearchProvider2.GetInitialResultSet",
+            "['kolibri']",
+        )
+        is not None
+    )
+
+
+def _search_leaves_kolibri_stopped():
+    # With no app to call Start, a search-activated daemon must stay at IDLE:
+    # neither serving nor registered on zeroconf. Retried because the first
+    # activation runs migrations, which can outlast gdbus's call timeout.
+    if not _wait_for(_search_provider_answers, PHASE_WAIT_S):
+        return False
+    # Search answers once Kolibri is initialized, just before its bus enters.
+    if not _wait_for(lambda: "Bus state: IDLE" in _log_text(), PHASE_WAIT_S):
+        return False
+    status = _gdbus_call(
+        "Daemon",
+        "/Daemon/Main",
+        "org.freedesktop.DBus.Properties.Get",
+        "org.learningequality.Kolibri.Daemon",
+        "Status",
+    )
+    ok = "STOPPED" in (status or "") and "Bus state: START" not in _log_text()
+    if not ok:
+        print(f"  daemon Status after search: {status!r}", flush=True)
+    return ok
+
+
+def _daemon_pids():
+    # setproctitle leaves the daemon's command line as `python3 -m
+    # kolibri_daemon.main`; its bwrap wrappers name `kolibri-daemon` instead.
+    result = subprocess.run(
+        ["pgrep", "-f", r"kolibri_daemon\.main"], capture_output=True, text=True
+    )
+    return [int(pid) for pid in result.stdout.split()]
+
+
+def _daemon_is_one_process():
+    pids = _daemon_pids()
+    if len(pids) != 1:
+        print(f"  kolibri-daemon pids: {pids}", flush=True)
+        return False
+    result = subprocess.run(
+        ["pgrep", "-l", "-P", str(pids[0])], capture_output=True, text=True
+    )
+    if result.stdout:
+        print(f"  kolibri-daemon children: {result.stdout.split()}", flush=True)
+    return not result.stdout
+
+
+def _desktop_user_signed_in():
+    # The sign-in hook creates this row only once it resolves the app's auth
+    # token to the desktop user.
+    db = sqlite3.connect(f"file:{KOLIBRI_HOME / 'db.sqlite3'}?mode=ro", uri=True)
+    try:
+        rows = db.execute("SELECT os_username FROM device_osuser").fetchall()
+    finally:
+        db.close()
+    return (getpass.getuser(),) in rows
+
+
+def _kolibri_start_count():
+    return len(SERVER_URL_RE.findall(_log_text()))
+
+
+def _kolibri_restarts(name, trigger, settled=lambda: True):
+    starts = _kolibri_start_count()
+    trigger()
+    ok = _wait_for(lambda: _kolibri_start_count() > starts and settled(), PHASE_WAIT_S)
+    if not ok:
+        print(f"  Kolibri did not restart after {name}", flush=True)
+    return ok
+
+
+def _stop_restarts_kolibri():
+    # The app still holds the daemon, so it calls Start once Status is STOPPED.
+    return _kolibri_restarts(
+        "Stop",
+        lambda: _gdbus_call(
+            "Daemon", "/Daemon/Main", "org.learningequality.Kolibri.Daemon.Stop"
+        ),
+    )
+
+
+def _sigterm_restarts_kolibri():
+    # The app calls Start when the name vanishes, activating a new daemon while
+    # the old one is still stopping Kolibri.
+    pids = _daemon_pids()
+    if len(pids) != 1:
+        print(f"  kolibri-daemon pids before SIGTERM: {pids}", flush=True)
+        return False
+    (old_pid,) = pids
+
+    def replaced():
+        new_pids = _daemon_pids()
+        return len(new_pids) == 1 and new_pids[0] != old_pid
+
+    return _kolibri_restarts(
+        "SIGTERM", lambda: os.kill(old_pid, signal.SIGTERM), replaced
+    )
 
 
 def phase_setup():
@@ -232,6 +350,12 @@ def phase_setup():
     print("PHASE 1: first-run setup wizard", flush=True)
     _reset_kolibri_home()
     _write_options()
+    # Before the app, so the app's Start then reaches this search-activated
+    # daemon.
+    search_stopped = _search_leaves_kolibri_stopped()
+    print(
+        f"  search-only activation left Kolibri stopped: {search_stopped}", flush=True
+    )
     launch_app()
 
     def ready():
@@ -243,7 +367,7 @@ def phase_setup():
     ok = _wait_for(ready, PHASE_WAIT_S)
     print(f"  app-mode initialize + setup wizard reached: {ok}", flush=True)
     kill_app()
-    return ok
+    return search_stopped and ok
 
 
 def phase_learn():
@@ -265,19 +389,29 @@ def phase_learn():
     ok = _wait_for(ready, PHASE_WAIT_S)
     url = _server_url()
     served = bool(url) and _http_ok(url + "/en/learn/")
-    # The alternate origin binds during the same startup as the main server, so
-    # once learn is served it is already up: a single probe of a static file it
-    # serves without imported content confirms the second origin bound.
-    zip_served = _http_ok(ZIP_STATIC_URL)
-    searched = _search_provider_answers()
+    checks = {
+        "into-app": ok,
+        "learn-served-200": served,
+        # The alternate origin binds during the same startup as the main server,
+        # so once learn is served it is already up: a single probe of a static
+        # file it serves without imported content confirms the second origin
+        # bound.
+        "zip-origin-served-200": _http_ok(ZIP_STATIC_URL),
+        "search-provider-answered": _search_provider_answers(),
+        # After search, so a search worker process would already exist.
+        "one-process": _daemon_is_one_process(),
+        "signed-in": _desktop_user_signed_in(),
+        "stop-restarted": _stop_restarts_kolibri(),
+        # Last, because it replaces the daemon.
+        "sigterm-restarted": _sigterm_restarts_kolibri(),
+    }
     print(
-        f"  provisioned={not PROVISION_FILE.exists()} into-app={ok} "
-        f"learn-served-200={served} zip-origin-served-200={zip_served} "
-        f"search-provider-answered={searched}",
+        f"  provisioned={not PROVISION_FILE.exists()} "
+        + " ".join(f"{name}={passed}" for name, passed in checks.items()),
         flush=True,
     )
     kill_app()
-    return ok and served and zip_served and searched
+    return all(checks.values())
 
 
 def main():
