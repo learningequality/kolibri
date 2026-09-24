@@ -146,8 +146,8 @@
                 class="radio-description"
                 :style="{
                   color: picturePasswordDisabled
-                    ? $themeTokens.textDisabled
-                    : $themeTokens.annotation,
+                    ? 'var(--tokens-textDisabled)'
+                    : 'var(--tokens-annotation)',
                 }"
               >
                 {{ picturePasswordDescription$() }}
@@ -158,7 +158,7 @@
               >
                 <KIcon
                   icon="warning"
-                  :style="{ fill: $themePalette.yellow.v_600 }"
+                  :style="{ fill: 'var(--palette-yellow-v600)' }"
                 />
                 <span>{{ picturePasswordUnavailableExplanation$() }}</span>
                 <KIconButton
@@ -245,7 +245,7 @@
           :style="{
             marginTop: '32px',
             borderTop: '1px solid',
-            borderTopColor: $themeTokens.fineLine,
+            borderTopColor: 'var(--tokens-fineLine)',
           }"
         >
           <div class="save-changes-inline-group">

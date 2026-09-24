@@ -20,7 +20,7 @@
         <div v-else>
           <div
             v-if="showErrorWarning"
-            :style="{ color: $themeTokens.error }"
+            :style="{ color: 'var(--tokens-error)' }"
             class="warning-text"
           >
             <span>{{ defaultErrorMessage$() }}</span>
@@ -82,7 +82,7 @@
           icon="infoOutline"
           :color="$themePalette.red.v_600"
         />
-        <span :style="{ color: $themePalette.red.v_600 }">
+        <span :style="{ color: 'var(--palette-red-v600)' }">
           {{ discardWarning$() }}
         </span>
       </CloseConfirmationGuard>

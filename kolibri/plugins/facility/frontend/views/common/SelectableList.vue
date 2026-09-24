@@ -3,7 +3,7 @@
   <div
     class="selectable-list"
     :style="{
-      borderColor: $themeTokens.fineLine,
+      borderColor: 'var(--tokens-fineLine)',
     }"
   >
     <div
@@ -35,7 +35,7 @@
       <template #selectAll="{ allSelected, someSelected, setAllSelected }">
         <div
           class="select-all"
-          :style="{ borderColor: $themeTokens.fineLine }"
+          :style="{ borderColor: 'var(--tokens-fineLine)' }"
         >
           <KCheckbox
             :label="selectAllLabel"
@@ -55,7 +55,7 @@
         :key="option.id"
         :value="option.id"
         :label="option.label"
-        :style="{ borderColor: $themeTokens.fineLine }"
+        :style="{ borderColor: 'var(--tokens-fineLine)' }"
         class="option"
       >
         <slot

@@ -20,7 +20,7 @@
         <div v-else>
           <div
             v-if="showErrorWarning"
-            :style="{ color: $themeTokens.error }"
+            :style="{ color: 'var(--tokens-error)' }"
             class="warning-text"
           >
             <span>{{ defaultErrorMessage$() }}</span>
@@ -28,7 +28,7 @@
           <div
             v-if="numCoachesSelected > 0"
             class="info-box"
-            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+            :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
           >
             <div style="display: flex">
               <KIcon
@@ -92,7 +92,7 @@
           icon="infoOutline"
           :color="$themePalette.red.v_600"
         />
-        <span :style="{ color: $themePalette.red.v_600 }">
+        <span :style="{ color: 'var(--palette-red-v600)' }">
           {{ discardWarning$() }}
         </span>
       </CloseConfirmationGuard>
