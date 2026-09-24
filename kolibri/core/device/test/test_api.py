@@ -22,6 +22,7 @@ from rest_framework.test import APITestCase
 
 import kolibri
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import validate_username
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
@@ -844,6 +845,32 @@ class InitializeEndpointTestCase(APITestCase):
             self.assertTrue(user.os_user)
             self.assertEqual(user.os_user.os_username, "test_user")
             self.assertNotEqual(self.superuser.id, user.id)
+
+    def _log_in_os_user(self, os_username):
+        with mock.patch(
+            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
+            return_value=(os_username, False),
+        ):
+            self.client.logout()
+            self.client.get(app_initialize_url(auth_token="test"))
+        return FacilityUser.objects.get(id=self.client.session.load()[SESSION_KEY])
+
+    def test_same_named_os_users_in_different_domains_get_different_users(self):
+        with mock.patch("sys.platform", "win32"):
+            desktop_user = self._log_in_os_user("DESKTOP\\alice")
+            corp_user = self._log_in_os_user("CORP\\alice")
+        self.assertNotEqual(desktop_user.id, corp_user.id)
+
+    def test_windows_os_user_username_drops_domain(self):
+        with mock.patch("sys.platform", "win32"):
+            user = self._log_in_os_user("DESKTOP\\alice")
+        self.assertEqual(user.username, "alice")
+
+    def test_os_username_with_invalid_characters_gets_valid_username(self):
+        for os_username in ("Jane Doe", "jane.doe-2", "a" * 40):
+            with self.subTest(os_username=os_username):
+                user = self._log_in_os_user(os_username)
+                validate_username(user.username)
 
     def test_no_os_user_capability_no_log_in(self):
         initialize_url = app_initialize_url()

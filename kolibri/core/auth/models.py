@@ -20,6 +20,7 @@ user gains through the ``Role``.
 """
 
 import logging
+import sys
 from threading import local
 from typing import ClassVar
 
@@ -815,11 +816,18 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         except OSUser.DoesNotExist as e:
             user = None
             method = self.create_superuser if is_superuser else self.create_user
+            username = os_username
+            if sys.platform == "win32":
+                # Windows OS usernames are qualified as DOMAIN\account
+                username = username.rsplit("\\", 1)[-1]
+            username = validate_username_allowed_chars.regex.sub("_", username)
             for i in range(10):
                 try:
                     with transaction.atomic():
                         user = method(
-                            "{}{}".format("_" * i, os_username),
+                            "{}{}".format("_" * i, username)[
+                                : validate_username_max_length.limit_value
+                            ],
                             password=NOT_SPECIFIED,
                             facility=facility,
                         )
