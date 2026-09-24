@@ -1,6 +1,7 @@
 from django.db import connection
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.http import parse_http_date
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 
@@ -145,6 +146,18 @@ class ImportMetadataTestCase(APITestCase):
             + f"?schema_version={CONTENT_SCHEMA_VERSION}"
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_import_metadata_cache_headers_match_public_contentnode(self):
+        expected = self.client.get(reverse("kolibri:core:publiccontentnode-list"))
+        response = self.client.get(
+            reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})
+        )
+        self.assertEqual(response["Cache-Control"], expected["Cache-Control"])
+        self.assertEqual(response["ETag"], expected["ETag"])
+        # Expires is request time plus max-age, so a later request cannot expire sooner.
+        self.assertGreaterEqual(
+            parse_http_date(response["Expires"]), parse_http_date(expected["Expires"])
+        )
 
     def test_import_metadata_columns_match_frozen_map(self):
         for version in EXPORT_SCHEMA_VERSIONS:
