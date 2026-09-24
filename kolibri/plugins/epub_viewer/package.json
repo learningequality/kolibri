@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
-    "@testing-library/vue": "catalog:",
-    "@vue/test-utils": "catalog:"
+    "@testing-library/vue": "catalog:"
   }
 }

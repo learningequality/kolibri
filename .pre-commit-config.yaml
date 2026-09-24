@@ -1,7 +1,9 @@
 # installer/translations/inno/ is vendored verbatim from issrc by
 # update_from_inno.py; reformatting it would make every re-fetch a diff.
 # Patches apply verbatim, and a `-- ` signature line ends in whitespace.
-exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex|platforms/desktop-app/installer/translations/inno/|\.patch$)
+# `build/` matches a whole path segment: unanchored it also swallowed the hand-written
+# sources in the kolibri-build package and the h5p_viewer h5p_build scripts.
+exclude: (\.git/|\.tox/|\.venv/|(^|/)build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex|platforms/desktop-app/installer/translations/inno/|\.patch$)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -89,12 +91,13 @@ repos:
         entry: settings\.AUTH_USER_MODEL
         language: pygrep
         files: migrations/.*\.py$
-      - id: no-kolibri-common-imports
-        name: No imports from kolibri-common (which is unpublished) in any other packages
-        entry: kolibri-common
-        language: pygrep
-        exclude: (^packages/kolibri-common/|moduleMapping\.js|(__tests__|__fixtures__))
-        files: ^packages/.*\.(js|vue)$
+      - id: check-published-deps
+        name: No published package depends on or imports an unpublished one
+        description: Either resolves to a version that was never uploaded, so the published tarball 404s for consumers
+        entry: python .pre-commit-hooks/check_published_deps.py
+        language: python
+        pass_filenames: false
+        files: ^packages/([^/]+/package\.json|.*\.(js|vue))$
       - id: sync-scaffold-versions
         name: Sync plugin scaffolder fallback version pins
         description: Keeps FRONTEND_DEPENDENCIES pins in manifest.py in sync with the pnpm workspace/catalog versions

@@ -29,6 +29,7 @@ const { createCssInsert } = require('./createCssInsert');
  * @param {string} data.name - The name that the plugin is referred to by.
  * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data.
+ * @param {boolean} data.sandbox_handler - Whether this is a sandbox handler bundle.
  * @param {object} [options] - Build options.
  * @param {string} [options.mode] - The webpack mode to set for the configuration.
  * @param {boolean} [options.hot] - Activate hot module reloading.
@@ -42,6 +43,7 @@ const { createCssInsert } = require('./createCssInsert');
  * the dev server.
  * @returns {object|undefined} The webpack bundle configuration, or undefined when `data`
  * is missing required parameters.
+ * @throws {Error} When a transpiled sandbox handler bundle's plugin does not depend on core-js.
  */
 module.exports = (
   data,
@@ -57,13 +59,14 @@ module.exports = (
     setDevServerPublicPath = true,
   } = {},
 ) => {
+  const isSandboxHandler = data.sandbox_handler;
+
   if (
     typeof data.name === 'undefined' ||
     typeof data.bundle_id === 'undefined' ||
     typeof data.config_path === 'undefined' ||
     typeof data.static_dir === 'undefined' ||
     typeof data.stats_file === 'undefined' ||
-    typeof data.locale_data_folder === 'undefined' ||
     typeof data.plugin_path === 'undefined' ||
     typeof data.version === 'undefined'
   ) {
@@ -74,7 +77,7 @@ module.exports = (
   // The bundle's own buildConfig.js entry, alongside its webpack_config, may set
   // `skipMessageRegistration` to opt out of the frontend message registration bootstrap below.
   const configEntry = data.index !== null ? configData[data.index] : configData;
-  let webpackConfig = configEntry.webpack_config;
+  const webpackConfig = configEntry.webpack_config;
   if (typeof webpackConfig.entry === 'string') {
     webpackConfig.entry = {
       [data.name]: path.join(data.plugin_path, webpackConfig.entry),
@@ -101,8 +104,10 @@ module.exports = (
 
   const isCoreBundle = webpackConfig.output && webpackConfig.output.library === kolibriName;
 
-  // If this is not the core bundle, then we need to add the external library mappings.
-  const externals = isCoreBundle ? {} : getCoreExternals();
+  // Sandbox handlers are self-contained with no externals.
+  // Core bundle also has no externals.
+  // Other plugins use core externals.
+  const externals = isSandboxHandler || isCoreBundle ? {} : getCoreExternals();
 
   const alias = {};
   if (kdsPath) {
@@ -144,10 +149,8 @@ module.exports = (
         chunkFilename: '[name]' + data.version + '[id].css',
         insert: createCssInsert(data.name),
       }),
-      new WebpackRTLPlugin({
-        minify: false,
-        isCoreBundle,
-      }),
+      // Sandbox handlers get no RTL support - they have no i18n machinery.
+      ...(isSandboxHandler ? [] : [new WebpackRTLPlugin({ minify: false, isCoreBundle })]),
       // BundleTracker creates stats about our built files which we can then pass to Django to
       // allow our template tags to load the correct frontend files.
       new BundleTracker({
@@ -171,7 +174,8 @@ module.exports = (
     ],
   };
 
-  if (!configEntry.skipMessageRegistration) {
+  // Sandbox handlers get no message registration.
+  if (!isSandboxHandler && !configEntry.skipMessageRegistration) {
     bundle.plugins.push(
       // Inject code to register frontend messages
       new MessageRegistrationPlugin({
@@ -210,7 +214,24 @@ module.exports = (
     );
   }
 
-  bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
+  // Sandbox handlers run in the sandbox iframe with no core bundle, so they cannot rely
+  // on its polyfills - inject the ones they actually use into each handler bundle.
+  // core-js must be a dependency of the handler's plugin so the injected imports resolve,
+  // and is the single source of truth for the version we tell swc to target.
+  let coreJs = null;
+  if (isSandboxHandler && transpile) {
+    try {
+      coreJs = require(
+        require.resolve('core-js/package.json', { paths: [data.plugin_path] }),
+      ).version;
+    } catch {
+      throw new Error(
+        `${data.name} sandbox handler bundle requires core-js as a dependency of ${data.plugin_path} so the injected polyfill imports resolve`,
+      );
+    }
+  }
+
+  bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile, coreJs }), webpackConfig);
 
   if (devServer) {
     if (setDevServerPublicPath) {

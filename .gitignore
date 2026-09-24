@@ -107,9 +107,11 @@ js-dist
 storage/*
 kolibri/content/content_db/*.sqlite3
 kolibri/core/content/contentschema/migrations/*
-# Check in h5p & bloom specific files
-!kolibri/core/content/static/h5p/
-!kolibri/core/content/static/bloom/
+# Check in h5p & bloom specific files in their respective plugins
+!kolibri/plugins/h5p_viewer/static/h5p/
+!kolibri/plugins/bloompub_viewer/static/bloom/
+# H5P PHP library unpacked by build-h5p; only its build output is checked in
+kolibri/plugins/h5p_viewer/h5p_build/vendor/
 
 # virtual environment
 venv/

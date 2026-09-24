@@ -1,9 +1,10 @@
+const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const _ = require('lodash');
 const webpackConfigPlugin = require('../webpack.config.plugin');
 
 jest.mock('../apiSpecExportTools', () => ({
-  getCoreExternals: () => ({}),
+  getCoreExternals: () => ({ vue: 'kolibriCoreAppGlobal.lib.vue' }),
 }));
 
 jest.mock('kolibri-logging', () => ({
@@ -38,6 +39,14 @@ jest.mock(
 
 function hasMessageRegistrationPlugin(config) {
   return config.plugins.some(plugin => plugin.constructor.name === 'MessageRegistrationPlugin');
+}
+
+function hasRTLPlugin(config) {
+  return config.plugins.some(plugin => plugin.constructor.name === 'WebpackRTLPlugin');
+}
+
+function findJsRule(config) {
+  return config.module.rules.find(rule => rule.loader && rule.loader.includes('swc-loader'));
 }
 
 const baseData = {
@@ -143,12 +152,6 @@ describe('webpackConfigPlugin', function () {
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing locale_data_folder, bundles output', function () {
-    it('should be undefined', function () {
-      delete data.locale_data_folder;
-      expectParsedDataIsUndefined(data);
-    });
-  });
   describe('input is missing plugin_path, bundles output', function () {
     it('should be undefined', function () {
       delete data.plugin_path;
@@ -169,6 +172,82 @@ describe('webpackConfigPlugin', function () {
     it('should exclude MessageRegistrationPlugin when the bundle config sets skipMessageRegistration', function () {
       data.config_path = 'test_skip_message_registration';
       expect(hasMessageRegistrationPlugin(webpackConfigPlugin(data))).toBe(false);
+    });
+  });
+
+  describe('sandbox handler bundles', function () {
+    beforeEach(function () {
+      data.sandbox_handler = true;
+      // Resolving core-js for the polyfill version needs a real plugin with it as a dependency.
+      data.plugin_path = 'kolibri/plugins/html5_viewer';
+    });
+
+    it('should exclude MessageRegistrationPlugin', function () {
+      expect(hasMessageRegistrationPlugin(webpackConfigPlugin(data))).toBe(false);
+    });
+
+    it('should declare no externals, so nothing resolves against the main window', function () {
+      expect(webpackConfigPlugin(data).externals).toEqual({});
+    });
+
+    it('should exclude WebpackRTLPlugin', function () {
+      expect(hasRTLPlugin(webpackConfigPlugin(data))).toBe(false);
+    });
+
+    it('should inject the polyfills they use, as they have no core bundle to rely on', function () {
+      const { env, jsc } = findJsRule(webpackConfigPlugin(data, { transpile: true })).options;
+      expect(env.targets).toEqual(require('browserslist-config-kolibri'));
+      expect(jsc).toBeDefined();
+      expect(env.mode).toEqual('usage');
+      expect(env.coreJs).toEqual(
+        require(require.resolve('core-js/package.json', { paths: [data.plugin_path] })).version,
+      );
+    });
+
+    it('should detect module type per file so CommonJS gets require() polyfill imports', function () {
+      expect(findJsRule(webpackConfigPlugin(data, { transpile: true })).options.isModule).toEqual(
+        'unknown',
+      );
+    });
+
+    it('should name the bundle and plugin when the plugin does not depend on core-js', function () {
+      // Jest's resolver finds core-js through its configured module paths whatever
+      // `paths` says, and Node also searches the NODE_PATH pnpm sets, so only a plain
+      // Node process without it sees the resolution fail.
+      const script = `
+        require(${JSON.stringify(require.resolve('../webpack.config.plugin'))})(
+          {
+            ...${JSON.stringify(data)},
+            config_path: ${JSON.stringify(path.resolve('kolibri/plugins/html5_viewer/buildConfig.js'))},
+            index: 1,
+            plugin_path: '/nonexistent/plugin',
+          },
+          { transpile: true },
+        );
+      `;
+      const { stderr } = spawnSync(process.execPath, ['-e', script], {
+        encoding: 'utf-8',
+        env: { ...process.env, NODE_PATH: '' },
+      });
+      expect(stderr).toContain(
+        `${data.name} sandbox handler bundle requires core-js as a dependency of /nonexistent/plugin`,
+      );
+    });
+  });
+
+  describe('plugin bundles', function () {
+    it('should declare the core externals', function () {
+      expect(webpackConfigPlugin(data).externals).toEqual({ vue: 'kolibriCoreAppGlobal.lib.vue' });
+    });
+
+    it('should include WebpackRTLPlugin', function () {
+      expect(hasRTLPlugin(webpackConfigPlugin(data))).toBe(true);
+    });
+
+    it('should not inject polyfills, as they rely on the core bundle for them', function () {
+      const { options } = findJsRule(webpackConfigPlugin(data, { transpile: true }));
+      expect(options.env.mode).toBeUndefined();
+      expect(options.isModule).toBeUndefined();
     });
   });
 });

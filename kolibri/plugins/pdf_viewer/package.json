@@ -18,7 +18,6 @@
     "vue": "catalog:",
     "vue-observe-visibility": "^1.0.0",
     "vue-resize": "^0.4.5",
-    "vue-virtual-scroller": "1.1.2",
     "web-streams-polyfill": "catalog:"
   },
   "devDependencies": {

@@ -1,0 +1,12 @@
+import SandboxHandler from 'kolibri-sandbox/SandboxHandler';
+
+export default class {{ pascal }}Handler extends SandboxHandler {
+  static shims = [];
+
+  init(iframe, startUrl) {
+    return new Promise(resolve => {
+      iframe.onload = () => resolve();
+      iframe.src = startUrl;
+    });
+  }
+}

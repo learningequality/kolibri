@@ -25,6 +25,7 @@ const publicMethods = [
   'registerLanguageAssets',
   'registerContentViewer',
   'loadDirectionalCSS',
+  'getSandboxHandlerUrl',
   'ready',
   'presetViewerComponent',
   'elementViewerComponent',
@@ -87,6 +88,10 @@ export default function pluginMediatorFactory(facade) {
      * Keep track of urls for content viewers.
      */
     _contentViewerUrls: {},
+    /**
+     * Keep track of sandbox handler URLs, keyed by content preset.
+     */
+    _sandboxHandlerUrls: {},
     /**
      * Public ready method - called when plugins can start operating
      */
@@ -169,7 +174,16 @@ export default function pluginMediatorFactory(facade) {
       }
       delete this._languageAssetRegistry;
     },
+    /**
+     * Register a module as the viewer for each item, first registrant wins.
+     * @param {string} kolibriModuleName - Identifier of the module that provides the viewer
+     * @param {string[]} items - The presets or DOM selectors the viewer handles
+     * @param {string} suffix - Registry the items belong to
+     * @returns {string[]} The items this module now provides the viewer for; an item
+     * another module registered first is left with that module's viewer.
+     */
     _registerViewerType(kolibriModuleName, items, suffix) {
+      const claimed = [];
       for (const item of items) {
         const registryKey = item + suffix;
         if (!this._contentViewerRegistry[suffix]) {
@@ -187,7 +201,9 @@ export default function pluginMediatorFactory(facade) {
           delay: 0,
           timeout: 30000,
         });
+        claimed.push(item);
       }
+      return claimed;
     },
 
     /**
@@ -198,12 +214,36 @@ export default function pluginMediatorFactory(facade) {
      * files that constitute the kolibriModule
      * @param {string[]} contentPresets - the names of presets this content viewer can render
      * @param {string[]} domTags - DOM tags handled
+     * @param {string|null} sandboxHandlerUrl - URL of the sandbox handler, for sandboxed viewers
      */
-    registerContentViewer(kolibriModuleName, kolibriModuleUrls, contentPresets = [], domTags = []) {
+    registerContentViewer(
+      kolibriModuleName,
+      kolibriModuleUrls,
+      contentPresets = [],
+      domTags = [],
+      sandboxHandlerUrl = null,
+    ) {
       this._contentViewerUrls[kolibriModuleName] = kolibriModuleUrls;
 
-      this._registerViewerType(kolibriModuleName, contentPresets, VIEWER_SUFFIX);
+      const claimed = this._registerViewerType(kolibriModuleName, contentPresets, VIEWER_SUFFIX);
       this._registerViewerType(kolibriModuleName, domTags, DOM_VIEWER_SUFFIX);
+
+      if (sandboxHandlerUrl) {
+        // Only for the presets whose viewer is this module's, so a preset claimed by
+        // two plugins never pairs one plugin's viewer with the other's handler bundle.
+        for (const preset of claimed) {
+          this._sandboxHandlerUrls[preset] = sandboxHandlerUrl;
+        }
+      }
+    },
+
+    /**
+     * Get the sandbox handler URL for a given content preset.
+     * @param {string} preset - The content preset
+     * @returns {string|null} The sandbox handler URL, or null if none is registered
+     */
+    getSandboxHandlerUrl(preset) {
+      return this._sandboxHandlerUrls[preset] || null;
     },
 
     /**
@@ -218,7 +258,13 @@ export default function pluginMediatorFactory(facade) {
         const moduleName = element.getAttribute('data-viewer');
         try {
           const data = JSON.parse(decodeMarkedSafeText(element.innerHTML.trim()));
-          this.registerContentViewer(moduleName, data.urls, data.presets, data.css_selectors);
+          this.registerContentViewer(
+            moduleName,
+            data.urls,
+            data.presets,
+            data.css_selectors,
+            data.sandboxHandlerUrl,
+          );
         } catch (e) {
           logger.error(`Error parsing content viewer for ${moduleName}`);
         }

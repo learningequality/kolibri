@@ -8,9 +8,9 @@ class {{ class_name }}(KolibriPluginBase):
 
 
 @register_hook
-class {{ pascal }}Asset(content_hooks.ContentRendererHook):
+class {{ pascal }}Asset(content_hooks.ContentViewerHook):
     bundle_id = "main"
-    # Declare the content formats this renderer handles, e.g.:
+    # Declare the content formats this viewer handles, e.g.:
     #     from le_utils.constants import format_presets
     #     presets = (format_presets.VIDEO_HIGH_RES, format_presets.AUDIO)
     presets = ()

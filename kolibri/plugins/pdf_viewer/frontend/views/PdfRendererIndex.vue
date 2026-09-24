@@ -4,7 +4,7 @@
     :active="mobileEmbedded"
     @read="$refs.pdfViewer.toggleFullscreen()"
   >
-    <CoreFullscreen
+    <Fullscreen
       ref="pdfViewer"
       class="pdf-viewer"
       :class="{
@@ -114,7 +114,7 @@
           </KGridItem>
         </KGrid>
       </template>
-    </CoreFullscreen>
+    </Fullscreen>
   </EmbeddedReadCard>
 
 </template>
@@ -131,9 +131,9 @@
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import Fullscreen from 'kolibri/components/Fullscreen';
   import EmbeddedReadCard from 'kolibri-common/components/EmbeddedReadCard';
-  import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
+  import ViewerToolbar from 'kolibri/components/ViewerToolbar';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import { ref, computed } from 'vue';
   import '../utils/domPolyfills';
@@ -153,7 +153,7 @@
     components: {
       SideBar,
       PdfPage,
-      CoreFullscreen,
+      Fullscreen,
       EmbeddedReadCard,
       RecyclableScroller,
       ViewerToolbar,

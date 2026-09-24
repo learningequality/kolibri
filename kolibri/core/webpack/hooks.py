@@ -79,6 +79,30 @@ class WebpackBundleHook(hooks.KolibriHook):
             return hook
         raise WebpackError(f"No bundle with that name is loaded: '{unique_id}'")
 
+    def resolve_stats(self, unique_id=None):
+        """
+        :returns: the stats for a bundle, waiting out an in progress compilation
+          and raising on a failed one when running the dev server.
+        """
+        stats = self.get_stats(unique_id)
+
+        if getattr(settings, "DEVELOPER_MODE", False):
+            timeout = 0
+
+            while stats["status"] == "compile":
+                time.sleep(0.1)
+                timeout += 0.1
+
+                stats = self.get_stats(unique_id)
+
+                if timeout >= 5:
+                    raise WebpackError("Compilation still in progress")
+
+            if stats["status"] == "error":
+                raise WebpackError("Compilation has errored", stats)
+
+        return stats
+
     @property
     def _stats_file_content(self):
         """
@@ -89,22 +113,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         if hasattr(self, "_cached_stats_file_content") and not DEVELOPER_MODE:
             return self._cached_stats_file_content
 
-        stats = self.get_stats()
-
-        if DEVELOPER_MODE:
-            timeout = 0
-
-            while stats["status"] == "compile":
-                time.sleep(0.1)
-                timeout += 0.1
-
-                stats = self.get_stats()
-
-                if timeout >= 5:
-                    raise WebpackError("Compilation still in progress")
-
-            if stats["status"] == "error":
-                raise WebpackError("Compilation has errored", stats)
+        stats = self.resolve_stats()
 
         stats_file_content = {
             "files": stats.get("chunks", {}).get(self.unique_id, []),
@@ -147,22 +156,21 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         return f"{self._module_path}.{self.bundle_id}"
 
-    def get_stats(self):
+    def get_stats(self, unique_id=None):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
+        unique_id = unique_id or self.unique_id
         try:
             return json.loads(
                 files(self._module_path)
                 .joinpath("build")
-                .joinpath(f"{self.unique_id}_stats.json")
+                .joinpath(f"{unique_id}_stats.json")
                 .read_text()
             )
         except OSError as e:
-            raise WebpackError(
-                f"Error accessing stats file '{self.unique_id}': {e}"
-            ) from e
+            raise WebpackError(f"Error accessing stats file '{unique_id}': {e}") from e
 
     def frontend_message_file(self, lang_code):
         message_file_name = f"{self.unique_id}-messages.json"

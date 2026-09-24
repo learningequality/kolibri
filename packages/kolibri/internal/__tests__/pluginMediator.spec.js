@@ -162,4 +162,34 @@ describe('Mediator', function () {
       expect(mediator.objectViewerMimetypes()).toEqual(['application/pdf']);
     });
   });
+
+  describe('getSandboxHandlerUrl method', function () {
+    it('should return null for a preset with no registered handler', function () {
+      expect(mediator.getSandboxHandlerUrl('html5_zip')).toBeNull();
+    });
+    it('should return the handler registered for the preset', function () {
+      mediator.registerContentViewer('viewerA', [], ['html5_zip'], [], '/static/a.js');
+      expect(mediator.getSandboxHandlerUrl('html5_zip')).toEqual('/static/a.js');
+    });
+    it('should keep the first handler when two plugins claim a preset', function () {
+      // _registerViewerType keeps the first registrant's component, so the handler
+      // has to match or the two halves come from different plugins.
+      const warn = jest.spyOn(console, 'warn').mockImplementation();
+      mediator.registerContentViewer('viewerA', [], ['html5_zip'], [], '/static/a.js');
+      mediator.registerContentViewer('viewerB', [], ['html5_zip'], [], '/static/b.js');
+
+      expect(mediator.getSandboxHandlerUrl('html5_zip')).toEqual('/static/a.js');
+      warn.mockRestore();
+    });
+    it('should not give a preset another plugin views a handler', function () {
+      // The first registrant may have shipped no handler at all; the preset still
+      // renders with its viewer, so it must not load the second plugin's bundle.
+      const warn = jest.spyOn(console, 'warn').mockImplementation();
+      mediator.registerContentViewer('viewerA', [], ['html5_zip'], [], null);
+      mediator.registerContentViewer('viewerB', [], ['html5_zip'], [], '/static/b.js');
+
+      expect(mediator.getSandboxHandlerUrl('html5_zip')).toBeNull();
+      warn.mockRestore();
+    });
+  });
 });

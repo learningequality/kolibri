@@ -2,26 +2,11 @@ import Mediator from '../src/mediator';
 
 describe('Mediator', () => {
   let mediator;
-  let boundHandler;
   beforeEach(() => {
-    // Capture the bound handleMessage listener so we can clean it up in afterEach.
-    // The Mediator constructor calls window.addEventListener('message', ...) but does not
-    // store the bound reference, so without this, listeners leak across tests.
-    const origAddEventListener = window.addEventListener.bind(window);
-    jest.spyOn(window, 'addEventListener').mockImplementation((event, handler, ...args) => {
-      if (event === 'message') {
-        boundHandler = handler;
-      }
-      return origAddEventListener(event, handler, ...args);
-    });
     mediator = new Mediator(window);
-    window.addEventListener.mockRestore();
   });
   afterEach(() => {
-    if (boundHandler) {
-      window.removeEventListener('message', boundHandler);
-      boundHandler = null;
-    }
+    mediator.destroy();
   });
   describe('handleMessage method', () => {
     it('should return undefined when an event not matching the data schema is received', () => {
@@ -67,105 +52,70 @@ describe('Mediator', () => {
       mediator.handleMessage({ data: { event, nameSpace, data } });
       expect(console.debug).toHaveBeenCalledTimes(2); // eslint-disable-line no-console
     });
-  });
-  describe('sendLocalMessage method', () => {
-    it('should send a message with data', () => {
-      return new Promise(resolve => {
-        const data = 'testData';
-        const nameSpace = 'testNameSpace';
-        const event = 'testEvent';
-        window.addEventListener('message', ev => {
-          expect(ev.data.data).toEqual(data);
-          resolve();
-        });
-        mediator.sendLocalMessage({
-          data,
-          event,
-          nameSpace,
-        });
+    describe('when restricted to a source window', () => {
+      // Two main-side clients can share a window - a custom channel and the content
+      // overlay opened from it - and each must only hear its own iframe.
+      const message = source => ({ source, data: { event: 'e', nameSpace: 'n', data: 1 } });
+      let current;
+      let restricted;
+      let callback;
+      beforeEach(() => {
+        current = {};
+        restricted = new Mediator({}, { source: current });
+        callback = jest.fn();
+        restricted.registerMessageHandler({ event: 'e', nameSpace: 'n', callback });
       });
-    });
-    it('should send a message with event', () => {
-      return new Promise(resolve => {
-        const data = 'testData';
-        const nameSpace = 'testNameSpace';
-        const event = 'testEvent';
-        window.addEventListener('message', ev => {
-          expect(ev.data.event).toEqual(event);
-          resolve();
-        });
-        mediator.sendLocalMessage({
-          data,
-          event,
-          nameSpace,
-        });
+      afterEach(() => {
+        restricted.destroy();
       });
-    });
-    it('should send a message with nameSpace', () => {
-      return new Promise(resolve => {
-        const data = 'testData';
-        const nameSpace = 'testNameSpace';
-        const event = 'testEvent';
-        window.addEventListener('message', ev => {
-          expect(ev.data.nameSpace).toEqual(nameSpace);
-          resolve();
-        });
-        mediator.sendLocalMessage({
-          data,
-          event,
-          nameSpace,
-        });
+
+      it('should handle a message from its source', () => {
+        restricted.handleMessage(message(current));
+        expect(callback).toHaveBeenCalledWith(1);
+      });
+      it('should ignore a message from any other window', () => {
+        restricted.handleMessage(message(window));
+        expect(callback).not.toHaveBeenCalled();
       });
     });
   });
-  describe('sendMessage method', () => {
-    it('should send a message with data', () => {
-      return new Promise(resolve => {
-        const data = 'testData';
-        const nameSpace = 'testNameSpace';
-        const event = 'testEvent';
-        window.addEventListener('message', ev => {
-          expect(ev.data.data).toEqual(data);
-          resolve();
-        });
-        mediator.sendMessage({
-          data,
-          event,
-          nameSpace,
-        });
-      });
+  describe('dispatch method', () => {
+    it('should run the matching callbacks without posting to any window', () => {
+      const posted = jest.spyOn(window, 'postMessage');
+      const callback = jest.fn();
+      mediator.registerMessageHandler({ event: 'e', nameSpace: 'n', callback });
+
+      mediator.dispatch({ event: 'e', nameSpace: 'n', data: 1 });
+
+      expect(callback).toHaveBeenCalledWith(1);
+      expect(posted).not.toHaveBeenCalled();
+      posted.mockRestore();
     });
-    it('should send a message with event', () => {
-      return new Promise(resolve => {
-        const data = 'testData';
-        const nameSpace = 'testNameSpace';
-        const event = 'testEvent';
-        window.addEventListener('message', ev => {
-          expect(ev.data.event).toEqual(event);
-          resolve();
-        });
-        mediator.sendMessage({
-          data,
-          event,
-          nameSpace,
-        });
-      });
+  });
+  describe('sending to a distinct remote', () => {
+    const message = { data: 'testData', event: 'testEvent', nameSpace: 'testNameSpace' };
+    let remote;
+    let withRemote;
+    let posted;
+    beforeEach(() => {
+      remote = { postMessage: jest.fn() };
+      withRemote = new Mediator(remote);
+      posted = jest.spyOn(window, 'postMessage');
     });
-    it('should send a message with nameSpace', () => {
-      return new Promise(resolve => {
-        const data = 'testData';
-        const nameSpace = 'testNameSpace';
-        const event = 'testEvent';
-        window.addEventListener('message', ev => {
-          expect(ev.data.nameSpace).toEqual(nameSpace);
-          resolve();
-        });
-        mediator.sendMessage({
-          data,
-          event,
-          nameSpace,
-        });
-      });
+    afterEach(() => {
+      posted.mockRestore();
+      withRemote.destroy();
+    });
+
+    it('sendLocalMessage should post the message to the local window only', () => {
+      withRemote.sendLocalMessage(message);
+      expect(posted).toHaveBeenCalledWith(message, '*');
+      expect(remote.postMessage).not.toHaveBeenCalled();
+    });
+    it('sendMessage should post the message to the remote only', () => {
+      withRemote.sendMessage(message);
+      expect(remote.postMessage).toHaveBeenCalledWith(message, '*');
+      expect(posted).not.toHaveBeenCalled();
     });
   });
   describe('registerMessageHandler method', () => {

@@ -13,6 +13,7 @@ from kolibri.utils.plugin_scaffold.manifest import GLOBAL_INJECTOR
 from kolibri.utils.plugin_scaffold.manifest import MODE_CHOICES
 from kolibri.utils.plugin_scaffold.manifest import MODE_MODULE
 from kolibri.utils.plugin_scaffold.manifest import MODE_PACKAGE
+from kolibri.utils.plugin_scaffold.manifest import SANDBOXED_CONTENT_VIEWER
 from kolibri.utils.plugin_scaffold.manifest import SINGLE_PAGE_APP
 from kolibri.utils.plugin_scaffold.manifest import SURFACE_CHOICES
 from kolibri.utils.plugin_scaffold.scaffold import scaffold_plugin
@@ -24,6 +25,7 @@ __all__ = [
     "MODE_CHOICES",
     "MODE_MODULE",
     "MODE_PACKAGE",
+    "SANDBOXED_CONTENT_VIEWER",
     "SINGLE_PAGE_APP",
     "SURFACE_CHOICES",
     "scaffold_plugin",

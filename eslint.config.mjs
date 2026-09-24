@@ -22,6 +22,7 @@ export default [
       'packages/kolibri-logging/**',
       'packages/kolibri-css-variables/**',
       'packages/build_kolibri_package.js',
+      'kolibri/**/h5p_build/**',
     ],
     rules: CJS_RULES,
   },

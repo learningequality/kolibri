@@ -38,9 +38,11 @@ recursive-exclude kolibri/* *pyo
 prune kolibri/core/frontend
 prune kolibri/core/node_modules
 prune kolibri/plugins/*/frontend
+prune kolibri/plugins/*/h5p_build
 prune kolibri/plugins/*/node_modules
 exclude kolibri/*/buildConfig.js
 exclude kolibri/plugins/*/buildConfig.js
+exclude kolibri/plugins/*/babel.config.js
 
 recursive-exclude kolibri/dist *pyc
 recursive-exclude kolibri/dist/*/__pycache__ *
