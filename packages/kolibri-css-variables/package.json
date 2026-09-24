@@ -1,0 +1,38 @@
+{
+  "name": "kolibri-css-variables",
+  "version": "1.0.0",
+  "description": "Derives and checks Kolibri theme CSS variable names, shared by the design system and the ESLint and stylelint theming rules",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-css-variables"
+  },
+  "author": "Learning Equality",
+  "license": "MIT",
+  "private": false,
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./themeCssVariableNaming": "./src/themeCssVariableNaming.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "!src/__tests__"
+  ],
+  "peerDependencies": {
+    "kolibri-design-system": ">=5.9.0"
+  },
+  "peerDependenciesMeta": {
+    "kolibri-design-system": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "kolibri-design-system": "catalog:",
+    "vue": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

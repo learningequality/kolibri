@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-kolibri",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Custom linting rules for kolibri",
   "author": "Learning Equality",
   "main": "lib/index.js",
@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "eslint-plugin-vue": "^9.33.0",
+    "known-css-properties": "^0.37.0",
+    "kolibri-css-variables": "workspace:*",
     "espree": "^11.2.0",
     "lodash": "catalog:",
     "requireindex": "^1.1.0"
