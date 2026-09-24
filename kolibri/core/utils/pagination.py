@@ -256,20 +256,20 @@ class ValuesViewsetCursorPagination(CursorPagination):
         offset = 0
 
         has_item_with_unique_position = False
-        for item in reversed(self.page):
+        for index, item in enumerate(reversed(self.page)):
             position = self._get_position_from_instance(item, self.ordering)
             if position != compare:
                 # The item in this position and the item following it
                 # have different positions. We can use this position as
                 # our marker.
                 has_item_with_unique_position = True
+                offset = index
                 break
 
             # The item in this position has the same position as the item
-            # following it, we can't use it as a marker position, so increment
-            # the offset and keep seeking to the previous item.
+            # following it, we can't use it as a marker position, so keep
+            # seeking to the previous item.
             compare = position
-            offset += 1
 
         if self.page and not has_item_with_unique_position:
             # There were no unique positions in the page.

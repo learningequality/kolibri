@@ -212,15 +212,12 @@ def validate_sync_queue_for_sync_request(sync_queue):
         # with a network location, which means a potential network change and possible chance for
         # success
         return False
-    if (
+    # if we have a queue id and it's not time to recheck, don't re-request. this protects
+    # against potential flippant network connections
+    return not (
         sync_queue.status == SyncQueueStatus.Queued
         and sync_queue.attempt_at > attempt_execute_window()
-    ):
-        # if we have a queue id and it's not time to recheck, don't re-request. this protects
-        # against potential flippant network connections
-        return False
-    # otherwise, we're good to go
-    return True
+    )
 
 
 def handle_sync_request_response(context, sync_queue, response):

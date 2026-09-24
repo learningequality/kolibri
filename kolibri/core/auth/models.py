@@ -1562,10 +1562,12 @@ class Role(AbstractFacilityDataModel):
             raise InvalidRoleKind(
                 "Cannot assign roles to Learner Groups or AdHoc Groups"
             )
-        if self.collection.kind == collection_kinds.CLASSROOM:
-            # We only support coaches to be assigned at the classroom level currently
-            if self.kind != role_kinds.COACH:
-                raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
+        # We only support coaches to be assigned at the classroom level currently
+        if (
+            self.collection.kind == collection_kinds.CLASSROOM
+            and self.kind != role_kinds.COACH
+        ):
+            raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
 
     def ensure_coach_role_at_facility(self):
         if (

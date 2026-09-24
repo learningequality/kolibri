@@ -144,14 +144,15 @@ class ParamValidator:
             raise InvalidQueryParamsException(msg) from e
 
     def set_type(self, param_type):
-        if not hasattr(param_type, "_default_manager"):  # django model
-            if (
-                not isinstance(param_type, TUPLE_TYPES)
-                and param_type not in VALID_TYPES
-            ):
-                raise InvalidQueryParamsException(
-                    f"Invalid type for {self.param_name}: {param_type} is not a valid type"
-                )
+        # _default_manager marks a django model
+        if (
+            not hasattr(param_type, "_default_manager")
+            and not isinstance(param_type, TUPLE_TYPES)
+            and param_type not in VALID_TYPES
+        ):
+            raise InvalidQueryParamsException(
+                f"Invalid type for {self.param_name}: {param_type} is not a valid type"
+            )
         self.param_type = param_type
 
     def set_method(self, value):
