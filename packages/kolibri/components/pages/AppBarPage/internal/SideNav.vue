@@ -15,8 +15,8 @@
         :class="showAppNavView ? 'bottom-offset' : ''"
         :style="{
           width: `${width}`,
-          color: $themeTokens.text,
-          backgroundColor: $themeTokens.surface,
+          color: 'var(--tokens-text)',
+          backgroundColor: 'var(--tokens-surface)',
         }"
       >
         <KFocusTrap
@@ -59,7 +59,7 @@
               <b>{{ fullName }}</b>
               <p
                 :style="{
-                  color: $themeTokens.annotation,
+                  color: 'var(--tokens-annotation)',
                   fontSize: '12px',
                   marginTop: '8px',
                   marginBottom: 0,
@@ -67,7 +67,7 @@
               >
                 {{ username }}
               </p>
-              <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
+              <p :style="{ color: 'var(--tokens-annotation)', fontSize: '12px', marginTop: 0 }">
                 {{ loggedInUserKind }}
               </p>
 
@@ -90,7 +90,7 @@
             <CoreMenu
               ref="coreMenu"
               role="navigation"
-              :style="{ backgroundColor: $themeTokens.surface, width: width }"
+              :style="{ backgroundColor: 'var(--tokens-surface)', width: width }"
               :aria-label="$tr('navigationLabel')"
             >
               <template #options>
@@ -145,7 +145,7 @@
 
             <div
               class="side-nav-scrollable-area-footer"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               <!-- custom branded footer logo + text -->
               <template v-if="themeConfig.sideNav.brandedFooter">
@@ -247,7 +247,7 @@
     <LanguageSwitcherModal
       v-if="languageModalShown"
       ref="languageSwitcherModal"
-      :style="{ color: $themeTokens.text }"
+      :style="{ color: 'var(--tokens-text)' }"
       @cancel="languageModalShown = false"
     />
     <TooltipTour

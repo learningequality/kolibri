@@ -2,7 +2,7 @@
 
   <BaseToolbar
     class="viewer-toolbar"
-    :style="{ backgroundColor: $themePalette.grey.v_100 }"
+    :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
   >
     <div class="toolbar-layout">
       <div class="toolbar-left">

@@ -153,16 +153,16 @@
       optionStyle() {
         if (this.disabled) {
           return {
-            color: this.$themeTokens.textDisabled,
+            color: 'var(--tokens-textDisabled)',
             margin: '8px',
           };
         }
         if (this.linkActive) {
           return {
-            color: this.$themeTokens.primaryDark,
+            color: 'var(--tokens-primaryDark)',
             fontWeight: 'bold',
             margin: '8px',
-            backgroundColor: this.$themePalette.grey.v_200,
+            backgroundColor: 'var(--palette-grey-v200)',
             ':hover': {
               backgroundColor: this.$themePalette.grey.v_300,
             },
@@ -170,7 +170,7 @@
           };
         }
         return {
-          color: this.$themeTokens.text,
+          color: 'var(--tokens-text)',
           ':hover': {
             backgroundColor: this.$themePalette.grey.v_200,
           },

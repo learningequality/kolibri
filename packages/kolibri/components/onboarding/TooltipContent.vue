@@ -26,7 +26,9 @@
             class="dot"
             :style="{
               backgroundColor:
-                index === currentStepIndex ? $themeBrand.primary.v_500 : $themePalette.grey.v_300,
+                index === currentStepIndex
+                  ? 'var(--brand-primary-v500)'
+                  : 'var(--palette-grey-v300)',
             }"
           ></span>
         </div>

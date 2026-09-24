@@ -14,7 +14,7 @@
       <div
         v-if="$slots.header"
         class="ui-menu-header"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       >
         <slot name="header"></slot>
       </div>
@@ -32,7 +32,7 @@
       <div
         v-if="$slots.footer"
         class="ui-menu-footer"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       >
         <slot name="footer"></slot>
       </div>
