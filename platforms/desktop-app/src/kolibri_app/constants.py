@@ -12,6 +12,16 @@ WINDOWS = sys.platform.startswith("win32")
 # server runs in a thread of the UI process.
 RUN_AS_SERVER = "--run-as-server" in sys.argv
 
+# Every Windows user's app shares C:\ProgramData\kolibri, where a file another
+# user's app created or holds open cannot be written or rotated.
+APP_USER_SUFFIX = ""
+if WINDOWS and not RUN_AS_SERVER:
+    import win32api
+
+    # DOMAIN\account, unique across domains.
+    _user_name = win32api.GetUserNameEx(win32api.NameSamCompatible)
+    APP_USER_SUFFIX = "-" + _user_name.replace("\\", "-")
+
 # Windows specific constants
 TRAY_ICON_ICO = "icons/kolibri.ico"
 SERVICE_NAME = "Kolibri"

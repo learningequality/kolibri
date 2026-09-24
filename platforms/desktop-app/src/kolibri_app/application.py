@@ -9,6 +9,7 @@ import wx
 from kolibri.main import enable_plugin
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri_app.constants import APP_NAME
+from kolibri_app.constants import APP_USER_SUFFIX
 from kolibri_app.constants import WINDOWS
 from kolibri_app.logger import logging
 from kolibri_app.view import KolibriView
@@ -26,7 +27,7 @@ else:
     from kolibri.core.device.utils import app_initialize_url
     from kolibri_app.server_manager_posix import PosixKolibriProcess as ServerManager
 
-STATE_FILE = "app_state.json"
+STATE_FILE = f"app_state{APP_USER_SUFFIX}.json"
 
 # State keys
 URL = "URL"
