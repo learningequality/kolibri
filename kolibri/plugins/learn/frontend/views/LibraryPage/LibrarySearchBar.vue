@@ -7,8 +7,8 @@
     <div
       class="search-row"
       :style="{
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themePalette.grey.v_300,
+        backgroundColor: 'var(--tokens-surface)',
+        borderColor: 'var(--palette-grey-v300)',
       }"
     >
       <label
@@ -21,7 +21,7 @@
         :value="keywordsInput"
         type="search"
         :class="['search-input', $computedClass(placeholderStyle)]"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
         dir="auto"
         :placeholder="placeholder || findSomethingToLearn$()"
         role="combobox"
@@ -46,7 +46,7 @@
           :style="
             seg.matched
               ? {
-                backgroundColor: $themeBrand.primary.v_100,
+                backgroundColor: 'var(--brand-primary-v100)',
               }
               : {}
           "

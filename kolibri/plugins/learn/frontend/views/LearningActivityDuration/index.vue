@@ -5,7 +5,7 @@
     :class="[appearance === 'chip' ? 'chip' : '']"
     :style="[
       appearance === 'chip'
-        ? { color: $themeTokens.textInverted, backgroundColor: $themePalette.black }
+        ? { color: 'var(--tokens-textInverted)', backgroundColor: 'var(--palette-black)' }
         : {},
     ]"
   >

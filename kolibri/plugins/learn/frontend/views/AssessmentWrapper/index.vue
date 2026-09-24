@@ -48,7 +48,7 @@
       </UiAlert>
       <div
         class="content-wrapper"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
       >
         <ContentViewer
           ref="contentViewer"
@@ -76,7 +76,7 @@
       >
         <div
           class="overall-status"
-          :style="{ color: $themeTokens.text }"
+          :style="{ color: 'var(--tokens-text)' }"
         >
           <KIcon
             icon="mastered"
@@ -86,7 +86,7 @@
             <span
               v-if="success"
               class="completed"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               {{ coreString('completedLabel') }}
             </span>

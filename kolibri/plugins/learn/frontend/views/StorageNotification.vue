@@ -3,7 +3,7 @@
   <div
     v-if="bannerOpened"
     class="banner"
-    :style="{ background: $themeTokens.surface }"
+    :style="{ background: 'var(--tokens-surface)' }"
   >
     <div class="banner-inner">
       <h1 style="display: none">

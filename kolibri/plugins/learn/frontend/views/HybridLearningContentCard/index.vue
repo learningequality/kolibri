@@ -5,7 +5,7 @@
       :to="to"
       class="card card-link"
       :class="[$computedClass({ ':focus': $coreOutline })]"
-      :style="{ backgroundColor: $themeTokens.surface }"
+      :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <div
         class="header-bar"
@@ -27,7 +27,7 @@
           :contentNode="contentNode"
           :hideDuration="true"
           class="learning-activity-label"
-          :style="{ color: $themeTokens.text }"
+          :style="{ color: 'var(--tokens-text)' }"
         />
         <img
           v-if="contentNode.is_leaf && channelThumbnail.length > 0"
@@ -43,7 +43,7 @@
       />
       <div
         class="text"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       >
         <h3
           class="title"

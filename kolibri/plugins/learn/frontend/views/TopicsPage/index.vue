@@ -42,7 +42,7 @@
         >
           <div
             class="search-header"
-            :style="{ backgroundColor: $themeTokens.surface }"
+            :style="{ backgroundColor: 'var(--tokens-surface)' }"
           >
             <LibrarySearchBar
               data-testid="library-search-bar"
@@ -75,7 +75,7 @@
         <div
           v-if="windowIsSmall"
           class="mobile-search-header search-header"
-          :style="{ backgroundColor: $themeTokens.surface }"
+          :style="{ backgroundColor: 'var(--tokens-surface)' }"
         >
           <LibrarySearchBar
             data-testid="library-search-bar"

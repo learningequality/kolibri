@@ -38,7 +38,7 @@
     >
       <span
         class="pill-divider"
-        :style="{ backgroundColor: $themePalette.grey.v_300 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
       ></span>
       <KButton
         data-testid="all-filters-pill"
