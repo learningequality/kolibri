@@ -127,7 +127,7 @@
     computed: {
       answerCountColorStyles() {
         return {
-          color: this.$themeTokens.annotation,
+          color: 'var(--tokens-annotation)',
         };
       },
       anyLastActivity() {

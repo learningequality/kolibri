@@ -10,7 +10,7 @@
     <template v-else>
       <div
         class="attendance-edit-page"
-        :style="{ backgroundColor: $themeTokens.surface }"
+        :style="{ backgroundColor: 'var(--tokens-surface)' }"
       >
         <h1>{{ pageTitle }}</h1>
 
@@ -47,7 +47,7 @@
         <p>
           {{ presentCount$({ count: form.presentCount.value }) }}
           <span> · </span>
-          <span :style="{ color: $themeTokens.error }">
+          <span :style="{ color: 'var(--tokens-error)' }">
             {{ absentCount$({ count: form.absentCount.value }) }}
           </span>
         </p>

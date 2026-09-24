@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <KLabeledIcon :style="active ? null : { color: $themeTokens.textDisabled }">
+    <KLabeledIcon :style="active ? null : { color: 'var(--tokens-textDisabled)' }">
       <template #icon>
         <KIcon
           icon="dot"

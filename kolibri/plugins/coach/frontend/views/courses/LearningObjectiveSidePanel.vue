@@ -10,7 +10,7 @@
       <div
         class="summary-section"
         data-testid="summary-section"
-        :style="{ backgroundColor: $themePalette.grey.v_100, color: $themeTokens.annotation }"
+        :style="{ backgroundColor: 'var(--palette-grey-v100)', color: 'var(--tokens-annotation)' }"
       >
         <div class="summary-row">
           <span class="summary-label">
@@ -67,7 +67,7 @@
           </h3>
           <p
             class="learner-section-subtitle"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             {{ sortedByScoreLabel$() }}
           </p>

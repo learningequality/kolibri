@@ -7,7 +7,7 @@
     />
     <p
       class="context icon-spacer"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
     >
       {{ context }}
     </p>

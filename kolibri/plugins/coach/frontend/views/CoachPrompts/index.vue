@@ -2,7 +2,7 @@
 
   <!-- eslint-disable vue/no-bare-strings-in-template -->
   <!-- eslint-disable max-len -->
-  <div :style="{ padding: '32px', backgroundColor: $themeTokens.surface }">
+  <div :style="{ padding: '32px', backgroundColor: 'var(--tokens-surface)' }">
     <h1>Prompts while "Planning a lesson"</h1>
     <h2>Prompt 1</h2>
     <h3>Steps to create a new lesson</h3>

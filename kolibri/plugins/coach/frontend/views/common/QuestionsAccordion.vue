@@ -47,7 +47,7 @@
           :key="`drag-${question.item}`"
           tabindex="-1"
           :style="{
-            background: $themeTokens.surface,
+            background: 'var(--tokens-surface)',
           }"
         >
           <AccordionItem
@@ -114,7 +114,7 @@
                 <div v-else>
                   <KIcon
                     icon="warning"
-                    :style="{ fill: $themePalette.yellow.v_600 }"
+                    :style="{ fill: 'var(--palette-yellow-v600)' }"
                   />
                   {{ coreString('resourceNotFoundOnDevice') }}
                 </div>

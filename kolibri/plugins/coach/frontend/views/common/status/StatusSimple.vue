@@ -58,7 +58,7 @@
       },
       style() {
         if (this.status === STATUSES.notStarted) {
-          return { color: this.$themeTokens.textDisabled };
+          return { color: 'var(--tokens-textDisabled)' };
         }
         return '';
       },

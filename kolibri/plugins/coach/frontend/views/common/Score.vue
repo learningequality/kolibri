@@ -44,13 +44,13 @@
     computed: {
       diffStyle() {
         if (!this.diff) {
-          return { color: this.$themeTokens.annotation };
+          return { color: 'var(--tokens-annotation)' };
         }
         if (this.diff > 0) {
-          return { color: this.$themeTokens.correct };
+          return { color: 'var(--tokens-correct)' };
         }
         if (this.diff < 0) {
-          return { color: this.$themeTokens.incorrect };
+          return { color: 'var(--tokens-incorrect)' };
         }
         return {};
       },

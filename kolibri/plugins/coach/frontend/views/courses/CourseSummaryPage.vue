@@ -218,7 +218,7 @@
                         :text="unit.numberedTitle"
                         :to="unitDetailRouteFor(unit.id)"
                       />
-                      <span :style="{ color: $themeTokens.annotation }">
+                      <span :style="{ color: 'var(--tokens-annotation)' }">
                         <KIcon
                           icon="permissions"
                           :color="$themeTokens.annotation"
@@ -323,7 +323,7 @@
       <div
         v-if="activeTest && activeTest.status === 'active'"
         class="post-modal-panel"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
       >
         <div class="panel-item">
           <div class="panel-label">
@@ -372,7 +372,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
-  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -418,12 +418,12 @@
   };
 
   const unitsPillStyles = {
-    backgroundColor: themeTokens().surface,
+    backgroundColor: 'var(--tokens-surface)',
     fontWeight: 'normal',
   };
 
   const upcomingUnitsAccordionHeaderStyles = {
-    backgroundColor: themePalette().grey.v_100,
+    backgroundColor: 'var(--palette-grey-v100)',
     padding: '0px 16px',
     fontWeight: 'bold',
   };
@@ -707,7 +707,7 @@
 
       const courseObjectiveheaderstyle = computed(() => {
         return {
-          backgroundColor: themePalette().grey.v_100,
+          backgroundColor: 'var(--palette-grey-v100)',
           padding: '0px 16px',
           fontWeight: 'bold',
           fontSize: '16px',
@@ -788,7 +788,7 @@
           unitPhase.value === UnitPhase.PRE_TEST_ACTIVE ||
           unitPhase.value === UnitPhase.POST_TEST_ACTIVE;
         return {
-          backgroundColor: isTestActive ? themePalette().yellow.v_100 : themePalette().blue.v_100,
+          backgroundColor: isTestActive ? 'var(--palette-yellow-v100)' : 'var(--palette-blue-v100)',
           flexDirection: windowIsSmall.value ? 'column' : 'row',
           alignItems: windowIsSmall.value ? 'flex-start' : 'center',
           gap: windowIsSmall.value ? '12px' : '0',
@@ -807,8 +807,8 @@
           unitPhase.value === UnitPhase.PRE_TEST_ACTIVE ||
           unitPhase.value === UnitPhase.POST_TEST_ACTIVE;
         return {
-          backgroundColor: isTestActive ? themePalette().orange.v_600 : themePalette().blue.v_600,
-          color: themeTokens().textInverted,
+          backgroundColor: isTestActive ? 'var(--palette-orange-v600)' : 'var(--palette-blue-v600)',
+          color: 'var(--tokens-textInverted)',
         };
       });
 

@@ -215,7 +215,6 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
@@ -326,7 +325,7 @@
       ]);
 
       const lessonHeaderStyles = {
-        backgroundColor: themePalette().grey.v_100,
+        backgroundColor: 'var(--palette-grey-v100)',
         padding: '0px 16px',
         fontWeight: 'bold',
       };

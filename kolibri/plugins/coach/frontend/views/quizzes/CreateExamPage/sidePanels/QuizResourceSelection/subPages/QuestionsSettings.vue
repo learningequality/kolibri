@@ -39,7 +39,7 @@
             :disabled="questionCount === 1 || !questionCountIsEditable"
             @click="questionCount -= 1"
           />
-          <span :style="{ color: $themeTokens.fineLine }"> | </span>
+          <span :style="{ color: 'var(--tokens-fineLine)' }"> | </span>
           <KIconButton
             icon="plus"
             aria-hidden="true"

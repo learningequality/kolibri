@@ -390,8 +390,8 @@
       },
       cancelStyleOverrides() {
         return {
-          color: this.$themeTokens.textInverted,
-          'background-color': this.$themePalette.red.v_600,
+          color: 'var(--tokens-textInverted)',
+          'background-color': 'var(--palette-red-v600)',
           ':hover': { 'background-color': this.$darken1(this.$themePalette.red.v_600) },
         };
       },

@@ -5,12 +5,12 @@
     :to="to"
     class="header-tab"
     :activeClass="activeClasses"
-    :style="{ color: $themeTokens.annotation }"
+    :style="{ color: 'var(--tokens-annotation)' }"
     :class="defaultStyles"
   >
     <div
       class="inner"
-      :style="{ borderColor: $themeTokens.primary }"
+      :style="{ borderColor: 'var(--tokens-primary)' }"
     >
       {{ text }}
     </div>

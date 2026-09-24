@@ -100,7 +100,7 @@
           <template #content>
             <ul
               class="resource-list"
-              :style="{ backgroundColor: $themeTokens.surface }"
+              :style="{ backgroundColor: 'var(--tokens-surface)' }"
             >
               <li class="resource-item">
                 <span>
@@ -141,7 +141,7 @@
           <template #trailing-actions>
             <span
               :style="{
-                color: $themePalette.grey.v_400,
+                color: 'var(--palette-grey-v400)',
               }"
             >
               {{ numLessons$({ num: unit?.children?.results?.length }) }}
