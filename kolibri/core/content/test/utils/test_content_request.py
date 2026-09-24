@@ -1535,6 +1535,24 @@ class GetImportMetadataTestCase(TestCase):
 
         self.assertIsNone(result)
 
+    def test_unpaginated_response_returns_metadata(self):
+        metadata = self._create_basic_metadata(self.contentnode_id)
+        self.mock_client.get.return_value.json.return_value = metadata
+
+        result = _get_import_metadata(self.mock_client, self.mock_download)
+
+        self.assertEqual(result, metadata)
+
+    def test_import_descendants_unpaginated_response_returns_none(self):
+        self.mock_download.metadata = {"import_descendants": True}
+        self.mock_client.get.return_value.json.return_value = (
+            self._create_basic_metadata(self.contentnode_id)
+        )
+
+        result = _get_import_metadata(self.mock_client, self.mock_download)
+
+        self.assertIsNone(result)
+
 
 class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
     """
