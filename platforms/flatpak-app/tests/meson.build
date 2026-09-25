@@ -19,3 +19,4 @@ tests_python_env.append(
 dbus_session_conf = files('dbus-session.conf')
 
 subdir('kolibri_gnome_tests')
+subdir('kolibri_daemon_tests')

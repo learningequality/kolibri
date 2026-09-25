@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import multiprocessing
 import re
-import signal
+import threading
 import typing
 from collections.abc import Mapping
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import Future
+from concurrent.futures import ThreadPoolExecutor
+from functools import wraps
 
 from kolibri_app.config import BASE_APPLICATION_ID
-from kolibri_app.globals import init_logging
-
-from .kolibri_utils import init_kolibri
 
 # HTML tags and entities
 TAGRE = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
@@ -20,16 +18,17 @@ class SearchHandler(object):
     class SearchHandlerFailed(Exception):
         pass
 
-    def get_item_ids_for_search(self, search: str) -> list:
+    def get_item_ids_for_search(self, search: str) -> Future[list]:
         """
-        Returns a list of item IDs matching a search query.
+        Returns a Future for the list of item IDs matching a search query.
         """
 
         raise NotImplementedError()
 
-    def get_metadata_for_item_ids(self, item_ids: list) -> list:
+    def get_metadata_for_item_ids(self, item_ids: list) -> Future[list]:
         """
-        Returns a list of search metadata objects for the given item IDs.
+        Returns a Future for the list of search metadata objects for the given
+        item IDs.
         """
 
         raise NotImplementedError()
@@ -93,67 +92,58 @@ class SearchHandler(object):
         return metadata
 
 
+def _close_db_connection_after(fn: typing.Callable) -> typing.Callable:
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            # Django lives in kolibri/dist, importable only after init_kolibri().
+            from django.db import connection
+
+            connection.close()
+
+    return wrapper
+
+
 class LocalSearchHandler(SearchHandler):
     """
-    Search handler that uses the locally available Kolibri database files. This
-    works by setting up Django and calling into Kolibri's Python code directly.
-    We use multiprocessing.Pool as a convenient way to pass results between
-    processes. The actual work is IO-bound so we won't bother creating more than
-    one process, but it is useful running the search handler in a separate
-    process to avoid globals leaking into the main thread.
+    Search handler that calls into Kolibri's Python code directly, in this
+    process. Searches queue on a single worker thread until init() is called,
+    because Kolibri's code is only usable after init_kolibri().
     """
 
-    __executor: typing.Optional[ProcessPoolExecutor] = None
+    __kolibri_initialized: threading.Event
+    __executor: ThreadPoolExecutor
 
     def __init__(self):
-        self.__executor = None
+        self.__kolibri_initialized = threading.Event()
+        self.__executor = ThreadPoolExecutor(
+            max_workers=1, initializer=self.__kolibri_initialized.wait
+        )
 
     def init(self):
-        self.__executor = ProcessPoolExecutor(
-            max_workers=1,
-            initializer=self.__process_initializer,
-            mp_context=multiprocessing.get_context("fork"),
-        )
+        self.__kolibri_initialized.set()
 
     def shutdown(self):
-        self.__executor.shutdown()
+        # A worker still blocked in its initializer would hang interpreter exit.
+        self.__kolibri_initialized.set()
+        self.__executor.shutdown(cancel_futures=True)
 
-    def __process_initializer(self):
-        # The process spawned by the process pool inherits the signal handler
-        # from its parent process, which is set in main.py.
-        signal.signal(signal.SIGTERM, signal.SIG_DFL)
-
-        from setproctitle import setproctitle
-
-        setproctitle("kolibri-daemon-search")
-
-        init_logging("kolibri-daemon-search.txt")
-
-        init_kolibri(skip_update=True)
-
-    def get_item_ids_for_search(self, search: str) -> list:
-        assert self.__executor
-
-        args = (search,)
-
-        future = self.__executor.submit(
-            LocalSearchHandler._get_item_ids_for_search, *args
+    def get_item_ids_for_search(self, search: str) -> Future[list]:
+        return self.__executor.submit(
+            LocalSearchHandler._get_item_ids_for_search,
+            search,
         )
-        return future.result()
 
-    def get_metadata_for_item_ids(self, item_ids: list) -> list:
-        assert self.__executor
-
-        return list(
-            filter(
-                lambda metadata: metadata is not None,
-                self.__executor.map(
-                    LocalSearchHandler._get_metadata_for_item_id, item_ids
-                ),
-            )
+    def get_metadata_for_item_ids(self, item_ids: list) -> Future[list]:
+        return self.__executor.submit(
+            LocalSearchHandler._get_metadata_for_item_ids,
+            item_ids,
         )
 
     @staticmethod
+    @_close_db_connection_after
     def _get_item_ids_for_search(search: str) -> list:
         from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
@@ -164,6 +154,15 @@ class LocalSearchHandler(SearchHandler):
         search_results = response.data.get("results", [])
 
         return list(map(SearchHandler._node_data_to_item_id, search_results))
+
+    @staticmethod
+    @_close_db_connection_after
+    def _get_metadata_for_item_ids(item_ids: list) -> list:
+        return [
+            metadata
+            for metadata in map(LocalSearchHandler._get_metadata_for_item_id, item_ids)
+            if metadata is not None
+        ]
 
     @staticmethod
     def _get_metadata_for_item_id(item_id: str) -> dict:

@@ -28,10 +28,4 @@
     <property name="Status" type="s" access="read" />
     <property name="Version" type="u" access="read" />
   </interface>
-  <interface name="org.learningequality.Kolibri.Daemon.Private">
-    <method name="CheckLoginToken">
-      <arg direction="in" type="s" name="token" />
-      <arg direction="out" type="a{sv}" name="details" />
-    </method>
-  </interface>
 </node>

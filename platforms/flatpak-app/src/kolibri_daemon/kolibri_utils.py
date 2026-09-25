@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import fcntl
 import importlib.util
 import logging
 import os
+from collections.abc import Iterator
+from contextlib import contextmanager
+
+from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from .content_extensions_manager import ContentExtensionsManager
 
@@ -38,6 +43,20 @@ def init_kolibri(**kwargs):
         _enable_kolibri_plugin(plugin_name, optional=True)
 
     initialize(**kwargs)
+
+
+@contextmanager
+def kolibri_home_lock() -> Iterator[None]:
+    """
+    Blocks until no other kolibri-daemon is using KOLIBRI_HOME.
+    """
+
+    # Each `flatpak run` has its own PID namespace, so Kolibri's PID file
+    # cannot tell a new daemon whether the previous one is still stopping.
+    KOLIBRI_HOME_PATH.mkdir(parents=True, exist_ok=True)
+    with open(KOLIBRI_HOME_PATH / "kolibri-daemon.lock", "w") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        yield
 
 
 def _init_kolibri_env():

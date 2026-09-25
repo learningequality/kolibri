@@ -4,6 +4,7 @@ python_installation.install_sources(
         '__init__.py',
         'kolibri_plugin.py',
         'kolibri_settings.py',
+        'login_tokens.py',
         'utils.py',
     ],
     subdir: 'kolibri_app'
@@ -39,6 +40,12 @@ configure_file(
 configure_file(
     input: 'kolibri_settings.py',
     output: 'kolibri_settings.py',
+    copy: true
+)
+
+configure_file(
+    input: 'login_tokens.py',
+    output: 'login_tokens.py',
     copy: true
 )
 
