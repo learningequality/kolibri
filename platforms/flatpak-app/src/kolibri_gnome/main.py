@@ -41,7 +41,8 @@ def main():
     logger.info("*  Kolibri GNOME App Initializing  *")
     logger.info("************************************")
     logger.info("")
-    logger.info("Started at: %s", datetime.datetime.today())
+    # The GNOME frontend process never configures Django settings.
+    logger.info("Started at: %s", datetime.datetime.today())  # noqa: DTZ002
 
     from .application import Application
     from .application import ChannelApplication
@@ -68,7 +69,7 @@ def main():
 
     application.run([sys.argv[0], *extra_argv])
 
-    logger.info("Stopped at: %s", datetime.datetime.today())
+    logger.info("Stopped at: %s", datetime.datetime.today())  # noqa: DTZ002
 
 
 if __name__ == "__main__":
