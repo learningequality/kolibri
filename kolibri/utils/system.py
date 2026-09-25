@@ -153,7 +153,8 @@ def _posix_get_fd_limit():
     Determines the File Descriptor (FD) limit
     :return: int
     """
-    import resource
+    # resource is POSIX-only.
+    import resource  # noqa: PLC0415
 
     fd_soft_limit, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
     return fd_soft_limit

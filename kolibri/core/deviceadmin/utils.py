@@ -145,7 +145,7 @@ def dbrestore(from_file):
     # We need this to avoid generating records with identical 'Instance ID'
     # and conflicting counters, in case the database we're overwriting had
     # already been synced with other devices.:
-    from morango.models import DatabaseIDModel
+    from morango.models import DatabaseIDModel  # noqa: PLC0415
 
     DatabaseIDModel.objects.create()
 

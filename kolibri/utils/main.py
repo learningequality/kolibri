@@ -215,7 +215,7 @@ def _upgrades_before_django_setup(updated, version):
 def _post_django_initialization():
     # Import here to prevent the module level access to Kolibri options
     # which causes premature registration of Kolibri plugins.
-    from kolibri.deployment.default.cache import CACHES
+    from kolibri.deployment.default.cache import CACHES  # noqa: PLC0415
 
     # process_cache in CACHES usually means not using redis
     if (

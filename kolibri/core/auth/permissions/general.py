@@ -116,8 +116,8 @@ class IsOwn(BasePermissions):
 
 
 def _user_is_admin_for_own_facility(user, obj=None):
-    # import here to avoid circular imports
-    from ..models import Facility
+    # Cycle: auth.models imports this module.
+    from ..models import Facility  # noqa: PLC0415
 
     if not hasattr(user, "dataset_id"):
         return False

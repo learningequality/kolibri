@@ -173,7 +173,8 @@ class RoleBasedPermissions(BasePermissions):
         return user.has_role_for(roles, target_object)
 
     def readable_by_user_filter(self, user):
-        from kolibri.core.auth.models import Role
+        # Cycle: auth.models imports this module.
+        from kolibri.core.auth.models import Role  # noqa: PLC0415
 
         if user.is_anonymous:
             return q_none

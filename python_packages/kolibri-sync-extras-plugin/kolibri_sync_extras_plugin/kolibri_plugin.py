@@ -17,7 +17,8 @@ class SyncExtrasPluginHook(FacilityDataSyncHook):
         Import and cache the operation here to avoid import ordering issues with dependencies
         :rtype: list[kolibri_sync_extras_plugin.sync.operations.BackgroundInitializeJobOperation]
         """
-        from kolibri_sync_extras_plugin.sync.operations import (
+        # Plugin modules load before Django setup.
+        from kolibri_sync_extras_plugin.sync.operations import (  # noqa: PLC0415
             BackgroundInitializeJobOperation,
         )
 
@@ -30,7 +31,8 @@ class SyncExtrasPluginHook(FacilityDataSyncHook):
         Import and cache the operation here to avoid import ordering issues with dependencies
         :rtype: list[kolibri_sync_extras_plugin.sync.operations.BackgroundFinalizeJobOperation]
         """
-        from kolibri_sync_extras_plugin.sync.operations import (
+        # Plugin modules load before Django setup.
+        from kolibri_sync_extras_plugin.sync.operations import (  # noqa: PLC0415
             BackgroundFinalizeJobOperation,
         )
 

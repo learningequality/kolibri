@@ -41,7 +41,8 @@ class KolibriCoreConfig(AppConfig):
         self.check_file_storage_settings()
         # Do this to add an automapping from the Morango UUIDField to the UUIDFilter so that it automatically
         # maps to this filter when using the UUIDField in a filter.
-        from morango.models import UUIDField
+        # apps.py is imported before the app registry is ready.
+        from morango.models import UUIDField  # noqa: PLC0415
 
         FilterSet.FILTER_DEFAULTS.update({UUIDField: {"filter_class": UUIDFilter}})
         # Register any django apps that may have kolibri plugin
@@ -115,7 +116,7 @@ class KolibriCoreConfig(AppConfig):
         # to avoid a hard dependency on Redis
         # the options config has already been validated at this point
         # so we know that redis is available.
-        from redis.exceptions import ConnectionError
+        from redis.exceptions import ConnectionError  # noqa: PLC0415
 
         config_maxmemory = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY"]
         config_maxmemory_policy = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY_POLICY"]

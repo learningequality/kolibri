@@ -44,8 +44,9 @@ def main():
     # The GNOME frontend process never configures Django settings.
     logger.info("Started at: %s", datetime.datetime.today())  # noqa: DTZ002
 
-    from .application import Application
-    from .application import ChannelApplication
+    # Gtk initialises on import; logging comes first.
+    from .application import Application  # noqa: PLC0415
+    from .application import ChannelApplication  # noqa: PLC0415
 
     uri_files = [Gio.File.new_for_uri(uri) for uri in args.uri_list]
 

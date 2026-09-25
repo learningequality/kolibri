@@ -34,7 +34,8 @@ OPTIONAL_PLUGINS = [
 def init_kolibri(**kwargs):
     _init_kolibri_env()
 
-    from kolibri.utils.main import initialize
+    # kolibri.utils.conf reads KOLIBRI_HOME at import; _init_kolibri_env() sets it.
+    from kolibri.utils.main import initialize  # noqa: PLC0415
 
     for plugin_name in REQUIRED_PLUGINS:
         _enable_kolibri_plugin(plugin_name)
@@ -77,8 +78,9 @@ def _init_kolibri_env():
 
 
 def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
-    from kolibri.plugins import config as plugins_config
-    from kolibri.plugins.utils import enable_plugin
+    # kolibri.utils.conf reads KOLIBRI_HOME at import; _init_kolibri_env() sets it.
+    from kolibri.plugins import config as plugins_config  # noqa: PLC0415
+    from kolibri.plugins.utils import enable_plugin  # noqa: PLC0415
 
     if optional and not importlib.util.find_spec(plugin_name):
         return False

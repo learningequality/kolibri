@@ -9,8 +9,8 @@ class UserCanReadExamAssignmentData(DenyAll):
     def user_can_read_object(self, user, obj):
         if isinstance(user, AnonymousUser):
             return False
-        # Import here to avoid circular import.
-        from kolibri.core.logger.models import MasteryLog
+        # Cycle: logger.models imports exams.models, which imports this module.
+        from kolibri.core.logger.models import MasteryLog  # noqa: PLC0415
 
         # If they are not a member of the assignment's collection, don't bother with any other checks
         return user.is_member_of(obj.collection) and (
@@ -23,7 +23,8 @@ class UserCanReadExamAssignmentData(DenyAll):
     def readable_by_user_filter(self, user):
         if isinstance(user, AnonymousUser):
             return q_none
-        from kolibri.core.logger.models import MasteryLog
+        # Cycle: logger.models imports exams.models, which imports this module.
+        from kolibri.core.logger.models import MasteryLog  # noqa: PLC0415
 
         user_masterylog_content_ids = MasteryLog.objects.filter(user=user).values(
             "summarylog__content_id"
@@ -37,8 +38,8 @@ class UserCanReadExamData(DenyAll):
     def user_can_read_object(self, user, obj):
         if isinstance(user, AnonymousUser):
             return False
-        # Import here to avoid circular import.
-        from kolibri.core.logger.models import MasteryLog
+        # Cycle: logger.models imports exams.models, which imports this module.
+        from kolibri.core.logger.models import MasteryLog  # noqa: PLC0415
 
         # If they are not a member of the assignment's collection, don't bother with any other checks
         return obj.assignments.objects.filter(
@@ -53,8 +54,9 @@ class UserCanReadExamData(DenyAll):
     def readable_by_user_filter(self, user):
         if isinstance(user, AnonymousUser):
             return q_none
-        from kolibri.core.exams.models import ExamAssignment
-        from kolibri.core.logger.models import MasteryLog
+        # Cycle: exams.models imports this module.
+        from kolibri.core.exams.models import ExamAssignment  # noqa: PLC0415
+        from kolibri.core.logger.models import MasteryLog  # noqa: PLC0415
 
         user_masterylog_content_ids = MasteryLog.objects.filter(user=user).values(
             "summarylog__content_id"

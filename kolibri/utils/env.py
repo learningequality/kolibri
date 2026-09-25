@@ -187,7 +187,8 @@ def monkey_patch_base_context():
     if sys.version_info < (3, 14):
         return
     try:
-        from django.template.context import BaseContext
+        # Django is importable only after set_env() extends sys.path.
+        from django.template.context import BaseContext  # noqa: PLC0415
     except ImportError:
         return
 

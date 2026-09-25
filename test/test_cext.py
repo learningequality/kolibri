@@ -8,7 +8,8 @@ def test_cryptography_path():
     to fail until we identify the right way to do this.
     """
     try:
-        import cryptography
+        # Whether cryptography imports is what this test checks.
+        import cryptography  # noqa: PLC0415
 
         # If this is 'n' and we can import cryptography, there is a problem
         assert os.environ.get("GITHUB_JOB") != "nocext"
@@ -29,8 +30,9 @@ def test_cryptography_runs():
     """
     if os.environ.get("GITHUB_JOB") == "cext":
         try:
-            from cryptography.hazmat.backends import default_backend
-            from cryptography.hazmat.primitives.asymmetric import rsa
+            # Whether cryptography imports is what this test checks.
+            from cryptography.hazmat.backends import default_backend  # noqa: PLC0415
+            from cryptography.hazmat.primitives.asymmetric import rsa  # noqa: PLC0415
 
             crypto_backend = default_backend()
             rsa.generate_private_key(

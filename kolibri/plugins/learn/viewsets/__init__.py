@@ -177,7 +177,9 @@ class LearnHomePageHydrationView(APIView):
         # Inline import to avoid circular dependency: __init__.py must not
         # import from classroom.py at module level (classroom.py imports helpers
         # from this package, and Python would see a partial __init__ module).
-        from kolibri.plugins.learn.viewsets.classroom import LearnerClassroomViewset
+        from kolibri.plugins.learn.viewsets.classroom import (  # noqa: PLC0415
+            LearnerClassroomViewset,
+        )
 
         learner_classroom_viewset = LearnerClassroomViewset()
         classrooms = []

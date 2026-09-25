@@ -19,9 +19,9 @@ def generate_alt_wsgi_application():
 
     # Defer these imports until after django setup has run, as they depend
     # on Django models (via the NetworkClient) or the plugin registry
-    from kolibri.core.content.hooks import SandboxedContentViewerHook
-    from kolibri.core.content.zip_wsgi import get_application
-    from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
+    from kolibri.core.content.hooks import SandboxedContentViewerHook  # noqa: PLC0415
+    from kolibri.core.content.zip_wsgi import get_application  # noqa: PLC0415
+    from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise  # noqa: PLC0415
 
     alt_content_path = "/" + paths.get_content_url(
         paths.zip_content_path_prefix()

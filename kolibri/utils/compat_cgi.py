@@ -44,7 +44,7 @@ boundary_re = None
 
 def valid_boundary(boundary):
     # Do this import here to avoid importing dependencies in the env module.
-    from django.utils.regex_helper import _lazy_re_compile
+    from django.utils.regex_helper import _lazy_re_compile  # noqa: PLC0415
 
     global boundary_re
 

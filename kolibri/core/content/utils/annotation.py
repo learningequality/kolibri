@@ -473,7 +473,7 @@ def coach_content_aggregate():
     # Postgres rejects min() on a boolean, and has the AND aggregate directly.
     # Imported here so that psycopg2 stays optional: django.contrib.postgres.aggregates
     # imports it at module scope.
-    from django.contrib.postgres.aggregates import BoolAnd
+    from django.contrib.postgres.aggregates import BoolAnd  # noqa: PLC0415
 
     return BoolAnd("coach_content")
 

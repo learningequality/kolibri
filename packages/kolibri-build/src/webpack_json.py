@@ -68,7 +68,8 @@ def resource_listdir(package, resource):
 
 def load_plugins_from_file(file_path):
     try:
-        import requests
+        # requests is optional.
+        import requests  # noqa: PLC0415
     except ImportError:
         requests = None
     # We have been passed a URL, not a local file path
@@ -133,7 +134,8 @@ def get_version(module_path):
             except (ImportError, AttributeError):
                 # This should work for most things, but seems like we are stuck
                 # Make one last try by importing Kolibri instead!
-                import kolibri
+                # Importing kolibri runs set_env().
+                import kolibri  # noqa: PLC0415
 
                 return kolibri.__version__
 
@@ -144,7 +146,8 @@ def plugin_data(module_path):
             plugin_path = os.path.dirname(resource_filename(module_path, BUILD_CONFIG))
             version = get_version(module_path)
             if module_path.startswith("kolibri."):
-                import kolibri
+                # Importing kolibri runs set_env().
+                import kolibri  # noqa: PLC0415
 
                 locale_data_folder = os.path.join(
                     os.path.dirname(kolibri.__file__), "locale", "en", "LC_MESSAGES"

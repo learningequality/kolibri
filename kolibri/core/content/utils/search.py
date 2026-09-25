@@ -66,7 +66,8 @@ metadata_bitmasks, bitmask_fieldnames = _build_bitmask_data(metadata_lookup)
 
 
 def _get_available_languages(base_queryset):
-    from kolibri.core.content.models import Language
+    # Cycle: content.models imports this module.
+    from kolibri.core.content.models import Language  # noqa: PLC0415
 
     langs = Language.objects.filter(
         id__in=base_queryset.exclude(lang=None)
@@ -77,7 +78,8 @@ def _get_available_languages(base_queryset):
 
 
 def _get_available_channels(base_queryset):
-    from kolibri.core.content.models import ChannelMetadata
+    # Cycle: content.models imports this module.
+    from kolibri.core.content.models import ChannelMetadata  # noqa: PLC0415
 
     return list(
         ChannelMetadata.objects.filter(
@@ -140,7 +142,8 @@ def get_available_metadata_labels(  # noqa: C901
 
 
 def get_all_contentnode_label_metadata():
-    from kolibri.core.content.models import ContentNode
+    # Cycle: content.models imports this module.
+    from kolibri.core.content.models import ContentNode  # noqa: PLC0415
 
     return get_available_metadata_labels(ContentNode.objects.filter(available=True))
 

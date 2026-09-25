@@ -246,7 +246,8 @@ class AllUrlsTest(APITestCase):
             "kolibri.core.content.hooks.SandboxedContentViewerHook.sandbox_handler_url",
             None,
         ), patch.object(requests.Session, "request", mock_external_request):
-            from kolibri.deployment.default.urls import urlpatterns
+            # Imported under the patches above.
+            from kolibri.deployment.default.urls import urlpatterns  # noqa: PLC0415
 
             check_urls(urlpatterns)
 

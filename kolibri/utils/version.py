@@ -28,7 +28,7 @@ def get_version_and_operator_from_range(version_range):
 def version_matches_range(version, version_range):
     # Import semver here to allow other functions in the module to be imported in a lower
     # dependency environment.
-    import semver
+    import semver  # noqa: PLC0415
 
     # if no version range is provided, assume we don't have opinions about the version
     if not version_range or version_range == "*":
@@ -88,7 +88,8 @@ def truncate_version(version, truncation_level=PATCH_VERSION):
     :param truncation_level: The level beyond which to truncate the version
     :return: A truncated version string
     """
-    import semver
+    # Keeps this module importable without semver.
+    import semver  # noqa: PLC0415
 
     v = semver.VersionInfo.parse(
         normalize_version_to_semver(version).replace(".dev", "+dev")

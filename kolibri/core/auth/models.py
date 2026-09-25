@@ -105,7 +105,8 @@ class Session(AbstractBaseSession):
 
     @classmethod
     def get_session_store_class(cls):
-        from .backends import SessionStore
+        # Cycle: auth.backends imports this module.
+        from .backends import SessionStore  # noqa: PLC0415
 
         return SessionStore
 
@@ -770,8 +771,8 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         return user
 
     def create_superuser(self, username, password, facility=None, full_name=None):
-        # import here to avoid circularity
-        from kolibri.core.device.models import DevicePermissions
+        # Cycle: device.models imports this module.
+        from kolibri.core.device.models import DevicePermissions  # noqa: PLC0415
 
         # create the new account in that facility
         # gender and birth_year are set to DEFERRED, since superusers do not
@@ -805,7 +806,8 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
             return None
         if not os_username:
             return None
-        from kolibri.core.device.models import OSUser
+        # Cycle: device.models imports this module.
+        from kolibri.core.device.models import OSUser  # noqa: PLC0415
 
         try:
             os_user = OSUser.objects.get(os_username=os_username)
@@ -1616,8 +1618,12 @@ class Role(AbstractFacilityDataModel):
                 and user.dataset.picture_password_settings is not None
             ):
                 # Deferred to avoid circular import: picture_passwords.py imports from models.py
-                from .utils.picture_passwords import are_picture_passwords_exhausted
-                from .utils.picture_passwords import assign_picture_password
+                from .utils.picture_passwords import (  # noqa: PLC0415
+                    are_picture_passwords_exhausted,
+                )
+                from .utils.picture_passwords import (  # noqa: PLC0415
+                    assign_picture_password,
+                )
 
                 if not are_picture_passwords_exhausted(user.dataset_id):
                     try:
@@ -1679,7 +1685,10 @@ class Facility(Collection):
     def infer_dataset(self, *args, **kwargs):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
-            from kolibri.core.device.models import DEFAULT_DEMOGRAPHIC_FIELDS_KEY
+            # Cycle: device.models imports this module.
+            from kolibri.core.device.models import (  # noqa: PLC0415
+                DEFAULT_DEMOGRAPHIC_FIELDS_KEY,
+            )
 
             kwargs = {}
 

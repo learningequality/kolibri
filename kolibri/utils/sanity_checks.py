@@ -101,7 +101,8 @@ def check_database_is_migrated():
     Kolibri version change is detected, we run migrations. Checking that
     migrations are run for every startup would be costly.
     """
-    from morango.models import InstanceIDModel
+    # kolibri.utils.main imports this module before Django setup.
+    from morango.models import InstanceIDModel  # noqa: PLC0415
 
     try:
         InstanceIDModel.get_or_create_current_instance()[0]

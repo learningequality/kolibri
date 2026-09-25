@@ -4,12 +4,16 @@ from django.db.models.signals import post_migrate
 
 
 def _seed_reserved_locations(sender, **kwargs):
-    from kolibri.core.discovery.models import NetworkLocation
+    # apps.py is imported before the app registry is ready.
+    from kolibri.core.discovery.models import NetworkLocation  # noqa: PLC0415
 
     using = kwargs.get("using", "default")
     if (router.db_for_write(NetworkLocation) or "default") != using:
         return
-    from kolibri.core.discovery.tasks import _refresh_reserved_locations
+    # apps.py is imported before the app registry is ready.
+    from kolibri.core.discovery.tasks import (  # noqa: PLC0415
+        _refresh_reserved_locations,
+    )
 
     _refresh_reserved_locations()
 

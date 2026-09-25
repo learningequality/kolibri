@@ -170,7 +170,8 @@ def _try_to_get_drive_info_from_dbus(device):
 
     # try importing dbus, and exit gracefully if it fails
     try:
-        import dbus
+        # dbus is optional.
+        import dbus  # noqa: PLC0415
     except ImportError:
         return {}
 
