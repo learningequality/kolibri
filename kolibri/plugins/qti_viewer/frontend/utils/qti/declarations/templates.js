@@ -49,7 +49,8 @@ const mapResponsePointXml = `<qti-response-processing>
 /**
  * Built-in response processing templates keyed by their standard URIs.
  * Both the legacy (imsglobal.org) and current (purl.imsglobal.org) URI forms
- * are supported, as QTI content in the wild uses both.
+ * are supported, the latter with and without `.xml`, as QTI content in the
+ * wild uses all of them.
  * @type {{[key: string]: string}}
  */
 const builtinTemplates = {
@@ -62,6 +63,9 @@ const builtinTemplates = {
   'https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/map_response.xml': mapResponseXml,
   'https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/map_response_point.xml':
     mapResponsePointXml,
+  'https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct': matchCorrectXml,
+  'https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/map_response': mapResponseXml,
+  'https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/map_response_point': mapResponsePointXml,
 };
 
 /** @type {Map<string, Element>} Cached parsed DOM nodes for built-in templates */
