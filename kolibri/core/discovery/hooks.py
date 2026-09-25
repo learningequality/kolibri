@@ -64,7 +64,9 @@ class NetworkDiscoveryHook(KolibriHook):
 
         Call `on_rebind()` before performing a rebind, not after: the backend
         cycles its broadcast id there, and a peer rediscovered by the rebind
-        has to be enqueued under the incoming id.
+        has to be enqueued under the incoming id. The backend also forgets its
+        peers there, so the rebind must report every peer still advertising
+        through `on_add` again.
         """
 
     @abstractmethod
