@@ -43,14 +43,20 @@ function buildAllowedUriRegexp(allowedOrigins) {
   );
 }
 
-// addHook is global to the instance it is called on, so registering the style
-// filter on the shared default export would apply it to every other caller.
-const purifier = DOMPurify();
+// Kebab-case names of the props declared by each tag's component.
+function propsByTag(components) {
+  return Object.fromEntries(
+    Object.entries(components).map(([tagName, component]) => [
+      tagName,
+      new Set(Object.keys(component.props || {}).map(prop => kebabCase(prop))),
+    ]),
+  );
+}
 
 // Filter each style= down to the allowlisted properties, re-parsing the value
 // through the CSSOM so the browser validates/normalises it and rejects malformed
 // input.
-purifier.addHook('uponSanitizeAttribute', (node, data) => {
+function filterStyle(node, data) {
   if (data.attrName !== 'style') {
     return;
   }
@@ -67,7 +73,7 @@ purifier.addHook('uponSanitizeAttribute', (node, data) => {
   } else {
     data.keepAttr = false;
   }
-});
+}
 
 // Factory function to create SafeHTML with custom component support
 export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
@@ -77,6 +83,23 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
     }
     return acc;
   }, {});
+  const tagProps = propsByTag({ ...HTMLComponents, ...customComponents });
+
+  // addHook is global to the instance it is called on, so registering these
+  // hooks on the shared default export would apply them to every other caller.
+  const purifier = DOMPurify();
+  purifier.addHook('uponSanitizeAttribute', filterStyle);
+  // A forbidden attribute survives only as a prop of the component rendering its
+  // tag. Enforced here rather than via FORBID_ATTR, which DOMPurify applies
+  // before any hook could exempt it.
+  purifier.addHook('uponSanitizeAttribute', (node, data) => {
+    if (
+      FORBID_ATTR.includes(data.attrName) &&
+      !tagProps[node.tagName.toLowerCase()]?.has(data.attrName)
+    ) {
+      data.keepAttr = false;
+    }
+  });
   const ALLOWED_URI_REGEXP = buildAllowedUriRegexp(allowedOrigins);
 
   // MIME types a registered viewer handles via its object[type="..."] selectors.
@@ -125,7 +148,6 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
           ADD_TAGS,
           FORBID_TAGS,
           ALLOWED_URI_REGEXP,
-          FORBID_ATTR,
           KEEP_CONTENT: false,
           CUSTOM_ELEMENT_HANDLING: {
             tagNameCheck: tagName => Boolean(customComponents[tagName.toLowerCase()]),

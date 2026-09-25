@@ -91,6 +91,16 @@ describe('SafeHTML', () => {
       const div = screen.getByText(CONTENT_TEXT);
       expect(div).toHaveStyle({ color: 'rgb(255, 0, 0)' });
     });
+
+    it.each([
+      ['div', `<div width="600" height="450">${CONTENT_TEXT}</div>`],
+      ['table', `<table width="600" height="450"><tr><td>${CONTENT_TEXT}</td></tr></table>`],
+    ])('strips width and height from a %s', (tag, html) => {
+      render(SafeHTML, { props: { html } });
+      const element = screen.getByText(CONTENT_TEXT).closest(tag);
+      expect(element).not.toHaveAttribute('width');
+      expect(element).not.toHaveAttribute('height');
+    });
   });
 
   describe('inline style allowlist', () => {
@@ -251,6 +261,23 @@ describe('SafeHTML', () => {
         props: { html: '<class-reader class="qti-labels-decimal"></class-reader>' },
       });
       expect(seen).toEqual(['qti-labels-decimal']);
+    });
+
+    it('keeps a size attribute only when the component declares it as a prop', () => {
+      const seen = [];
+      const SizedBox = {
+        name: 'SizedBox',
+        props: { width: { type: String, default: null } },
+        render(h) {
+          seen.push([this.width, this.$attrs.height]);
+          return h('div');
+        },
+      };
+      const SafeHTMLWithCustom = createSafeHTML({ 'sized-box': SizedBox });
+      render(SafeHTMLWithCustom, {
+        props: { html: '<sized-box width="600" height="450"></sized-box>' },
+      });
+      expect(seen).toEqual([['600', undefined]]);
     });
   });
 

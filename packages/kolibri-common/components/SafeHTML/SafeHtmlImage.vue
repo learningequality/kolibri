@@ -11,8 +11,10 @@
         :src="src"
         :alt="alt"
         :style="[contentStyle, imageStyle]"
+        :width="displayWidth"
+        :height="displayHeight"
         v-bind="$attrs"
-        @load="updateExpandAvailability"
+        @load="onLoad"
       >
       <button
         v-if="canExpand"
@@ -60,7 +62,7 @@
       Lightbox,
     },
     inheritAttrs: false,
-    setup() {
+    setup(props) {
       const $themeTokens = themeTokens();
       const instance = getCurrentInstance();
 
@@ -68,6 +70,7 @@
       const canExpand = ref(false);
       const imgRef = ref(null);
       const overlayRef = ref(null);
+      const naturalRatio = ref(null);
 
       // The allowlisted style carried through from the sanitized <img>. Merged
       // ahead of imageStyle so the component's own border wins on any future key
@@ -83,6 +86,22 @@
         border: `1px solid ${$themeTokens.fineLine}`,
       }));
 
+      // A percentage height resolves against the flex-stretched wrapper, whose
+      // height is the image's own, so it would shrink the image; drop it.
+      const displayHeight = computed(() =>
+        props.height?.includes('%') ? undefined : props.height,
+      );
+
+      // A lone height would hold while max-width narrows the image, so derive the
+      // width from the natural ratio, as Studio's editor does, and let the
+      // `[width]` rule scale the height with it.
+      const displayWidth = computed(() => {
+        if (props.width || !displayHeight.value || !naturalRatio.value) {
+          return props.width;
+        }
+        return Math.round(parseFloat(displayHeight.value) * naturalRatio.value) || undefined;
+      });
+
       // `naturalWidth` rather than `complete`, which is also true for a failed load.
       function updateExpandAvailability() {
         const img = imgRef.value;
@@ -97,6 +116,12 @@
           width >= MIN_EXPANDABLE_PX &&
           height >= MIN_EXPANDABLE_PX &&
           (Math.round(width) < img.naturalWidth || Math.round(height) < img.naturalHeight);
+      }
+
+      function onLoad() {
+        const img = imgRef.value;
+        naturalRatio.value = img.naturalHeight ? img.naturalWidth / img.naturalHeight : null;
+        updateExpandAvailability();
       }
 
       function openLightbox() {
@@ -124,14 +149,18 @@
         imgRef,
         lightboxOpen,
         overlayRef,
+        displayHeight,
+        displayWidth,
         closeLightbox,
+        onLoad,
         openLightbox,
-        updateExpandAvailability,
       };
     },
     props: {
       src: { type: String, required: true },
       alt: { type: String, default: '' },
+      width: { type: String, default: null },
+      height: { type: String, default: null },
     },
     $trs: {
       expandImage: 'Expand image',
@@ -165,6 +194,14 @@
     max-width: 100%;
     max-height: 80vh;
     margin: 0 auto;
+  }
+
+  // Without these a sized image stretches: a height attribute holds while
+  // max-width narrows the width, and the 80vh cap cuts the height while the
+  // width attribute holds.
+  img.safe-html[width] {
+    height: auto;
+    max-height: none;
   }
 
   // Longhands rather than `inset`, which is above the browserslist floor.

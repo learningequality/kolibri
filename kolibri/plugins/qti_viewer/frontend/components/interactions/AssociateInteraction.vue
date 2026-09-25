@@ -573,7 +573,9 @@
     img {
       width: 100%;
       max-width: none;
-      height: 100%;
+      // Out-ranks SafeHtmlImage's `height: auto` for sized images, whose
+      // scoped selector out-specifies this one.
+      height: 100% !important;
       max-height: none;
       object-fit: scale-down;
     }
