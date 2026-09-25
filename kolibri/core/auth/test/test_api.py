@@ -46,6 +46,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseT
 from kolibri.core.tasks.job import Job
 from kolibri.core.test.model_factory import ModelFactory
 from kolibri.core.test.model_factory import sequence
+from kolibri.utils.time_utils import local_now
 
 from .. import models
 from ..constants import role_kinds
@@ -1669,7 +1670,7 @@ class FacilityUserOrderingTestCase(APITestCase):
         cls.superuser = create_superuser(cls.facility)
         cls.facility.add_admin(cls.superuser)
 
-        base_time = datetime.now() - timedelta(days=3)
+        base_time = local_now() - timedelta(days=3)
         cls.user1 = FacilityUserFactory.create(
             facility=cls.facility, username="mario", date_joined=base_time
         )

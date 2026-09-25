@@ -1,5 +1,3 @@
-import datetime
-
 from django.urls import reverse
 
 from kolibri.core.auth.models import Classroom
@@ -10,6 +8,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.utils.time_utils import local_now
 
 from . import helpers
 
@@ -234,7 +233,7 @@ class LessonReportTestCase(APITestCase):
             channel_id=self.node_1.channel_id,
             kind="video",
             progress=0.5,
-            start_timestamp=datetime.datetime.now(),
+            start_timestamp=local_now(),
         )
         self.client.login(
             username=self.facility_admin.username, password=DUMMY_PASSWORD
@@ -256,7 +255,7 @@ class LessonReportTestCase(APITestCase):
             channel_id=self.node_1.channel_id,
             kind="video",
             progress=1.0,
-            start_timestamp=datetime.datetime.now(),
+            start_timestamp=local_now(),
         )
         self.client.login(
             username=self.facility_admin.username, password=DUMMY_PASSWORD

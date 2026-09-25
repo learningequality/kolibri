@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+import pytz
 from django.db import models
 from django.utils import timezone
 
@@ -9,8 +10,8 @@ from kolibri.core.fields import JSONField
 
 
 def aware_datetime():
-    return timezone.get_current_timezone().localize(
-        datetime.datetime(2000, 12, 11, 10, 9, 8)
+    return timezone.localtime(
+        datetime.datetime(2000, 12, 11, 10, 9, 8, tzinfo=pytz.utc)
     )
 
 
