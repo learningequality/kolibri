@@ -8,5 +8,3 @@ target-version = "py312"
 "build-aux/flatpak/*.py" = ["T20"]
 # initialize() must run before Kolibri's Django-backed imports.
 "build-aux/flatpak/tools/kolibri-listcontent.py" = ["E402"]
-# Django settings module built on a star import.
-"src/kolibri_app/kolibri_settings.py" = ["F403"]

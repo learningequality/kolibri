@@ -42,11 +42,5 @@ max-complexity = 10
 force-single-line = true
 known-first-party = ["kolibri"]
 
-[tool.ruff.lint.per-file-ignores]
-# `import kolibri` is a side-effect import (it puts Kolibri's vendored zeroconf
-# on sys.path) that must precede `import zeroconf`, so it is neither unused (F401)
-# nor safe to reorder (I001).
-"app/src/main/python/monkey_patch_zeroconf.py" = ["F401", "I001"]
-
 [tool.pytest.ini_options]
 testpaths = ["scripts/tests"]

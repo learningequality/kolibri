@@ -1,4 +1,5 @@
-from kolibri.deployment.default.settings.base import *
+# Django settings module built on a star import.
+from kolibri.deployment.default.settings.base import *  # noqa: F403
 
 # TODO: Load SECRET_KEY from a file in $KOLIBRI_HOME
 
