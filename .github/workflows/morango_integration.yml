@@ -6,32 +6,22 @@ on:
     branches:
       - develop
       - release-*
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/morango_integration.yml'
+      - 'kolibri/core/auth/**/*.py'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 permissions:
   contents: read
-  actions: read
 env:
   # Skips setuptools_scm's `git archive` file listing; see Makefile.
   SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
-  pre_job:
-    name: Path match check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          github_token: ${{ github.token }}
-          paths: '["pyproject.toml", "uv.lock", ".github/workflows/morango_integration.yml", "kolibri/core/auth/**/*.py"]'
   morango_integration_tests_sqlite:
     name: Morango Integration Tests for uv-supported Python versions
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
@@ -57,8 +47,6 @@ jobs:
         run: uv run pytest kolibri/core/auth/test/test_morango_integration.py
   morango_integration_tests_sqlite_no_uv:
     name: Morango Integration Tests for Python versions without uv support
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
@@ -115,8 +103,6 @@ jobs:
         run: python -m pytest kolibri/core/auth/test/test_morango_integration.py
   morango_integration_tests_postgres:
     name: Morango Integration Tests with PostgreSQL
-    needs: pre_job
-    if: needs.pre_job.outputs.should_skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
