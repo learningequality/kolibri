@@ -2,10 +2,13 @@ import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import LearnersRootPage from '../LearnersRootPage.vue';
 
 const { viewPasswordsAction$ } = picturePasswordStrings;
+const { recipientsLabel$ } = coachStrings;
 
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/composables/useUser');
@@ -60,6 +63,16 @@ describe('LearnersRootPage', () => {
     it('renders when picture_password_settings is set and class has learners', () => {
       renderComponent({ picturePasswordSettings: { enabled: true }, learners: [MOCK_LEARNER] });
       expect(screen.getByRole('link', { name: viewPasswordsAction$() })).toBeInTheDocument();
+    });
+  });
+
+  describe('when printing', () => {
+    emulatePrintMedia(beforeEach, afterEach);
+
+    it('hides the "View passwords" button and the recipients filter', () => {
+      renderComponent({ picturePasswordSettings: { enabled: true }, learners: [MOCK_LEARNER] });
+      expect(screen.queryByRole('link', { name: viewPasswordsAction$() })).not.toBeInTheDocument();
+      expect(screen.getByText(recipientsLabel$())).not.toBeVisible();
     });
   });
 });

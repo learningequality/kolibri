@@ -1,6 +1,8 @@
 import { mount, createLocalVue, RouterLinkStub } from '@vue/test-utils';
 import VueRouter from 'vue-router';
+import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
 
+import { coachStrings } from '../../common/commonCoachStrings';
 import { STATUSES } from '../../../modules/classSummary/constants';
 import makeStore from '../../../__tests__/utils/makeStore';
 import LessonResourceLearnersPage from '../../lessons/reports/LessonResourceLearnersPage';
@@ -130,7 +132,11 @@ const containsGroupResourcesStats = (wrapper, groupId) => {
   return Boolean(getGroup(wrapper, groupId).find(`[data-testid="group-resources-stats"]`).element);
 };
 
-const initWrapper = lessonMap => {
+const countHeaderKeys = (wrapper, text) => {
+  return wrapper.findAll('th').filter(th => th.text() === text).length;
+};
+
+const initWrapper = (lessonMap, resource) => {
   if (!lessonMap) {
     lessonMap = {
       [LESSON_ID]: {
@@ -196,6 +202,9 @@ const initWrapper = lessonMap => {
     contentMap,
     contentLearnerStatusMap,
   };
+  if (resource) {
+    store.commit('resourceDetail/SET_STATE', { resource });
+  }
 
   // TODO find way to reduce unnecessary navigations to speed up test
   router.push(ROUTE_ALL_LEARNERS).catch(() => {});
@@ -400,6 +409,24 @@ describe('LessonResourceLearnersPage', () => {
         expect(getGroupResourcesStats(wrapper, GROUP_2.id).html()).toMatchSnapshot();
         expect(containsGroupResourcesStats(wrapper, GROUP_3.id)).toBe(false);
       });
+    });
+  });
+
+  describe('when printing', () => {
+    emulatePrintMedia(beforeEach, afterEach);
+
+    it('prints Class and Lesson once and no license info icon', () => {
+      wrapper = initWrapper(undefined, { license_name: 'CC BY' });
+      expect(countHeaderKeys(wrapper, coachStrings.classLabel$())).toBe(1);
+      expect(countHeaderKeys(wrapper, coachStrings.lessonLabel$())).toBe(1);
+      expect(wrapper.findComponent({ name: 'CoreInfoIcon' }).exists()).toBe(false);
+    });
+
+    it('prints Class and Lesson once when viewing by groups', async () => {
+      wrapper = initWrapper();
+      await router.push(ROUTE_LEARNERS_BY_GROUP);
+      expect(countHeaderKeys(wrapper, coachStrings.classLabel$())).toBe(1);
+      expect(countHeaderKeys(wrapper, coachStrings.lessonLabel$())).toBe(1);
     });
   });
 });

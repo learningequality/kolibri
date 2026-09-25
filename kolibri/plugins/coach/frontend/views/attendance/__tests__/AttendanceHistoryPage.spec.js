@@ -1,6 +1,8 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
+import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 // eslint-disable-next-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
 import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
@@ -43,6 +45,8 @@ jest.mock('../../../composables/useCoreCoach', () => {
 jest.mock('kolibri/utils/serverClock', () => ({
   now: () => new Date('2026-03-12T12:00:00Z'),
 }));
+
+const { markAttendanceAction$ } = attendanceStrings;
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -189,6 +193,19 @@ describe('AttendanceHistoryPage', () => {
     it('renders the mark attendance button', () => {
       const { wrapper } = makeWrapper();
       expect(wrapper.text()).toContain('Mark attendance');
+    });
+
+    describe('when printing', () => {
+      emulatePrintMedia(beforeEach, afterEach);
+
+      it('hides the mark attendance button', () => {
+        const { wrapper } = makeWrapper();
+        const markAttendance = wrapper
+          .findAllComponents({ name: 'KRouterLink' })
+          .filter(link => link.text() === markAttendanceAction$())
+          .at(0);
+        expect(markAttendance.isVisible()).toBe(false);
+      });
     });
 
     it('renders ReportsControls', () => {

@@ -1,6 +1,7 @@
 <template>
 
   <div
+    v-show="!$isPrint"
     class="bottom-bar"
     :style="{ backgroundColor: $themeTokens.textInverted }"
   >

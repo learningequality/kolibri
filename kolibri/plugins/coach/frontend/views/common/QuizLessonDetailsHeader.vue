@@ -32,6 +32,7 @@
       v-if="isFromOldKolibri && showAlert"
       type="warning"
       class="old-kolibri-banner"
+      :dismissible="!$isPrint"
       @dismiss="showAlert = false"
     >
       <span>

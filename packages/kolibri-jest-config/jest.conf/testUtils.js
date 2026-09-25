@@ -1,3 +1,5 @@
+import globalThemeState from 'kolibri-design-system/lib/styles/globalThemeState';
+
 // Run `fn` with console.error silenced.  Used to suppress jsdom's
 // "Not implemented: navigation" error which fires whenever code
 // assigns to window.location (non-configurable in modern jsdom).
@@ -30,5 +32,16 @@ export function stubWindowLocation(beforeAll, afterAll) {
     withSilentConsoleError(() => {
       window.location = originalLocation;
     });
+  });
+}
+
+// `$isPrint` reads this, and KDS's `$print()` sets it the same way.
+// jsdom never matches print media.
+export function emulatePrintMedia(beforeEach, afterEach) {
+  beforeEach(() => {
+    globalThemeState.mediaType = 'print';
+  });
+  afterEach(() => {
+    globalThemeState.mediaType = null;
   });
 }

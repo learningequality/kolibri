@@ -8,7 +8,6 @@
         <template #actions>
           <KButton
             v-if="practiceQuizzesExist && hasChannels"
-            class="new-quiz-button"
             primary
             hasDropdown
             appearance="raised-button"
@@ -108,7 +107,7 @@
                 <td class="button-col center-text core-table-button-col">
                   <!-- Open quiz button -->
                   <KButton
-                    v-if="!exam.active && !exam.archive"
+                    v-if="!exam.active && !exam.archive && !$isPrint"
                     :text="openQuizLabel$()"
                     appearance="flat-button"
                     @click="
@@ -118,7 +117,7 @@
                   />
                   <!-- Close quiz button -->
                   <KButton
-                    v-if="exam.active && !exam.archive"
+                    v-if="exam.active && !exam.archive && !$isPrint"
                     :text="closeQuizLabel$()"
                     appearance="flat-button"
                     @click="
@@ -126,6 +125,9 @@
                       activeQuiz = exam;
                     "
                   />
+                  <div v-if="$isPrint && !exam.archive">
+                    {{ exam.active ? filterQuizStarted$() : filterQuizNotStarted$() }}
+                  </div>
                   <!-- Closed quiz label -->
                   <div v-if="exam.archive">
                     {{ quizClosedLabel$() }}
@@ -561,12 +563,6 @@
 
   .button-col {
     vertical-align: middle;
-  }
-
-  @media print {
-    .new-quiz-button {
-      display: none;
-    }
   }
 
 </style>
