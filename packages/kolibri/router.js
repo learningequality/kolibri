@@ -1,8 +1,15 @@
-import VueRouter from 'vue-router';
+import VueRouter, { isNavigationFailure } from 'vue-router';
 import { shallowReactive } from 'vue';
 import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
+
+function resolveNavigationFailure(error) {
+  if (process.env.NODE_ENV === 'production' && isNavigationFailure(error)) {
+    return error;
+  }
+  throw error;
+}
 
 /**
  * Wrapper around Vue Router.
@@ -55,6 +62,10 @@ class Router {
     };
     if (this._vueRouter === null) {
       this._vueRouter = new VueRouter(options);
+      for (const method of ['push', 'replace']) {
+        const navigate = this._vueRouter[method].bind(this._vueRouter);
+        this._vueRouter[method] = (...args) => navigate(...args)?.catch(resolveNavigationFailure);
+      }
     }
   }
 
