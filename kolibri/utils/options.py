@@ -171,7 +171,8 @@ def language_list(value):
 
 
 def path(value):
-    from kolibri.utils.conf import KOLIBRI_HOME
+    # Cycle: conf imports this module.
+    from kolibri.utils.conf import KOLIBRI_HOME  # noqa: PLC0415
 
     if not isinstance(value, str):
         raise VdtValueError(repr(value))
@@ -259,7 +260,10 @@ def storage_option(value, *opts):
     value = is_option(value, *opts)
     if value == "gcs":
         try:
-            from storages.backends.gcloud import GoogleCloudStorage  # noqa
+            # Checks the optional storages package is installed.
+            from storages.backends.gcloud import (  # noqa: F401, PLC0415
+                GoogleCloudStorage,
+            )
 
             return value
         except ModuleNotFoundError as e:
@@ -283,8 +287,9 @@ def cache_option(value):
             # Check that we can properly import our RedisCache
             # implementation, to ensure that we can use it.
             # Also ensure that the redis package is installed.
-            from kolibri.core.utils.cache import RedisCache  # noqa
-            import redis  # noqa
+            import redis  # noqa: F401, PLC0415
+
+            from kolibri.core.utils.cache import RedisCache  # noqa: F401, PLC0415
         return value
     except ImportError as e:
         logger.error(
@@ -998,7 +1003,8 @@ def _set_from_deprecated_aliases(conf):
 
 
 def read_options_file(ini_filename="options.ini"):
-    from kolibri.utils.conf import KOLIBRI_HOME
+    # Cycle: conf imports this module.
+    from kolibri.utils.conf import KOLIBRI_HOME  # noqa: PLC0415
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 

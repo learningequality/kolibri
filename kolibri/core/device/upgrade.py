@@ -6,6 +6,8 @@ from shutil import rmtree
 
 from django.conf import settings
 
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.upgrade import version_upgrade
 
 
@@ -18,15 +20,10 @@ def clear_static_dir():
 
 @version_upgrade(old_version="<0.16.2")
 def migrate_nyn_to_ny():
-    from kolibri.core.device.utils import get_device_setting
-    from kolibri.core.device.utils import set_device_settings
-
     if get_device_setting("language_id") == "nyn":
         set_device_settings(language_id="ny")
 
 
 @version_upgrade(old_version="<0.20.0")
 def allow_other_browsers_to_connect_true():
-    from kolibri.core.device.utils import set_device_settings
-
     set_device_settings(allow_other_browsers_to_connect=True)

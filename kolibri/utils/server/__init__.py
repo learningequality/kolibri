@@ -217,7 +217,8 @@ class KolibriServerPlugin(ServerPlugin):
 
     @property
     def application(self):
-        from kolibri.deployment.default.wsgi import application
+        # Importing the wsgi module sets up Django.
+        from kolibri.deployment.default.wsgi import application  # noqa: PLC0415
 
         return application
 
@@ -240,7 +241,8 @@ class KolibriServerPlugin(ServerPlugin):
 class ZipContentServerPlugin(ServerPlugin):
     @property
     def application(self):
-        from kolibri.deployment.default.alt_wsgi import alt_application
+        # Importing the alt_wsgi module sets up Django.
+        from kolibri.deployment.default.alt_wsgi import alt_application  # noqa: PLC0415
 
         return alt_application
 
@@ -258,7 +260,8 @@ class ServicesPlugin(SimplePlugin):
         self.worker = None
 
     def START(self):
-        from kolibri.core.tasks.main import initialize_workers
+        # The CLI imports this module before Django setup.
+        from kolibri.core.tasks.main import initialize_workers  # noqa: PLC0415
 
         # Initialize the iceqube engine to handle queued tasks
         self.worker = initialize_workers()
@@ -287,13 +290,18 @@ class ZeroConfPlugin(Monitor):
 
     def RUN(self):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
-        from kolibri.core.discovery.utils.network.broadcast import (
+        # Keeps zeroconf off the CLI's import path.
+        from kolibri.core.discovery.utils.network.broadcast import (  # noqa: PLC0415
             build_broadcast_instance,
         )
-        from kolibri.core.discovery.utils.network.broadcast import (
+        from kolibri.core.discovery.utils.network.broadcast import (  # noqa: PLC0415
             NetworkDiscoveryBackend,
         )
-        from kolibri.core.discovery.utils.network.search import NetworkLocationListener
+
+        # The CLI imports this module before Django setup.
+        from kolibri.core.discovery.utils.network.search import (  # noqa: PLC0415
+            NetworkLocationListener,
+        )
 
         instance = build_broadcast_instance(self.port)
 
@@ -334,7 +342,8 @@ def get_local_hostnames():
     Returns an empty list when zeroconf isn't broadcasting (disabled or not
     yet started).
     """
-    from kolibri.core.discovery.models import LocalHostname
+    # The CLI imports this module before Django setup.
+    from kolibri.core.discovery.models import LocalHostname  # noqa: PLC0415
 
     return list(LocalHostname.objects.values_list("hostname", flat=True))
 

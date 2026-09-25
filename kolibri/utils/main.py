@@ -12,9 +12,12 @@ from django.core.management import call_command
 from django.db.utils import DatabaseError
 
 import kolibri
+import kolibri.dist
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
+from kolibri.core.deviceadmin.utils import dbbackup
+from kolibri.core.deviceadmin.utils import default_backup_folder
 from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
@@ -73,9 +76,6 @@ def should_back_up(kolibri_version, version_file_contents):
 def conditional_backup(kolibri_version, version_file_contents):
     if should_back_up(kolibri_version, version_file_contents):
         # Non-dev version change, make a backup no matter what.
-        from kolibri.core.deviceadmin.utils import dbbackup
-        from kolibri.core.deviceadmin.utils import default_backup_folder
-
         try:
             backup = dbbackup(version_file_contents)
             default_path = default_backup_folder()
@@ -155,8 +155,6 @@ def _copy_preseeded_db(db_name):
     target = get_sqlite_database_path(db_name)
     if not os.path.exists(target):
         try:
-            import kolibri.dist
-
             db_file_name = os.path.basename(target)
 
             db_path = os.path.abspath(
@@ -167,7 +165,7 @@ def _copy_preseeded_db(db_name):
             )
             shutil.copyfile(db_path, target)
             logger.info("Copied preseeded database from %s to %s", db_path, target)
-        except (ImportError, OSError):
+        except OSError:
             logger.warning(
                 "Unable to copy pre-migrated database from %s to %s", db_path, target
             )
@@ -217,7 +215,7 @@ def _upgrades_before_django_setup(updated, version):
 def _post_django_initialization():
     # Import here to prevent the module level access to Kolibri options
     # which causes premature registration of Kolibri plugins.
-    from kolibri.deployment.default.cache import CACHES
+    from kolibri.deployment.default.cache import CACHES  # noqa: PLC0415
 
     # process_cache in CACHES usually means not using redis
     if (

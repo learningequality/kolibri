@@ -8,6 +8,8 @@ from unittest import TestCase
 
 import pytest
 
+from kolibri.core.discovery.models import LocalHostname
+from kolibri.core.tasks.worker import WorkerSupervisor
 from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
@@ -103,8 +105,6 @@ class TestServerServices:
         # Initialize and ready services plugin for testing
         services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
 
-        from kolibri.core.tasks.worker import WorkerSupervisor
-
         services_plugin.worker = mock.MagicMock(
             name="worker", spec_set=WorkerSupervisor
         )
@@ -196,8 +196,6 @@ class TestGetLocalHostnames:
         assert server.get_local_hostnames() == []
 
     def test_returns_stored_hostnames(self):
-        from kolibri.core.discovery.models import LocalHostname
-
         LocalHostname.objects.create(hostname="kolibri.local")
         LocalHostname.objects.create(hostname="tonyslaptop.local")
         assert set(server.get_local_hostnames()) == {

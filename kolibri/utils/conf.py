@@ -45,7 +45,8 @@ if not os.path.exists(LOG_ROOT) and not NO_FILE_BASED_LOGGING:
 
 def __initialize_options():
     # read the config file options in here so they can be accessed from a standard location
-    from .options import read_options_file
+    # Cycle: options imports this module.
+    from .options import read_options_file  # noqa: PLC0415
 
     return read_options_file()
 

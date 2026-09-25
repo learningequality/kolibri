@@ -22,8 +22,8 @@ def sandbox_sources():
     the built output directory of every sandbox handler bundle.
     """
     # kolibri.utils.conf reads KOLIBRI_HOME at import, so the caller sets it first.
-    from kolibri.core.content.hooks import SandboxedContentViewerHook
-    from kolibri.plugins.registry import registered_plugins
+    from kolibri.core.content.hooks import SandboxedContentViewerHook  # noqa: PLC0415
+    from kolibri.plugins.registry import registered_plugins  # noqa: PLC0415
 
     list(registered_plugins)
     handler_outputs = [

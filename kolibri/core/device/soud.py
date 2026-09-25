@@ -244,7 +244,8 @@ def request_sync(context, network_location=None):
     """
     Request a sync from the device with the given instance_id.
     """
-    from kolibri.core.auth.tasks import queue_soud_sync_cleanup
+    # Cycle: auth.tasks imports this module.
+    from kolibri.core.auth.tasks import queue_soud_sync_cleanup  # noqa: PLC0415
 
     sync_queue = context.sync_queue
     if not validate_sync_queue_for_sync_request(sync_queue):
@@ -378,7 +379,8 @@ def execute_sync(context):
     :param context: The context object
     :type context: Context
     """
-    from kolibri.core.auth.tasks import queue_soud_sync_cleanup
+    # Cycle: auth.tasks imports this module.
+    from kolibri.core.auth.tasks import queue_soud_sync_cleanup  # noqa: PLC0415
 
     sync_queue = context.sync_queue
     sync_session_id = sync_queue.sync_session_id

@@ -51,9 +51,11 @@ def get_device_setting(setting):
     :param setting: a string key to the model attribute or property
     :return: the value of the setting
     """
-    from kolibri.core.auth.models import Facility
+    # Cycle: auth.models imports this module.
+    from kolibri.core.auth.models import Facility  # noqa: PLC0415
 
-    from .models import DeviceSettings
+    # Cycle: device.models imports this module.
+    from .models import DeviceSettings  # noqa: PLC0415
 
     try:
         device_settings = DeviceSettings.objects.get()
@@ -104,7 +106,8 @@ def set_device_settings(**kwargs):
     Set the device settings, even if unprovisioned.
     :param kwargs: a dictionary of key-value pairs to set on the device settings model
     """
-    from .models import DeviceSettings
+    # Cycle: device.models imports this module.
+    from .models import DeviceSettings  # noqa: PLC0415
 
     try:
         device_settings = DeviceSettings.objects.get()
@@ -121,7 +124,8 @@ def set_device_settings(**kwargs):
 
 
 def provision_device(device_name=None, is_provisioned=True, **kwargs):
-    from .models import DeviceSettings
+    # Cycle: device.models imports this module.
+    from .models import DeviceSettings  # noqa: PLC0415
 
     if is_provisioned and device_provisioned():
         raise DeviceAlreadyProvisioned("Device has already been provisioned.")
@@ -135,7 +139,8 @@ def provision_device(device_name=None, is_provisioned=True, **kwargs):
 
 
 def provision_single_user_device(user, **kwargs):
-    from .models import DevicePermissions
+    # Cycle: device.models imports this module.
+    from .models import DevicePermissions  # noqa: PLC0415
 
     # if device has not been provisioned, set it up
     if not device_provisioned():
@@ -148,7 +153,8 @@ def provision_single_user_device(user, **kwargs):
 
 
 def valid_app_key(app_key):
-    from .models import DeviceAppKey
+    # Cycle: device.models imports this module.
+    from .models import DeviceAppKey  # noqa: PLC0415
 
     return app_key == DeviceAppKey.get_app_key()
 
@@ -160,7 +166,8 @@ def valid_app_key_on_request(request):
 
 
 def set_app_key_on_response(response, auth_token):
-    from .models import DeviceAppKey
+    # Cycle: device.models imports this module.
+    from .models import DeviceAppKey  # noqa: PLC0415
 
     response.set_cookie(APP_KEY_COOKIE_NAME, DeviceAppKey.get_app_key())
 
@@ -229,7 +236,8 @@ def validate_device_settings(facility=None, **new_settings):
 
 
 def create_facility(facility_name=None, preset=None):
-    from kolibri.core.auth.models import Facility
+    # Cycle: auth.models imports this module.
+    from kolibri.core.auth.models import Facility  # noqa: PLC0415
 
     facility = Facility.objects.create(name=facility_name)
     logger.info("Facility with name '%s' created.", facility.name)
@@ -254,7 +262,8 @@ def setup_device_and_facility(
     username,
     password,
 ):
-    from kolibri.core.auth.models import FacilityUser
+    # Cycle: auth.models imports this module.
+    from kolibri.core.auth.models import FacilityUser  # noqa: PLC0415
 
     with transaction.atomic():
         if facility is None and facility_name is not None:
@@ -291,7 +300,8 @@ def setup_device_and_facility(
 
 
 def get_facility_by_name(facility_name):
-    from kolibri.core.auth.models import Facility
+    # Cycle: auth.models imports this module.
+    from kolibri.core.auth.models import Facility  # noqa: PLC0415
 
     facility = None
 
@@ -447,7 +457,8 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     if version not in device_info_keys:
         version = DEVICE_INFO_VERSION
 
-    from morango.models import InstanceIDModel
+    # kolibri.utils.main imports this module before Django setup.
+    from morango.models import InstanceIDModel  # noqa: PLC0415
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
     if device_provisioned():
@@ -483,9 +494,13 @@ def is_full_facility_import(dataset_id):
     """
     Returns True if this the dataset_id holds a facility that has been fully imported.
     """
-    from morango.models.certificates import Certificate
+    # kolibri.utils.main imports this module before Django setup.
+    from morango.models.certificates import Certificate  # noqa: PLC0415
 
-    from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+    # Cycle: this pulls in kolibri.utils.conf, which loads plugins that import this module.
+    from kolibri.core.auth.constants.morango_sync import (  # noqa: PLC0415
+        ScopeDefinitions,
+    )
 
     return (
         Certificate.objects.get(id=dataset_id)
@@ -497,7 +512,8 @@ def is_full_facility_import(dataset_id):
 
 
 def get_device_unusable_reason():
-    from kolibri.core.auth.models import FacilityUser
+    # Cycle: auth.models imports this module.
+    from kolibri.core.auth.models import FacilityUser  # noqa: PLC0415
 
     is_soud = get_device_setting("subset_of_users_device")
     if not is_soud:
@@ -526,7 +542,8 @@ def using_metered_connection():
 
 
 def app_initialize_url(next_url=None, auth_token=None):
-    from kolibri.core.device.models import DeviceAppKey
+    # Cycle: device.models imports this module.
+    from kolibri.core.device.models import DeviceAppKey  # noqa: PLC0415
 
     url = reverse(
         "kolibri:core:initialize_app",

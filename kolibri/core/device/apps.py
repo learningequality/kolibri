@@ -7,5 +7,6 @@ class KolibriDeviceAppConfig(AppConfig):
     verbose_name = "Kolibri Device"
 
     def ready(self):
+        # apps.py is imported before the app registry is ready.
         # Implicitly connect signal handlers decorated with @receiver.
-        from . import signals  # noqa F401
+        from . import signals  # noqa: F401, PLC0415

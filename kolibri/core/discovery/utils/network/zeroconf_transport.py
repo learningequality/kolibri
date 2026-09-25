@@ -184,7 +184,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             return
         # imported here rather than at module top so that registering this
         # transport doesn't reach `discovery.tasks` either
-        from kolibri.core.discovery.utils.network.local_hostnames import (
+        from kolibri.core.discovery.utils.network.local_hostnames import (  # noqa: PLC0415
             LocalHostnameListener,
         )
 

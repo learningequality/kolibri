@@ -74,8 +74,8 @@ class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
         return hasattr(user, "dataset") and user.dataset_id == obj.id
 
     def _user_is_admin_for_related_facility(self, user, obj=None):
-        # import here to avoid circular imports
-        from ..models import FacilityDataset
+        # Cycle: auth.models imports this module.
+        from ..models import FacilityDataset  # noqa: PLC0415
 
         if not hasattr(user, "dataset"):
             return False

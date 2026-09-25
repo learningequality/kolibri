@@ -30,7 +30,8 @@ def execute_job(
     or an external dispatcher like Android's WorkManager) and doubles as the
     execution's fence token (see Job.execute).
     """
-    from kolibri.core.tasks.main import job_storage
+    # Cycle: tasks.main imports this module.
+    from kolibri.core.tasks.main import job_storage  # noqa: PLC0415
 
     job = job_storage.get_job(job_id)
 
@@ -113,7 +114,8 @@ class WorkerSupervisor:
         # Key: job_id, Value: future object
         self.future_job_mapping = {}
 
-        from kolibri.core.tasks.main import job_storage
+        # Cycle: tasks.main imports this module.
+        from kolibri.core.tasks.main import job_storage  # noqa: PLC0415
 
         self.storage = job_storage
 

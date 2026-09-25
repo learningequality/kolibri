@@ -649,7 +649,8 @@ class ImportChannelTestCase(TestCase):
         )
 
         if "OpenSSL" in sys.modules:
-            from OpenSSL.SSL import Error
+            # pyOpenSSL is optional.
+            from OpenSSL.SSL import Error  # noqa: PLC0415
 
             SSLERROR = Error(
                 [

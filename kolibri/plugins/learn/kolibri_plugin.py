@@ -60,9 +60,16 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.content.models import ContentNode
-        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
-        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
+        # Plugin modules load before Django setup.
+        from kolibri.core.content.models import ContentNode  # noqa: PLC0415
+
+        # Cycle: well_known imports kolibri.utils.conf, which registers this plugin.
+        from kolibri.core.discovery.well_known import (  # noqa: PLC0415
+            CENTRAL_CONTENT_BASE_INSTANCE_ID,
+        )
+        from kolibri.core.discovery.well_known import (  # noqa: PLC0415
+            CENTRAL_CONTENT_BASE_URL,
+        )
 
         courses_exist = ContentNode.objects.filter(
             available=True, modality=modalities.COURSE
@@ -128,8 +135,9 @@ def request_soud_sync(network_location):
     """
     :type network_location: kolibri.core.discovery.models.NetworkLocation
     """
-    from kolibri.core.auth.tasks import enqueue_soud_sync_processing
-    from kolibri.core.device.soud import request_sync_hook
+    # Plugin modules load before Django setup.
+    from kolibri.core.auth.tasks import enqueue_soud_sync_processing  # noqa: PLC0415
+    from kolibri.core.device.soud import request_sync_hook  # noqa: PLC0415
 
     if not network_location.subset_of_users_device and network_location.is_kolibri:
         request_sync_hook(network_location)

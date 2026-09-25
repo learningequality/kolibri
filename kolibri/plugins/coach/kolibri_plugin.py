@@ -41,7 +41,8 @@ class CoachNavItem(NavigationHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.content.models import ContentNode
+        # Plugin modules load before Django setup.
+        from kolibri.core.content.models import ContentNode  # noqa: PLC0415
 
         courses_exist = ContentNode.objects.filter(
             available=True, modality=modalities.COURSE
@@ -58,7 +59,8 @@ class CoachAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.content.models import ContentNode
+        # Plugin modules load before Django setup.
+        from kolibri.core.content.models import ContentNode  # noqa: PLC0415
 
         practice_quizzes_exist = ContentNode.objects.filter(
             available=True, modality=modalities.QUIZ

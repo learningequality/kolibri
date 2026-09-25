@@ -11,7 +11,8 @@ class DummyOperation:
         self.obj = None
 
     def execute(self):
-        from kolibri.core.device.models import SQLiteLock
+        # Cycle: device.models imports this module.
+        from kolibri.core.device.models import SQLiteLock  # noqa: PLC0415
 
         self.obj = SQLiteLock.objects.create()
 

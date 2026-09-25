@@ -7,13 +7,18 @@ class KolibriAuthConfig(AppConfig):
     verbose_name = "Kolibri Auth"
 
     def ready(self):
-        from morango.api.viewsets import session_controller
+        # apps.py is imported before the app registry is ready.
+        from morango.api.viewsets import session_controller  # noqa: PLC0415
 
-        from kolibri.core.auth.sync_event_hook_utils import post_sync_transfer_handler
-        from kolibri.core.auth.sync_event_hook_utils import pre_sync_transfer_handler
+        from kolibri.core.auth.sync_event_hook_utils import (  # noqa: PLC0415
+            post_sync_transfer_handler,
+        )
+        from kolibri.core.auth.sync_event_hook_utils import (  # noqa: PLC0415
+            pre_sync_transfer_handler,
+        )
 
-        from .signals import cascade_delete_membership  # noqa: F401
-        from .signals import cascade_delete_user  # noqa: F401
+        from .signals import cascade_delete_membership  # noqa: F401, PLC0415
+        from .signals import cascade_delete_user  # noqa: F401, PLC0415
 
         # attach to `initializing.completed` signal so that the context has all information needed
         # for the handler and any hooks invoked by it

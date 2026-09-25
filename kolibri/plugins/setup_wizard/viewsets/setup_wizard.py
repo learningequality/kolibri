@@ -15,6 +15,8 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.serializers import sanitize_remote_list
@@ -23,15 +25,11 @@ from kolibri.core.serializers import sanitize_remote_list
 # Basic class that makes these endpoints unusable if device is provisioned
 class HasPermissionDuringSetup(BasePermission):
     def has_permission(self, request, view):
-        from kolibri.core.device.utils import device_provisioned
-
         return not device_provisioned()
 
 
 class HasPermissionDuringLODSetup(BasePermission):
     def has_permission(self, request, view):
-        from kolibri.core.device.utils import get_device_setting
-
         return get_device_setting("subset_of_users_device")
 
 

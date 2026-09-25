@@ -35,6 +35,7 @@ class AppDesktopXDGConfig(AppConfig):
         )
 
     def __on_content_cache_key_save(self, sender, instance=None, *args, **kwargs):
-        from .channel_launchers import update_channel_launchers
+        # channel_launchers imports models; apps.py loads before the app registry.
+        from .channel_launchers import update_channel_launchers  # noqa: PLC0415
 
         update_channel_launchers()

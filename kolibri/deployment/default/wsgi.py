@@ -34,7 +34,7 @@ def generate_wsgi_application():
 
     # Must be imported after get_wsgi_application is called
     # as this depends on the NetworkClient (which depends on Django models)
-    from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
+    from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise  # noqa: PLC0415
 
     # Mount static files
     return DynamicWhiteNoise(

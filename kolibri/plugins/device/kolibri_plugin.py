@@ -14,7 +14,8 @@ class DeviceManagementPlugin(KolibriPluginBase):
 
 
 def any_ie11_users():
-    from kolibri.core.logger.models import UserSessionLog
+    # Plugin modules load before Django setup.
+    from kolibri.core.logger.models import UserSessionLog  # noqa: PLC0415
 
     return UserSessionLog.objects.filter(device_info__contains="IE,11").count() > 0
 

@@ -11,6 +11,7 @@ from kolibri.core.content.utils.content_request import incomplete_downloads_quer
 from kolibri.core.content.utils.content_request import process_metadata_import
 from kolibri.core.content.utils.content_request import StorageCalculator
 from kolibri.core.content.utils.content_request import synchronize_content_requests
+from kolibri.core.content.utils.settings import automatic_download_enabled
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.utils import get_device_setting
@@ -33,8 +34,6 @@ class ContentRequestsOperation(KolibriSyncOperationMixin, LocalOperation):
         """
         :type context: morango.sync.context.LocalSessionContext
         """
-        from kolibri.core.content.utils.settings import automatic_download_enabled
-
         # only needs to synchronize requests when on receiving end of a sync
         self._assert(context.is_receiver)
 
@@ -65,8 +64,6 @@ class ContentSyncHook(FacilityDataSyncHook):
         Processes content import using the post_transfer hook, outside of the sync process, but
         between push and pulls (since this processes when receiving)
         """
-        from kolibri.core.content.utils.settings import automatic_download_enabled
-
         # only process upon receiving
         if not context.is_receiver or not automatic_download_enabled():
             return

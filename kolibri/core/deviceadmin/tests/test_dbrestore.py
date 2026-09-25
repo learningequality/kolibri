@@ -11,6 +11,7 @@ from django.test.utils import override_settings
 
 import kolibri
 from kolibri.core.auth.constants.collection_kinds import FACILITY
+from kolibri.core.auth.models import Facility
 from kolibri.core.deviceadmin.management.commands.dbrestore import CommandError
 from kolibri.core.deviceadmin.utils import dbbackup
 from kolibri.core.deviceadmin.utils import dbrestore
@@ -120,8 +121,6 @@ def test_restore_from_latest():
         return
     with patch("kolibri.utils.server.get_status", side_effect=mock_status_not_running):
         # Create something special in the database!
-        from kolibri.core.auth.models import Facility
-
         Facility.objects.create(name="test latest", kind=FACILITY)
         # Create a backup file from the current test database
         call_command("dbbackup")
@@ -160,8 +159,6 @@ def test_restore_from_file_to_memory():
         return
     with patch("kolibri.utils.server.get_status", side_effect=mock_status_not_running):
         # Create something special in the database!
-        from kolibri.core.auth.models import Facility
-
         Facility.objects.create(name="test file", kind=FACILITY)
         # Create a backup file from the current test database
         dest_folder = tempfile.mkdtemp()
@@ -190,8 +187,6 @@ def test_restore_from_file_to_file():
         return
     with patch("kolibri.utils.server.get_status", side_effect=mock_status_not_running):
         # Create something special in the database!
-        from kolibri.core.auth.models import Facility
-
         Facility.objects.create(name="test file", kind=FACILITY)
         # Create a backup file from the current test database
         dest_folder = tempfile.mkdtemp()

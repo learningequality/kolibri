@@ -589,21 +589,21 @@ def _get_common_strings():
     """
 
     # Special characters that are used directly in untranslated template strings.
-    # Search the codebase with this regex to find new ones: [^\x00-\x7F©–—…‘’“”•→›]
+    # Search the codebase with this regex to find new ones: [^\x00-\x7F©–—…‘’“”•→›]  # noqa: RUF003
     strings = [
         chr(0x0),  # null
         "©",
-        "–",  # en dash
+        "–",  # en dash  # noqa: RUF001
         "—",  # em dash
         "…",
-        "‘",
-        "’",
+        "‘",  # noqa: RUF001
+        "’",  # noqa: RUF001
         "“",
         "”",
         "•",
         "●",
         "→",
-        "›",
+        "›",  # noqa: RUF001
     ]
 
     # all the basic printable ascii characters

@@ -19,6 +19,7 @@ from kolibri.core.auth.tasks import cleanupsync
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+from kolibri.core.device.utils import device_provisioned
 from kolibri.plugins.hooks import register_hook
 
 logger = logging.getLogger(__name__)
@@ -61,8 +62,6 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
         """
         :type context: morango.sync.context.LocalSessionContext
         """
-        from kolibri.core.device.utils import device_provisioned
-
         if context.is_receiver and device_provisioned():
             pull = context.is_pull
             push = context.is_push

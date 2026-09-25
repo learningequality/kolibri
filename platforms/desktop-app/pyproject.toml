@@ -81,12 +81,9 @@ target-version = "py310"
 [tool.ruff.lint.per-file-ignores]
 # Root ruff selects T20 (flake8-print), which the source repo's ruff did not.
 # These build/CLI tools write to stdout by design: the installer translation
-# scripts, the WebView2 IID extractor, the PyInstaller hook, and a diagnostic
-# print in windows_utils. Rewriting them to logging is out of scope for a
-# migration, so scope the T20 exemption to just these paths rather than
-# blanket-disabling flake8-print for the whole member (which would blind the
-# linter to accidental prints in the wx runtime source).
+# scripts and the WebView2 IID extractor. Rewriting them to logging is out of
+# scope for a migration, so scope the T20 exemption to just these paths rather
+# than blanket-disabling flake8-print for the whole member (which would blind
+# the linter to accidental prints in the wx runtime source).
 "installer/translations/*.py" = ["T20"]
 "scripts/extract_webview2_iids.py" = ["T20"]
-"hooks/hook-kolibri.py" = ["T20"]
-"src/kolibri_app/windows_utils.py" = ["T20"]

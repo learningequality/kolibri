@@ -6,6 +6,8 @@ import logging
 import os
 import shutil
 
+from morango.deferrable_foreign_keys import MakeForeignKeysDeferrable
+
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
@@ -80,8 +82,6 @@ def make_foreign_keys_deferrable():
     Kolibri 0.17 saw the Django upgrade, but for this version upgrade, we apply it based on the
     version of its release, so we can ensure all databases are migrated properly.
     """
-    from morango.deferrable_foreign_keys import MakeForeignKeysDeferrable
-
     # morango takes care of itself, through its own migration
     op = MakeForeignKeysDeferrable(exclude_app_labels=["morango"])
     op.run()

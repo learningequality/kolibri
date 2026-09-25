@@ -179,14 +179,15 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C90", "T20", "I", "UP015", "UP024", "UP026", "UP031", "UP032", "UP034", "PIE", "C4", "RET", "FLY", "G", "LOG", "B", "RUF", "SIM", "DTZ"]
+select = ["E", "F", "W", "C90", "T20", "I", "UP015", "UP024", "UP026", "UP031", "UP032", "UP034", "PIE", "C4", "RET", "FLY", "G", "LOG", "B", "RUF", "SIM", "DTZ", "PLC0415"]
 ignore = ["E203", "E721", "E741", "SIM105", "SIM108", "SIM117"]
 # Exclude migrations from linting (auto-generated code) but still format them
 exclude = ["kolibri/*/migrations/*"]
 
 [tool.ruff.lint.per-file-ignores]
-# The font subset lists these punctuation characters on purpose.
-"build_tools/i18n/fonts.py" = ["RUF001", "RUF003"]
+# kolibri.utils.conf reads KOLIBRI_HOME at import; these scripts set it from their arguments first.
+"integration_testing/scripts/content_operations_benchmark.py" = ["PLC0415"]
+"integration_testing/scripts/viewset_serialization_benchmark.py" = ["PLC0415"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 160

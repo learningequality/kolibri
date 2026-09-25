@@ -5,9 +5,13 @@ from django.db.models import OuterRef
 from django.db.models import Subquery
 
 from kolibri.core.auth.hooks import FacilityDataSyncHook
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.sync_event_hook_utils import get_dataset_id
 from kolibri.core.auth.sync_event_hook_utils import get_user_id_for_single_user_sync
 from kolibri.core.auth.sync_operations import KolibriVersionedSyncOperation
+from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.device.models import SyncQueue
+from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.plugins.hooks import register_hook
 
@@ -25,9 +29,6 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
     ):
         # if we're about to do a single user sync, update SyncQueue status accordingly
         if context.sync_session and single_user_id is not None:
-            from kolibri.core.device.models import SyncQueue
-            from kolibri.core.device.models import SyncQueueStatus
-
             instance_id = (
                 context.sync_session.client_instance_id
                 if context.is_server
@@ -54,10 +55,6 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
     ):
         # if we're concluding a single user sync, update SyncQueue status accordingly
         if context.sync_session and single_user_id is not None:
-            from kolibri.core.auth.models import FacilityUser
-            from kolibri.core.device.models import SyncQueue
-            from kolibri.core.device.models import SyncQueueStatus
-
             instance_id = (
                 context.sync_session.client_instance_id
                 if context.is_server
@@ -91,8 +88,6 @@ class LearnerDeviceStatusOperation(KolibriVersionedSyncOperation):
         For a facility sync, delete all learner device statuses for the facility.
         :type context: morango.sync.context.LocalSessionContext
         """
-        from kolibri.core.device.models import LearnerDeviceStatus
-
         # get the user_id for the single user sync
         # if it's not a single user sync, this will be None
         user_id = get_user_id_for_single_user_sync(context)

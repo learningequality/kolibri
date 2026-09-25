@@ -3,6 +3,8 @@ import os
 
 from django.apps import AppConfig
 from django.conf import settings
+from django.core.files.storage import default_storage
+from django.db import connections
 from django.db.backends.signals import connection_created
 from django_filters.filters import UUIDFilter
 from django_filters.rest_framework.filterset import FilterSet
@@ -39,7 +41,8 @@ class KolibriCoreConfig(AppConfig):
         self.check_file_storage_settings()
         # Do this to add an automapping from the Morango UUIDField to the UUIDFilter so that it automatically
         # maps to this filter when using the UUIDField in a filter.
-        from morango.models import UUIDField
+        # apps.py is imported before the app registry is ready.
+        from morango.models import UUIDField  # noqa: PLC0415
 
         FilterSet.FILTER_DEFAULTS.update({UUIDField: {"filter_class": UUIDFilter}})
         # Register any django apps that may have kolibri plugin
@@ -77,8 +80,6 @@ class KolibriCoreConfig(AppConfig):
         and not on a per connection basis.
         :return:
         """
-        from django.db import connections
-
         for connection in connections.all():
             if connection.vendor == "sqlite":
                 cursor = connection.cursor()
@@ -99,9 +100,6 @@ class KolibriCoreConfig(AppConfig):
         # TODO This should be a bonus sanity check
         # Options per https://django-storages.readthedocs.io/en/latest/backends/gcloud.html
         if OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
-            # Actually imoprt default_storage and run listdir
-            from django.core.files.storage import default_storage
-
             default_storage.get_available_name("kolibri")
 
     @staticmethod
@@ -118,7 +116,7 @@ class KolibriCoreConfig(AppConfig):
         # to avoid a hard dependency on Redis
         # the options config has already been validated at this point
         # so we know that redis is available.
-        from redis.exceptions import ConnectionError
+        from redis.exceptions import ConnectionError  # noqa: PLC0415
 
         config_maxmemory = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY"]
         config_maxmemory_policy = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY_POLICY"]

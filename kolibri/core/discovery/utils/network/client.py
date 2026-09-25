@@ -6,6 +6,8 @@ import requests
 from django.utils import timezone
 
 import kolibri
+from kolibri.core.device.utils import device_info_keys
+from kolibri.core.device.utils import DEVICE_INFO_VERSION
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
@@ -99,9 +101,6 @@ class NetworkClient(SameHostSession):
         """
         if timeout is None:
             timeout = cls._default_timeout()
-
-        from kolibri.core.device.utils import device_info_keys
-        from kolibri.core.device.utils import DEVICE_INFO_VERSION
 
         network_location = cls.known_location_for_address(address)
         if network_location is None:
@@ -245,9 +244,6 @@ class NetworkClient(SameHostSession):
         :param raise_if_unavailable: Raises an error if connection fails and this value is True
         :return: A boolean determining success, never False if `raise_if_unavailable=True`
         """
-
-        from kolibri.core.device.utils import device_info_keys
-        from kolibri.core.device.utils import DEVICE_INFO_VERSION
 
         # don't reconnect if client has already done so
         if self.device_info is not None:

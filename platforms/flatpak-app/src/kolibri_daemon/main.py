@@ -39,7 +39,7 @@ def main():
                 search_handler.init()
                 # Kolibri reads its options at import time, from the
                 # environment init_kolibri() sets.
-                from .kolibri_process import KolibriDaemonProcess
+                from .kolibri_process import KolibriDaemonProcess  # noqa: PLC0415
 
                 KolibriDaemonProcess(application).run()
     finally:

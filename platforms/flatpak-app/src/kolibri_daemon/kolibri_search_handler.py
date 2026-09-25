@@ -99,7 +99,7 @@ def _close_db_connection_after(fn: typing.Callable) -> typing.Callable:
             return fn(*args, **kwargs)
         finally:
             # Django lives in kolibri/dist, importable only after init_kolibri().
-            from django.db import connection
+            from django.db import connection  # noqa: PLC0415
 
             connection.close()
 
@@ -145,8 +145,11 @@ class LocalSearchHandler(SearchHandler):
     @staticmethod
     @_close_db_connection_after
     def _get_item_ids_for_search(search: str) -> list:
-        from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
-        from kolibri.dist.rest_framework.test import APIRequestFactory
+        # Needs init_kolibri() to have set up Django.
+        from kolibri.core.content.viewsets.contentnode.base import (  # noqa: PLC0415
+            ContentNodeViewset,
+        )
+        from kolibri.dist.rest_framework.test import APIRequestFactory  # noqa: PLC0415
 
         request = APIRequestFactory().get("", {"search": search, "max_results": 10})
         search_view = ContentNodeViewset.as_view({"get": "list"})
@@ -166,8 +169,11 @@ class LocalSearchHandler(SearchHandler):
 
     @staticmethod
     def _get_metadata_for_item_id(item_id: str) -> dict:
-        from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
-        from kolibri.dist.rest_framework.test import APIRequestFactory
+        # Needs init_kolibri() to have set up Django.
+        from kolibri.core.content.viewsets.contentnode.base import (  # noqa: PLC0415
+            ContentNodeViewset,
+        )
+        from kolibri.dist.rest_framework.test import APIRequestFactory  # noqa: PLC0415
 
         node_id = SearchHandler._item_id_to_node_id(item_id)
 

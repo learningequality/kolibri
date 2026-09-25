@@ -279,7 +279,7 @@ class PluginUpdateException(Exception):
 class PluginUpdateManager:
     def __init__(self, updated_plugins):
         # Import here as triggers django app loading
-        from django.db.migrations.loader import MigrationLoader
+        from django.db.migrations.loader import MigrationLoader  # noqa: PLC0415
 
         self.migration_loader = MigrationLoader(None)
         # Make a copy as this could get modified during the iteration
@@ -311,8 +311,8 @@ class PluginUpdateManager:
                         raise e
 
     def _update_plugin(self, plugin_name):
-        # Import here to prevent circular import
-        from kolibri.plugins.registry import registered_plugins
+        # Cycle: plugins.registry imports this module.
+        from kolibri.plugins.registry import registered_plugins  # noqa: PLC0415
 
         app_configs = []
         plugin_instance = registered_plugins.get(plugin_name)
@@ -409,7 +409,8 @@ def autoremove_unavailable_plugins():
     configured by the user or some other kind of hard dependency that should
     make execution stop if not loadable.
     """
-    from kolibri.plugins.registry import is_initialized
+    # Cycle: plugins.registry imports this module.
+    from kolibri.plugins.registry import is_initialized  # noqa: PLC0415
 
     if is_initialized():
         raise RuntimeError("Attempted to update plugins when registry is initialized")
@@ -436,7 +437,8 @@ def enable_new_default_plugins():
     default plugins that have been explicitly disabled by a user,
     in versions prior to the implementation of a plugin blacklist.
     """
-    from kolibri.plugins.registry import is_initialized
+    # Cycle: plugins.registry imports this module.
+    from kolibri.plugins.registry import is_initialized  # noqa: PLC0415
 
     if is_initialized():
         raise RuntimeError("Attempted to update plugins when registry is initialized")

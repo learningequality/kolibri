@@ -9,7 +9,8 @@ from kolibri_app.logger import logging
 
 def main():
     if WINDOWS:
-        from kolibri_app.windows_utils import handle_windows_commands
+        # windows_utils imports pywin32.
+        from kolibri_app.windows_utils import handle_windows_commands  # noqa: PLC0415
 
         handle_windows_commands()
 

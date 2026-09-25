@@ -5,6 +5,7 @@ import requests
 from django.conf import settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.translation import LANGUAGE_SESSION_KEY
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import clear_process_cache
@@ -245,7 +246,8 @@ class AllUrlsTest(APITestCase):
             "kolibri.core.content.hooks.SandboxedContentViewerHook.sandbox_handler_url",
             None,
         ), patch.object(requests.Session, "request", mock_external_request):
-            from kolibri.deployment.default.urls import urlpatterns
+            # Imported under the patches above.
+            from kolibri.deployment.default.urls import urlpatterns  # noqa: PLC0415
 
             check_urls(urlpatterns)
 
@@ -304,8 +306,6 @@ class LogoutLanguagePersistenceTest(APITestCase):
 
     def test_persistent_session_language_setting_on_logout(self):
         # Test when set on a session.
-        from django.utils.translation import LANGUAGE_SESSION_KEY
-
         self.client.login(**self.credentials)
         session = self.client.session
         test_lang = settings.LANGUAGES[-1][0]

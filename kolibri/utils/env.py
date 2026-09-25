@@ -1,12 +1,16 @@
+import importlib.util
 import logging
 import os
+import pkgutil
 import platform
 import sys
+from importlib import import_module
+
+from kolibri import dist as kolibri_dist
+from kolibri.utils.build_config.default_settings import settings_path
 
 
 def settings_module():
-    from .build_config.default_settings import settings_path
-
     return settings_path
 
 
@@ -132,8 +136,6 @@ def monkey_patch_distutils():
     single import from distutils.version that is used by redis.
     """
     if sys.version_info >= (3, 12):
-        from importlib import import_module
-
         module = import_module("kolibri.utils.dummy_distutils_version")
         sys.modules["distutils.version"] = module
 
@@ -145,7 +147,6 @@ def forward_port_cgi_module():
     """
     if sys.version_info < (3, 13):
         return
-    from importlib import import_module
 
     module = import_module("kolibri.utils.compat_cgi")
     sys.modules["cgi"] = module
@@ -160,12 +161,9 @@ def monkey_patch_pkgutil():
     """
     if sys.version_info < (3, 14):
         return
-    import pkgutil
 
     if hasattr(pkgutil, "find_loader"):
         return
-
-    import importlib.util
 
     def find_loader(fullname):
         try:
@@ -189,7 +187,8 @@ def monkey_patch_base_context():
     if sys.version_info < (3, 14):
         return
     try:
-        from django.template.context import BaseContext
+        # Django is importable only after set_env() extends sys.path.
+        from django.template.context import BaseContext  # noqa: PLC0415
     except ImportError:
         return
 
@@ -214,8 +213,6 @@ def set_env():
 
     monkey_patch_markdown()
     monkey_patch_distutils()
-
-    from kolibri import dist as kolibri_dist
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__)), *sys.path]
 

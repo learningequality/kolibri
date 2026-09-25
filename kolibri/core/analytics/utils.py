@@ -134,7 +134,7 @@ def dump_zipped_json(data):
     jsondata = json.dumps(data, sort_keys=True, cls=DjangoJSONEncoder)
     try:
         # perform the import in here as zlib isn't available on some platforms
-        import zlib
+        import zlib  # noqa: PLC0415
 
         jsondata = zlib.compress(jsondata)
     except:  # noqa

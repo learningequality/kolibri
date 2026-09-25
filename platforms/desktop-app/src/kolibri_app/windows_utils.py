@@ -78,7 +78,8 @@ def handle_windows_commands():
     # It is intended to be run with elevated privileges.
     if len(sys.argv) > 1 and sys.argv[1] == "--configure-service":
         if len(sys.argv) < 3 or sys.argv[2] not in ["auto", "disabled"]:
-            print("Usage: --configure-service [auto|disabled]", file=sys.stderr)
+            # A usage error for the command-line caller, not the app log.
+            print("Usage: --configure-service [auto|disabled]", file=sys.stderr)  # noqa: T201
             sys.exit(1)
 
         new_state = sys.argv[2]

@@ -190,7 +190,8 @@ def capture(ctx):
 
     os.makedirs(HAR_FILES_DIR, exist_ok=True)
 
-    from recorder import capture_manual_flow
+    # recorder needs playwright, which only manual capture uses.
+    from recorder import capture_manual_flow  # noqa: PLC0415
 
     info(f"Manual capture mode for Kolibri {kolibri_version}...")
     capture_manual_flow(ctx.obj["server"], har_path)

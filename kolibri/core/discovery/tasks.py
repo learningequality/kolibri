@@ -3,6 +3,7 @@ import functools
 import hashlib
 import logging
 import time
+import traceback
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -60,8 +61,6 @@ def _store_dynamic_instance(broadcast_id, instance):
             pk=instance.zeroconf_id,
         )
     except ValidationError:
-        import traceback
-
         logger.warning(
             """
                 A new Kolibri instance '%s' was seen on the zeroconf network,

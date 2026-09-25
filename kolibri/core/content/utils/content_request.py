@@ -1217,7 +1217,10 @@ def process_content_removal_requests(queryset):
     :type queryset: django.db.models.QuerySet
     """
 
-    from kolibri.core.content.utils.content_delete import delete_content
+    # Cycle: content_delete imports this module.
+    from kolibri.core.content.utils.content_delete import (  # noqa: PLC0415
+        delete_content,
+    )
 
     # exclude admin imported nodes
     removable_nodes = (

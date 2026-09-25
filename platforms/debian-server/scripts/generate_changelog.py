@@ -46,7 +46,8 @@ def debian_version(version):
 
 def kolibri_version():
     """Resolve the workspace Kolibri version (release / local fallback)."""
-    import kolibri
+    # Only the fallback needs kolibri installed.
+    import kolibri  # noqa: PLC0415
 
     return kolibri.__version__
 
