@@ -1,6 +1,4 @@
 import router from 'kolibri/router';
-import { isNavigationFailure, NavigationFailureType } from 'vue-router';
-import logger from 'kolibri-logging';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
 import UserCreateSidePanel from './views/users/sidePanels/UserCreate/index.vue';
@@ -9,22 +7,13 @@ import AssignCoachesSidePanel from './views/users/sidePanels/AssignCoachesSidePa
 import RemoveFromClassSidePanel from './views/users/sidePanels/RemoveFromClassSidePanel';
 import EnrollLearnersSidePanel from './views/users/sidePanels/EnrollLearnersSidePanel';
 
-const logging = logger.getLogger(__filename);
-
 export function facilityParamRequiredGuard(toRoute, subtopicName) {
   const { userIsMultiFacilityAdmin } = useFacilities();
   if (userIsMultiFacilityAdmin.value && !toRoute.params.facility_id) {
-    router
-      .replace({
-        name: 'ALL_FACILITIES_PAGE',
-        params: { subtopicName },
-      })
-      .catch(e => {
-        if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
-          logging.debug(e);
-          throw Error(e);
-        }
-      });
+    router.replace({
+      name: 'ALL_FACILITIES_PAGE',
+      params: { subtopicName },
+    });
     return true;
   }
 }

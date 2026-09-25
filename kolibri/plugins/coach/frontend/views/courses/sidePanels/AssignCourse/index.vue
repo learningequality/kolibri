@@ -22,7 +22,6 @@
 
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed, ref, nextTick } from 'vue';
-  import { isNavigationFailure, NavigationFailureType } from 'vue-router';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -81,23 +80,12 @@
         const name = route.params.courseSessionId
           ? PageNames.COURSE_SUMMARY
           : PageNames.COURSES_ROOT;
-        router
-          .push(
-            overrideRoute(route, {
-              name,
-              query: null,
-            }),
-          )
-          .catch(e => {
-            if (
-              !isNavigationFailure(
-                e,
-                NavigationFailureType.aborted || NavigationFailureType.duplicated,
-              )
-            ) {
-              throw Error(e);
-            }
-          });
+        router.push(
+          overrideRoute(route, {
+            name,
+            query: null,
+          }),
+        );
       };
 
       const onSuccess = async () => {
