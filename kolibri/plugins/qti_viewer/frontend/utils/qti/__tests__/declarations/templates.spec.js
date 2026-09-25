@@ -20,6 +20,9 @@ jest.mock('kolibri-logging', () => ({
   }),
 }));
 
+const LEGACY_RPTEMPLATES = 'http://www.imsglobal.org/question/qti_v3p0/rptemplates';
+const PURL_RPTEMPLATES = 'https://purl.imsglobal.org/spec/qti/v3p0/rptemplates';
+
 /**
  * Build a response-declaration from XML and return its parsed QTIVariable.
  * @param {string} id - The declaration identifier
@@ -57,6 +60,18 @@ describe('resolveTemplate', () => {
       );
       expect(node).not.toBeNull();
       expect(node.tagName.toLowerCase()).toBe('qti-response-processing');
+    });
+
+    it.each([
+      [`${PURL_RPTEMPLATES}/match_correct.xml`, 'match_correct'],
+      [`${PURL_RPTEMPLATES}/match_correct`, 'match_correct'],
+      [`${PURL_RPTEMPLATES}/map_response.xml`, 'map_response'],
+      [`${PURL_RPTEMPLATES}/map_response`, 'map_response'],
+      [`${PURL_RPTEMPLATES}/map_response_point.xml`, 'map_response_point'],
+      [`${PURL_RPTEMPLATES}/map_response_point`, 'map_response_point'],
+    ])('should resolve %s to the legacy %s template', async (uri, name) => {
+      const legacy = await resolveTemplate(`${LEGACY_RPTEMPLATES}/${name}`);
+      expect((await resolveTemplate(uri))?.isEqualNode(legacy)).toBe(true);
     });
 
     it('should return null for unknown URI with no package', async () => {
