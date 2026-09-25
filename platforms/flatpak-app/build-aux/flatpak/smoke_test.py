@@ -16,8 +16,8 @@ requests the app's WebKit view actually makes -- plus an HTTP probe:
   3. In the same run, the GNOME Shell search provider answers a query, which
      exercises the daemon's in-process calls into Kolibri's content API.
   4. Still in that run: the daemon is one process, the desktop user is signed
-     in, and Kolibri comes back after a D-Bus Stop and after the daemon is
-     sent SIGTERM.
+     in, Kolibri is registered on zeroconf, and Kolibri comes back after a
+     D-Bus Stop and after the daemon is sent SIGTERM.
 
 The log is the signal because headless WebKitGTK does not expose web content
 over AT-SPI. A hard SIGALRM timeout guarantees the test can never hang.
@@ -401,6 +401,11 @@ def phase_learn():
         # After search, so a search worker process would already exist.
         "one-process": _daemon_is_one_process(),
         "signed-in": _desktop_user_signed_in(),
+        # ZeroConfPlugin logs this at RUN, which a bus held at START never reaches.
+        "zeroconf-registered": _wait_for(
+            lambda: "Registering ourselves to zeroconf network" in _log_text(),
+            PHASE_WAIT_S,
+        ),
         "stop-restarted": _stop_restarts_kolibri(),
         # Last, because it replaces the daemon.
         "sigterm-restarted": _sigterm_restarts_kolibri(),
