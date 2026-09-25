@@ -6,7 +6,9 @@ import os
 import random
 import uuid
 
+import pytz
 from django.test import TestCase
+from django.utils import timezone
 from le_utils.constants import content_kinds
 
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
@@ -52,8 +54,8 @@ class BaseDeviceSetupMixin:
     n_superusers = 1
     n_users = 20  # 20 users x 1 facility = 20 users
     n_classes = 1  # 1 class x 1 facility = 1 class
-    min_timestamp = datetime.datetime(2018, 10, 11)
-    max_timestamp = datetime.datetime(2019, 10, 11)
+    min_timestamp = datetime.datetime(2018, 10, 11, tzinfo=pytz.utc)
+    max_timestamp = datetime.datetime(2019, 10, 11, tzinfo=pytz.utc)
 
     @classmethod
     def setUpTestData(cls):
@@ -322,6 +324,18 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         actual = extract_facility_statistics(facility)
         assert actual["f"] is None
         assert actual["l"] is None
+
+    def test_first_interaction_ignores_pre_2016_logs_in_any_timezone(self):
+        before_cutoff = datetime.datetime(2015, 12, 31, 12, tzinfo=pytz.utc)
+        UserSessionLog.objects.create(
+            user=self.users[0],
+            start_timestamp=before_cutoff,
+            last_interaction_timestamp=before_cutoff,
+        )
+        # UTC+14: a naive cutoff lands at 2015-12-31 10:00 UTC.
+        with timezone.override(pytz.timezone("Pacific/Kiritimati")):
+            actual = extract_facility_statistics(self.facilities[0])
+        assert actual["f"] == "2018-10-11"
 
 
 class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
