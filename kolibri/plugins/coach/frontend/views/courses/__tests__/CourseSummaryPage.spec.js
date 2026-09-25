@@ -15,8 +15,15 @@ import { RouteSegments, COMPACT_UUID_PATTERN } from '../../../routes/utils';
 import { useCourseSession, useCourseSessionMock } from '../../../composables/useCourseSession';
 /* eslint-enable import-x/named */
 import UnitReportResource from '../../../apiResources/unitReport';
+import { UnitPhase } from '../../../constants/courseConstants';
 
-const { unitsLabel$, learningObjectivesLabel$ } = coursesStrings;
+const {
+  unitsLabel$,
+  learningObjectivesLabel$,
+  unitTitleWithStatus$,
+  preTestInProgress$,
+  postTestResults$,
+} = coursesStrings;
 const { learnersLabel$ } = coreStrings;
 
 const { CLASS, COURSE_SESSION } = RouteSegments;
@@ -70,6 +77,11 @@ const ROUTES = [
         ],
       },
     ],
+  },
+  {
+    name: PageNames.UNIT_DETAIL,
+    path: CLASS + COURSE_SESSION + `/units/:unitContentnodeId(${COMPACT_UUID_PATTERN})`,
+    component: NoRender,
   },
 ];
 
@@ -165,8 +177,9 @@ const STUBS = {
   CoachHeader: { name: 'CoachHeader', template: '<div><slot name="actions" /></div>' },
   LearnerSidePanel: {
     name: 'LearnerSidePanel',
-    props: ['learner', 'prefetchedData'],
-    template: '<div data-testid="learner-side-panel" @click="$emit(\'close\')" />',
+    props: ['learner', 'unitReports'],
+    template:
+      '<div data-testid="learner-side-panel" :data-unit-titles="unitReports.map(u => u.title).join(\'|\')" @click="$emit(\'close\')" />',
   },
   LearningObjectiveSidePanel: {
     name: 'LearningObjectiveSidePanel',
@@ -248,6 +261,99 @@ describe('CourseSummaryPage', () => {
       const { findByTestId } = renderPage('COURSE_SUMMARY_LEARNER', { learnerId: LEARNER_ID });
       const panel = await findByTestId('learner-side-panel');
       expect(panel).toBeInTheDocument();
+    });
+  });
+
+  describe('CourseSummaryPage — learner report unit', () => {
+    const UNIT_C = '9'.repeat(32);
+    const UNITS = [
+      { id: UNIT_A, numberedTitle: 'Unit 1: A' },
+      { id: UNIT_B, numberedTitle: 'Unit 2: B' },
+      { id: UNIT_C, numberedTitle: 'Unit 3: C' },
+    ];
+    const closedPostTest = { status: 'closed', scores: { [LEARNER_ID]: {} } };
+
+    function setup({ activeUnit, reports, unitPhase = null }) {
+      UnitReportResource.fetchReports.mockResolvedValue({
+        course_title: 'Course',
+        learners: [{ id: LEARNER_ID, groupIds: [] }],
+        units: reports,
+      });
+      useCourseSession.mockImplementation(() =>
+        useCourseSessionMock({
+          courseSession: ref(MOCK_COURSE_SESSION),
+          units: ref(UNITS),
+          activeUnit: ref(activeUnit),
+          unitPhase: ref(unitPhase),
+        }),
+      );
+      return renderPage('COURSE_SUMMARY_LEARNER', { learnerId: LEARNER_ID });
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('shows every unit in the panel and the last unit in the table once the course is complete', async () => {
+      const { findByTestId } = setup({
+        activeUnit: null,
+        unitPhase: UnitPhase.COMPLETE,
+        reports: [UNIT_A, UNIT_B, UNIT_C].map(id =>
+          unitFixture({ unit_contentnode_id: id, post_test: closedPostTest }),
+        ),
+      });
+      const labels = ['Unit 1: A', 'Unit 2: B', 'Unit 3: C'].map(title =>
+        unitTitleWithStatus$({ title, status: postTestResults$() }),
+      );
+
+      const panel = await findByTestId('learner-side-panel');
+      expect(panel).toHaveAttribute('data-unit-titles', labels.join('|'));
+      expect(screen.getByText(labels[2])).toBeInTheDocument();
+    });
+
+    it('shows the previous unit while the active unit has no test started', async () => {
+      const { findByTestId } = setup({
+        activeUnit: UNITS[1],
+        reports: [
+          unitFixture({ unit_contentnode_id: UNIT_A, post_test: closedPostTest }),
+          unitFixture({ unit_contentnode_id: UNIT_B }),
+          unitFixture({ unit_contentnode_id: UNIT_C }),
+        ],
+      });
+      const label = unitTitleWithStatus$({ title: 'Unit 1: A', status: postTestResults$() });
+
+      const panel = await findByTestId('learner-side-panel');
+      expect(panel).toHaveAttribute('data-unit-titles', label);
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
+    it('shows the active unit once its test has started, with finished units in the panel', async () => {
+      const { findByTestId } = setup({
+        activeUnit: UNITS[1],
+        reports: [
+          unitFixture({ unit_contentnode_id: UNIT_A, post_test: closedPostTest }),
+          unitFixture({
+            unit_contentnode_id: UNIT_B,
+            pre_test: { status: 'open', scores: {} },
+          }),
+          unitFixture({ unit_contentnode_id: UNIT_C }),
+        ],
+      });
+      const activeLabel = unitTitleWithStatus$({
+        title: 'Unit 2: B',
+        status: preTestInProgress$(),
+      });
+
+      const panel = await findByTestId('learner-side-panel');
+      expect(panel).toHaveAttribute(
+        'data-unit-titles',
+        [
+          unitTitleWithStatus$({ title: 'Unit 1: A', status: postTestResults$() }),
+          activeLabel,
+        ].join('|'),
+      );
+      expect(screen.getByText(UNITS[1].numberedTitle)).toBeInTheDocument();
+      expect(screen.queryByText(activeLabel)).not.toBeInTheDocument();
     });
   });
 

@@ -46,3 +46,17 @@ export function overrideRoute(route, newRoute) {
     },
   };
 }
+
+/**
+ * A learner's per-objective scores on a unit's active test.
+ * @param {object} prefetchedData - A unit's report info: `{ activeTestType, reportData }`.
+ * @param {string} learnerId - The learner to look up.
+ * @returns {object|null} Correct answers keyed by learning objective id, or null if the
+ * learner has no results on the active test.
+ */
+export function learnerTestScores(prefetchedData, learnerId) {
+  const { activeTestType, reportData } = prefetchedData || {};
+  if (!activeTestType) return null;
+  const testKey = activeTestType === 'post' ? 'post_test' : 'pre_test';
+  return reportData?.[testKey]?.scores?.[learnerId] || null;
+}

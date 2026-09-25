@@ -260,6 +260,12 @@
                   </div>
                 </div>
               </div>
+              <p
+                v-if="showLearnersReportUnitTitle"
+                class="learners-report-unit-title"
+              >
+                {{ learnersReportUnitTitle }}
+              </p>
               <LearnersReport
                 :prefetchedData="learnersReportData"
                 :learnerRoute="learnerRoute"
@@ -347,7 +353,7 @@
     </KModal>
     <LearnerSidePanel
       v-if="selectedLearner"
-      :prefetchedData="learnersReportData"
+      :unitReports="learnerPanelUnitReports"
       :learner="selectedLearner"
       @close="closeLearnerPanel"
     />
@@ -891,22 +897,38 @@
         };
       });
 
-      // Flat learner data for the Learners tab: prefer active unit, else first unit with data
-      const learnersReportData = computed(() => {
-        if (activeUnit.value) {
-          const info = unitReportInfo.value[activeUnit.value.id];
-          if (info) return info;
-        }
-        for (const unit of allUnits.value) {
-          const info = unitReportInfo.value[unit.id];
-          if (info && info.activeTestStatus !== 'not_activated') return info;
-        }
-        for (const unit of allUnits.value) {
-          const info = unitReportInfo.value[unit.id];
-          if (info) return info;
-        }
-        return null;
+      const hasResults = unit =>
+        (unitReportInfo.value[unit.id]?.activeTestStatus ?? 'not_activated') !== 'not_activated';
+
+      // the active unit once a test has started, otherwise most recent unit
+      const learnersReportUnit = computed(() => {
+        if (activeUnit.value && hasResults(activeUnit.value)) return activeUnit.value;
+        const lastUnitWithResults = [...allUnits.value].reverse().find(hasResults);
+        return lastUnitWithResults || activeUnit.value || allUnits.value[0] || null;
       });
+
+      const learnersReportData = computed(
+        () => unitReportInfo.value[learnersReportUnit.value?.id] || null,
+      );
+
+      const learnersReportUnitTitle = computed(() =>
+        learnersReportUnit.value ? unitObjectiveTitle(learnersReportUnit.value) : '',
+      );
+
+      // The learner panel reports on every unit with a test started
+      const learnerPanelUnitReports = computed(() =>
+        allUnits.value.filter(hasResults).map(unit => ({
+          id: unit.id,
+          title: unitObjectiveTitle(unit),
+          prefetchedData: unitReportInfo.value[unit.id],
+        })),
+      );
+
+      // The active unit block already names the unit when it is the one shown
+      const showLearnersReportUnitTitle = computed(
+        () =>
+          Boolean(learnersReportUnit.value) && learnersReportUnit.value.id !== activeUnit.value?.id,
+      );
 
       // Derived from route params — supports deep-linking to a learner panel
       const selectedLearner = computed(() => {
@@ -1007,6 +1029,9 @@
         unitReportInfo,
         unitObjectiveTitle,
         learnersReportData,
+        learnersReportUnitTitle,
+        showLearnersReportUnitTitle,
+        learnerPanelUnitReports,
         learnerRoute,
         closeLearnerPanel,
         activeUnitTotalLearners,
@@ -1117,6 +1142,12 @@
   .status-message {
     flex: 1 1 0;
     min-width: 0;
+  }
+
+  .learners-report-unit-title {
+    margin: 16px 0;
+    font-size: 16px;
+    font-weight: bold;
   }
 
   .active-unit-title {
