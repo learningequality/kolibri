@@ -13,6 +13,8 @@ system/windows.py
 etc..
 """
 
+import ctypes
+import errno
 import logging
 import os
 import shutil
@@ -28,8 +30,6 @@ logger = logging.getLogger(__name__)
 
 def _posix_pid_exists(pid):
     """Check whether PID exists in the current process table."""
-    import errno
-
     if pid < 0:
         return False
     try:
@@ -42,8 +42,6 @@ def _posix_pid_exists(pid):
 
 
 def _windows_pid_exists(pid):
-    import ctypes
-
     kernel32 = ctypes.windll.kernel32
     SYNCHRONIZE = 0x100000
 

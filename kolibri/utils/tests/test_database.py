@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import shutil
 import sqlite3
 import tempfile
 import unittest
@@ -17,8 +18,6 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
         self.db_path = os.path.join(self.temp_dir, "test.sqlite3")
 
     def tearDown(self):
-        import shutil
-
         shutil.rmtree(self.temp_dir)
 
     def _create_test_db_with_foreign_key_violations(
@@ -82,7 +81,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
 
         # Test the function directly with our test database as non-default to auto-delete
         with patch(
-            "kolibri.core.deviceadmin.utils.default_backup_folder",
+            "kolibri.utils.database.default_backup_folder",
             return_value=backup_dir,
         ):
             sqlite_check_foreign_keys([self.db_path])
@@ -134,7 +133,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
 
         # Test the function with our test database as the default database (first in list)
         with patch(
-            "kolibri.core.deviceadmin.utils.default_backup_folder",
+            "kolibri.utils.database.default_backup_folder",
             return_value=backup_dir,
         ):
             sqlite_check_foreign_keys([self.db_path])
@@ -205,7 +204,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
 
         # Test the function with additional database as non-default (second in list)
         with patch(
-            "kolibri.core.deviceadmin.utils.default_backup_folder",
+            "kolibri.utils.database.default_backup_folder",
             return_value=backup_dir,
         ):
             sqlite_check_foreign_keys([self.db_path, additional_db_path])
@@ -255,7 +254,7 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
 
         # Test the function with our test database as the default database (first in list)
         with patch(
-            "kolibri.core.deviceadmin.utils.default_backup_folder",
+            "kolibri.utils.database.default_backup_folder",
             return_value=backup_dir,
         ):
             sqlite_check_foreign_keys([self.db_path])

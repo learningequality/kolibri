@@ -3,6 +3,9 @@ from contextlib import closing
 from contextlib import contextmanager
 from ipaddress import ip_address
 
+from kolibri.core.auth.models import Facility
+from kolibri.core.device.utils import device_info_keys
+from kolibri.core.device.utils import DEVICE_INFO_VERSION
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
@@ -43,9 +46,6 @@ def capture_network_state(network_location, client):
     :param client: The NetworkClient which successfully connected to the location
     :type client: NetworkClient
     """
-    from kolibri.core.device.utils import device_info_keys
-    from kolibri.core.device.utils import DEVICE_INFO_VERSION
-
     # having validated the base URL, we can save that
     network_location.base_url = client.base_url
     # save the IP address for static locations
@@ -110,8 +110,6 @@ def update_network_location(network_location):
     :param network_location: The network location modal
     :type network_location: kolibri.core.discovery.models.NetworkLocation
     """
-    from kolibri.core.auth.models import Facility
-
     prior_status = network_location.connection_status
 
     with capture_connection_state(network_location):

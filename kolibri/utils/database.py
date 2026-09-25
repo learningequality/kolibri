@@ -3,6 +3,7 @@ import logging
 import os
 import sqlite3
 
+from kolibri.core.deviceadmin.utils import default_backup_folder
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -57,8 +58,6 @@ def _collect_and_delete_violating_records(cursor, violations_by_table):
 
 
 def _backup_records(records_to_backup, db_name):
-    from kolibri.core.deviceadmin.utils import default_backup_folder
-
     backup_dir = default_backup_folder()
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)

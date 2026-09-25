@@ -5,13 +5,12 @@ from django.test import TestCase
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_database_file_url
 from kolibri.core.content.utils.paths import get_zip_content_config
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
 
 class LocalFilePathsTest(TestCase):
     def test_file_url_reversal(self):
-        from kolibri.utils.conf import OPTIONS
-
         path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 
         if path_prefix != "/":

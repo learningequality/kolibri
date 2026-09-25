@@ -18,6 +18,7 @@ import tempfile
 
 import pytest
 
+import kolibri.plugins
 from kolibri.core.content.hooks import ContentViewerHook
 from kolibri.core.content.hooks import SandboxedContentViewerHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
@@ -109,14 +110,12 @@ def _assert_surface_plugin(module, surface):
 @pytest.fixture
 def plugins():
     """Temp plugin config, mirroring the fixture in test_cli.py."""
-    from kolibri import plugins
-
     _, config_file = tempfile.mkstemp(suffix="json")
-    old_config_file = plugins.conf_file
-    plugins.conf_file = config_file
-    plugins.config.set_defaults()
-    yield plugins
-    plugins.conf_file = old_config_file
+    old_config_file = kolibri.plugins.conf_file
+    kolibri.plugins.conf_file = config_file
+    kolibri.plugins.config.set_defaults()
+    yield kolibri.plugins
+    kolibri.plugins.conf_file = old_config_file
 
 
 # ---------------------------------------------------------------------------

@@ -3,6 +3,7 @@ Task reconciliation system for Android
 Syncs WorkManager state with Kolibri job database
 """
 
+import fcntl
 import logging
 import os
 
@@ -210,8 +211,6 @@ def reconcile_tasks():
     Returns:
         tuple: (added_count, cancelled_count) - reconciliation summary
     """
-    import fcntl
-
     lock_file_path = _get_lock_file_path()
     lock_fd = None
 

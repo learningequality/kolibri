@@ -9,9 +9,12 @@ from unittest.mock import patch
 
 import pytest
 
+import kolibri.plugins
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.utils import cli
+from kolibri.utils import conf
 from kolibri.utils import options
+from kolibri.utils import server
 
 logger = logging.getLogger(__name__)
 
@@ -44,14 +47,12 @@ def activate_log_logger(monkeypatch):
 
 @pytest.fixture
 def plugins():
-    from kolibri import plugins
-
     _, config_file = tempfile.mkstemp(suffix="json")
-    old_config_file = plugins.conf_file
-    plugins.conf_file = config_file
-    plugins.config.set_defaults()
-    yield plugins
-    plugins.conf_file = old_config_file
+    old_config_file = kolibri.plugins.conf_file
+    kolibri.plugins.conf_file = config_file
+    kolibri.plugins.config.set_defaults()
+    yield kolibri.plugins
+    kolibri.plugins.conf_file = old_config_file
 
 
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)
@@ -154,7 +155,6 @@ def test_kolibri_listen_port_env(monkeypatch):
     with patch("django.core.management.call_command"), patch(
         "kolibri.utils.server.start"
     ) as start:
-        from kolibri.utils import server
 
         def start_mock(port, *args, **kwargs):
             assert port == test_port
@@ -173,8 +173,6 @@ def test_kolibri_listen_port_env(monkeypatch):
         os.environ["KOLIBRI_HTTP_PORT"] = str(test_port)
 
         # force a reload of plugins.OPTIONS so the environment variable will be read in
-        from kolibri.utils import conf
-
         conf.OPTIONS.update(options.read_options_file())
 
         cli.start.callback(test_port, test_zip_port, False)

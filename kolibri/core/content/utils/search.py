@@ -1,9 +1,6 @@
-"""
-Avoiding direct model imports in here so that we can import these functions into places
-that should not initiate the Django app registry.
-"""
-
 import hashlib
+
+from kolibri.core.device.models import ContentCacheKey
 
 try:
     from django.contrib.postgres.aggregates import BitOr
@@ -106,8 +103,6 @@ class SQLiteBitwiseORAggregate(Aggregate):
 def get_available_metadata_labels(  # noqa: C901
     base_queryset, use_deprecated_channels_labels=False
 ):
-    from kolibri.core.device.models import ContentCacheKey
-
     content_cache_key = ContentCacheKey.get_cache_key()
     try:
         cache_key = "search-labels:{}:{}:{}".format(

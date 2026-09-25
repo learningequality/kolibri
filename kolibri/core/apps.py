@@ -3,6 +3,8 @@ import os
 
 from django.apps import AppConfig
 from django.conf import settings
+from django.core.files.storage import default_storage
+from django.db import connections
 from django.db.backends.signals import connection_created
 from django_filters.filters import UUIDFilter
 from django_filters.rest_framework.filterset import FilterSet
@@ -77,8 +79,6 @@ class KolibriCoreConfig(AppConfig):
         and not on a per connection basis.
         :return:
         """
-        from django.db import connections
-
         for connection in connections.all():
             if connection.vendor == "sqlite":
                 cursor = connection.cursor()
@@ -99,9 +99,6 @@ class KolibriCoreConfig(AppConfig):
         # TODO This should be a bonus sanity check
         # Options per https://django-storages.readthedocs.io/en/latest/backends/gcloud.html
         if OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
-            # Actually imoprt default_storage and run listdir
-            from django.core.files.storage import default_storage
-
             default_storage.get_available_name("kolibri")
 
     @staticmethod

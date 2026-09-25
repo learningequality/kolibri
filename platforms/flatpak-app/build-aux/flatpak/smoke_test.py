@@ -29,6 +29,7 @@ import getpass
 import json
 import os
 import re
+import shutil
 import signal
 import socket
 import sqlite3
@@ -104,7 +105,6 @@ def _reset_kolibri_home():
         raise SystemExit(
             f"Refusing to delete {KOLIBRI_HOME}. Set SMOKE_ALLOW_WIPE=1 to confirm."
         )
-    import shutil
 
     shutil.rmtree(KOLIBRI_HOME, ignore_errors=True)
 

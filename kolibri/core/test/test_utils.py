@@ -1,4 +1,5 @@
 import unittest
+from sqlite3 import OperationalError
 from unittest import mock
 
 from django.conf import settings
@@ -61,8 +62,6 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         "Postgresql only test",
     )
     def test_retry_on_db_lock__no_handling_unless_sqlite(self):
-        from sqlite3 import OperationalError
-
         func = mock.MagicMock()
         func.__name__ = "test_func"
         func.side_effect = [OperationalError("database is locked"), True]
@@ -82,8 +81,6 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         "SQLite only test",
     )
     def test_retry_on_db_lock__retry(self):
-        from sqlite3 import OperationalError
-
         func = mock.MagicMock()
         func.__name__ = "test_func"
         func.side_effect = [OperationalError("database is locked"), True]
@@ -96,8 +93,6 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         "SQLite only test",
     )
     def test_retry_on_db_lock__retry__maximum_attempts(self):
-        from sqlite3 import OperationalError
-
         func = mock.MagicMock()
         func.__name__ = "test_func"
         func.side_effect = [OperationalError("database is locked")] * 6

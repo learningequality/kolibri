@@ -4,6 +4,7 @@ storage, exercising the ownership fence the unit tests can't reach (see
 task_identity for why normalization is load-bearing).
 """
 
+import taskworker
 from django.test import TestCase
 from task_identity import supervisor_id_from_request
 
@@ -27,8 +28,6 @@ class TaskWorkerLifecycleTest(TestCase):
     databases = "__all__"
 
     def test_execute_via_request_id_reaches_completed(self):
-        import taskworker
-
         job = Job(_observe_ownership_task)
         job_id = job_storage.enqueue_job(job)
         _observed.clear()

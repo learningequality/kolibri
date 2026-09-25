@@ -9,6 +9,8 @@ import click
 from django.core.management import execute_from_command_line
 
 import kolibri
+from kolibri.utils.env import ENVIRONMENT_VARIABLES
+from kolibri.utils.options import option_spec
 
 try:
     from kolibri.plugins import config
@@ -604,12 +606,8 @@ def _get_env_vars():
     """
     Generator to iterate over all environment variables
     """
-    from kolibri.utils.env import ENVIRONMENT_VARIABLES
-
     for key, value in ENVIRONMENT_VARIABLES.items():
         yield _format_env_var(key, value)
-
-    from kolibri.utils.options import option_spec
 
     for value in option_spec.values():
         for v in value.values():

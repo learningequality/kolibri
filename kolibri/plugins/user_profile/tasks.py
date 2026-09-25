@@ -7,9 +7,11 @@ from kolibri.core import error_constants
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.middleware import clear_user_cache_on_delete
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.auth.utils.migrate import merge_users
+from kolibri.core.device import soud
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.models import ConnectionStatus
@@ -105,9 +107,6 @@ def status_fn(job):
 
 
 def start_soud_sync(user_id):
-    from kolibri.core.auth.tasks import enqueue_soud_sync_processing
-    from kolibri.core.device import soud
-
     # This user would not previously have been included in any syncs
     # triggered by a device appearing on the network, so request syncs for them now
     instance_ids = NetworkLocation.objects.filter(

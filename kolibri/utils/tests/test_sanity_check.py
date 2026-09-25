@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.db.utils import OperationalError
 from django.test import TestCase
+from morango.models import InstanceIDModel
 
 from kolibri.utils import sanity_checks
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
@@ -46,8 +47,6 @@ class SanityCheckTestCase(TestCase):
         self.assertEqual(move_mock.call_count, 2)
 
     def test_check_database_is_migrated(self):
-        from morango.models import InstanceIDModel
-
         with patch.object(
             InstanceIDModel, "get_or_create_current_instance"
         ) as get_or_create_current_instance:

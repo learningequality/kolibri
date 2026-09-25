@@ -2,6 +2,7 @@
 Playwright-based flow recording utilities.
 """
 
+import json
 import subprocess
 
 from logger import info
@@ -94,8 +95,6 @@ def _strip_har_responses(har_path):
     Args:
         har_path: Path to HAR file to strip
     """
-    import json
-
     with open(har_path) as f:
         har = json.load(f)
 

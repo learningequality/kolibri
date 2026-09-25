@@ -8,6 +8,7 @@ from kolibri.core.content.test.utils.test_content_request import (
     BaseIncompleteDownloadsQuerysetTestCase,
 )
 from kolibri.core.device.models import DeviceStatus
+from kolibri.core.device.models import LearnerDeviceStatus
 
 
 class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
@@ -16,15 +17,10 @@ class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
         self.operation = KolibriSyncOperations()
         self.context = mock.Mock(spec_set=SessionContext)()
 
-    @mock.patch("kolibri.core.device.models.LearnerDeviceStatus.save_learner_status")
     @mock.patch("kolibri.core.content.utils.content_request.StorageCalculator")
-    def test_post_transfer_sets_insufficient_storage(
-        self,
-        mock_calc,
-        mock_save_learner_status,
-    ):
+    def test_post_transfer_sets_insufficient_storage(self, mock_calc):
         with mock.patch(
-            "kolibri.core.content.utils.settings.automatic_download_enabled",
+            "kolibri.core.content.kolibri_plugin.automatic_download_enabled",
             return_value=True,
         ):
             with mock.patch(
@@ -40,6 +36,8 @@ class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
                     self.learner.id,
                     self.context,
                 )
-                mock_save_learner_status.assert_called_with(
-                    self.learner.id, DeviceStatus.InsufficientStorage
+                status = LearnerDeviceStatus.objects.get(user_id=self.learner.id)
+                self.assertEqual(
+                    (status.status, status.status_sentiment),
+                    DeviceStatus.InsufficientStorage,
                 )

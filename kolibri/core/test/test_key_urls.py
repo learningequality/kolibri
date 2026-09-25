@@ -5,6 +5,7 @@ import requests
 from django.conf import settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.translation import LANGUAGE_SESSION_KEY
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import clear_process_cache
@@ -304,8 +305,6 @@ class LogoutLanguagePersistenceTest(APITestCase):
 
     def test_persistent_session_language_setting_on_logout(self):
         # Test when set on a session.
-        from django.utils.translation import LANGUAGE_SESSION_KEY
-
         self.client.login(**self.credentials)
         session = self.client.session
         test_lang = settings.LANGUAGES[-1][0]

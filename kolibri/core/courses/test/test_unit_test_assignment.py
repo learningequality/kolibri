@@ -7,6 +7,7 @@ from django.db.utils import IntegrityError
 from django.test import SimpleTestCase
 from django.test import TestCase
 from morango.models import Filter
+from morango.models.core import SyncableModel
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -22,8 +23,6 @@ DUMMY_PASSWORD = "password"
 
 
 def _patch_base_deserialize_passthrough():
-    from morango.models.core import SyncableModel
-
     def _passthrough(*args, **kwargs):
         return args[0] if len(args) == 1 else args[1]
 

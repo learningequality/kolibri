@@ -1,20 +1,18 @@
 from rest_framework.permissions import BasePermission
 
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.device.models import device_permissions_fields
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import valid_app_key_on_request
 
 
 class NotProvisionedCanPost(BasePermission):
     def has_permission(self, request, view):
-        from .utils import device_provisioned
-
         return not device_provisioned() and request.method == "POST"
 
 
 class NotProvisionedHasPermission(BasePermission):
     def has_permission(self, request, view):
-        from .utils import device_provisioned
-
         if device_provisioned():
             return False
         return (
@@ -26,8 +24,6 @@ class NotProvisionedHasPermission(BasePermission):
 
 class UserHasAnyDevicePermissions(DenyAll):
     def has_permission(self, request, view):
-        from .models import device_permissions_fields
-
         return any(getattr(request.user, field) for field in device_permissions_fields)
 
     def has_object_permission(self, request, view, obj):

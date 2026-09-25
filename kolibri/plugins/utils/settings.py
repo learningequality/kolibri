@@ -3,6 +3,7 @@ import warnings
 from types import ModuleType
 
 from django.apps import AppConfig
+from django.conf import settings
 
 from kolibri.plugins.registry import registered_plugins
 from kolibri.plugins.utils import is_external_plugin
@@ -111,8 +112,6 @@ def _apply_base_settings(plugin_instance, settings_module):
 
 
 def apply_settings(settings_module):
-    from django.conf import settings
-
     if settings.configured:
         raise RuntimeError(
             "Attempted to apply settings from plugins after Django settings have been configured"

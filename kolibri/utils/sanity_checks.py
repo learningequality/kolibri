@@ -4,6 +4,7 @@ import shutil
 import sys
 
 from django.apps import apps
+from django.db import connection
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
 
@@ -100,7 +101,6 @@ def check_database_is_migrated():
     Kolibri version change is detected, we run migrations. Checking that
     migrations are run for every startup would be costly.
     """
-    from django.db import connection
     from morango.models import InstanceIDModel
 
     try:

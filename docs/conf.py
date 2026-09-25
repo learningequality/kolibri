@@ -8,6 +8,7 @@ import sys
 import time
 
 import django
+from django.db import models
 from django.utils.encoding import force_text
 from django.utils.html import strip_tags
 
@@ -47,9 +48,6 @@ files.FileDescriptor.__get__ = lambda *args: None
 
 # Auto list fields from django models - from https://djangosnippets.org/snippets/2533/#c5977
 def process_docstring(app, what, name, obj, options, lines):
-    # This causes import errors if left outside the function
-    from django.db import models
-
     # Only look at objects that inherit from Django's base model class
     if inspect.isclass(obj) and issubclass(obj, models.Model):
         # Grab the field list from the meta class

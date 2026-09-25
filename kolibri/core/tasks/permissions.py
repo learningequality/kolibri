@@ -2,6 +2,8 @@ from abc import ABCMeta
 from abc import abstractmethod
 
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
+from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import get_device_unusable_reason
 
 
 class BasePermission(metaclass=ABCMeta):
@@ -171,20 +173,14 @@ class IsAdminForJob(PermissionsFromAny):
 
 class NotProvisioned(BasePermission):
     def user_can_run_job(self, user, job):
-        from kolibri.core.device.utils import device_provisioned
-
         return not device_provisioned()
 
     def user_can_read_job(self, user, job):
-        from kolibri.core.device.utils import device_provisioned
-
         return not device_provisioned()
 
 
 class FirstProvisioning(BasePermission):
     def user_can_run_job(self, user, job):
-        from kolibri.core.device.utils import device_provisioned
-
         return not device_provisioned()
 
     def user_can_read_job(self, user, job):
@@ -193,8 +189,6 @@ class FirstProvisioning(BasePermission):
 
 class IsDeviceUnusable(BasePermission):
     def user_can_run_job(self, user, job):
-        from kolibri.core.device.utils import get_device_unusable_reason
-
         return get_device_unusable_reason() is not None
 
     def user_can_read_job(self, user, job):

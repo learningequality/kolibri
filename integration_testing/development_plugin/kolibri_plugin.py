@@ -7,9 +7,12 @@ from magicbus.plugins.tasks import Autoreloader
 from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.device.hooks import GetOSUserHook
+from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.tasks.hooks import JobHook
+from kolibri.core.tasks.job import log_status
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils import conf
 from kolibri.utils.server.hooks import KolibriProcessHook
 
 logger = logging.getLogger(__name__)
@@ -43,8 +46,6 @@ class ExampleAppJobHook(JobHook):
         logger.debug("Scheduling job %s with ORM job %s", job, orm_job)
 
     def update(self, job, orm_job, state=None, **kwargs):
-        from kolibri.core.tasks.job import log_status
-
         log_status(job, orm_job, state=state, **kwargs)
 
     def clear(self, job, orm_job):
@@ -56,8 +57,6 @@ class AppUrlLoggerPlugin(SimplePlugin):
         self.port = port
 
     def RUN(self):
-        from kolibri.core.device.utils import app_initialize_url
-
         start_url = f"http://127.0.0.1:{self.port}" + app_initialize_url(
             auth_token="1234"
         )
@@ -73,7 +72,6 @@ class DeveloperAppUrlLogger(KolibriProcessHook):
 class KolibriAutoReloader(Autoreloader):
     def __init__(self, bus):
         super().__init__(bus)
-        from kolibri.utils import conf
 
         plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
         options = os.path.join(conf.KOLIBRI_HOME, "options.ini")

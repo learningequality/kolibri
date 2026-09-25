@@ -9,7 +9,7 @@ from kolibri.plugins.utils.settings import apply_settings
 
 @pytest.fixture
 def django_settings():
-    with patch("django.conf.settings") as settings_mock:
+    with patch("kolibri.plugins.utils.settings.settings") as settings_mock:
         settings_mock.configured = False
         yield settings_mock
 

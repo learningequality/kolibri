@@ -26,6 +26,7 @@ from kolibri.core.tasks.permissions import IsDeviceUnusable
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.token_generator import TokenGenerator
+from kolibri.utils.server import update_zeroconf_broadcast
 
 logger = logging.getLogger(__name__)
 
@@ -229,8 +230,6 @@ def provisiondevice(**data):  # noqa C901
         if is_soud:
             provision_single_user_device(superuser, **provisioning_data)
             # Restart zeroconf before moving along when we're a SoUD
-            from kolibri.utils.server import update_zeroconf_broadcast
-
             update_zeroconf_broadcast()
         else:
             provision_device(**provisioning_data)

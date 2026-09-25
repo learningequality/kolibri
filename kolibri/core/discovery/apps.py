@@ -1,10 +1,9 @@
 from django.apps import AppConfig
+from django.db import router
 from django.db.models.signals import post_migrate
 
 
 def _seed_reserved_locations(sender, **kwargs):
-    from django.db import router
-
     from kolibri.core.discovery.models import NetworkLocation
 
     using = kwargs.get("using", "default")

@@ -10,8 +10,13 @@ from unittest.mock import patch
 import pytest
 from django.conf import settings
 from django.db.utils import OperationalError
+from morango.models import InstanceIDModel
 
 import kolibri
+from kolibri import plugins
+from kolibri.core.deviceadmin.utils import dbbackup
+from kolibri.core.deviceadmin.utils import default_backup_folder
+from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.utils import main
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.version import truncate_version
@@ -24,7 +29,7 @@ from kolibri.utils.version import truncate_version
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="")
 @patch("kolibri.utils.main.update")
-@patch("kolibri.core.deviceadmin.utils.dbbackup")
+@patch("kolibri.utils.main.dbbackup")
 def test_first_run(
     dbbackup, update, get_version, upgrades_after_django_setup, is_initialized
 ):
@@ -37,8 +42,6 @@ def test_first_run(
     dbbackup.assert_not_called()
 
     # Check that it got called for each default plugin
-    from kolibri import plugins
-
     assert set(plugins.config["INSTALLED_PLUGINS"]) == set(plugins.DEFAULT_PLUGINS)
 
 
@@ -91,22 +94,15 @@ def test_version_updated():
     "SQLite only test",
 )
 def test_conditional_backup():
-    import os
-
     """
     Tests our db backup logic: conditional_backup, remove all backups
     """
-    from kolibri.core.deviceadmin.utils import default_backup_folder
-
     default_path = default_backup_folder()
     try:
         os.rmdir(default_path)
     except OSError:
         pass
     os.mkdir(default_path)
-
-    from kolibri.core.deviceadmin.utils import dbbackup
-    from kolibri.core.deviceadmin.utils import get_backup_files
 
     # Making few backups
     dbbackup("0.11.0")
@@ -140,7 +136,7 @@ def test_conditional_backup():
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value=kolibri.__version__)
 @patch("kolibri.utils.main.update")
-@patch("kolibri.core.deviceadmin.utils.dbbackup")
+@patch("kolibri.utils.main.dbbackup")
 def test_update_no_version_change(
     dbbackup, update, get_version, upgrades_after_django_setup, is_initialized
 ):
@@ -191,7 +187,6 @@ def test_migrate_if_unmigrated(
 ):
     # No matter what, ensure that version_updated returns False
     version_updated.return_value = False
-    from morango.models import InstanceIDModel
 
     with patch.object(
         InstanceIDModel, "get_or_create_current_instance"

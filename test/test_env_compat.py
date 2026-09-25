@@ -2,6 +2,7 @@ import pkgutil
 from copy import copy
 
 import pytest
+from django.template.context import BaseContext
 
 from kolibri.utils.env import forward_port_cgi_module
 from kolibri.utils.env import monkey_patch_base_context
@@ -21,8 +22,6 @@ def test_base_context_copy_works_after_monkey_patch():
     On Python 3.14+, the original Django 3.2 implementation fails because
     super() objects no longer support __dict__ attribute setting.
     """
-    from django.template.context import BaseContext
-
     ctx = BaseContext({"foo": "bar"})
     ctx_copy = copy(ctx)
     assert ctx_copy.dicts == ctx.dicts
@@ -34,8 +33,6 @@ def test_base_context_copy_preserves_dict_attributes_after_monkey_patch():
     Verify that __dict__ attributes (like RequestContext.request) survive copy
     after monkey-patching.
     """
-    from django.template.context import BaseContext
-
     ctx = BaseContext({"foo": "bar"})
     sentinel = object()
     ctx.custom_attr = sentinel

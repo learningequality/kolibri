@@ -4,7 +4,10 @@ import shutil
 import socket
 
 import pytest
+from morango.models.fields.crypto import Key
+from morango.models.fields.crypto import PythonRSAKey
 
+from kolibri.core.device.models import clear_device_settings_memo
 from kolibri.core.utils.cache import process_cache
 
 # referenced in pytest.ini
@@ -83,9 +86,6 @@ def _use_small_test_keys():
     # DER header (PKCS8_HEADER), so a smaller key fails to deserialize. That
     # backend (and M2Crypto) generates keys in milliseconds anyway, so there
     # is nothing to gain - only patch the slow pure-Python path.
-    from morango.models.fields.crypto import Key
-    from morango.models.fields.crypto import PythonRSAKey
-
     if Key is not PythonRSAKey:
         return
 
@@ -107,8 +107,6 @@ def pytest_configure(config):
 def clear_process_cache():
     process_cache.clear()
     # Reset the in-process memo too, so a value cached in one test can't leak.
-    from kolibri.core.device.models import clear_device_settings_memo
-
     clear_device_settings_memo()
 
 

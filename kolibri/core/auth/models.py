@@ -52,6 +52,7 @@ from kolibri.core.auth.constants.demographics import FacilityUserDemographicVali
 from kolibri.core.auth.constants.demographics import LabelTranslationValidator
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.demographics import UniqueIdsValidator
+from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.utils import device_provisioned
@@ -310,8 +311,6 @@ class FacilityDataset(FacilityDataSyncableModel):
         ).exclude(_private_key=None)
 
     def reset_to_default_settings(self, preset=None):
-        from kolibri.core.auth.constants.facility_presets import mappings
-
         # use the current preset if it is not passed in
         dataset_data = mappings[preset or self.preset]
         for key, value in dataset_data.items():

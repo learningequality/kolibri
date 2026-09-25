@@ -12,6 +12,7 @@ from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.device.models import DeviceAppKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.tasks import DeviceProvisionValidator
@@ -59,8 +60,6 @@ class DeviceProvisionTestCase(TestCase):
     def _post_deviceprovision(self, data, auth_token=None):
         request = None
         if auth_token:
-            from kolibri.core.device.models import DeviceAppKey
-
             app_key = DeviceAppKey.get_app_key()
 
             request = type("Request", (object,), {"COOKIES": {}})()
