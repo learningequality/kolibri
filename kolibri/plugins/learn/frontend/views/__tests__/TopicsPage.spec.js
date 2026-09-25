@@ -23,6 +23,7 @@ import Modalities from 'kolibri-constants/Modalities';
 import makeStore from '../../__tests__/utils/makeStore';
 import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../constants';
+import TopicsMobileHeader from '../TopicsPage/TopicsMobileHeader';
 import TopicsPage from '../TopicsPage';
 
 jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
@@ -259,6 +260,14 @@ describe('TopicsPage', () => {
     expect(smallScreenWrapper.find("[data-testid='mobile-title']").element).toHaveTextContent(
       DEFAULT_TOPIC.title,
     );
+  });
+
+  it('renders the mobile header while the topic is loading', () => {
+    const wrapper = shallowMount(TopicsMobileHeader, {
+      propsData: { topic: null },
+      mocks: { $themeTokens: { surface: '#fff' } },
+    });
+    expect(wrapper.find("[data-testid='mobile-header']").exists()).toBe(true);
   });
 
   describe('showing cards', () => {
