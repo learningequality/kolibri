@@ -8,6 +8,7 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.utils.csv import open_csv_for_reading
 
+from ..utils import bulk_export as b
 from .helpers import create_dummy_facility_data
 
 CLASSROOMS = 2
@@ -24,7 +25,7 @@ class UserExportTestCase(TestCase):
         _, cls.filepath = tempfile.mkstemp(suffix=".csv")
 
         cls.csv_rows = []
-        for row in cls.b.csv_file_generator(cls.facility, local_filepath=cls.filepath):
+        for row in b.csv_file_generator(cls.facility, local_filepath=cls.filepath):
             cls.csv_rows.append(row)
 
     def test_not_specified(self):
@@ -34,13 +35,13 @@ class UserExportTestCase(TestCase):
             "birth_year": "1969",
             "gender": NOT_SPECIFIED,
         }
-        assert self.b.not_specified("gender", row) is None
-        assert self.b.not_specified("username", row) == "Bob"
-        assert self.b.not_specified("password", row) is None
+        assert b.not_specified("gender", row) is None
+        assert b.not_specified("username", row) == "Bob"
+        assert b.not_specified("password", row) is None
 
     def test_kind_of_roles(self):
-        assert self.b.kind_of_roles("kind", {"kind": None}) == "LEARNER"
-        assert self.b.kind_of_roles("kind", {"kind": "coACh"}) == "FACILITY_COACH"
+        assert b.kind_of_roles("kind", {"kind": None}) == "LEARNER"
+        assert b.kind_of_roles("kind", {"kind": "coACh"}) == "FACILITY_COACH"
 
     def test_map_output(self):
         row = {
@@ -54,7 +55,7 @@ class UserExportTestCase(TestCase):
             "assigned": None,
             "enrolled": None,
         }
-        mapped_obj = self.b.map_output(row)
+        mapped_obj = b.map_output(row)
         assert mapped_obj == {
             "Username (USERNAME)": "Bob",
             "Password (PASSWORD)": None,
@@ -122,14 +123,14 @@ class UserExportTestCase(TestCase):
     def test_csv_file(self):
         results = self.get_data_from_csv_file()
         for i, row in enumerate(results):
-            assert row[self.b.labels["username"]] == self.csv_rows[i]["username"]
+            assert row[b.labels["username"]] == self.csv_rows[i]["username"]
 
     def test_coach_names_in_csv_file(self):
         results = self.get_data_from_csv_file()
         coach = self.data["facility_coach"].username
         assignable_coaches = [u.username for u in self.data["classroom_coaches"]]
         for row in results:
-            if row[self.b.labels["username"]] == coach:
-                assert row[self.b.labels["kind"]] == "FACILITY_COACH"
-            elif row[self.b.labels["username"]] in assignable_coaches:
-                assert row[self.b.labels["kind"]] == "CLASS_COACH"
+            if row[b.labels["username"]] == coach:
+                assert row[b.labels["kind"]] == "FACILITY_COACH"
+            elif row[b.labels["username"]] in assignable_coaches:
+                assert row[b.labels["kind"]] == "CLASS_COACH"
