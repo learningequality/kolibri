@@ -56,34 +56,50 @@
         </template>
       </div>
 
-      <!-- Submit button: shows only a forward-arrow icon; the aria-label
-          cycles through four instructional states as the sequence is built. -->
-      <button
-        type="submit"
-        class="submit-button"
-        :class="[
-          $computedClass({
-            ':hover': submitEnabled
-              ? {
-                backgroundColor: $themeTokens.primaryDark,
-              }
-              : {},
-          }),
-          { pulsing: submitPulsing },
-          { bouncing: arrowBouncing },
-        ]"
-        data-testid="submit-button"
-        :aria-disabled="!submitEnabled ? 'true' : undefined"
-        :aria-label="submitButtonAriaLabel"
-        :style="submitButtonStyle"
-      >
-        <KIcon
-          data-testid="submit-icon"
-          class="submit-icon"
-          icon="forward"
-          :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
-        />
-      </button>
+      <div class="submit-container">
+        <!-- Submit button: shows only a forward-arrow icon; the aria-label
+        cycles through four instructional states as the sequence is built. -->
+        <!-- Decorative burst GIF, overlaid on the submit button on success.
+        Burst-V2.gif carries no loop metadata, so it plays through once and stops;
+        unmounting it when burstVisible goes false clears the spent final frame.
+        See burstSrc below for why each play needs a URL of its own. -->
+        <img
+          v-if="burstVisible"
+          :src="burstSrc"
+          class="submit-burst"
+          data-testid="submit-burst"
+          alt=""
+          aria-hidden="true"
+          width="120"
+          height="120"
+        >
+        <button
+          type="submit"
+          class="submit-button"
+          :class="[
+            $computedClass({
+              ':hover': submitEnabled
+                ? {
+                  backgroundColor: $themeTokens.primaryDark,
+                }
+                : {},
+            }),
+            { pulsing: submitPulsing },
+            { bouncing: arrowBouncing },
+          ]"
+          data-testid="submit-button"
+          :aria-disabled="!submitEnabled ? 'true' : undefined"
+          :aria-label="submitButtonAriaLabel"
+          :style="submitButtonStyle"
+        >
+          <KIcon
+            data-testid="submit-icon"
+            class="submit-icon"
+            icon="forward"
+            :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
+          />
+        </button>
+      </div>
     </div>
   </form>
 
@@ -100,6 +116,7 @@
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import PicturePasswordOption from './PicturePasswordOption';
+  import burstGif from './animations/Burst-V2.gif';
 
   // Pre-compute once at module scope — PICTURE_PASSWORD_SET is static JSON so
   // there is no benefit to re-deriving this array on every component mount.
@@ -286,34 +303,71 @@
       );
 
       const arrowBouncing = ref(false);
+      const burstVisible = ref(false);
+
+      // Browsers cache a GIF's decoded frames *and* its animation state against the
+      // URL. Burst-V2.gif has no loop metadata, so once it has played through it is
+      // parked on its final, empty frame -- re-mounting the <img> for a second
+      // successful sign-in resolves to that spent image and nothing appears. Giving
+      // every play its own URL forces a fresh decode from frame 0, so the counter is
+      // load-bearing rather than diagnostic.
+      //
+      // This depends on the GIF being emitted as a separate file rather than inlined:
+      // webpack inlines assets under 10000 bytes as base64 data URIs (see
+      // packages/kolibri-build/src/webpack.config.base.js) and a query string appended
+      // to a data URI would corrupt it. Burst-V2.gif is 10503 bytes, which clears that
+      // threshold -- keep it above 10000 if the asset is ever re-exported.
+      const burstPlays = ref(0);
+      const burstSrc = computed(() => `${burstGif}?play=${burstPlays.value}`);
 
       /**
        * Plays the success animation bouncing each selected icon in sequence,
        * then the submit arrow. Returns a Promise that resolves when complete.
+       * @returns {Promise<void>} Resolves when all animations have completed.
        * @public
        */
       const playSuccessAnimation = () => {
         const STAGGER = 150;
-        const DURATION = 380;
+        const ICON_BOUNCE_DURATION = 380;
+        // Matches the full run of Burst-V2.gif (29 frames, 960ms); unmounting the
+        // <img> at this point removes it as it reaches its final frame.
+        const BURST_DURATION = 960;
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const stagger = reduce ? 0 : STAGGER;
-        const dur = reduce ? 0 : DURATION;
+        const iconDuration = reduce ? 0 : ICON_BOUNCE_DURATION;
+        const burstDuration = reduce ? 0 : BURST_DURATION;
+        const iconCount = sequence.value.length;
+
+        if (!iconCount) {
+          return Promise.resolve();
+        }
 
         return new Promise(resolve => {
-          for (let i = 0; i < sequence.value.length; i++) {
+          for (let i = 0; i < iconCount; i++) {
             const id = sequence.value[i];
-            const isLast = i === sequence.value.length - 1;
+            const isLast = i === iconCount - 1;
             window.setTimeout(() => {
               bouncingId.value = id;
-              if (isLast) arrowBouncing.value = true;
+              if (isLast) {
+                arrowBouncing.value = true;
+                if (!reduce) {
+                  burstPlays.value++;
+                  burstVisible.value = true;
+                  window.setTimeout(() => {
+                    burstVisible.value = false;
+                  }, burstDuration);
+                }
+              }
               window.setTimeout(() => {
                 if (bouncingId.value === id) bouncingId.value = null;
                 if (isLast) arrowBouncing.value = false;
-              }, dur);
+              }, iconDuration);
             }, i * stagger);
           }
 
-          window.setTimeout(() => resolve(), (sequence.value.length - 1) * stagger + dur);
+          const lastStart = (iconCount - 1) * stagger;
+          const animationDuration = Math.max(lastStart + iconDuration, lastStart + burstDuration);
+          window.setTimeout(() => resolve(), animationDuration);
         });
       };
 
@@ -356,6 +410,8 @@
         submitPulsing,
         bouncingId,
         arrowBouncing,
+        burstVisible,
+        burstSrc,
         handleSelect,
         handleDisabledSelect,
         handleSubmit,
@@ -463,14 +519,31 @@
     border-radius: 16px;
   }
 
-  .submit-button {
+  .submit-container {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    height: 100%;
     padding: 0;
     border: 0;
     border-radius: 8px;
     transition: $core-time;
+  }
+
+  .submit-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
   }
 
   .submit-icon {
@@ -524,6 +597,10 @@
     .bouncing,
     .pulsing {
       animation: none;
+    }
+
+    .submit-burst {
+      display: none;
     }
   }
 
