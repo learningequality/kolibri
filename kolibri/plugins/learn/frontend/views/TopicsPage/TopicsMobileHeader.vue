@@ -11,13 +11,14 @@
         data-testid="mobile-title"
       >
         <KTextTruncator
-          :text="topic.title"
+          :text="(topic && topic.title) || ''"
           :maxLines="2"
         />
       </h1>
     </KGridItem>
     <KGridItem :layout4="{ span: 1 }">
       <img
+        v-if="topic && topic.thumbnail"
         :src="topic.thumbnail"
         alt=""
         class="channel-logo"
@@ -37,7 +38,8 @@
     props: {
       topic: {
         type: Object,
-        required: true,
+        required: false,
+        default: null,
       },
     },
   };
