@@ -502,7 +502,8 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   noProgressLabel: {
     message: 'No progress yet',
-    context: 'Heading in the learner side panel when the learner has not attempted any test',
+    context:
+      'Shown in the learner side panel when the learner has not attempted any test, either for the whole course or for a single unit',
   },
   hasntStartedUnitsLabel: {
     message: "{name} hasn't started any units",
