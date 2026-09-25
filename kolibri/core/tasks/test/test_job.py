@@ -1,4 +1,3 @@
-from datetime import datetime
 from datetime import timedelta
 from unittest import mock
 
@@ -13,6 +12,7 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.utils.time_utils import local_now
 
 
 def status_fn(job):
@@ -560,7 +560,7 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.return_value = "job"
 
-        now = datetime.now()
+        now = local_now()
 
         self.registered_task.enqueue_at(
             datetime=now,
@@ -589,7 +589,7 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.return_value = "job"
 
-        now = datetime.now()
+        now = local_now()
 
         override_priority = 20
         self.assertNotEqual(self.registered_task.priority, override_priority)

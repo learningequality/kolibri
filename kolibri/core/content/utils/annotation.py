@@ -1,7 +1,7 @@
-import datetime
 import logging
 import operator
 import os
+import time
 from functools import reduce
 from itertools import groupby
 from math import ceil
@@ -485,7 +485,7 @@ def recurse_annotation_up_tree(channel_id):
         "Annotating ContentNode objects with children for %s levels", node_depth
     )
 
-    start = datetime.datetime.now()
+    start = time.monotonic()
 
     coach_content = coach_content_aggregate()
 
@@ -525,8 +525,9 @@ def recurse_annotation_up_tree(channel_id):
                 ),
             )
 
-    elapsed = datetime.datetime.now() - start
-    logger.debug("Recursive topic tree annotation took %s seconds", elapsed.seconds)
+    logger.debug(
+        "Recursive topic tree annotation took %s seconds", time.monotonic() - start
+    )
 
 
 def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_progress):
@@ -765,7 +766,7 @@ def set_channel_ancestors(channel_id):
         parent_id = f"replace(cast({table}.parent_id as varchar(36)), '-', '')"
     sql = _ANCESTORS_SQL.format(table=table, parent_id=parent_id)
 
-    start = datetime.datetime.now()
+    start = time.monotonic()
 
     with transaction.atomic():
         ContentNode.objects.filter(level=0, channel_id=channel_id).update(ancestors=[])
@@ -778,8 +779,9 @@ def set_channel_ancestors(channel_id):
                 # inline it.
                 cursor.execute(sql, ['\\"', level, channel_id])
 
-    elapsed = datetime.datetime.now() - start
-    logger.debug("Recursive ancestor annotation took %s seconds", elapsed.seconds)
+    logger.debug(
+        "Recursive ancestor annotation took %s seconds", time.monotonic() - start
+    )
 
 
 def update_channel_version_to_assignments(channel):

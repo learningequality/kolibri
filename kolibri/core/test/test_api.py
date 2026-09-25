@@ -4,12 +4,12 @@ import uuid
 from typing import Type
 from unittest.mock import MagicMock
 
+import pytz
 from django.db import connection
 from django.db.models import Model
 from django.test import override_settings
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
-from django.utils import timezone
 from rest_framework import serializers
 
 from kolibri.core.api import BaseValuesViewset
@@ -502,9 +502,7 @@ class TestDataSerialization(TestCase):
         form (ISO-8601 string). The method can only return a year int if it
         received an actual ``datetime``.
         """
-        aware = timezone.get_current_timezone().localize(
-            datetime.datetime(2026, 4, 23, 10, 30, 0)
-        )
+        aware = datetime.datetime(2026, 4, 23, 10, 30, tzinfo=pytz.utc)
         dtm = DateTimeTzModel.objects.create(timestamp=aware)
 
         class S(serializers.ModelSerializer):

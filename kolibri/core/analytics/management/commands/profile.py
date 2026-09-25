@@ -3,7 +3,6 @@ import logging
 import os.path
 import sys
 import time
-from datetime import datetime
 from os import getpid
 
 from django.core.management.base import BaseCommand
@@ -16,6 +15,7 @@ from kolibri.utils import conf
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ class Command(BaseCommand):
 
         active_sessions, active_users, active_users_minute = get_db_info()
         used_cpu, used_memory, total_memory, total_processes = get_machine_info()
-        timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+        timestamp = local_now().strftime("%Y/%m/%d %H:%M:%S.%f")
         return (
             timestamp,
             active_sessions,

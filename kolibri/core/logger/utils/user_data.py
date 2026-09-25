@@ -25,6 +25,7 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +129,7 @@ def get_or_create_classroom_users(**options):
     )
 
     # Only generate new users if there are fewer users than requested.
-    current_year = datetime.datetime.now().year
+    current_year = local_now().year
     n_to_create = n_users - n_in_classroom
     if n_to_create > 0:
         logger_info(

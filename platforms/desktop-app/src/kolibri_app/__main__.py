@@ -19,7 +19,8 @@ def main():
     # Since the log files can contain multiple runs, make the first printout very visible to quickly show
     # when a new run starts in the log files.
     logging.info("Kolibri App Initializing")
-    logging.info(f"Started at: {datetime.datetime.now()}")
+    # The UI process can run before Kolibri configures Django settings.
+    logging.info(f"Started at: {datetime.datetime.now()}")  # noqa: DTZ005
     if tray_only:
         logging.info("Starting in tray-only mode")
 

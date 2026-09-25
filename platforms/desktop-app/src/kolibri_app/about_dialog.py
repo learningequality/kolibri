@@ -55,8 +55,10 @@ class AboutDialog(wx.Dialog):
         link_sizer.Add(forums_link)
         sizer.Add(link_sizer, 0, wx.ALIGN_CENTER | wx.TOP, 12)
 
+        # The UI process can run before Kolibri configures Django settings.
         add_centered_text(
-            _("© %(year)s Learning Equality") % {"year": date.today().year}, 12
+            _("© %(year)s Learning Equality") % {"year": date.today().year},  # noqa: DTZ011
+            12,
         )
 
         close_btn = wx.Button(self, wx.ID_OK, _("Close"))

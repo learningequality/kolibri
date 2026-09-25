@@ -1,4 +1,3 @@
-import datetime
 import random
 import uuid
 from unittest import mock
@@ -33,6 +32,7 @@ from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.logger import models as log_models
 from kolibri.core.test.model_factory import ModelFactory
 from kolibri.core.test.model_factory import sequence
+from kolibri.utils.time_utils import local_now
 
 from ..models import Facility
 
@@ -79,7 +79,7 @@ class GetFacilityFailureTestCase(TestCase):
 
 class ContentSessionLogFactory(ModelFactory):
     model = log_models.ContentSessionLog
-    _start_timestamp = datetime.datetime.now()
+    _start_timestamp = local_now()
 
     @classmethod
     def field_defaults(cls):
@@ -94,7 +94,7 @@ class ContentSessionLogFactory(ModelFactory):
 
 class ContentSummaryLogFactory(ModelFactory):
     model = log_models.ContentSummaryLog
-    _start_timestamp = datetime.datetime.now()
+    _start_timestamp = local_now()
 
     @classmethod
     def field_defaults(cls):
@@ -117,7 +117,7 @@ class UserSessionLogFactory(ModelFactory):
 
 class MasteryLogFactory(ModelFactory):
     model = log_models.MasteryLog
-    _start_timestamp = datetime.datetime.now()
+    _start_timestamp = local_now()
 
     @classmethod
     def field_defaults(cls):
@@ -131,8 +131,8 @@ class MasteryLogFactory(ModelFactory):
 
 class AttemptLogFactory(ModelFactory):
     model = log_models.AttemptLog
-    _start_timestamp = datetime.datetime.now()
-    _end_timestamp = datetime.datetime.now()
+    _start_timestamp = local_now()
+    _end_timestamp = local_now()
 
     @classmethod
     def field_defaults(cls):

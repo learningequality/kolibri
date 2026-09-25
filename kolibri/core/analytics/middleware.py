@@ -2,7 +2,6 @@ import csv
 import logging
 import os
 import time
-from datetime import datetime
 
 from django.conf import settings
 from django.core.cache import caches
@@ -13,6 +12,7 @@ from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.utils import conf
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
+from kolibri.utils.time_utils import local_now
 
 requests_profiling_file = os.path.join(
     conf.KOLIBRI_HOME,
@@ -236,7 +236,7 @@ class MetricsMiddleware(MiddlewareMixin):
             if float(duration) > MetricsMiddleware.slowest_request_time:
                 MetricsMiddleware.slowest_request_time = float(duration)
                 max_time = True
-            timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+            timestamp = local_now().strftime("%Y/%m/%d %H:%M:%S.%f")
             collected_information = (
                 timestamp,
                 path,

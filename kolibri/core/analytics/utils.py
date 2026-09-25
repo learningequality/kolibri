@@ -5,6 +5,7 @@ import json
 import logging
 import math
 
+import pytz
 from dateutil import parser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
@@ -166,10 +167,10 @@ def extract_facility_statistics(facility):
 
     # the aggregates below are used to calculate the first and most recent times this device was used
     usersess_agg = usersessions.filter(
-        start_timestamp__gt=datetime.datetime(2016, 1, 1)
+        start_timestamp__gt=datetime.datetime(2016, 1, 1, tzinfo=pytz.utc)
     ).aggregate(first=Min("start_timestamp"), last=Max("last_interaction_timestamp"))
     contsess_agg = contsessions.filter(
-        start_timestamp__gt=datetime.datetime(2016, 1, 1)
+        start_timestamp__gt=datetime.datetime(2016, 1, 1, tzinfo=pytz.utc)
     ).aggregate(first=Min("start_timestamp"), last=Max("end_timestamp"))
 
     # extract the first and last times we've seen logs, ignoring any that are None

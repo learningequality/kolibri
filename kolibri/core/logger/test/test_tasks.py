@@ -1,5 +1,3 @@
-import datetime
-
 from django.test import TestCase
 
 from kolibri.core.auth.models import Facility
@@ -14,8 +12,8 @@ class StartExportLogCSVTestCase(TestCase):
         cls.facility_user = FacilityUser.objects.create(
             username="pytest_user", facility=cls.facility
         )
-        cls.start_date = datetime.datetime(2020, 1, 21).isoformat()
-        cls.end_date = datetime.datetime(2021, 1, 21).isoformat()
+        cls.start_date = "2020-01-21T00:00:00"
+        cls.end_date = "2021-01-21T00:00:00"
 
     def test_validator_sets_right_metadata(self):
         validator = ExportLogCSVValidator(

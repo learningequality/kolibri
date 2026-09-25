@@ -43,6 +43,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.utils.time_utils import local_now
 
 from ..constants.morango_sync import PROFILE_FACILITY_DATA
 from ..models import AdHocGroup
@@ -1583,9 +1584,7 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
 
         laptop.update_model(FacilityUser, learner.id, full_name="NEW")
 
-        tablet.update_model(
-            FacilityUser, learner.id, last_login=datetime.datetime.now()
-        )
+        tablet.update_model(FacilityUser, learner.id, last_login=local_now())
 
         if tablet_is_client:
             tablet.sync(laptop, facility, user=learner)

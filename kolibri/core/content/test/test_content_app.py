@@ -50,6 +50,7 @@ from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.utils.tests.helpers import override_option
+from kolibri.utils.time_utils import local_now
 
 DUMMY_PASSWORD = "password"
 
@@ -1350,9 +1351,9 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
 
     def test_channelmetadata_last_published_matches_last_updated(self):
         channel = content.ChannelMetadata.objects.get(id=self.the_channel_id)
-        channel.last_updated = pytz.timezone("America/New_York").localize(
-            datetime.datetime(2023, 4, 5, 6, 7, 8)
-        )
+        channel.last_updated = datetime.datetime(
+            2023, 4, 5, 10, 7, 8, tzinfo=pytz.utc
+        ).astimezone(pytz.timezone("America/New_York"))
         channel.save()
         stored = content.ChannelMetadata.objects.get(
             id=self.the_channel_id
@@ -1816,7 +1817,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 content_id=node.content_id,
                 progress=progress,
                 channel_id=self.the_channel_id,
-                start_timestamp=datetime.datetime.now(),
+                start_timestamp=local_now(),
             )
 
         return facility, root, c1, c2, c2c1, c2c3

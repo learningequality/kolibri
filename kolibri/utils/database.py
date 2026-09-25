@@ -2,7 +2,8 @@ import json
 import logging
 import os
 import sqlite3
-from datetime import datetime
+
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,7 @@ def _backup_records(records_to_backup, db_name):
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = local_now().strftime("%Y%m%d_%H%M%S")
     backup_filename = f"foreign_key_violations_{db_name}_{timestamp}.json"
     backup_path = os.path.join(backup_dir, backup_filename)
 

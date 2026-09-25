@@ -2,6 +2,8 @@ from datetime import datetime
 from datetime import timedelta
 from unittest import mock
 
+import pytz
+
 from kolibri.core.tasks.schedules import Cron
 from kolibri.core.tasks.schedules import DAY
 from kolibri.core.tasks.schedules import Enqueue
@@ -39,9 +41,9 @@ class TestEnqueueIn:
 
 
 class TestCron:
-    # Fixed "now": Tuesday 2026-06-30 04:15:30 local time
+    # Fixed "now": Tuesday 2026-06-30 04:15:30
     # weekday() == 1 (Tuesday)
-    FIXED_NOW = datetime(2026, 6, 30, 4, 15, 30)
+    FIXED_NOW = datetime(2026, 6, 30, 4, 15, 30, tzinfo=pytz.utc)
 
     def _patch_now(self, dt=None):
         return mock.patch(
@@ -98,7 +100,7 @@ class TestCron:
     def test_hourly_past_minute_rolls_to_next_hour(self):
         task = mock.Mock()
         # now is 04:30, minute=0 is past → next is 05:00
-        now = datetime(2026, 6, 30, 4, 30, 0)
+        now = datetime(2026, 6, 30, 4, 30, 0, tzinfo=pytz.utc)
         with self._patch_now(now):
             Cron(minute=0).apply(task)
         expected = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
