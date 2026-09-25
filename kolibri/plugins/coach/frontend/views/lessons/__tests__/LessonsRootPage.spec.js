@@ -1,12 +1,20 @@
 import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
-import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import LessonsRootPage from '../LessonsRootPage.vue';
 
-const { filterLessonVisible$, filterLessonNotVisible$ } = coachStrings;
+const {
+  filterLessonVisible$,
+  filterLessonNotVisible$,
+  filterLessonStatus$,
+  recipientsLabel$,
+  titleLabel$,
+} = coachStrings;
+
+const GROUP = { id: 'group-a', name: 'Group A', member_ids: [] };
 
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/composables/useUser');
@@ -34,9 +42,10 @@ function makeLesson(overrides) {
   };
 }
 
-function renderComponent(lessons) {
+function renderComponent(lessons, groups = []) {
   const store = makeStore();
   store.state.lessonsRoot.lessons = lessons;
+  store.state.classSummary.groupMap = Object.fromEntries(groups.map(group => [group.id, group]));
   return render(LessonsRootPage, { store, routes });
 }
 
@@ -64,10 +73,30 @@ describe('LessonsRootPage', () => {
           date_created: '2026-01-01T00:00:00Z',
         }),
       ]);
-      const rows = screen.getAllByRole('row').slice(1);
+      const lessonsTable = screen
+        .getByRole('columnheader', { name: titleLabel$() })
+        .closest('table');
+      const rows = within(lessonsTable).getAllByRole('row').slice(1);
       expect(within(rows[0]).getByText(filterLessonVisible$())).toBeInTheDocument();
       expect(within(rows[1]).getByText(filterLessonNotVisible$())).toBeInTheDocument();
       expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('prints the selected status and recipients', async () => {
+      renderComponent([], [GROUP]);
+      await selectKSelectOption(filterLessonStatus$(), filterLessonNotVisible$());
+      await selectKSelectOption(recipientsLabel$(), GROUP.name);
+
+      const [statusRow, recipientsRow] = within(screen.getByTestId('printed-filters')).getAllByRole(
+        'row',
+      );
+      expect(within(statusRow).getByText(filterLessonStatus$())).toBeInTheDocument();
+      expect(within(statusRow).getByText(filterLessonNotVisible$())).toBeInTheDocument();
+      expect(within(recipientsRow).getByText(recipientsLabel$())).toBeInTheDocument();
+      expect(within(recipientsRow).getByText(GROUP.name)).toBeInTheDocument();
+      expect(
+        screen.getByText(filterLessonStatus$(), { selector: '.ui-select-label-text' }),
+      ).not.toBeVisible();
     });
   });
 });
