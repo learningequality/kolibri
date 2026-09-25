@@ -12,6 +12,7 @@ from kolibri_daemon.application import Application
 from kolibri_daemon.kolibri_search_handler import SearchHandler
 
 CALL_TIMEOUT_MS = 5000
+SHORT_INACTIVITY_TIMEOUT_MS = 100
 
 
 class _PendingSearchHandler(SearchHandler):
@@ -48,13 +49,50 @@ class _RecordingKolibri:
 class TestApplication(unittest.TestCase):
     def _run_application(self, search_handler=None):
         application = Application(search_handler or _PendingSearchHandler())
+        thread, _exit_status = self._start_application(application)
+        return application, thread
+
+    def _start_application(self, application):
+        exit_status = []
         thread = threading.Thread(
-            target=application.run, args=(["kolibri-daemon", "--session"],)
+            target=lambda: exit_status.append(
+                application.run(["kolibri-daemon", "--session"])
+            )
         )
         thread.start()
         self.addCleanup(thread.join)
         self.addCleanup(GLib.idle_add, application.quit)
-        return application, thread
+        return thread, exit_status
+
+    def _own_bus_name_elsewhere(self):
+        # GApplication counts a name its own connection already owns as primary.
+        connection = Gio.DBusConnection.new_for_address_sync(
+            Gio.dbus_address_get_for_bus_sync(Gio.BusType.SESSION, None),
+            Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT
+            | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION,
+            None,
+            None,
+        )
+        self.addCleanup(connection.close_sync, None)
+
+        def call_bus(method, parameters):
+            connection.call_sync(
+                "org.freedesktop.DBus",
+                "/org/freedesktop/DBus",
+                "org.freedesktop.DBus",
+                method,
+                parameters,
+                None,
+                Gio.DBusCallFlags.NONE,
+                CALL_TIMEOUT_MS,
+                None,
+            )
+
+        call_bus("RequestName", GLib.Variant("(su)", (DAEMON_APPLICATION_ID, 0)))
+        # The bus drops a closed connection's names asynchronously.
+        self.addCleanup(
+            call_bus, "ReleaseName", GLib.Variant("(s)", (DAEMON_APPLICATION_ID,))
+        )
 
     def _proxy(self):
         proxy = KolibriDaemonDBus.MainProxy(
@@ -150,6 +188,34 @@ class TestApplication(unittest.TestCase):
         late_kolibri = _RecordingKolibri()
         application.attach_kolibri(late_kolibri)
         self.assertEqual(late_kolibri.exit_count, 1)
+
+    def test_stays_up_until_kolibri_attaches(self):
+        application = Application(_PendingSearchHandler())
+        application.set_inactivity_timeout(SHORT_INACTIVITY_TIMEOUT_MS)
+        thread, _exit_status = self._start_application(application)
+        self.assertTrue(application.await_bus_name())
+
+        # Until its first release, an IS_SERVICE GApplication times out after a
+        # fixed 10 s rather than its inactivity timeout.
+        self._proxy().call_sync(
+            "Release", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None
+        )
+        thread.join(SHORT_INACTIVITY_TIMEOUT_MS * 5 / 1000)
+        self.assertTrue(thread.is_alive())
+
+        application.attach_kolibri(_RecordingKolibri())
+        thread.join(CALL_TIMEOUT_MS / 1000)
+        self.assertFalse(thread.is_alive())
+
+    def test_run_fails_when_bus_name_is_taken(self):
+        self._own_bus_name_elsewhere()
+        application = Application(_PendingSearchHandler())
+        thread, exit_status = self._start_application(application)
+
+        thread.join(CALL_TIMEOUT_MS / 1000)
+        self.assertFalse(thread.is_alive())
+        self.assertNotEqual(exit_status[0], 0)
+        self.assertFalse(application.await_bus_name())
 
 
 if __name__ == "__main__":

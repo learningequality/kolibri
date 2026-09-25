@@ -410,10 +410,6 @@ class Application(Gio.Application):
 
         self.__hold_tokens = set()
 
-        # Released once Kolibri attaches, so a long initialize() never trips
-        # the inactivity timeout.
-        self.hold()
-
         self.add_main_option(
             "session",
             0,
@@ -575,6 +571,10 @@ class Application(Gio.Application):
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
 
         Gio.Application.do_startup(self)
+
+        # Released once Kolibri attaches, so a long initialize() never trips
+        # the inactivity timeout.
+        self.hold()
 
         if self.use_session_bus:
             self.__on_bus_name_owned()
