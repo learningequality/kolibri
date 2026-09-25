@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-from datetime import datetime
 
 from django import db
 from django.conf import settings
@@ -9,6 +8,7 @@ from django.conf import settings
 import kolibri
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.time_utils import local_now
 
 # Import db instead of db.connections because we want to use an instance of
 # connections that might be updated from outside.
@@ -92,7 +92,7 @@ def dbbackup(old_version, dest_folder=None):
     # This file name is a convention, used to figure out the latest backup
     # that was made (by the dbrestore command)
     fname = "db-v{version}_{dtm}.dump".format(
-        version=old_version, dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        version=old_version, dtm=local_now().strftime("%Y-%m-%d_%H-%M-%S")
     )
 
     if not os.path.exists(dest_folder):

@@ -95,7 +95,6 @@ import subprocess
 import sys
 import time
 from contextlib import contextmanager
-from datetime import datetime
 from unittest.mock import patch
 
 try:
@@ -568,11 +567,12 @@ def build_report(channel_reports, runs, time_threshold, min_phase_s):
     from django.db import connection
 
     from kolibri.utils.conf import KOLIBRI_HOME
+    from kolibri.utils.time_utils import local_now
 
     return {
         "schema_version": 1,
         "metadata": {
-            "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "timestamp": local_now().isoformat(timespec="seconds"),
             "python_version": platform.python_version(),
             "platform": platform.platform(),
             "database_vendor": connection.vendor,

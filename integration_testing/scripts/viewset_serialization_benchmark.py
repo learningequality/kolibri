@@ -41,7 +41,6 @@ import time
 import tracemalloc
 import uuid
 from collections import defaultdict
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -503,11 +502,13 @@ def build_report(
     time_threshold,
     memory_threshold,
 ):
+    from kolibri.utils.time_utils import local_now
+
     return {
         "schema_version": SCHEMA_VERSION,
         "metadata": {
             "viewset_class": dotted_path,
-            "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "timestamp": local_now().isoformat(timespec="seconds"),
             "python_version": platform.python_version(),
             "record_count": record_count,
             "iterations": iterations,

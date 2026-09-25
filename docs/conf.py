@@ -5,7 +5,7 @@
 import inspect
 import os
 import sys
-from datetime import datetime
+import time
 
 import django
 from django.utils.encoding import force_text
@@ -116,7 +116,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Kolibri developer documentation"
-copyright = f"{datetime.now().year:d}, Learning Equality"
+copyright = f"{time.localtime().tm_year:d}, Learning Equality"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
