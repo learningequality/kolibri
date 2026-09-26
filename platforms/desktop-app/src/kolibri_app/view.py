@@ -358,6 +358,7 @@ class KolibriView(object):
     def OnClose(self, event):
         if WINDOWS:
             # On Windows, just hide the window.
+            self.app.save_state(self)
             self.view.Hide()
         else:
             self.shutdown()
