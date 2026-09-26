@@ -30,6 +30,12 @@
       class="main-wrapper"
       :style="wrapperStyles"
     >
+      <h1
+        v-if="pageHeading"
+        class="visuallyhidden"
+      >
+        {{ pageHeading }}
+      </h1>
       <slot :pageContentHeight="pageContentHeight"></slot>
     </div>
   </div>
@@ -40,6 +46,7 @@
 <script>
 
   import useUser from 'kolibri/composables/useUser';
+  import { pageHeading } from 'kolibri/composables/usePageTitle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import ScrollingHeader from '../ScrollingHeader';
@@ -55,6 +62,7 @@
         windowHeight,
         windowIsSmall,
         isAppContext,
+        pageHeading,
       };
     },
     props: {

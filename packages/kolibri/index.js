@@ -7,6 +7,7 @@ import ContentViewer from './components/internal/ContentViewer';
 import initializeTheme from './styles/internal/initializeTheme';
 import setupPluginMediator from './internal/pluginMediator';
 import apiSpec from './internal/apiSpec';
+import metaInfoTracker from './composables/internal/metaInfoTracker';
 
 export const logging = logger.getLogger(__filename);
 
@@ -27,6 +28,7 @@ initializeTheme();
 // Register Vue plugins and components
 Vue.use(VueRouter);
 Vue.use(VueMeta);
+Vue.mixin(metaInfoTracker);
 
 // - Installs helpers on Vue instances: $themeBrand, $themeTokens, $themePalette
 // - Set up global state, listeners, and styles
