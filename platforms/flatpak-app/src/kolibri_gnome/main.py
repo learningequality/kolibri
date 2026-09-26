@@ -29,6 +29,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--channel-id", type=str, default=None)
+    parser.add_argument("--gapplication-replace", action="store_true")
     parser.add_argument("uri_list", type=str, default=None, nargs="*")
     args, extra_argv = parser.parse_known_args()
 
@@ -62,6 +63,11 @@ def main():
         application = Application(application_id=application_id)
 
     signal.signal(signal.SIGTERM, partial(application_signal_handler, application))
+
+    # GLib only reads --gapplication-replace while run() parses options, which
+    # is after register() has already claimed the bus name.
+    if args.gapplication_replace:
+        application.set_flags(application.get_flags() | Gio.ApplicationFlags.REPLACE)
 
     application.register()
 

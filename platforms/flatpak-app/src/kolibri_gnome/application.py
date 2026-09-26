@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import typing
 from functools import partial
 from gettext import gettext as _
@@ -23,6 +24,7 @@ from kolibri_app.config import KOLIBRI_URI_SCHEME
 from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.globals import get_version
 from kolibri_app.globals import KOLIBRI_HOME_PATH
+from kolibri_app.globals import UPDATED_MARKER_PATH
 from kolibri_app.globals import XDG_CURRENT_DESKTOP
 
 from .kolibri_context import KolibriChannelContext
@@ -33,10 +35,19 @@ from .kolibri_window import KolibriWindow
 
 logger = logging.getLogger(__name__)
 
+FLATPAK_SPAWN_FLAGS_LATEST_VERSION = 2
+
+
+def _bytestring(value: str) -> bytes:
+    # The portal decodes `ay` with g_variant_get_bytestring(), which needs the nul.
+    return os.fsencode(value) + b"\0"
+
 
 class Application(Adw.Application):
     __context: KolibriContext
     __setup_dialog: typing.Optional[KolibriSetupDialog] = None
+    __updated_marker: Gio.File
+    __updated_marker_monitor: Gio.FileMonitor
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
     zoom_level = GObject.Property(type=float, default=1.0)
@@ -50,7 +61,8 @@ class Application(Adw.Application):
     ):
         super().__init__(
             *args,
-            flags=Gio.ApplicationFlags.HANDLES_OPEN,
+            flags=Gio.ApplicationFlags.HANDLES_OPEN
+            | Gio.ApplicationFlags.ALLOW_REPLACEMENT,
             resource_base_path=BASE_OBJECT_PATH,
             **kwargs,
         )
@@ -80,6 +92,11 @@ class Application(Adw.Application):
 
         action = Gio.SimpleAction.new("about", None)
         action.connect("activate", self.__on_about)
+        self.add_action(action)
+
+        action = Gio.SimpleAction.new("restart", None)
+        action.set_enabled(False)
+        action.connect("activate", self.__on_restart)
         self.add_action(action)
 
         action = Gio.SimpleAction.new("quit", None)
@@ -119,6 +136,15 @@ class Application(Adw.Application):
 
         self.__context.init()
 
+        self.__updated_marker = Gio.File.new_for_path(UPDATED_MARKER_PATH.as_posix())
+        self.__updated_marker_monitor = self.__updated_marker.monitor_file(
+            Gio.FileMonitorFlags.NONE, None
+        )
+        self.__updated_marker_monitor.connect(
+            "changed", lambda *args: self.__update_restart_action()
+        )
+        self.__update_restart_action()
+
     def do_activate(self):
         Adw.Application.do_activate(self)
 
@@ -133,6 +159,57 @@ class Application(Adw.Application):
         Adw.Application.do_shutdown(self)
 
         self.__context.shutdown()
+
+        self.__updated_marker_monitor.cancel()
+
+    def __update_restart_action(self):
+        self.lookup_action("restart").set_enabled(
+            self.__updated_marker.query_exists(None)
+        )
+
+    def __on_restart(self, action, *args):
+        argv = [*self._restart_argv, "--gapplication-replace"]
+        # flatpak-portal 1.16.0-1.18.1 hands flatpak run --env-fd=0 when the
+        # fd map is empty (flatpak/flatpak#6785).
+        fd_list = Gio.UnixFDList()
+        fds = {fd: fd_list.append(fd) for fd in (0, 1, 2)}
+        # flatpak-portal 1.18.0 replaces these with the host's (flatpak/flatpak#6717).
+        env = {name: os.environ[name] for name in ("PATH", "XDG_DATA_DIRS")}
+        self.get_dbus_connection().call_with_unix_fd_list(
+            "org.freedesktop.portal.Flatpak",
+            "/org/freedesktop/portal/Flatpak",
+            "org.freedesktop.portal.Flatpak",
+            "Spawn",
+            GLib.Variant(
+                "(ayaaya{uh}a{ss}ua{sv})",
+                (
+                    _bytestring(os.getcwd()),
+                    [_bytestring(arg) for arg in argv],
+                    fds,
+                    env,
+                    FLATPAK_SPAWN_FLAGS_LATEST_VERSION,
+                    {},
+                ),
+            ),
+            GLib.VariantType("(u)"),
+            Gio.DBusCallFlags.NONE,
+            -1,
+            fd_list,
+            None,
+            self.__on_restart_spawned,
+        )
+
+    def __on_restart_spawned(
+        self, connection: Gio.DBusConnection, result: Gio.AsyncResult
+    ):
+        try:
+            connection.call_with_unix_fd_list_finish(result)
+        except GLib.Error as error:
+            logger.warning("Error restarting Kolibri: %s", error.message)
+
+    @property
+    def _restart_argv(self) -> typing.List[str]:
+        return ["kolibri-gnome"]
 
     def __on_zoom_reset(self, action, *args):
         self.__set_zoom_step(self.__default_zoom_step)
@@ -398,6 +475,10 @@ class ChannelApplication(Application):
         context.connect("kolibri-ready", self.__context_on_kolibri_ready)
 
         super().__init__(*args, context=context, **kwargs)
+
+    @property
+    def _restart_argv(self) -> typing.List[str]:
+        return [*super()._restart_argv, "--channel-id", self.__channel_id]
 
     def __context_on_kolibri_ready(self, context: KolibriContext):
         context.kolibri_api_get_async(

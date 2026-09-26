@@ -91,6 +91,19 @@ class KolibriWindow(Adw.ApplicationWindow):
         header_bar.show()
         content_box.add_top_bar(header_bar)
 
+        update_banner = Adw.Banner(
+            title=_("Kolibri has been updated. Restart it to use the new version."),
+            button_label=_("Restart Kolibri now"),
+            button_style=Adw.BannerButtonStyle.SUGGESTED,
+            action_name="app.restart",
+        )
+        update_banner.connect("notify::revealed", self.__announce_update_banner)
+        update_banner.connect("map", self.__announce_update_banner)
+        content_box.add_top_bar(update_banner)
+        application.lookup_action("restart").bind_property(
+            "enabled", update_banner, "revealed", GObject.BindingFlags.SYNC_CREATE
+        )
+
         menu_button = Gtk.MenuButton(
             direction=Gtk.ArrowType.NONE,
             tooltip_text=_("Main Menu"),
@@ -298,6 +311,15 @@ class KolibriWindow(Adw.ApplicationWindow):
         if self.__present_on_main_webview_ready:
             self.__present_on_main_webview_ready = False
             self.present()
+
+    def __announce_update_banner(self, banner: Adw.Banner, *args):
+        # AdwBanner does not announce itself to screen readers.
+        # Announcing before the window is shown is dropped: GTK only realizes
+        # the window's accessible context when it is shown (gtkwindow.c).
+        if banner.get_mapped() and banner.props.revealed:
+            banner.announce(
+                banner.props.title, Gtk.AccessibleAnnouncementPriority.MEDIUM
+            )
 
 
 class _KolibriWindowMenu(Gio.Menu):
