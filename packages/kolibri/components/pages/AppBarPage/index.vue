@@ -38,6 +38,12 @@
       class="main-wrapper"
       :style="[wrapperStyles]"
     >
+      <h1
+        v-if="pageHeading && !hasVisibleHeading"
+        class="visuallyhidden"
+      >
+        {{ pageHeading }}
+      </h1>
       <slot :pageContentHeight="pageContentHeight"></slot>
     </div>
 
@@ -63,6 +69,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
+  import { pageHeading } from 'kolibri/composables/usePageTitle';
   import { ref, getCurrentInstance } from 'vue';
   import { useSwipe } from '@vueuse/core';
   import ScrollingHeader from '../ScrollingHeader';
@@ -100,6 +107,7 @@
         isAppContext,
         swipeZone,
         navShown,
+        pageHeading,
       };
     },
     props: {
@@ -121,6 +129,11 @@
         default() {
           return false;
         },
+      },
+      // The slot renders its own visible <h1>, so the registered title renders no hidden one.
+      hasVisibleHeading: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

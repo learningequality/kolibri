@@ -145,6 +145,7 @@
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import NoPasswordInfo from 'kolibri-common/components/NoPasswordInfo';
   import LearnerPasswordCard from 'kolibri-common/components/LearnerPasswordCard';
@@ -152,9 +153,6 @@
 
   export default {
     name: 'AllPasswordsPage',
-    metaInfo() {
-      return { title: this.pageTitle };
-    },
     components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
     setup(props) {
       const showPrintDialog = ref(false);
@@ -179,6 +177,17 @@
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
       } = picturePasswordStrings;
+
+      const titleParts = computed(() => [
+        allPasswordsHeader$(),
+        props.className,
+        props.facilityName,
+      ]);
+      usePageTitle(titleParts, { hasVisibleHeading: true });
+
+      const pageTitle = computed(() =>
+        [...titleParts.value, kolibriLabel$()].filter(Boolean).join(' - '),
+      );
 
       // Normalize learners so full_name is always populated regardless of
       // whether the source uses full_name (Facility) or name (Coach classSummary)
@@ -257,7 +266,7 @@
         printWithTextOnly$,
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
-        kolibriLabel$,
+        pageTitle,
       };
     },
     props: {
@@ -279,11 +288,6 @@
       },
     },
     computed: {
-      pageTitle() {
-        return [this.allPasswordsHeader$(), this.className, this.facilityName, this.kolibriLabel$()]
-          .filter(Boolean)
-          .join(' - ');
-      },
       cardStyle() {
         return {
           backgroundColor: this.$themePalette.grey.v_100,

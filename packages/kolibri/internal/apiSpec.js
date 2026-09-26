@@ -42,6 +42,7 @@ export default {
   'kolibri/composables/useMinimumKolibriVersion': require('kolibri/composables/useMinimumKolibriVersion'),
   'kolibri/composables/useNav': require('kolibri/composables/useNav'),
   'kolibri/composables/useNow': require('kolibri/composables/useNow'),
+  'kolibri/composables/usePageTitle': require('kolibri/composables/usePageTitle'),
   'kolibri/composables/useSnackbar': require('kolibri/composables/useSnackbar'),
   'kolibri/composables/useTotalProgress': require('kolibri/composables/useTotalProgress'),
   'kolibri/composables/useTour': require('kolibri/composables/useTour'),

@@ -48,6 +48,7 @@
     "./composables/useMinimumKolibriVersion": "./composables/useMinimumKolibriVersion",
     "./composables/useNav": "./composables/useNav",
     "./composables/useNow": "./composables/useNow",
+    "./composables/usePageTitle": "./composables/usePageTitle",
     "./composables/useSnackbar": "./composables/useSnackbar",
     "./composables/useTotalProgress": "./composables/useTotalProgress",
     "./composables/useTour": "./composables/useTour",
