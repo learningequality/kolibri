@@ -1,6 +1,8 @@
+import tempfile
 import threading
 import unittest
 from concurrent.futures import Future
+from pathlib import Path
 
 from gi.repository import Gio
 from gi.repository import GLib
@@ -47,8 +49,16 @@ class _RecordingKolibri:
 # application thread owns the default main context, so this thread only makes
 # synchronous D-Bus calls.
 class TestApplication(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.updated_marker = Path(tmp.name, ".updated")
+
     def _run_application(self, search_handler=None):
-        application = Application(search_handler or _PendingSearchHandler())
+        application = Application(
+            search_handler or _PendingSearchHandler(),
+            updated_marker_path=self.updated_marker,
+        )
         thread, _exit_status = self._start_application(application)
         return application, thread
 
@@ -64,8 +74,7 @@ class TestApplication(unittest.TestCase):
         self.addCleanup(GLib.idle_add, application.quit)
         return thread, exit_status
 
-    def _own_bus_name_elsewhere(self):
-        # GApplication counts a name its own connection already owns as primary.
+    def _private_connection(self):
         connection = Gio.DBusConnection.new_for_address_sync(
             Gio.dbus_address_get_for_bus_sync(Gio.BusType.SESSION, None),
             Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT
@@ -73,7 +82,12 @@ class TestApplication(unittest.TestCase):
             None,
             None,
         )
-        self.addCleanup(connection.close_sync, None)
+        self.addCleanup(lambda: connection.is_closed() or connection.close_sync(None))
+        return connection
+
+    def _own_bus_name_elsewhere(self):
+        # GApplication counts a name its own connection already owns as primary.
+        connection = self._private_connection()
 
         def call_bus(method, parameters):
             connection.call_sync(
@@ -94,9 +108,9 @@ class TestApplication(unittest.TestCase):
             call_bus, "ReleaseName", GLib.Variant("(s)", (DAEMON_APPLICATION_ID,))
         )
 
-    def _proxy(self):
+    def _proxy(self, connection=None):
         proxy = KolibriDaemonDBus.MainProxy(
-            g_bus_type=Gio.BusType.SESSION,
+            g_connection=connection or Gio.bus_get_sync(Gio.BusType.SESSION, None),
             g_flags=Gio.DBusProxyFlags.DO_NOT_AUTO_START,
             g_name=DAEMON_APPLICATION_ID,
             g_object_path=DAEMON_MAIN_OBJECT_PATH,
@@ -104,6 +118,9 @@ class TestApplication(unittest.TestCase):
         )
         proxy.init(None)
         return proxy
+
+    def _call(self, proxy, method):
+        proxy.call_sync(method, None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None)
 
     def _search(self, proxy):
         return proxy.call_sync(
@@ -119,16 +136,16 @@ class TestApplication(unittest.TestCase):
         self.assertTrue(application.await_bus_name())
 
         proxy = self._proxy()
-        proxy.call_sync("Hold", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None)
+        self._call(proxy, "Hold")
         self.assertEqual(proxy.props.status, "STOPPED")
-        proxy.call_sync("Start", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None)
+        self._call(proxy, "Start")
 
     def test_start_before_kolibri_attaches_starts_it_on_attach(self):
         application, _thread = self._run_application()
         self.assertTrue(application.await_bus_name())
         proxy = self._proxy()
 
-        proxy.call_sync("Start", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None)
+        self._call(proxy, "Start")
         kolibri = _RecordingKolibri()
         application.attach_kolibri(kolibri)
         self.assertEqual(kolibri.start_count, 1)
@@ -138,8 +155,8 @@ class TestApplication(unittest.TestCase):
         self.assertTrue(application.await_bus_name())
         proxy = self._proxy()
 
-        proxy.call_sync("Start", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None)
-        proxy.call_sync("Stop", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None)
+        self._call(proxy, "Start")
+        self._call(proxy, "Stop")
         kolibri = _RecordingKolibri()
         application.attach_kolibri(kolibri)
         self.assertEqual(kolibri.start_count, 0)
@@ -197,13 +214,53 @@ class TestApplication(unittest.TestCase):
 
         # Until its first release, an IS_SERVICE GApplication times out after a
         # fixed 10 s rather than its inactivity timeout.
-        self._proxy().call_sync(
-            "Release", None, Gio.DBusCallFlags.NONE, CALL_TIMEOUT_MS, None
-        )
+        self._call(self._proxy(), "Release")
         thread.join(SHORT_INACTIVITY_TIMEOUT_MS * 5 / 1000)
         self.assertTrue(thread.is_alive())
 
         application.attach_kolibri(_RecordingKolibri())
+        thread.join(CALL_TIMEOUT_MS / 1000)
+        self.assertFalse(thread.is_alive())
+
+    def test_update_without_clients_exits(self):
+        application, thread = self._run_application()
+        self.assertTrue(application.await_bus_name())
+        kolibri = _RecordingKolibri()
+        application.attach_kolibri(kolibri)
+
+        self.updated_marker.touch()
+        thread.join(CALL_TIMEOUT_MS / 1000)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(kolibri.exit_count, 1)
+
+    def test_update_waits_for_every_client_that_held_before_it(self):
+        application, thread = self._run_application()
+        self.assertTrue(application.await_bus_name())
+        application.attach_kolibri(_RecordingKolibri())
+        client_a = self._proxy()
+        client_b_connection = self._private_connection()
+        self._call(client_a, "Hold")
+        self._call(self._proxy(client_b_connection), "Hold")
+
+        self.updated_marker.touch()
+        self._call(client_a, "Release")
+        thread.join(SHORT_INACTIVITY_TIMEOUT_MS * 5 / 1000)
+        self.assertTrue(thread.is_alive())
+
+        client_b_connection.close_sync(None)
+        thread.join(CALL_TIMEOUT_MS / 1000)
+        self.assertFalse(thread.is_alive())
+
+    def test_client_holding_after_update_does_not_keep_daemon(self):
+        application, thread = self._run_application()
+        self.assertTrue(application.await_bus_name())
+        application.attach_kolibri(_RecordingKolibri())
+        client_a = self._proxy()
+        self._call(client_a, "Hold")
+
+        self.updated_marker.touch()
+        self._call(self._proxy(self._private_connection()), "Hold")
+        self._call(client_a, "Release")
         thread.join(CALL_TIMEOUT_MS / 1000)
         self.assertFalse(thread.is_alive())
 
