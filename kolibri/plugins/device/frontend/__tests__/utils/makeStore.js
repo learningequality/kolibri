@@ -71,7 +71,7 @@ export default function makeStore() {
 }
 // Use for availableChannelsPage and all children:
 // channel-list-item
-export function makeAvailableChannelsPageStore({ channelList } = {}) {
+export function makeAvailableChannelsPageStore({ channelList, transferType = 'localimport' } = {}) {
   const store = createStore(cloneDeep(pluginModule));
   store.state.manageContent.channelList =
     channelList !== undefined ? channelList : [...channelsOnDevice];
@@ -87,7 +87,7 @@ export function makeAvailableChannelsPageStore({ channelList } = {}) {
       },
     ],
     availableChannels: [...allChannels],
-    transferType: 'localimport',
+    transferType,
   });
   return store;
 }
