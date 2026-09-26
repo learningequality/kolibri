@@ -143,6 +143,42 @@ describe('SafeHTML', () => {
       expect(div).toHaveStyle({ color: 'rgb(255, 0, 0)', 'text-align': 'right' });
     });
 
+    it('retains the text-decoration shorthand', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="text-decoration: underline line-through;">${CONTENT_TEXT}</span>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT).style.getPropertyValue('text-decoration')).toBe(
+        'underline line-through',
+      );
+    });
+
+    it.each([
+      ['text-decoration-line', 'underline'],
+      ['text-decoration-style', 'wavy'],
+      ['text-decoration-color', 'red'],
+      ['text-decoration-thickness', '2px'],
+    ])('retains %s', (prop, value) => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="${prop}: ${value};">${CONTENT_TEXT}</span>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT).style.getPropertyValue(prop)).toBe(value);
+    });
+
+    it('drops non-allowlisted properties alongside text-decoration', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="text-decoration: underline; position: absolute;">${CONTENT_TEXT}</span>`,
+        },
+      });
+      const span = screen.getByText(CONTENT_TEXT);
+      expect(span.style.getPropertyValue('text-decoration')).toBe('underline');
+      expect(span.getAttribute('style')).not.toContain('position');
+    });
+
     it('drops non-allowlisted properties while keeping allowlisted ones', () => {
       render(SafeHTML, {
         props: {
