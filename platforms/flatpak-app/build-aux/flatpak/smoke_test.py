@@ -18,6 +18,9 @@ requests the app's WebKit view actually makes -- plus an HTTP probe:
   4. Still in that run: the daemon is one process, the desktop user is signed
      in, Kolibri is registered on zeroconf, and Kolibri comes back after a
      D-Bus Stop and after the daemon is sent SIGTERM.
+  5. With a bundle given: an update published while the app runs leaves the
+     old daemon serving, the app offers a restart, and restarting runs the app
+     and daemon from the new commit.
 
 The log is the signal because headless WebKitGTK does not expose web content
 over AT-SPI. A hard SIGALRM timeout guarantees the test can never hang.
@@ -37,6 +40,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+from configparser import ConfigParser
 from pathlib import Path
 
 APP_ID = "org.learningequality.Kolibri.Devel"
@@ -44,6 +48,7 @@ KOLIBRI_HOME = Path.home() / ".var" / "app" / APP_ID / "data" / "kolibri"
 KOLIBRI_LOG = KOLIBRI_HOME / "logs" / "kolibri.txt"
 PROVISION_FILE = KOLIBRI_HOME / "provision.json"
 OPTIONS_FILE = KOLIBRI_HOME / "options.ini"
+SMOKE_REPO = Path("/tmp/smoke-repo")
 
 TIMEOUT_S = int(os.environ.get("SMOKE_TIMEOUT", "600"))  # hard cap on the run
 PHASE_WAIT_S = 200  # per-phase wait for the expected requests to appear
@@ -211,13 +216,14 @@ def _http_ok(url):
 
 
 def _gdbus_call(name, object_path, method, *args):
+    dest = f"{APP_ID}.{name}" if name else APP_ID
     result = subprocess.run(
         [
             "gdbus",
             "call",
             "--session",
             "--dest",
-            f"{APP_ID}.{name}",
+            dest,
             "--object-path",
             "/" + APP_ID.replace(".", "/") + object_path,
             "--method",
@@ -229,7 +235,7 @@ def _gdbus_call(name, object_path, method, *args):
         timeout=60,
     )
     if result.returncode != 0:
-        print(f"  {name} {method} error: {result.stderr.strip()}", flush=True)
+        print(f"  {dest} {method} error: {result.stderr.strip()}", flush=True)
         return None
     return result.stdout.strip()
 
@@ -271,13 +277,59 @@ def _search_leaves_kolibri_stopped():
     return ok
 
 
+def _pids(pattern):
+    result = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True)
+    return [int(pid) for pid in result.stdout.split()]
+
+
 def _daemon_pids():
     # setproctitle leaves the daemon's command line as `python3 -m
     # kolibri_daemon.main`; its bwrap wrappers name `kolibri-daemon` instead.
-    result = subprocess.run(
-        ["pgrep", "-f", r"kolibri_daemon\.main"], capture_output=True, text=True
+    return _pids(r"kolibri_daemon\.main")
+
+
+def _frontend_pids():
+    return _pids(r"kolibri_gnome\.main")
+
+
+def _app_commit(pid):
+    flatpak_info = ConfigParser()
+    try:
+        with open(f"/proc/{pid}/root/.flatpak-info") as info:
+            flatpak_info.read_file(info)
+    except OSError:
+        return None
+    return flatpak_info.get("Instance", "app-commit", fallback=None)
+
+
+def _flatpak_info(option):
+    return subprocess.check_output(
+        ["flatpak", "info", "--user", option, APP_ID], text=True
+    ).strip()
+
+
+def _publish_update():
+    # build-commit-from skips a commit whose content is unchanged without --force.
+    ref = _flatpak_info("--show-ref")
+    subprocess.check_call(
+        [
+            "flatpak",
+            "build-commit-from",
+            "--force",
+            f"--src-ref={ref}",
+            str(SMOKE_REPO),
+            ref,
+        ]
     )
-    return [int(pid) for pid in result.stdout.split()]
+    subprocess.check_call(["flatpak", "update", "--user", "--noninteractive", APP_ID])
+    return _flatpak_info("--show-commit")
+
+
+def _restart_offered():
+    # Describe returns (enabled, parameter type, state), so `((true` is an
+    # enabled action.
+    description = _gdbus_call("", "", "org.gtk.Actions.Describe", "restart")
+    return (description or "").startswith("((true")
 
 
 def _daemon_is_one_process():
@@ -419,6 +471,51 @@ def phase_learn():
     return all(checks.values())
 
 
+def phase_update():
+    """An update while the app runs is offered as a restart onto the new commit."""
+    print("PHASE 3: update while the app runs", flush=True)
+    _reset_kolibri_home()
+    _write_options()
+    launch_app()
+
+    serving = _wait_for(
+        lambda: "GET /api/device/initialize/" in _log_text(), PHASE_WAIT_S
+    )
+    daemon_pids = _daemon_pids()
+    if not serving or len(daemon_pids) != 1:
+        print(f"  serving={serving} kolibri-daemon pids: {daemon_pids}", flush=True)
+        kill_app()
+        return False
+    (old_daemon,) = daemon_pids
+    old_commit = _app_commit(old_daemon)
+    new_commit = _publish_update()
+
+    def on_new_commit():
+        frontend_commits = [_app_commit(pid) for pid in _frontend_pids()]
+        daemon_commits = [_app_commit(pid) for pid in _daemon_pids()]
+        return frontend_commits == daemon_commits == [new_commit]
+
+    checks = {
+        "commit-changed": old_commit is not None and new_commit != old_commit,
+        "restart-offered": _wait_for(_restart_offered, PHASE_WAIT_S),
+        # After restart-offered, so the daemon has had time to see the update.
+        "old-daemon-kept": old_daemon in _daemon_pids(),
+        "restarted-on-new-commit": _kolibri_restarts(
+            "restart",
+            lambda: _gdbus_call(
+                "", "", "org.gtk.Actions.Activate", "restart", "[]", "{}"
+            ),
+            on_new_commit,
+        ),
+    }
+    print(
+        "  " + " ".join(f"{name}={passed}" for name, passed in checks.items()),
+        flush=True,
+    )
+    kill_app()
+    return all(checks.values())
+
+
 def main():
     bundle = sys.argv[1] if len(sys.argv) > 1 else None
 
@@ -428,9 +525,11 @@ def main():
     signal.signal(signal.SIGALRM, on_timeout)
     signal.alarm(TIMEOUT_S)
 
+    installed = bool(bundle) and Path(bundle).is_file()
     setup_ok = learn_ok = False
+    update_ok = not installed
     try:
-        if bundle and Path(bundle).is_file():
+        if installed:
             print(f"Installing {bundle}", flush=True)
             # Uninstall first so a re-run with the same bundle commit doesn't
             # fail with "already installed".
@@ -438,21 +537,49 @@ def main():
                 ["flatpak", "uninstall", "--user", "--noninteractive", APP_ID],
                 stderr=subprocess.DEVNULL,
             )
-            subprocess.check_call(
-                ["flatpak", "install", "--user", "--noninteractive", "--bundle", bundle]
-            )
+            # Installed from a local repo, so phase 3 can publish an update to it.
+            # build-import-bundle refuses a repo that doesn't exist yet.
+            shutil.rmtree(SMOKE_REPO, ignore_errors=True)
+            for argv in (
+                ["ostree", "init", "--mode=archive", f"--repo={SMOKE_REPO}"],
+                ["flatpak", "build-import-bundle", str(SMOKE_REPO), bundle],
+                [
+                    "flatpak",
+                    "remote-add",
+                    "--user",
+                    "--if-not-exists",
+                    "--no-gpg-verify",
+                    "smoke-repo",
+                    f"file://{SMOKE_REPO}",
+                ],
+                [
+                    "flatpak",
+                    "install",
+                    "--user",
+                    "--noninteractive",
+                    "smoke-repo",
+                    APP_ID,
+                ],
+            ):
+                subprocess.check_call(argv)
 
         start_environment()
         setup_ok = phase_setup()
         learn_ok = phase_learn()
+        if installed:
+            update_ok = phase_update()
+        else:
+            print("PHASE 3 skipped: pass BUNDLE.flatpak to run it", flush=True)
     except TimeoutError as exc:
         print(f"timed out: {exc}", flush=True)
     finally:
         signal.alarm(0)
         teardown()
 
-    if setup_ok and learn_ok:
-        print("SMOKE TEST PASSED: setup wizard and learn library both reached.")
+    if setup_ok and learn_ok and update_ok:
+        print(
+            "SMOKE TEST PASSED: setup wizard, learn library and update restart phases."
+        )
         return 0
 
     print("SMOKE TEST FAILED. Recent Kolibri log:")

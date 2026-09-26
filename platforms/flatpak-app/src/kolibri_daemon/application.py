@@ -6,6 +6,7 @@ from concurrent.futures import Future
 from enum import auto
 from enum import Enum
 from functools import partial
+from pathlib import Path
 
 from gi.repository import Gio
 from gi.repository import GLib
@@ -13,6 +14,7 @@ from gi.repository import KolibriDaemonDBus
 
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
+from kolibri_app.globals import UPDATED_MARKER_PATH
 from kolibri_app.login_tokens import login_tokens
 
 from .dbus_helpers import DBusManagerProxy
@@ -71,14 +73,19 @@ class PublicDBusInterface(object):
     __accounts_service: typing.Optional[AccountsServiceManager] = None
 
     __hold_clients: dict
+    __pre_update_clients: set
+
+    __updated_marker: Gio.File
+    __updated_marker_monitor: typing.Optional[Gio.FileMonitor] = None
 
     __auto_stop_timeout_source: typing.Optional[int] = None
     __stop_kolibri_timeout_source: typing.Optional[int] = None
 
     __stop_kolibri_timeout_interval: int = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
 
-    def __init__(self, application: Application):
+    def __init__(self, application: Application, updated_marker_path: Path):
         self.__application = application
+        self.__updated_marker = Gio.File.new_for_path(updated_marker_path.as_posix())
 
         self.__skeleton = KolibriDaemonDBus.MainSkeleton()
         self.__skeleton.props.version = self.VERSION
@@ -100,6 +107,7 @@ class PublicDBusInterface(object):
         )
 
         self.__hold_clients = {}
+        self.__pre_update_clients = set()
 
     @property
     def clients_count(self) -> int:
@@ -118,6 +126,23 @@ class PublicDBusInterface(object):
 
     def shutdown(self):
         self.__cancel_auto_stop_timeout()
+        if self.__updated_marker_monitor:
+            self.__updated_marker_monitor.cancel()
+
+    def watch_for_update(self):
+        self.__updated_marker_monitor = self.__updated_marker.monitor_file(
+            Gio.FileMonitorFlags.NONE, None
+        )
+        self.__updated_marker_monitor.connect(
+            "changed", lambda *args: self.__quit_if_superseded()
+        )
+        self.__quit_if_superseded()
+
+    def __quit_if_superseded(self):
+        if self.__pre_update_clients:
+            return
+        if self.__updated_marker.query_exists(None):
+            self.__application.quit()
 
     def set_kolibri_state(self, state: KolibriState):
         self.__kolibri_state = state
@@ -152,6 +177,8 @@ class PublicDBusInterface(object):
             self.__on_hold_client_vanished,
         )
         self.__hold_clients[name] = watch_id
+        if not self.__updated_marker.query_exists(None):
+            self.__pre_update_clients.add(name)
 
     def __release_for_client(self, name: str):
         try:
@@ -160,6 +187,8 @@ class PublicDBusInterface(object):
             pass
         else:
             Gio.bus_unwatch_name(watch_id)
+        self.__pre_update_clients.discard(name)
+        self.__quit_if_superseded()
 
     def __on_hold_client_vanished(self, connection: Gio.DBusConnection, name: str):
         self.__release_for_client(name)
@@ -388,6 +417,7 @@ class Application(Gio.Application):
         self,
         search_handler: SearchHandler,
         *args,
+        updated_marker_path: Path = UPDATED_MARKER_PATH,
         **kwargs,
     ):
         super().__init__(
@@ -405,7 +435,7 @@ class Application(Gio.Application):
         self.__bus_name_event = threading.Event()
         self.__kolibri_lock = threading.Lock()
 
-        self.__public_interface = PublicDBusInterface(self)
+        self.__public_interface = PublicDBusInterface(self, updated_marker_path)
         self.__public_interface.init()
 
         self.__hold_tokens = set()
@@ -571,6 +601,7 @@ class Application(Gio.Application):
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
 
         Gio.Application.do_startup(self)
+        self.__public_interface.watch_for_update()
 
         # Released once Kolibri attaches, so a long initialize() never trips
         # the inactivity timeout.

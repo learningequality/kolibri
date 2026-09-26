@@ -27,6 +27,10 @@ APP_AUTOMATIC_LOGIN = getenv_as_bool(
 
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
+# Flatpak creates this in a running app's deployment once an update replaces
+# that deployment (flatpak_dir_undeploy in flatpak-dir.c).
+UPDATED_MARKER_PATH = Path("/app/.updated")
+
 # Logic for KOLIBRI_HOME is from kolibri.utils.conf. We avoid importing it from
 # Kolibri because the import comes with side-effects.
 DEFAULT_KOLIBRI_HOME_PATH = Path.home().joinpath(".kolibri")
