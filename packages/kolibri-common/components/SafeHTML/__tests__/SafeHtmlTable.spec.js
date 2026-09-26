@@ -103,14 +103,18 @@ describe('SafeHtmlTable', () => {
   });
 
   describe('table is set to the correct width', () => {
+    // toHaveStyle does not resolve custom properties, so read them off the element.
+    const tableWidth = () =>
+      screen.getByTestId('table-container').style.getPropertyValue('--table-width');
+
     it('table with <= 3 columns has a 640px width', () => {
       renderComponent(4, 3);
-      expect(screen.getByRole('table')).toHaveStyle('width: 640px;');
+      expect(tableWidth()).toBe('640px');
     });
 
     it("table with > 3 columns has a 'n * 200px' width", () => {
       renderComponent(5, 4);
-      expect(screen.getByRole('table')).toHaveStyle('width: 800px;');
+      expect(tableWidth()).toBe('800px');
     });
   });
 
@@ -192,16 +196,15 @@ describe('SafeHtmlTable carries allowlisted inline styles through SafeHTML', () 
     expect(screen.getByText(CELL_TEXT)).toHaveStyle({ 'text-align': 'center' });
   });
 
-  it('merges an allowlisted style on the table with the component style', () => {
+  it('renders an allowlisted style on the table', () => {
     render(SafeHTML, {
       props: {
         html: `<table style="text-align: center; background-color: yellow;"><tr><td>${CELL_TEXT}</td></tr></table>`,
       },
     });
-    const table = screen.getByRole('table');
-    // Carried allowlisted styles survive...
-    expect(table).toHaveStyle({ 'text-align': 'center', 'background-color': 'rgb(255, 255, 0)' });
-    // ...alongside the component's own tableStyle width (merge must not clobber it).
-    expect(table).toHaveStyle('width: 640px;');
+    expect(screen.getByRole('table')).toHaveStyle({
+      'text-align': 'center',
+      'background-color': 'rgb(255, 255, 0)',
+    });
   });
 });

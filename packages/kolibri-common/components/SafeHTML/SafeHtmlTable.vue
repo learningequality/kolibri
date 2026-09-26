@@ -10,7 +10,6 @@
     <table
       class="safe-html"
       v-bind="$attrs"
-      :style="[contentStyle, tableStyle]"
     >
       <slot></slot>
     </table>
@@ -23,7 +22,6 @@
 
   import { onMounted, onUpdated, ref } from 'vue';
   import { useEventListener, useResizeObserver } from '@vueuse/core';
-  import parseStyleString from './parseStyleString';
 
   export default {
     name: 'SafeHtmlTable',
@@ -67,21 +65,13 @@
           '--table-head-background': this.$themeBrand.primary.v_100,
           '--table-foot-background': this.$themePalette.grey.v_100,
           '--table-border': `1px solid ${this.$themePalette.grey.v_300}`,
+          '--table-width': this.tableWidth,
         };
       },
-      // The allowlisted style carried through from the sanitized <table>. Merged
-      // ahead of tableStyle so the component's own width wins on any future key
-      // overlap while the carried alignment/colour still apply.
-      contentStyle() {
-        return parseStyleString(this.$attrs.style);
-      },
-      tableStyle() {
+      tableWidth() {
         const firstRow = this.node.querySelector('tr');
         const colCount = firstRow ? firstRow.children.length : 0;
-
-        return {
-          width: colCount <= 3 ? '640px' : `${colCount * 200}px`,
-        };
+        return colCount <= 3 ? '640px' : `${colCount * 200}px`;
       },
     },
   };
@@ -105,6 +95,7 @@
   }
 
   table.safe-html {
+    width: var(--table-width);
     min-width: 640px;
     margin: 16px auto;
     font-size: 16px;

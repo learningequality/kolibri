@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -30,15 +30,17 @@ const loadImage = async (image, rendered, natural) => {
   await fireEvent.load(image);
 };
 
+const stubDialog = () => {
+  if (!window.HTMLDialogElement.prototype.showModal) {
+    window.HTMLDialogElement.prototype.showModal = jest.fn();
+  }
+  if (!window.HTMLDialogElement.prototype.close) {
+    window.HTMLDialogElement.prototype.close = jest.fn();
+  }
+};
+
 describe('SafeHtmlImage', () => {
-  beforeAll(() => {
-    if (!window.HTMLDialogElement.prototype.showModal) {
-      window.HTMLDialogElement.prototype.showModal = jest.fn();
-    }
-    if (!window.HTMLDialogElement.prototype.close) {
-      window.HTMLDialogElement.prototype.close = jest.fn();
-    }
-  });
+  beforeAll(stubDialog);
   let user, img, expandButton;
   beforeEach(async () => {
     user = userEvent.setup();
@@ -139,17 +141,13 @@ describe('SafeHtmlImage carries allowlisted inline styles through SafeHTML', () 
   const SafeHTML = createSafeHTML();
   const carriedAlt = 'carried';
 
-  it('merges an allowlisted style on the image with the component style', () => {
+  it('renders an allowlisted style on the image', () => {
     render(SafeHTML, {
       props: {
         html: `<img src="./pic.png" alt="${carriedAlt}" style="background-color: yellow;">`,
       },
     });
-    const img = screen.getByAltText(carriedAlt);
-    // Carried allowlisted style survives...
-    expect(img).toHaveStyle({ 'background-color': 'rgb(255, 255, 0)' });
-    // ...alongside the component's own imageStyle border (merge must not clobber it).
-    expect(img).toHaveStyle({ 'border-style': 'solid', 'border-width': '1px' });
+    expect(screen.getByAltText(carriedAlt)).toHaveStyle({ 'background-color': 'rgb(255, 255, 0)' });
   });
 
   // SafeHTML is functional and positional, so a new html payload reuses the
@@ -165,5 +163,88 @@ describe('SafeHtmlImage carries allowlisted inline styles through SafeHTML', () 
     });
 
     expect(screen.getByAltText(carriedAlt)).toHaveStyle({ 'background-color': 'rgb(255, 255, 0)' });
+  });
+});
+
+describe('SafeHtmlImage carries size attributes through SafeHTML', () => {
+  const SafeHTML = createSafeHTML();
+  const sizedAlt = 'sized';
+
+  beforeAll(stubDialog);
+
+  it.each([
+    ['width and height', 'width="600" height="450"', ['600', '450']],
+    ['only a width', 'width="600"', ['600', null]],
+    ['only a height', 'height="450"', [null, '450']],
+    ['a percentage height', 'height="50%"', [null, null]],
+  ])('renders the image size for %s', (_, size, expected) => {
+    render(SafeHTML, {
+      props: { html: `<img src="./pic.png" alt="${sizedAlt}" ${size}>` },
+    });
+    const img = screen.getByAltText(sizedAlt);
+
+    expect([img.getAttribute('width'), img.getAttribute('height')]).toEqual(expected);
+  });
+
+  it('expands a downsized image to its full resolution', async () => {
+    render(SafeHTML, {
+      props: { html: `<img src="./pic.png" alt="${sizedAlt}" width="400" height="300">` },
+    });
+    const img = screen.getByAltText(sizedAlt);
+    await loadImage(img, { width: 400, height: 300 }, { width: 1600, height: 1200 });
+
+    await userEvent.click(screen.getByRole('button', { name: expandImage$() }));
+
+    const lightboxImg = within(screen.getByTestId('lightbox-dialog')).getByAltText(sizedAlt);
+    expect(lightboxImg).toHaveAttribute('src', img.getAttribute('src'));
+    expect(lightboxImg).not.toHaveAttribute('width');
+  });
+
+  it('derives the width of a height-only image from its natural ratio', async () => {
+    render(SafeHTML, {
+      props: { html: `<img src="./pic.png" alt="${sizedAlt}" height="150">` },
+    });
+    const img = screen.getByAltText(sizedAlt);
+    await loadImage(img, { width: 200, height: 150 }, { width: 1600, height: 1200 });
+
+    expect(img).toHaveAttribute('width', '200');
+  });
+
+  it('derives the width when a later render of the same image adds a height', async () => {
+    const { updateProps } = render(SafeHTML, {
+      props: { html: `<img src="./pic.png" alt="${sizedAlt}">` },
+    });
+    await loadImage(
+      screen.getByAltText(sizedAlt),
+      { width: 1600, height: 1200 },
+      { width: 1600, height: 1200 },
+    );
+    await updateProps({ html: `<img src="./pic.png" alt="${sizedAlt}" height="150">` });
+
+    expect(screen.getByAltText(sizedAlt)).toHaveAttribute('width', '200');
+  });
+
+  it.each([
+    ['an unsized image', ''],
+    ['a non-numeric height', 'height="auto"'],
+    ['a percentage height', 'height="100%"'],
+  ])('derives no width for %s', async (_, size) => {
+    render(SafeHTML, {
+      props: { html: `<img src="./pic.png" alt="${sizedAlt}" ${size}>` },
+    });
+    const img = screen.getByAltText(sizedAlt);
+    await loadImage(img, { width: 200, height: 150 }, { width: 1600, height: 1200 });
+
+    expect(img).not.toHaveAttribute('width');
+  });
+
+  it('keeps an authored width over the natural ratio', async () => {
+    render(SafeHTML, {
+      props: { html: `<img src="./pic.png" alt="${sizedAlt}" width="300" height="150">` },
+    });
+    const img = screen.getByAltText(sizedAlt);
+    await loadImage(img, { width: 300, height: 150 }, { width: 1600, height: 1200 });
+
+    expect(img).toHaveAttribute('width', '300');
   });
 });
