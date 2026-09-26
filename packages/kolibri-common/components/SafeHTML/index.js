@@ -30,6 +30,43 @@ function objectDataMimetype(node) {
   return dataUriMatch ? dataUriMatch[1].toLowerCase() : node.getAttribute('type');
 }
 
+const FNV_OFFSET_BASIS = 0x811c9dc5;
+const FNV_PRIME = 0x01000193;
+
+function mix(hash, unit) {
+  return Math.imul(hash ^ unit, FNV_PRIME);
+}
+
+function mixString(hash, str) {
+  for (let i = 0; i < str.length; i++) {
+    hash = mix(hash, str.charCodeAt(i));
+  }
+  return mix(hash, str.length);
+}
+
+// 32-bit FNV-1a, folding in child hashes. A stale component survives only if
+// its old and new subtrees at one position collide: about 1 in 2^32.
+function hashNode(node, nodeHashes) {
+  let hash = nodeHashes.get(node);
+  if (hash !== undefined) {
+    return hash;
+  }
+  hash = mix(FNV_OFFSET_BASIS, node.nodeType);
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    hash = mixString(hash, node.tagName);
+    for (const attr of node.attributes) {
+      hash = mixString(mixString(hash, attr.name), attr.value);
+    }
+    for (const child of node.childNodes) {
+      hash = mix(hash, hashNode(child, nodeHashes));
+    }
+  } else {
+    hash = mixString(hash, node.textContent);
+  }
+  nodeHashes.set(node, hash);
+  return hash;
+}
+
 function buildAllowedUriRegexp(allowedOrigins) {
   if (!allowedOrigins || allowedOrigins.length === 0) {
     return DEFAULT_ALLOWED_URI_REGEXP;
@@ -157,10 +194,12 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
           RETURN_DOM_FRAGMENT: true,
         }),
       );
+      const nodeHashes = new WeakMap();
 
       // `key` is the node's index among its siblings, counted before the
       // whitespace-only nodes are dropped, so patch pairs each vnode with the
-      // node that held its position.
+      // node that held its position. Components also key on their markup, so
+      // one whose content changed remounts rather than patching.
       function mapNode(node, key) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const tagName = node.tagName.toLowerCase();
@@ -200,10 +239,11 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
               childProps.element = node;
               childProps.embedded = true;
             }
+            const contentKey = `${key}:${hashNode(node, nodeHashes)}`;
             const childVNode = h(
               component,
               {
-                key,
+                key: contentKey,
                 props: childProps,
                 attrs,
                 on: forwardedListeners,
@@ -212,7 +252,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
             );
             // Wrap embedded ContentViewers in a layout container
             if (component === 'ContentViewer') {
-              return h('div', { key, class: 'embedded-content-viewer' }, [childVNode]);
+              return h('div', { key: contentKey, class: 'embedded-content-viewer' }, [childVNode]);
             }
             return childVNode;
           }

@@ -1,5 +1,5 @@
-import Vue from 'vue';
-import { render, screen } from '@testing-library/vue';
+import Vue, { h } from 'vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import DOMPurify from 'dompurify';
 
 import kolibri from 'kolibri';
@@ -278,6 +278,36 @@ describe('SafeHTML', () => {
         props: { html: '<sized-box width="600" height="450"></sized-box>' },
       });
       expect(seen).toEqual([['600', undefined]]);
+    });
+
+    it('renders new content for a component that reads its slot once', async () => {
+      const SlotSnapshot = {
+        name: 'SlotSnapshot',
+        setup(props, { slots }) {
+          const content = slots.default();
+          return () => h('div', content);
+        },
+      };
+      const SafeHTMLWithCustom = createSafeHTML({ 'slot-snapshot': SlotSnapshot });
+      const { updateProps } = render(SafeHTMLWithCustom, {
+        props: { html: `<slot-snapshot><p>${FIRST_TEXT}</p></slot-snapshot>` },
+      });
+      await updateProps({ html: `<slot-snapshot><p>${SECOND_TEXT}</p></slot-snapshot>` });
+      expect(screen.queryByText(FIRST_TEXT)).not.toBeInTheDocument();
+      expect(screen.getByText(SECOND_TEXT)).toBeInTheDocument();
+    });
+
+    it('keeps the state of a component whose content is unchanged', async () => {
+      const SafeHTMLWithCustom = createSafeHTML({ 'custom-choice': CustomChoice });
+      const unchanged = `<custom-choice identifier="A">${CONTENT_TEXT}</custom-choice>`;
+      const { updateProps } = render(SafeHTMLWithCustom, {
+        props: { html: `${unchanged}<custom-choice identifier="B">${FIRST_TEXT}</custom-choice>` },
+      });
+      await fireEvent.click(screen.getByText(CONTENT_TEXT));
+      await updateProps({
+        html: `${unchanged}<custom-choice identifier="B">${SECOND_TEXT}</custom-choice>`,
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveClass('is-selected');
     });
   });
 
