@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-  actions: read
+  pull-requests: read
 env:
   # Skips setuptools_scm's `git archive` file listing; see Makefile.
   SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
@@ -24,17 +24,22 @@ jobs:
     timeout-minutes: 10
     # Map a step output to a job output
     outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      zombies: ${{ steps.filter.outputs.zombies }}
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+      # paths-filter needs a checkout to diff push events
+      - uses: actions/checkout@v7.0.1
+      - id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
-          github_token: ${{ github.token }}
-          paths: '["kolibri/**/*.py", "pyproject.toml", "uv.lock"]'
+          filters: |
+            zombies:
+              - 'kolibri/**/*.py'
+              - 'pyproject.toml'
+              - 'uv.lock'
   zombies:
     name: No zombies
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.zombies == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

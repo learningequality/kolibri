@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-  actions: read
+  pull-requests: read
 env:
   # Skips setuptools_scm's `git archive` file listing; see Makefile.
   SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
@@ -24,17 +24,24 @@ jobs:
     timeout-minutes: 10
     # Map a step output to a job output
     outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      python: ${{ steps.filter.outputs.python }}
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+      # paths-filter needs a checkout to diff push events
+      - uses: actions/checkout@v7.0.1
+      - id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
-          github_token: ${{ github.token }}
-          paths: '["**.py", ".github/workflows/tox.yml", "pyproject.toml", "uv.lock", "python_packages/**"]'
+          filters: |
+            python:
+              - '**.py'
+              - '.github/workflows/tox.yml'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - 'python_packages/**'
   unit_test_stage1:
     name: Python unit tests (Python 3.10)
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -61,7 +68,7 @@ jobs:
   unit_test_stage2:
     name: Python unit tests for uv-supported Python versions
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -90,7 +97,7 @@ jobs:
   unit_test_no_uv:
     name: Python unit tests for Python versions without uv support
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -147,7 +154,7 @@ jobs:
   postgres:
     name: Python postgres unit tests
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     services:
@@ -196,7 +203,7 @@ jobs:
   postgres_ssl:
     name: Python postgres SSL smoke tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -240,7 +247,7 @@ jobs:
   macos:
     name: Python unit tests on Mac OS
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: macos-14
     timeout-minutes: 30
     strategy:
@@ -265,7 +272,7 @@ jobs:
   windows:
     name: Python unit tests on Windows Server
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: windows-latest
     timeout-minutes: 60
     strategy:
@@ -295,7 +302,7 @@ jobs:
   sync_extras_plugin_tests:
     name: kolibri-sync-extras-plugin tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -327,7 +334,7 @@ jobs:
   opensearch_plugin_tests:
     name: kolibri-opensearch-plugin tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -362,7 +369,7 @@ jobs:
   platform_tests:
     name: Platform tests (${{ matrix.name }})
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -407,7 +414,7 @@ jobs:
   android_platform_tests:
     name: Android host tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -433,7 +440,7 @@ jobs:
   android_jvm_tests:
     name: Android JVM unit tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

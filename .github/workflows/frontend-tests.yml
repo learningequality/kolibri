@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-  actions: read
+  pull-requests: read
 jobs:
   pre_job:
     name: Path match check
@@ -21,17 +21,22 @@ jobs:
     timeout-minutes: 10
     # Map a step output to a job output
     outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+      # paths-filter needs a checkout to diff push events
+      - uses: actions/checkout@v7.0.1
+      - id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
-          github_token: ${{ github.token }}
-          paths: '["**.vue", "**.js", "pnpm-lock.yaml"]'
+          filters: |
+            frontend:
+              - '**.vue'
+              - '**.js'
+              - 'pnpm-lock.yaml'
   test:
     name: Frontend tests
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
