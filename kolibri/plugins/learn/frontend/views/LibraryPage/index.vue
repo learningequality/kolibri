@@ -21,7 +21,15 @@
       :deviceId="deviceId"
       :route="back"
     >
-      <main class="main-grid">
+      <main
+        class="main-grid"
+        :aria-label="displayingSearchResults ? null : channelsLabel"
+      >
+        <!--
+          The search bar precedes the h1 in the DOM. Manually overriding
+          means we don't accidentally bypass the search experience entirely
+          for screen reader users.
+        -->
         <!-- Search header: search bar + filter pills grouped together -->
         <div
           class="search-header"

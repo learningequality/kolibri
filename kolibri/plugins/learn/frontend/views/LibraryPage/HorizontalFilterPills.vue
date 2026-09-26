@@ -1,37 +1,39 @@
 <template>
 
   <div class="filter-pills">
-    <KButton
-      v-for="(entry, index) in entries"
-      :key="`${entry.type}-${index}`"
-      :data-testid="`${entry.type}-pill`"
-      :text="entry.label"
-      appearance="flat-button"
-      class="pill"
-      :appearanceOverrides="pillOverridesFor(entry)"
-      :disabled="loading"
-      @click="toggleFilter({ key: entry.termKey, value: entry.value })"
-    >
-      <template
-        v-if="entry.icon"
-        #icon
+    <fieldset class="filters-fieldset">
+      <legend class="visuallyhidden">{{ filtersGroupLabel$() }}</legend>
+      <label
+        v-for="entry in entries"
+        :key="`${entry.termKey}:${entry.value}`"
+        :data-testid="`${entry.type}-pill`"
+        class="pill"
+        :class="[$computedClass(pillFocusWithinStyle), { loading }]"
+        :style="pillColorStyleFor(entry)"
       >
+        <input
+          :ref="`${entry.termKey}:${entry.value}`"
+          type="checkbox"
+          class="visuallyhidden"
+          :checked="isFilterActive(entry.termKey, entry.value)"
+          :aria-disabled="loading"
+          @click="guardClick"
+          @change="handleToggle(entry)"
+        >
         <KIcon
+          v-if="entry.icon"
           :icon="entry.icon"
           :color="entry.type === 'activity' ? null : $themeTokens.primary"
           class="pill-icon"
         />
-      </template>
-      <template
-        v-if="iconAfterFor(entry)"
-        #iconAfter
-      >
+        <span dir="auto">{{ entry.label }}</span>
         <KIcon
+          v-if="iconAfterFor(entry)"
           :icon="iconAfterFor(entry)"
           class="pill-icon-after"
         />
-      </template>
-    </KButton>
+      </label>
+    </fieldset>
     <span
       v-if="hasAvailableLabels"
       class="all-filters-group"
@@ -45,7 +47,7 @@
         :text="allFilters$()"
         appearance="flat-button"
         class="pill"
-        :appearanceOverrides="pillOverridesFor({})"
+        :appearanceOverrides="pillColorStyleFor({})"
         :disabled="loading"
         @click="$emit('openFilters')"
       >
@@ -80,11 +82,11 @@
 
 <script>
 
-  import { computed } from 'vue';
+  import { computed, getCurrentInstance, nextTick } from 'vue';
   import { get } from '@vueuse/core';
   import { themeTokens, themeBrand, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { CategoriesLookup } from 'kolibri/constants';
-  import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { injectBaseSearch, searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import { getCategoryIcon } from 'kolibri-common/utils/categoryIcon';
@@ -93,13 +95,14 @@
   export default {
     name: 'HorizontalFilterPills',
     setup() {
+      const instance = getCurrentInstance().proxy;
       const {
         availableLearningActivities,
         availableLibraryCategories,
-        availableLanguages,
         appliedFilters,
         isFilterActive,
         isLabelAvailable,
+        labelForFilter,
         toggleFilter,
         clearSearch,
         searchLoading,
@@ -130,10 +133,10 @@
         ),
       );
 
-      // Decorate a {termKey, value} pair with the label and icon for its pill
       function entryFor(termKey, value) {
+        const label = labelForFilter(termKey, value);
         if (termKey === 'keywords') {
-          return { type: 'keyword', termKey, value, label: value, icon: null };
+          return { type: 'keyword', termKey, value, label, icon: null };
         }
         if (termKey === 'learning_activities') {
           const key = get(activityKeyByValue)[value];
@@ -141,7 +144,7 @@
             type: 'activity',
             termKey,
             value,
-            label: key ? coreString(key) : value,
+            label,
             icon: key ? getLearningActivityIcon(key) : null,
           };
         }
@@ -153,23 +156,14 @@
             type: 'category',
             termKey,
             value,
-            label: key ? coreString(key) : value,
+            label,
             icon: key ? getCategoryIcon(key) : null,
           };
         }
         if (termKey === 'languages') {
-          // Language values are codes (e.g. 'en'), which aren't in coreString's
-          // metadata lookup — resolve the human-readable name from the catalog.
-          const lang = (get(availableLanguages) || []).find(l => l.id === value);
-          return {
-            type: 'language',
-            termKey,
-            value,
-            label: lang ? lang.lang_name : value,
-            icon: null,
-          };
+          return { type: 'language', termKey, value, label, icon: null };
         }
-        return { type: termKey, termKey, value, label: coreString(value), icon: null };
+        return { type: termKey, termKey, value, label, icon: null };
       }
 
       // Applied filters first, then still-yieldable catalog refinements,
@@ -197,8 +191,28 @@
         return isFilterActive(entry.termKey, entry.value) ? 'close' : null;
       }
 
-      // Only theme-dependent styling lives here; layout is in the style block
-      function pillOverridesFor(entry) {
+      // don't let keyboard loose focus mid-search.
+      function guardClick(event) {
+        if (get(searchLoading)) {
+          event.preventDefault();
+        }
+      }
+
+      // Use click's default action so that the checkbox's state is
+      // accurately read out with the screenreader.
+      // Managing via js causes lags.
+      function handleToggle(entry) {
+        const refName = `${entry.termKey}:${entry.value}`;
+        toggleFilter({ key: entry.termKey, value: entry.value });
+        nextTick(() => {
+          const [checkbox] = instance.$refs[refName] || [];
+          if (checkbox) {
+            checkbox.focus();
+          }
+        });
+      }
+
+      function pillColorStyleFor(entry) {
         if (isFilterActive(entry.termKey, entry.value)) {
           return {
             backgroundColor: themeBrand().primary.v_100,
@@ -216,19 +230,28 @@
         };
       }
 
-      const { allFilters$ } = searchAndFilterStrings;
+      // for a11y, the pill is a semantic checkbox and label
+      // but visually styled to match KButton for sighted users
+      const pillFocusWithinStyle = computed(() => ({
+        ':focus-within': { ...instance.$coreOutline, outlineOffset: 0 },
+      }));
+      const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
       const { clearAllAction$ } = coreStrings;
 
       return {
         entries,
         hasActiveFilters,
         hasAvailableLabels,
+        isFilterActive,
         iconAfterFor,
-        pillOverridesFor,
-        toggleFilter,
+        pillColorStyleFor,
+        pillFocusWithinStyle,
+        guardClick,
+        handleToggle,
         clearSearch,
         loading: searchLoading,
         allFilters$,
+        filtersGroupLabel$,
         clearAllAction$,
       };
     },
@@ -246,17 +269,42 @@
     align-items: center;
   }
 
+  // Strip the fieldset's default border/padding/min-width and let its pills
+  // lay out as direct flex children of .filter-pills, same as before grouping.
+  .filters-fieldset {
+    all: unset;
+    display: contents;
+  }
+
   .filter-pills .pill {
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
     height: auto;
     min-height: 0;
     padding: 8px;
+    overflow: hidden;
     font-size: 16px;
     line-height: 1;
     text-transform: none;
     white-space: nowrap;
+    user-select: none;
     border-radius: 24px;
+    transition: background-color 0.2s ease;
+  }
+
+  .filter-pills .pill:hover:not(.loading) {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .filter-pills .pill:not(.loading) {
+    cursor: pointer;
+  }
+
+  .filter-pills .pill.loading {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
   }
 
   // Keep the divider attached to the All filters pill when the row wraps

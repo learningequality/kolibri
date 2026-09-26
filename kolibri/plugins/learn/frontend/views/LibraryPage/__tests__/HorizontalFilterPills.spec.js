@@ -1,7 +1,7 @@
-import { ref } from 'vue';
-import { render, screen, fireEvent } from '@testing-library/vue';
-import { Categories } from 'kolibri/constants';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { nextTick, ref } from 'vue';
+import { render, screen, fireEvent, within } from '@testing-library/vue';
+import { Categories, CategoriesLookup } from 'kolibri/constants';
+import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 import HorizontalFilterPills from '../HorizontalFilterPills.vue';
 
@@ -15,7 +15,7 @@ const {
   mathematics$,
   clearAllAction$,
 } = coreStrings;
-const { allFilters$ } = searchAndFilterStrings;
+const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
 
 const KEYWORD_FILTER = 'hummingbirds';
 
@@ -43,6 +43,24 @@ const mockCategories = {
     nested: {},
   },
 };
+function defaultLabelForFilter(key, value) {
+  if (key === 'keywords') {
+    return value;
+  }
+  if (key === 'learning_activities') {
+    const activityKey = Object.entries(mockActivities).find(([, v]) => v === value)?.[0];
+    return activityKey ? coreString(activityKey) : value;
+  }
+  if (key === 'categories') {
+    const categoryKey = CategoriesLookup[value];
+    return categoryKey ? coreString(categoryKey) : value;
+  }
+  if (key === 'languages') {
+    const lang = LANGUAGES.find(l => l.id === value);
+    return lang ? lang.lang_name : value;
+  }
+  return coreString(value);
+}
 
 function renderComponent(provides = {}, props = {}) {
   const toggleFilter = jest.fn();
@@ -56,6 +74,7 @@ function renderComponent(provides = {}, props = {}) {
       searchableLabels: ref(null),
       isFilterActive: () => false,
       isLabelAvailable: () => true,
+      labelForFilter: defaultLabelForFilter,
       appliedFilters: () => [],
       toggleFilter,
       clearSearch,
@@ -67,35 +86,139 @@ function renderComponent(provides = {}, props = {}) {
 }
 
 describe('HorizontalFilterPills', () => {
+  describe('grouping', () => {
+    it('groups the filter checkboxes under a named group', () => {
+      renderComponent();
+      const group = screen.getByRole('group', { name: filtersGroupLabel$() });
+      expect(within(group).getByRole('checkbox', { name: create$() })).toBeInTheDocument();
+      expect(within(group).getByRole('checkbox', { name: school$() })).toBeInTheDocument();
+    });
+
+    it('does not include the all-filters or clear-all actions in the group', () => {
+      renderComponent({
+        appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
+      });
+      const group = screen.getByRole('group', { name: filtersGroupLabel$() });
+      expect(within(group).queryByRole('button', { name: allFilters$() })).not.toBeInTheDocument();
+      expect(
+        within(group).queryByRole('button', { name: clearAllAction$() }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('activity pills', () => {
-    it('renders a pill for each available activity', () => {
+    it('renders a checkbox for each available activity', () => {
       renderComponent();
       expect(screen.getAllByTestId('activity-pill')).toHaveLength(3);
-      expect(screen.getByRole('button', { name: create$() })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: explore$() })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: listen$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: explore$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: listen$() })).toBeInTheDocument();
     });
 
     it('calls toggleFilter when an activity pill is clicked', async () => {
       const { toggleFilter } = renderComponent();
-      await fireEvent.click(screen.getByRole('button', { name: create$() }));
+      await fireEvent.click(screen.getByRole('checkbox', { name: create$() }));
       expect(toggleFilter).toHaveBeenCalledWith(
         expect.objectContaining({ key: 'learning_activities', value: 'UXADWcXZ' }),
+      );
+    });
+
+    it('reflects the applied state as checked', () => {
+      renderComponent({
+        appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
+        isFilterActive: (key, value) => key === 'learning_activities' && value === 'UXADWcXZ',
+      });
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeChecked();
+      expect(screen.getByRole('checkbox', { name: explore$() })).not.toBeChecked();
+    });
+
+    it('keeps checked in sync after unapplying the first of two applied activities', async () => {
+      const applied = ref([]);
+      renderComponent({
+        appliedFilters: () => applied.value,
+        isFilterActive: (key, value) => applied.value.some(f => f.key === key && f.value === value),
+        toggleFilter: ({ key, value }) => {
+          const idx = applied.value.findIndex(f => f.key === key && f.value === value);
+          applied.value =
+            idx === -1
+              ? [...applied.value, { key, value }]
+              : applied.value.filter((_, i) => i !== idx);
+        },
+      });
+
+      await fireEvent.click(screen.getByRole('checkbox', { name: explore$() }));
+      await fireEvent.click(screen.getByRole('checkbox', { name: listen$() }));
+      await fireEvent.click(screen.getByRole('checkbox', { name: explore$() }));
+
+      expect(screen.getByRole('checkbox', { name: listen$() })).toBeChecked();
+      expect(screen.getByRole('checkbox', { name: explore$() })).not.toBeChecked();
+    });
+
+    it('keeps focus on the checkbox after unchecking it, even though unapplying it reorders the list', async () => {
+      // Applied filters render before catalog refinements, so unchecking
+      // "Explore" moves its pill later in the list — a reorder that can drop
+      // focus from the checkbox if it isn't explicitly reclaimed.
+      const applied = ref([{ key: 'learning_activities', value: mockActivities.EXPLORE }]);
+      renderComponent({
+        appliedFilters: () => applied.value,
+        isFilterActive: (key, value) => applied.value.some(f => f.key === key && f.value === value),
+        toggleFilter: ({ key, value }) => {
+          const idx = applied.value.findIndex(f => f.key === key && f.value === value);
+          applied.value =
+            idx === -1
+              ? [...applied.value, { key, value }]
+              : applied.value.filter((_, i) => i !== idx);
+        },
+      });
+
+      const checkbox = screen.getByRole('checkbox', { name: explore$() });
+      checkbox.focus();
+      await fireEvent.click(checkbox);
+      await nextTick();
+
+      expect(checkbox).not.toBeChecked();
+      expect(checkbox).toHaveFocus();
+    });
+  });
+
+  describe('while loading', () => {
+    it('keeps the checkbox enabled so a keyboard toggle does not lose focus', () => {
+      renderComponent({ searchLoading: ref(true) });
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeEnabled();
+    });
+
+    it('ignores a toggle started while a previous one is still loading', async () => {
+      const { toggleFilter } = renderComponent({ searchLoading: ref(true) });
+      await fireEvent.click(screen.getByRole('checkbox', { name: create$() }));
+      expect(toggleFilter).not.toHaveBeenCalled();
+    });
+
+    it('does not let an ignored click flip the checkbox out of sync with the applied filters', async () => {
+      renderComponent({ searchLoading: ref(true) });
+      await fireEvent.click(screen.getByRole('checkbox', { name: create$() }));
+      expect(screen.getByRole('checkbox', { name: create$() })).not.toBeChecked();
+    });
+
+    it('marks the checkbox aria-disabled for assistive tech', () => {
+      renderComponent({ searchLoading: ref(true) });
+      expect(screen.getByRole('checkbox', { name: create$() })).toHaveAttribute(
+        'aria-disabled',
+        'true',
       );
     });
   });
 
   describe('category pills', () => {
-    it('renders a pill for each available category', () => {
+    it('renders a checkbox for each available category', () => {
       renderComponent();
       expect(screen.getAllByTestId('category-pill')).toHaveLength(2);
-      expect(screen.getByRole('button', { name: school$() })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: dailyLife$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: school$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: dailyLife$() })).toBeInTheDocument();
     });
 
     it('calls toggleFilter when a category pill is clicked', async () => {
       const { toggleFilter } = renderComponent();
-      await fireEvent.click(screen.getByRole('button', { name: school$() }));
+      await fireEvent.click(screen.getByRole('checkbox', { name: school$() }));
       expect(toggleFilter).toHaveBeenCalledWith(
         expect.objectContaining({ key: 'categories', value: Categories.SCHOOL }),
       );
@@ -112,6 +235,7 @@ describe('HorizontalFilterPills', () => {
       });
       const pill = screen.getByTestId('category-pill');
       expect(pill).toHaveTextContent(mathematics$());
+      expect(screen.getByRole('checkbox', { name: mathematics$() })).toBeChecked();
       expect(screen.queryByText(SUBCATEGORY_VALUE)).not.toBeInTheDocument();
     });
   });
@@ -139,7 +263,7 @@ describe('HorizontalFilterPills', () => {
           key === 'learning_activities' ? value === '#j8L0eq3' : false,
       });
       expect(screen.getAllByTestId('activity-pill')).toHaveLength(1);
-      expect(screen.getByRole('button', { name: explore$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: explore$() })).toBeInTheDocument();
       expect(screen.queryAllByTestId('category-pill')).toHaveLength(0);
     });
 
@@ -150,7 +274,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'learning_activities' && value === 'UXADWcXZ',
       });
       expect(screen.getAllByTestId('activity-pill')).toHaveLength(1);
-      expect(screen.getByRole('button', { name: create$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: create$() })).toBeInTheDocument();
     });
   });
 
@@ -161,7 +285,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'keywords' && value === KEYWORD_FILTER,
       });
       expect(screen.getByTestId('keyword-pill')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: KEYWORD_FILTER })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: KEYWORD_FILTER })).toBeChecked();
     });
 
     it('renders an active filter from a non-catalog dimension', () => {
@@ -170,7 +294,7 @@ describe('HorizontalFilterPills', () => {
         isFilterActive: (key, value) => key === 'grade_levels' && value === 'basic_skills',
       });
       expect(screen.getByTestId('grade_levels-pill')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: basicSkills$() })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: basicSkills$() })).toBeChecked();
     });
 
     it('labels an applied language with its name, not the raw code', () => {
@@ -178,12 +302,11 @@ describe('HorizontalFilterPills', () => {
       // show the human-readable name from the languages catalog instead.
       const language = LANGUAGES[1];
       renderComponent({
-        availableLanguages: ref(LANGUAGES),
         appliedFilters: () => [{ key: 'languages', value: language.id }],
         isFilterActive: (key, value) => key === 'languages' && value === language.id,
       });
       expect(screen.getByTestId('language-pill')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: language.lang_name })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: language.lang_name })).toBeChecked();
       expect(screen.queryByText(language.id)).not.toBeInTheDocument();
     });
   });

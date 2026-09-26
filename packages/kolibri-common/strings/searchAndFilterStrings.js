@@ -56,6 +56,11 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'All filters',
     context: 'Label for the button and side panel showing all available search filters',
   },
+  filtersGroupLabel: {
+    message: 'Filters',
+    context:
+      "Hidden label for the group of checkboxes shown as pills (e.g. 'School', 'Video') that a learner can check or uncheck to filter search results. Read by screen readers only, to identify the group; not shown visually because the pills are self-explanatory to sighted users.",
+  },
   searchHistory: {
     message: 'History',
     context: 'Header for recently viewed resources in the search autocomplete dropdown',
@@ -67,6 +72,11 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
   resultsCount: {
     message: '{count, number} {count, plural, one {result} other {results}}',
     context: 'Number of search results when we have an exact count',
+  },
+  filterToggledResultsCount: {
+    message: '{count, number} {count, plural, one {result} other {results}} for {filterLabels}',
+    context:
+      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video'), replacing the browser's default announcement of the next checkbox with the updated result count and the filters now applied. 'filterLabels' is a comma-separated list of the active filter labels, e.g. '14 results for School, Video'.",
   },
   autocompleteResultsAvailable: {
     message:
