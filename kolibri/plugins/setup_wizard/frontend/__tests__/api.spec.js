@@ -32,6 +32,16 @@ describe('setup_wizard resources', () => {
     expect(result).toEqual({ status: 201, errors: [] });
   });
 
+  it('gets the OS user and resolves the response body', async () => {
+    client.__setPayload({ name: 'Jane Doe' });
+    const result = await SetupWizardResource.osuser();
+    expect(client.mock.calls[0][0]).toMatchObject({
+      method: 'GET',
+      url: expect.stringMatching(/setupwizard_osuser$/),
+    });
+    expect(result).toEqual({ name: 'Jane Doe' });
+  });
+
   it('gets the facility admins and resolves the list', async () => {
     client.__setPayload([{ id: 'admin_1', username: 'admin' }]);
     const result = await FacilityImportResource.facilityadmins();

@@ -20,7 +20,6 @@ user gains through the ``Role``.
 """
 
 import logging
-import sys
 from threading import local
 from typing import ClassVar
 
@@ -56,6 +55,7 @@ from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.hooks import GetOSUserHook
+from kolibri.core.device.hooks import os_account_name
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_full_facility_import
@@ -816,11 +816,9 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         except OSUser.DoesNotExist as e:
             user = None
             method = self.create_superuser if is_superuser else self.create_user
-            username = os_username
-            if sys.platform == "win32":
-                # Windows OS usernames are qualified as DOMAIN\account
-                username = username.rsplit("\\", 1)[-1]
-            username = validate_username_allowed_chars.regex.sub("_", username)
+            username = validate_username_allowed_chars.regex.sub(
+                "_", os_account_name(os_username)
+            )
             for i in range(10):
                 try:
                     with transaction.atomic():
