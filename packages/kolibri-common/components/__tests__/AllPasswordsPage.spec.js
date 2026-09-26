@@ -1,10 +1,11 @@
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { render, screen, fireEvent } from '@testing-library/vue';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
-const { noPicturePasswordDescription$, printAction$, noLearnersInClass$ } = picturePasswordStrings;
+const { noPicturePasswordDescription$, printAction$, noLearnersInClass$, allPasswordsHeader$ } =
+  picturePasswordStrings;
 
 const CLASS_NAME = 'Test Class';
 const FACILITY_NAME = 'Test Facility';
@@ -49,6 +50,27 @@ describe('AllPasswordsPage', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('page title', () => {
+    beforeEach(() => {
+      document.title = '';
+    });
+
+    it('sets the tab title to the header, class, and facility', async () => {
+      renderComponent();
+      await nextTick();
+      expect(document.title).toBe(
+        `${allPasswordsHeader$()} - ${CLASS_NAME} - ${FACILITY_NAME} - Kolibri`,
+      );
+    });
+
+    it('renders its visible header as the only h1', () => {
+      renderComponent();
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(allPasswordsHeader$());
+    });
   });
 
   describe('learner list', () => {
