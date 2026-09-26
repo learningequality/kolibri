@@ -149,9 +149,9 @@ describe('SafeHTML', () => {
           html: `<span style="text-decoration: underline line-through;">${CONTENT_TEXT}</span>`,
         },
       });
-      expect(screen.getByText(CONTENT_TEXT).style.getPropertyValue('text-decoration')).toBe(
-        'underline line-through',
-      );
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({
+        'text-decoration': 'underline line-through',
+      });
     });
 
     it.each([
@@ -165,18 +165,30 @@ describe('SafeHTML', () => {
           html: `<span style="${prop}: ${value};">${CONTENT_TEXT}</span>`,
         },
       });
-      expect(screen.getByText(CONTENT_TEXT).style.getPropertyValue(prop)).toBe(value);
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({ [prop]: value });
     });
 
-    it('drops non-allowlisted properties alongside text-decoration', () => {
+    it.each([
+      ['text-decoration', 'none'],
+      ['text-decoration-line', 'none'],
+    ])('does not let %s: none remove the underline from a link', (prop, value) => {
       render(SafeHTML, {
         props: {
-          html: `<span style="text-decoration: underline; position: absolute;">${CONTENT_TEXT}</span>`,
+          html: `<a href="https://example.com" style="${prop}: ${value}; color: red;">${CONTENT_TEXT}</a>`,
         },
       });
-      const span = screen.getByText(CONTENT_TEXT);
-      expect(span.style.getPropertyValue('text-decoration')).toBe('underline');
-      expect(span.getAttribute('style')).not.toContain('position');
+      const link = screen.getByText(CONTENT_TEXT);
+      expect(link.getAttribute('style')).not.toContain('none');
+      expect(link).toHaveStyle({ color: 'rgb(255, 0, 0)' });
+    });
+
+    it('retains text-decoration: none on non-link elements', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="text-decoration: none;">${CONTENT_TEXT}</span>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({ 'text-decoration': 'none' });
     });
 
     it('drops non-allowlisted properties while keeping allowlisted ones', () => {

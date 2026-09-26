@@ -71,6 +71,14 @@ function filterStyle(node, data) {
   }
   const probe = document.createElement('span');
   probe.style.cssText = data.attrValue;
+  // Keep links underlined, so colour is not the only thing that marks them.
+  const decorationLine =
+    probe.style.getPropertyValue('text-decoration-line') ||
+    probe.style.getPropertyValue('text-decoration');
+  if (node.nodeName === 'A' && /\bnone\b/.test(decorationLine)) {
+    probe.style.removeProperty('text-decoration');
+    probe.style.removeProperty('text-decoration-line');
+  }
   const kept = ALLOWED_STYLE_PROPS.map(prop => {
     const value = probe.style.getPropertyValue(prop);
     return value ? `${prop}: ${value}` : null;
