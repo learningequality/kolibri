@@ -8,6 +8,7 @@ Platform-specific behavior is achieved by adding different plugins to the same
 base process class, rather than having separate wrapper classes per platform.
 """
 
+from kolibri.main import enable_plugin
 from kolibri.main import initialize
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
@@ -28,6 +29,7 @@ class KolibriProcess(KolibriProcessBus):
 
     def __init__(self, port=None, zip_port=None):
         logging.info("Initializing Kolibri...")
+        enable_plugin("kolibri_app")
         initialize()
 
         if port is None:

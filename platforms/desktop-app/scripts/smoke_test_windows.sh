@@ -64,11 +64,19 @@ while ! sc query Kolibri | grep -q "RUNNING"; do
 done
 echo "✓ Kolibri service is running"
 
-# 4. Wait for the service to create logs
+# 4. Wait for the service to log the port it is serving on
 echo "[4/6] Waiting for service logs..."
 # The service runs with --run-as-server, which logs to its own file.
 KOLIBRI_LOG="/c/ProgramData/kolibri/logs/kolibri-app-server.txt"
-sleep 10
+# The kolibri_app plugin sets HTTP_PORT to 0, so only the bound port is usable.
+TIMEOUT=120
+ELAPSED=0
+while [ $ELAPSED -lt $TIMEOUT ]; do
+    PORT=$(grep -oE "Server is running on port [0-9]+" "$KOLIBRI_LOG" 2>/dev/null | tail -1 | awk '{print $NF}')
+    [ -n "$PORT" ] && break
+    sleep 2
+    ELAPSED=$((ELAPSED + 2))
+done
 
 if [ ! -f "$KOLIBRI_LOG" ]; then
     echo "ERROR: Log file not found at $KOLIBRI_LOG"
@@ -77,12 +85,6 @@ if [ ! -f "$KOLIBRI_LOG" ]; then
     exit 1
 fi
 
-# Parse port from log (look for "localhost:PORT" or "port 8080")
-PORT=$(grep -oE "localhost:[0-9]+" "$KOLIBRI_LOG" | head -1 | cut -d: -f2)
-if [ -z "$PORT" ]; then
-    # Try alternative pattern: "port 8080"
-    PORT=$(grep -oE "port [0-9]+" "$KOLIBRI_LOG" | head -1 | awk '{print $2}')
-fi
 if [ -z "$PORT" ]; then
     echo "ERROR: Could not detect port from logs"
     echo "=== Log contents (first 100 lines) ==="
