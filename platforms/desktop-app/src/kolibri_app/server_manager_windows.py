@@ -442,7 +442,7 @@ class WindowsServerManager:
 
                 # Parse JSON message from client
                 message = json.loads(text_data)
-                logging.debug(f"Pipe client received message: {message}")
+                logging.debug(f"Pipe client received message: {message.get('type')}")
                 wx.CallAfter(self._handle_pipe_message, message)
             else:
                 # Pipe closed by server - break inner loop to reconnect

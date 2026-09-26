@@ -1,3 +1,4 @@
+import sys
 from abc import abstractmethod
 
 from kolibri.plugins.hooks import define_hook
@@ -38,6 +39,13 @@ class GetOSUserHook(KolibriHook):
                 "Getting the OS user is not supported on this platform"
             ) from e
         return hook.get_os_user(auth_token)
+
+
+def os_account_name(os_username):
+    if sys.platform == "win32":
+        # Windows OS usernames are qualified as DOMAIN\account
+        return os_username.rsplit("\\", 1)[-1]
+    return os_username
 
 
 @define_hook(only_one_registered=True)

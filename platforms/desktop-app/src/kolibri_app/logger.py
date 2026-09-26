@@ -4,6 +4,7 @@ import sys
 
 from kolibri.utils.conf import LOG_ROOT
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
+from kolibri_app.constants import APP_USER_SUFFIX
 from kolibri_app.constants import RUN_AS_SERVER
 from kolibri_app.streams import LoggerWriter
 
@@ -22,7 +23,9 @@ log.raiseExceptions = False
 # The server subprocess gets its own file: Windows will not rename a log file a
 # second process still holds open, so sharing one breaks rotation for both
 # (learningequality/kolibri#15150).
-log_basename = "kolibri-app-server.txt" if RUN_AS_SERVER else "kolibri-app.txt"
+log_basename = (
+    "kolibri-app-server.txt" if RUN_AS_SERVER else f"kolibri-app{APP_USER_SUFFIX}.txt"
+)
 log_filename = os.path.join(LOG_ROOT, log_basename)
 file_handler = KolibriTimedRotatingFileHandler(
     filename=log_filename, encoding="utf-8", when="midnight", backupCount=30
