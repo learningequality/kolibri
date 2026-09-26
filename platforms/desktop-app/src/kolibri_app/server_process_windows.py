@@ -25,7 +25,9 @@ from threading import Event
 from threading import Lock
 from threading import Thread
 
+import ntsecuritycon
 import pywintypes
+import win32api
 import win32file
 import win32pipe
 import win32security
@@ -46,6 +48,9 @@ from kolibri_app.windows_users import pipe_client_user_info
 # Named pipe for IPC between UI process and server subprocess
 # Uses Windows named pipe format: \\.<hostname>\pipe\<pipename>
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
+# winbase.h
+FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000
+CREATE_PIPE_RETRY_DELAY = 2
 
 
 class WindowsIpcPlugin(SimplePlugin):
@@ -136,9 +141,24 @@ class WindowsIpcPlugin(SimplePlugin):
         """
         Create security attributes for the named pipe.
         """
+        token = win32security.OpenProcessToken(
+            win32api.GetCurrentProcess(), win32security.TOKEN_QUERY
+        )
+        try:
+            server_sid, _attributes = win32security.GetTokenInformation(
+                token, win32security.TokenUser
+            )
+        finally:
+            token.Close()
+        # For pipes FILE_APPEND_DATA is FILE_CREATE_PIPE_INSTANCE, which
+        # GENERIC_WRITE includes: only the server may create instances.
+        client_access = ntsecuritycon.FILE_GENERIC_READ | ntsecuritycon.FILE_WRITE_DATA
         sa = win32security.SECURITY_ATTRIBUTES()
         sa.bInheritHandle = False
-        security_descriptor_sddl = "D:(A;OICI;GRGW;;;AU)"
+        security_descriptor_sddl = (
+            f"D:(A;;GA;;;{win32security.ConvertSidToStringSid(server_sid)})"
+            f"(A;;{client_access:#x};;;AU)"
+        )
         sa.SECURITY_DESCRIPTOR = (
             win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(
                 security_descriptor_sddl, win32security.SDDL_REVISION_1
@@ -146,13 +166,14 @@ class WindowsIpcPlugin(SimplePlugin):
         )
         return sa
 
-    def _create_named_pipe(self, security_attributes):
+    def _create_named_pipe(self, security_attributes, first_instance):
         """
         Create and configure the named pipe for IPC.
         """
         pipe = win32pipe.CreateNamedPipe(
             PIPE_NAME,
-            win32pipe.PIPE_ACCESS_DUPLEX,
+            win32pipe.PIPE_ACCESS_DUPLEX
+            | (FILE_FLAG_FIRST_PIPE_INSTANCE if first_instance else 0),
             win32pipe.PIPE_TYPE_MESSAGE
             | win32pipe.PIPE_READMODE_MESSAGE
             | win32pipe.PIPE_WAIT,
@@ -218,8 +239,21 @@ class WindowsIpcPlugin(SimplePlugin):
 
         security_attributes = self._create_security_attributes()
 
+        first_instance = True
+        create_error_logged = False
         while not self.shutdown_event.is_set():
-            pipe = self._create_named_pipe(security_attributes)
+            try:
+                pipe = self._create_named_pipe(security_attributes, first_instance)
+            except pywintypes.error as e:
+                # With FILE_FLAG_FIRST_PIPE_INSTANCE, fails while another
+                # process, such as a user's local server, owns the pipe name.
+                if not create_error_logged:
+                    logging.error(f"Could not create named pipe, will retry: {e}")
+                    create_error_logged = True
+                self.shutdown_event.wait(CREATE_PIPE_RETRY_DELAY)
+                continue
+            first_instance = False
+            create_error_logged = False
             with self.pipes_lock:
                 if self.shutdown_event.is_set():
                     # Handle edge case where STOP was called while we created the pipe.

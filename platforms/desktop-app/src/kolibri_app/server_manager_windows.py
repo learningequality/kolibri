@@ -25,6 +25,7 @@ import time
 from threading import Event
 from threading import Thread
 
+import ntsecuritycon
 import pywintypes
 import win32api
 import win32con
@@ -416,7 +417,7 @@ class WindowsServerManager:
 
         self.pipe_handle = win32file.CreateFile(
             PIPE_NAME,
-            win32file.GENERIC_READ | win32file.GENERIC_WRITE,
+            win32file.GENERIC_READ | ntsecuritycon.FILE_WRITE_DATA,
             0,
             None,
             win32file.OPEN_EXISTING,
