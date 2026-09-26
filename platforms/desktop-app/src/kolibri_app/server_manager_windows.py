@@ -418,15 +418,21 @@ class WindowsServerManager:
                 return False
             raise
 
-        self.pipe_handle = win32file.CreateFile(
-            PIPE_NAME,
-            win32file.GENERIC_READ | ntsecuritycon.FILE_WRITE_DATA,
-            0,
-            None,
-            win32file.OPEN_EXISTING,
-            SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
-            None,
-        )
+        try:
+            self.pipe_handle = win32file.CreateFile(
+                PIPE_NAME,
+                win32file.GENERIC_READ | ntsecuritycon.FILE_WRITE_DATA,
+                0,
+                None,
+                win32file.OPEN_EXISTING,
+                SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
+                None,
+            )
+        except pywintypes.error as e:
+            # Another client took the free instance first, wait for the next one
+            if e.winerror == winerror.ERROR_PIPE_BUSY:
+                return False
+            raise
 
         logging.info("Connected to named pipe.")
 
