@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <AppBarPage v-if="!loading && notAuthorized">
+    <AppBarPage
+      v-if="!loading && notAuthorized"
+      hasVisibleHeading
+    >
       <KPageContainer>
         <AuthMessage
           :authorizedRole="authorizedRole"
@@ -11,7 +14,10 @@
       </KPageContainer>
     </AppBarPage>
 
-    <AppBarPage v-else-if="!loading && error">
+    <AppBarPage
+      v-else-if="!loading && error"
+      hasVisibleHeading
+    >
       <KPageContainer>
         <AppError />
       </KPageContainer>
