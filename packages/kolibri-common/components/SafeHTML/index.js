@@ -12,7 +12,16 @@ const FORBID_ATTR = ['width', 'height'];
 // Inline style properties SafeHTML retains. Hand-synced with the ricecooker /
 // le_utils KPUB ingest allowlist (learningequality/ricecooker#685) — the
 // frontend does not consume le_utils, so keep these in sync by hand.
-const ALLOWED_STYLE_PROPS = ['text-align', 'color', 'background-color'];
+const ALLOWED_STYLE_PROPS = [
+  'text-align',
+  'color',
+  'background-color',
+  'text-decoration',
+  'text-decoration-line',
+  'text-decoration-style',
+  'text-decoration-color',
+  'text-decoration-thickness',
+];
 const ADD_TAGS = ['object', 'semantics'];
 const ADD_ATTR = ['data'];
 const HTMLComponents = {
@@ -62,6 +71,14 @@ function filterStyle(node, data) {
   }
   const probe = document.createElement('span');
   probe.style.cssText = data.attrValue;
+  // Keep links underlined, so colour is not the only thing that marks them.
+  const decorationLine =
+    probe.style.getPropertyValue('text-decoration-line') ||
+    probe.style.getPropertyValue('text-decoration');
+  if (node.nodeName === 'A' && /\bnone\b/.test(decorationLine)) {
+    probe.style.removeProperty('text-decoration');
+    probe.style.removeProperty('text-decoration-line');
+  }
   const kept = ALLOWED_STYLE_PROPS.map(prop => {
     const value = probe.style.getPropertyValue(prop);
     return value ? `${prop}: ${value}` : null;

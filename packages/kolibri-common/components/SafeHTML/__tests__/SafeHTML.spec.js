@@ -143,6 +143,54 @@ describe('SafeHTML', () => {
       expect(div).toHaveStyle({ color: 'rgb(255, 0, 0)', 'text-align': 'right' });
     });
 
+    it('retains the text-decoration shorthand', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="text-decoration: underline line-through;">${CONTENT_TEXT}</span>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({
+        'text-decoration': 'underline line-through',
+      });
+    });
+
+    it.each([
+      ['text-decoration-line', 'underline'],
+      ['text-decoration-style', 'wavy'],
+      ['text-decoration-color', 'red'],
+      ['text-decoration-thickness', '2px'],
+    ])('retains %s', (prop, value) => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="${prop}: ${value};">${CONTENT_TEXT}</span>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({ [prop]: value });
+    });
+
+    it.each([
+      ['text-decoration', 'none'],
+      ['text-decoration-line', 'none'],
+    ])('does not let %s: none remove the underline from a link', (prop, value) => {
+      render(SafeHTML, {
+        props: {
+          html: `<a href="https://example.com" style="${prop}: ${value}; color: red;">${CONTENT_TEXT}</a>`,
+        },
+      });
+      const link = screen.getByText(CONTENT_TEXT);
+      expect(link.getAttribute('style')).not.toContain('none');
+      expect(link).toHaveStyle({ color: 'rgb(255, 0, 0)' });
+    });
+
+    it('retains text-decoration: none on non-link elements', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<span style="text-decoration: none;">${CONTENT_TEXT}</span>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({ 'text-decoration': 'none' });
+    });
+
     it('drops non-allowlisted properties while keeping allowlisted ones', () => {
       render(SafeHTML, {
         props: {
