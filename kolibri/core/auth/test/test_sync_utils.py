@@ -8,7 +8,6 @@ from morango.sync.utils import SyncSignalGroup
 from kolibri.core.auth.constants.morango_sync import PARTITION_CLASSROOM
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_COACH_RW
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_LEARNER_RW
-from kolibri.core.auth.management.utils import MorangoSyncCommand
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
@@ -18,6 +17,7 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+from kolibri.core.auth.utils.sync import SyncManager
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -30,7 +30,7 @@ from .helpers import provision_device
 class TestProgressTracking(TestCase):
     def test_transfer_tracker_adapter(self):
         # Create an instance of the class you're testing
-        instance = MorangoSyncCommand()
+        instance = SyncManager()
 
         # Mock the relevant methods
         instance.start_progress = Mock()
@@ -61,7 +61,7 @@ class TestProgressTracking(TestCase):
 
     def test_queueing_tracker_adapter(self):
         # Create an instance of the class you're testing
-        instance = MorangoSyncCommand()
+        instance = SyncManager()
 
         # Mock the relevant methods
         instance.start_progress = Mock()
