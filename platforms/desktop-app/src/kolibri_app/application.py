@@ -3,6 +3,8 @@ import json
 import os
 import webbrowser
 from urllib.parse import urlencode
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 import wx
 
@@ -251,8 +253,12 @@ class KolibriApp(wx.App):
 
         # activate app mode
         next_url = None
-        if URL in saved_state and saved_state[URL].startswith(self.kolibri_origin):
-            next_url = saved_state[URL]
+        # Match the path only: the Windows service binds a new port on every start.
+        saved_url = urlsplit(saved_state.get(URL, ""))
+        if saved_url.hostname == "localhost" and saved_url.path:
+            next_url = urlunsplit(
+                ("", "", saved_url.path, saved_url.query, saved_url.fragment)
+            )
 
         if root_url:
             # On Windows, root_url is provided by the server process, and
