@@ -53,8 +53,8 @@ PIPE_RETRY_DELAY = 2
 
 def is_service_running(service_name):
     """
-    Check if a Windows service is running.
-    Returns True if the service is running, False otherwise.
+    Check if a Windows service is running or starting.
+    Returns True if the service is running or starting, False otherwise.
     """
     scm_handle = None
     service_handle = None
@@ -67,7 +67,10 @@ def is_service_running(service_name):
         )
 
         status = win32service.QueryServiceStatus(service_handle)
-        return status[1] == win32service.SERVICE_RUNNING
+        return status[1] in (
+            win32service.SERVICE_RUNNING,
+            win32service.SERVICE_START_PENDING,
+        )
 
     except pywintypes.error as e:
         if e.winerror != winerror.ERROR_SERVICE_DOES_NOT_EXIST:
@@ -101,6 +104,7 @@ class WindowsServerManager:
         # For state management and retry logic
         self._server_mode = None  # Can be 'service' or 'local'
         self._pipe_retry_count = 0
+        self._quiet_retries = False
 
     def start(self):
         if self._server_mode:
@@ -397,6 +401,7 @@ class WindowsServerManager:
             try:
                 if self._connect_to_pipe():
                     self._pipe_retry_count = 0
+                    self._quiet_retries = False
                     if self._process_pipe_messages():
                         break
             except pywintypes.error as e:
@@ -474,6 +479,8 @@ class WindowsServerManager:
             e.winerror == winerror.ERROR_FILE_NOT_FOUND
             or e.winerror == winerror.ERROR_BROKEN_PIPE
         ):
+            if self._quiet_retries:
+                return
             logging.info("Pipe not available or broken, will retry...")
         else:
             logging.error(f"Pipe error: {e}")
@@ -481,10 +488,22 @@ class WindowsServerManager:
     def _handle_service_pipe_error(self):
         """Handle pipe error in service mode with retry logic and fallback."""
         self._pipe_retry_count += 1
-        logging.info(
-            f"Service connection attempt {self._pipe_retry_count}/{MAX_PIPE_RETRIES} failed."
-        )
+        if not self._quiet_retries:
+            logging.info(
+                f"Service connection attempt {self._pipe_retry_count}/{MAX_PIPE_RETRIES} failed."
+            )
         if self._pipe_retry_count >= MAX_PIPE_RETRIES:
+            # A local server on the service's data dir would be a second writer
+            if is_service_running(SERVICE_NAME):
+                if not self._quiet_retries:
+                    logging.warning(
+                        "The service is still running or starting. Will keep retrying."
+                    )
+                    wx.CallAfter(self.app.notify_server_failed)
+                self._quiet_retries = True
+                self._pipe_retry_count = 0
+                return False
+            self._quiet_retries = False
             logging.error(
                 "Maximum retry count reached. Triggering fallback to local server."
             )
@@ -499,11 +518,13 @@ class WindowsServerManager:
             logging.error(
                 "Local server process terminated unexpectedly. Attempting to restart."
             )
+            self._quiet_retries = False
             wx.CallAfter(self._launch_server_process)
-        else:
+        elif not self._quiet_retries:
             logging.warning(
                 "Pipe to local server broke, but the process appears to be running. Will retry connection."
             )
+            self._quiet_retries = True
         return False
 
     def _handle_pipe_error(self, e):
