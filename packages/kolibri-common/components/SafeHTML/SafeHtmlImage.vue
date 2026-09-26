@@ -10,7 +10,6 @@
         class="safe-html"
         :src="src"
         :alt="alt"
-        :style="[contentStyle, imageStyle]"
         :width="displayWidth"
         :height="displayHeight"
         v-bind="$attrs"
@@ -47,11 +46,9 @@
 
 <script>
 
-  import { computed, getCurrentInstance, nextTick, ref } from 'vue';
+  import { computed, nextTick, ref } from 'vue';
   import { useEventListener, useResizeObserver } from '@vueuse/core';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import Lightbox from './Lightbox.vue';
-  import parseStyleString from './parseStyleString';
 
   // Below this the 44px chip would cover most of the image.
   const MIN_EXPANDABLE_PX = 100;
@@ -63,28 +60,11 @@
     },
     inheritAttrs: false,
     setup(props) {
-      const $themeTokens = themeTokens();
-      const instance = getCurrentInstance();
-
       const lightboxOpen = ref(false);
       const canExpand = ref(false);
       const imgRef = ref(null);
       const overlayRef = ref(null);
       const naturalRatio = ref(null);
-
-      // The allowlisted style carried through from the sanitized <img>. Merged
-      // ahead of imageStyle so the component's own border wins on any future key
-      // overlap while the carried colour/alignment still apply.
-      //
-      // `$attrs` off the instance rather than setup()'s `attrs`: that proxy only
-      // defines the keys present when it was last synced, so an absent `style`
-      // tracks nothing and never recovers once SafeHTML — which matches images
-      // positionally — reuses this instance for an <img> that carries one.
-      const contentStyle = computed(() => parseStyleString(instance.proxy.$attrs.style));
-
-      const imageStyle = computed(() => ({
-        border: `1px solid ${$themeTokens.fineLine}`,
-      }));
 
       // A percentage height resolves against the flex-stretched wrapper, whose
       // height is the image's own, so it would shrink the image; drop it.
@@ -144,8 +124,6 @@
 
       return {
         canExpand,
-        contentStyle,
-        imageStyle,
         imgRef,
         lightboxOpen,
         overlayRef,
@@ -194,6 +172,7 @@
     max-width: 100%;
     max-height: 80vh;
     margin: 0 auto;
+    border: 1px solid var(--tokens-fineLine);
   }
 
   // Without these a sized image stretches: a height attribute holds while
