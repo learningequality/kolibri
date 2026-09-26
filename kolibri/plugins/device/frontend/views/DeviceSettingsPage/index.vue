@@ -59,7 +59,7 @@
               <p
                 v-if="allowOtherBrowsersToConnect"
                 class="description"
-                :style="{ color: $themeTokens.annotation }"
+                :style="{ color: 'var(--tokens-annotation)' }"
               >
                 {{ $tr('allowExternalConnectionsAppDescription') }}
               </p>

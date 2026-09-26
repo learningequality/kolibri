@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.surface }">
+  <div :style="{ backgroundColor: 'var(--tokens-surface)' }">
     <h3 class="header">
       {{ coreString('learnersLabel') }}
     </h3>
@@ -27,7 +27,7 @@
           tabindex="-1"
           :style="{
             borderBottom: `2px solid ${$themeTokens.textDisabled}`,
-            backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
+            backgroundColor: isSelected(index) ? 'var(--tokens-textDisabled)' : '',
           }"
           @click="setSelectedLearner(index)"
           @keydown.enter="setSelectedLearner(index)"
@@ -37,19 +37,19 @@
             <KIcon
               v-if="learner.noattempt"
               class="item svg-item"
-              :style="{ fill: $themeTokens.annotation }"
+              :style="{ fill: 'var(--tokens-annotation)' }"
               icon="notStarted"
             />
             <KIcon
               v-else-if="!learner.correct"
               class="item svg-item"
-              :style="{ fill: $themeTokens.incorrect }"
+              :style="{ fill: 'var(--tokens-incorrect)' }"
               icon="incorrect"
             />
             <KIcon
               v-else-if="learner.hinted"
               class="item svg-item"
-              :style="{ fill: $themeTokens.annotation }"
+              :style="{ fill: 'var(--tokens-annotation)' }"
               icon="hint"
             />
             <h3 class="item">

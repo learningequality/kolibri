@@ -7,7 +7,7 @@
   >
     <div
       class="attendance-new-page"
-      :style="{ backgroundColor: $themeTokens.surface }"
+      :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <h1 class="page-title">{{ pageTitle }}</h1>
 

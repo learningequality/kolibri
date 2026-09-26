@@ -28,7 +28,7 @@
         v-if="contentNode.duration"
         class="duration"
         :seconds="contentNode.duration"
-        :style="{ color: $themePalette.grey.v_800 }"
+        :style="{ color: 'var(--palette-grey-v800)' }"
       />
     </span>
   </span>

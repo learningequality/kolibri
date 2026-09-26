@@ -83,7 +83,7 @@
                 class="icon"
                 icon="warningIncomplete"
               />
-              <p :style="{ color: $themeTokens.annotation }">
+              <p :style="{ color: 'var(--tokens-annotation)' }">
                 {{ learnerCreationDisabled$() }}
                 <KButton
                   appearance="basic-link"

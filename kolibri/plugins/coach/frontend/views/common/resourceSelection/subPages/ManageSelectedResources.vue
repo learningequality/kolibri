@@ -34,7 +34,7 @@
                 <p
                   class="resource-size"
                   :style="{
-                    color: $themeTokens.annotation,
+                    color: 'var(--tokens-annotation)',
                   }"
                 >
                   {{ bytesForHumans(getResourceSize(resource)) }}

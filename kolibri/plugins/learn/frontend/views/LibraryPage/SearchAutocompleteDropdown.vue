@@ -6,7 +6,7 @@
     data-testid="autocomplete-dropdown"
     class="autocomplete-dropdown"
     role="listbox"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
   >
     <!-- Focus state: no query - show history and recent searches -->
     <template v-if="!query">
@@ -19,7 +19,7 @@
       >
         <h3
           class="section-header"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
           aria-hidden="true"
         >
           {{ searchHistory$() }}
@@ -46,13 +46,13 @@
             :kind="item.learning_activities"
             :shaded="true"
             class="item-icon"
-            :style="{ fill: $themeTokens.primary }"
+            :style="{ fill: 'var(--tokens-primary)' }"
           />
           <KIcon
             v-else
             icon="interactShaded"
             class="item-icon"
-            :style="{ fill: $themeTokens.primary }"
+            :style="{ fill: 'var(--tokens-primary)' }"
           />
           <div class="item-content">
             <span class="item-title">{{ item.title }}</span>
@@ -73,8 +73,8 @@
               data-testid="metadata-tag"
               class="metadata-tag"
               :style="{
-                backgroundColor: $themeBrand.primary.v_100,
-                color: $themeTokens.primary,
+                backgroundColor: 'var(--brand-primary-v100)',
+                color: 'var(--tokens-primary)',
               }"
             >
               {{ coreString(activity) }}
@@ -92,7 +92,7 @@
       >
         <h3
           class="section-header"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
           aria-hidden="true"
         >
           {{ recentSearches$() }}
@@ -148,9 +148,9 @@
         <span
           class="filter-pill"
           :style="{
-            backgroundColor: $themeBrand.primary.v_100,
+            backgroundColor: 'var(--brand-primary-v100)',
             border: `1px solid ${$themeTokens.primary}`,
-            color: $themeTokens.primary,
+            color: 'var(--tokens-primary)',
           }"
         >
           <!-- Combined: each matched filter's icon + label, separated -->
@@ -162,21 +162,21 @@
                 :kind="getActivityKind(f)"
                 :shaded="true"
                 class="pill-icon"
-                :style="{ fill: $themeTokens.primary }"
+                :style="{ fill: 'var(--tokens-primary)' }"
               />
               <KIcon
                 v-else-if="f.type === 'category' && f.key"
                 :key="'ci-' + fIdx"
                 :icon="getCategoryIcon(f.key)"
                 class="pill-icon"
-                :style="{ fill: $themeTokens.primary }"
+                :style="{ fill: 'var(--tokens-primary)' }"
               />
               <KIcon
                 v-else
                 :key="'ci-' + fIdx"
                 icon="filterList"
                 class="pill-icon"
-                :style="{ fill: $themeTokens.primary }"
+                :style="{ fill: 'var(--tokens-primary)' }"
               />
               <span
                 :key="'cl-' + fIdx"
@@ -196,19 +196,19 @@
               :kind="getActivityKind(item)"
               :shaded="true"
               class="pill-icon"
-              :style="{ fill: $themeTokens.primary }"
+              :style="{ fill: 'var(--tokens-primary)' }"
             />
             <KIcon
               v-else-if="item.type === 'category' && item.key"
               :icon="getCategoryIcon(item.key)"
               class="pill-icon"
-              :style="{ fill: $themeTokens.primary }"
+              :style="{ fill: 'var(--tokens-primary)' }"
             />
             <KIcon
               v-else
               icon="filterList"
               class="pill-icon"
-              :style="{ fill: $themeTokens.primary }"
+              :style="{ fill: 'var(--tokens-primary)' }"
             />
             <span class="pill-label">{{ item.label }}</span>
           </template>
@@ -237,20 +237,20 @@
           :kind="item.learning_activities"
           :shaded="true"
           class="item-icon"
-          :style="{ fill: $themeTokens.primary }"
+          :style="{ fill: 'var(--tokens-primary)' }"
         />
         <KIcon
           v-else
           icon="interactShaded"
           class="item-icon"
-          :style="{ fill: $themeTokens.primary }"
+          :style="{ fill: 'var(--tokens-primary)' }"
         />
         <div class="item-content">
           <span class="item-title">{{ item.title }}</span>
           <span
             v-if="item.channel_title"
             class="item-channel"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             {{ item.channel_title }}
           </span>
@@ -265,8 +265,8 @@
             data-testid="metadata-tag"
             class="metadata-tag"
             :style="{
-              backgroundColor: $themeBrand.primary.v_100,
-              color: $themeTokens.primary,
+              backgroundColor: 'var(--brand-primary-v100)',
+              color: 'var(--tokens-primary)',
             }"
           >
             {{ coreString(activity) }}

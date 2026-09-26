@@ -17,12 +17,12 @@
         :style="
           windowIsLarge
             ? {
-              backgroundColor: $themePalette.grey.v_100,
+              backgroundColor: 'var(--palette-grey-v100)',
               borderBottom: `1px solid ${$themeTokens.fineLine}`,
               padding: '24px 160px 64px',
             }
             : {
-              backgroundColor: $themePalette.grey.v_100,
+              backgroundColor: 'var(--palette-grey-v100)',
               borderBottom: `1px solid ${$themeTokens.fineLine}`,
               padding: isRtl ? '24px 20px 24px 0px' : '24px 0px 24px 20px',
             }
@@ -264,7 +264,7 @@
             <template #trailing-actions>
               <span
                 :style="{
-                  color: $themePalette.grey.v_700,
+                  color: 'var(--palette-grey-v700)',
                 }"
               >
                 {{ numLessons$({ num: unit.children.results.length }) }}

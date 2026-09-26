@@ -10,7 +10,7 @@
               v-if="facility.dataset.registered"
               ref="icon"
               icon="registered"
-              :style="{ fill: $themeTokens.success }"
+              :style="{ fill: 'var(--tokens-success)' }"
             />
           </template>
         </KLabeledIcon>

@@ -51,7 +51,7 @@
         </div>
         <div
           :ref="slide.id"
-          :style="{ background: $themePalette.grey.v_300 }"
+          :style="{ background: 'var(--palette-grey-v300)' }"
           class="caption"
         >
           {{ slide.caption }}
@@ -65,7 +65,7 @@
       />
       <HooperPagination
         slot="hooper-addons"
-        :style="{ background: $themePalette.grey.v_400, width: '100%' }"
+        :style="{ background: 'var(--palette-grey-v400)', width: '100%' }"
       />
       <!-- eslint-enable -->
     </Hooper>

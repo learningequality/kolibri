@@ -27,7 +27,7 @@ exports[`LessonExerciseLearnersPage for a lesson restricted to some groups recip
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; not verbose" class="item" style="color: rgb(204, 204, 204);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: var(--tokens-textDisabled);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -79,7 +79,7 @@ exports[`LessonExerciseLearnersPage for an entire class lesson when displaying l
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; not verbose" class="item" style="color: rgb(204, 204, 204);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: var(--tokens-textDisabled);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -104,7 +104,7 @@ exports[`LessonExerciseLearnersPage for an entire class lesson when displaying l
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; not verbose" class="item" style="color: rgb(204, 204, 204);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: var(--tokens-textDisabled);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->

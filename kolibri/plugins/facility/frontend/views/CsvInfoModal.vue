@@ -189,7 +189,7 @@
     mixins: [commonCoreStrings],
     computed: {
       label() {
-        return { color: this.$themeTokens.annotation };
+        return { color: 'var(--tokens-annotation)' };
       },
     },
     methods: {

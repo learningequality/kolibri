@@ -92,7 +92,7 @@
       mainWrapperStyles() {
         return {
           width: '100vw',
-          backgroundColor: this.$themePalette.grey.v_200,
+          backgroundColor: 'var(--palette-grey-v200)',
           paddingTop: '0px',
           paddingBottom: '0px',
         };

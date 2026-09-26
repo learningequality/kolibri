@@ -16,7 +16,7 @@
             <h1 class="learner-name">{{ learner.name }}</h1>
             <p
               class="learner-subtitle"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               {{ learnerReportLabel$() }}
             </p>
@@ -37,7 +37,7 @@
           </div>
           <p
             class="empty-description"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             {{ hasntStartedUnitsLabel$({ name: learner.name }) }}
           </p>
@@ -50,7 +50,7 @@
         <div
           v-if="strugglingCount > 0"
           class="warning-banner"
-          :style="{ backgroundColor: $themePalette.yellow.v_100 }"
+          :style="{ backgroundColor: 'var(--palette-yellow-v100)' }"
         >
           <KIcon
             icon="error"
@@ -65,7 +65,7 @@
         <div
           v-else
           class="success-banner"
-          :style="{ backgroundColor: $themePalette.green.v_100 }"
+          :style="{ backgroundColor: 'var(--palette-green-v100)' }"
         >
           <KIcon
             icon="correct"
@@ -86,7 +86,7 @@
           </div>
           <div
             class="lo-section-subheading"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             {{ sortedByScoreLowestFirstLabel$() }}
           </div>
@@ -123,8 +123,8 @@
                 :style="{
                   backgroundColor:
                     lo.ratio >= MasteryThreshold.HIGH
-                      ? $themePalette.green.v_100
-                      : $themePalette.yellow.v_100,
+                      ? 'var(--palette-green-v100)'
+                      : 'var(--palette-yellow-v100)',
                 }"
               >
                 <td class="lo-td">{{ lo.text }}</td>
@@ -139,7 +139,7 @@
                     >{{ lo.correct }}</strong>
                     <span
                       class="lo-of-n"
-                      :style="{ color: $themeTokens.annotation }"
+                      :style="{ color: 'var(--tokens-annotation)' }"
                       aria-hidden="true"
                     >{{ ofNQuestionsLabel$({ total: lo.numQuestions }) }}</span>
                   </span>

@@ -2,7 +2,7 @@
 
   import isEqual from 'lodash/isEqual';
   import { computed, h, inject, ref, watch } from 'vue';
-  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
   import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
@@ -79,7 +79,6 @@
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
-  const $themeBrand = themeBrand();
 
   const interactionCSSVars = { '--qti-match-color-primary': $themeTokens.primary };
 
@@ -353,38 +352,38 @@
       });
 
       const poolStyles = computed(() => ({
-        backgroundColor: $themePalette.grey.v_100,
-        borderColor: $themeTokens.fineLine,
+        backgroundColor: 'var(--palette-grey-v100)',
+        borderColor: 'var(--tokens-fineLine)',
       }));
-      const poolLabelStyles = computed(() => ({ color: $themeTokens.annotation }));
-      const placeholderStyles = computed(() => ({ color: $themeTokens.annotation }));
+      const poolLabelStyles = computed(() => ({ color: 'var(--tokens-annotation)' }));
+      const placeholderStyles = computed(() => ({ color: 'var(--tokens-annotation)' }));
 
       function chipStyles({ exhausted, selected, candidate }) {
         if (exhausted) {
           return {
-            backgroundColor: $themeTokens.surface,
-            borderColor: $themeTokens.fineLine,
-            color: $themeTokens.annotation,
+            backgroundColor: 'var(--tokens-surface)',
+            borderColor: 'var(--tokens-fineLine)',
+            color: 'var(--tokens-annotation)',
           };
         }
         if (selected) {
           return {
-            backgroundColor: $themeBrand.primary.v_50,
-            borderColor: $themeTokens.primary,
-            color: $themeTokens.primary,
+            backgroundColor: 'var(--brand-primary-v50)',
+            borderColor: 'var(--tokens-primary)',
+            color: 'var(--tokens-primary)',
           };
         }
         if (candidate) {
           return {
-            backgroundColor: $themeTokens.surface,
-            borderColor: $themeTokens.primary,
-            color: $themeTokens.primary,
+            backgroundColor: 'var(--tokens-surface)',
+            borderColor: 'var(--tokens-primary)',
+            color: 'var(--tokens-primary)',
           };
         }
         return {
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-          color: $themeTokens.text,
+          backgroundColor: 'var(--tokens-surface)',
+          borderColor: 'var(--tokens-fineLine)',
+          color: 'var(--tokens-text)',
         };
       }
 
@@ -392,11 +391,11 @@
       function fieldStyles({ target, active }) {
         if (target || active) {
           return {
-            backgroundColor: $themeBrand.primary.v_50,
-            borderColor: $themeTokens.primary,
+            backgroundColor: 'var(--brand-primary-v50)',
+            borderColor: 'var(--tokens-primary)',
           };
         }
-        return { backgroundColor: 'transparent', borderColor: $themeTokens.fineLine };
+        return { backgroundColor: 'transparent', borderColor: 'var(--tokens-fineLine)' };
       }
 
       function entryLabel(identifier, rowIndex, entryIndex) {

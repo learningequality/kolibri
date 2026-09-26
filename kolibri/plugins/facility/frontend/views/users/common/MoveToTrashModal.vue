@@ -13,7 +13,7 @@
           :color="$themeTokens.error"
           :style="{ marginBottom: '8px' }"
         >
-          <span :style="{ color: $themeTokens.error }">
+          <span :style="{ color: 'var(--tokens-error)' }">
             {{ numAdminsSelected$({ num: adminUsers.length }) }}
           </span>
         </KLabeledIcon>

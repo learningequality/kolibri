@@ -163,13 +163,13 @@
       },
       paragraphStyle() {
         return {
-          color: this.$themeTokens.annotation,
+          color: 'var(--tokens-annotation)',
         };
       },
       markColor() {
         return {
-          color: this.$themePalette.black,
-          backgroundColor: this.$themePalette.yellow.v_200,
+          color: 'var(--palette-black)',
+          backgroundColor: 'var(--palette-yellow-v200)',
         };
       },
     },

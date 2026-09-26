@@ -8,12 +8,12 @@
       <span
         dir="auto"
         class="learner-name"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       >{{ learner.full_name }}</span>
       <span
         dir="auto"
         class="learner-username"
-        :style="{ color: $themeTokens.annotation }"
+        :style="{ color: 'var(--tokens-annotation)' }"
       >{{ learner.username }}</span>
     </div>
     <div dir="ltr">

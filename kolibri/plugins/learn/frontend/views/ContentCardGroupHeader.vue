@@ -5,7 +5,7 @@
       <h2
         v-if="header"
         class="card-group-details-header"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       >
         {{ header }}
       </h2>

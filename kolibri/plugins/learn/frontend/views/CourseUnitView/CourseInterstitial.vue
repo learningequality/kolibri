@@ -3,7 +3,7 @@
   <div class="interstitial">
     <div
       class="icon-wrapper"
-      :style="{ backgroundColor: $themePalette.green.v_100 }"
+      :style="{ backgroundColor: 'var(--palette-green-v100)' }"
     >
       <KIcon
         icon="pointsActive"

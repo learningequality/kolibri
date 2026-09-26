@@ -9,7 +9,7 @@
         :title="preTestLabel$()"
         :description="completedLabel$()"
         :style="{
-          backgroundColor: $themePalette.grey.v_100,
+          backgroundColor: 'var(--palette-grey-v100)',
         }"
         :disabled="!activeTest || activeTest.testType !== TestType.PRE"
         :selected="activeTest && activeTest.testType === TestType.PRE"
@@ -75,8 +75,8 @@
                   v-if="lesson.id === currentLessonId"
                   class="current-label"
                   :style="{
-                    color: $themePalette.blue.v_500,
-                    backgroundColor: $themePalette.blue.v_100,
+                    color: 'var(--palette-blue-v500)',
+                    backgroundColor: 'var(--palette-blue-v100)',
                   }"
                 >{{ currentLabel$() }}</span>
               </div>
@@ -176,7 +176,7 @@
         :description="postTestItemDescription"
         :disabled="!activeTest || activeTest.testType !== TestType.POST"
         :style="{
-          backgroundColor: $themePalette.grey.v_100,
+          backgroundColor: 'var(--palette-grey-v100)',
         }"
         :selected="activeTest && activeTest.testType === TestType.POST"
       >

@@ -3,7 +3,7 @@
   <div
     v-show="!$isPrint"
     class="bottom-bar"
-    :style="{ backgroundColor: $themeTokens.textInverted }"
+    :style="{ backgroundColor: 'var(--tokens-textInverted)' }"
   >
     <span
       v-for="(routeDefinition, key) in routes"
@@ -33,7 +33,7 @@
         <p
           v-if="isActiveLink(routeDefinition.route)"
           class="nav-menu-label"
-          :style="{ color: $themeTokens.primary }"
+          :style="{ color: 'var(--tokens-primary)' }"
         >
           {{ routeDefinition.label }}
         </p>
@@ -53,7 +53,7 @@
       <p
         v-if="navShown"
         class="nav-menu-label"
-        :style="{ color: $themeTokens.primary }"
+        :style="{ color: 'var(--tokens-primary)' }"
       >
         {{ coreString('menuLabel') }}
       </p>

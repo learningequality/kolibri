@@ -2,7 +2,7 @@
 
   <div
     class="banner"
-    :style="{ background: $themeTokens.surface }"
+    :style="{ background: 'var(--tokens-surface)' }"
   >
     <div class="banner-inner">
       <KGrid>

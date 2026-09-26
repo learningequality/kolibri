@@ -50,7 +50,7 @@
               v-if="content.duration"
               class="time-duration"
               :style="{
-                color: $themeTokens.annotation,
+                color: 'var(--tokens-annotation)',
               }"
               :seconds="content.duration"
             />
@@ -60,7 +60,7 @@
               v-if="progressFor(content) === 1"
               icon="star"
               class="mastered-icon"
-              :style="{ fill: $themeTokens.mastered }"
+              :style="{ fill: 'var(--tokens-mastered)' }"
             />
             <ProgressBar
               v-else
@@ -96,7 +96,7 @@
       class="next-content-link"
       :style="{
         borderTop: '1px solid ' + $themeTokens.fineLine,
-        background: $themeTokens.surface,
+        background: 'var(--tokens-surface)',
         ...linkStyles,
       }"
     >
@@ -232,7 +232,7 @@
       },
       currentlyViewingTextStyle() {
         return {
-          color: this.$themePalette.grey.v_800,
+          color: 'var(--palette-grey-v800)',
           fontSize: '12px',
           margin: 'auto',
         };

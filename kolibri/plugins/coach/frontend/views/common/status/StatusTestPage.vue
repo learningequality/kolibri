@@ -3,7 +3,7 @@
   <!-- eslint-disable vue/no-bare-strings-in-template -->
   <div
     class="overview"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
   >
     <div class="moving">
       <ProgressSummaryBar
@@ -20,7 +20,7 @@
     </div>
 
     <table>
-      <tr :style="{ color: $themePalette.grey.v_700 }">
+      <tr :style="{ color: 'var(--palette-grey-v700)' }">
         <th>scenario</th>
         <th>example tally</th>
         <th>status bar</th>

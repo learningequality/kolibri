@@ -54,7 +54,7 @@
               class="user-type-icon"
               icon="person"
               :label="content"
-              :style="{ color: $themeTokens.text }"
+              :style="{ color: 'var(--tokens-text)' }"
             />
             <UserTypeDisplay
               aria-hidden="true"

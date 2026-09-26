@@ -67,7 +67,7 @@
         <div :style="boxStyle">
           <p
             class="key"
-            :style="{ color: $themeTokens.primary }"
+            :style="{ color: 'var(--tokens-primary)' }"
           >
             {{ coachString('lessonsCompletedLabel') }}
           </p>
@@ -86,7 +86,7 @@
         <div :style="boxStyle">
           <p
             class="key"
-            :style="{ color: $themeTokens.primary }"
+            :style="{ color: 'var(--tokens-primary)' }"
           >
             {{ coachString('avgScoreLabel') }}
           </p>
@@ -102,7 +102,7 @@
         <div :style="boxStyle">
           <p
             class="key"
-            :style="{ color: $themeTokens.primary }"
+            :style="{ color: 'var(--tokens-primary)' }"
           >
             {{ coachString('exercisesCompletedLabel') }}
           </p>
@@ -115,7 +115,7 @@
         <div :style="boxStyle">
           <p
             class="key"
-            :style="{ color: $themeTokens.primary }"
+            :style="{ color: 'var(--tokens-primary)' }"
           >
             {{ coachString('resourcesViewedLabel') }}
           </p>
@@ -203,7 +203,7 @@
       boxStyle() {
         return {
           border: '1px solid',
-          borderColor: this.$themePalette.grey.v_200,
+          borderColor: 'var(--palette-grey-v200)',
           borderRadius: '4px',
           padding: '0px 16px',
           margin: '5px',

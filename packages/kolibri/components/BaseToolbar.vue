@@ -3,8 +3,8 @@
   <div
     class="base-toolbar"
     :style="{
-      color: $themeTokens.text,
-      backgroundColor: $themeTokens.surface,
+      color: 'var(--tokens-text)',
+      backgroundColor: 'var(--tokens-surface)',
     }"
   >
     <slot></slot>

@@ -25,7 +25,7 @@
               :text="deviceName"
               :maxLines="2"
               class="name"
-              :style="{ color: $themePalette.black }"
+              :style="{ color: 'var(--palette-black)' }"
             />
             <p
               class="channels"
@@ -82,8 +82,8 @@
     computed: {
       cardStyle() {
         return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
+          backgroundColor: 'var(--tokens-surface)',
+          color: 'var(--tokens-text)',
           textAlign: 'center',
         };
       },

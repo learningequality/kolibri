@@ -42,7 +42,7 @@
           class="badge"
           aria-hidden="true"
           data-testid="badge"
-          :style="{ backgroundColor: $themeTokens.primary, color: $themeTokens.textInverted }"
+          :style="{ backgroundColor: 'var(--tokens-primary)', color: 'var(--tokens-textInverted)' }"
         >
           {{ sequencePosition }}
         </span>

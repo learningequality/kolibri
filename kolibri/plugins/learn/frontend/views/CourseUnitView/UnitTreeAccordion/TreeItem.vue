@@ -20,7 +20,7 @@
             <div
               class="title"
               :style="{
-                color: selected ? $themePalette.blue.v_500 : 'inherit',
+                color: selected ? 'var(--palette-blue-v500)' : 'inherit',
                 fontWeight: selected ? 600 : 'inherit',
               }"
             >

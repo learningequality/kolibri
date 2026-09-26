@@ -34,7 +34,6 @@
   import { computed, onMounted, onUnmounted, ref } from 'vue';
   import Backdrop from 'kolibri/components/Backdrop';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
   import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
@@ -67,7 +66,6 @@
         }
       });
 
-      const $themeTokens = themeTokens();
       const { isAppContext } = useUser();
 
       const isAppContextAndTouchDevice = computed(() => {
@@ -81,8 +79,8 @@
           maxWidth: '100vw',
           top: 0,
           position: 'fixed',
-          color: $themeTokens.text,
-          backgroundColor: $themeTokens.surface,
+          color: 'var(--tokens-text)',
+          backgroundColor: 'var(--tokens-surface)',
           zIndex: 12,
           // Account for bottom nav bar height on touch devices in app context
           // If the side panel is rendered in a immersive page or any other page that do not

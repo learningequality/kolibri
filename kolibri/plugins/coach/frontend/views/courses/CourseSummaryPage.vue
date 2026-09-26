@@ -218,7 +218,7 @@
                         :text="unit.numberedTitle"
                         :to="unitDetailRouteFor(unit.id)"
                       />
-                      <span :style="{ color: $themeTokens.annotation }">
+                      <span :style="{ color: 'var(--tokens-annotation)' }">
                         <KIcon
                           icon="permissions"
                           :color="$themeTokens.annotation"
@@ -323,7 +323,7 @@
       <div
         v-if="activeTest && activeTest.status === 'active'"
         class="post-modal-panel"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
       >
         <div class="panel-item">
           <div class="panel-label">
@@ -418,7 +418,7 @@
   };
 
   const unitsPillStyles = {
-    backgroundColor: themeTokens().surface,
+    backgroundColor: 'var(--tokens-surface)',
     fontWeight: 'normal',
   };
 
@@ -788,7 +788,7 @@
           unitPhase.value === UnitPhase.PRE_TEST_ACTIVE ||
           unitPhase.value === UnitPhase.POST_TEST_ACTIVE;
         return {
-          backgroundColor: isTestActive ? themePalette().yellow.v_100 : themePalette().blue.v_100,
+          backgroundColor: isTestActive ? 'var(--palette-yellow-v100)' : 'var(--palette-blue-v100)',
           flexDirection: windowIsSmall.value ? 'column' : 'row',
           alignItems: windowIsSmall.value ? 'flex-start' : 'center',
           gap: windowIsSmall.value ? '12px' : '0',
@@ -807,8 +807,8 @@
           unitPhase.value === UnitPhase.PRE_TEST_ACTIVE ||
           unitPhase.value === UnitPhase.POST_TEST_ACTIVE;
         return {
-          backgroundColor: isTestActive ? themePalette().orange.v_600 : themePalette().blue.v_600,
-          color: themeTokens().textInverted,
+          backgroundColor: isTestActive ? 'var(--palette-orange-v600)' : 'var(--palette-blue-v600)',
+          color: 'var(--tokens-textInverted)',
         };
       });
 

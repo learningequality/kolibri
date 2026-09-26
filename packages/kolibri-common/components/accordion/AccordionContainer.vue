@@ -8,8 +8,8 @@
       v-if="hasHeaderSlot"
       class="header"
       :style="{
-        borderColor: $themeTokens.fineLine,
-        backgroundColor: $themePalette.grey.v_100,
+        borderColor: 'var(--tokens-fineLine)',
+        backgroundColor: 'var(--palette-grey-v100)',
         ...headerAppearanceOverrides,
       }"
     >

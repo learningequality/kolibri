@@ -2,7 +2,7 @@
 
   <div
     class="bottom-bar"
-    :style="{ backgroundColor: $themePalette.grey.v_300 }"
+    :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
   >
     <div class="bottom-bar-heading">
       <h3 v-if="heading">

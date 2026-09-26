@@ -11,8 +11,8 @@
       :style="[
         dynamicHeightStyle,
         {
-          backgroundColor: $themePalette.grey.v_100,
-          border: $themePalette.grey.v_400,
+          backgroundColor: 'var(--palette-grey-v100)',
+          border: 'var(--palette-grey-v400)',
         },
       ]"
     >

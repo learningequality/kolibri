@@ -20,7 +20,7 @@
       <KPageContainer :style="getPageContainerStyles(pageContentHeight)">
         <div
           :style="{
-            backgroundColor: $themeTokens.surface,
+            backgroundColor: 'var(--tokens-surface)',
           }"
         >
           <KRouterLink
@@ -66,7 +66,7 @@
             <template #selectionInfo>
               <span
                 :style="{
-                  color: $themeTokens.annotation,
+                  color: 'var(--tokens-annotation)',
                 }"
               >{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
               <KButton
@@ -142,7 +142,7 @@
             <strong> {{ noRemovedUsersLabel$() }}</strong>
             <p
               :style="{
-                color: $themePalette.grey.v_700,
+                color: 'var(--palette-grey-v700)',
               }"
             >
               {{ removedUsersNotice$() }}

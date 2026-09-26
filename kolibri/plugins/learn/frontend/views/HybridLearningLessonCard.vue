@@ -5,7 +5,7 @@
       :to="link"
       class="card card-content"
       :class="[{ 'mobile-card': isMobile }, $computedClass({ ':focus': $coreOutline })]"
-      :style="{ backgroundColor: $themeTokens.surface }"
+      :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <div class="thumbnail">
         <CardThumbnail
@@ -18,13 +18,13 @@
         <KTextTruncator
           :text="content.title"
           :maxLines="1"
-          :style="{ color: $themeTokens.text }"
+          :style="{ color: 'var(--tokens-text)' }"
         />
       </h3>
       <LearningActivityLabel
         :contentNode="content"
         class="learning-activity-label"
-        :style="{ color: $themeTokens.text }"
+        :style="{ color: 'var(--tokens-text)' }"
       />
       <div class="footer">
         <ProgressBar :contentNode="content" />

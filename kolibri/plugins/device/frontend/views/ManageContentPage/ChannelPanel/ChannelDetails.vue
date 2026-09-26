@@ -17,7 +17,7 @@
         v-else
         icon="channel"
         class="thumbnail-svg"
-        :style="{ backgroundColor: $themePalette.grey.v_300 }"
+        :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
       />
     </div>
 
@@ -33,7 +33,7 @@
           <slot name="belowname"></slot>
           <p
             class="version"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             {{ $tr('versionNumber', { v: channelVersion || channel.version }) }}
           </p>
@@ -49,7 +49,7 @@
           <span v-if="channel.description">{{ channel.description }}</span>
           <span
             v-else
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             {{ $tr('defaultDescription') }}
           </span>

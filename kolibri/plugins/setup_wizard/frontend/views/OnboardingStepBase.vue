@@ -3,7 +3,7 @@
   <!-- Always base-container class, wrapping screen size class when small -->
   <div
     :class="{ 'base-container': true, 'window-is-small': windowIsSmall }"
-    :style="{ 'background-color': windowIsSmall ? $themeTokens.surface : '' }"
+    :style="{ 'background-color': windowIsSmall ? 'var(--tokens-surface)' : '' }"
     role="presentation"
     @keyup.enter="handleEnterKey"
   >

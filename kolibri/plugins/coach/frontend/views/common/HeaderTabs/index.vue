@@ -4,7 +4,7 @@
     v-show="enablePrint || !$isPrint"
     class="tab-block"
     :class="{ small: windowIsSmall }"
-    :style="{ borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent' }"
+    :style="{ borderBottomColor: !$isPrint ? 'var(--tokens-fineLine)' : 'transparent' }"
   >
     <slot></slot>
   </div>

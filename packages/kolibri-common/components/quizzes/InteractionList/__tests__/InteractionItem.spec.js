@@ -19,25 +19,25 @@ const testCases = [
     name: 'renders interaction item with correct answer',
     interaction: { type: 'answer', correct: true },
     expectedIcon: 'correctAnswerIcon',
-    expectedFill: themeTokens().correct,
+    expectedFill: 'var(--tokens-correct)',
   },
   {
     name: 'renders interaction item with incorrect answer',
     interaction: { type: 'answer', correct: false },
     expectedIcon: 'incorrectAnswerIcon',
-    expectedFill: themeTokens().incorrect,
+    expectedFill: 'var(--tokens-incorrect)',
   },
   {
     name: 'renders interaction item with hint',
     interaction: { type: 'hint' },
     expectedIcon: 'hintIcon',
-    expectedFill: themeTokens().annotation,
+    expectedFill: 'var(--tokens-annotation)',
   },
   {
     name: 'renders interaction item with error',
     interaction: { type: 'error' },
     expectedIcon: 'helpNeededIcon',
-    expectedFill: themeTokens().annotation,
+    expectedFill: 'var(--tokens-annotation)',
   },
 ];
 

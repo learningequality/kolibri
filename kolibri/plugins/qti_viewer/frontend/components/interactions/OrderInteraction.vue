@@ -2,7 +2,6 @@
 
   import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, h, inject, watch } from 'vue';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
   import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
@@ -23,8 +22,6 @@
   });
 
   const { orderListLabel$ } = strings;
-
-  const $themeTokens = themeTokens();
 
   // qti-choices-top/bottom/left/right are intentional no-ops
   const LABEL_FNS = {
@@ -171,8 +168,8 @@
         }
 
         const rowStyle = {
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
+          backgroundColor: 'var(--tokens-surface)',
+          borderColor: 'var(--tokens-fineLine)',
         };
 
         if (!interactive.value) {

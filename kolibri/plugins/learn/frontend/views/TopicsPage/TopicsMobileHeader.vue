@@ -3,7 +3,7 @@
   <KGrid
     class="mobile-header"
     data-testid="mobile-header"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
   >
     <KGridItem :layout4="{ span: 3 }">
       <h1

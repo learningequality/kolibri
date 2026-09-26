@@ -2,7 +2,7 @@
 
   <KLabeledIcon
     v-if="value > 0"
-    :style="{ color: $themeTokens.coachContent }"
+    :style="{ color: 'var(--tokens-coachContent)' }"
   >
     <template #icon>
       <KIcon

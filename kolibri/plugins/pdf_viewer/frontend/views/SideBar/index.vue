@@ -3,7 +3,7 @@
   <aside
     class="pdf-sidebar"
     :style="{
-      background: $themeTokens.surface,
+      background: 'var(--tokens-surface)',
     }"
   >
     <nav>
@@ -17,7 +17,7 @@
           :ref="tab.name"
           :style="{
             background:
-              selectedTab === tab.name ? $themeTokens.annotation : $themeTokens.transparent,
+              selectedTab === tab.name ? 'var(--tokens-annotation)' : $themeTokens.transparent,
             cursor: 'pointer',
             borderRadius: '2px',
             opacity: tab.disabled ? 0.5 : 1,
@@ -42,7 +42,8 @@
             <KIcon
               :icon="tab.icon"
               :style="{
-                fill: selectedTab === tab.name ? $themeTokens.textInverted : $themeTokens.text,
+                fill:
+                  selectedTab === tab.name ? 'var(--tokens-textInverted)' : 'var(--tokens-text)',
                 height: '24px',
                 width: '24px',
               }"

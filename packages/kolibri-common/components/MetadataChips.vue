@@ -4,7 +4,7 @@
     <div
       v-for="{ label, key, icon } in tags"
       :key="key"
-      :style="{ backgroundColor: $themePalette.grey.v_100 }"
+      :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
       class="chip"
     >
       <KIcon
@@ -14,7 +14,7 @@
       />
       <span
         class="chip-text"
-        :style="{ color: $themePalette.grey.v_700 }"
+        :style="{ color: 'var(--palette-grey-v700)' }"
       >
         {{ label }}
       </span>

@@ -2,7 +2,7 @@
 
   <div
     class="time-context"
-    :style="{ color: $themeTokens.annotation }"
+    :style="{ color: 'var(--tokens-annotation)' }"
   >
     {{ formattedTime }}
   </div>

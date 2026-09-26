@@ -107,11 +107,11 @@
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
         <div
           class="question-mark-layout"
-          :style="{ backgroundColor: $themeBrand.secondary.v_100 }"
+          :style="{ backgroundColor: 'var(--brand-secondary-v100)' }"
         >
           <span
             class="help-icon-style"
-            :style="{ color: $themeTokens.secondaryDark }"
+            :style="{ color: 'var(--tokens-secondaryDark)' }"
           >?</span>
         </div>
 
@@ -139,7 +139,7 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            <h2 :style="{ color: $themeTokens.annotation }">
+            <h2 :style="{ color: 'var(--tokens-annotation)' }">
               {{ questionsLabel$() }}
             </h2>
           </KGridItem>

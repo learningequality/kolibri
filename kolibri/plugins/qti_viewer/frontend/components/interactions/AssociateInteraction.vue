@@ -2,7 +2,7 @@
 
   import isEqual from 'lodash/isEqual';
   import { computed, h, inject, ref, watch } from 'vue';
-  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
   import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
@@ -59,8 +59,6 @@
   } = associateStrings;
 
   const $themeTokens = themeTokens();
-  const $themePalette = themePalette();
-  const $themeBrand = themeBrand();
 
   // Exposed as a custom property so the :focus rule below can use a theme colour
   const interactionCSSVars = { '--qti-associate-color-primary': $themeTokens.primary };
@@ -228,51 +226,51 @@
       watch(interactive, clearSelection);
 
       const poolStyles = computed(() => ({
-        backgroundColor: $themePalette.grey.v_100,
-        borderColor: $themeTokens.fineLine,
+        backgroundColor: 'var(--palette-grey-v100)',
+        borderColor: 'var(--tokens-fineLine)',
       }));
-      const poolLabelStyles = computed(() => ({ color: $themeTokens.annotation }));
-      const placeholderStyles = computed(() => ({ color: $themeTokens.annotation }));
+      const poolLabelStyles = computed(() => ({ color: 'var(--tokens-annotation)' }));
+      const placeholderStyles = computed(() => ({ color: 'var(--tokens-annotation)' }));
 
       function chipStyles({ selected, candidate, disabled }) {
         if (disabled) {
           return {
-            backgroundColor: $themeTokens.surface,
-            borderColor: $themeTokens.fineLine,
-            color: $themeTokens.annotation,
+            backgroundColor: 'var(--tokens-surface)',
+            borderColor: 'var(--tokens-fineLine)',
+            color: 'var(--tokens-annotation)',
           };
         }
         if (selected) {
           return {
-            backgroundColor: $themeBrand.primary.v_50,
-            borderColor: $themeTokens.primary,
-            color: $themeTokens.primary,
+            backgroundColor: 'var(--brand-primary-v50)',
+            borderColor: 'var(--tokens-primary)',
+            color: 'var(--tokens-primary)',
           };
         }
         if (candidate) {
           return {
-            backgroundColor: $themeTokens.surface,
-            borderColor: $themeTokens.primary,
-            color: $themeTokens.primary,
+            backgroundColor: 'var(--tokens-surface)',
+            borderColor: 'var(--tokens-primary)',
+            color: 'var(--tokens-primary)',
           };
         }
         return {
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-          color: $themeTokens.text,
+          backgroundColor: 'var(--tokens-surface)',
+          borderColor: 'var(--tokens-fineLine)',
+          color: 'var(--tokens-text)',
         };
       }
 
       function slotStyles({ filled, target, active }) {
         if (target || active) {
           return {
-            backgroundColor: $themeBrand.primary.v_50,
-            borderColor: $themeTokens.primary,
+            backgroundColor: 'var(--brand-primary-v50)',
+            borderColor: 'var(--tokens-primary)',
           };
         }
         return {
-          backgroundColor: filled ? $themePalette.grey.v_100 : 'transparent',
-          borderColor: $themeTokens.fineLine,
+          backgroundColor: filled ? 'var(--palette-grey-v100)' : 'transparent',
+          borderColor: 'var(--tokens-fineLine)',
         };
       }
 

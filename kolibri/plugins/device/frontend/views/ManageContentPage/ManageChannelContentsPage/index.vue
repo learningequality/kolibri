@@ -36,7 +36,7 @@
             v-else
             :node="currentNode"
             :manageMode="true"
-            :style="{ borderBottomColor: $themeTokens.fineLine }"
+            :style="{ borderBottomColor: 'var(--tokens-fineLine)' }"
           />
         </transition>
       </template>

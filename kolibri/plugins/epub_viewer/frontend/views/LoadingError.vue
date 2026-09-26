@@ -3,7 +3,7 @@
   <div
     class="epub-viewer-error"
     :class="{ loaded }"
-    :style="{ background: $themeTokens.surface }"
+    :style="{ background: 'var(--tokens-surface)' }"
   >
     <UiAlert
       type="error"

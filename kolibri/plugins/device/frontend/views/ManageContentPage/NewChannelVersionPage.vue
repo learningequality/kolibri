@@ -35,7 +35,7 @@
               <td class="col-2">
                 <span
                   :class="{ 'count-added': newResources }"
-                  :style="{ color: $themeTokens.success }"
+                  :style="{ color: 'var(--tokens-success)' }"
                 >
                   {{ newResources }}
                 </span>
@@ -46,7 +46,7 @@
               <td>
                 <span
                   :class="{ 'count-deleted': deletedResources > 0 }"
-                  :style="{ color: $themeTokens.error }"
+                  :style="{ color: 'var(--tokens-error)' }"
                 >
                   {{ deletedResources }}
                 </span>

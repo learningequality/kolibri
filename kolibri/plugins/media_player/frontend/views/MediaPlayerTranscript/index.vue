@@ -3,7 +3,7 @@
   <section
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
-    :style="{ background: $themeTokens.surface }"
+    :style="{ background: 'var(--tokens-surface)' }"
     :aria-hidden="(!showing).toString()"
     :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
@@ -92,7 +92,7 @@
     },
     computed: {
       capStyle() {
-        return { color: this.$themeTokens.annotation };
+        return { color: 'var(--tokens-annotation)' };
       },
     },
     watch: {

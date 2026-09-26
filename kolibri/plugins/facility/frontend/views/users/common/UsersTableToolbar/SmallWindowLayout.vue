@@ -19,7 +19,7 @@
       v-if="hasSelectedUsers"
       class="divider divider-with-margin"
       :style="{
-        backgroundColor: $themeTokens.fineLine,
+        backgroundColor: 'var(--tokens-fineLine)',
       }"
     ></div>
     <div
@@ -44,7 +44,7 @@
       v-if="showUsersTable"
       class="divider"
       :style="{
-        backgroundColor: $themeTokens.fineLine,
+        backgroundColor: 'var(--tokens-fineLine)',
       }"
     ></div>
   </div>

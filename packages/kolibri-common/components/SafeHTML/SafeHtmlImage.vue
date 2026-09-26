@@ -27,7 +27,7 @@
         <span
           class="expand-chip"
           aria-hidden="true"
-          :style="{ backgroundColor: $themeTokens.surface }"
+          :style="{ backgroundColor: 'var(--tokens-surface)' }"
         >
           <KIcon icon="expand" />
         </span>

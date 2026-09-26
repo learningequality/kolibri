@@ -27,7 +27,7 @@
       >
         <div
           class="action-bar"
-          :style="{ backgroundColor: $themePalette.grey.v_900 }"
+          :style="{ backgroundColor: 'var(--palette-grey-v900)' }"
         >
           <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
             <KIconButton
