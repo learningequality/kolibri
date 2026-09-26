@@ -52,6 +52,19 @@
             :inline="true"
           />
         </ReportsControls>
+        <HeaderTable
+          v-if="$isPrint"
+          data-testid="printed-filters"
+        >
+          <HeaderTableRow
+            :keyText="filterQuizStatus$()"
+            :valueText="statusSelected.label"
+          />
+          <HeaderTableRow
+            :keyText="recipientsLabel$()"
+            :valueText="recipientSelected.label"
+          />
+        </HeaderTable>
         <CoreTable
           :emptyMessage="quizzes.length > 0 ? coreString('noResultsLabel') : $tr('noExams')"
         >
@@ -198,6 +211,8 @@
   import { coachStrings } from '../common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage';
   import Recipients from '../common/Recipients';
+  import HeaderTable from '../common/HeaderTable';
+  import HeaderTableRow from '../common/HeaderTable/HeaderTableRow';
   import useCoreCoach from '../../composables/useCoreCoach';
   import useQuizzes from '../../composables/useQuizzes';
   import AverageScoreTooltip from '../common/AverageScoreTooltip';
@@ -215,6 +230,8 @@
       CoreTable,
       CoachAppBarPage,
       Recipients,
+      HeaderTable,
+      HeaderTableRow,
       AverageScoreTooltip,
       ReportsControls,
       Score,

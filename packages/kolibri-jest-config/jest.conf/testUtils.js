@@ -1,3 +1,4 @@
+import { fireEvent, screen } from '@testing-library/vue';
 import globalThemeState from 'kolibri-design-system/lib/styles/globalThemeState';
 
 // Run `fn` with console.error silenced.  Used to suppress jsdom's
@@ -44,4 +45,13 @@ export function emulatePrintMedia(beforeEach, afterEach) {
   afterEach(() => {
     globalThemeState.mediaType = null;
   });
+}
+
+// Every KSelect keeps its option list in the DOM, so `option` must be unique
+// across the page's selects. Other page text with the same wording is ignored.
+export async function selectKSelectOption(label, option) {
+  await fireEvent.click(
+    screen.getByText(label, { selector: '.ui-select-label-text' }).closest('.ui-select-label'),
+  );
+  await fireEvent.click(await screen.findByText(option, { selector: '.ui-select-option-basic' }));
 }
