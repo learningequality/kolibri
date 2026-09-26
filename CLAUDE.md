@@ -33,7 +33,7 @@ These supplement the gotchas in AGENTS.md. With Claude's large context window, t
 
 - **Logging**: `logger = logging.getLogger(__name__)` at module level.
 - **Constants**: Uppercase strings in dedicated modules with `choices` tuples for model fields (see `kolibri/core/auth/constants/`).
-- **Model permissions**: Syncable models use declarative `RoleBasedPermissions`. Viewsets use `KolibriAuthPermissions` from `kolibri.core.auth.api`.
+- **Model permissions**: Syncable models use declarative `RoleBasedPermissions`. Viewsets use `KolibriAuthPermissions` from `kolibri.core.auth.permissions`.
 - **Error constants**: API validation errors use codes from `kolibri/core/error_constants.py`, mirrored in frontend.
 
 ### Multi-Agent / Multi-Worktree Isolation
