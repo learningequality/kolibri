@@ -527,7 +527,7 @@ class KolibriTaskBarIcon:
         self._tray_hicon = self._balloon_hicon = None
         if self._old_wndproc is not None:
             try:
-                win32gui.SetWindowLong(
+                win32api.SetWindowLong(
                     self.hwnd, win32con.GWL_WNDPROC, self._old_wndproc
                 )
             except pywintypes.error:
