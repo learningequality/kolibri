@@ -20,6 +20,9 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
+from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.notifications.models import NotificationObjectType
 
 from .. import models
 from ..models import TestType
@@ -119,6 +122,33 @@ class CourseSessionAPITestCase(APITestCase):
             )
         )
         self.assertEqual(response.status_code, 204)
+
+    def test_course_session_delete_removes_its_notifications(self):
+        for course_session in (self.courseSession, self.courseSession_2):
+            LearnerProgressNotification.objects.create(
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Started,
+                user_id=self.admin.id,
+                classroom_id=self.classroom.id,
+                course_session_id=course_session.id,
+            )
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        self.client.delete(
+            reverse(
+                "kolibri:core:coursesession-detail",
+                kwargs={"pk": self.courseSession_2.id},
+            )
+        )
+
+        self.assertEqual(
+            list(
+                LearnerProgressNotification.objects.values_list(
+                    "course_session_id", flat=True
+                )
+            ),
+            [self.courseSession.id],
+        )
 
     def test_logged_in_admin_course_session_create(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)

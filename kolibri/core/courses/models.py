@@ -22,6 +22,7 @@ from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
+from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.utils.cache import process_cache
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -152,6 +153,10 @@ class CourseSession(AbstractFacilityDataModel):
 
     def __str__(self):
         return f"CourseSession {self.title} for Classroom {self.collection.name}"
+
+    def delete(self, using=None, keep_parents=False):
+        LearnerProgressNotification.objects.filter(course_session_id=self.id).delete()
+        super().delete(using, keep_parents)
 
     def get_resume_data(self, user):
         """
