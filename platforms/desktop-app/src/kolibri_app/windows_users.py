@@ -15,8 +15,10 @@ def pipe_client_user_info(pipe):
     # ImpersonateNamedPipeClient fails until a message has been read from the pipe.
     win32security.ImpersonateNamedPipeClient(pipe)
     try:
+        # The client connects at SECURITY_IDENTIFICATION, at which only
+        # OpenAsSelf=True can open the token.
         client_token = win32security.OpenThreadToken(
-            win32api.GetCurrentThread(), win32security.TOKEN_QUERY, False
+            win32api.GetCurrentThread(), win32security.TOKEN_QUERY, True
         )
     finally:
         win32security.RevertToSelf()

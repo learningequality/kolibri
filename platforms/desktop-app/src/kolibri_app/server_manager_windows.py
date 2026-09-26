@@ -43,6 +43,9 @@ from kolibri_app.logger import logging
 
 # Named pipe for IPC between UI process and server subprocess
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
+# winbase.h
+SECURITY_SQOS_PRESENT = 0x00100000
+SECURITY_IDENTIFICATION = 0x00010000
 
 MAX_PIPE_RETRIES = 5
 PIPE_RETRY_DELAY = 2
@@ -421,7 +424,7 @@ class WindowsServerManager:
             0,
             None,
             win32file.OPEN_EXISTING,
-            0,
+            SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
             None,
         )
 
