@@ -1,6 +1,8 @@
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
 
+import { render, screen } from '@testing-library/vue';
+import { handleApiError } from 'kolibri/utils/appError';
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
@@ -103,6 +105,7 @@ jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 // Needed to test anything using mount() where children use this composable
 jest.mock('kolibri-common/composables/useLearningActivities');
 jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () => true));
+jest.mock('kolibri/utils/appError');
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -259,6 +262,28 @@ describe('TopicsPage', () => {
     expect(smallScreenWrapper.find("[data-testid='mobile-title']").element).toHaveTextContent(
       DEFAULT_TOPIC.title,
     );
+  });
+
+  it('renders the mobile header when the topic request fails', async () => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: true,
+      windowIsLarge: false,
+      windowBreakpoint: ref(0),
+    }));
+    const requestError = new Error('Network error');
+    ContentNodeResource.fetchTree.mockRejectedValue(requestError);
+
+    render(TopicsPage, {
+      router,
+      store,
+      props: { id: 'topic-id' },
+    });
+    await flushPromises();
+
+    const header = screen.getByTestId('mobile-header');
+    expect(screen.getByTestId('mobile-title').textContent.trim()).toBe('');
+    expect(header.querySelector('img')).toBeNull();
+    expect(handleApiError).toHaveBeenCalledWith({ error: requestError, reloadOnReconnect: true });
   });
 
   describe('showing cards', () => {
