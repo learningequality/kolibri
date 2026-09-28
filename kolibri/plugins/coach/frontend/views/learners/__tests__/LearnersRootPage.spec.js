@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
-import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import LearnersRootPage from '../LearnersRootPage.vue';
@@ -26,14 +26,16 @@ const routes = [
 ];
 
 const MOCK_LEARNER = { id: 'learner-1', name: 'Learner One', username: 'learner1' };
+const GROUP = { id: 'group-a', name: 'Group A', member_ids: [MOCK_LEARNER.id] };
 
-function renderComponent({ picturePasswordSettings, learners = [] } = {}) {
+function renderComponent({ picturePasswordSettings, learners = [], groups = [] } = {}) {
   const store = makeStore();
   const learnerMap = {};
   learners.forEach(l => {
     learnerMap[l.id] = l;
   });
   store.state.classSummary.learnerMap = learnerMap;
+  store.state.classSummary.groupMap = Object.fromEntries(groups.map(group => [group.id, group]));
   store.state.classSummary.picture_password_settings = picturePasswordSettings;
   return render(LearnersRootPage, { store, routes });
 }
@@ -72,7 +74,18 @@ describe('LearnersRootPage', () => {
     it('hides the "View passwords" button and the recipients filter', () => {
       renderComponent({ picturePasswordSettings: { enabled: true }, learners: [MOCK_LEARNER] });
       expect(screen.queryByRole('link', { name: viewPasswordsAction$() })).not.toBeInTheDocument();
-      expect(screen.getByText(recipientsLabel$())).not.toBeVisible();
+      expect(
+        screen.getByText(recipientsLabel$(), { selector: '.ui-select-label-text' }),
+      ).not.toBeVisible();
+    });
+
+    it('prints the selected recipients', async () => {
+      renderComponent({ learners: [MOCK_LEARNER], groups: [GROUP] });
+      await selectKSelectOption(recipientsLabel$(), GROUP.name);
+
+      const printedFilters = within(screen.getByTestId('printed-filters'));
+      expect(printedFilters.getByText(recipientsLabel$())).toBeInTheDocument();
+      expect(printedFilters.getByText(GROUP.name)).toBeInTheDocument();
     });
   });
 });

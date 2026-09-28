@@ -3,12 +3,22 @@ import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
-import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import ExamsRootPage from '../ExamsRootPage.vue';
 
-const { filterQuizStarted$, filterQuizNotStarted$, quizClosedLabel$ } = coachStrings;
+const {
+  filterQuizStarted$,
+  filterQuizNotStarted$,
+  filterQuizEnded$,
+  filterQuizStatus$,
+  quizClosedLabel$,
+  recipientsLabel$,
+  titleLabel$,
+} = coachStrings;
+
+const GROUP = { id: 'group-a', name: 'Group A', member_ids: [] };
 
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri-common/apiResources/ChannelResource');
@@ -38,9 +48,10 @@ function makeQuiz(overrides) {
   };
 }
 
-function renderComponent(quizzes) {
+function renderComponent(quizzes, groups = []) {
   const store = makeStore();
   store.state.classSummary.examMap = Object.fromEntries(quizzes.map(quiz => [quiz.id, quiz]));
+  store.state.classSummary.groupMap = Object.fromEntries(groups.map(group => [group.id, group]));
   const router = new VueRouter({
     routes: [
       { path: '/', name: 'test' },
@@ -86,11 +97,31 @@ describe('ExamsRootPage', () => {
           date_created: '2026-01-01T00:00:00Z',
         }),
       ]);
-      const rows = screen.getAllByRole('row').slice(1);
+      const quizzesTable = screen
+        .getByRole('columnheader', { name: titleLabel$() })
+        .closest('table');
+      const rows = within(quizzesTable).getAllByRole('row').slice(1);
       expect(within(rows[0]).getByText(filterQuizStarted$())).toBeInTheDocument();
       expect(within(rows[1]).getByText(filterQuizNotStarted$())).toBeInTheDocument();
       expect(within(rows[2]).getByText(quizClosedLabel$())).toBeInTheDocument();
       expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('prints the selected status and recipients', async () => {
+      renderComponent([], [GROUP]);
+      await selectKSelectOption(filterQuizStatus$(), filterQuizEnded$());
+      await selectKSelectOption(recipientsLabel$(), GROUP.name);
+
+      const [statusRow, recipientsRow] = within(screen.getByTestId('printed-filters')).getAllByRole(
+        'row',
+      );
+      expect(within(statusRow).getByText(filterQuizStatus$())).toBeInTheDocument();
+      expect(within(statusRow).getByText(filterQuizEnded$())).toBeInTheDocument();
+      expect(within(recipientsRow).getByText(recipientsLabel$())).toBeInTheDocument();
+      expect(within(recipientsRow).getByText(GROUP.name)).toBeInTheDocument();
+      expect(
+        screen.getByText(filterQuizStatus$(), { selector: '.ui-select-label-text' }),
+      ).not.toBeVisible();
     });
   });
 });

@@ -46,7 +46,8 @@ jest.mock('kolibri/utils/serverClock', () => ({
   now: () => new Date('2026-03-12T12:00:00Z'),
 }));
 
-const { markAttendanceAction$ } = attendanceStrings;
+const { markAttendanceAction$, dateRangeLabel$, pastDays$, customLabel$, $formatDate } =
+  attendanceStrings;
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -205,6 +206,29 @@ describe('AttendanceHistoryPage', () => {
           .filter(link => link.text() === markAttendanceAction$())
           .at(0);
         expect(markAttendance.isVisible()).toBe(false);
+      });
+
+      it('prints the selected date range', async () => {
+        const { wrapper } = makeWrapper();
+        const printedFilters = () => wrapper.find('[data-testid="printed-filters"]').text();
+        expect(printedFilters()).toContain(dateRangeLabel$());
+        expect(printedFilters()).toContain(pastDays$({ count: 30 }));
+        expect(printedFilters()).toContain($formatDate(new Date('2026-02-10T12:00:00Z')));
+        expect(printedFilters()).toContain($formatDate(new Date('2026-03-12T12:00:00Z')));
+
+        const kSelect = wrapper.findComponent({ name: 'KSelect' });
+        kSelect.vm.$emit('change', { label: customLabel$(), value: DateRangeFilters.CUSTOM });
+        await global.flushPromises();
+        wrapper
+          .findComponent({ name: 'KDateRange' })
+          .vm.$emit('submit', { start: new Date(2026, 1, 1), end: new Date(2026, 1, 28) });
+        await global.flushPromises();
+
+        const customApplied = kSelect
+          .props('options')
+          .find(o => o.value === DateRangeFilters.CUSTOM_APPLIED);
+        expect(printedFilters()).toContain(customApplied.label);
+        expect(printedFilters()).not.toContain(customLabel$());
       });
     });
 

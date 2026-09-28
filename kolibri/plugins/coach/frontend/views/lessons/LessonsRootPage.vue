@@ -41,6 +41,19 @@
             />
           </div>
         </ReportsControls>
+        <HeaderTable
+          v-if="$isPrint"
+          data-testid="printed-filters"
+        >
+          <HeaderTableRow
+            :keyText="coachString('filterLessonStatus')"
+            :valueText="filterSelection.label"
+          />
+          <HeaderTableRow
+            :keyText="coachString('recipientsLabel')"
+            :valueText="filterRecipents.label"
+          />
+        </HeaderTable>
 
         <CoreTable
           :dataLoading="lessonsAreLoading"

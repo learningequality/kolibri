@@ -39,6 +39,17 @@
           @change="handleDateRangeChange"
         />
       </ReportsControls>
+      <HeaderTable
+        v-if="$isPrint"
+        data-testid="printed-filters"
+      >
+        <HeaderTableRow :keyText="dateRangeLabel$()">
+          <template #value>
+            <div>{{ selectedDateRange.label }}</div>
+            <div v-if="pastDaysDateLabel">{{ pastDaysDateLabel }}</div>
+          </template>
+        </HeaderTableRow>
+      </HeaderTable>
 
       <KDateRange
         v-if="showDateRangePicker"
@@ -105,6 +116,8 @@
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage';
   import BackLink from '../common/BackLink';
+  import HeaderTable from '../common/HeaderTable';
+  import HeaderTableRow from '../common/HeaderTable/HeaderTableRow';
   import ReportsControls from '../common/ReportsControls';
   import useCoreCoach from '../../composables/useCoreCoach';
   import { useAttendance } from '../../composables/useAttendance';
@@ -123,6 +136,8 @@
     components: {
       BackLink,
       CoachAppBarPage,
+      HeaderTable,
+      HeaderTableRow,
       PaginationActions,
       ReportsControls,
     },
@@ -164,9 +179,13 @@
       const customStartDate = ref(null);
       const customEndDate = ref(null);
 
+      function formatDateRange(start, end) {
+        return `${$formatDate(start)} \u2013 ${$formatDate(end)}`;
+      }
+
       const customDateLabel = computed(() => {
         if (customStartDate.value && customEndDate.value) {
-          return `${$formatDate(customStartDate.value)} \u2013 ${$formatDate(customEndDate.value)}`;
+          return formatDateRange(customStartDate.value, customEndDate.value);
         }
         return null;
       });
@@ -193,6 +212,14 @@
       const selectedDateRange = ref(
         baseOptions.find(o => o.value === DateRangeFilters.LAST_30_DAYS),
       );
+
+      const pastDaysDateLabel = computed(() => {
+        if (!FILTER_DAYS_MAP[selectedDateRange.value.value]) {
+          return null;
+        }
+        const { start_date, end_date } = getDateRange(selectedDateRange.value.value);
+        return formatDateRange(new Date(start_date), new Date(end_date));
+      });
 
       onMounted(() => {
         const { snackbar, ...query } = route.query;
@@ -386,6 +413,7 @@
         tableRows,
         dateRangeOptions,
         selectedDateRange,
+        pastDaysDateLabel,
         showDateRangePicker,
         today,
         totalPages,

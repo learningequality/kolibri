@@ -29,6 +29,15 @@
           :inline="true"
         />
       </div>
+      <HeaderTable
+        v-if="$isPrint"
+        data-testid="printed-filters"
+      >
+        <HeaderTableRow
+          :keyText="coachString('recipientsLabel')"
+          :valueText="recipientSelected.label"
+        />
+      </HeaderTable>
       <div>
         <ReportsControls @export="exportCSV" />
         <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
