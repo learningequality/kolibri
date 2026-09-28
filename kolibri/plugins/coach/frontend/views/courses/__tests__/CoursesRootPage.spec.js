@@ -15,8 +15,13 @@ import useClassSummary, { useClassSummaryMock } from '../../../composables/useCl
 import { coachStrings } from '../../common/commonCoachStrings';
 import { learnerProgressTranslators } from '../../common/status/statusStrings';
 
-const { courseDetailsAction$, editRecipientsAction$, preTestRunningLabel$, unitInProgressLabel$ } =
-  coursesStrings;
+const {
+  courseDetailsAction$,
+  editRecipientsAction$,
+  preTestRunningLabel$,
+  unitInProgressLabel$,
+  unitNotStartedLabel$,
+} = coursesStrings;
 const { deleteAction$, notStartedLabel$, completedLabel$ } = coreStrings;
 const { entireClassLabel$ } = coachStrings;
 
@@ -245,6 +250,18 @@ describe('CoursesRootPage', () => {
     it('shows "not started" label in status column when unit_phase is pre_test_pending', () => {
       renderWithCourse({ unit_phase: UnitPhase.PRE_TEST_PENDING });
       expect(screen.getByText(notStartedLabel$())).toBeInTheDocument();
+    });
+
+    // After a unit's post-test ends, the next unit is pre_test_pending too;
+    // it must not look like the course was never started.
+    it('shows the next unit number when pre_test_pending follows a completed unit', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.PRE_TEST_PENDING,
+        active_unit_number: 2,
+        active_unit_title: 'Unit Two',
+      });
+      expect(screen.getByText(unitNotStartedLabel$({ num: 2 }))).toBeInTheDocument();
+      expect(screen.queryByText(notStartedLabel$())).not.toBeInTheDocument();
     });
 
     it('shows pre-test running label in status column when unit_phase is pre_test_active', () => {
