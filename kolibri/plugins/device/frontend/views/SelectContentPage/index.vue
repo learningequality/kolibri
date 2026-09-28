@@ -59,7 +59,7 @@
             v-if="!shouldHideContentTree"
             class="block-item"
             :class="{ small: windowIsSmall }"
-            :style="{ borderBottomColor: $themeTokens.fineLine }"
+            :style="{ borderBottomColor: 'var(--tokens-fineLine)' }"
           />
         </template>
       </template>

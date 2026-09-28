@@ -3,7 +3,7 @@
   <div class="k-filter">
     <UiIcon
       class="k-filter-icon"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
     >
       <KIcon icon="search" />
     </UiIcon>
@@ -15,7 +15,7 @@
       type="search"
       :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
       :style="{
-        color: $themeTokens.text,
+        color: 'var(--tokens-text)',
         border: showBorder ? `2px solid ${$themeTokens.fineLine}` : 'none',
       }"
       :placeholder="placeholder"

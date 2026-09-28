@@ -31,14 +31,12 @@
   import { computed, inject } from 'vue';
   import {
     themeTokens,
-    themeBrand,
     themePalette,
     themeOutlineStyle,
   } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
-  const $themeBrand = themeBrand();
   const $themePalette = themePalette();
   const coreOutline = themeOutlineStyle();
 
@@ -59,16 +57,16 @@
       const extraStyles = computed(() => {
         if (selected.value) {
           return {
-            backgroundColor: $themeBrand.primary.v_50,
-            borderColor: $themeTokens.primary,
-            color: $themeTokens.primary,
+            backgroundColor: 'var(--brand-primary-v50)',
+            borderColor: 'var(--tokens-primary)',
+            color: 'var(--tokens-primary)',
             fontWeight: 600,
           };
         }
 
         return {
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
+          backgroundColor: 'var(--tokens-surface)',
+          borderColor: 'var(--tokens-fineLine)',
         };
       });
 

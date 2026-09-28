@@ -4,7 +4,7 @@
     <MediaPlayerFullscreen
       class="fill-space fullscreen-wrapper"
       :style="{
-        'border-color': $themeTokens.fineLine,
+        'border-color': 'var(--tokens-fineLine)',
         padding: fullscreenWrapperPadding,
       }"
       @changeFullscreen="isFullscreen = $event"
@@ -17,10 +17,10 @@
         :key="defaultFile && defaultFile.storage_url"
         ref="wrapper"
         :style="{
-          '--video-primary': $themeTokens.primary,
-          '--video-unbuffered': $themePalette.grey.v_200,
-          '--video-fineline': $themeTokens.fineLine,
-          '--video-focus': $themeTokens.focusOutline,
+          '--video-primary': 'var(--tokens-primary)',
+          '--video-unbuffered': 'var(--palette-grey-v200)',
+          '--video-fineline': 'var(--tokens-fineLine)',
+          '--video-focus': 'var(--tokens-focusOutline)',
         }"
         :class="[
           'wrapper',

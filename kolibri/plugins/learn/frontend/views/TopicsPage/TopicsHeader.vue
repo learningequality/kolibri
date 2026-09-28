@@ -4,7 +4,7 @@
     ref="header"
     class="header"
     :style="{
-      backgroundColor: $themeTokens.surface,
+      backgroundColor: 'var(--tokens-surface)',
     }"
   >
     <KGrid gutter="0">

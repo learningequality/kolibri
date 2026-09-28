@@ -2,7 +2,7 @@
 
   <div
     class="bar-wrapper"
-    :style="{ backgroundColor: $themePalette.grey.v_300 }"
+    :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
   >
     <div
       class="bar help"
@@ -38,7 +38,7 @@
       barStyleCompleted() {
         return {
           width: `${Math.ceil((100 * this.completed) / this.total)}%`,
-          backgroundColor: this.$themeTokens.mastered,
+          backgroundColor: 'var(--tokens-mastered)',
         };
       },
       barStyleStarted() {
@@ -46,7 +46,7 @@
         return {
           marginLeft: `${Math.ceil((100 * this.completed) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$themeTokens.progress,
+          backgroundColor: 'var(--tokens-progress)',
         };
       },
       helpLineStyle() {
@@ -55,7 +55,7 @@
         return {
           marginLeft: `${Math.ceil((100 * (this.completed + this.started)) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$themeTokens.incorrect,
+          backgroundColor: 'var(--tokens-incorrect)',
         };
       },
     },

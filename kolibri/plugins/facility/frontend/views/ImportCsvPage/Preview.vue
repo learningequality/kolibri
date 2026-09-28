@@ -28,27 +28,27 @@
             <th></th>
             <th
               class="numeric"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               {{ $tr('updated') }}
             </th>
             <th
               class="numeric"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               {{ $tr('added') }}
             </th>
             <th
               v-if="showDeletionCol"
               class="numeric"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               {{ $tr('deleted') }}
             </th>
             <th
               v-if="numSkipped"
               class="numeric"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               {{ $tr('skipped') }}
             </th>
@@ -62,7 +62,7 @@
             </td>
             <td
               class="numeric"
-              :style="{ color: $themePalette.green.v_600 }"
+              :style="{ color: 'var(--palette-green-v600)' }"
             >
               {{ users_report.created }}
             </td>
@@ -87,7 +87,7 @@
             </td>
             <td
               class="numeric"
-              :style="{ color: $themePalette.green.v_600 }"
+              :style="{ color: 'var(--palette-green-v600)' }"
             >
               {{ classes_report.created }}
             </td>
@@ -117,16 +117,16 @@
         <table class="indent">
           <thead>
             <tr>
-              <th :style="{ color: $themeTokens.annotation }">
+              <th :style="{ color: 'var(--tokens-annotation)' }">
                 {{ $tr('rowNumber') }}
               </th>
-              <th :style="{ color: $themeTokens.annotation }">
+              <th :style="{ color: 'var(--tokens-annotation)' }">
                 {{ $tr('columnName') }}
               </th>
-              <th :style="{ color: $themeTokens.annotation }">
+              <th :style="{ color: 'var(--tokens-annotation)' }">
                 {{ $tr('value') }}
               </th>
-              <th :style="{ color: $themeTokens.annotation }">
+              <th :style="{ color: 'var(--tokens-annotation)' }">
                 {{ $tr('error') }}
               </th>
             </tr>

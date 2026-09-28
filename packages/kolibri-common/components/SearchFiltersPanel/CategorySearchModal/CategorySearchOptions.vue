@@ -115,14 +115,14 @@
     methods: {
       appearanceOverrides(category, bolded) {
         const activeOverrides = {
-          backgroundColor: this.$themeBrand.primary.v_100,
+          backgroundColor: 'var(--brand-primary-v100)',
           border: '2px',
-          borderColor: this.$themeTokens.primary,
+          borderColor: 'var(--tokens-primary)',
           borderStyle: 'solid',
           borderRadius: '4px',
         };
         const appearanceOverrides = {
-          color: this.$themeTokens.text,
+          color: 'var(--tokens-text)',
           marginTop: '8px',
           paddingTop: '8px',
           paddingBottom: '8px',

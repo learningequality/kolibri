@@ -120,7 +120,7 @@
       >
         <p
           class="preview-label"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ printFormatPreviewLabel$() }}
         </p>
@@ -286,8 +286,8 @@
       },
       cardStyle() {
         return {
-          backgroundColor: this.$themePalette.grey.v_100,
-          borderColor: this.$themeTokens.fineLine,
+          backgroundColor: 'var(--palette-grey-v100)',
+          borderColor: 'var(--tokens-fineLine)',
         };
       },
       printListCardStyle() {

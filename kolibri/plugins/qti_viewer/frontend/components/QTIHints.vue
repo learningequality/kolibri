@@ -12,7 +12,7 @@
     >
       <div
         class="qti-hint-label"
-        :style="{ color: $themeTokens.annotation }"
+        :style="{ color: 'var(--tokens-annotation)' }"
       >
         {{ hintLabel$({ number: index + 1 }) }}
       </div>

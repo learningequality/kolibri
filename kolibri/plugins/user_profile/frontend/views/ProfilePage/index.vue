@@ -37,7 +37,7 @@
                 icon="pointsActive"
                 :color="$themeTokens.primary"
               />
-              <span :style="{ color: $themeTokens.correct }">
+              <span :style="{ color: 'var(--tokens-correct)' }">
                 {{ $formatNumber(totalPoints) }}
               </span>
             </td>

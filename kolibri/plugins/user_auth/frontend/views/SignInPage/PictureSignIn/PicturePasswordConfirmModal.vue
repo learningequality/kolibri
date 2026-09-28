@@ -18,27 +18,27 @@
             aria-labelledby="confirm-modal-title"
             class="modal-card"
             :style="{
-              backgroundColor: $themeTokens.surface,
+              backgroundColor: 'var(--tokens-surface)',
               zoom: cardScale < 1 ? cardScale : undefined,
             }"
           >
             <div
               class="header"
-              :style="{ backgroundColor: $themePalette.yellow.v_500 }"
+              :style="{ backgroundColor: 'var(--palette-yellow-v500)' }"
             >
               <h1
                 id="confirm-modal-title"
                 ref="modalTitle"
                 class="modal-title"
                 tabindex="-1"
-                :style="{ color: $themeTokens.text }"
+                :style="{ color: 'var(--tokens-text)' }"
               >
                 {{ isThisYou$() }}
               </h1>
 
               <p
                 class="learner-name"
-                :style="{ color: $themeTokens.text }"
+                :style="{ color: 'var(--tokens-text)' }"
               >
                 {{ learnerName }}
               </p>
@@ -48,7 +48,7 @@
             <div
               class="icon-sequence"
               aria-hidden="true"
-              :style="{ backgroundColor: $themePalette.grey.v_100 }"
+              :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
             >
               <KIcon
                 v-for="(iconToken, i) in iconTokens"

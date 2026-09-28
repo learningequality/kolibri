@@ -11,7 +11,7 @@
     <p
       class="username"
       data-testid="username"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{ color: 'var(--tokens-annotation)' }"
     >
       {{ username }}
     </p>

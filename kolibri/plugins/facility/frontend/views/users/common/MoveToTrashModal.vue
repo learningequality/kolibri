@@ -13,7 +13,7 @@
           :color="$themeTokens.error"
           :style="{ marginBottom: '8px' }"
         >
-          <span :style="{ color: $themeTokens.error }">
+          <span :style="{ color: 'var(--tokens-error)' }">
             {{ numAdminsSelected$({ num: adminUsers.length }) }}
           </span>
         </KLabeledIcon>
@@ -45,7 +45,7 @@
 
   import { computed, ref } from 'vue';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
 
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { UserKinds } from 'kolibri/constants';
@@ -137,8 +137,8 @@
       });
 
       const removeButtonStyles = {
-        color: themeTokens().textInverted,
-        backgroundColor: themePalette().red.v_600,
+        color: 'var(--tokens-textInverted)',
+        backgroundColor: 'var(--palette-red-v600)',
         ':hover': { backgroundColor: darken1(themePalette().red.v_600) },
       };
 

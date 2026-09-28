@@ -9,8 +9,8 @@
     :style="
       windowIsLarge
         ? {
-          color: $themeTokens.text,
-          backgroundColor: $themeTokens.surface,
+          color: 'var(--tokens-text)',
+          backgroundColor: 'var(--tokens-surface)',
           width: width,
         }
         : {}

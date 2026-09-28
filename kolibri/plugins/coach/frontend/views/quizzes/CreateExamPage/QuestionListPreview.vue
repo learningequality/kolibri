@@ -47,7 +47,7 @@
         v-else-if="!windowIsSmall && annotatedSections && annotatedSections.length"
         :hideTopActions="true"
         :items="annotatedSections"
-        :style="{ backgroundColor: $themeTokens.surface }"
+        :style="{ backgroundColor: 'var(--tokens-surface)' }"
       >
         <AccordionItem
           v-for="(section, index) in annotatedSections"
@@ -131,7 +131,7 @@
       <p v-else>
         <KIcon
           icon="warning"
-          :style="{ fill: $themePalette.yellow.v_600 }"
+          :style="{ fill: 'var(--palette-yellow-v600)' }"
         />
         {{ resourceMissingText }}
       </p>

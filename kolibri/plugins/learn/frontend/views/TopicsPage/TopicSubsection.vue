@@ -6,7 +6,7 @@
       <template v-for="prefixTitle in topic.prefixTitles || []">
         <span
           :key="prefixTitle"
-          :style="{ color: $themeTokens.annotation }"
+          :style="{ color: 'var(--tokens-annotation)' }"
         >
           {{ prefixTitle }}
         </span>

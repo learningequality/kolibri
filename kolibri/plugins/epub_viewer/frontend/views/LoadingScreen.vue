@@ -23,7 +23,7 @@
     computed: {
       backgroundStyle() {
         return {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
         };
       },
     },

@@ -43,8 +43,8 @@
       style() {
         if (this.new) {
           return {
-            color: this.$themeTokens.textInverted,
-            backgroundColor: this.$themeTokens.success,
+            color: 'var(--tokens-textInverted)',
+            backgroundColor: 'var(--tokens-success)',
             '::selection': {
               color: this.$themeTokens.text,
             },

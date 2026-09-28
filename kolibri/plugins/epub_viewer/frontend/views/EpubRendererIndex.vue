@@ -32,7 +32,7 @@
       <div
         class="epub-viewer-content"
         role="presentation"
-        :style="{ 'border-color': $themeTokens.fineLine }"
+        :style="{ 'border-color': 'var(--tokens-fineLine)' }"
         :dir="contentDirection"
         @mousedown.stop="handleMouseDown"
         @keyup.esc="closeSideBar"
@@ -363,7 +363,7 @@
       epubViewerStyle() {
         const embeddedInline = this.embedded && !this.isInFullscreen;
         const style = {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
         };
         if (embeddedInline) {
           style.height = '25vh';

@@ -30,7 +30,7 @@
         return {
           borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
           fontSize: '12px',
-          color: this.$themeTokens.annotation,
+          color: 'var(--tokens-annotation)',
         };
       },
       tbodyTrStyle() {

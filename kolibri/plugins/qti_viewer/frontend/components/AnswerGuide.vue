@@ -14,11 +14,7 @@
 <script>
 
   import { computed } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
-
-  const $themeTokens = themeTokens();
-  const $themePalette = themePalette();
 
   export const answerGuideStrings = createTranslator('AnswerGuideStrings', {
     chooseOne: {
@@ -59,9 +55,9 @@
     name: 'AnswerGuide',
     setup() {
       const instructionStyles = computed(() => ({
-        backgroundColor: $themePalette.grey.v_100,
-        borderColor: $themeTokens.fineLine,
-        color: $themeTokens.text,
+        backgroundColor: 'var(--palette-grey-v100)',
+        borderColor: 'var(--tokens-fineLine)',
+        color: 'var(--tokens-text)',
       }));
 
       return {

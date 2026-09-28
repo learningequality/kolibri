@@ -58,7 +58,7 @@
             </span>
             <span
               v-else
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >
               &mdash;
             </span>

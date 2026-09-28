@@ -5,7 +5,7 @@
       ref="iframe"
       class="iframe"
       sandbox="allow-scripts allow-same-origin"
-      :style="{ backgroundColor: $themePalette.grey.v_200 }"
+      :style="{ backgroundColor: 'var(--palette-grey-v200)' }"
       frameBorder="0"
       :src="rooturl"
       :title="$tr('contentFrameTitle')"

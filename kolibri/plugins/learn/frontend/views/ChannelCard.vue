@@ -155,15 +155,15 @@
       },
       cardStyle() {
         return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
+          backgroundColor: 'var(--tokens-surface)',
+          color: 'var(--tokens-text)',
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
         };
       },
       versionStyle() {
         return {
-          color: this.$themeTokens.annotation,
+          color: 'var(--tokens-annotation)',
         };
       },
     },

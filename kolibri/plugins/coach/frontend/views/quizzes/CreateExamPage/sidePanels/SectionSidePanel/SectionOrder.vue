@@ -59,7 +59,7 @@
     <div
       class="bottom-buttons-style"
       :style="{
-        backgroundColor: $themeTokens.surface,
+        backgroundColor: 'var(--tokens-surface)',
         borderTop: `1px solid ${$themeTokens.fineLine}`,
       }"
     >
@@ -176,13 +176,13 @@
       },
       activeSectionStyles() {
         return {
-          backgroundColor: this.$themePalette.grey.v_100,
+          backgroundColor: 'var(--palette-grey-v100)',
           border: `1px solid ${this.$themeTokens.fineLine}`,
         };
       },
       draggableStyle() {
         return {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
         };
       },
     },

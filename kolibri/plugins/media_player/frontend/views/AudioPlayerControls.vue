@@ -2,7 +2,7 @@
 
   <div
     :class="['audio-controls', `rows-${rows}`]"
-    :style="{ '--focus-color': $themeTokens.focusOutline }"
+    :style="{ '--focus-color': 'var(--tokens-focusOutline)' }"
   >
     <div class="transport-row">
       <button
@@ -56,15 +56,15 @@
         direction, matching the seek math (clientX - rect.left) in useSeekBar. -->
         <div
           class="progress-bar-track"
-          :style="{ backgroundColor: $themePalette.grey.v_300 }"
+          :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
         >
           <div
             class="progress-bar-fill"
-            :style="{ width: progressPercent + '%', backgroundColor: $themeTokens.primary }"
+            :style="{ width: progressPercent + '%', backgroundColor: 'var(--tokens-primary)' }"
           ></div>
           <div
             class="progress-bar-thumb"
-            :style="{ left: progressPercent + '%', backgroundColor: $themeTokens.primary }"
+            :style="{ left: progressPercent + '%', backgroundColor: 'var(--tokens-primary)' }"
           ></div>
         </div>
       </div>

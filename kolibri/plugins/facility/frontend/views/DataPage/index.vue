@@ -38,7 +38,7 @@
           </p>
           <p
             class="generated-time"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             <GeneratedElapsedTime
               v-if="sessionDateCreated"
@@ -95,7 +95,7 @@
           </p>
           <p
             class="generated-time"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ color: 'var(--tokens-annotation)' }"
           >
             <GeneratedElapsedTime
               v-if="summaryDateCreated"

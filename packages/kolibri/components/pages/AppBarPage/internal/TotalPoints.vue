@@ -7,7 +7,7 @@
   >
     <div
       class="icon-wrapper"
-      :style="{ backgroundColor: $themeTokens.surface }"
+      :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <KIcon
         icon="pointsActive"

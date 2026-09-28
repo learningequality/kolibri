@@ -72,12 +72,12 @@
               v-else-if="colIndex === 4"
               id="course-visibility-column-header"
               class="table-header-label"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >{{ header.label }}</span>
             <span
               v-else
               class="table-header-label"
-              :style="{ color: $themeTokens.annotation }"
+              :style="{ color: 'var(--tokens-annotation)' }"
             >{{ header.label }}</span>
           </template>
           <template #cell="{ content, colIndex }">
@@ -182,7 +182,7 @@
           <strong>{{ noCoursesAssigned$() }}</strong>
           <p
             :style="{
-              color: $themePalette.grey.v_700,
+              color: 'var(--palette-grey-v700)',
             }"
           >
             {{ emptyCoursesDescription$() }}

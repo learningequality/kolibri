@@ -2,17 +2,17 @@
 
   <div
     class="card container drop-shadow"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :style="{ backgroundColor: 'var(--tokens-surface)' }"
   >
     <router-link
       :to="to"
       class="card card-link"
       :class="[isMobile ? 'mobile-card' : '', $computedClass({ ':focus': $coreOutline })]"
-      :style="{ backgroundColor: $themeTokens.surface }"
+      :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <div
         class="card"
-        :style="{ backgroundColor: $themeTokens.surface }"
+        :style="{ backgroundColor: 'var(--tokens-surface)' }"
       >
         <KFixedGrid numCols="4">
           <KFixedGridItem
@@ -29,10 +29,10 @@
             :span="isMobile ? 4 : 3"
             class="text-area"
           >
-            <span :style="{ color: $themeTokens.text }">
+            <span :style="{ color: 'var(--tokens-text)' }">
               <div
                 class="metadata-info"
-                :style="{ color: $themePalette.grey.v_800 }"
+                :style="{ color: 'var(--palette-grey-v800)' }"
               >
                 <LearningActivityLabel
                   :contentNode="contentNode"
@@ -65,12 +65,12 @@
                   :contentNode="contentNode"
                   :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
                   condensed
-                  :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
+                  :style="{ color: 'var(--palette-grey-v800)', marginTop: 0 }"
                 />
                 <p
                   v-if="categoryAndLevelString"
                   class="metadata-info"
-                  :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
+                  :style="{ color: 'var(--palette-grey-v800)', marginTop: 0 }"
                 >
                   {{ categoryAndLevelString }}
                 </p>
@@ -80,13 +80,13 @@
                     :src="channelThumbnail"
                     :alt="learnString('logo', { channelTitle: channelTitle })"
                     class="channel-logo"
-                    :style="{ color: $themePalette.grey.v_800 }"
+                    :style="{ color: 'var(--palette-grey-v800)' }"
                     loading="lazy"
                   >
                   <p
                     v-else
                     class="metadata-info"
-                    :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
+                    :style="{ color: 'var(--palette-grey-v800)', marginTop: 0 }"
                   >
                     {{ learnString('logo', { channelTitle: channelTitle }) }}
                   </p>
@@ -94,7 +94,7 @@
                     v-if="contentNode.copies"
                     appearance="basic-link"
                     class="copies"
-                    :style="{ color: $themeTokens.text }"
+                    :style="{ color: 'var(--tokens-text)' }"
                     :text="coreString('copies', { num: contentNode.copies.length })"
                     @click.prevent="$emit('openCopiesModal', contentNode.copies)"
                   />
@@ -104,7 +104,7 @@
             <p
               v-if="createdDate"
               class="created-info"
-              :style="{ color: $themePalette.grey.v_800 }"
+              :style="{ color: 'var(--palette-grey-v800)' }"
             >
               {{ bookmarkCreated }}
             </p>

@@ -59,7 +59,7 @@
         v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         class="update-settings-container"
         :style="{
-          backgroundColor: $themePalette.grey.v_100,
+          backgroundColor: 'var(--palette-grey-v100)',
         }"
       >
         <KCheckbox

@@ -42,7 +42,7 @@
           class="badge"
           aria-hidden="true"
           data-testid="badge"
-          :style="{ backgroundColor: $themeTokens.primary, color: $themeTokens.textInverted }"
+          :style="{ backgroundColor: 'var(--tokens-primary)', color: 'var(--tokens-textInverted)' }"
         >
           {{ sequencePosition }}
         </span>
@@ -98,17 +98,17 @@
             border: `4px solid ${$themeTokens.primary}`,
             // reduce padding to keep overall option size consistent when border width increases
             padding: '10px',
-            backgroundColor: $themePalette.blue.v_100,
+            backgroundColor: 'var(--palette-blue-v100)',
             cursor: 'pointer',
-            color: $themeTokens.text,
+            color: 'var(--tokens-text)',
             fontWeight: 600,
           };
         }
         const unSelectedStyles = {
           padding: '12px',
           border: `2px solid ${$themeTokens.fineLine}`,
-          backgroundColor: $themePalette.grey.v_100,
-          color: $themeTokens.annotation,
+          backgroundColor: 'var(--palette-grey-v100)',
+          color: 'var(--tokens-annotation)',
         };
 
         if (props.disabled) {

@@ -9,7 +9,7 @@
     :style="{
       height: `${scaledHeight}px`,
       width: `${scaledWidth}px`,
-      background: $themeTokens.surface,
+      background: 'var(--tokens-surface)',
     }"
   >
     <span

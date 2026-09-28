@@ -29,7 +29,7 @@
         }"
         :style="{
           padding: '8px 16px',
-          background: $themePalette.green.v_100,
+          background: 'var(--palette-green-v100)',
         }"
       >
         <div class="choosing-manually-label">
@@ -57,7 +57,7 @@
           shadow: isScrolled,
         }"
         :style="{
-          background: $themePalette.lightblue.v_100,
+          background: 'var(--palette-lightblue-v100)',
         }"
       >
         <span>

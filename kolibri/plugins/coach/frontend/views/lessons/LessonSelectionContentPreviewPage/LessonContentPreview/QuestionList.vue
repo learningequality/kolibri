@@ -1,6 +1,6 @@
 <template>
 
-  <section :style="{ backgroundColor: $themeTokens.surface }">
+  <section :style="{ backgroundColor: 'var(--tokens-surface)' }">
     <h2 class="header">
       {{ $tr('questionListHeader', { numOfQuestions: questions.length }) }}
     </h2>
@@ -50,7 +50,7 @@
     methods: {
       buttonStyle(index) {
         return {
-          backgroundColor: index === this.selectedIndex ? this.$themePalette.grey.v_400 : '',
+          backgroundColor: index === this.selectedIndex ? 'var(--palette-grey-v400)' : '',
         };
       },
     },

@@ -59,7 +59,7 @@
               <p
                 v-if="allowOtherBrowsersToConnect"
                 class="description"
-                :style="{ color: $themeTokens.annotation }"
+                :style="{ color: 'var(--tokens-annotation)' }"
               >
                 {{ $tr('allowExternalConnectionsAppDescription') }}
               </p>
@@ -515,7 +515,7 @@
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
-          color: this.$themePalette.grey.v_700,
+          color: 'var(--palette-grey-v700)',
         };
       },
       pageTitle() {

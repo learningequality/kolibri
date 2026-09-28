@@ -20,7 +20,7 @@
         <div
           :style="{
             marginTop: windowIsSmall ? '8px' : '16px',
-            backgroundColor: $themeTokens.surface,
+            backgroundColor: 'var(--tokens-surface)',
           }"
         >
           <KRouterLink
@@ -91,7 +91,7 @@
             <template #selectionInfo>
               <span
                 :style="{
-                  color: $themeTokens.annotation,
+                  color: 'var(--tokens-annotation)',
                 }"
               >{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
               <KButton

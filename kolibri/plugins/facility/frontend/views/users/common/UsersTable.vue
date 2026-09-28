@@ -54,7 +54,7 @@
               class="user-type-icon"
               icon="person"
               :label="content"
-              :style="{ color: $themeTokens.text }"
+              :style="{ color: 'var(--tokens-text)' }"
             />
             <UserTypeDisplay
               aria-hidden="true"
@@ -330,8 +330,8 @@
       const userRoleBadgeStyle = computed(() => {
         const $themeTokens = themeTokens();
         return {
-          color: $themeTokens.textInverted,
-          backgroundColor: $themeTokens.annotation,
+          color: 'var(--tokens-textInverted)',
+          backgroundColor: 'var(--tokens-annotation)',
           '::selection': {
             color: $themeTokens.text,
           },

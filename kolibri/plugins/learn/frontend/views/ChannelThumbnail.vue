@@ -38,7 +38,7 @@
     computed: {
       thumbnailBackground() {
         return {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: 'var(--tokens-surface)',
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },

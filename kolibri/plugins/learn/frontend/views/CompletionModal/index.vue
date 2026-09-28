@@ -16,7 +16,7 @@
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
-        :style="[modalSizeStyles, { background: $themeTokens.surface }]"
+        :style="[modalSizeStyles, { background: 'var(--tokens-surface)' }]"
       >
         <KFocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
@@ -63,7 +63,7 @@
               class="stats"
             >
               <div class="points">
-                <span :style="{ color: $themeTokens.correct }">
+                <span :style="{ color: 'var(--tokens-correct)' }">
                   {{ $tr('plusPoints', { points }) }}
                 </span>
                 <KIcon

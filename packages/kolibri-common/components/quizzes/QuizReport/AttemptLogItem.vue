@@ -25,28 +25,28 @@
         v-else-if="attemptLog.correct"
         class="item svg-item"
         data-testid="question-attempt-icons"
-        :style="{ fill: $themeTokens.correct }"
+        :style="{ fill: 'var(--tokens-correct)' }"
         icon="correct"
       />
       <KIcon
         v-else-if="attemptLog.error"
         class="svg-item"
         data-testid="question-attempt-icons"
-        :style="{ fill: $themeTokens.annotation }"
+        :style="{ fill: 'var(--tokens-annotation)' }"
         icon="helpNeeded"
       />
       <KIcon
         v-else-if="!attemptLog.correct"
         class="item svg-item"
         data-testid="question-attempt-icons"
-        :style="{ fill: $themeTokens.incorrect }"
+        :style="{ fill: 'var(--tokens-incorrect)' }"
         icon="incorrect"
       />
       <KIcon
         v-else-if="attemptLog.hinted"
         class="item svg-item"
         data-testid="question-attempt-icons"
-        :style="{ fill: $themeTokens.annotation }"
+        :style="{ fill: 'var(--tokens-annotation)' }"
         icon="hint"
       />
     </template>

@@ -26,8 +26,8 @@
         <div
           class="search-header"
           :style="{
-            backgroundColor: $themeTokens.surface,
-            borderColor: $themePalette.grey.v_200,
+            backgroundColor: 'var(--tokens-surface)',
+            borderColor: 'var(--palette-grey-v200)',
           }"
         >
           <LibrarySearchBar

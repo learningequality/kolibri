@@ -61,7 +61,7 @@
         <div
           v-if="captionTracks.length > 0"
           class="transcript-toggle"
-          :style="{ borderColor: $themeTokens.fineLine }"
+          :style="{ borderColor: 'var(--tokens-fineLine)' }"
         >
           <button
             class="transcript-toggle-button"
