@@ -22,15 +22,9 @@ on: # zizmor: ignore[dangerous-triggers]
       - created
   pull_request_target:
     types:
-      - assigned
-      - closed
-      - edited
       - labeled
       - opened
-      - reopened
-      - review_request_removed
       - review_requested
-      - unassigned
   schedule:
     - cron: 1 0 * * 1
   workflow_dispatch: {}
@@ -42,9 +36,6 @@ jobs:
     name: Run automations
     uses: learningequality/.github/.github/workflows/automation.yml@main
     secrets:
-      CONTRIBUTIONS_SHEET_NAME: ${{ secrets.CONTRIBUTIONS_SHEET_NAME }}
-      CONTRIBUTIONS_SPREADSHEET_ID: ${{ secrets.CONTRIBUTIONS_SPREADSHEET_ID }}
-      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
       LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
       LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}
       SLACK_COMMUNITY_NOTIFICATIONS_WEBHOOK_URL: ${{ secrets.SLACK_COMMUNITY_NOTIFICATIONS_WEBHOOK_URL }}
