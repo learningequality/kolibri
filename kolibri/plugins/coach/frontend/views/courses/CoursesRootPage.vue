@@ -104,6 +104,14 @@
                 <template v-else-if="content.unit_phase === UnitPhase.POST_TEST_PENDING">
                   {{ unitInProgressLabel$({ num: content.active_unit_number }) }}
                 </template>
+                <template
+                  v-else-if="
+                    content.unit_phase === UnitPhase.PRE_TEST_PENDING &&
+                      content.active_unit_number > 1
+                  "
+                >
+                  {{ unitNotStartedLabel$({ num: content.active_unit_number }) }}
+                </template>
                 <template v-else-if="content.unit_phase === UnitPhase.COMPLETE">
                   {{ coreString('completedLabel') }}
                 </template>
@@ -292,6 +300,7 @@
         unitInProgressLabel$,
         preTestRunningLabel$,
         postTestRunningLabel$,
+        unitNotStartedLabel$,
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
       const { getRecipientNamesForCourseSession, className } = useClassSummary();
@@ -544,6 +553,7 @@
         unitInProgressLabel$,
         preTestRunningLabel$,
         postTestRunningLabel$,
+        unitNotStartedLabel$,
         getRecipientNamesForCourseSession,
         courseHasRecipients,
         className,
