@@ -5,10 +5,14 @@ from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import BasePermission
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
+from kolibri.core.auth.permissions.general import IsFacilityAdmin
 from kolibri.core.device.permissions import NotProvisionedHasPermission
+from kolibri.core.device.permissions import UserHasAnyDevicePermissions
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
 from kolibri.core.serializers import sanitize_remote_list
@@ -82,8 +86,20 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         return super().validate(data)
 
 
+class _ReadOrUpdateConnectionStatus(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.method in SAFE_METHODS or view.action == "update_connection_status"
+        )
+
+
 class NetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes: ClassVar[list] = [IsAuthenticated | NotProvisionedHasPermission]
+    permission_classes: ClassVar[list] = [
+        (IsAuthenticated & _ReadOrUpdateConnectionStatus)
+        | UserHasAnyDevicePermissions
+        | IsFacilityAdmin
+        | NotProvisionedHasPermission
+    ]
     serializer_class = NetworkLocationSerializer
     filter_backends: ClassVar[list] = [DjangoFilterBackend]
     filterset_fields: ClassVar[list] = [

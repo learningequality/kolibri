@@ -157,3 +157,11 @@ class IsAdminForOwnFacility(BasePermissions):
         if _user_is_admin_for_own_facility(user):
             return Q(dataset=user.dataset)
         return q_none
+
+
+class IsFacilityAdmin(DenyAll):
+    def has_permission(self, request, view):
+        return _user_is_admin_for_own_facility(request.user)
+
+    def has_object_permission(self, request, view, obj):
+        return self.has_permission(request, view)

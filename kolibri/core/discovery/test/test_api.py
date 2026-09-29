@@ -17,6 +17,7 @@ from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
 from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
@@ -156,6 +157,84 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_learner_cannot_create_location(self):
+        self.login(self.learner)
+        response = self.client.post(
+            reverse("kolibri:core:staticnetworklocation-list"),
+            data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_learner_cannot_update_location(self):
+        self.login(self.learner)
+        response = self.client.put(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": self.existing_happy_netloc.pk},
+            ),
+            data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_learner_cannot_delete_location(self):
+        self.login(self.learner)
+        response = self.client.delete(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": self.existing_happy_netloc.pk},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(
+            models.NetworkLocation.objects.filter(
+                pk=self.existing_happy_netloc.pk
+            ).exists()
+        )
+
+    def test_learner_can_read_location(self):
+        self.login(self.learner)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": self.existing_happy_netloc.pk},
+            )
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_learner_can_update_connection_status(self):
+        self.login(self.learner)
+        response = self.client.post(
+            reverse(
+                "kolibri:core:networklocation-update-connection-status",
+                args=[self.existing_happy_netloc.id],
+            ),
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_facility_admin_can_create_location(self):
+        admin = FacilityUserFactory(facility=self.facility)
+        self.facility.add_admin(admin)
+        self.login(admin)
+        response = self.client.post(
+            reverse("kolibri:core:staticnetworklocation-list"),
+            data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_content_manager_can_create_location(self):
+        content_manager = FacilityUserFactory(facility=self.facility)
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        self.login(content_manager)
+        response = self.client.post(
+            reverse("kolibri:core:staticnetworklocation-list"),
+            data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_reading_network_location_list_filter_soud(self):
         self.login(self.superuser)
         models.NetworkLocation.objects.create(
@@ -232,6 +311,19 @@ class NetworkLocationAPITestCase(APITestCase):
                 self.fail(
                     f"NetworkLocation.operating_system has no default value set: {e}"
                 )
+
+
+@mock.patch.object(requests.Session, "request", mock_request)
+class UnprovisionedNetworkLocationAPITestCase(APITestCase):
+    databases = "__all__"
+
+    def test_anon_user_can_create_location(self):
+        response = self.client.post(
+            reverse("kolibri:core:staticnetworklocation-list"),
+            data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class NetworkLocationFacilitiesViewTestCase(APITestCase):
