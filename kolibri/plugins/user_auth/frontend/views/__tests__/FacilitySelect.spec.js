@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/vue';
 import { nextTick } from 'vue';
 import themeConfig from 'kolibri/styles/themeConfig';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
-import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { AuthFlowStore } from '../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import FacilitySelect from '../FacilitySelect';
 import UserAuthLayout from '../UserAuthLayout';
@@ -19,8 +19,9 @@ jest.mock('kolibri-plugin-data', () => ({
     deviceUnusableReason: null,
   },
 }));
-jest.mock('../../composables/useAuthFlow');
 jest.mock('../../composables/useAuthRouter');
+
+AuthFlowStore.stub();
 
 const PageInLayout = {
   components: { UserAuthLayout, FacilitySelect },
@@ -29,7 +30,7 @@ const PageInLayout = {
 };
 
 function renderInLayout(props = {}) {
-  useAuthFlow.mockReturnValue(useAuthFlowMock());
+  AuthFlowStore.mock({ facilities: [], facilityId: null });
   useAuthRouter.mockReturnValue(useAuthRouterMock());
   return render(PageInLayout, {
     props,
