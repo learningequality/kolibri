@@ -434,7 +434,7 @@
       const dataPlugins = ref(null);
       const { snackbarIsVisible, createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
-      fetchPlugins.then(() => {
+      fetchPlugins().then(() => {
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
       });
 
