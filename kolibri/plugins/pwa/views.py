@@ -4,9 +4,6 @@
 # SPDX-License-Identifier: MIT
 from urllib.parse import quote
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.decorators.gzip import gzip_page
 from django.views.generic.base import TemplateView
 
 import kolibri
@@ -15,8 +12,7 @@ from kolibri.core.theme_hook import ThemeHook
 from kolibri.utils.conf import OPTIONS
 
 
-@method_decorator(gzip_page, name="dispatch")
-@method_decorator(cache_page(60 * 60 * 24 * 7), name="dispatch")
+@cache_no_user_data
 class PwaManifestView(TemplateView):
     template_name = "pwa/manifest.json"
     content_type = "application/manifest+json"
@@ -99,9 +95,7 @@ class PwaManifestView(TemplateView):
         return context
 
 
-@method_decorator(cache_no_user_data, name="dispatch")
-@method_decorator(gzip_page, name="dispatch")
-@method_decorator(cache_page(60 * 60 * 24 * 7), name="dispatch")
+@cache_no_user_data
 class PwaServiceWorkerView(TemplateView):
     template_name = "pwa/sw.js"
     content_type = "application/javascript"
