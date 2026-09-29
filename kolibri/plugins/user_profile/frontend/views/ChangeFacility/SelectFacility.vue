@@ -35,6 +35,7 @@
       </div>
     </KRadioButtonGroup>
     <KGrid
+      v-if="canAddAddress"
       :style="{
         marginTop: '34px',
         paddingTop: '10px',
@@ -86,6 +87,7 @@
   import useDevices from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
   import useDeviceDeletion from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDeviceDeletion';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useUser from 'kolibri/composables/useUser';
   import { localeCompare } from 'kolibri/utils/i18n';
   import commonProfileStrings from '../commonProfileStrings';
 
@@ -111,6 +113,9 @@
       });
 
       const { devices } = useDeviceDeletion(_devices);
+
+      const { isAdmin, canManageContent } = useUser();
+      const canAddAddress = computed(() => get(isAdmin) || get(canManageContent));
 
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
 
@@ -242,6 +247,7 @@
         availableFacilities,
         storageFacilityId,
         selectedFacilityId,
+        canAddAddress,
         showAddAddressModal,
         facilityDisabled,
         handleAddedAddress,
