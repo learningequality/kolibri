@@ -12,6 +12,7 @@ from kolibri.core.tasks.constants import POLL_INTERVAL
 from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.models import Job as ORMJob
 from kolibri.core.tasks.models import Supervisor as ORMSupervisor
 from kolibri.core.tasks.storage import Storage
@@ -65,6 +66,12 @@ _release_blocking_job = threading.Event()
 
 def _block_until_released():
     _release_blocking_job.wait(timeout=10)
+
+
+def _expected_standalone_loop_interval(supervisor):
+    if connections[ORMJob.objects.db].vendor == "postgresql":
+        return supervisor._heartbeat_interval
+    return POLL_INTERVAL
 
 
 @pytest.fixture
@@ -1190,6 +1197,36 @@ class TestWorkerSupervisor:
         w = WorkerSupervisor(regular_workers=1, high_workers=1)
         try:
             assert w.loop_interval == w._heartbeat_interval
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_standalone_workers_poll_on_poll_interval(self):
+        w = WorkerSupervisor(regular_workers=1, high_workers=1, standalone_workers=True)
+        try:
+            assert w.loop_interval == _expected_standalone_loop_interval(w)
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_standalone_flag_threads_through_initialize_workers(self):
+        w = initialize_workers(standalone_workers=True)
+        try:
+            assert w.loop_interval == _expected_standalone_loop_interval(w)
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_standalone_polling_skips_next_job_lookahead(self):
+        if connections[ORMJob.objects.db].vendor == "postgresql":
+            pytest.skip("PostgreSQL standalone workers do not poll")
+        w = WorkerSupervisor(regular_workers=1, high_workers=1, standalone_workers=True)
+        try:
+            with mock.patch.object(
+                w.storage, "seconds_until_next_queued_job"
+            ) as lookahead:
+                assert w._next_wait() == POLL_INTERVAL
+            lookahead.assert_not_called()
         finally:
             w.storage.clear(force=True)
             w.shutdown()
