@@ -87,6 +87,7 @@
     "vue"
   ],
   "dependencies": {
+    "@vue/devtools-api": "^6.6.4",
     "@vueuse/core": "catalog:",
     "axios": "^1.18.0",
     "clipboard": "^2.0.11",
