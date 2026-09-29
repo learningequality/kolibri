@@ -1,7 +1,9 @@
+import getpass
 from threading import Thread
 
 from magicbus.plugins import SimplePlugin
 
+from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
 
@@ -37,6 +39,17 @@ class PosixKolibriProcess(KolibriProcess):
 
     def __init__(self, app):
         super().__init__()
+
+        # Per-launch shared secret. The token round-trips through
+        # InitializeAppView (URL query) -> APP_AUTH_TOKEN_COOKIE -> provisioning
+        # validator -> KolibriAppGetOSUserHook, which returns the OS user the
+        # token was issued to.
+        try:
+            self.auth_token = KolibriAppGetOSUserHook.login_tokens.generate_for_user(
+                getpass.getuser(), is_admin=True
+            )
+        except OSError:
+            self.auth_token = None
 
         self.app_plugin = AppPlugin(self, app.load_kolibri)
         self.app_plugin.subscribe()
