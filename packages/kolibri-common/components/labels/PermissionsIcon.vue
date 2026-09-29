@@ -73,7 +73,7 @@
           };
         } else {
           return {
-            fill: this.lightIcon ? this.$themeTokens.disabled : 'var(--tokens-text)',
+            fill: this.lightIcon ? 'var(--tokens-textDisabled)' : 'var(--tokens-text)',
           };
         }
       },
