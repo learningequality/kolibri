@@ -197,6 +197,14 @@ class TestKolibriVersion(unittest.TestCase):
             "0.16-b.1",
         )
 
+    def test_normalize_version_to_semver_bipartite_dev(self):
+        self.assertEqual(
+            version.normalize_version_to_semver(
+                "0.1.dev38363+g356cfe2f5",
+            ),
+            "0.1.0-dev38363.dev38363.g356cfe2f5",
+        )
+
     @parameterized.expand(
         [
             ("0.15.8", ">=0.15.8", True),
