@@ -583,10 +583,13 @@ class ExamViewset(ValuesViewset):
     def serialize_object(self, pk=None):
         pk = pk or self.kwargs.get("pk")
         is_draft, pk = self._is_draft_pk(pk)
+        exam_queryset, draft_queryset = self.filter_querysets(
+            self.get_queryset(), self.get_draft_queryset()
+        )
         try:
             if is_draft:
-                return self.serialize_draft(self.get_draft_queryset().filter(pk=pk))[0]
-            return self.serialize(self.get_queryset().filter(pk=pk))[0]
+                return self.serialize_draft(draft_queryset.filter(pk=pk))[0]
+            return self.serialize(exam_queryset.filter(pk=pk))[0]
         except (IndexError, ValueError, TypeError) as e:
             raise Http404("No Exam matches the given query.") from e
 

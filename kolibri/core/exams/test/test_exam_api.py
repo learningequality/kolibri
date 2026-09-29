@@ -150,6 +150,36 @@ class BaseExamTest:
         user.save()
         return self.client.login(username="learner", password="pass")
 
+    def create_user(self, username, facility=None):
+        user = FacilityUser.objects.create(
+            username=username, facility=facility or self.facility
+        )
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        return user
+
+    def login_as(self, user):
+        self.assertTrue(
+            self.client.login(
+                username=user.username, password=DUMMY_PASSWORD, facility=user.facility
+            )
+        )
+
+    def create_classroom_learner(self):
+        learner = self.create_user("classroom_learner")
+        self.classroom.add_member(learner)
+        return learner
+
+    def create_classroom_coach(self):
+        coach = self.create_user("classroom_coach")
+        self.classroom.add_coach(coach)
+        return coach
+
+    def get_exam_detail(self, exam_id):
+        return self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": exam_id})
+        )
+
     def test_logged_in_user_exam_no_delete(self):
         self.login_as_learner()
         response = self.client.delete(
@@ -428,6 +458,54 @@ class BaseExamTest:
         ]:
             self.assertIn(field, response.data)
 
+    def test_anonymous_user_retrieve_exam_not_found(self):
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_unassigned_classroom_learner_retrieve_exam_not_found(self):
+        self.login_as(self.create_classroom_learner())
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_other_facility_learner_retrieve_exam_not_found(self):
+        other_facility = Facility.objects.create(name="OtherFac")
+        other_classroom = Classroom.objects.create(
+            name="OtherClassroom", parent=other_facility
+        )
+        learner = self.create_user("other_learner", facility=other_facility)
+        other_classroom.add_member(learner)
+        self.login_as(learner)
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_other_facility_admin_retrieve_exam_not_found(self):
+        other_facility = Facility.objects.create(name="OtherFac")
+        other_admin = self.create_user("other_admin", facility=other_facility)
+        other_facility.add_admin(other_admin)
+        self.login_as(other_admin)
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_classroom_coach_can_retrieve_exam(self):
+        self.login_as(self.create_classroom_coach())
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], self.exam.id)
+
+    def test_classroom_coach_can_create_exam(self):
+        self.login_as(self.create_classroom_coach())
+        response = self.post_new_exam(self.make_basic_exam())
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["title"], "Exam")
+        self.assertExamExists(id=response.data["id"])
+
+    def test_classroom_coach_can_update_exam(self):
+        self.login_as(self.create_classroom_coach())
+        response = self.patch_updated_exam(self.exam.id, {"title": "coach title"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["title"], "coach title")
+        self.assertExamExists(id=self.exam.id, title="coach title")
+
     def test_post_exam_v2_model_fails(self):
         self.login_as_admin()
         basic_exam = {
@@ -705,6 +783,26 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["instant_report_visibility"])
 
+    def test_assigned_learner_can_retrieve_active_exam(self):
+        learner = self.create_classroom_learner()
+        models.ExamAssignment.objects.create(
+            exam=self.exam, collection=self.classroom, assigned_by=self.admin
+        )
+        self.login_as(learner)
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], self.exam.id)
+
+    def test_assigned_learner_retrieve_inactive_unstarted_exam_not_found(self):
+        learner = self.create_classroom_learner()
+        models.ExamAssignment.objects.create(
+            exam=self.exam, collection=self.classroom, assigned_by=self.admin
+        )
+        models.Exam.objects.filter(id=self.exam.id).update(active=False)
+        self.login_as(learner)
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 404)
+
 
 class ExamDraftAPITestCase(BaseExamTest, APITestCase):
     class_object = models.DraftExam
@@ -724,6 +822,23 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
             sorted(learner_ids), sorted(learners, key=lambda x: x.id)
         ):
             self.assertEqual(learner_id, learner.id)
+
+    def test_assigned_learner_retrieve_draft_not_found(self):
+        learner = self.create_classroom_learner()
+        models.DraftExam.objects.filter(id=self.exam.id).update(
+            assignments=[self.classroom.id], learner_ids=[learner.id]
+        )
+        self.login_as(learner)
+        response = self.get_exam_detail(self.exam.id)
+        self.assertEqual(response.status_code, 404)
+
+    def test_classroom_coach_can_publish_draft(self):
+        self.login_as(self.create_classroom_coach())
+        response = self.patch_updated_exam(self.exam.id, {"draft": False})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["draft"])
+        self.assertExamNotExist(id=self.exam.id)
+        self.assertTrue(models.Exam.objects.filter(id=response.data["id"]).exists())
 
     def test_logged_in_admin_exam_update_can_publish(self):
         self.login_as_admin()
