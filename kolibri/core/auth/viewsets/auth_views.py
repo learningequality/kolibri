@@ -21,6 +21,7 @@ from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import NotProvisionedHasPermission
+from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -121,6 +122,19 @@ class DeleteImportedUserView(views.APIView):
             raise Http404("User does not exist") from e
 
 
+def _can_sign_in_without_password(user):
+    dataset = user.dataset
+    facility_allows_it = dataset.learner_can_login_with_no_password or (
+        dataset.picture_password_settings is not None
+        and user.picture_password is not None
+    )
+    return (
+        facility_allows_it
+        and not user.roles.exists()
+        and (not user.is_superuser or not is_full_facility_import(user.dataset_id))
+    )
+
+
 class SetNonSpecifiedPasswordView(views.APIView):
     def post(self, request):
         username = request.data.get("username", "")
@@ -136,11 +150,17 @@ class SetNonSpecifiedPasswordView(views.APIView):
         error_message = "Suitable user does not exist"
 
         try:
-            user = FacilityUser.objects.get(username=username, facility=facility_id)
+            user = FacilityUser.objects.select_related("dataset").get(
+                username=username, facility=facility_id
+            )
         except (ValueError, ObjectDoesNotExist) as e:
             raise Http404(error_message) from e
 
-        if user.password != NOT_SPECIFIED or hasattr(user, "os_user"):
+        if (
+            user.password != NOT_SPECIFIED
+            or hasattr(user, "os_user")
+            or _can_sign_in_without_password(user)
+        ):
             raise Http404(error_message)
 
         user.set_password(password)
