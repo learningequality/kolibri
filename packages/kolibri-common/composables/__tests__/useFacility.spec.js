@@ -1,21 +1,24 @@
-import { ref, nextTick } from 'vue';
+import { nextTick } from 'vue';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
+import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 // eslint-disable-next-line import-x/named
 import useUser, { useUserMock } from 'kolibri/composables/useUser';
-// eslint-disable-next-line import-x/named
-import useFacilities, { useFacilitiesMock } from '../useFacilities';
+import * as useFacilitiesModule from '../useFacilities';
 import { OptionsForSignIn } from '../../constants/Auth';
 
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
+jest.mock('kolibri-common/apiResources/FacilityResource', () => ({ retrieve: jest.fn() }));
 jest.mock('kolibri/composables/useUser');
-jest.mock('../useFacilities');
 jest.mock('kolibri/utils/i18n', () => ({
   currentLanguage: 'en',
 }));
 
+const { FacilitiesStore } = useFacilitiesModule;
+
 function loadUseFacilityModule() {
   let module;
   jest.isolateModules(() => {
+    jest.doMock('../useFacilities', () => useFacilitiesModule);
     // eslint-disable-next-line global-require
     module = require('../useFacility');
   });
@@ -32,7 +35,6 @@ describe('useFacilitySelect', () => {
         userFacilityId: null,
       }),
     );
-    useFacilities.mockImplementation(() => useFacilitiesMock());
   });
 
   it('persists selected facility for signed out users', () => {
@@ -51,11 +53,7 @@ describe('useFacilitySelect', () => {
         userFacilityId: 'facility-1',
       }),
     );
-    useFacilities.mockImplementation(() =>
-      useFacilitiesMock({
-        userIsMultiFacilityAdmin: ref(false),
-      }),
-    );
+    FacilitiesStore.mock({ userIsMultiFacilityAdmin: false });
 
     const { useFacilitySelect } = loadUseFacilityModule();
     const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
@@ -74,11 +72,7 @@ describe('useFacilitySelect', () => {
         userFacilityId: 'facility-1',
       }),
     );
-    useFacilities.mockImplementation(() =>
-      useFacilitiesMock({
-        userIsMultiFacilityAdmin: ref(true),
-      }),
-    );
+    FacilitiesStore.mock({ userIsMultiFacilityAdmin: true });
 
     const { useFacilitySelect } = loadUseFacilityModule();
     const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
@@ -106,12 +100,6 @@ describe('useFacility', () => {
       useUserMock({
         isUserLoggedIn: false,
         userFacilityId: null,
-      }),
-    );
-    useFacilities.mockImplementation(() =>
-      useFacilitiesMock({
-        fetchFacility: jest.fn(),
-        getFacility: jest.fn().mockReturnValue(null),
       }),
     );
   });
@@ -144,12 +132,7 @@ describe('useFacility', () => {
           userFacilityId: 'facility-1',
         }),
       );
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          userIsMultiFacilityAdmin: ref(false),
-          getFacility: jest.fn().mockImplementation(id => mockFacilities.find(f => f.id === id)),
-        }),
-      );
+      FacilitiesStore.mock({ userIsMultiFacilityAdmin: false, _facilities: mockFacilities });
       const { default: useFacility } = loadUseFacilityModule();
       const { selectedFacility } = useFacility();
       expect(selectedFacility.value).toEqual(mockFacilities[0]);
@@ -163,11 +146,7 @@ describe('useFacility', () => {
           userFacilityId: 'facility-1',
         }),
       );
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          getFacility: jest.fn().mockImplementation(id => mockFacilities.find(f => f.id === id)),
-        }),
-      );
+      FacilitiesStore.mock({ _facilities: mockFacilities });
       const { default: useFacility } = loadUseFacilityModule();
       const { selectedFacility, facilityId } = useFacility();
       expect(facilityId.value).toBe('facility-2');
@@ -189,12 +168,7 @@ describe('useFacility', () => {
           userFacilityId: 'facility-1',
         }),
       );
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          userIsMultiFacilityAdmin: ref(false),
-          getFacility: jest.fn().mockReturnValue(mockFacilities[0]),
-        }),
-      );
+      FacilitiesStore.mock({ userIsMultiFacilityAdmin: false, _facilities: mockFacilities });
       const { default: useFacility } = loadUseFacilityModule();
       const { facilityId } = useFacility();
       expect(facilityId.value).toBe('facility-1');
@@ -209,12 +183,7 @@ describe('useFacility', () => {
           userFacilityId: 'facility-1',
         }),
       );
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          userIsMultiFacilityAdmin: ref(false),
-          getFacility: jest.fn().mockReturnValue(mockFacilities[0]),
-        }),
-      );
+      FacilitiesStore.mock({ userIsMultiFacilityAdmin: false, _facilities: mockFacilities });
       const { default: useFacility } = loadUseFacilityModule();
       const { currentFacilityName } = useFacility();
       expect(currentFacilityName.value).toBe('Facility 1');
@@ -235,11 +204,7 @@ describe('useFacility', () => {
           userFacilityId: 'facility-1',
         }),
       );
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          getFacility: jest.fn().mockReturnValue(facilityWithDataset),
-        }),
-      );
+      FacilitiesStore.mock({ _facilities: [facilityWithDataset] });
 
       const { default: useFacility } = loadUseFacilityModule();
       const { facilityConfig } = useFacility();
@@ -248,12 +213,7 @@ describe('useFacility', () => {
 
     it('uses fetched config when available', async () => {
       FacilityDatasetResource.list.mockResolvedValue([{ id: 'dataset-2', setting: true }]);
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          fetchFacility: jest.fn().mockResolvedValue(),
-          getFacility: jest.fn().mockImplementation(id => mockFacilities.find(f => f.id === id)),
-        }),
-      );
+      FacilityResource.retrieve.mockResolvedValue(mockFacilities[1]);
 
       const { default: useFacility } = loadUseFacilityModule();
       const { setFacilityId, facilityConfig } = useFacility();
@@ -264,13 +224,8 @@ describe('useFacility', () => {
 
   describe('setFacilityId', () => {
     it('sets the facilityId and updates config', async () => {
-      const fetchFacility = jest.fn().mockResolvedValue();
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          fetchFacility,
-          getFacility: jest.fn().mockImplementation(id => mockFacilities.find(f => f.id === id)),
-        }),
-      );
+      FacilityResource.retrieve.mockResolvedValue(mockFacilities[1]);
+      const { fetchFacility } = FacilitiesStore.use();
       const { default: useFacility } = loadUseFacilityModule();
       const { setFacilityId, facilityId } = useFacility();
       await setFacilityId('facility-2');
@@ -289,12 +244,7 @@ describe('useFacility', () => {
           userFacilityId: 'facility-1',
         }),
       );
-      useFacilities.mockImplementation(() =>
-        useFacilitiesMock({
-          userIsMultiFacilityAdmin: ref(false),
-          getFacility: jest.fn().mockReturnValue(mockFacilities[0]),
-        }),
-      );
+      FacilitiesStore.mock({ userIsMultiFacilityAdmin: false, _facilities: mockFacilities });
       const { default: useFacility } = loadUseFacilityModule();
       const { updateFacilityConfig } = useFacility();
       const result = await updateFacilityConfig();
