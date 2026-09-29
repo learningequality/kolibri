@@ -3,7 +3,7 @@
   <li>
     <span
       class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+      :style="{ borderTop: 'solid 1px var(--tokens-fineLine)' }"
     >
     </span>
   </li>

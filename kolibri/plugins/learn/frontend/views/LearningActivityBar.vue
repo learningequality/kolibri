@@ -485,7 +485,7 @@
         // The prime difference is that Exercises won't have shadows under the KToolbar
         // because the LessonMasteryBar lives under it and has its own drop shadow.
         if (this.contentKind === ContentNodeKinds.EXERCISE) {
-          return { border: `1px solid ${this.$themeTokens.fineLine}`, 'box-shadow': 'none' };
+          return { border: '1px solid var(--tokens-fineLine)', 'box-shadow': 'none' };
         } else {
           return {};
         }

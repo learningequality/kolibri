@@ -3,7 +3,7 @@
   <div
     class="channel-list-item"
     :class="{ 'channel-list-item-sm': windowIsSmall }"
-    :style="[verticalPadding, { borderTop: `1px solid ${$themeTokens.fineLine}` }]"
+    :style="[verticalPadding, { borderTop: '1px solid var(--tokens-fineLine)' }]"
   >
     <ChannelDetails
       :channel="channel"

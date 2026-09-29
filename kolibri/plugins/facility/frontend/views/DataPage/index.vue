@@ -74,7 +74,7 @@
           <p
             class="section-seperator"
             :style="{
-              borderBottom: `1px solid ${$themeTokens.fineLine}`,
+              borderBottom: '1px solid var(--tokens-fineLine)',
             }"
           ></p>
         </KGridItem>

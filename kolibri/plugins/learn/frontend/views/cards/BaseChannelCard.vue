@@ -17,7 +17,7 @@
       numCols="4"
       gutter="16"
       class="content"
-      :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
+      :style="{ borderTop: '1px solid var(--tokens-fineLine)' }"
     >
       <KFixedGridItem span="1">
         <ChannelThumbnail

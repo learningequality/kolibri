@@ -18,7 +18,7 @@
       <h3
         class="title"
         dir="auto"
-        :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+        :style="{ borderBottom: '1px solid var(--tokens-fineLine)' }"
       >
         <KTextTruncator
           :text="title"

@@ -170,7 +170,7 @@
     computed: {
       rowStyles() {
         return {
-          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
+          borderBottom: '1px solid var(--tokens-fineLine)',
           height: `auto`,
           width: `100%`,
         };

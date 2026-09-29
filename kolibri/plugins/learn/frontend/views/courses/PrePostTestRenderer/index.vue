@@ -76,7 +76,7 @@
         class="bottom-bar"
         :style="{
           background: 'var(--tokens-surface)',
-          borderTop: `1px solid ${$themeTokens.fineLine}`,
+          borderTop: '1px solid var(--tokens-fineLine)',
         }"
       >
         <div class="navigation-buttons-wrapper">

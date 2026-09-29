@@ -242,10 +242,10 @@
         };
       },
       thinBorderStyle() {
-        return { border: `1px solid ${this.$themeTokens.fineLine}` };
+        return { border: '1px solid var(--tokens-fineLine)' };
       },
       thickBorderStyle() {
-        return { border: `2px solid ${this.$themePalette.grey.v_700}` };
+        return { border: '2px solid var(--palette-grey-v700)' };
       },
     },
     mounted() {

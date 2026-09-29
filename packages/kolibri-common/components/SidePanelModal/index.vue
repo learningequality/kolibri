@@ -190,9 +190,7 @@
       headerStyles() {
         return {
           backgroundColor: this.immersive ? 'var(--tokens-appBar)' : 'var(--tokens-surface)',
-          borderBottom: this.hideHeaderBorder
-            ? 'none'
-            : `1px solid ${this.$themePalette.grey.v_400}`,
+          borderBottom: this.hideHeaderBorder ? 'none' : '1px solid var(--palette-grey-v400)',
         };
       },
       sidePanelStyles() {

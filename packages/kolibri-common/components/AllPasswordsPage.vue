@@ -287,7 +287,7 @@
           return {
             ...this.cardStyle,
             border: 'none',
-            borderBottom: `2px solid ${this.$themeTokens.fineLine}`,
+            borderBottom: '2px solid var(--tokens-fineLine)',
             borderRadius: 0,
             paddingTop: '0px',
             paddingBottom: '16px',

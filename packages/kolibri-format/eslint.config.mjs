@@ -370,9 +370,7 @@ export default [
       'kolibri/vue-component-no-duplicate-ids': ERROR,
       // Colors in `<style>` blocks use the `--tokens-*` CSS variables.
       'kolibri/vue-no-theme-tokens-in-v-bind': ERROR,
-      // TODO(#15231): turn on once the existing call sites are migrated. The rule has a
-      // fixer and `kolibri-format` runs with `fix: true`, so it would rewrite them all.
-      'kolibri/vue-no-theme-accessor-in-inline-styles': OFF,
+      'kolibri/vue-no-theme-accessor-in-inline-styles': ERROR,
 
       // Narrows `vue/no-root-v-if` to the components that can hit the Vue 2.7 bug it
       // guards against, which are the ones whose `<style>` block uses `v-bind()`.

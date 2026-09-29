@@ -17,7 +17,7 @@
           class="accordion-header"
           :style="
             index === currentSectionIndex && !isExpanded(index)
-              ? { border: `2px solid ${$themeTokens.primary}` }
+              ? { border: '2px solid var(--tokens-primary)' }
               : {}
           "
         >
@@ -54,7 +54,7 @@
         >
           <span
             class="divider"
-            :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+            :style="{ borderTop: 'solid 1px var(--tokens-fineLine)' }"
           >
           </span>
 

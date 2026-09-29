@@ -35,7 +35,6 @@
 <script>
 
   import { computed } from 'vue';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
 
   /**
@@ -59,7 +58,7 @@
       const readLabel = computed(() => coreString('read'));
       const cardStyle = computed(() => ({
         backgroundColor: 'var(--palette-grey-v100)',
-        border: `1px solid ${themeTokens().fineLine}`,
+        border: '1px solid var(--tokens-fineLine)',
         borderRadius: '4px',
       }));
       const pillStyle = computed(() => ({

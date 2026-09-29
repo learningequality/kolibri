@@ -268,7 +268,7 @@
       },
       accordionItemStyles() {
         return {
-          border: `1px solid ${this.$themeTokens.fineLine}`,
+          border: '1px solid var(--tokens-fineLine)',
         };
       },
     },
@@ -283,7 +283,7 @@
         return {
           padding: `0.25em 0 0.25em ${selected ? '0.5em' : '0.75em'}`,
           background: selected ? this.selectedHighlightColor : 'var(--palette-grey-v100)',
-          borderLeft: selected ? `0.25em solid ${this.$themeTokens.primary}` : 'none',
+          borderLeft: selected ? '0.25em solid var(--tokens-primary)' : 'none',
         };
       },
       handleChange(field, value) {

@@ -2,7 +2,7 @@
 
   <div
     class="accordion"
-    :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
+    :style="{ border: '1px solid var(--tokens-fineLine)' }"
   >
     <div
       v-if="hasHeaderSlot"

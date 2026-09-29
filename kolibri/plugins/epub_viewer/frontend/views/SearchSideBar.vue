@@ -69,7 +69,7 @@
         v-for="(item, index) in searchResults"
         :key="index"
         class="search-results-list-item"
-        :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+        :style="{ borderTop: 'solid 1px var(--tokens-fineLine)' }"
       >
         <KButton
           appearance="basic-link"

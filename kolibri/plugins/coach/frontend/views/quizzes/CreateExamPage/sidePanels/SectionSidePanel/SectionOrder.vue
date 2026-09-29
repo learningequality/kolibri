@@ -60,7 +60,7 @@
       class="bottom-buttons-style"
       :style="{
         backgroundColor: 'var(--tokens-surface)',
-        borderTop: `1px solid ${$themeTokens.fineLine}`,
+        borderTop: '1px solid var(--tokens-fineLine)',
       }"
     >
       <KButton
@@ -177,7 +177,7 @@
       activeSectionStyles() {
         return {
           backgroundColor: 'var(--palette-grey-v100)',
-          border: `1px solid ${this.$themeTokens.fineLine}`,
+          border: '1px solid var(--tokens-fineLine)',
         };
       },
       draggableStyle() {

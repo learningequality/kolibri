@@ -82,7 +82,6 @@
 
   import { computed } from 'vue';
   import { get } from '@vueuse/core';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { CategoriesLookup } from 'kolibri/constants';
   import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -202,7 +201,7 @@
         if (isFilterActive(entry.termKey, entry.value)) {
           return {
             backgroundColor: 'var(--brand-primary-v100)',
-            border: `1px solid ${themeTokens().primary}`,
+            border: '1px solid var(--tokens-primary)',
             // primaryDark for WCAG AA contrast on the v_100 background
             color: 'var(--tokens-primaryDark)',
             fontWeight: 'bold',
@@ -210,7 +209,7 @@
         }
         return {
           backgroundColor: 'var(--tokens-surface)',
-          border: `1px solid ${themePalette().grey.v_300}`,
+          border: '1px solid var(--palette-grey-v300)',
           color: 'var(--tokens-text)',
           fontWeight: 'normal',
         };

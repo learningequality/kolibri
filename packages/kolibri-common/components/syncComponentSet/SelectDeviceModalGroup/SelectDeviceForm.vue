@@ -57,7 +57,7 @@
 
       <hr
         v-if="savedDevices.length > 0 && discoveredDevices.length > 0"
-        :style="{ border: 0, borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+        :style="{ border: 0, borderBottom: '1px solid var(--tokens-fineLine)' }"
       >
 
       <!-- Dynamic Devices -->

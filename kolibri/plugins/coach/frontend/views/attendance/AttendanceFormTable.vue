@@ -21,7 +21,7 @@
             v-if="sortedLearners.length > 0"
             class="mark-all-row"
             :style="{
-              borderBottom: `1px solid ${$themeTokens.fineLine}`,
+              borderBottom: '1px solid var(--tokens-fineLine)',
             }"
           >
             <span

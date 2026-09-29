@@ -46,7 +46,6 @@ describe('.stylelintrc.js', () => {
 });
 
 describe('eslint.config.mjs', () => {
-  const OFF = 0;
   const ERROR = 2;
   const CONFIG_FILE = path.join(ROOT_DIR, 'eslint.config.mjs');
   const FILE_PATH = path.join(ROOT_DIR, 'SmokeTest.vue');
@@ -116,11 +115,9 @@ describe('eslint.config.mjs', () => {
   );
 
   it(
-    'leaves `kolibri/vue-no-theme-accessor-in-inline-styles` off',
+    'enforces `kolibri/vue-no-theme-accessor-in-inline-styles`',
     () => {
-      // the rule carries a fixer and `kolibri-format` runs ESLint with `fix: true`, so
-      // turning it on rewrites every existing call site in one pass
-      expect(configuredRule('kolibri/vue-no-theme-accessor-in-inline-styles')).toEqual([OFF]);
+      expect(configuredRule('kolibri/vue-no-theme-accessor-in-inline-styles')).toEqual([ERROR]);
     },
     TIMEOUT,
   );

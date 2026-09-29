@@ -80,7 +80,7 @@
         class="bottom-bar"
         :style="{
           backgroundColor: 'var(--tokens-surface)',
-          borderTop: `1px solid ${$themeTokens.fineLine}`,
+          borderTop: '1px solid var(--tokens-fineLine)',
         }"
       >
         <div class="attempts-container">
