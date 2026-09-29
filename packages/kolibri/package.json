@@ -114,6 +114,7 @@
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@testing-library/vue": "catalog:",
+    "@vue/devtools-api": "^6.6.4",
     "@vue/test-utils": "catalog:",
     "xhr-mock": "catalog:"
   }
