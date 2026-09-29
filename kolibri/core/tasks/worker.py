@@ -105,7 +105,7 @@ class WorkerSupervisor:
     it was responsible for.
     """
 
-    def __init__(self, regular_workers=2, high_workers=1):
+    def __init__(self, regular_workers=2, high_workers=1, standalone_workers=False):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
@@ -145,7 +145,13 @@ class WorkerSupervisor:
         self._heartbeat_interval = self.supervisor_stale_threshold / 3
         self._last_heartbeat = time.monotonic()
 
-        self.loop_interval = self._heartbeat_interval
+        self._polling = (
+            standalone_workers and not self.notifier.supports_cross_process_notify
+        )
+        if self._polling:
+            self.loop_interval = POLL_INTERVAL
+        else:
+            self.loop_interval = self._heartbeat_interval
         # Set during shutdown to stop claiming new jobs while the loop keeps
         # heartbeating until in-flight jobs drain.
         self._draining = threading.Event()
@@ -177,7 +183,7 @@ class WorkerSupervisor:
 
     def _next_wait(self):
         priority = self._claimable_priority()
-        if priority is None:
+        if self._polling or priority is None:
             return self.loop_interval
         seconds = self.storage.seconds_until_next_queued_job(priority=priority)
         if seconds is None:
