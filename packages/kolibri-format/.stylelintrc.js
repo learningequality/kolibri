@@ -17,6 +17,7 @@ module.exports = {
     'color-hex-length': 'long',
     'csstree/validator': {
       syntaxExtensions: ['sass', 'less'],
+      ignoreValue: /v-bind\(/, // `v-bind()` in a `<style>` block is Vue syntax, not CSS
     },
 
     /*
@@ -40,6 +41,8 @@ module.exports = {
     'order/properties-alphabetical-order': null,
     'scss/percent-placeholder-pattern': null,
     'scss/no-global-function-names': null, // Does not distinguish between SCSS functions and CSS functions
+    // `v-bind()` takes a JS expression, and lowercasing it breaks the binding
+    'value-keyword-case': ['lower', { ignoreFunctions: ['v-bind'] }],
 
     // Custom rules
     // Token names are camelCase, and the rule checks `var()` usage as well as
