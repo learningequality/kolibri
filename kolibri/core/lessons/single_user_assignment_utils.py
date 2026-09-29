@@ -1,7 +1,12 @@
+from django.db.models import Q
+
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+from kolibri.core.content.signals import add_removal_requests
+from kolibri.core.content.utils.assignment import DeletedAssignment
 
 from .models import IndividualSyncableLesson
+from .models import Lesson
 from .models import LessonAssignment
 
 
@@ -123,6 +128,37 @@ def update_assignments_from_individual_syncable_lessons(user_id):
             assignment.collection_id = syncablelesson.collection_id
             assignment.save(update_dirty_bit_to=False)
 
-    # delete lessons/assignments that no longer have a syncable lesson object
+    # delete lessons/assignments that no longer have a syncable lesson object, or no local recipient
+    stale_assignments = LessonAssignment.objects.filter(
+        Q(id__in=to_delete.values("id")) | Q(collection__membership__isnull=True)
+    )
+    delete_stale_lesson_assignments(
+        stale_assignments,
+        Lesson.objects.filter(lesson_assignments__in=stale_assignments),
+    )
+
+
+def delete_stale_lesson_assignments(assignments, lessons):
+    """
+    Deletes the assignments, then each of the lessons left with none, without syncing either deletion
+
+    :param assignments: LessonAssignment queryset
+    :param lessons: Lesson queryset
+    """
+    lesson_ids = set(lessons.values_list("id", flat=True))
     with DisablePostDeleteSignal():
-        to_delete.delete()
+        assignments.delete()
+        unassigned_lessons = Lesson.objects.filter(
+            id__in=lesson_ids, lesson_assignments__isnull=True
+        )
+        removals = [
+            (dataset_id, DeletedAssignment(Lesson.morango_model_name, lesson_id))
+            for lesson_id, dataset_id in unassigned_lessons.values_list(
+                "id", "dataset_id"
+            )
+        ]
+        unassigned_lessons.delete()
+
+    # DisablePostDeleteSignal also mutes the receiver that frees a deleted lesson's downloads
+    for dataset_id, removal in removals:
+        add_removal_requests(dataset_id, [removal])

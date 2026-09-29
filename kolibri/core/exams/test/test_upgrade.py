@@ -4,8 +4,14 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.exams.test.test_single_user_assignment_utils import (
+    SingleUserExamTestCase,
+)
+from kolibri.core.exams.upgrade import delete_stale_single_user_exams
 from kolibri.core.exams.upgrade import (
     resolve_conflicting_datasets_for_exams_and_related_models,
 )
@@ -71,3 +77,28 @@ class ExamsUpgradeTestCase(TestCase):
         ok_assignment.refresh_from_db()
         self.assertEqual(ok_assignment.dataset_id, classroom.dataset_id)
         self.assertIsNotNone(ok_assignment.assigned_by)
+
+
+class DeleteStaleSingleUserExamsTestCase(SingleUserExamTestCase):
+    def test_unassigned_exam_is_freed_on_a_single_user_device(self):
+        set_device_settings(subset_of_users_device=True)
+
+        delete_stale_single_user_exams()
+
+        self._assert_resources_freed()
+
+    def test_exam_with_no_local_recipient_is_freed_on_a_single_user_device(self):
+        set_device_settings(subset_of_users_device=True)
+        group = LearnerGroup.objects.create(name="A", parent=self.classroom)
+        ExamAssignment.objects.create(
+            exam=self.exam, collection=group, assigned_by=self.coach
+        )
+
+        delete_stale_single_user_exams()
+
+        self._assert_resources_freed()
+
+    def test_unassigned_exam_is_kept_on_a_full_device(self):
+        delete_stale_single_user_exams()
+
+        self.assertTrue(Exam.objects.filter(id=self.exam.id).exists())

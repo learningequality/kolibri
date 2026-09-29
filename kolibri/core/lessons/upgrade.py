@@ -10,8 +10,12 @@ from django.db.models import Subquery
 from morango.models.core import UUIDField
 
 from kolibri.core.auth.models import Collection
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.lessons.single_user_assignment_utils import (
+    delete_stale_lesson_assignments,
+)
 from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)
@@ -42,3 +46,15 @@ def resolve_conflicting_datasets_for_lessons_and_related_models():
     LessonAssignment.objects.exclude(lesson__dataset_id=F("dataset_id")).update(
         assigned_by=None, dataset_id=assignment_sub_query
     )
+
+
+@version_upgrade(old_version="<0.20.0")
+def delete_stale_single_user_lessons():
+    """
+    Learner-only devices kept every lesson a learner stopped being assigned, and its downloads
+    """
+    if get_device_setting("subset_of_users_device"):
+        delete_stale_lesson_assignments(
+            LessonAssignment.objects.filter(collection__membership__isnull=True),
+            Lesson.objects.all(),
+        )

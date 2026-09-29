@@ -10,8 +10,12 @@ from django.db.models import Subquery
 from morango.models.core import UUIDField
 
 from kolibri.core.auth.models import Collection
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.exams.single_user_assignment_utils import (
+    delete_stale_exam_assignments,
+)
 from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)
@@ -42,3 +46,15 @@ def resolve_conflicting_datasets_for_exams_and_related_models():
     ExamAssignment.objects.exclude(exam__dataset_id=F("dataset_id")).update(
         assigned_by=None, dataset_id=assignment_sub_query
     )
+
+
+@version_upgrade(old_version="<0.20.0")
+def delete_stale_single_user_exams():
+    """
+    Learner-only devices kept every exam a learner stopped being assigned, and its downloads
+    """
+    if get_device_setting("subset_of_users_device"):
+        delete_stale_exam_assignments(
+            ExamAssignment.objects.filter(collection__membership__isnull=True),
+            Exam.objects.all(),
+        )
