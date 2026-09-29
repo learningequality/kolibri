@@ -4,8 +4,10 @@ import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { gapMatchStrings } from '../GapMatchInteraction.vue';
+import { matchStrings } from '../MatchInteraction.vue';
 
-const { responsePoolLabel$, gapEmpty$, gapFilled$ } = gapMatchStrings;
+const { responsePoolLabel$, gapEmpty$, gapFilled$, refusedWrongGroup$ } = gapMatchStrings;
+const { refusedNoUsesLeft$, refusedMaxAssociations$ } = matchStrings;
 const { emptyOption$ } = slotListboxStrings;
 
 // Choice content comes from the fixture XML rather than a translation, so it is
@@ -1063,5 +1065,125 @@ describe('Refusing a drag', () => {
 
     // G1 already holds the one association the interaction allows
     expect(gaps(second)[1]).not.toHaveClass('qti-gap-target');
+  });
+});
+
+function noticeText(scope) {
+  return scope.querySelector('.qti-gap-match-notice').textContent.trim();
+}
+
+describe('Explaining a refusal', () => {
+  it('says nothing until something is actually refused', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    expect(noticeText(container)).toBe('');
+  });
+
+  it('announces the explanation as a live region', () => {
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml);
+    expect(container.querySelector('.qti-gap-match-notice')).toHaveAttribute('role', 'status');
+  });
+
+  it('explains that a response does not belong in the gap it was carried to', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await fireEvent.click(poolChip(container, 'mat'));
+    await fireEvent.click(gaps(container)[0]);
+
+    expect(noticeText(container)).toBe(refusedWrongGroup$({ response: 'mat', number: 1 }));
+  });
+
+  it('explains the same refusal when the gap was chosen first', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await fireEvent.click(gaps(container)[0]);
+    await fireEvent.click(poolChip(container, 'mat'));
+
+    expect(noticeText(container)).toBe(refusedWrongGroup$({ response: 'mat', number: 1 }));
+  });
+
+  it('explains why a response with no use left cannot be picked up', async () => {
+    // Every choice in example-1 is match-max="1"
+    const { container } = renderAssessmentItem(items['gap-match-example-1'].xml, {
+      answerState: { RESPONSE: [['W', 'G1']] },
+    });
+
+    await fireEvent.click(poolChip(container, 'winter'));
+
+    expect(noticeText(container)).toBe(refusedNoUsesLeft$({ response: 'winter' }));
+  });
+
+  it('drops the explanation once the learner places something', async () => {
+    const { container } = renderAssessmentItem(items['gap-match-distractor-pools'].xml);
+
+    await fireEvent.click(poolChip(container, 'mat'));
+    await fireEvent.click(gaps(container)[0]);
+    expect(noticeText(container)).not.toBe('');
+
+    await fireEvent.click(poolChip(container, 'sat'));
+    await fireEvent.click(gaps(container)[0]);
+
+    await waitFor(() => expect(noticeText(container)).toBe(''));
+  });
+});
+
+describe('Reaching max-associations', () => {
+  // sv-3's second interaction declares no max-associations, so QTI's default
+  // of 1 applies across its two gaps
+  function secondInteraction(container) {
+    return container.querySelectorAll('.qti-gap-match-interaction')[1];
+  }
+
+  it('says nothing while there is still room', () => {
+    const { container } = renderAssessmentItem(items['q6-gap-match-interaction-sv-3'].xml);
+    expect(noticeText(secondInteraction(container))).toBe('');
+  });
+
+  it('warns under the default limit as soon as the one match is made', async () => {
+    const { container } = renderAssessmentItem(items['q6-gap-match-interaction-sv-3'].xml);
+    const second = secondInteraction(container);
+
+    await fireEvent.click(poolChip(second, 'winter'));
+    await fireEvent.click(gaps(second)[0]);
+
+    await waitFor(() => expect(noticeText(second)).toBe(refusedMaxAssociations$({ count: 1 })));
+  });
+
+  it('keeps the warning up when a further placement is refused', async () => {
+    const { container } = renderAssessmentItem(items['q6-gap-match-interaction-sv-3'].xml, {
+      answerState: { RESPONSE1: [], RESPONSE2: [['W', 'G1']] },
+    });
+    const second = secondInteraction(container);
+
+    await fireEvent.click(poolChip(second, 'summer'));
+    await fireEvent.click(gaps(second)[1]);
+
+    expect(gapTexts(second)).toEqual(['winter', '']);
+    expect(noticeText(second)).toBe(refusedMaxAssociations$({ count: 1 }));
+  });
+
+  it('drops the warning once a match is taken back out', async () => {
+    const { container } = renderAssessmentItem(items['q6-gap-match-interaction-sv-3'].xml, {
+      answerState: { RESPONSE1: [], RESPONSE2: [['W', 'G1']] },
+    });
+    const second = secondInteraction(container);
+    expect(noticeText(second)).toBe(refusedMaxAssociations$({ count: 1 }));
+
+    await fireEvent.click(gaps(second)[0]);
+
+    await waitFor(() => expect(noticeText(second)).toBe(''));
+  });
+
+  it('says nothing when the limit only falls due with every gap filled', async () => {
+    // A limit no lower than the number of gaps never stops a placement
+    const xml = GAP_SIDE_XML.replace('max-associations="0"', 'max-associations="2"');
+    const { container } = renderAssessmentItem(xml);
+
+    await fireEvent.click(poolChip(container, 'red'));
+    await fireEvent.click(gaps(container)[0]);
+    await fireEvent.click(poolChip(container, 'one'));
+    await fireEvent.click(gaps(container)[1]);
+
+    expect(gapTexts(container)).toEqual(['red', 'one']);
+    expect(noticeText(container)).toBe('');
   });
 });

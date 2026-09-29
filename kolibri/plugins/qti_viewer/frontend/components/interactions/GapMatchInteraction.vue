@@ -18,8 +18,9 @@
   } from '../../utils/choices';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
-  import useMatchRows, { PAIR_ORDER } from '../../composables/useMatchRows';
+  import useMatchRows, { PAIR_ORDER, PROBLEM } from '../../composables/useMatchRows';
   import useSlotListbox from '../../composables/useSlotListbox';
+  import { matchStrings } from './MatchInteraction.vue';
 
   const PROMPT_TAG = 'qti-prompt';
   const GAP_TAG = 'qti-gap';
@@ -41,9 +42,15 @@
       context:
         'Accessible label for a blank a learner has filled. {number} is its position in the passage, and {response} the answer placed there.',
     },
+    refusedWrongGroup: {
+      message: '{response} cannot go in gap {number, number}.',
+      context:
+        'Explains why a response the learner tried to place was not accepted: the question only allows certain responses in that blank. {number} is the position of the blank in the passage.',
+    },
   });
 
-  const { responsePoolLabel$, gapEmpty$, gapFilled$ } = gapMatchStrings;
+  const { responsePoolLabel$, gapEmpty$, gapFilled$, refusedWrongGroup$ } = gapMatchStrings;
+  const { refusedNoUsesLeft$, refusedMaxAssociations$ } = matchStrings;
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
@@ -140,8 +147,10 @@
         pool,
         pairs,
         currentValue,
+        isExhausted,
         isPlaceable,
         canPlace,
+        placementProblem,
         place,
         clear,
         remove,
@@ -177,15 +186,42 @@
         );
       }
 
+      const refusal = ref(null);
+
+      function explain(problem, identifier) {
+        if (problem === PROBLEM.NO_USES_LEFT) {
+          return refusedNoUsesLeft$({ response: labelFor(identifier) });
+        }
+        return null;
+      }
+
       function placeInGap(identifier, gapIndex) {
         if (!isCompatible(gapIds[gapIndex], identifier)) {
+          refusal.value = refusedWrongGroup$({
+            response: labelFor(identifier),
+            number: gapIndex + 1,
+          });
           return;
         }
+        const problem = placementProblem(identifier, gapIndex, 0);
+        if (problem) {
+          refusal.value = explain(problem, identifier);
+          return;
+        }
+        refusal.value = null;
         place(identifier, gapIndex, 0);
       }
 
       function selectResponse(identifier) {
-        if (!interactive.value || !isPlaceable(identifier)) {
+        if (!interactive.value) {
+          return;
+        }
+
+        if (!isPlaceable(identifier)) {
+          refusal.value = isExhausted(identifier)
+            ? explain(PROBLEM.NO_USES_LEFT, identifier)
+            : null;
+          clearSelection();
           return;
         }
         if (activeGap.value !== null) {
@@ -322,7 +358,28 @@
         variable.value.value = value.map(pair => [...pair]);
       });
 
-      watch(interactive, clearSelection);
+      watch(interactive, () => {
+        clearSelection();
+        refusal.value = null;
+      });
+
+      watch(pairs, () => {
+        refusal.value = null;
+      });
+
+      const atMaxAssociations = computed(() => {
+        const max = typedProps.maxAssociations.value;
+        return max > 0 && max < gapIds.length && pairs.value.length >= max;
+      });
+
+      const notice = computed(() => {
+        if (refusal.value) {
+          return refusal.value;
+        }
+        return atMaxAssociations.value
+          ? refusedMaxAssociations$({ count: typedProps.maxAssociations.value })
+          : null;
+      });
 
       const poolStyles = computed(() => ({
         backgroundColor: $themePalette.grey.v_100,
@@ -493,6 +550,22 @@
         ]);
       }
 
+      function renderNotice() {
+        return h(
+          'p',
+          {
+            class: 'qti-gap-match-notice',
+            style: {
+              color: $themeTokens.text,
+              backgroundColor: $themePalette.grey.v_100,
+              borderColor: $themeTokens.fineLine,
+            },
+            attrs: { role: 'status' },
+          },
+          notice.value ? [h('KIcon', { props: { icon: 'infoOutline' } }), notice.value] : [],
+        );
+      }
+
       return () => {
         if (!choices.length || !gapIds.length) {
           return;
@@ -518,6 +591,7 @@
                 { class: 'qti-gap-match-passage', style: passageStyles.value },
                 passageContent,
               ),
+              renderNotice(),
             ],
           ),
         ]);
@@ -644,6 +718,17 @@
   .qti-gap-match-passage {
     padding: 1rem 1.125rem;
     line-height: 2.25;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+
+  .qti-gap-match-notice:not(:empty) {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0.75rem 1.125rem;
+    margin: 1rem 0 0;
     border-style: solid;
     border-width: 1px;
     border-radius: 8px;
