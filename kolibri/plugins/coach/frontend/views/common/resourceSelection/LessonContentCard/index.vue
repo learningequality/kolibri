@@ -46,11 +46,14 @@
         />
       </div>
       <slot name="notice"></slot>
-      <LearningActivityChip
-        v-if="content.is_leaf"
-        :kind="content.learning_activities[0]"
-        class="chip"
-      />
+      <template v-if="content.is_leaf">
+        <LearningActivityChip
+          v-for="activity in content.learning_activities"
+          :key="activity"
+          :kind="activity"
+          class="chip"
+        />
+      </template>
     </div>
     <CardThumbnail
       v-if="!windowIsSmall"

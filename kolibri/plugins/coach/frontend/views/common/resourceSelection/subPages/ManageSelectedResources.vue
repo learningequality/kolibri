@@ -19,7 +19,7 @@
         >
           <div class="row-content">
             <LearningActivityIcon
-              :kind="resource.learning_activities[0]"
+              :kind="resource.learning_activities"
               class="icon-style"
             />
             <div>
