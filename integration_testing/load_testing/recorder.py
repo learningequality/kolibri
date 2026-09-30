@@ -105,6 +105,6 @@ def _strip_har_responses(har_path):
 
     # Write back stripped HAR
     with open(har_path, "w") as f:
-        json.dump(har, f, indent=2)
+        json.dump(har, f, separators=(",", ":"))
 
     info("Stripped response data from HAR file")

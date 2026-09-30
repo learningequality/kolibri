@@ -136,11 +136,6 @@ docs = [
     "sphinx-notfound-page; python_version >= '3.9'",
     "sphinx-llm[gen]==0.4.1; python_version >= '3.9'",
 ]
-load-test = [
-    {include-group = "base"},
-    "playwright>=1.40; python_version >= '3.8'",
-    "locust>=2.20; python_version >= '3.8'",
-]
 [tool.uv]
 # Don't install packages published less than 7 days ago (matches dependabot cooldown)
 exclude-newer = "7 days"

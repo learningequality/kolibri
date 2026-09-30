@@ -65,6 +65,7 @@ jobs:
         run: |
           uv run python -O -m pytest kolibri --color=no
           uv run python -O -m pytest --color=no -p no:django test
+          uv run python -O -m pytest --color=no -p no:django integration_testing/load_testing/test
   unit_test_stage2:
     name: Python unit tests for uv-supported Python versions
     needs: [pre_job, stage1_required_checks]

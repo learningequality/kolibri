@@ -8,11 +8,8 @@ Prerequisites
 -------------
 Before running load tests:
 
-1. **Install dependencies**:
-
-   .. code-block:: bash
-
-      pip install -r requirements/load_test.txt
+1. **Install uv**: ``loadtest.py`` declares its dependencies inline (PEP 723) and runs
+   under ``uv run --script`` in its own environment, separate from Kolibri's venv.
 
 2. **Start Kolibri server** (NOT development server):
 
@@ -34,9 +31,8 @@ Help
 ----
 .. code-block:: bash
 
-   python loadtest.py --help
-   python loadtest.py --help
-   python loadtest.py run --help
+   ./loadtest.py --help
+   ./loadtest.py run --help
 
 See the help for available flags (e.g., users, spawn rate, duration, headless, retries).
 
@@ -56,7 +52,7 @@ Then opens a browser for **manual capture** → saves a versioned HAR → execut
 
 .. code-block:: bash
 
-   python loadtest.py
+   ./loadtest.py
 
 Full run using an existing HAR (skip capture)
 ---------------------------------------------
@@ -64,7 +60,7 @@ Use a pre-recorded HAR to skip the manual capture step. With a file in ``har_fil
 
 .. code-block:: bash
 
-   python loadtest.py --har har_files/lesson_flow_kolibri_testing_high_latency.har
+   ./loadtest.py --har har_files/lesson_flow_kolibri_testing_high_latency.har
 
 Other flags
 -----------
@@ -73,13 +69,13 @@ Non-interactive server and credentials:
 
 .. code-block:: bash
 
-   python loadtest.py --server http://127.0.0.1:8080 --username admin --password sosecure
+   ./loadtest.py --server http://127.0.0.1:8080 --username admin --password sosecure
 
 Headless 10‑minute run at modest scale:
 
 .. code-block:: bash
 
-   python loadtest.py --headless -u 100 -r 50 -t 10m run
+   ./loadtest.py --headless -u 100 -r 50 -t 10m run
 
 HAR Files
 ---------
@@ -98,7 +94,63 @@ HAR files capture the exact sequence of HTTP requests made during a learner less
 * New Kolibri version where request patterns have changed
 * Adding new content types or interaction flows to test
 
+**Selection**: ``run`` uses ``har_files/lesson_flow_kolibri_<server version>.har`` when it exists. Otherwise it falls back to the newest versioned HAR and logs a warning; static bundle URLs are rewritten to the server's version at replay time. Pass ``--har`` to choose a file explicitly. HAR files are stored with Git LFS.
+
 **Versioning**: HAR files are named with the Kolibri version where they were captured
 (e.g., ``lesson_flow_kolibri_0.18.4.har``). This version acts as a "valid from" marker -
 the HAR can be used for that version and later versions until request patterns change.
 Committed HAR files for released versions are preserved in version control.
+
+Comparing builds with bench.py
+------------------------------
+``bench.py`` runs the load test against a baseline build and then each comparison build. Every run starts from a fresh copy of the same template ``KOLIBRI_HOME``, and results land in ``generated/results/<name>_<suffix>/``.
+
+.. code-block:: bash
+
+   uv run --script bench.py run --baseline base=release:0.19.4 fix=pr:14770 \
+       --suffix r1 --username admin --password admin
+   ./loadtest.py compare base_r1 fix_r1
+
+Targets are ``name=spec``:
+
+* ``pr:<number>``: the PR's CI wheel, downloaded with an authenticated ``gh`` CLI
+* ``release:<version>``: the wheel from PyPI, downloaded with ``pip`` (or ``uv tool run pip`` when only uv is installed)
+* ``path/to/kolibri.whl``: a local wheel
+* ``worktree:<path>``: a wheel built with ``make dist`` in that worktree
+* ``dev:<path>``: an editable install of that worktree into the current environment; local runs only, and needs a current ``pnpm build``
+
+The baseline must be the oldest version, since Kolibri cannot migrate a database backwards. The template is generated from the baseline by ``loadtest.py setup`` and cached under ``generated/templates/``; pass ``--regenerate-template`` to rebuild it.
+
+Local runs need Linux: they use ``ss`` and GNU ``cp --reflink``.
+
+Remote devices
+~~~~~~~~~~~~~~
+To run the servers on another device (e.g. a Raspberry Pi) while load comes from this machine:
+
+1. Start the hub, which listens on port 8765 and prints a one-line install command:
+
+   .. code-block:: bash
+
+      uv run --script bench.py listen
+
+2. On the device, run the printed command:
+
+   .. code-block:: bash
+
+      curl -sf -H 'X-Bench-Token: <token>' http://<host>:8765/agent.py | python3 -
+
+   The agent needs Python 3.6+ with ``venv`` and ``pip``, and no other packages. It registers under its hostname, keeps state under ``~/.kolibri_bench/``, and reconnects whenever a hub restarts.
+
+   The hub also advertises itself over mDNS as ``kolibri-bench.local`` and prints a command using that name. Use the IP form if the device cannot resolve it.
+
+3. Pass the device's hostname to ``run``:
+
+   .. code-block:: bash
+
+      uv run --script bench.py devices
+      uv run --script bench.py run --device pi4 --baseline base=release:0.19.4 fix=pr:14770 \
+          --suffix r1 --username admin --password admin
+
+The hub ships each wheel and the template to the device. ``dev:`` targets cannot run remotely. Use ``--hub-host`` if the address the hub prints is not reachable from the device.
+
+Every hub request, including the ``agent.py`` download, needs the token stored in ``generated/hub_token``. Anyone holding it can make an agent install and run arbitrary code, so keep it private. The hub speaks plain HTTP, so use it on a trusted network only.
