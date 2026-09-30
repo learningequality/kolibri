@@ -457,19 +457,19 @@ To run specific tests only, you can add the filepath of the file. To further fil
 
 .. code-block:: bash
 
-  pytest kolibri/core/auth/test/test_permissions -k test_admin_or_coach_can_delete_membership
+  pytest kolibri/core/auth/test/test_permissions.py -k test_admin_or_coach_can_delete_membership
 
 To only run the whole class named ``MembershipPermissionsTestCase`` in kolibri/core/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  pytest kolibri/core/auth/test/test_permissions -k MembershipPermissionsTestCase
+  pytest kolibri/core/auth/test/test_permissions.py -k MembershipPermissionsTestCase
 
 For more advanced usage, logical operators can also be used in wrapped strings, for example, the following will run only one test, named ``test_admin_or_coach_can_delete_membership`` in the ``MembershipPermissionsTestCase`` class in kolibri/core/auth/test/test_permissions.py:
 
 .. code-block:: bash
 
-  pytest kolibri/core/auth/test/test_permissions -k "MembershipPermissionsTestCase and test_admin_or_coach_can_delete_membership"
+  pytest kolibri/core/auth/test/test_permissions.py -k "MembershipPermissionsTestCase and test_admin_or_coach_can_delete_membership"
 
 You can run tests for a specific Python version using:
 

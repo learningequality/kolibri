@@ -263,7 +263,8 @@ only records for which the current user has read permissions. This only applies 
 For example, to use the Kolibri permissions system to restrict permissions for an
 API endpoint providing access to a ``ContentLog`` model, you would do the following::
 
-    from kolibri.core.auth.permissions import KolibriAuthPermissions, KolibriAuthPermissionsFilter
+    from kolibri.core.auth.permissions import KolibriAuthPermissions
+    from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 
     class FacilityViewSet(viewsets.ModelViewSet):
         permission_classes = (KolibriAuthPermissions,)
