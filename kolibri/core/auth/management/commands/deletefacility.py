@@ -30,11 +30,17 @@ class Command(AsyncCommand):
             action="store_true",
             help="Enforce that deletion count matches expected count",
         )
+        parser.add_argument(
+            "--skip-legacy-counter-cleanup",
+            action="store_true",
+            help="Skip cleaning up legacy Morango database counters",
+        )
         parser.add_argument("--noninteractive", action="store_true")
 
     def handle_async(self, *args, **options):
         noninteractive = options["noninteractive"]
         strict = options["strict"]
+        skip_legacy_counter_cleanup = options["skip_legacy_counter_cleanup"]
         facility = get_facility(
             facility_id=options["facility"], noninteractive=noninteractive
         )
@@ -76,7 +82,8 @@ class Command(AsyncCommand):
                 # clear related cache
                 dataset_cache.clear()
 
-            clean_up_legacy_counters()
+            if not skip_legacy_counter_cleanup:
+                clean_up_legacy_counters()
 
             # if count doesn't match, something doesn't seem right
             if total_count != total_deleted:
