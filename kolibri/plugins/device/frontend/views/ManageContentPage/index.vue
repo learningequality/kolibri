@@ -128,8 +128,8 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
-      const { isLearnerOnlyImport, user_id } = useUser();
-      return { isLearnerOnlyImport, userId: user_id, pageLoading };
+      const { isLearnerOnlyImport, currentUserId } = useUser();
+      return { isLearnerOnlyImport, userId: currentUserId, pageLoading };
     },
     data() {
       return {
