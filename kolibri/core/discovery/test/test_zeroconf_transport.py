@@ -211,6 +211,61 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
             service_info_unique, ttl=SERVICE_TTL
         )
 
+    @mock.patch(ZEROCONF_MODULE + "SERVICE_RENAME_ATTEMPTS", 2)
+    def test_register_rename_after_multiple_conflicts(self):
+        self._prepare_register()
+        self.instance.id = "test"
+        self.instance.zeroconf_id = "test"
+        self.zeroconf.check_service.side_effect = [
+            NonUniqueNameException(),
+            NonUniqueNameException(),
+            None,
+        ]
+
+        self.transport.register(self.instance)
+
+        self.assertEqual(
+            self.instance.to_service_info.call_args_list,
+            [mock.call("test"), mock.call("test-1"), mock.call("test-2")],
+        )
+        self.instance.set_broadcasting.assert_called_once_with(
+            self.instance.to_service_info.return_value, is_self=True
+        )
+
+    @mock.patch(ZEROCONF_MODULE + "SERVICE_RENAME_ATTEMPTS", 2)
+    def test_register_rename_stops_at_limit(self):
+        self._prepare_register()
+        self.instance.id = "test"
+        self.instance.zeroconf_id = "test"
+        self.zeroconf.check_service.side_effect = [
+            NonUniqueNameException(),
+            NonUniqueNameException(),
+            NonUniqueNameException(),
+            AssertionError("Registration exceeded the rename limit"),
+        ]
+
+        with self.assertRaises(NonUniqueNameException):
+            self.transport.register(self.instance)
+
+        self.assertEqual(
+            self.instance.to_service_info.call_args_list,
+            [mock.call("test"), mock.call("test-1"), mock.call("test-2")],
+        )
+        self.zeroconf.register_service.assert_not_called()
+        self.zeroconf.close.assert_called_once_with()
+        self.assertIsNone(self.transport.zeroconf)
+
+    @mock.patch(ZEROCONF_MODULE + "SERVICE_RENAME_ATTEMPTS", 0)
+    def test_register_without_conflict_needs_no_rename_attempts(self):
+        self._prepare_register()
+
+        self.transport.register(self.instance)
+
+        self.instance.to_service_info.assert_called_once_with(MOCK_ID)
+        self.instance.set_broadcasting.assert_called_once_with(
+            self.instance.to_service_info.return_value, is_self=True
+        )
+
     @mock.patch(ZEROCONF_MODULE + "SERVICE_RENAME_ATTEMPTS", 0)
     def test_register_rename_gives_up(self):
         self.transport.zeroconf = self.zeroconf

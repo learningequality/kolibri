@@ -221,12 +221,12 @@ class ZeroconfNetworkDiscovery(EventBusHost):
                 service.ttl = SERVICE_TTL
                 self.zeroconf.check_service(service, False)
             except NonUniqueNameException:
+                if i > SERVICE_RENAME_ATTEMPTS:
+                    raise
                 # if there's a name conflict, append incrementing integer until no conflict
                 zeroconf_id = f"{self.instance.id}-{i}"
+                i += 1
                 service = None
-
-            if i > SERVICE_RENAME_ATTEMPTS:
-                raise NonUniqueNameException()
 
         # also does `check_service` internally, but it should pass by this point
         self.zeroconf.register_service(service, ttl=service.ttl)
