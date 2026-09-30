@@ -49,6 +49,34 @@ class DeleteFacilityCommandTestCase(TestCase):
             ).exists()
         )
 
+    def test_cleans_up_legacy_counters__raises_lower_existing_counter(self):
+        DatabaseMaxCounter.objects.create(
+            instance_id=self.legacy_instance_id,
+            partition=self.remaining_facility.dataset_id,
+            counter=5,
+        )
+        self._delete_facility()
+        self.assertFalse(DatabaseMaxCounter.objects.filter(partition="").exists())
+        counter = DatabaseMaxCounter.objects.get(
+            instance_id=self.legacy_instance_id,
+            partition=self.remaining_facility.dataset_id,
+        )
+        self.assertEqual(counter.counter, 10)
+
+    def test_cleans_up_legacy_counters__keeps_higher_existing_counter(self):
+        DatabaseMaxCounter.objects.create(
+            instance_id=self.legacy_instance_id,
+            partition=self.remaining_facility.dataset_id,
+            counter=15,
+        )
+        self._delete_facility()
+        self.assertFalse(DatabaseMaxCounter.objects.filter(partition="").exists())
+        counter = DatabaseMaxCounter.objects.get(
+            instance_id=self.legacy_instance_id,
+            partition=self.remaining_facility.dataset_id,
+        )
+        self.assertEqual(counter.counter, 15)
+
     def test_skip_legacy_counter_cleanup__preserves_legacy_counters(self):
         call_command(
             "deletefacility",

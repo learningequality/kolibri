@@ -359,10 +359,12 @@ def clean_up_legacy_counters():
     # remove any legacy counters with empty partition, and add corresponding counters for remaining facility datasets
     for dmc in DatabaseMaxCounter.objects.filter(partition=""):
         for dataset in FacilityDataset.objects.all():
-            newdmc, _ = DatabaseMaxCounter.objects.get_or_create(
-                instance_id=dmc.instance_id, partition=dataset.id
+            newdmc, created = DatabaseMaxCounter.objects.get_or_create(
+                instance_id=dmc.instance_id,
+                partition=dataset.id,
+                defaults={"counter": dmc.counter},
             )
-            if newdmc.counter != dmc.counter:
+            if not created and newdmc.counter != dmc.counter:
                 newdmc.counter = max(newdmc.counter, dmc.counter)
                 newdmc.save()
         dmc.delete()
