@@ -1,17 +1,27 @@
 <template>
 
   <div>
-    <div class="mb-20">
+    <p v-if="channelsError">
+      <KIcon icon="error" />
+      {{ defaultErrorMessage$() }}
+    </p>
+    <div
+      v-if="!channelsError"
+      class="mb-20"
+    >
       {{ maxNumberOfQuestionsInfo$({ count: settings.maxQuestions }) }}
     </div>
     <UiAlert
-      v-if="showAlert && addableQuestionCount < settings.maxQuestions"
+      v-if="!channelsError && showAlert && addableQuestionCount < settings.maxQuestions"
       type="warning"
       @dismiss="showAlert = false"
     >
       {{ insufficientResources$({ count: addableQuestionCount }) }}
     </UiAlert>
-    <div class="number-question">
+    <div
+      v-if="!channelsError"
+      class="number-question"
+    >
       <div>
         <KTextbox
           v-model.number="questionCount"
@@ -50,6 +60,7 @@
       </div>
     </div>
     <KCheckbox
+      v-if="!channelsError"
       :checked="isChoosingManually"
       :label="chooseQuestionsManuallyLabel$()"
       :description="clearSelectionNotice$()"
@@ -88,10 +99,10 @@
       const instance = getCurrentInstance();
       const router = instance.proxy.$router;
 
-      const { data: channels } = props.channelsFetch;
+      const { data: channels, error: channelsError } = props.channelsFetch;
 
       const addableQuestionCount = computed(() => {
-        return channels.value.reduce((total, currentObject) => {
+        return (channels.value || []).reduce((total, currentObject) => {
           return total + currentObject.num_assessments;
         }, 0);
       });
@@ -154,20 +165,21 @@
         goBack();
       };
 
-      const { continueAction$, saveAction$ } = coreStrings;
+      const { continueAction$, saveAction$, defaultErrorMessage$ } = coreStrings;
       const continueText = props.isLanding ? continueAction$() : saveAction$();
 
       onMounted(() => {
         props.setContinueAction({
           handler: continueHandler,
-          disabled: addableQuestionCount.value === 0,
+          disabled: !!channelsError.value || addableQuestionCount.value === 0,
           text: continueText,
         });
       });
-      watch(invalidSettings, () => {
+      watch([invalidSettings, channelsError], () => {
         props.setContinueAction({
           handler: continueHandler,
-          disabled: invalidSettings.value || addableQuestionCount.value === 0,
+          disabled:
+            !!channelsError.value || invalidSettings.value || addableQuestionCount.value === 0,
           text: continueText,
         });
       });
@@ -194,6 +206,8 @@
         chooseQuestionsManuallyLabel$,
         insufficientResources$,
         addableQuestionCount,
+        channelsError,
+        defaultErrorMessage$,
       };
     },
     props: {
