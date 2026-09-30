@@ -13,11 +13,25 @@ from rest_framework.serializers import CharField
 from rest_framework.serializers import DateTimeField
 from rest_framework.serializers import get_error_detail
 from rest_framework.serializers import ModelSerializer
-from rest_framework.serializers import set_value
 from rest_framework.serializers import UUIDField as UUIDFieldBase
 from rest_framework.settings import api_settings
 
 from .fields import DateTimeTzField as DjangoDateTimeTzField
+
+
+# Copied from DRF 3.14's rest_framework.fields.set_value; DRF 3.15 made it a Serializer method.
+def set_value(dictionary, keys, value):
+    if not keys:
+        dictionary.update(value)
+        return
+
+    for key in keys[:-1]:
+        if key not in dictionary:
+            dictionary[key] = {}
+        dictionary = dictionary[key]
+
+    dictionary[keys[-1]] = value
+
 
 logger = logging.getLogger(__name__)
 

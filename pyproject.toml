@@ -14,7 +14,42 @@ authors = [
 ]
 keywords = ["education", "offline", "kolibri"]
 requires-python = ">=3.6, <3.15"
-dependencies = []
+dependencies = [
+    "diskcache==5.6.3",
+    "django-csp==3.8",
+    "django-filter==21.1",
+    "django-js-reverse==0.10.2",
+    "djangorestframework==3.14.0",
+    "django==3.2.25",
+    "colorlog==6.12.0",
+    "configobj==5.0.8",
+    "django-mptt==0.14.0",
+    "requests==2.27.1",
+    "cheroot==10.0.1",
+    "magicbus==4.1.2",
+    "le-utils==0.2.18",
+    "jsonfield==3.1.0",
+    "morango==0.8.15",
+    "tzlocal>=4.2",
+    "pytz==2026.3.post1",
+    "python-dateutil==2.9.0.post0",
+    "semver==2.13.0",
+    "django-redis-cache==3.0.1",
+    "redis==3.5.3",
+    "html5lib==1.1",
+    "zeroconf-py2compat==0.19.17",
+    "Click==8.0.4",
+    "colorama==0.4.6",
+    "whitenoise==5.3.0",
+    "idna==3.7",
+    "ifaddr==0.1.7",
+    "importlib-metadata==4.8.3",
+    "importlib_resources==5.4.0",
+    "json-schema-validator==2.4.1",
+    "django-sortedm2m==3.1.1",
+    # PyPI has no cryptography wheels for these arches; Morango falls back to pure-Python RSA.
+    "cryptography>=40.0.2; platform_machine != 'armv7l' and platform_machine != 'armv6l' and platform_machine != 'i686' and platform_machine != 'i386'",
+]
 dynamic = ["version"]
 classifiers = [
     "Intended Audience :: Developers",
@@ -63,46 +98,12 @@ kolibri = "kolibri.utils.cli:main"
 "kolibri.plugins.h5p_viewer" = "kolibri.plugins.h5p_viewer"
 
 [project.optional-dependencies]
+crypto = ["cryptography>=40.0.2"]
 postgres = ["psycopg2-binary==2.9.11; python_version >= '3.9' and python_version <= '3.14'"]
 storages = ["django-storages[google]==1.14.6; python_version >= '3.8'", "google-auth==2.38.0; python_version >= '3.8'"]
 
 [dependency-groups]
-base = [
-    "diskcache==5.6.3",
-    "django-csp==3.8",
-    "django-filter==21.1",
-    "django-js-reverse==0.10.2",
-    "djangorestframework==3.14.0",
-    "django==3.2.25",
-    "colorlog==6.12.0",
-    "configobj==5.0.8",
-    "django-mptt==0.14.0",
-    "requests==2.27.1",
-    "cheroot==10.0.1",
-    "magicbus==4.1.2",
-    "le-utils==0.2.18",
-    "jsonfield==3.1.0",
-    "morango==0.8.15",
-    "tzlocal==4.2",
-    "pytz==2026.3.post1",
-    "python-dateutil==2.9.0.post0",
-    "semver==2.13.0",
-    "django-redis-cache==3.0.1",
-    "redis==3.5.3",
-    "html5lib==1.1",
-    "zeroconf-py2compat==0.19.17",
-    "Click==8.0.4",
-    "colorama==0.4.6",
-    "whitenoise==5.3.0",
-    "idna==3.7",
-    "ifaddr==0.1.7",
-    "importlib-metadata==4.8.3",
-    "importlib_resources==5.4.0",
-    "json-schema-validator==2.4.1",
-    "django-sortedm2m==3.1.1",
-]
 test = [
-    {include-group = "base"},
     "setuptools<82",
     "setuptools-scm>=9,<11; python_version >= '3.8'",
     "beautifulsoup4==4.8.2",
@@ -114,6 +115,7 @@ test = [
     "pytest-pythonpath==0.7.2; python_version < '3.14'",
     "attrs==19.2.0",
     "parameterized==0.8.1",
+    "tomlkit",
     # Morango falls back to pure-Python RSA without this.
     "cryptography>=40",
 ]
@@ -127,7 +129,6 @@ dev = [
     "nodeenv>=1.3.3",
 ]
 docs = [
-    {include-group = "base"},
     "sphinx>=7,<8; python_version >= '3.9'",
     "sphinx-intl; python_version >= '3.9'",
     "sphinx-rtd-theme~=3.0; python_version >= '3.9'",
@@ -137,7 +138,6 @@ docs = [
     "sphinx-llm[gen]==0.4.1; python_version >= '3.9'",
 ]
 load-test = [
-    {include-group = "base"},
     "playwright>=1.40; python_version >= '3.8'",
     "locust>=2.20; python_version >= '3.8'",
 ]

@@ -60,11 +60,11 @@ jobs:
       - name: Install dependencies
         run: |
           # Use an isolated virtual environment so the license check only sees
-          # packages explicitly installed for Kolibri -- the bundled `base`
-          # dependency group from pyproject.toml.
+          # packages explicitly installed for Kolibri -- the bundled runtime
+          # dependencies.
           uv venv ./virtualenv_dir --python 3.11
           source ./virtualenv_dir/bin/activate
-          uv pip install --group base
+          uv pip install -r <(uv run --script build_tools/static_dependencies.py --requirements)
           pnpm install --frozen-lockfile
           pnpm rebuild node-sass
       - name: Check Licenses
