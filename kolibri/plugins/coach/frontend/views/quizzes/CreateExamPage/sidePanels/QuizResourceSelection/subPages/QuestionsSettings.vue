@@ -5,67 +5,62 @@
       <KIcon icon="error" />
       {{ defaultErrorMessage$() }}
     </p>
-    <div
-      v-if="!channelsError"
-      class="mb-20"
-    >
-      {{ maxNumberOfQuestionsInfo$({ count: settings.maxQuestions }) }}
-    </div>
-    <UiAlert
-      v-if="!channelsError && showAlert && addableQuestionCount < settings.maxQuestions"
-      type="warning"
-      @dismiss="showAlert = false"
-    >
-      {{ insufficientResources$({ count: addableQuestionCount }) }}
-    </UiAlert>
-    <div
-      v-if="!channelsError"
-      class="number-question"
-    >
-      <div>
-        <KTextbox
-          v-model.number="questionCount"
-          type="number"
-          :label="numberOfQuestionsLabel$()"
-          :max="maxQuestions"
-          :min="1"
-          :invalid="questionCount > maxQuestions"
-          :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
-          :disabled="!questionCountIsEditable"
-          :showInvalidText="true"
-          class="question-textbox"
-        />
+    <template v-else>
+      <div class="mb-20">
+        {{ maxNumberOfQuestionsInfo$({ count: settings.maxQuestions }) }}
       </div>
-      <div>
-        <div
-          :style="{
-            border: `1px solid ${$themeTokens.fineLine}`,
-          }"
-          class="group-button-border"
-        >
-          <KIconButton
-            icon="minus"
-            aria-hidden="true"
-            :disabled="questionCount === 1 || !questionCountIsEditable"
-            @click="questionCount -= 1"
-          />
-          <span :style="{ color: 'var(--tokens-fineLine)' }"> | </span>
-          <KIconButton
-            icon="plus"
-            aria-hidden="true"
-            :disabled="questionCount >= maxQuestions || !questionCountIsEditable"
-            @click="questionCount += 1"
+      <UiAlert
+        v-if="showAlert && addableQuestionCount < settings.maxQuestions"
+        type="warning"
+        @dismiss="showAlert = false"
+      >
+        {{ insufficientResources$({ count: addableQuestionCount }) }}
+      </UiAlert>
+      <div class="number-question">
+        <div>
+          <KTextbox
+            v-model.number="questionCount"
+            type="number"
+            :label="numberOfQuestionsLabel$()"
+            :max="maxQuestions"
+            :min="1"
+            :invalid="questionCount > maxQuestions"
+            :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+            :disabled="!questionCountIsEditable"
+            :showInvalidText="true"
+            class="question-textbox"
           />
         </div>
+        <div>
+          <div
+            :style="{
+              border: `1px solid ${$themeTokens.fineLine}`,
+            }"
+            class="group-button-border"
+          >
+            <KIconButton
+              icon="minus"
+              aria-hidden="true"
+              :disabled="questionCount === 1 || !questionCountIsEditable"
+              @click="questionCount -= 1"
+            />
+            <span :style="{ color: 'var(--tokens-fineLine)' }"> | </span>
+            <KIconButton
+              icon="plus"
+              aria-hidden="true"
+              :disabled="questionCount >= maxQuestions || !questionCountIsEditable"
+              @click="questionCount += 1"
+            />
+          </div>
+        </div>
       </div>
-    </div>
-    <KCheckbox
-      v-if="!channelsError"
-      :checked="isChoosingManually"
-      :label="chooseQuestionsManuallyLabel$()"
-      :description="clearSelectionNotice$()"
-      @change="$event => (isChoosingManually = $event)"
-    />
+      <KCheckbox
+        :checked="isChoosingManually"
+        :label="chooseQuestionsManuallyLabel$()"
+        :description="clearSelectionNotice$()"
+        @change="$event => (isChoosingManually = $event)"
+      />
+    </template>
   </div>
 
 </template>
@@ -102,7 +97,7 @@
       const { data: channels, error: channelsError } = props.channelsFetch;
 
       const addableQuestionCount = computed(() => {
-        return (channels.value || []).reduce((total, currentObject) => {
+        return channels.value.reduce((total, currentObject) => {
           return total + currentObject.num_assessments;
         }, 0);
       });
