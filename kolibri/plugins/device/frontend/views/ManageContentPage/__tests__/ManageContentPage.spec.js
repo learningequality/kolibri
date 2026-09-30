@@ -42,11 +42,6 @@ describe('ManageContentPage', () => {
     window.localStorage.clear();
   });
 
-  it('shows the welcome modal when no channels are installed', () => {
-    renderComponent({ currentUserId: FIRST_ADMIN_ID });
-    expect(screen.getByRole('button', { name: continueAction$() })).toBeInTheDocument();
-  });
-
   it("stores the welcome modal dismissal under the current user's ID", async () => {
     renderComponent({ currentUserId: FIRST_ADMIN_ID });
     await dismissWelcomeModal();
