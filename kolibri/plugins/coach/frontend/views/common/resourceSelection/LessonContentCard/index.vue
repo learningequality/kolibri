@@ -192,6 +192,7 @@
   .chip {
     padding: 0.5em;
     margin: 0.75em 0;
+    margin-right: 0.5em;
     font-size: 0.7em;
   }
 
