@@ -706,6 +706,73 @@ class FacilityAPITestCase(APITestCase):
                 item["facility"],
             )
 
+    def _authenticate_public_facilityuser(self, user, facility):
+        credentials = base64.b64encode(
+            str.encode(
+                f"username={user.username}&{FACILITY_CREDENTIAL_KEY}={facility.id}:{DUMMY_PASSWORD}"
+            )
+        ).decode("ascii")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Basic {credentials}")
+
+    def test_public_facilityuser_admin_cannot_read_other_facility_users(self):
+        admin = FacilityUserFactory.create(facility=self.facility1)
+        self.facility1.add_admin(admin)
+        self._authenticate_public_facilityuser(admin, self.facility1)
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility2.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-detail", kwargs={"pk": self.user2.id}),
+            {"facility_id": self.facility2.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_public_facilityuser_admin_can_read_own_facility_users(self):
+        admin = FacilityUserFactory.create(facility=self.facility1)
+        self.facility1.add_admin(admin)
+        self._authenticate_public_facilityuser(admin, self.facility1)
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        self.assertEqual(
+            {user["id"] for user in response.data},
+            set(
+                models.FacilityUser.objects.filter(
+                    facility_id=self.facility1.id
+                ).values_list("id", flat=True)
+            ),
+        )
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-detail", kwargs={"pk": self.user1.id}),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_public_facilityuser_superuser_can_read_any_facility_users(self):
+        superuser = create_superuser(self.facility2, username="facility2superuser")
+        self._authenticate_public_facilityuser(superuser, self.facility1)
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        self.assertEqual(
+            {user["id"] for user in response.data},
+            set(
+                models.FacilityUser.objects.filter(
+                    facility_id=self.facility1.id
+                ).values_list("id", flat=True)
+            ),
+        )
+
     def test_public_facilityuser_roles_are_flat_strings(self):
         """Roles must be a flat list of kind strings, not nested objects.
 

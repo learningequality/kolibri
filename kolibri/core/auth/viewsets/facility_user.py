@@ -402,10 +402,11 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         # if user has admin rights for the facility returns the list of users
         queryset = self.queryset.filter(facility_id=facility_id)
         # otherwise, the endpoint returns only the user information
-        if not self.request.user.is_superuser and not _user_is_admin_for_own_facility(
-            self.request.user
+        user = self.request.user
+        if not user.is_superuser and not (
+            user.facility_id == facility_id and _user_is_admin_for_own_facility(user)
         ):
-            queryset = queryset.filter(id=self.request.user.id)
+            queryset = queryset.filter(id=user.id)
 
         return queryset
 
