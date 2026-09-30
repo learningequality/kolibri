@@ -35,6 +35,13 @@ describe('Bottom bar', () => {
     renderBottomBar({ sliderValue });
     expect(screen.getByRole('slider')).toHaveValue('100');
   });
+  it.each([
+    [23, '23%'],
+    [100, '100%'],
+  ])('should describe a slider value of %s as %s', (sliderValue, valueText) => {
+    renderBottomBar({ sliderValue });
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', valueText);
+  });
   it('should set the correct step on the slider', () => {
     const sliderStep = 10;
     renderBottomBar({ sliderStep });

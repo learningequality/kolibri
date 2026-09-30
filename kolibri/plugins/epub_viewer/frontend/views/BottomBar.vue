@@ -27,6 +27,7 @@
                 :step="sliderStep"
                 :value="sliderValue"
                 :aria-label="$tr('jumpToPositionInBook')"
+                :aria-valuetext="$formatNumber(sliderValue / 100, { style: 'percent' })"
                 @change="handleChange($event.target.value)"
               >
             </div>
