@@ -42,8 +42,10 @@ Styling anti-patterns
 - **Media queries** - use ``responsive-window`` or ``responsive-element``
 - **Nested selectors** - make a sub-component instead (more reading `here <https://csswizardry.com/2012/05/keep-your-css-selectors-short/>`__)
 - **Dynamically-generated class names** - avoid patterns which fail the `grep test <http://jamie-wong.com/2013/07/12/grep-test/>`__
-- **Complex pre-processor functionality** - use Vue `computed styles <https://vuejs.org/v2/guide/class-and-style.html>`__ instead
-- **Hard-coded values** - rely on variables defined in the core theme
+- **Complex pre-processor functionality** - bind the computed value into the ``<style>`` block with ``v-bind()`` instead. See :doc:`core`
+- **Hard-coded values** - rely on variables defined in the core theme, such as ``var(--tokens-text)`` in a ``<style>`` block. See :doc:`core`
+- **Theme accessors in inline styles** - write ``'var(--tokens-text)'`` instead of ``$themeTokens.text`` in a ``:style`` binding
+- **Computed classes** - ``$computedClass`` is deprecated. Write the rule, including any pseudo-class, in the ``<style>`` block instead
 - **Left or right alignment on user-generated text** - use ``dir="auto"`` instead for RTL support
 - **Directional inline styles** - avoid using ``style=""`` or ``:style=""`` with properties like ``margin-left``, ``padding-right``, ``text-align: right``, etc. Use CSS classes instead to ensure RTLCSS can flip them for RTL languages. When inline styles are unavoidable, use CSS Logical Properties (``margin-inline-start``, ``padding-inline-end``, etc.). See :doc:`/i18n` for details.
 

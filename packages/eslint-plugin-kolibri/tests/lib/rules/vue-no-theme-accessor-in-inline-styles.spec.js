@@ -406,6 +406,13 @@ export default {
       errors: [unfoldable],
     },
     {
+      // text that holds a bare backslash, which a plain string would read as an escape
+      filename: 'Invalid.vue',
+      code: script('const quoted = { content: `\\\\201C ${themeTokens().text}` };'),
+      output: null,
+      errors: [unfoldable],
+    },
+    {
       // a template decodes entities, and a decoded `"` would end the attribute
       filename: 'Invalid.vue',
       code: template('<div :style="{ fontFamily: `&quot;Noto&quot;, ${$themeTokens.text}` }" />'),

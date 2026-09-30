@@ -34,43 +34,74 @@ To help enforce style guide specs, we provide global variables that can be used 
 Dynamic core theme
 ------------------
 
-Reactive state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). All core colour styles are defined in Javascript variables kept in state, which are then applied inline to elements using Vue.js style bindings.
+Reactive state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). The theme emits each color as a CSS variable on ``html:root``:
 
-There are two cases where dynamic styles cannot be directly applied to DOM elements:
-- inline styles cannot apply `pseudo-classes <https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ (e.g. ':hover', ':focus', '::before')
-- styles applied during `Vue transitions <https://vuejs.org/v2/guide/transitions.html>`__
+- ``--tokens-<name>`` for tokens, such as ``var(--tokens-primary)``
+- ``--palette-<color>-v<N>`` for palette colors, such as ``var(--palette-grey-v100)``
+- ``--brand-<color>-v<N>`` for brand colors, such as ``var(--brand-primary-v100)``
 
-For these cases, it's necessary to define a "computed class" using the ``$computedClass`` function. This returns an auto-generated class name which can be used like a standard CSS class name. Under the hood, this uses `Aphrodite <https://github.com/Khan/aphrodite>`__ to create unique classes for each set of inputs given, so be careful not to abuse this feature!
+Theme colors
+~~~~~~~~~~~~
 
-In order to apply a style using a computed class, define a style object as a computed property, similarly to how you might for a Vue.js style binding. Pseudo-selectors can be encoded within this object:
+Write a theme color as a ``var()`` in the component's ``<style>`` block. This also works in `pseudo-classes <https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ such as ``:hover``, ``:focus`` and ``::before``, and in the classes of a `Vue transition <https://v2.vuejs.org/v2/guide/transitions.html>`__:
 
-.. code-block:: javascript
+.. code-block:: scss
 
-  export default {
-    computed: {
-      pseudoStyle() {
-        return {
-          ':hover': {
-            backgroundColor: this.$themeTokens.primaryDark,
-          },
-        };
+  .option:hover {
+    background-color: var(--tokens-primaryDark);
+  }
+
+When the color depends on component state, an inline style binding can hold the ``var()`` as a string:
+
+.. code-block:: html
+
+  <div :style="{ color: isActive ? 'var(--tokens-primary)' : 'var(--tokens-text)' }"></div>
+
+Other dynamic values
+~~~~~~~~~~~~~~~~~~~~
+
+Bind a value that is not a theme color, such as a prop or a computed value, into the ``<style>`` block with ``v-bind()``:
+
+.. code-block:: html
+
+  <script>
+
+    import { computed } from 'vue';
+
+    export default {
+      name: 'ResourceList',
+      setup(props) {
+        const listMaxHeight = computed(() => `${props.rows * 48}px`);
+        return { listMaxHeight };
       },
-    },
-  };
+      props: {
+        rows: {
+          type: Number,
+          required: true,
+        },
+      },
+    };
 
-Then, within the template code, this can be applied to an element or component using a Vue.js class binding, and using the ``$computedClass`` method, referencing this style object:
+  </script>
 
-.. code-block:: html
+  <style lang="scss" scoped>
 
-  <div :class="$computedClass(pseudoStyle)">I'm going to get a white background when you hover on me!</div>
+    .list {
+      max-height: v-bind(listMaxHeight);
+    }
 
-To use computed classes for Vue.js transitions, you can use the ``{event}-class`` `properties <https://vuejs.org/v2/api/#transition>`__ as options on the ``<transition>`` or ``<transition-group>`` special component, and the ``$computedClass`` method can be used again:
+  </style>
 
-.. code-block:: html
+Do not read a theme color inside ``v-bind()``. Use its ``var()`` instead. ``kolibri/vue-no-theme-tokens-in-v-bind`` reports a theme read there.
 
-  <transition-group :move-class="$computedClass(pseudoSelector)">
-    <div>While moving I'll have the hover style applied!</div>
-  </transition-group>
+Vue 2.7 stops updating a ``v-bind()`` value when the template root is removed and added again, for example by a ``v-if`` on the root. In a component whose ``<style>`` block uses ``v-bind()``, wrap the conditional element in a plain root element.
+
+JavaScript accessors
+~~~~~~~~~~~~~~~~~~~~
+
+``$themeTokens``, ``$themePalette`` and ``$themeBrand`` return the hex values. Use them only where JavaScript needs the value itself, such as a color passed to ``$darken1``.
+
+KDS deprecates ``$computedClass`` and Aphrodite. Do not use ``$computedClass`` in new code.
 
 
 Bootstrapped data

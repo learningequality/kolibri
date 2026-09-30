@@ -166,10 +166,8 @@ module.exports = {
       const folded = cooked
         .map((text, i) => (i < reads.length ? text + reads[i].variable : text))
         .join('');
-      // an invalid escape gives a `null` in `cooked`, which shows up as "null" in `folded`.
       // A template decodes entities, so a `&quot;` would come back as a bare `"`.
       const foldable =
-        !cooked.includes(null) &&
         !/[\\\n]/.test(folded) &&
         !folded.includes(quote) &&
         !(inTemplate && sourceCode.getText(node).includes('&'));
