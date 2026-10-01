@@ -24,7 +24,7 @@ repos:
       - id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.8
+    rev: 0.12.21
     hooks:
       - id: uv-lock
   - repo: https://github.com/google/yamlfmt
@@ -37,18 +37,18 @@ repos:
     hooks:
       - id: actionlint
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.29.0
+    rev: v1.30.1
     hooks:
       - id: zizmor
         args: [--no-progress, --offline, --min-confidence, medium]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.5
+    rev: v0.16.9
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v2.3.1
     hooks:
       - id: mypy
         files: ^platforms/flatpak-app/
