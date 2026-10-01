@@ -147,6 +147,7 @@
           :heading="bottomBarHeading"
           :sliderValue="sliderValue"
           :sliderStep="sliderStep"
+          :relocationCount="relocationCount"
           @sliderChanged="handleSliderChanged"
         />
       </div>
@@ -265,6 +266,7 @@
         currentSection: null,
         searchQuery: null,
         sliderValue: 0,
+        relocationCount: 0,
         scrolled: false,
         currentLocation: null,
         visitedPages: {},
@@ -776,6 +778,9 @@
         } else {
           this.sliderValue = location.start.percentage * 100;
         }
+        // Changes on every relocation, even when sliderValue does not, so the
+        // bottom bar can put its slider back in step with the real position
+        this.relocationCount += 1;
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
         for (

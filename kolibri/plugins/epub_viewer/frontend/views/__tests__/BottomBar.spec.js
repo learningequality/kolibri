@@ -55,4 +55,50 @@ describe('Bottom bar', () => {
     await fireEvent.change(slider);
     expect(emitted().sliderChanged[0][0]).toBe(Number(newValue));
   });
+  describe('after a slider change', () => {
+    // Rendered through a parent, as in EpubRendererIndex, so that a new
+    // relocationCount reaches BottomBar as a prop update without forcing a re-render
+    const SliderParent = {
+      components: { BottomBar },
+      props: ['sliderValue', 'relocationCount'],
+      render(h) {
+        return h(BottomBar, {
+          props: {
+            sliderValue: this.sliderValue,
+            relocationCount: this.relocationCount,
+            sliderStep: 1,
+            locationsAreReady: true,
+          },
+        });
+      },
+    };
+
+    async function renderAndChangeSlider() {
+      const { updateProps } = render(SliderParent, {
+        props: { sliderValue: 1, relocationCount: 0 },
+      });
+      const slider = screen.getByRole('slider');
+      slider.value = '2';
+      await fireEvent.change(slider);
+      return { slider, updateProps };
+    }
+
+    it('should keep the changed value until the relocation settles', async () => {
+      const { slider } = await renderAndChangeSlider();
+      expect(slider).toHaveValue('2');
+      expect(slider).toHaveAttribute('aria-valuetext', '1%');
+    });
+    it('should reset to sliderValue when the relocation does not move the book', async () => {
+      const { slider, updateProps } = await renderAndChangeSlider();
+      await updateProps({ relocationCount: 1 });
+      expect(slider).toHaveValue('1');
+      expect(slider).toHaveAttribute('aria-valuetext', '1%');
+    });
+    it('should move to the new sliderValue when the relocation moves the book', async () => {
+      const { slider, updateProps } = await renderAndChangeSlider();
+      await updateProps({ sliderValue: 3, relocationCount: 1 });
+      expect(slider).toHaveValue('3');
+      expect(slider).toHaveAttribute('aria-valuetext', '3%');
+    });
+  });
 });

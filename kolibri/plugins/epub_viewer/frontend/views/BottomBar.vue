@@ -15,11 +15,12 @@
           <div class="d-t-r">
             <div class="bottom-bar-progress-container d-t-c">
               <div class="bottom-bar-progress">
-                {{ $formatNumber(sliderValue / 100, { style: 'percent' }) }}
+                {{ progressText }}
               </div>
             </div>
             <div class="d-t-c full-width">
               <input
+                ref="slider"
                 class="full-width"
                 type="range"
                 :min="0"
@@ -27,7 +28,7 @@
                 :step="sliderStep"
                 :value="sliderValue"
                 :aria-label="$tr('jumpToPositionInBook')"
-                :aria-valuetext="$formatNumber(sliderValue / 100, { style: 'percent' })"
+                :aria-valuetext="progressText"
                 @change="handleChange($event.target.value)"
               >
             </div>
@@ -71,6 +72,25 @@
       locationsAreReady: {
         type: Boolean,
         required: true,
+      },
+      relocationCount: {
+        type: Number,
+        default: 0,
+      },
+    },
+    computed: {
+      progressText() {
+        return this.$formatNumber(this.sliderValue / 100, { style: 'percent' });
+      },
+    },
+    watch: {
+      relocationCount() {
+        // The input keeps the value the user stepped or dragged to. When the jump
+        // lands on the page already shown, sliderValue does not change and the input
+        // is not re-rendered, so set it from the prop once the relocation settles.
+        if (this.$refs.slider) {
+          this.$refs.slider.value = this.sliderValue;
+        }
       },
     },
     methods: {
