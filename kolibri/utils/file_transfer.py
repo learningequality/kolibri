@@ -571,6 +571,14 @@ class TransferFile(TransferFileBase):
 
     def md5_checksum(self):
         """Return MD5 checksum from incremental hasher."""
+        if self._bytes_written == 0 and os.path.exists(self.filepath):
+            # The destination was already in place, so nothing was streamed
+            # through the hasher. Checksum the existing file instead.
+            md5 = hashlib.md5()
+            with open(self.filepath, "rb") as f:
+                for chunk in iter(lambda: f.read(self.chunk_size), b""):
+                    md5.update(chunk)
+            return md5.hexdigest()
         return self.hasher.hexdigest()
 
     def close(self):

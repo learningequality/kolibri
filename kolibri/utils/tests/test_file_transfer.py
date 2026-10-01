@@ -955,6 +955,44 @@ class TestTransferNoFullRangesDownloadByteRangeSupportNotReported(
         return True
 
 
+class TestTransferDownloadExistingDestination(unittest.TestCase):
+    def setUp(self):
+        self.destdir = tempfile.mkdtemp()
+        self.content = os.urandom(1024 * 10)
+        self.checksum = hashlib.md5(self.content).hexdigest()
+        self.dest = os.path.join(self.destdir, "existing_file")
+        self.source = "http://example.com/existing_file"
+        self.mock_session = MagicMock()
+
+    def tearDown(self):
+        shutil.rmtree(self.destdir, ignore_errors=True)
+
+    def _write_dest(self, data):
+        with open(self.dest, "wb") as f:
+            f.write(data)
+
+    def test_existing_correct_destination_is_kept(self):
+        self._write_dest(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            fd.run()
+
+        self.mock_session.get.assert_not_called()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_existing_corrupt_destination_fails_checksum(self):
+        self._write_dest(self.content[:-1])
+
+        with self.assertRaises(TransferFailed):
+            with FileDownload(
+                self.source, self.dest, self.checksum, session=self.mock_session
+            ) as fd:
+                fd.run()
+
+
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
         super().setUp()
