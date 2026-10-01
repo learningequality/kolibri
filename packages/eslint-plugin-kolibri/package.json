@@ -10,7 +10,7 @@
     "directory": "packages/eslint-plugin-kolibri"
   },
   "dependencies": {
-    "eslint-plugin-vue": "^9.33.0",
+    "eslint-plugin-vue": "^10.11.1",
     "known-css-properties": "^0.37.0",
     "kolibri-css-variables": "workspace:*",
     "espree": "^11.2.0",
