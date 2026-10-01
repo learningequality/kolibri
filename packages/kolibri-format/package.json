@@ -41,7 +41,7 @@
     "postcss-value-parser": "^4.2.0",
     "postcss-scss": "^4.0.9",
     "prettier": "^3.8.4",
-    "stylelint": "^15.11.0",
+    "stylelint": "^17.15.0",
     "stylelint-config-html": "^1.1.0",
     "stylelint-config-prettier": "9.0.5",
     "stylelint-config-recess-order": "4.6.0",
