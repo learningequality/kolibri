@@ -279,7 +279,11 @@
       },
     },
     methods: {
-      ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapActions('lessonSummary', [
+        'saveLessonResources',
+        'addToResourceCache',
+        'updateCurrentLesson',
+      ]),
       ...mapMutations('lessonSummary', {
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),
@@ -313,6 +317,8 @@
               lessonId: this.currentLesson.id,
               resources: newResources,
             });
+            // Refresh the lesson so its size reflects the newly added resources
+            await this.updateCurrentLesson(this.currentLesson.id);
           } catch (error) {
             this.notifySaveLessonError();
             this.isSaving = false;
