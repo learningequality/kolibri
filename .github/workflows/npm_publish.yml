@@ -60,7 +60,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.1.0
       - name: Link workspace packages
         run: pnpm install --ignore-scripts --no-optional
       - name: Publish to npm
