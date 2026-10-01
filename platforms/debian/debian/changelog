@@ -1,0 +1,680 @@
+kolibri-source (0.19.3-0ubuntu1) noble; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Fri, 20 Mar 2026 00:16:44 +0000
+
+kolibri-source (0.19.2-0ubuntu1) noble; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Thu, 05 Mar 2026 23:26:49 +0000
+
+kolibri-source (0.19.1-0ubuntu1) noble; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Tue, 20 Jan 2026 13:55:06 -0800
+
+kolibri-source (0.19.0-0ubuntu1) noble; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Wed, 10 Dec 2025 16:26:58 -0800
+
+kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Mon, 06 Oct 2025 16:20:34 -0700
+
+kolibri-source (0.18.3-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Wed, 17 Sep 2025 13:52:23 -0700
+
+kolibri-source (0.18.2-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Thu, 07 Aug 2025 12:36:19 -0700
+
+kolibri-source (0.18.1-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Wed, 18 Jun 2025 16:13:11 -0700
+
+kolibri-source (0.18.0-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Richard Tibbles <richard@learningequality.org>  Mon, 28 Apr 2025 15:58:04 -0700
+
+kolibri-source (0.17.5-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 19 Dec 2024 20:07:04 +0100
+
+kolibri-source (0.17.3-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 31 Oct 2024 16:09:14 +0100
+
+kolibri-source (0.17.2-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 03 Oct 2024 19:47:04 +0200
+
+kolibri-source (0.17.0-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 06 Aug 2024 20:21:16 +0200
+
+kolibri-source (0.16.2-0ubuntu1) jammy; urgency=low
+
+  * New upstream release
+  * Rebranding colors
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 29 May 2024 17:36:00 +0200
+
+kolibri-source (0.16.1-0ubuntu3) jammy; urgency=medium
+
+  * debian/compat restored, needed in Ubuntu even if it's not in Debian
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 08 Apr 2024 18:07:02 +0200
+
+kolibri-source (0.16.1-0ubuntu1) bionic; urgency=medium
+
+  * New upstream version
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 08 Apr 2024 17:44:18 +0200
+
+kolibri-source (0.16.0~rc0-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+  * Bumped for latest standards policy
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 15 Feb 2024 18:49:12 +0100
+
+kolibri-source (0.15.12-0ubuntu3) bionic; urgency=medium
+
+  * debian/control: Remove conflict with python3-markdown
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 15 Feb 2024 18:34:00 +0100
+
+kolibri-source (0.15.12-0ubuntu2) bionic; urgency=medium
+
+  * debian/control: Drop support for python 3.4 & 3.5
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 22 Mar 2023 21:01:17 +0100
+
+kolibri-source (0.15.12-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 15 Mar 2023 19:24:22 +0100
+
+kolibri-source (0.15.11-0ubuntu2) bionic; urgency=medium
+
+  * Force use of gzip compression in debian/rules for old systems compatibility
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 02 Mar 2023 17:52:50 +0100
+
+kolibri-source (0.15.11-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 07 Feb 2023 08:45:53 +0100
+
+kolibri-source (0.15.10-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+  * Bumped compat version
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 24 Jan 2023 20:51:19 +0100
+
+kolibri-source (0.15.9-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 30 Nov 2022 16:45:58 +0100
+
+kolibri-source (0.15.8-0ubuntu1) bionic; urgency=low
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 13 Oct 2022 09:05:52 +0200
+
+kolibri-source (0.15.7-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 31 Aug 2022 10:16:37 +0200
+
+kolibri-source (0.15.6-0ubuntu2) bionic; urgency=medium
+
+  * Added conflict with python3-markdown>=3.4 due to DRF restrictions
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 18 Aug 2022 20:15:26 +0200
+
+kolibri-source (0.15.6-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 19 Jul 2022 11:42:21 +0200
+
+kolibri-source (0.15.5-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 04 Jul 2022 11:26:59 +0200
+
+kolibri-source (0.15.4-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 23 Jun 2022 09:58:47 +0200
+
+kolibri-source (0.15.3-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 07 Jun 2022 19:00:20 +0200
+
+kolibri-source (0.15.2-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 26 Apr 2022 21:10:57 +0200
+
+kolibri-source (0.15.1-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 16 Feb 2022 19:21:24 +0100
+
+kolibri-source (0.15.0-0ubuntu1) bionic; urgency=high
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 20 Dec 2021 19:29:33 +0100
+
+kolibri-source (0.15.0~beta2-0ubuntu1) bionic; urgency=low
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 19 Nov 2021 18:39:16 +0100
+
+kolibri-source (0.14.7-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 21 Apr 2021 07:42:37 +0200
+
+kolibri-source (0.14.6-0ubuntu1) trusty; urgency=low
+
+  * New upustream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Sat, 23 Jan 2021 13:12:59 +0100
+
+kolibri-source (0.14.5-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 02 Dec 2020 18:10:28 +0100
+
+kolibri-source (0.14.4-0ubuntu2) trusty; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 19 Nov 2020 13:34:00 +0100
+
+kolibri-source (0.14.3-0ubuntu1) focal; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 19 Aug 2020 12:09:37 +0200
+
+kolibri-source (0.14.1~rc1-0ubuntu1) focal; urgency=medium
+
+  * New upstream release candidate
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 12 Aug 2020 21:09:37 +0200
+
+kolibri-source (0.14.0-0ubuntu1) focal; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 07 Aug 2020 16:30:06 +0200
+
+kolibri-source (0.14.0~rc1-0ubuntu1) focal; urgency=low
+
+  * New upstream release candidate
+  * debian/control: iproute2 dependency is not needed anymore (Kolibri #7209)
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 06 Aug 2020 13:30:19 +0200
+
+kolibri-source (0.13.3-0ubuntu2) trusty; urgency=high
+
+  * debian/control: Added iproute2 dependency
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 29 Jun 2020 12:59:45 +0200
+
+kolibri-source (0.13.3-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri v0.13.3 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.3/CHANGELOG.md#0133
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Tue, 02 Jun 2020 17:19:48 -0400
+
+kolibri-source (0.13.2-0ubuntu5) trusty; urgency=medium
+
+  * Reduce package size: Remove unused binary code
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 11 May 2020 14:09:05 +0200
+
+kolibri-source (0.13.2-0ubuntu4) trusty; urgency=medium
+
+  * Restore "restart" system service command
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 21 Apr 2020 12:12:32 +0200
+
+kolibri-source (0.13.2-0ubuntu3) trusty; urgency=medium
+
+  * Restoring 14.04 support: Changing dist target to trusty
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 20 Apr 2020 17:43:48 +0200
+
+kolibri-source (0.13.2-0ubuntu2) bionic; urgency=medium
+
+  * Use runuser on Ubuntu 16.04+ to fix systemd issue #90
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 14 Apr 2020 12:18:15 +0200
+
+kolibri-source (0.13.2-0ubuntu1) bionic; urgency=medium
+
+  * Kolibri v0.13.2 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.2/CHANGELOG.md#0132
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Thu, 16 Apr 2020 18:22:55 -0400
+
+kolibri-source (0.13.2~beta1-0ubuntu1) bionic; urgency=medium
+
+  * New upstream beta release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Wed, 11 Mar 2020 15:42:02 -0400
+
+kolibri-source (0.13.1-0ubuntu1) bionic; urgency=medium
+
+  * Kolibri v0.13.1 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.1/CHANGELOG.md#0131
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 14 Feb 2020 19:44:59 -0500
+
+kolibri-source (0.13.0-0ubuntu1) bionic; urgency=medium
+
+  * Kolibri 0.13.0 release. Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.0/CHANGELOG.md
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 20 Dec 2019 21:16:06 -0500
+
+kolibri-source (0.12.9-0ubuntu2) bionic; urgency=high
+
+  * Fixed error in postinst script
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 21 Nov 2019 12:56:58 +0100
+
+kolibri-source (0.12.9-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release. Read the changes here:
+    - https://github.com/learningequality/kolibri/blob/release-v0.12.x/CHANGELOG.md
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 20 Nov 2019 08:05:12 +0100
+
+kolibri-source (0.12.8-0ubuntu3) trusty; urgency=medium
+
+  * Missing +o allimport in /etc/default/kolibri
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 15 Nov 2019 22:13:14 +0100
+
+kolibri-source (0.12.8-0ubuntu2) trusty; urgency=medium
+
+  * Removing unnecessary DJANGO_SETTINGS_MODULE default from /etc/default/kolibri
+  * Replacing export statements in /etc/default/kolibri with -o allexport
+  * Adding /etc/kolibri/README
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 14 Oct 2019 10:18:24 +0200
+
+kolibri-source (0.12.8-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri v0.12.8 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.12.8/CHANGELOG.md#0128
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Thu, 15 Aug 2019 00:17:29 -0400
+
+kolibri-source (0.12.7-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri v0.12.7 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.12.7/CHANGELOG.md#0127
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Mon, 29 Jul 2019 12:44:36 -0400
+
+kolibri-source (0.12.6-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri v0.12.6 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.12.6/CHANGELOG.md#0126
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 26 Jul 2019 18:57:00 -0400
+
+kolibri-source (0.12.5-0ubuntu2) trusty; urgency=medium
+
+  * debian/rules: remove morango python 2 syntax file
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 21 Jun 2019 12:55:53 -0400
+
+kolibri-source (0.12.5-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Thu, 20 Jun 2019 23:27:49 -0400
+
+kolibri-source (0.12.4-0ubuntu1) bionic; urgency=low
+
+  * New upstream release
+  * debian/rules: remove sentry tornado file
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 12 Jun 2019 20:25:59 +0200
+
+kolibri-source (0.12.3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 17 May 2019 15:30:51 -0400
+
+kolibri-source (0.12.2-0ubuntu2) trusty; urgency=medium
+
+  * Replace patches to delete file by actual deletions in debian/rules
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Tue, 16 Apr 2019 15:44:35 -0400
+
+kolibri-source (0.12.2-0ubuntu1) trusty; urgency=medium
+
+  * debian/patches/sentry_removal.diff: remove unneeded files from sentry sdk
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Mon, 01 Apr 2019 13:04:32 -0400
+
+kolibri-source (0.12.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Mon, 11 Mar 2019 02:10:25 -0400
+
+kolibri-source (0.12.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Mon, 04 Mar 2019 19:16:29 -0500
+
+kolibri-source (0.11.1-0ubuntu4) trusty; urgency=medium
+
+  * Fix for KOLIBRI_HOME wrongly set if run in certain sudo environments #62
+  * Spanish translation of debian installation process #59
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 14 Feb 2019 21:04:19 +0100
+
+kolibri-source (0.11.1-0ubuntu3) trusty; urgency=medium
+
+  * Fixes primary user group on existing system service owners
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 10 Feb 2019 02:24:34 +0100
+
+kolibri-source (0.11.1-0ubuntu2) trusty; urgency=medium
+
+  * Create a primary user group for the kolibri system service owner
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 10 Feb 2019 01:37:00 +0100
+
+kolibri-source (0.11.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Removing upper limit on Python 3 that prohibited Python 3.7
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 14 Jan 2019 23:40:04 +0100
+
+kolibri-source (0.11.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ --  Lingyi Wang <lingyi@learningequality.org>  Tue, 06 Nov 2018 22:39:29 +0000
+
+kolibri-source (0.10.3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Fixes from 0.9.5 have entered 0.10.3
+  * Mexican Spanish and Bulgarian added
+  * Several bug fixes
+  * Details upstream: https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.3
+
+ --  <benjamin+buildserver@learningequality.org>  Tue, 16 Oct 2018 21:46:54 +0000
+
+kolibri-source (0.10.2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 24 Aug 2018 01:17:16 +0000
+
+kolibri-source (0.10.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Adding a test that KOLIBRI_USER is set in init script
+  * Do not set KOLIBRI_HTTP_PORT (or deprecated KOLIBRI_LISTEN_PORT), use just 8080 default
+  * Export all known env variables in case they are user defined in /etc/kolibri
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 05 Aug 2018 22:34:45 +0200
+
+kolibri-source (0.10.0-0ubuntu2) trusty; urgency=medium
+
+  * Keep the upgrade note from displaying when irrelevant
+  * Silence confusing redundant script output during install
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 05 Jul 2018 20:45:44 +0200
+
+kolibri-source (0.10.0-0ubuntu1) trusty; urgency=medium
+
+  * New stable upstream release
+  * Changed URL upgrade note for changing system service owner
+  * Display a note for upgrades from <0.10
+  * Upgrade notes for pre 0.10.0
+  * Only set defaults during install, not for upgrades
+  * Use desktop user for system service and prompt through debconf
+  * Removed python3-distutils dependency
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 05 Jul 2018 11:57:35 +0200
+
+kolibri-source (0.9.2-0ubuntu4) trusty; urgency=medium
+
+  * Fix KOLIBRI_LISTEN_PORT in /etc/kolibri/daemon.conf
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 04 Jun 2018 16:36:42 +0200
+
+kolibri-source (0.9.2-0ubuntu3) trusty; urgency=medium
+
+  * Remove "Recommends: python3-distutils"
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 18 May 2018 00:51:22 +0200
+
+kolibri-source (0.9.2-0ubuntu2) trusty; urgency=medium
+
+  * Fix python3-distutils dependency: It only exists in Ubuntu 18.04+
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 17 May 2018 18:08:06 +0200
+
+kolibri-source (0.9.2-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri 0.9.2 release
+  * Change python3-distutils to be a recommendation instead of a dependency
+  * Modify the patch rm-py2only.diff depending on the files changed in futures module
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Wed, 16 May 2018 22:18:29 +0000
+
+kolibri-source (0.9.1-0ubuntu2) trusty; urgency=medium
+
+  * Add python3-distutils dependency
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 11 May 2018 18:32:47 +0200
+
+kolibri-source (0.9.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 20 Apr 2018 20:53:09 +0000
+
+kolibri-source (0.9.0-0ubuntu3) trusty; urgency=medium
+
+  * Add Python 3.6 support
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Wed, 11 Apr 2018 20:51:22 +0000
+
+kolibri-source (0.9.0-0ubuntu2) trusty; urgency=medium
+
+  * Fix the error that Kolibri directories cannot be removed completely
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Mon, 09 Apr 2018 16:13:56 +0000
+
+kolibri-source (0.9.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Thu, 29 Mar 2018 19:11:02 +0000
+
+kolibri-source (0.8.0-0ubuntu1) trusty; urgency=medium
+
+  * Final 0.8.0 release
+  * Added patch for dbbackup crash when upgrading with "~" in KOLIBRI_HOME
+  * Fix attempt for replacing * with 0 in parse_version compat
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 19 Mar 2018 19:00:28 +0100
+
+kolibri-source (0.7.2-0ubuntu3) trusty; urgency=medium
+
+  * Fix environment preservation inside system service for Ubuntu 14.04
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Mar 2018 13:36:17 +0100
+
+kolibri-source (0.7.2-0ubuntu2) trusty; urgency=medium
+
+  * Make python3-cryptography a RECOMMENDED dependency #11
+  * Add startup service export statements for Ubuntu 14.04 #16
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 01 Mar 2018 18:15:43 +0100
+
+kolibri-source (0.7.2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Remove KOLIBRI_HOME from /etc/default/kolibri #16
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 27 Feb 2018 18:24:23 +0100
+
+kolibri-source (0.7.1-0ubuntu2) trusty; urgency=medium
+
+  * Further Py3 support patches for source dist built on Python 2
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 05 Feb 2018 16:44:02 +0100
+
+kolibri-source (0.7.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Update quilt patches for Python 2 build
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Feb 2018 16:37:57 +0100
+
+kolibri-source (0.7.0-0ubuntu1) xenial; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 11 Dec 2017 17:34:50 +0100
+
+kolibri-source (0.6.0-0ubuntu4) xenial; urgency=medium
+
+  * Drop Trusty support for now.
+  * Pin python3-pkg-resources as dependency
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 04 Dec 2017 15:21:43 +0100
+
+kolibri-source (0.6.0-0ubuntu3) trusty; urgency=medium
+
+  * Python3 dependency>=3.4 + fix error in /etc/default/kolibri
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 03 Dec 2017 21:01:26 +0100
+
+kolibri-source (0.6.0-0ubuntu2) trusty; urgency=medium
+
+  * Adds startup service configuration
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 01 Dec 2017 16:09:17 +0100
+
+kolibri-source (0.6.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 30 Nov 2017 19:45:39 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu11) trusty; urgency=medium
+
+  * Further removal of python2-only code
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 30 Nov 2017 17:10:58 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu10) trusty; urgency=medium
+
+  * Add in python3 setup.py install that got overwritten
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 21:18:31 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu9) trusty; urgency=medium
+
+  * Fix syntax error in config file write
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 16:30:25 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu8) trusty; urgency=medium
+
+  * Remove failing empty kolibri.install script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 14:21:17 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu7) unreleased; urgency=medium
+
+  * Add missing build dependency
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 01:08:22 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu6) trusty; urgency=medium
+
+  * Removing call to python2 builder
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 00:30:32 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu5) trusty; urgency=medium
+
+  * Adding systemd+SysV startup service
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 29 Nov 2017 00:20:16 +0100
+
+kolibri-source (0.5.0.dev46-0ubuntu4) trusty; urgency=medium
+
+  * Adding more py2-only excludes
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 17 Oct 2017 00:28:11 +0200
+
+kolibri-source (0.5.0.dev46-0ubuntu3) trusty; urgency=medium
+
+  * Apply patch to remove python2 like module from dist/
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 16 Oct 2017 17:49:16 +0200
+
+kolibri-source (0.5.0.dev46-0ubuntu1) trusty; urgency=medium
+
+  * Upstream dev release based on 0.5.x dev branch
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 16 Oct 2017 15:32:35 +0200

@@ -1,0 +1,21 @@
+[project]
+name = "kolibri-installer-debian"
+version = "0.1.0"
+description = "Kolibri installer source for Debian"
+requires-python = ">=3.10"
+dependencies = [
+    "distro-info",
+    "packaging",
+]
+
+[tool.setuptools]
+packages = []
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "vcrpy",
+]

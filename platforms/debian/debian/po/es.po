@@ -1,0 +1,169 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-source\n"
+"Report-Msgid-Bugs-To: kolibri-source@packages.debian.org\n"
+"POT-Creation-Date: 2019-02-01 17:48+0100\n"
+"PO-Revision-Date: 2019-02-01 17:04+0000\n"
+"Last-Translator: José L. Redrejo Rodríguez <jredrejo@debian.org>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"\n"
+
+#. Type: title
+#. Description
+#: ../kolibri.templates:1001
+msgid "Kolibri configuration"
+msgstr "Configuración de Kolibri"
+
+#. Type: boolean
+#. Description
+#: ../kolibri.templates:2001
+msgid "Do you wish to run Kolibri on start-up?"
+msgstr "¿Desea que Kolibri empiece al arrancar el ordenador?"
+
+#. Type: boolean
+#. Description
+#: ../kolibri.templates:2001
+msgid ""
+"This will automatically call the system service to start Kolibri when your "
+"system boots."
+msgstr ""
+"Se hará una llamada automática al sistema para que arranque Kolibri al "
+"iniciarse el equipo."
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:3001
+msgid "The Kolibri system service"
+msgstr "Kolibri como servicio del sistema"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:3001
+msgid ""
+"You have chosen to run Kolibri as a system service and it has been started "
+"automatically. You can start/stop/restart Kolibri with the following command"
+msgstr ""
+"Ha elegido ejecutar Kolibri como un servicio del sistema y se ha arrancado "
+"automáticamente. Puede arrancarlo/pararlo/reiniciarlo con el siguiente "
+"comando:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:3001
+msgid "  sudo service kolibri [start, stop, restart]"
+msgstr "  sudo service kolibri [start, stop, restart]"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "Running Kolibri manually:"
+msgstr "Arrancar Kolibri de forma manual:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid ""
+"You have chosen not to run Kolibri as a system service and that means you "
+"should run it manually. Starting Kolibri with your current user account:"
+msgstr ""
+"Ha elegido no arrancar Kolibri como un servicio del sistema, lo que "
+"significa que necesitará ejecutarlo manualmente. Para arrancar Kolibri en su "
+"usuario:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "  kolibri start"
+msgstr "  kolibri start"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "Starting Kolibri as a system-wide service:"
+msgstr "Arrancar Kolibri como un servicio para el equipo:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "  sudo service kolibri start"
+msgstr "  sudo service kolibri start"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "Start Kolibri when the system boots:"
+msgstr "Arrancar Kolibri al iniciar el sistema:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "  sudo systemctl enable kolibri"
+msgstr "  sudo systemctl enable kolibri"
+
+#. Type: string
+#. Description
+#: ../kolibri.templates:5001
+msgid "Which user account should own the Kolibri server?"
+msgstr "¿Qué usuario ejecutará Kolibri?"
+
+#. Type: string
+#. Description
+#: ../kolibri.templates:5001
+msgid ""
+"The default is to choose your preferred desktop user account, for instance "
+"to ensure access to importing data from external USB devices."
+msgstr ""
+"La opción habitual es elegir la cuenta de usuario de escritorio que prefiera,"
+" de esa manera funcionará correctamente la opción de importar datos desde un "
+"dispositivo USB."
+
+#. Type: string
+#. Description
+#: ../kolibri.templates:5001
+msgid ""
+"Entering a username that doesn't exist will create a new system user with "
+"home directory /var/<username>."
+msgstr ""
+"Si teclea un nombre de usuario que no exista se creará un nuevo usuario del "
+"sistema con su directorio home en /var/<username>"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid "Changing system service owner:"
+msgstr "Cambiando el propietario del servicio del sistema:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid ""
+"You are updating from an older version of Kolibri and we recommend that you "
+"switch the user account that runs the system service to your normal desktop "
+"user. This allows Kolibri to access your USB devices for importing and "
+"exporting content channels."
+msgstr ""
+"Está actualizando desde una versión anterior de Kolibri y recomendamos que "
+"cambie la cuenta de usuario que ejecuta el servicio a su cuenta de usuario "
+"normal. Eso permite a Kolibri acceder a los dispositivos USB que conecte "
+"para exportar o importar canales."
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid ""
+"After finishing the installation/upgrade, follow these instructions to "
+"change the user setting and move your previous content channels and database:"
+msgstr ""
+"Después de que comience la instalación/actualización, siga estas "
+"instrucciones para cambiar la configuración de usuario y mover su database "
+"anterior y el contenido de los canales:"
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid "   https://learningequality.org/r/docs-debian-change-user"
+msgstr "   https://learningequality.org/r/docs-debian-change-user"
