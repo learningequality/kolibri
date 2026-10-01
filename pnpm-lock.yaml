@@ -13,8 +13,8 @@ catalogs:
       specifier: ^14.6.1
       version: 14.6.1
     '@testing-library/vue':
-      specifier: ^5
-      version: 5.9.0
+      specifier: ^7
+      version: 7.0.0
     '@vue/test-utils':
       specifier: ^1.3.6
       version: 1.3.6
@@ -251,7 +251,7 @@ importers:
         version: 6.9.1
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -306,7 +306,7 @@ importers:
         version: 14.6.1(@testing-library/dom@9.3.4)
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -376,7 +376,7 @@ importers:
         version: 6.9.1
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/facility:
     dependencies:
@@ -428,7 +428,7 @@ importers:
         version: 14.6.1(@testing-library/dom@9.3.4)
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/h5p_viewer:
     dependencies:
@@ -587,7 +587,7 @@ importers:
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -642,7 +642,7 @@ importers:
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/pdf_viewer:
     dependencies:
@@ -694,7 +694,7 @@ importers:
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/perseus_viewer:
     dependencies:
@@ -875,7 +875,7 @@ importers:
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -945,7 +945,7 @@ importers:
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/safe_html5_viewer:
     dependencies:
@@ -976,7 +976,7 @@ importers:
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/setup_wizard:
     dependencies:
@@ -1025,7 +1025,7 @@ importers:
         version: 14.6.1(@testing-library/dom@9.3.4)
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -1092,7 +1092,7 @@ importers:
         version: 14.6.1(@testing-library/dom@9.3.4)
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -1135,7 +1135,7 @@ importers:
         version: 6.9.1
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -1250,7 +1250,7 @@ importers:
         version: 14.6.1(@testing-library/dom@9.3.4)
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -1437,7 +1437,7 @@ importers:
         version: 14.6.1(@testing-library/dom@9.3.4)
       '@testing-library/vue':
         specifier: 'catalog:'
-        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       '@vue/test-utils':
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
@@ -3457,6 +3457,9 @@ packages:
   '@one-ini/wasm@0.1.1':
     resolution: {integrity: sha512-XuySG1E38YScSJoMlqovLru4KTUNSjgVTIjyh7qMX6aNN5HY5Ct5LhRJdxO79JtTzKfzV/bnWpz+zquYrISsvw==}
 
+  '@one-ini/wasm@0.2.1':
+    resolution: {integrity: sha512-TUqERXGNTifZ9y2g3wPxQrw3HpHv/02DsW3D90T9x0hhonrL1ZqpSmNrU2XkoIq0fP1N6gZfVQzy2Fw1ZvGBNg==}
+
   '@package-json/types@0.0.12':
     resolution: {integrity: sha512-uu43FGU34B5VM9mCNjXCwLaGHYjXdNincqKLaraaCW+7S2+SmiBg1Nv8bPnmschrIfZmfKNY9f3fC376MRrObw==}
 
@@ -3694,6 +3697,13 @@ packages:
     peerDependencies:
       vue: ^2.6.10
       vue-template-compiler: ^2.6.10
+
+  '@testing-library/vue@7.0.0':
+    resolution: {integrity: sha512-JU/q93HGo2qdm1dCgWymkeQlfpC0/0/DBZ2nAHgEAsVZxX11xVIxT7gbXdI7HACQpUbsUWt1zABGU075Fzt9XQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      '@vue/compiler-sfc': '>= 3'
+      vue: '>= 3'
 
   '@tootallnate/once@1.1.2':
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -4155,17 +4165,36 @@ packages:
   '@videojs/xhr@2.6.0':
     resolution: {integrity: sha512-7J361GiN1tXpm+gd0xz2QWr3xNWBE+rytvo8J3KuggFaLg+U37gZQ2BuPLcnkfGffy2e+ozY70RHC8jt7zjA6Q==}
 
+  '@vue/compiler-core@3.5.43':
+    resolution: {integrity: sha512-zdiLhnbe1QQqgDT8xZMpNmyqZ3qlI+/Q/FHQco57Kwl/b05HhCzN6eVGN9QU9rbga4CrS0H5SYY8VGHZCt/1Hg==}
+
+  '@vue/compiler-dom@3.5.43':
+    resolution: {integrity: sha512-PEZoAk3NQmsn/ejMzSOCyTYqwGqczrWm70PuhBKjjv1+TCoQAaO/zOqNwjV+honlNstT5ILxtc+8r8UUfj+iEQ==}
+
   '@vue/compiler-sfc@2.7.16':
     resolution: {integrity: sha512-KWhJ9k5nXuNtygPU7+t1rX6baZeqOYLEforUPjgNDBnLicfHCoi48H87Q8XyLZOrNNsmhuwKqtpDQWjEFe6Ekg==}
 
   '@vue/component-compiler-utils@3.3.0':
     resolution: {integrity: sha512-97sfH2mYNU+2PzGrmK2haqffDpVASuib9/w2/noxiFi31Z54hW+q3izKQXXQZSNhtiUpAI36uSuYepeBe4wpHQ==}
 
+  '@vue/shared@3.5.43':
+    resolution: {integrity: sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q==}
+
   '@vue/test-utils@1.3.6':
     resolution: {integrity: sha512-udMmmF1ts3zwxUJEIAj5ziioR900reDrt6C9H3XpWPsLBx2lpHKoA4BTdd9HNIYbkGltWw+JjWJ+5O6QBwiyEw==}
     peerDependencies:
       vue: 2.x
       vue-template-compiler: ^2.x
+
+  '@vue/test-utils@2.5.1':
+    resolution: {integrity: sha512-V/4a99odJ7hapr0bRt35XxljGk8hefq31gSOnlKTcEq2fUeoj2qb+FcpJYfQu4qfYhW9Ug+O2+CZ3QmZ7gXDzA==}
+    peerDependencies:
+      '@vue/compiler-dom': 3.x
+      '@vue/server-renderer': 3.x
+      vue: 3.x
+    peerDependenciesMeta:
+      '@vue/server-renderer':
+        optional: true
 
   '@vue/vue2-jest@29.2.6':
     resolution: {integrity: sha512-nPu9IvnEkP0AEpo9ETOAk50uqyBa0QMJ9GnPYkC7EukFN1z29QKjyucICayMt8KuHJ9oYBca2TDMH40HowY9mQ==}
@@ -4261,6 +4290,10 @@ packages:
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
+  abbrev@5.0.0:
+    resolution: {integrity: sha512-/XrFJgzQQQHpti1raDJC6m4ws6aNktmjBlhk8Fdlk7LwCEuDoieEJJY9OFHjfiFJFFRM2tK+Ky/IsfbbmlMu1w==}
+    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
 
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -5527,6 +5560,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  editorconfig@3.0.2:
+    resolution: {integrity: sha512-T0ix8GhtxyKVfUFEcvdNDt3YGqlwkFHbD4/5bgFUDgFmxhI/cSRAeJ87/Sz//Cq8Eam6JX/e23RkoFO71P7aAA==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
@@ -5588,6 +5626,10 @@ packages:
 
   entities@6.0.1:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
+    engines: {node: '>=0.12'}
+
+  entities@7.0.1:
+    resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
 
   env-paths@2.2.1:
@@ -5920,6 +5962,9 @@ packages:
     resolution: {integrity: sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==}
     engines: {node: '>=4.0'}
 
+  estree-walker@2.0.2:
+    resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
+
   esutils@2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
@@ -6214,6 +6259,10 @@ packages:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
+
+  glob@13.0.6:
+    resolution: {integrity: sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==}
+    engines: {node: 18 || 20 || >=22}
 
   glob@7.1.7:
     resolution: {integrity: sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==}
@@ -7144,6 +7193,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  js-beautify@2.0.3:
+    resolution: {integrity: sha512-cyFbh3tkPhknnTD/0bLf0T0yy2ZIbqL05mttzbt4y1Zfr7NxqXQZ62dkBLKs3oHH/lpjmDRAnciJiSUyOy8XwQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   js-binary-schema-parser@2.0.3:
     resolution: {integrity: sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg==}
 
@@ -7329,6 +7383,10 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
+
+  lru-cache@11.5.3:
+    resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
+    engines: {node: 20 || >=22}
 
   lru-cache@4.1.5:
     resolution: {integrity: sha512-sWZlbEP2OsHNkXrMl5GYk/jKk70MBng6UU4YI/qGDYbgf6YbP4EvmqISbXCoJiRKs+1bSpFHVgQxvJ17F2li5g==}
@@ -7616,6 +7674,10 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
+  minipass@7.1.3:
+    resolution: {integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
   minizlib@2.1.2:
     resolution: {integrity: sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==}
     engines: {node: '>= 8'}
@@ -7737,6 +7799,11 @@ packages:
     resolution: {integrity: sha512-yltEuuLrfH6M7Pq2gAj5B6Zm7m+gdZoG66wTqG6mIZV/zijq3M2OO2HswtT6oBspPyFhHDcaxWpsBm0fRNDHPg==}
     engines: {node: '>=16'}
     deprecated: Node Sass is no longer supported. Please use `sass` or `sass-embedded` instead.
+    hasBin: true
+
+  nopt@10.0.1:
+    resolution: {integrity: sha512-df3sBr/6ax9hSGuC3CspvLlbnX8cP5L5nZwXF8cGN8l0zSWR6BvzmQ6jPUKjvo6+/xdpkNvEcucBNUdBeeV13g==}
+    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
     hasBin: true
 
   nopt@5.0.0:
@@ -7930,6 +7997,10 @@ packages:
   path-scurry@1.11.1:
     resolution: {integrity: sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==}
     engines: {node: '>=16 || 14 >=14.18'}
+
+  path-scurry@2.0.2:
+    resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
+    engines: {node: 18 || 20 || >=22}
 
   path-to-regexp@0.1.13:
     resolution: {integrity: sha512-A/AGNMFN3c8bOlvV9RreMdrv7jsmF9XIfDeCd87+I8RNg6s78BhJxMu69NEMHBSJFxKidViTEdruRwEk/WIKqA==}
@@ -9611,6 +9682,9 @@ packages:
   videojs-vtt.js@0.15.5:
     resolution: {integrity: sha512-yZbBxvA7QMYn15Lr/ZfhhLPrNpI/RmCSCqgIff57GC2gIrV5YfyzLfLyZMj0NnZSAz8syB4N0nHXpZg9MyrMOQ==}
 
+  vue-component-type-helpers@3.3.11:
+    resolution: {integrity: sha512-LwcxzeliO9fkQcpJG0PoX8X5kmAhKmH9wkpDLxNabwzkQ9Zeib2YVHwFV4pcWmMLfXVfjr/dSV+DaJ3cIPgSNA==}
+
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
     engines: {node: '>=12'}
@@ -9843,10 +9917,6 @@ packages:
 
   which-module@2.0.1:
     resolution: {integrity: sha512-iBdZ57RDvnOR9AGBhML2vFZf7h8vmBjhoaZqODJBFWHVtKkDmKuHai3cx5PgVMrX5YDNp27AofYbAwctSS+vhQ==}
-
-  which-typed-array@1.1.22:
-    resolution: {integrity: sha512-fvO4ExWMFsqyhG3AiPAObMuY1lxaqgYcxbc49CNdWDDECOJNgQyvsOWVwbZc+qf3rzRtxojBK+CMEv0Ld5CYpw==}
-    engines: {node: '>= 0.4'}
 
   which-typed-array@1.1.24:
     resolution: {integrity: sha512-wk4Mf4pR5mRP7eYuuTBCIQ9d0ud2Fv2jRLQpfgnRjbOxAFHmjKFValgTpitVKzJJS8ajnYQV2Du1SZ8j6b/EUQ==}
@@ -12254,7 +12324,7 @@ snapshots:
   '@npmcli/fs@1.1.1':
     dependencies:
       '@gar/promisify': 1.1.3
-      semver: 7.7.4
+      semver: 7.8.5
 
   '@npmcli/fs@2.1.2':
     dependencies:
@@ -12272,6 +12342,8 @@ snapshots:
       rimraf: 3.0.2
 
   '@one-ini/wasm@0.1.1': {}
+
+  '@one-ini/wasm@0.2.1': {}
 
   '@package-json/types@0.0.12': {}
 
@@ -12532,6 +12604,17 @@ snapshots:
       '@vue/test-utils': 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
       vue: 2.7.16
       vue-template-compiler: 2.7.16
+
+  '@testing-library/vue@7.0.0(@vue/compiler-dom@3.5.43)(@vue/compiler-sfc@2.7.16)(vue@2.7.16)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@testing-library/dom': 9.3.4
+      '@vue/compiler-sfc': 2.7.16
+      '@vue/test-utils': 2.5.1(@vue/compiler-dom@3.5.43)(vue@2.7.16)
+      vue: 2.7.16
+    transitivePeerDependencies:
+      - '@vue/compiler-dom'
+      - '@vue/server-renderer'
 
   '@tootallnate/once@1.1.2': {}
 
@@ -12945,6 +13028,19 @@ snapshots:
       global: 4.4.0
       is-function: 1.0.2
 
+  '@vue/compiler-core@3.5.43':
+    dependencies:
+      '@babel/parser': 7.29.9
+      '@vue/shared': 3.5.43
+      entities: 7.0.1
+      estree-walker: 2.0.2
+      source-map-js: 1.2.1
+
+  '@vue/compiler-dom@3.5.43':
+    dependencies:
+      '@vue/compiler-core': 3.5.43
+      '@vue/shared': 3.5.43
+
   '@vue/compiler-sfc@2.7.16':
     dependencies:
       '@babel/parser': 7.29.9
@@ -13020,6 +13116,8 @@ snapshots:
       - walrus
       - whiskers
 
+  '@vue/shared@3.5.43': {}
+
   '@vue/test-utils@1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)':
     dependencies:
       dom-event-types: 1.1.0
@@ -13027,6 +13125,13 @@ snapshots:
       pretty: 2.0.0
       vue: 2.7.16
       vue-template-compiler: 2.7.16
+
+  '@vue/test-utils@2.5.1(@vue/compiler-dom@3.5.43)(vue@2.7.16)':
+    dependencies:
+      '@vue/compiler-dom': 3.5.43
+      js-beautify: 2.0.3
+      vue: 2.7.16
+      vue-component-type-helpers: 3.3.11
 
   '@vue/vue2-jest@29.2.6(@babel/core@8.0.6)(babel-jest@30.2.0(@babel/core@8.0.6))(jest@30.2.0(@types/node@25.0.9))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)':
     dependencies:
@@ -13278,6 +13383,8 @@ snapshots:
   abbrev@1.1.1: {}
 
   abbrev@2.0.0: {}
+
+  abbrev@5.0.0: {}
 
   accepts@1.3.8:
     dependencies:
@@ -14401,7 +14508,7 @@ snapshots:
       side-channel: 1.1.1
       which-boxed-primitive: 1.1.1
       which-collection: 1.0.2
-      which-typed-array: 1.1.22
+      which-typed-array: 1.1.24
 
   deep-is@0.1.4: {}
 
@@ -14554,6 +14661,13 @@ snapshots:
       minimatch: 9.0.1
       semver: 7.8.5
 
+  editorconfig@3.0.2:
+    dependencies:
+      '@one-ini/wasm': 0.2.1
+      commander: 14.0.3
+      minimatch: 10.2.5
+      semver: 7.8.5
+
   ee-first@1.1.1: {}
 
   electron-to-chromium@1.5.267: {}
@@ -14601,6 +14715,8 @@ snapshots:
   entities@4.5.0: {}
 
   entities@6.0.1: {}
+
+  entities@7.0.1: {}
 
   env-paths@2.2.1: {}
 
@@ -15107,6 +15223,8 @@ snapshots:
 
   estraverse@5.3.0: {}
 
+  estree-walker@2.0.2: {}
+
   esutils@2.0.3: {}
 
   etag@1.8.1: {}
@@ -15440,6 +15558,12 @@ snapshots:
       minipass: 7.1.2
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
+
+  glob@13.0.6:
+    dependencies:
+      minimatch: 10.2.5
+      minipass: 7.1.3
+      path-scurry: 2.0.2
 
   glob@7.1.7:
     dependencies:
@@ -16825,6 +16949,14 @@ snapshots:
       js-cookie: 3.0.8
       nopt: 7.2.1
 
+  js-beautify@2.0.3:
+    dependencies:
+      config-chain: 1.1.13
+      editorconfig: 3.0.2
+      glob: 13.0.6
+      js-cookie: 3.0.8
+      nopt: 10.0.1
+
   js-binary-schema-parser@2.0.3: {}
 
   js-cookie@3.0.8: {}
@@ -17020,6 +17152,8 @@ snapshots:
       tslib: 2.8.1
 
   lru-cache@10.4.3: {}
+
+  lru-cache@11.5.3: {}
 
   lru-cache@4.1.5:
     dependencies:
@@ -17357,6 +17491,8 @@ snapshots:
 
   minipass@7.1.2: {}
 
+  minipass@7.1.3: {}
+
   minizlib@2.1.2:
     dependencies:
       minipass: 3.3.6
@@ -17481,6 +17617,10 @@ snapshots:
     transitivePeerDependencies:
       - bluebird
       - supports-color
+
+  nopt@10.0.1:
+    dependencies:
+      abbrev: 5.0.0
 
   nopt@5.0.0:
     dependencies:
@@ -17692,6 +17832,11 @@ snapshots:
     dependencies:
       lru-cache: 10.4.3
       minipass: 7.1.2
+
+  path-scurry@2.0.2:
+    dependencies:
+      lru-cache: 11.5.3
+      minipass: 7.1.3
 
   path-to-regexp@0.1.13: {}
 
@@ -19502,6 +19647,8 @@ snapshots:
     dependencies:
       global: 4.4.0
 
+  vue-component-type-helpers@3.3.11: {}
+
   vue-demi@0.14.10(vue@2.7.16):
     dependencies:
       vue: 2.7.16
@@ -20042,16 +20189,6 @@ snapshots:
       is-weakset: 2.0.4
 
   which-module@2.0.1: {}
-
-  which-typed-array@1.1.22:
-    dependencies:
-      available-typed-arrays: 1.0.7
-      call-bind: 1.0.9
-      call-bound: 1.0.4
-      for-each: 0.3.5
-      get-proto: 1.0.1
-      gopd: 1.2.0
-      has-tostringtag: 1.0.2
 
   which-typed-array@1.1.24:
     dependencies:
