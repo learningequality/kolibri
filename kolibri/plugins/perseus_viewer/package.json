@@ -59,7 +59,7 @@
     "react-popper": "^2.2.5",
     "react-router": "5.3.4",
     "react-router-dom": "5.3.4",
-    "react-router-dom-v5-compat": "^6.30.0",
+    "react-router-dom-v5-compat": "^6.30.6",
     "react-transition-group": "^4.4.5",
     "react-window": "^1.8.11",
     "underscore": "1.13.8",
