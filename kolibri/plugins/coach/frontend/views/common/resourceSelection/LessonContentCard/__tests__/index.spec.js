@@ -1,4 +1,4 @@
-import { render } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
@@ -56,6 +56,10 @@ describe('LessonContentCard', () => {
       learning_activities: [LearningActivities.WATCH],
     });
 
+    // Both checks are kept deliberately: the `.chip` count ties this to the actual
+    // element under test, while the text-absence check is an independent anchor that
+    // still catches a regression even if `.chip` itself were ever renamed elsewhere.
     expect(container.querySelectorAll('.chip')).toHaveLength(0);
+    expect(screen.queryByText(coreString(LearningActivities.WATCH))).not.toBeInTheDocument();
   });
 });
