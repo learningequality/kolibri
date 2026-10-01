@@ -21,6 +21,7 @@ from kolibri.core.content.utils.content_delete import delete_content
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_content_requests
+from kolibri.core.content.utils.content_request import request_import_metadata
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
@@ -373,7 +374,7 @@ def remoteresourceimport(
     metadata_url = reverse_path(
         "kolibri:core:importmetadata-detail", kwargs={"pk": node_id}
     )
-    response = client.get(metadata_url)
+    response = request_import_metadata(client, metadata_url)
     import_metadata = response.json()
     cancel_check = None if not current_job else current_job.check_for_cancel
     import_channel_from_data(import_metadata, cancel_check, partial=True)

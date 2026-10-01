@@ -22,6 +22,7 @@ from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
@@ -654,8 +655,42 @@ def _merge_import_metadata(metadata_list):
 
 MAX_NODES_PER_REQUEST = 10
 
+_SCHEMA_VERSION_TOO_HIGH = "Schema version is too high"
 
-def _get_import_metadata(client, download):
+
+def _schema_version_too_high(error):
+    """
+    :type error: NetworkLocationResponseFailure
+    :rtype: bool
+    """
+    return (
+        error.response is not None
+        and error.response.status_code == 400
+        and _SCHEMA_VERSION_TOO_HIGH in error.response.text
+    )
+
+
+def request_import_metadata(client, url_path):
+    """
+    GETs import metadata at our schema version. A peer whose maximum is lower
+    answers 400 "too high"; retry without ``schema_version`` to get the peer's
+    default.
+
+    :type client: NetworkClient
+    :type url_path: str
+    :rtype: requests.Response
+    """
+    try:
+        return client.get(
+            url_path + "?" + urlencode({"schema_version": CONTENT_SCHEMA_VERSION})
+        )
+    except NetworkLocationResponseFailure as e:
+        if not _schema_version_too_high(e):
+            raise
+    return client.get(url_path)
+
+
+def _get_import_metadata(client, download, schema_version=CONTENT_SCHEMA_VERSION):
     """
     Fetches import metadata for a single content node from a remote peer.
 
@@ -663,17 +698,21 @@ def _get_import_metadata(client, download):
     ``descendants=true`` filter is added to the request.  The endpoint then
     returns both ancestors and descendants together and may paginate the
     response; this function follows pagination until all pages are collected
-    and merges them into a single dict.
+    and merges them into a single dict. Only the first request negotiates the
+    schema version; the server's ``more`` params carry it to later pages.
 
-    Returns ``None`` when the remote peer responds with a 4xx error (e.g. 404
-    — node not found on that peer), or, with ``import_descendants``, when it
-    responds unpaginated.  Other network errors are re-raised.
+    The metadata is ``None`` when the remote peer responds with a 4xx error
+    (e.g. 404 — node not found on that peer), or, with ``import_descendants``,
+    when it responds unpaginated.  Other network errors are re-raised.
 
     :param client: An active network client pointed at the remote peer
     :type client: NetworkClient
     :param download: The pending download request whose metadata should be imported
     :type download: ContentDownloadRequest
-    :rtype: None|dict
+    :type schema_version: str|None
+    :return: The metadata, and the schema version to request from this peer
+        next time: ``None`` once it has answered "too high"
+    :rtype: tuple[None|dict, str|None]
     """
     contentnode_id = download.contentnode_id
     import_descendants = (
@@ -686,19 +725,18 @@ def _get_import_metadata(client, download):
         "kolibri:core:importmetadata-detail", kwargs={"pk": contentnode_id}
     )
 
+    params = {"max_results": MAX_NODES_PER_REQUEST}
+    if import_descendants:
+        params["descendants"] = "true"
+    if schema_version is not None:
+        params["schema_version"] = schema_version
+
     has_more = True
     more = None
     metadata_list = []
 
     while has_more:
-        if more:
-            url_path = base_url + "?" + urlencode(more)
-        else:
-            params = {"max_results": MAX_NODES_PER_REQUEST}
-            if import_descendants:
-                params["descendants"] = "true"
-            url_path = base_url + "?" + urlencode(params)
-
+        url_path = base_url + "?" + urlencode(more or params)
         try:
             json_response = client.get(url_path).json()
             # Studio and Kolibri <0.19.3 ignore max_results and descendants,
@@ -708,11 +746,14 @@ def _get_import_metadata(client, download):
                     "Unpaginated metadata cannot include descendants: GET %s",
                     url_path,
                 )
-                return None
+                return None, params.get("schema_version")
             metadata_list.append(json_response.get("results", json_response))
             more = json_response.get("more", None)
             has_more = more is not None
         except NetworkLocationResponseFailure as e:
+            if not more and "schema_version" in params and _schema_version_too_high(e):
+                del params["schema_version"]
+                continue
             if e.response is not None and 400 <= e.response.status_code < 500:
                 logger.debug(
                     "Metadata request failure: GET %s %s",
@@ -722,7 +763,7 @@ def _get_import_metadata(client, download):
                 break
             raise e
 
-    return _merge_import_metadata(metadata_list) or None
+    return _merge_import_metadata(metadata_list) or None, params.get("schema_version")
 
 
 def _get_downloads_for_potential_removed_contentnodes(import_metadata):
@@ -773,11 +814,14 @@ def _import_metadata(client, downloads_needing_metadata_import):
         return True
 
     processed_count = 0
+    schema_version = CONTENT_SCHEMA_VERSION
     logger.info("Importing content metadata for %s nodes", total_count)
     while downloads_to_process:
         download = downloads_to_process.popleft()
 
-        import_metadata = _get_import_metadata(client, download)
+        import_metadata, schema_version = _get_import_metadata(
+            client, download, schema_version=schema_version
+        )
 
         # if the request 404'd, then we wouldn't have this data
         if import_metadata:

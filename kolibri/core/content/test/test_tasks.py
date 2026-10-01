@@ -1,11 +1,18 @@
+import json
 import uuid
 from unittest import mock
 
 from django.test import TestCase
+from django.test import TransactionTestCase
+from django.urls import reverse
+from le_utils.constants import content_kinds
 from rest_framework import serializers
+from rest_framework.test import APIClient
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import VERSION_6
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
@@ -18,7 +25,11 @@ from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_need
 from kolibri.core.content.tasks import LocalChannelImportValidator
 from kolibri.core.content.tasks import RemoteChannelDiffStatsValidator
 from kolibri.core.content.tasks import RemoteChannelImportValidator
+from kolibri.core.content.tasks import remoteresourceimport
+from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.viewsets.import_metadata import ImportMetadataViewset
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.utils import conf
 
 
@@ -395,6 +406,91 @@ class ValidateRemoteChannelDiffStatsTestCase(TestCase):
         )
         lookup_url = network_client_mock.return_value.get.call_args[0][0]
         self.assertIn(channel_id, lookup_url)
+
+
+@mock.patch("kolibri.core.content.tasks.RemoteChannelResourceImportManager")
+@mock.patch("kolibri.core.content.tasks.NetworkClient")
+class RemoteResourceImportTestCase(TransactionTestCase):
+    databases = "__all__"
+
+    def _leaf_metadata_response(self, schema_version):
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        node_id = (
+            ContentNode.objects.filter(channel_id=builder.channel["id"])
+            .exclude(kind=content_kinds.TOPIC)
+            .values_list("id", flat=True)
+            .first()
+        )
+        with mock.patch.object(
+            ImportMetadataViewset, "default_content_schema", schema_version
+        ):
+            metadata = (
+                APIClient()
+                .get(
+                    reverse(
+                        "kolibri:core:importmetadata-detail", kwargs={"pk": node_id}
+                    )
+                )
+                .json()
+            )
+        builder.remove_from_default_db()
+        response = mock.MagicMock()
+        response.json.return_value = metadata
+        return node_id, response
+
+    def test_accepted_schema_version_is_requested_once(
+        self, network_client_mock, manager_mock
+    ):
+        node_id, success = self._leaf_metadata_response(CONTENT_SCHEMA_VERSION)
+        client = network_client_mock.build_for_address.return_value
+        client.get.side_effect = [success]
+
+        remoteresourceimport(node_id, baseurl="http://test.org")
+
+        client.get.assert_called_once()
+        self.assertIn(
+            f"schema_version={CONTENT_SCHEMA_VERSION}", client.get.call_args[0][0]
+        )
+        self.assertTrue(ContentNode.objects.filter(id=node_id).exists())
+
+    def test_schema_version_too_high_retries_without_schema_version(
+        self, network_client_mock, manager_mock
+    ):
+        node_id, success = self._leaf_metadata_response(VERSION_6)
+        too_high = mock.MagicMock()
+        too_high.status_code = 400
+        too_high.text = json.dumps(
+            ["Schema version is too high, exports only suported for versions 5 to 6"]
+        )
+        client = network_client_mock.build_for_address.return_value
+        client.get.side_effect = [
+            NetworkLocationResponseFailure(response=too_high),
+            success,
+        ]
+
+        remoteresourceimport(node_id, baseurl="http://test.org")
+
+        self.assertIn(
+            f"schema_version={CONTENT_SCHEMA_VERSION}",
+            client.get.call_args_list[0][0][0],
+        )
+        self.assertNotIn("schema_version", client.get.call_args_list[1][0][0])
+        self.assertTrue(ContentNode.objects.filter(id=node_id).exists())
+
+    def test_other_bad_request_is_not_retried(self, network_client_mock, manager_mock):
+        too_low = mock.MagicMock()
+        too_low.status_code = 400
+        too_low.text = json.dumps(
+            ["Schema version is too low, exports only suported for versions 5 to 6"]
+        )
+        client = network_client_mock.build_for_address.return_value
+        client.get.side_effect = NetworkLocationResponseFailure(response=too_low)
+
+        with self.assertRaises(NetworkLocationResponseFailure):
+            remoteresourceimport(uuid.uuid4().hex, baseurl="http://test.org")
+
+        client.get.assert_called_once()
 
 
 class AutomaticDownloadTestCase(TestCase):

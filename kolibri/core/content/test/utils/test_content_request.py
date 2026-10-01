@@ -1,3 +1,4 @@
+import json
 import uuid
 from contextlib import contextmanager
 from datetime import timedelta
@@ -7,6 +8,7 @@ from unittest import mock
 import pytest
 from django.test import LiveServerTestCase
 from django.test import TestCase
+from django.test import TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -15,6 +17,8 @@ from rest_framework.test import APIClient
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import VERSION_6
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
@@ -28,6 +32,7 @@ from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import DeletedAssignment
 from kolibri.core.content.utils.content_request import _get_import_metadata
+from kolibri.core.content.utils.content_request import _import_metadata
 from kolibri.core.content.utils.content_request import _merge_import_metadata
 from kolibri.core.content.utils.content_request import _process_content_requests
 from kolibri.core.content.utils.content_request import _process_download
@@ -50,6 +55,7 @@ from kolibri.core.content.utils.content_request import (
 )
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
+from kolibri.core.content.viewsets.import_metadata import ImportMetadataViewset
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -1300,6 +1306,15 @@ class MergeImportMetadataTestCase(TestCase):
         self.assertEqual(result["some_int"], 42)
 
 
+def _schema_version_400(too):
+    mock_response = mock.MagicMock()
+    mock_response.status_code = 400
+    mock_response.text = json.dumps(
+        [f"Schema version is too {too}, exports only suported for versions 5 to 6"]
+    )
+    return NetworkLocationResponseFailure(response=mock_response)
+
+
 class GetImportMetadataTestCase(TestCase):
     """Tests for _get_import_metadata function"""
 
@@ -1333,7 +1348,7 @@ class GetImportMetadataTestCase(TestCase):
         metadata = self._create_basic_metadata(self.contentnode_id)
         self.mock_client.get.return_value.json.return_value = {"results": metadata}
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertEqual(result, metadata)
         self.mock_client.get.assert_called_once()
@@ -1357,7 +1372,7 @@ class GetImportMetadataTestCase(TestCase):
             "results": combined_metadata
         }
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         call_url = self.mock_client.get.call_args[0][0]
         self.assertIn("descendants=true", call_url)
@@ -1375,7 +1390,7 @@ class GetImportMetadataTestCase(TestCase):
         metadata = self._create_basic_metadata(self.contentnode_id)
         self.mock_client.get.return_value.json.return_value = {"results": metadata}
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         call_url = self.mock_client.get.call_args[0][0]
         self.assertNotIn("descendants", call_url)
@@ -1388,7 +1403,7 @@ class GetImportMetadataTestCase(TestCase):
         error = NetworkLocationResponseFailure(response=mock_response)
         self.mock_client.get.side_effect = error
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertIsNone(result)
 
@@ -1399,7 +1414,7 @@ class GetImportMetadataTestCase(TestCase):
         error = NetworkLocationResponseFailure(response=mock_response)
         self.mock_client.get.side_effect = error
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertIsNone(result)
 
@@ -1446,7 +1461,7 @@ class GetImportMetadataTestCase(TestCase):
             page2_response,
         ]
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertEqual(self.mock_client.get.call_count, 2)
         # Should have: node + parent1 + child1 + child2 = 4 nodes
@@ -1531,7 +1546,7 @@ class GetImportMetadataTestCase(TestCase):
             response=mock_response
         )
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertIsNone(result)
 
@@ -1539,7 +1554,7 @@ class GetImportMetadataTestCase(TestCase):
         metadata = self._create_basic_metadata(self.contentnode_id)
         self.mock_client.get.return_value.json.return_value = metadata
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertEqual(result, metadata)
 
@@ -1549,9 +1564,75 @@ class GetImportMetadataTestCase(TestCase):
             self._create_basic_metadata(self.contentnode_id)
         )
 
-        result = _get_import_metadata(self.mock_client, self.mock_download)
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertIsNone(result)
+
+    def test_first_request_sends_content_schema_version(self):
+        self.mock_client.get.return_value.json.return_value = {
+            "results": self._create_basic_metadata(self.contentnode_id)
+        }
+
+        _get_import_metadata(self.mock_client, self.mock_download)
+
+        call_url = self.mock_client.get.call_args[0][0]
+        self.assertIn(f"schema_version={CONTENT_SCHEMA_VERSION}", call_url)
+
+    def test_schema_version_too_low_is_not_retried(self):
+        self.mock_client.get.side_effect = _schema_version_400("low")
+
+        result, _ = _get_import_metadata(self.mock_client, self.mock_download)
+
+        self.assertIsNone(result)
+        self.mock_client.get.assert_called_once()
+
+
+class ImportMetadataSchemaFallbackTestCase(TransactionTestCase):
+    databases = "__all__"
+
+    def test_peer_refusing_our_version_is_not_asked_for_it_again(self):
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        leaf_id = (
+            ContentNode.objects.filter(channel_id=builder.channel["id"])
+            .exclude(kind=content_kinds.TOPIC)
+            .values_list("id", flat=True)
+            .first()
+        )
+        with mock.patch.object(
+            ImportMetadataViewset, "default_content_schema", VERSION_6
+        ):
+            leaf_response = mock.MagicMock()
+            leaf_response.json.return_value = (
+                APIClient()
+                .get(
+                    reverse(
+                        "kolibri:core:importmetadata-detail", kwargs={"pk": leaf_id}
+                    )
+                )
+                .json()
+            )
+        builder.remove_from_default_db()
+        not_found = mock.MagicMock()
+        not_found.status_code = 404
+        client = mock.MagicMock()
+        client.get.side_effect = [
+            _schema_version_400("high"),
+            NetworkLocationResponseFailure(response=not_found),
+            leaf_response,
+        ]
+        downloads = [
+            ContentDownloadRequest(contentnode_id=uuid.uuid4().hex),
+            ContentDownloadRequest(contentnode_id=leaf_id),
+        ]
+
+        _import_metadata(client, downloads)
+
+        self.assertTrue(ContentNode.objects.filter(id=leaf_id).exists())
+        urls = [c[0][0] for c in client.get.call_args_list]
+        self.assertEqual(len(urls), 3)
+        self.assertIn(f"schema_version={CONTENT_SCHEMA_VERSION}", urls[0])
+        self.assertTrue(all("schema_version" not in url for url in urls[1:]))
 
 
 class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
@@ -1594,7 +1675,7 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
         mock_download.contentnode_id = topic_node.id
         mock_download.metadata = None
 
-        result = _get_import_metadata(self.network_client, mock_download)
+        result, _ = _get_import_metadata(self.network_client, mock_download)
 
         self.assertIsNotNone(result)
         returned_node_ids = {n["id"] for n in result[ContentNode._meta.db_table]}
@@ -1629,7 +1710,7 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
         mock_download.contentnode_id = topic_node.id
         mock_download.metadata = {"import_descendants": True}
 
-        result = _get_import_metadata(self.network_client, mock_download)
+        result, _ = _get_import_metadata(self.network_client, mock_download)
 
         self.assertIsNotNone(result)
         returned_node_ids = {n["id"] for n in result[ContentNode._meta.db_table]}
@@ -1642,6 +1723,29 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
         )
         expected_node_ids = expected_ancestor_ids.union(expected_descendant_ids)
         self.assertEqual(returned_node_ids, expected_node_ids)
+
+    def test_peer_with_lower_schema_version_imports_every_page_at_its_default(self):
+        topic_node = ContentNode.objects.filter(
+            channel_id=self.root.channel_id,
+            level=1,
+        ).first()
+
+        mock_download = mock.MagicMock()
+        mock_download.contentnode_id = topic_node.id
+        mock_download.metadata = {"import_descendants": True}
+
+        with mock.patch.object(
+            ImportMetadataViewset, "default_content_schema", VERSION_6
+        ), mock.patch.object(
+            self.network_client, "get", wraps=self.network_client.get
+        ) as spy:
+            result, _ = _get_import_metadata(self.network_client, mock_download)
+
+        self.assertEqual(result["schema_version"], VERSION_6)
+        urls = [c[0][0] for c in spy.call_args_list]
+        self.assertGreater(len(urls), 2)
+        self.assertIn("schema_version=", urls[0])
+        self.assertTrue(all("schema_version" not in url for url in urls[1:]))
 
 
 @mock.patch(_module + "get_device_setting", return_value=True)
@@ -2319,14 +2423,12 @@ class TestImportMetadataChannelUpgrade:
         self.folder_3 = import_metadata_responses["folder_3"]
 
         # Mocking _get_import_metadata to return the prepared metadata responses for the test channel
-        def _get_import_metadata_mock(client, download):
+        def _get_import_metadata_mock(client, download, schema_version=None):
             node_id = download.contentnode_id
             data = import_metadata_responses[f"v{self.channel_version}_metadata"].get(
                 node_id
             )
-            if not data:
-                return None
-            return data
+            return data or None, schema_version
 
         _get_import_metadata_patch = mock.patch(
             _module + "_get_import_metadata", side_effect=_get_import_metadata_mock
