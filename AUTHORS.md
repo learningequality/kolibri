@@ -221,3 +221,11 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Aaditya Singh | aadityasingh9601 |
 | withme | devswithme |
 | Habiba Ayman | habibayman |
+| - | marekl11 |
+| Srijan Anil Sanicum | Srijan229 |
+| - | namanjain24-sudo |
+| Rishika Sharma | Rishika-dev |
+| Humaira Ambreen | humairaambreen |
+| Satyam Pandey | SatyamPandey-07 |
+| Nathan Suttie | natesute |
+| Rishi Raj | rishiraj38 |
