@@ -62,7 +62,7 @@ Run the test - it should fail, confirming the bug exists.
 Run the test again - it should now pass.
 
 .. note::
-  This is a simplified example. Kolibri uses its own permission system (``KolibriAuthPermissions`` from ``kolibri.core.auth.api``) rather than standard DRF permission classes. See ``docs/backend_architecture/api_patterns.rst`` for correct patterns.
+  This is a simplified example. Kolibri uses its own permission system (``KolibriAuthPermissions`` from ``kolibri.core.auth.permissions``) rather than standard DRF permission classes. See ``docs/backend_architecture/api_patterns.rst`` for correct patterns.
 
 **Step 3 - Refactor**: Clean up if needed while keeping tests passing
 

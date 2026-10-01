@@ -89,7 +89,7 @@ class MyViewSet(ReadOnlyValuesViewset):
 
 The model should define a default `ordering` in its `Meta`, or the viewset's `queryset` should set an explicit `order_by()` — response ordering (and pagination) is nondeterministic otherwise.
 
-Viewset permissions use `KolibriAuthPermissions` from `kolibri.core.auth.api`, which delegates object-level checks to the model's declarative permissions (e.g. `RoleBasedPermissions`). It only works for models that participate in Kolibri's auth/permissions system — models without those declarations need a different permission class.
+Viewset permissions use `KolibriAuthPermissions` from `kolibri.core.auth.permissions`, which delegates object-level checks to the model's declarative permissions (e.g. `RoleBasedPermissions`). It only works for models that participate in Kolibri's auth/permissions system — models without those declarations need a different permission class.
 
 See `docs/backend_architecture/api_patterns.rst`.
 
