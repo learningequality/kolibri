@@ -34,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
@@ -85,7 +85,7 @@ jobs:
       - name: Fix git safe directory
         run: git config --global --add safe.directory /__w/kolibri/kolibri
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install dependencies
@@ -132,7 +132,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python 3.9

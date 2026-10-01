@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install the workspace so kolibri resolves from it
