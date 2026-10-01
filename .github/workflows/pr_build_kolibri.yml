@@ -349,7 +349,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
           # This job never checks out the repo, it only downloads the WHL.

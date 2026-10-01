@@ -49,7 +49,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           # Don't cache, only saves 1-2s per run.
           enable-cache: false
@@ -79,7 +79,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
@@ -135,7 +135,7 @@ jobs:
       - name: Fix git safe directory
         run: git config --global --add safe.directory /__w/kolibri/kolibri
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install dependencies
@@ -182,7 +182,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python 3.9
@@ -227,7 +227,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
@@ -258,7 +258,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
@@ -288,7 +288,7 @@ jobs:
         shell: bash
         run: echo "SETUPTOOLS_SCM_IGNORE_VCS_ROOTS=$(git rev-parse --show-toplevel)" >> "$GITHUB_ENV"
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
@@ -310,7 +310,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python 3.10
@@ -342,7 +342,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python 3.10
@@ -391,7 +391,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
@@ -422,7 +422,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       - name: Install Python 3.10
@@ -452,7 +452,7 @@ jobs:
           java-version: '21'
           cache: 'gradle'
       - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: false
       # Chaquopy's buildPython (the workspace .venv) must match its embedded 3.10.
