@@ -65,5 +65,21 @@ then
   . /etc/kolibri/daemon.conf
 fi
 
+# Resolve the Python interpreter to use for Kolibri.
+# Priority: 1) KOLIBRI_PYTHON from daemon.conf/conf.d, 2) /opt/kolibri/python, 3) system python3
+if [ -z "$KOLIBRI_PYTHON" ]; then
+    if [ -x /opt/kolibri/python/bin/python3 ]; then
+        KOLIBRI_PYTHON="/opt/kolibri/python/bin/python3"
+    else
+        KOLIBRI_PYTHON="/usr/bin/python3"
+    fi
+fi
+
+# When using a non-system Python, the bundled Python needs access to
+# Kolibri installed in system dist-packages
+if [ "$KOLIBRI_PYTHON" != "/usr/bin/python3" ]; then
+    PYTHONPATH="/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"
+fi
+
 # Switch off the allexport behavior
 set +o allexport

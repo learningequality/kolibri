@@ -1,4 +1,5 @@
 .ONESHELL:
+.DELETE_ON_ERROR:
 
 DIST_DIR:=./dist
 
@@ -11,7 +12,7 @@ build_src/%.tar.gz:
 	pip download --no-binary :all: -d build_src kolibri
 
 
-dist/VERSION: build_src/*.tar.gz
+dist/VERSION: build_src/kolibri-*.tar.gz
 	mkdir -p dist
 	@# Use head of archive list to determine version location
 	ARCHIVE_ROOT=$$(tar -tf $< | head -1)
@@ -22,21 +23,24 @@ dist/VERSION: build_src/*.tar.gz
 	rm -rf $$ARCHIVE_ROOT
 
 
-dist/%.orig.tar.gz: dist/VERSION
-	$(eval RELEASE_VERSION:= $(shell cat $(DIST_DIR)/VERSION))
-	cp build_src/*.tar.gz $(DIST_DIR)/kolibri-source_$(RELEASE_VERSION).orig.tar.gz
+dist/DEB_VERSION: dist/VERSION
+	python3 build_tools/generate_changelog.py --version-file $< --print-debian-version > $@
+
+dist/%.orig.tar.gz: dist/DEB_VERSION
+	$(eval RELEASE_VERSION:= $(shell cat $(DIST_DIR)/DEB_VERSION))
+	cp build_src/kolibri-*.tar.gz $(DIST_DIR)/kolibri-source_$(RELEASE_VERSION).orig.tar.gz
 
 
 # Meant to be used for local dev. Can be called with alias below.
 # If something changes in the way you build locally, please update this recipe.
-dist/%.deb: dist/%.orig.tar.gz
+dist/%.deb: dist/%.orig.tar.gz get-python
 	build_tools/build.sh
 
 .PHONY: kolibri.deb
 kolibri.deb: dist/kolibri.deb
 
 .PHONY: kolibri.changes
-kolibri.changes: dist/%.orig.tar.gz
+kolibri.changes: dist/%.orig.tar.gz get-python
 	build_tools/build.sh -S
 
 # Commit to kolibri-installer-debian the new release changelog
@@ -51,8 +55,8 @@ commit-new-release: kolibri.changes
 
 .PHONY:
 clean-tar:
-	rm -rf build_src
-	mkdir build_src
+	mkdir -p build_src
+	rm -f build_src/kolibri-*.tar.gz
 
 .PHONY: get-tar
 get-tar: clean-tar
@@ -61,6 +65,17 @@ get-tar: clean-tar
 	$(eval DLFILE = $(shell wget --content-disposition -P build_src/ "${tar}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
 	$(eval TARFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	[ "${DLFILE}" = "${TARFILE}" ] || mv "${DLFILE}" "${TARFILE}"
+
+.PHONY: get-python
+get-python:
+	python3 build_tools/manage_python.py download
+
+.PHONY: update-python
+update-python:
+ifndef VERSION
+	$(error VERSION is required. Usage: make update-python VERSION=3.11)
+endif
+	python3 build_tools/manage_python.py update $(VERSION)
 
 .PHONY: clean-deb
 clean-deb:

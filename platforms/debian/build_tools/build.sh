@@ -120,9 +120,25 @@ tar xf *orig.tar.gz
 # SOURCE_DIR=`tar --exclude="*/*" -tf *.orig.tar.gz|head -1`
 SOURCE_DIR=`ls -d kolibri*/`
 cp -r ../debian $SOURCE_DIR
-# Convert to Debian version format so this matches the filename dpkg-buildpackage
-# produces from the generated changelog (version_to_debian in generate_changelog.py).
-DEB_VERSION=`cat VERSION | sed 's/-\(alpha\|beta\|rc\)/~\1/g' | sed 's/\.dev/~dev/g'`
+
+# Copy bundled Python tarballs and config into source tree if present.
+# These go under debian/ because dpkg-source in 3.0 (quilt) cannot represent
+# files added outside it: text files abort the build as unexpected upstream
+# changes, binaries as unrepresentable changes.
+mkdir -p "$SOURCE_DIR/debian/bundled"
+if [ -f ../build_tools/python_versions.env ]; then
+    cp ../build_tools/python_versions.env "$SOURCE_DIR/debian/bundled/"
+    # Only the pinned build: build_src accumulates tarballs across version
+    # bumps, and install-python.sh reads exactly the one named here.
+    BUNDLED_VERSION=$(. ../build_tools/python_versions.env && echo "$PYTHON_BUILD_STANDALONE_VERSION")
+    for tarball in "../build_src/cpython-$BUNDLED_VERSION"-*-linux-gnu-install_only_stripped.tar.gz; do
+        if [ -f "$tarball" ]; then
+            cp "$tarball" "$SOURCE_DIR/debian/bundled/"
+        fi
+    done
+fi
+
+DEB_VERSION=`cat DEB_VERSION`
 
 # Debian packaging revision (the N in -0ubuntuN). Bump to re-release the
 # same upstream version after a packaging-only fix.
@@ -144,7 +160,7 @@ fi
 
 if [[ "$BUILD_BINARY" -eq "0" ]]; then
     # build source package only
-   dpkg-buildpackage -S  --no-sign
+   dpkg-buildpackage -S  --no-sign --source-option=--include-binaries
    signfiles kolibri-source_$DEB_VERSION-0ubuntu${UBUNTU_REVISION}
 else
     # build with unsigned source, changes and gzip compression

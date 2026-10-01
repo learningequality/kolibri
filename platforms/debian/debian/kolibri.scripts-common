@@ -421,7 +421,10 @@ kolibri_prerm()
 
     # Removes .pyc files in the Kolibri directory
     # so that the Kolibri package can be completely removed later.
-    py3clean -p kolibri
+    # python3 is only Recommends, so py3clean may not be installed.
+    if command -v py3clean >/dev/null 2>&1; then
+        py3clean -p kolibri
+    fi
 }
 
 kolibri_purge()

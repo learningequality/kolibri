@@ -20,6 +20,11 @@ on:
         description: 'A ref for this workflow to check out its own repo'
         required: false
         type: string
+      source-package:
+        description: 'Build and check the source package instead of the .deb'
+        required: false
+        type: boolean
+        default: false
     outputs:
       deb-file-name:
         description: "DEB file name"
@@ -65,12 +70,28 @@ jobs:
       run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip python3-distro-info build-essential
     - name: Install Python dependencies for changelog generation
       run: pip install .
+    - name: Build the source package
+      if: ${{ inputs.source-package }}
+      run: make kolibri.changes
+    - name: Check the bundled Python survives the source round-trip
+      if: ${{ inputs.source-package }}
+      run: |
+        dpkg-source -x dist/*.dsc /tmp/unpacked
+        . build_tools/python_versions.env
+        for arch in x86_64 aarch64; do
+          tarball="/tmp/unpacked/debian/bundled/cpython-$PYTHON_BUILD_STANDALONE_VERSION-$arch-unknown-linux-gnu-install_only_stripped.tar.gz"
+          [ -f "$tarball" ] || { echo "FAIL: $tarball missing from source package"; exit 1; }
+        done
+        cmp build_tools/python_versions.env /tmp/unpacked/debian/bundled/python_versions.env
     - name: Run the build
+      if: ${{ !inputs.source-package }}
       run: make kolibri.deb
     - name: Get DEB filename
+      if: ${{ !inputs.source-package }}
       id: get-deb-filename
       run: echo "deb-file-name=$(ls dist | grep .deb | cat)" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v7
+      if: ${{ !inputs.source-package }}
       with:
         name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
         path: dist/${{ steps.get-deb-filename.outputs.deb-file-name }}

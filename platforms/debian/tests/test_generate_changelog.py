@@ -1,10 +1,13 @@
 from email.utils import parseaddr
 from unittest.mock import patch
 
+import pytest
 from vcr_config import my_vcr
 
 from build_tools.generate_changelog import (
     MAINTAINER,
+    cli,
+    version_to_debian,
     parse_existing_changelog,
     parse_packaging_changelog,
     kolibri_version_key,
@@ -103,6 +106,30 @@ def test_format_changelog_entry_prerelease():
         timestamp="Thu, 06 Feb 2026 19:46:25 +0000",
     )
     assert "kolibri-source (0.19.2~alpha0-0ubuntu1)" in entry
+
+
+@pytest.mark.parametrize(
+    "version,expected",
+    [
+        ("0.19.1", "0.19.1"),
+        ("0.19.2-alpha0", "0.19.2~alpha0"),
+        ("0.20.0a1", "0.20.0~alpha1"),
+        ("0.19.1-beta1", "0.19.1~beta1"),
+        ("0.19.1b1", "0.19.1~beta1"),
+        ("0.19.2-rc1", "0.19.2~rc1"),
+        ("0.19.2rc1", "0.19.2~rc1"),
+        ("0.20.0.dev0", "0.20.0~dev0"),
+    ],
+)
+def test_version_to_debian(version, expected):
+    assert version_to_debian(version) == expected
+
+
+def test_cli_prints_debian_version(tmp_path, capsys):
+    version_file = tmp_path / "VERSION"
+    version_file.write_text("0.20.0a1\n")
+    cli(["--version-file", str(version_file), "--print-debian-version"])
+    assert capsys.readouterr().out == "0.20.0~alpha1\n"
 
 
 def test_maintainer_is_valid_mailbox():
@@ -232,6 +259,16 @@ def test_filter_new_releases_includes_current_prerelease():
     result = filter_new_releases(releases, latest_existing="0.19.1", build_version="0.19.2-alpha0")
     assert len(result) == 1
     assert result[0]["tag_name"] == "0.19.2-alpha0"
+
+
+def test_filter_new_releases_matches_current_prerelease_across_version_spellings():
+    """The sdist VERSION file spells prereleases PEP 440 style; tags do not."""
+    releases = [
+        {"tag_name": "v0.20.0-alpha1", "prerelease": True, "published_at": "2026-09-01T10:00:00Z"},
+        {"tag_name": "v0.19.5", "prerelease": False, "published_at": "2026-08-01T10:00:00Z"},
+    ]
+    result = filter_new_releases(releases, latest_existing="0.19.5", build_version="0.20.0a1")
+    assert [r["tag_name"] for r in result] == ["v0.20.0-alpha1"]
 
 
 def test_filter_new_releases_skips_invalid_versions():

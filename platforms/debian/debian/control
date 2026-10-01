@@ -11,18 +11,15 @@ Build-Depends: debhelper (>= 13),
                po-debconf
 Standards-Version: 4.8.0
 Homepage: https://learningequality.org/kolibri
-X-Python-Version: >= 2.7
-X-Python3-Version: >= 3.6
 Vcs-Git: https://github.com/learningequality/kolibri-installer-debian.git
 Vcs-Browser: https://github.com/learningequality/kolibri-installer-debian
 
 
 Package: kolibri
 Architecture: all
-Depends: python3 (>= 3.6),
-         python3-pkg-resources,
-         adduser
-Recommends: python3-cryptography (>= 1.2.3)
+Depends: adduser
+Recommends: python3 (>= 3.10),
+            python3-cryptography (>= 1.2.3)
 Description: The offline app for universal education
  An educational platform for learners of all ages.
  .
