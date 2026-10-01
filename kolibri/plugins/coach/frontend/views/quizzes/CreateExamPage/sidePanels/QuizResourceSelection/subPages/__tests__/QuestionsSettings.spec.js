@@ -23,7 +23,7 @@ describe('QuestionsSettings', () => {
       },
     });
 
-    expect(screen.getByText(coreStrings.defaultErrorMessage$())).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(coreStrings.defaultErrorMessage$());
     expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
     expect(setContinueAction).toHaveBeenLastCalledWith(expect.objectContaining({ disabled: true }));
   });

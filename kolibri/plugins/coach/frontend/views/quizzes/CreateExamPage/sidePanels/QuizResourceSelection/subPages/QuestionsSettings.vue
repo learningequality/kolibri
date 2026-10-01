@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <p v-if="channelsError">
+    <p
+      v-if="channelsError"
+      role="alert"
+    >
       <KIcon icon="error" />
       {{ defaultErrorMessage$() }}
     </p>
