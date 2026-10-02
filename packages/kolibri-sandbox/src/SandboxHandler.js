@@ -24,6 +24,7 @@ import LocalStorage from './localStorage';
 import SessionStorage from './sessionStorage';
 import Cookie from './cookie';
 import IndexedDBShim from './indexedDBShim';
+import { events, nameSpace } from './base';
 
 /**
  * @typedef {import('./iframeClient').default} SandboxEnvironment
@@ -150,6 +151,16 @@ export default class SandboxHandler {
     for (const shim of Object.values(this.shims)) {
       shim.setNow(now);
     }
+  }
+
+  /**
+   * Ask the host for something only it can serve, answered by the viewer's onHandlerRequest.
+   * @param {object} request - Structured-cloneable request data
+   * @returns {Promise<unknown>} Resolves with the host's answer; rejects with an Error carrying
+   * the host's message when the host fails or has no answerer
+   */
+  requestFromHost(request) {
+    return this.mediator.request({ nameSpace, event: events.HANDLER_REQUESTED, data: request });
   }
 
   /**

@@ -123,6 +123,19 @@ export default class MainClient {
     this.mediator.registerMessageHandler({ nameSpace, event, callback });
   }
 
+  answer(event, respond) {
+    this.on(event, async (data, port) => {
+      if (!port) {
+        return;
+      }
+      try {
+        port.postMessage({ result: await respond(data) });
+      } catch (e) {
+        port.postMessage({ error: String(e?.message ?? e) });
+      }
+    });
+  }
+
   onStateUpdate(callback) {
     this.on(events.STATEUPDATE, callback);
   }
