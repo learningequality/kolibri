@@ -35,6 +35,7 @@ override_dh_auto_install:
 	install -D -m0644 debian/startup/kolibri.default $(CURDIR)/debian/kolibri/etc/default/kolibri
 	install -D -m0644 debian/README.etc $(CURDIR)/debian/kolibri/etc/kolibri/README
 	install -D -m0644 debian/startup/kolibri.service $(CURDIR)/debian/kolibri/lib/systemd/system/kolibri.service
+	install -D -m0644 debian/migrate-apt-source.sh $(CURDIR)/debian/kolibri/usr/share/kolibri/migrate-apt-source.sh
 	# Wrapper resolves bundled vs system Python at runtime; setuptools entry point is static
 	install -D -m0755 $(CURDIR)/debian/kolibri/usr/bin/kolibri $(CURDIR)/debian/kolibri/usr/lib/kolibri/kolibri
 	install -m0755 debian/kolibri-wrapper.sh $(CURDIR)/debian/kolibri/usr/bin/kolibri
@@ -70,4 +71,3 @@ endif
 #	dh_auto_build
 #	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bhtmldocs/ build/html # HTML generator
 #	PYTHONPATH=. http_proxy='127.0.0.1:9' sphinx-build -N -bmandocs/ build/man # Manpage generator
-
