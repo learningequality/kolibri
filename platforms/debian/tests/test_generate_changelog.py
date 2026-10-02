@@ -1,26 +1,33 @@
+import json
+import os
 from email.utils import parseaddr
+from unittest.mock import MagicMock
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 import pytest
-from vcr_config import my_vcr
+import vcr
 
-from build_tools.generate_changelog import (
-    MAINTAINER,
-    cli,
-    version_to_debian,
-    parse_existing_changelog,
-    parse_packaging_changelog,
-    kolibri_version_key,
-    is_prerelease,
-    format_changelog_entry,
-    get_current_lts_codename,
-    github_timestamp_to_debian,
-    fetch_github_releases,
-    filter_new_releases,
-    generate_release_entries,
-    interleave_entries,
-    generate_updated_changelog,
-    main,
+from build_tools.generate_changelog import cli
+from build_tools.generate_changelog import fetch_github_releases
+from build_tools.generate_changelog import filter_new_releases
+from build_tools.generate_changelog import format_changelog_entry
+from build_tools.generate_changelog import generate_release_entries
+from build_tools.generate_changelog import generate_updated_changelog
+from build_tools.generate_changelog import github_timestamp_to_debian
+from build_tools.generate_changelog import interleave_entries
+from build_tools.generate_changelog import kolibri_version_key
+from build_tools.generate_changelog import main
+from build_tools.generate_changelog import MAINTAINER
+from build_tools.generate_changelog import parse_existing_changelog
+from build_tools.generate_changelog import parse_packaging_changelog
+from build_tools.generate_changelog import version_to_debian
+
+my_vcr = vcr.VCR(
+    cassette_library_dir=os.path.join(os.path.dirname(__file__), "cassettes"),
+    record_mode="none",
+    path_transformer=vcr.VCR.ensure_suffix(".yaml"),
+    filter_headers=["authorization"],
 )
 
 SAMPLE_CHANGELOG = """\
@@ -39,36 +46,38 @@ kolibri-source (0.19.0-0ubuntu1) noble; urgency=medium
 
 
 def test_parse_existing_changelog_returns_latest_version():
-    latest_version, latest_revision, existing_content = parse_existing_changelog(SAMPLE_CHANGELOG)
+    latest_version, latest_revision, _existing_content = parse_existing_changelog(
+        SAMPLE_CHANGELOG
+    )
     assert latest_version == "0.19.1"
     assert latest_revision == 1
 
 
 def test_parse_existing_changelog_preserves_content():
-    latest_version, latest_revision, existing_content = parse_existing_changelog(SAMPLE_CHANGELOG)
+    _latest_version, _latest_revision, existing_content = parse_existing_changelog(
+        SAMPLE_CHANGELOG
+    )
     assert existing_content == SAMPLE_CHANGELOG
 
 
 def test_version_ordering_basic():
     versions = ["0.17.0", "0.19.1", "0.18.0", "0.19.0"]
     assert sorted(versions, key=kolibri_version_key) == [
-        "0.17.0", "0.18.0", "0.19.0", "0.19.1"
+        "0.17.0",
+        "0.18.0",
+        "0.19.0",
+        "0.19.1",
     ]
 
 
 def test_version_ordering_with_prerelease():
     versions = ["0.19.1", "0.19.2-alpha0", "0.19.1-rc0", "0.19.0"]
     assert sorted(versions, key=kolibri_version_key) == [
-        "0.19.0", "0.19.1-rc0", "0.19.1", "0.19.2-alpha0"
+        "0.19.0",
+        "0.19.1-rc0",
+        "0.19.1",
+        "0.19.2-alpha0",
     ]
-
-
-def test_is_prerelease():
-    assert is_prerelease("0.19.2-alpha0") is True
-    assert is_prerelease("0.19.1-rc0") is True
-    assert is_prerelease("0.19.1-beta1") is True
-    assert is_prerelease("0.19.1") is False
-    assert is_prerelease("0.19.0") is False
 
 
 def test_version_newer_than():
@@ -132,6 +141,64 @@ def test_cli_prints_debian_version(tmp_path, capsys):
     assert capsys.readouterr().out == "0.20.0~alpha1\n"
 
 
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
+def test_cli_writes_entries_for_named_package(_mock_codename, tmp_path):
+    changelog_path = tmp_path / "changelog"
+    changelog_path.write_text(
+        "kolibri-server (0.5.1-0ubuntu1) jammy; urgency=medium\n"
+        "\n"
+        "  * Old release\n"
+        "\n"
+        " -- Learning Equality <accounts@learningequality.org>  "
+        "Mon, 31 Mar 2026 12:00:00 -0800\n"
+    )
+    version_path = tmp_path / "VERSION"
+    version_path.write_text("0.19.2\n")
+    releases = [
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2026-02-06T19:46:25Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2026-01-20T16:54:38Z",
+        },
+    ]
+
+    with patch(
+        "build_tools.generate_changelog.urlopen",
+        return_value=_releases_response(releases),
+    ):
+        cli(
+            [
+                "--package",
+                "kolibri-server",
+                "--debian-changelog",
+                str(changelog_path),
+                "--version-file",
+                str(version_path),
+                "--packaging-changelog",
+                str(tmp_path / "missing"),
+            ]
+        )
+
+    headers = [
+        line
+        for line in changelog_path.read_text().splitlines()
+        if line and not line[0].isspace()
+    ]
+    assert headers == [
+        "kolibri-server (0.19.2-0ubuntu1) noble; urgency=medium",
+        "kolibri-server (0.19.1-0ubuntu1) noble; urgency=medium",
+        "kolibri-server (0.5.1-0ubuntu1) jammy; urgency=medium",
+    ]
+
+
 def test_maintainer_is_valid_mailbox():
     """MAINTAINER must be a valid RFC822 mailbox.
 
@@ -151,17 +218,24 @@ def test_maintainer_is_valid_mailbox():
 def test_generated_entry_uses_valid_maintainer():
     """Entries generated via the MAINTAINER constant carry a valid mailbox."""
     with patch(
-        "build_tools.generate_changelog.get_current_lts_codename",
-        return_value="noble",
+        "build_tools.generate_changelog.UbuntuDistroInfo",
+        **{"return_value.lts.return_value": "noble"},
     ):
         entries = generate_release_entries(
-            [{"tag_name": "v0.19.2", "prerelease": False,
-              "published_at": "2025-10-31T15:09:14Z"}]
+            [
+                {
+                    "tag_name": "v0.19.2",
+                    "prerelease": False,
+                    "published_at": "2025-10-31T15:09:14Z",
+                }
+            ]
         )
-    trailer = [ln for ln in entries[0]["text"].splitlines() if ln.startswith(" -- ")][0]
+    trailer = next(
+        ln for ln in entries[0]["text"].splitlines() if ln.startswith(" -- ")
+    )
     # Trailer format: " -- {maintainer}  {timestamp}"; maintainer and
     # timestamp are separated by exactly two spaces.
-    maintainer = trailer[len(" -- "):].split("  ", 1)[0]
+    maintainer = trailer[len(" -- ") :].split("  ", 1)[0]
     _, email = parseaddr(maintainer)
     assert email == "accounts@learningequality.org"
     assert "\\" not in maintainer
@@ -228,24 +302,94 @@ def test_fetch_github_releases_fetches_all_when_no_latest():
     assert "v0.13.1" in tags  # page 2
 
 
+def _releases_response(releases):
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.read.return_value = json.dumps(releases).encode()
+    response.headers = {}
+    return response
+
+
+def _http_error(code):
+    return HTTPError("https://api.github.com", code, "err", {}, None)
+
+
+@patch("build_tools.generate_changelog.time.sleep")
+def test_fetch_github_releases_retries_server_error(_sleep):
+    releases = [{"tag_name": "v0.19.2"}]
+    with patch(
+        "build_tools.generate_changelog.urlopen",
+        side_effect=[_http_error(502), _releases_response(releases)],
+    ):
+        assert fetch_github_releases() == releases
+
+
+@patch("build_tools.generate_changelog.time.sleep")
+def test_fetch_github_releases_does_not_retry_rate_limit(_sleep):
+    with patch(
+        "build_tools.generate_changelog.urlopen", side_effect=_http_error(403)
+    ) as urlopen:
+        with pytest.raises(HTTPError):
+            fetch_github_releases()
+    assert urlopen.call_count == 1
+
+
+@patch("build_tools.generate_changelog.time.sleep")
+def test_fetch_github_releases_gives_up_after_attempts(_sleep):
+    with patch(
+        "build_tools.generate_changelog.urlopen", side_effect=_http_error(503)
+    ) as urlopen:
+        with pytest.raises(HTTPError):
+            fetch_github_releases()
+    assert urlopen.call_count == 3
+
+
 def test_filter_new_releases_excludes_old():
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2026-02-06T19:46:25Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-12-10T16:26:58Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2026-02-06T19:46:25Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2026-01-20T16:54:38Z",
+        },
+        {
+            "tag_name": "v0.19.0",
+            "prerelease": False,
+            "published_at": "2025-12-10T16:26:58Z",
+        },
     ]
-    result = filter_new_releases(releases, latest_existing="0.19.1", build_version="0.19.2")
+    result = filter_new_releases(
+        releases, latest_existing="0.19.1", build_version="0.19.2"
+    )
     assert len(result) == 1
     assert result[0]["tag_name"] == "v0.19.2"
 
 
 def test_filter_new_releases_excludes_prereleases():
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2026-02-06T19:46:25Z"},
-        {"tag_name": "v0.19.2-rc0", "prerelease": True, "published_at": "2026-02-01T10:00:00Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2026-02-06T19:46:25Z",
+        },
+        {
+            "tag_name": "v0.19.2-rc0",
+            "prerelease": True,
+            "published_at": "2026-02-01T10:00:00Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2026-01-20T16:54:38Z",
+        },
     ]
-    result = filter_new_releases(releases, latest_existing="0.19.1", build_version="0.19.2")
+    result = filter_new_releases(
+        releases, latest_existing="0.19.1", build_version="0.19.2"
+    )
     assert len(result) == 1
     assert result[0]["tag_name"] == "v0.19.2"
 
@@ -253,10 +397,20 @@ def test_filter_new_releases_excludes_prereleases():
 def test_filter_new_releases_includes_current_prerelease():
     """If build version is itself a prerelease, include it."""
     releases = [
-        {"tag_name": "0.19.2-alpha0", "prerelease": True, "published_at": "2026-02-06T19:46:25Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
+        {
+            "tag_name": "0.19.2-alpha0",
+            "prerelease": True,
+            "published_at": "2026-02-06T19:46:25Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2026-01-20T16:54:38Z",
+        },
     ]
-    result = filter_new_releases(releases, latest_existing="0.19.1", build_version="0.19.2-alpha0")
+    result = filter_new_releases(
+        releases, latest_existing="0.19.1", build_version="0.19.2-alpha0"
+    )
     assert len(result) == 1
     assert result[0]["tag_name"] == "0.19.2-alpha0"
 
@@ -264,38 +418,79 @@ def test_filter_new_releases_includes_current_prerelease():
 def test_filter_new_releases_matches_current_prerelease_across_version_spellings():
     """The sdist VERSION file spells prereleases PEP 440 style; tags do not."""
     releases = [
-        {"tag_name": "v0.20.0-alpha1", "prerelease": True, "published_at": "2026-09-01T10:00:00Z"},
-        {"tag_name": "v0.19.5", "prerelease": False, "published_at": "2026-08-01T10:00:00Z"},
+        {
+            "tag_name": "v0.20.0-alpha1",
+            "prerelease": True,
+            "published_at": "2026-09-01T10:00:00Z",
+        },
+        {
+            "tag_name": "v0.19.5",
+            "prerelease": False,
+            "published_at": "2026-08-01T10:00:00Z",
+        },
     ]
-    result = filter_new_releases(releases, latest_existing="0.19.5", build_version="0.20.0a1")
+    result = filter_new_releases(
+        releases, latest_existing="0.19.5", build_version="0.20.0a1"
+    )
     assert [r["tag_name"] for r in result] == ["v0.20.0-alpha1"]
 
 
 def test_filter_new_releases_skips_invalid_versions():
     """Releases with non-PEP 440 versions (e.g. '0.1.0__MVP') are skipped."""
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2026-02-06T19:46:25Z"},
-        {"tag_name": "v0.1.0__MVP", "prerelease": False, "published_at": "2015-01-01T00:00:00Z"},
-        {"tag_name": "v0.0.1-docs-only", "prerelease": False, "published_at": "2014-01-01T00:00:00Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2026-02-06T19:46:25Z",
+        },
+        {
+            "tag_name": "v0.1.0__MVP",
+            "prerelease": False,
+            "published_at": "2015-01-01T00:00:00Z",
+        },
+        {
+            "tag_name": "v0.0.1-docs-only",
+            "prerelease": False,
+            "published_at": "2014-01-01T00:00:00Z",
+        },
     ]
-    result = filter_new_releases(releases, latest_existing="0.19.1", build_version="0.19.2")
+    result = filter_new_releases(
+        releases, latest_existing="0.19.1", build_version="0.19.2"
+    )
     assert len(result) == 1
     assert result[0]["tag_name"] == "v0.19.2"
 
 
 def test_filter_new_releases_strips_v_prefix():
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2026-02-06T19:46:25Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2026-02-06T19:46:25Z",
+        },
     ]
-    result = filter_new_releases(releases, latest_existing="0.19.1", build_version="0.19.2")
+    result = filter_new_releases(
+        releases, latest_existing="0.19.1", build_version="0.19.2"
+    )
     assert len(result) == 1
 
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_generate_release_entries(_mock_codename):
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2025-10-31T15:09:14Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2025-10-03T17:47:04Z",
+        },
     ]
     entries = generate_release_entries(releases)
 
@@ -307,11 +502,18 @@ def test_generate_release_entries(_mock_codename):
     assert entries[0]["ubuntu_revision"] == 1
 
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_generate_release_entries_respects_ubuntu_revision(_mock_codename):
     """A bumped revision re-releases the same upstream version as -0ubuntuN."""
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2025-10-31T15:09:14Z",
+        },
     ]
     entries = generate_release_entries(releases, ubuntu_revision=2)
     assert entries[0]["ubuntu_revision"] == 2
@@ -371,6 +573,7 @@ def test_parse_packaging_changelog_empty():
 
 # --- Tests for interleaving ---
 
+
 def test_interleave_entries_basic():
     """Release and packaging entries are interleaved by version, newest first."""
     release_entries = [
@@ -405,12 +608,20 @@ def test_interleave_entries_no_packaging():
 
 # --- Tests for generate_updated_changelog ---
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_generate_updated_changelog_prepends_entries(_mock_codename):
     """New entries are prepended to existing changelog content."""
     existing_changelog = SAMPLE_CHANGELOG
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2025-10-31T15:09:14Z",
+        },
     ]
     result = generate_updated_changelog(
         existing_content=existing_changelog,
@@ -425,7 +636,10 @@ def test_generate_updated_changelog_prepends_entries(_mock_codename):
     assert "0.19.0-0ubuntu1" in result
 
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_generate_updated_changelog_interleaves_packaging(_mock_codename):
     """Packaging entries from CHANGELOG are interleaved with release entries."""
     existing_changelog = """\
@@ -436,9 +650,21 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
  -- Learning Equality \\(Learning Equality\\'s public signing key\\) <accounts@learningequality.org>>  Mon, 06 Oct 2025 16:20:34 -0700
 """
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-08-06T18:21:16Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2025-10-31T15:09:14Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2025-10-03T17:47:04Z",
+        },
+        {
+            "tag_name": "v0.19.0",
+            "prerelease": False,
+            "published_at": "2025-08-06T18:21:16Z",
+        },
     ]
     packaging_changelog = SAMPLE_PACKAGING_CHANGELOG  # 0.19.1-0ubuntu2
 
@@ -471,7 +697,10 @@ def test_generate_updated_changelog_preserves_existing():
     assert result == existing_changelog
 
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_generate_updated_changelog_packaging_retains_distribution(_mock_codename):
     """Packaging entries retain their original distribution, not the current LTS."""
     existing_changelog = """\
@@ -482,7 +711,11 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
  -- Learning Equality \\(Learning Equality\\'s public signing key\\) <accounts@learningequality.org>>  Mon, 06 Oct 2025 16:20:34 -0700
 """
     releases = [
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2025-10-03T17:47:04Z",
+        },
     ]
     packaging_changelog = SAMPLE_PACKAGING_CHANGELOG  # 0.19.1-0ubuntu2, jammy
 
@@ -500,12 +733,103 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
             assert "jammy" in line
             break
     else:
-        assert False, "0.19.1-0ubuntu2 entry not found"
+        raise AssertionError("0.19.1-0ubuntu2 entry not found")
+
+
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
+def test_generate_updated_changelog_heads_with_unreleased_build_version(
+    _mock_codename,
+):
+    """A build version with no GitHub release still heads the changelog, so
+    the changelog version matches the orig tarball's DEB_VERSION."""
+    result = generate_updated_changelog(
+        existing_content=SAMPLE_CHANGELOG,
+        releases=[
+            {
+                "tag_name": "v0.19.2",
+                "prerelease": False,
+                "published_at": "2026-02-06T19:46:25Z",
+            },
+        ],
+        packaging_changelog="",
+        build_version="0.20.0.dev0+g1234",
+        ubuntu_revision=3,
+    )
+    assert result.startswith("kolibri-source (0.20.0~dev0-0ubuntu3) noble;")
+    assert result.index("0.19.2-0ubuntu3") < result.index("0.19.1-0ubuntu1")
+
+
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
+def test_generate_updated_changelog_excludes_releases_newer_than_build(
+    _mock_codename,
+):
+    result = generate_updated_changelog(
+        existing_content=SAMPLE_CHANGELOG,
+        releases=[
+            {
+                "tag_name": "v0.19.3",
+                "prerelease": False,
+                "published_at": "2026-03-20T00:16:44Z",
+            },
+            {
+                "tag_name": "v0.19.2",
+                "prerelease": False,
+                "published_at": "2026-02-06T19:46:25Z",
+            },
+        ],
+        packaging_changelog="",
+        build_version="0.19.2",
+    )
+    assert result.startswith("kolibri-source (0.19.2-0ubuntu1) noble;")
+    assert "0.19.3" not in result
+
+
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
+def test_generate_updated_changelog_heads_with_build_older_than_existing_head(
+    _mock_codename,
+):
+    result = generate_updated_changelog(
+        existing_content=SAMPLE_CHANGELOG,
+        releases=[],
+        packaging_changelog="",
+        build_version="0.19.1.dev4+gabc",
+    )
+    assert result.startswith("kolibri-source (0.19.1~dev4-0ubuntu1) noble;")
+    assert result.endswith(SAMPLE_CHANGELOG)
+
+
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
+def test_generate_updated_changelog_is_idempotent_for_dev_build(_mock_codename):
+    kwargs = {
+        "releases": [],
+        "packaging_changelog": "",
+        "build_version": "0.20.0a2.dev1451+gabc",
+    }
+    once = generate_updated_changelog(existing_content=SAMPLE_CHANGELOG, **kwargs)
+    twice = generate_updated_changelog(existing_content=once, **kwargs)
+    assert once.startswith("kolibri-source (0.20.0~alpha2~dev1451-0ubuntu1) noble;")
+    assert twice == once
 
 
 # --- Tests for main() entrypoint ---
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_main_writes_updated_changelog(_mock_codename, tmp_path):
     """main() reads files, fetches releases, and writes updated debian/changelog."""
     # Set up file structure
@@ -521,12 +845,27 @@ def test_main_writes_updated_changelog(_mock_codename, tmp_path):
     packaging_changelog_path.write_text("")
 
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-08-06T18:21:16Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2025-10-31T15:09:14Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2025-10-03T17:47:04Z",
+        },
+        {
+            "tag_name": "v0.19.0",
+            "prerelease": False,
+            "published_at": "2025-08-06T18:21:16Z",
+        },
     ]
 
-    with patch("build_tools.generate_changelog.fetch_github_releases", return_value=releases):
+    with patch(
+        "build_tools.generate_changelog.urlopen",
+        return_value=_releases_response(releases),
+    ):
         main(
             debian_changelog_path=str(changelog_path),
             version_path=str(version_path),
@@ -541,7 +880,10 @@ def test_main_writes_updated_changelog(_mock_codename, tmp_path):
     assert "0.19.0-0ubuntu1" in result
 
 
-@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+@patch(
+    "build_tools.generate_changelog.UbuntuDistroInfo",
+    **{"return_value.lts.return_value": "noble"},
+)
 def test_main_with_packaging_changelog(_mock_codename, tmp_path):
     """main() interleaves packaging CHANGELOG entries."""
     debian_dir = tmp_path / "debian"
@@ -563,12 +905,27 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
     packaging_changelog_path.write_text(SAMPLE_PACKAGING_CHANGELOG)
 
     releases = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-08-06T18:21:16Z"},
+        {
+            "tag_name": "v0.19.2",
+            "prerelease": False,
+            "published_at": "2025-10-31T15:09:14Z",
+        },
+        {
+            "tag_name": "v0.19.1",
+            "prerelease": False,
+            "published_at": "2025-10-03T17:47:04Z",
+        },
+        {
+            "tag_name": "v0.19.0",
+            "prerelease": False,
+            "published_at": "2025-08-06T18:21:16Z",
+        },
     ]
 
-    with patch("build_tools.generate_changelog.fetch_github_releases", return_value=releases):
+    with patch(
+        "build_tools.generate_changelog.urlopen",
+        return_value=_releases_response(releases),
+    ):
         main(
             debian_changelog_path=str(changelog_path),
             version_path=str(version_path),

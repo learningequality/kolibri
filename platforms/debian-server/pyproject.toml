@@ -7,9 +7,11 @@ version = "0.0.0"
 # platform_tests job, not here. Matches python_packages/kolibri-sentry-plugin.
 requires-python = ">=3.6, <3.15"
 dependencies = [
+    "distro-info",
     "kolibri",
     "launchpadlib",
     "keyring",
+    "packaging",
 ]
 
 [dependency-groups]
