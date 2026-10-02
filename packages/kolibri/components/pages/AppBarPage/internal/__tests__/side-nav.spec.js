@@ -2,11 +2,11 @@ import { mount } from '@vue/test-utils';
 import { UserKinds } from 'kolibri/constants';
 import useNav, { useNavMock } from 'kolibri/composables/useNav'; // eslint-disable-line
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import { stubWindowLocation } from 'testUtils';
 import SideNav from '../SideNav';
 // eslint-disable-next-line import-x/named
 import LearnOnlyDeviceNotice from '../LearnOnlyDeviceNotice';
 import SyncStatusDisplay from '../../../../SyncStatusDisplay';
-import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/composables/useNav');

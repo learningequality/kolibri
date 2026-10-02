@@ -1,6 +1,6 @@
 import { mount, createLocalVue, RouterLinkStub } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia } from 'testUtils';
 
 import { coachStrings } from '../../common/commonCoachStrings';
 import { STATUSES } from '../../../modules/classSummary/constants';
