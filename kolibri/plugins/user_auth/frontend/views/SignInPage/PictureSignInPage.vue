@@ -63,6 +63,8 @@
 
   import { computed, nextTick, onMounted, ref } from 'vue';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import themeConfig from 'kolibri/styles/themeConfig';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { useRouter, useRoute } from 'vue-router/composables';
@@ -78,16 +80,12 @@
   import useAuthWatcher from '../../composables/useAuthWatcher';
   import useAuthRouter from '../../composables/useAuthRouter';
   import AuthContextHeading from '../AuthContextHeading.vue';
+  import { pageTitleStrings } from '../pageTitleStrings';
   import PicturePasswordGrid from './PictureSignIn/PicturePasswordGrid.vue';
   import PicturePasswordConfirmModal from './PictureSignIn/PicturePasswordConfirmModal.vue';
 
   export default {
     name: 'PictureSignInPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       AuthBase,
       AuthContextHeading,
@@ -113,6 +111,9 @@
       } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
       const { setSelectedFacilityId } = useFacilitySelect();
+      usePageTitle(pageTitleStrings.pictureSignInPageTitle$, {
+        hasVisibleHeading: themeConfig.signIn.showTitle,
+      });
 
       const busy = ref(false);
       const clearSequence = ref(false);
@@ -262,12 +263,6 @@
         // strings
         wrongPicturesTryAgain$,
       };
-    },
-    $trs: {
-      documentTitle: {
-        message: 'Sign in to Kolibri',
-        context: 'User sign in page for using picture password.',
-      },
     },
   };
 

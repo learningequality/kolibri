@@ -127,6 +127,7 @@
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
   import CatchErrors from 'kolibri/utils/CatchErrors';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { handleApiError } from 'kolibri/utils/appError';
   import { ComponentMap } from '../constants';
@@ -136,16 +137,12 @@
   import useAuthRouter from '../composables/useAuthRouter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
+  import { pageTitleStrings } from './pageTitleStrings';
 
   const { DEFERRED } = DemographicConstants;
 
   export default {
     name: 'SignUpPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       LanguageSwitcherFooter,
       GenderSelect,
@@ -162,6 +159,7 @@
       const { defaultRoute, nextParam } = useAuthRouter(route);
       const { selectedFacility, signInOptions, canSignUpWithFacility } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
+      usePageTitle(pageTitleStrings.signUpPageTitle$, { hasVisibleHeading: true });
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
         // If the facility ID is unset, it could mean the facility is no longer an option, or
@@ -356,11 +354,6 @@
       createAccount: {
         message: 'Create an account',
         context: 'Title on sign in page where user creates an account.',
-      },
-      documentTitle: {
-        message: 'Create account',
-        context:
-          "Title of the 'Create account' page accessed by selecting the 'CREATE  AN ACCOUNT' button.",
       },
       demographicInfoOptional: {
         message: 'Providing this information is optional.',
