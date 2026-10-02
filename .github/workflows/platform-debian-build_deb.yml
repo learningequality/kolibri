@@ -1,6 +1,5 @@
 
 name: Build Debian installer
-
 on:
   workflow_dispatch:
     # Inputs the workflow accepts.
@@ -11,7 +10,7 @@ on:
   workflow_call:
     inputs:
       tar-file-name:
-        required: false
+        required: true
         type: string
       tar-url:
         required: false
