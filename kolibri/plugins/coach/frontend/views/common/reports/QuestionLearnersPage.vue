@@ -4,7 +4,6 @@
     :loading="pageLoading"
     :appBarTitle="title"
     icon="back"
-    :pageTitle="title"
     :primary="false"
     :route="toolbarRoute"
   >
@@ -78,6 +77,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import InteractionList from 'kolibri-common/components/quizzes/InteractionList';
   import MultiPaneLayout from 'kolibri-common/components/MultiPaneLayout';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
@@ -87,6 +87,7 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import QuestionDetailLearnerList from '../QuestionDetailLearnerList';
   import { PageNames } from '../../../constants';
+  import store from '../../../store';
 
   export default {
     name: 'QuestionLearnersReport',
@@ -99,6 +100,7 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      usePageTitle(() => store.state.questionDetail.title, { hasVisibleHeading: true });
       return { pageLoading };
     },
     data() {
