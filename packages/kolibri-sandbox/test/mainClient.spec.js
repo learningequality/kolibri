@@ -347,6 +347,41 @@ describe('Sandbox mainClient', () => {
     });
   });
 
+  describe('answer method', () => {
+    function requestFromIframe(data) {
+      const { port1, port2 } = new MessageChannel();
+      const reply = new Promise(resolve => {
+        port1.onmessage = ({ data }) => {
+          port1.close();
+          resolve(data);
+        };
+      });
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: { nameSpace, event: events.HANDLER_REQUESTED, data },
+          source: window,
+          ports: [port2],
+        }),
+      );
+      return reply;
+    }
+
+    it('should answer a request with the result of the responder', async () => {
+      sandbox.answer(events.HANDLER_REQUESTED, async ({ paths }) => ({ count: paths.length }));
+
+      await expect(requestFromIframe({ paths: ['A/One', 'A/Two'] })).resolves.toEqual({
+        result: { count: 2 },
+      });
+    });
+    it('should answer a request with the error the responder failed with', async () => {
+      sandbox.answer(events.HANDLER_REQUESTED, () => {
+        throw new Error('Resolver returned 500');
+      });
+
+      await expect(requestFromIframe({})).resolves.toEqual({ error: 'Resolver returned 500' });
+    });
+  });
+
   describe('destroy method', () => {
     it('should stop handling messages so the client can be collected', async () => {
       sandbox.initialize({}, {}, 'http://test.com', 'testns');

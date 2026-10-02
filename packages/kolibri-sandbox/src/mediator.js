@@ -43,16 +43,17 @@ class Mediator {
     if (isUndefined(nameSpace) || isUndefined(event)) {
       return;
     }
-    this.dispatch({ nameSpace, event, data });
+    this.dispatch({ nameSpace, event, data, port: message.ports?.[0] });
   }
 
   // Run this mediator's own handlers for a message, without posting it to a window.
-  dispatch({ nameSpace, event, data }) {
+  dispatch({ nameSpace, event, data, port }) {
     const handlers = this.__messageHandlers[nameSpace]?.[event];
+    const args = port ? [data, port] : [data];
     if (handlers) {
       handlers.forEach(callback => {
         try {
-          callback(data);
+          callback(...args);
         } catch (e) {
           /* eslint-disable no-console */
           console.debug(`Error while executing callback for ${nameSpace} for event ${event}`);
@@ -69,6 +70,21 @@ class Mediator {
 
   sendMessage({ event, data, nameSpace }) {
     this.remote.postMessage({ event, data, nameSpace }, '*');
+  }
+
+  request({ event, data, nameSpace }) {
+    const { port1, port2 } = new MessageChannel();
+    return new Promise((resolve, reject) => {
+      port1.onmessage = ({ data: answer }) => {
+        port1.close();
+        if ('error' in answer) {
+          reject(new Error(answer.error));
+        } else {
+          resolve(answer.result);
+        }
+      };
+      this.remote.postMessage({ event, data, nameSpace }, '*', [port2]);
+    });
   }
 
   // Send a request and resolve with the DATARETURNED reply carrying its message_id.

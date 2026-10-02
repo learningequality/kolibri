@@ -10,7 +10,12 @@ const sandboxInstances = [];
 
 jest.mock('kolibri-sandbox', () =>
   jest.fn().mockImplementation(function () {
-    this.events = { LOADING: 'loading', ERROR: 'error', NAVIGATETO: 'navigateTo' };
+    this.events = {
+      LOADING: 'loading',
+      ERROR: 'error',
+      NAVIGATETO: 'navigateTo',
+      HANDLERREQUESTED: 'handlerrequested',
+    };
     this.progress = null;
     this.stateUpdateCallback = null;
     this.initialize = jest.fn();
@@ -18,6 +23,7 @@ jest.mock('kolibri-sandbox', () =>
     this.destroy = jest.fn();
     this.getProgress = () => this.progress;
     this.on = jest.fn();
+    this.answer = jest.fn();
     this.onStateUpdate = callback => {
       this.stateUpdateCallback = callback;
     };
@@ -338,6 +344,25 @@ describe('useSandbox', () => {
       sandbox().on.mock.calls.find(([name]) => name === 'navigateTo')[1]({ nodeId: 'abc' });
 
       expect(emitted).toContainEqual(['navigateTo', { nodeId: 'abc' }]);
+    });
+
+    it("answers the handler's requests with the viewer's onHandlerRequest, given the file", async () => {
+      const onHandlerRequest = jest.fn(async ({ paths }) => ({ resolved: paths }));
+      const { init, sandbox } = renderSandbox({ sandboxOptions: { onHandlerRequest } });
+      init();
+
+      const [event, respond] = sandbox().answer.mock.calls[0];
+
+      expect(event).toBe('handlerrequested');
+      await expect(respond({ paths: ['C/Page'] })).resolves.toEqual({ resolved: ['C/Page'] });
+      expect(onHandlerRequest).toHaveBeenCalledWith({ paths: ['C/Page'] }, { file: FILE });
+    });
+
+    it('answers no handler requests when the viewer takes none', () => {
+      const { init, sandbox } = renderSandbox();
+      init();
+
+      expect(sandbox().answer).not.toHaveBeenCalled();
     });
   });
 

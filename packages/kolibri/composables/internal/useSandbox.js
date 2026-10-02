@@ -16,9 +16,15 @@ const DEFAULT_DURATION = 300;
  * @param {boolean} [options.pollProgress=false] - Poll the sandbox for progress, falling
  * back to time spent over the content's duration when the content reports none
  * @param {Function|null} [options.urlBuilder=null] - Custom function to build content URL
+ * @param {Function|null} [options.onHandlerRequest=null] - Answers the handler's
+ * requestFromHost calls: called with the request and `{ file }`, returns the answer
+ * or a promise of it
  * @returns {object} Loading state, the sandbox page URL, and the initializer
  */
-export default function useSandbox({ emit }, { pollProgress = false, urlBuilder = null } = {}) {
+export default function useSandbox(
+  { emit },
+  { pollProgress = false, urlBuilder = null, onHandlerRequest = null } = {},
+) {
   const {
     options: contentOptions,
     lang,
@@ -131,6 +137,12 @@ export default function useSandbox({ emit }, { pollProgress = false, urlBuilder 
     });
 
     sandbox.on(sandbox.events.NAVIGATETO, message => emit('navigateTo', message));
+
+    if (onHandlerRequest) {
+      sandbox.answer(sandbox.events.HANDLER_REQUESTED, request =>
+        onHandlerRequest(request, { file }),
+      );
+    }
 
     sandbox.initialize(
       extraFields.value?.contentState || {},
