@@ -1,30 +1,44 @@
 import { render, screen } from '@testing-library/vue';
 import { Store } from 'vuex';
 import VueRouter from 'vue-router';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import '@testing-library/jest-dom';
 import { i18nSetup } from 'kolibri/utils/i18n';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { Resource } from 'kolibri/apiResource';
+import { pageHeading } from 'kolibri/composables/usePageTitle';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSummaryPage from '../CourseSummaryPage.vue';
 import { PageNames } from '../../../constants';
 import { RouteSegments, COMPACT_UUID_PATTERN } from '../../../routes/utils';
 /* eslint-disable import-x/named */
 import { useCourseSession, useCourseSessionMock } from '../../../composables/useCourseSession';
+import useClassSummary, { useClassSummaryMock } from '../../../composables/useClassSummary';
 /* eslint-enable import-x/named */
 import UnitReportResource from '../../../apiResources/unitReport';
+import useSidePanelTitle from '../../../composables/useSidePanelTitle';
 
 const { unitsLabel$, learningObjectivesLabel$ } = coursesStrings;
 const { learnersLabel$ } = coreStrings;
 
 const { CLASS, COURSE_SESSION } = RouteSegments;
 
+const CLASS_NAME = 'Class A';
+const COURSE_TITLE = 'Human Biology';
+
 // Tab/panel child routes render nothing (mirrors the NoRender component in coursesRoutes.js).
 // CourseSummaryPage has a <router-view> for the assign-course side panel; using CourseSummaryPage
 // as the child component would cause a second full copy to mount inside the router-view.
 const NoRender = { render: () => null };
+
+// Stands in for the assign-course side panel, which registers the host's provided title.
+const SidePanel = {
+  setup() {
+    useSidePanelTitle();
+  },
+  render: h => h('div', { attrs: { 'data-testid': 'side-panel' } }),
+};
 
 // Mirror the real route structure and patterns without importing all route components.
 // Uses the same PageNames constants, UUID validation patterns, and nested hierarchy.
@@ -68,6 +82,11 @@ const ROUTES = [
             component: NoRender,
           },
         ],
+      },
+      {
+        name: PageNames.COURSE_SUMMARY_ASSIGN,
+        path: 'assign-course/',
+        component: SidePanel,
       },
     ],
   },
@@ -204,6 +223,39 @@ describe('CourseSummaryPage', () => {
     ContentNodeResource.useList.mockImplementation(
       Resource.prototype.useList.bind(ContentNodeResource),
     );
+  });
+
+  describe('CourseSummaryPage — page title', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      useClassSummary.mockImplementation(() => useClassSummaryMock({ className: ref(CLASS_NAME) }));
+      useCourseSession.mockImplementation(() =>
+        useCourseSessionMock({
+          courseSession: ref(MOCK_COURSE_SESSION),
+          course: ref({ title: COURSE_TITLE }),
+          units: ref([{ id: UNIT_A }]),
+        }),
+      );
+    });
+
+    it('sets the tab title to the course title and class name', async () => {
+      renderPage('COURSE_SUMMARY_UNITS');
+      await nextTick();
+      expect(document.title).toBe(`${COURSE_TITLE} - ${CLASS_NAME} - Kolibri`);
+    });
+
+    it('tells the page shell it renders its own h1', async () => {
+      renderPage('COURSE_SUMMARY_UNITS');
+      await nextTick();
+      expect(pageHeading.value).toBe('');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(COURSE_TITLE);
+    });
+
+    it('gives the assign-course side panel the page title', async () => {
+      renderPage('COURSE_SUMMARY_ASSIGN');
+      await screen.findByTestId('side-panel');
+      expect(document.title).toBe(`${COURSE_TITLE} - ${CLASS_NAME} - Kolibri`);
+    });
   });
 
   describe('CourseSummaryPage — tab routing', () => {

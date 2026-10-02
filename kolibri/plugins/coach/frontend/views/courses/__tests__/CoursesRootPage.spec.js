@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, within } from '@testing-library/vue';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import '@testing-library/jest-dom';
@@ -14,11 +14,19 @@ import useCourses, { useCoursesMock } from '../../../composables/useCourses';
 import useClassSummary, { useClassSummaryMock } from '../../../composables/useClassSummary';
 import { coachStrings } from '../../common/commonCoachStrings';
 import { learnerProgressTranslators } from '../../common/status/statusStrings';
+import useSidePanelTitle from '../../../composables/useSidePanelTitle';
 
-const { courseDetailsAction$, editRecipientsAction$, preTestRunningLabel$, unitInProgressLabel$ } =
-  coursesStrings;
+const {
+  coursesLabel$,
+  courseDetailsAction$,
+  editRecipientsAction$,
+  preTestRunningLabel$,
+  unitInProgressLabel$,
+} = coursesStrings;
 const { deleteAction$, notStartedLabel$, completedLabel$ } = coreStrings;
 const { entireClassLabel$ } = coachStrings;
+
+const CLASS_NAME = 'Class A';
 
 jest.mock('../../../composables/useCourses');
 jest.mock('../../../composables/useClassSummary');
@@ -72,7 +80,48 @@ describe('CoursesRootPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useCourses.mockImplementation(() => useCoursesMock());
-    useClassSummary.mockImplementation(() => useClassSummaryMock());
+    useClassSummary.mockImplementation(() => useClassSummaryMock({ className: ref(CLASS_NAME) }));
+  });
+
+  describe('page title', () => {
+    // The empty state links to COURSES_ASSIGN, which this router lacks.
+    beforeEach(() => {
+      useCourses.mockImplementation(() =>
+        useCoursesMock({
+          courses: ref([
+            { id: 'session-1', title: 'Course 1', active: true, contentMissing: false },
+          ]),
+        }),
+      );
+    });
+
+    it('renders its visible header as the only h1', async () => {
+      renderComponent();
+      await nextTick();
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(coursesLabel$());
+    });
+
+    it('leaves the tab at the site title while a side panel is open', async () => {
+      const SidePanel = {
+        setup() {
+          useSidePanelTitle();
+        },
+        render: h => h('div', { attrs: { 'data-testid': 'side-panel' } }),
+      };
+      render(CoursesRootPage, {
+        store: makeStore(),
+        routes: new VueRouter({
+          routes: [
+            { path: '/', component: SidePanel },
+            { path: '/course', name: 'COURSE_SUMMARY' },
+          ],
+        }),
+      });
+      await screen.findByTestId('side-panel');
+      expect(document.title).toBe('Kolibri');
+    });
   });
 
   it('should show the missing resource alert when any course has missing content', () => {
