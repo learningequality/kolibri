@@ -1,5 +1,4 @@
-name: Pre-release to kolibri-proposed PPA
-
+name: Pre-release Kolibri to kolibri-proposed PPA
 on:
   workflow_dispatch:
     inputs:
@@ -13,14 +12,7 @@ on:
   workflow_call:
     inputs:
       tar-file-name:
-        required: false
-        type: string
-      tar-url:
-        required: false
-        type: string
-      ref:
-        description: 'A ref for this workflow to check out its own repo'
-        required: false
+        required: true
         type: string
       ubuntu-revision:
         description: 'Debian packaging revision (the N in -0ubuntuN)'
@@ -38,27 +30,26 @@ on:
         required: true
       LP_CREDENTIALS:
         required: true
-
+permissions:
+  contents: read
 jobs:
   build_source_and_upload:
     name: Build, sign, and upload source package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: platforms/debian
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v7
-        if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v7
-        if: ${{ inputs.ref }}
+      - uses: actions/checkout@v7.0.1
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.2.0
         with:
-          repository: learningequality/kolibri-installer-debian
-          ref: ${{ inputs.ref }}
-      - uses: actions/cache@v6.1.0
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          enable-cache: false
+      - name: Install Python dependencies for changelog generation
+        run: uv sync --package kolibri-installer-debian
       - name: Download tarfile from URL
         if: ${{ inputs.tar-url }}
         env:
@@ -69,21 +60,16 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.tar-file-name }}
-          path: build_src
+          path: platforms/debian/build_src
       - name: Install build and upload dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y devscripts debhelper python3-pip dput \
-            dh-python python3-all python3-pytest python3-launchpadlib \
-            python3-distro-info build-essential po-debconf python3-setuptools
-      - name: Install Python dependencies
-        run: pip install .
+        run: >-
+          ../../.github/scripts/apt-install.sh devscripts debhelper python3-pip dput dh-python python3-all python3-pytest python3-launchpadlib python3-distro-info build-essential po-debconf python3-setuptools
       - name: Extract version
         id: version
         env:
           UBUNTU_REVISION: ${{ inputs.ubuntu-revision }}
         run: |
-          make dist/DEB_VERSION
+          uv run make dist/DEB_VERSION
           DEB_VERSION=$(cat dist/DEB_VERSION)
           FULL_VERSION="${DEB_VERSION}-0ubuntu${UBUNTU_REVISION}"
           echo "version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
@@ -96,10 +82,12 @@ jobs:
         id: check_source
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           set +e
-          python3 scripts/launchpad_copy.py check-source \
-            --version "${{ steps.version.outputs.version }}"
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            check-source --version "$VERSION"
           rc=$?
           set -e
           if [ "$rc" -eq 0 ]; then
@@ -112,8 +100,10 @@ jobs:
           fi
       - name: Configure GPG Key
         if: steps.check_source.outputs.already_uploaded != 'true'
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
         run: |
-          echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
+          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import --no-tty --batch --yes
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
       - name: Build and upload source package
@@ -121,104 +111,92 @@ jobs:
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           UBUNTU_REVISION: ${{ inputs.ubuntu-revision }}
-        run: make commit-new-release
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run make commit-new-release
       - name: Cleanup credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
-
   wait_for_source_published:
     name: Wait for source package builds
     needs: build_source_and_upload
     runs-on: ubuntu-latest
+    # Past wait-for-published's own --timeout 14400 (4 h).
+    timeout-minutes: 270
     steps:
-      - uses: actions/checkout@v7
-        if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v7
-        if: ${{ inputs.ref }}
-        with:
-          repository: learningequality/kolibri-installer-debian
-          ref: ${{ inputs.ref }}
+      - uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib python3-distro-info
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
       - name: Wait for published binaries in source series
+        working-directory: platforms/debian
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.build_source_and_upload.outputs.version }}
         run: |
           # No --series: discover the series the source was actually uploaded
           # to (the current LTS), rather than assuming the runner's own series.
-          python3 scripts/launchpad_copy.py wait-for-published \
-            --version "${{ needs.build_source_and_upload.outputs.version }}" \
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            wait-for-published --version "$VERSION" \
             --timeout 14400 \
             --interval 600
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
-
   copy_to_other_series:
     name: Copy to all supported Ubuntu series
     needs:
       - build_source_and_upload
       - wait_for_source_published
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
-        if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v7
-        if: ${{ inputs.ref }}
-        with:
-          repository: learningequality/kolibri-installer-debian
-          ref: ${{ inputs.ref }}
+      - uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib python3-distro-info
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
       - name: Copy to other supported series
+        working-directory: platforms/debian
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
-          python3 scripts/launchpad_copy.py copy-to-series
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            copy-to-series
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
-
   wait_for_copies_published:
     name: Wait for all series builds
     needs:
       - build_source_and_upload
       - copy_to_other_series
     runs-on: ubuntu-latest
+    # Past wait-for-published's own --timeout 14400 (4 h).
+    timeout-minutes: 270
     steps:
-      - uses: actions/checkout@v7
-        if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v7
-        if: ${{ inputs.ref }}
-        with:
-          repository: learningequality/kolibri-installer-debian
-          ref: ${{ inputs.ref }}
+      - uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib python3-distro-info
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
       - name: Wait for all builds to complete
+        working-directory: platforms/debian
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.build_source_and_upload.outputs.version }}
         run: |
-          python3 scripts/launchpad_copy.py wait-for-published \
-            --version "${{ needs.build_source_and_upload.outputs.version }}" \
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            wait-for-published --version "$VERSION" \
             --timeout 14400 \
             --interval 600
       - name: Cleanup Launchpad credentials

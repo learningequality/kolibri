@@ -84,10 +84,9 @@ jobs:
   deb:
     name: Build DEB file
     needs: whl
-    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.18.0
+    uses: ./.github/workflows/platform-debian-build_deb.yml
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.16.1
   upload_deb:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: deb
@@ -96,6 +95,16 @@ jobs:
     with:
       filename: ${{ needs.deb.outputs.deb-file-name }}
       release_id: ${{ github.event.release.id }}
+  deb_prerelease:
+    name: Pre-release Kolibri to kolibri-proposed PPA
+    needs: whl
+    uses: ./.github/workflows/platform-debian-prerelease.yml
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
   server_deb:
     name: Build kolibri-server DEB file
     uses: ./.github/workflows/platform-debian-server-build_deb.yml
@@ -287,6 +296,27 @@ jobs:
       LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
       GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
+      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
+  deb_release_ppa:
+    name: Release Kolibri PPA
+    if: ${{ !github.event.release.prerelease }}
+    needs: [deb_prerelease, block_release_step]
+    uses: ./.github/workflows/platform-debian-release_ppa.yml
+    with:
+      version: ${{ needs.deb_prerelease.outputs.version }}
+    secrets:
+      LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+  # Not gated on Launchpad, which rejects a patch older than a newer prerelease.
+  deb_publish_apt_repo:
+    name: Publish the kolibri .deb to the self-hosted APT repo
+    if: ${{ !github.event.release.prerelease }}
+    needs: [deb, block_release_step]
+    uses: ./.github/workflows/platform-apt-repo-publish.yml
+    with:
+      deb-artifact-name: ${{ needs.deb.outputs.deb-file-name }}
+    secrets:
       DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
       GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
       KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}

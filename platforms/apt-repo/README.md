@@ -18,7 +18,7 @@ A [reprepro](https://salsa.debian.org/debian/reprepro) tree on the release GCS b
 
 `.github/workflows/platform-apt-repo-publish.yml` runs it in CI, serialized by a static `concurrency` group so two releases cannot clobber the shared state mid-write.
 
-The workflow never builds the `.deb` it publishes: `release_kolibri.yml` builds `kolibri-server` and passes the artifact name down through `platform-debian-server-release.yml`. Dispatch it by hand with `deb-url` to publish an already-released `.deb`.
+The workflow never builds the `.deb` it publishes: `release_kolibri.yml` builds `kolibri` and `kolibri-server` and passes each artifact name down. Dispatch it by hand with `deb-url` to publish an already-released `.deb`.
 
 ## New-user install
 
