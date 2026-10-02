@@ -2,7 +2,7 @@ import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { nextTick, ref } from 'vue';
 import { pageHeading } from 'kolibri/composables/usePageTitle';
-import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia } from 'testUtils';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 // eslint-disable-next-line import-x/named
