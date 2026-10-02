@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/vue';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import { error } from 'kolibri/utils/appError';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
+import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import store from '../../../store';
 import makeStore from '../../../__tests__/utils/makeStore';
 import CoachAllPasswordsPage from '../CoachAllPasswordsPage.vue';
@@ -17,6 +20,10 @@ jest.mock('vue-router/composables', () => ({
 jest.mock('kolibri-common/utils/picturePassword', () => ({
   getPicturePasswordIcons: jest.fn(() => []),
 }));
+jest.mock('kolibri/components/pages/NotificationsRoot/internal/PingbackNotificationResource');
+jest.mock(
+  'kolibri/components/pages/NotificationsRoot/internal/PingbackNotificationDismissedResource',
+);
 
 const FACILITY_NAME = 'Test Facility';
 const CLASS_NAME = 'Test Class';
@@ -32,6 +39,7 @@ const routes = [
 ];
 
 function renderComponent({ learners = LEARNERS, className = CLASS_NAME } = {}) {
+  useUser.mockImplementation(() => useUserMock({ isCoach: true }));
   useFacility.mockImplementation(() =>
     useFacilityMock({ currentFacilityName: ref(FACILITY_NAME) }),
   );
@@ -50,6 +58,7 @@ function renderComponent({ learners = LEARNERS, className = CLASS_NAME } = {}) {
 
 describe('CoachAllPasswordsPage', () => {
   afterEach(() => {
+    error.value = null;
     jest.clearAllMocks();
   });
 
@@ -74,5 +83,28 @@ describe('CoachAllPasswordsPage', () => {
   it('renders an empty table when classSummary has no learners', () => {
     renderComponent({ learners: [] });
     expect(screen.queryByText(LEARNERS[0].name)).not.toBeInTheDocument();
+  });
+
+  describe('while an error is set', () => {
+    beforeEach(async () => {
+      renderComponent();
+      error.value = 'boom';
+      await nextTick();
+    });
+
+    it("shows the error page's heading as the only H1", () => {
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).not.toHaveClass('visuallyhidden');
+      expect(headings[0]).not.toHaveTextContent(picturePasswordStrings.allPasswordsHeader$());
+    });
+
+    it('hides the password list', () => {
+      expect(screen.queryByText(LEARNERS[0].name)).not.toBeInTheDocument();
+    });
+
+    it('titles the tab as an error', () => {
+      expect(document.title).toBe('Error - Kolibri');
+    });
   });
 });
