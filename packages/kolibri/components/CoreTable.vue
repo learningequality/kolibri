@@ -28,7 +28,7 @@
     computed: {
       tHeadStyle() {
         return {
-          borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
+          borderBottom: 'solid 1px var(--tokens-fineLine)',
           fontSize: '12px',
           color: 'var(--tokens-annotation)',
         };

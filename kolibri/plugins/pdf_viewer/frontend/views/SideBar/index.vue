@@ -16,8 +16,7 @@
           :key="tab.name"
           :ref="tab.name"
           :style="{
-            background:
-              selectedTab === tab.name ? 'var(--tokens-annotation)' : $themeTokens.transparent,
+            background: selectedTab === tab.name ? 'var(--tokens-annotation)' : 'transparent',
             cursor: 'pointer',
             borderRadius: '2px',
             opacity: tab.disabled ? 0.5 : 1,

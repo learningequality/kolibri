@@ -15,7 +15,7 @@
       v-for="i in numSpaces"
       :key="`placeholder-${i}`"
       class="placeholder"
-      :style="{ borderBottom: `2px solid ${$themeTokens.annotation}` }"
+      :style="{ borderBottom: '2px solid var(--tokens-annotation)' }"
     ></div>
   </div>
 

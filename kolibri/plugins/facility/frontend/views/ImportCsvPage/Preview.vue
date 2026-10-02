@@ -69,7 +69,7 @@
             <td
               v-if="showDeletionCol"
               class="numeric"
-              :style="{ color: $themePalette.red.v_a700 }"
+              :style="{ color: 'var(--tokens-error)' }"
             >
               {{ users_report.deleted }}
             </td>
@@ -94,7 +94,7 @@
             <td
               v-if="showDeletionCol"
               class="numeric"
-              :style="{ color: $themePalette.red.v_a700 }"
+              :style="{ color: 'var(--tokens-error)' }"
             >
               {{ classes_report.cleared }}
             </td>

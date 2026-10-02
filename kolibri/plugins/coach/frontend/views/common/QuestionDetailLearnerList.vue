@@ -26,7 +26,7 @@
           :aria-selected="isSelected(index).toString()"
           tabindex="-1"
           :style="{
-            borderBottom: `2px solid ${$themeTokens.textDisabled}`,
+            borderBottom: '2px solid var(--tokens-textDisabled)',
             backgroundColor: isSelected(index) ? 'var(--tokens-textDisabled)' : '',
           }"
           @click="setSelectedLearner(index)"

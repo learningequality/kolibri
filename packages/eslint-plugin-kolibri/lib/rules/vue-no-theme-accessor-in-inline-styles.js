@@ -10,13 +10,13 @@
  * to nothing. The rule is limited to single file components to keep the guess near the
  * templates it is made for. A chart configuration inside a component is still rewritten.
  *
- * It is off in `kolibri-format`'s configuration. The rule carries a fixer and
- * `kolibri-format` runs ESLint with `fix: true`, so turning it on rewrites every call
- * site at once.
+ * A template literal made only of theme reads gets a suggestion to fold it into one
+ * string, because `var()` works anywhere in a CSS value. It is a suggestion and not a
+ * fix, so `kolibri-format` never applies it by itself.
  *
- * A value combined with anything else is not matched, because no single `var()` replaces
- * it. Nor is a bracket access such as `$themeTokens['text']`. A ternary is matched on
- * each branch.
+ * A read mixed with anything else is skipped: concatenation, a template literal with
+ * another kind of placeholder, or a call such as `darken()`. A bracket access such as
+ * `$themeTokens['text']` is skipped too. Each branch of a ternary is checked.
  */
 
 const { all: KNOWN_CSS_PROPERTIES } = require('known-css-properties');
@@ -25,8 +25,8 @@ const { isThemeSourceError, themeRead } = require('kolibri-css-variables');
 const CSS_PROPERTIES = new Set(KNOWN_CSS_PROPERTIES);
 
 /**
- * Every static theme read a property's value resolves to, which is more than one when a
- * ternary chooses between them.
+ * Every static theme read or template literal a property's value resolves to. A ternary
+ * gives one for each branch.
  * @param {object} node - The value of an object property.
  * @returns {Array<object>}
  */
@@ -37,7 +37,23 @@ function staticReads(node) {
   if (node.type === 'ConditionalExpression') {
     return [...staticReads(node.consequent), ...staticReads(node.alternate)];
   }
+  if (node.type === 'TemplateLiteral') {
+    return [node];
+  }
   return themeRead(node) ? [node] : [];
+}
+
+/**
+ * The theme reads in a template literal, or `null` if any placeholder is not one.
+ * @param {object} node - A `TemplateLiteral`.
+ * @returns {Array<object>|null}
+ */
+function templateReads(node) {
+  if (!node.expressions.length) {
+    return null;
+  }
+  const reads = node.expressions.map(themeRead);
+  return reads.every(Boolean) ? reads : null;
 }
 
 function isCssProperty(key) {
@@ -65,6 +81,7 @@ module.exports = {
       description: 'disallow static theme values in inline `:style` bindings and style objects',
     },
     fixable: 'code',
+    hasSuggestions: true,
     schema: [],
     messages: {
       staticThemeValue:
@@ -74,6 +91,10 @@ module.exports = {
         'Replace `{{reference}}` with the matching theme CSS variable as a string, such as ' +
         "`'var(--tokens-text)'`. This path names no variable the theme emits, so confirm " +
         'the spelling first.',
+      staticThemeTemplate:
+        'Replace this template literal with the string `{{folded}}`. A theme CSS variable ' +
+        'resolves inside any CSS value, so the text can be a plain string.',
+      foldTemplate: 'Replace with `{{folded}}`.',
       themeSourceUnavailable: 'This rule cannot check theme values. {{reason}}',
     },
   },
@@ -124,7 +145,53 @@ module.exports = {
       }
     }
 
-    function report(node, quote) {
+    function reportTemplate(node, quote, inTemplate) {
+      const reads = templateReads(node);
+      if (!reads) {
+        return;
+      }
+      if (reads.some(read => !read.variable)) {
+        node.expressions.forEach((expression, i) => {
+          if (!reads[i].variable) {
+            context.report({
+              node: expression,
+              messageId: 'staticThemeValueUnknown',
+              data: { reference: reads[i].reference },
+            });
+          }
+        });
+        return;
+      }
+      const cooked = node.quasis.map(quasi => quasi.value.cooked);
+      const folded = cooked
+        .map((text, i) => (i < reads.length ? text + reads[i].variable : text))
+        .join('');
+      // A template decodes entities, so a `&quot;` would come back as a bare `"`.
+      const foldable =
+        !/[\\\n]/.test(folded) &&
+        !folded.includes(quote) &&
+        !(inTemplate && sourceCode.getText(node).includes('&'));
+      context.report({
+        node,
+        messageId: 'staticThemeTemplate',
+        data: { folded },
+        suggest: foldable
+          ? [
+              {
+                messageId: 'foldTemplate',
+                data: { folded },
+                fix: fixer => fixer.replaceText(node, `${quote}${folded}${quote}`),
+              },
+            ]
+          : [],
+      });
+    }
+
+    function report(node, quote, inTemplate) {
+      if (node.type === 'TemplateLiteral') {
+        reportTemplate(node, quote, inTemplate);
+        return;
+      }
       const { reference, variable } = themeRead(node);
       if (!variable) {
         context.report({ node, messageId: 'staticThemeValueUnknown', data: { reference } });
@@ -144,7 +211,7 @@ module.exports = {
         if (key === null || (keysMustBeCss && !isCssProperty(key))) {
           continue;
         }
-        staticReads(property.value).forEach(read => report(read, quote));
+        staticReads(property.value).forEach(read => report(read, quote, !keysMustBeCss));
       }
     }
 

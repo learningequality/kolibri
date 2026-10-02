@@ -145,7 +145,7 @@
           :style="{
             marginTop: '34px',
             paddingTop: '10px',
-            borderTop: `1px solid ${$themeTokens.fineLine}`,
+            borderTop: '1px solid var(--tokens-fineLine)',
           }"
         >
           <KGridItem

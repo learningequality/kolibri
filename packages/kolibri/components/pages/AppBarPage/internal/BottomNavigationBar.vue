@@ -84,12 +84,12 @@
     computed: {
       bottomMenuActiveStyles() {
         return {
-          borderTop: `4px solid ${this.$themeTokens.primary}`,
+          borderTop: '4px solid var(--tokens-primary)',
         };
       },
       bottomMenuInactiveStyles() {
         return {
-          borderTop: `4px solid ${this.$themeTokens.textInverted}`,
+          borderTop: '4px solid var(--tokens-textInverted)',
         };
       },
       routes() {

@@ -17,6 +17,12 @@ function script(s) {
 const known = { messageId: 'staticThemeValue' };
 const unknown = { messageId: 'staticThemeValueUnknown' };
 
+function folded(output) {
+  return { messageId: 'staticThemeTemplate', suggestions: [{ messageId: 'foldTemplate', output }] };
+}
+
+const unfoldable = { messageId: 'staticThemeTemplate', suggestions: [] };
+
 ruleTester.run('vue-no-theme-accessor-in-inline-styles', rule, {
   valid: [
     {
@@ -37,9 +43,34 @@ ruleTester.run('vue-no-theme-accessor-in-inline-styles', rule, {
       ),
     },
     {
-      // combined in a template literal, which no single `var()` replaces
+      // a placeholder that is not a theme read cannot be folded
       filename: 'Valid.vue',
-      code: template('<div :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }" />'),
+      code: script(`export default {
+  computed: {
+    borderStyle() {
+      return { border: \`0.25em solid \${this.$themeTokens.primary} \${size}\` };
+    },
+  },
+};`),
+    },
+    {
+      // a darkened color must stay a hex string
+      filename: 'Valid.vue',
+      code: template('<div :style="{ border: `1px solid ${darken1($themeTokens.primary)}` }" />'),
+    },
+    {
+      filename: 'Valid.vue',
+      code: template('<div :style="{ width: `${this.width}px` }" />'),
+    },
+    {
+      // a tagged template is left to its tag function
+      filename: 'Valid.vue',
+      code: template('<div :style="{ color: css`color: ${$themeTokens.text}` }" />'),
+    },
+    {
+      // the function may transform the value
+      filename: 'Valid.vue',
+      code: template('<div :style="{ color: f(`${$themeTokens.text}`) }" />'),
     },
     {
       // combined by concatenation
@@ -284,6 +315,115 @@ export default {
   },
 };`),
       errors: [known],
+    },
+    {
+      // a template literal made only of theme reads folds into one string
+      filename: 'Invalid.vue',
+      code: template('<div :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }" />'),
+      output: null,
+      errors: [
+        folded(template(`<div :style="{ borderBottom: '1px solid var(--tokens-fineLine)' }" />`)),
+      ],
+    },
+    {
+      filename: 'Invalid.vue',
+      code: template(
+        '<div :style="{ background: `linear-gradient(${$themeTokens.primary}, ${$themeTokens.fineLine})` }" />',
+      ),
+      output: null,
+      errors: [
+        folded(
+          template(
+            `<div :style="{ background: 'linear-gradient(var(--tokens-primary), var(--tokens-fineLine))' }" />`,
+          ),
+        ),
+      ],
+    },
+    {
+      // only the branch that is a template literal is folded
+      filename: 'Invalid.vue',
+      code: template(
+        `<div :style="{ border: c ? \`2px solid \${$themeTokens.primary}\` : 'none' }" />`,
+      ),
+      output: null,
+      errors: [
+        folded(
+          template(`<div :style="{ border: c ? '2px solid var(--tokens-primary)' : 'none' }" />`),
+        ),
+      ],
+    },
+    {
+      filename: 'Invalid.vue',
+      code: script(`export default {
+  computed: {
+    borderStyle() {
+      return { border: \`1px solid \${this.$themeTokens.fineLine}\` };
+    },
+  },
+};`),
+      output: null,
+      errors: [
+        folded(
+          script(`export default {
+  computed: {
+    borderStyle() {
+      return { border: '1px solid var(--tokens-fineLine)' };
+    },
+  },
+};`),
+        ),
+      ],
+    },
+    {
+      filename: 'Invalid.vue',
+      code: script('const borderStyle = { border: `1px solid ${themeTokens().fineLine}` };'),
+      output: null,
+      errors: [
+        folded(script(`const borderStyle = { border: '1px solid var(--tokens-fineLine)' };`)),
+      ],
+    },
+    {
+      // a single-quoted attribute takes a double-quoted string
+      filename: 'Invalid.vue',
+      code: template("<div :style='{ borderBottom: `1px solid ${$themeTokens.fineLine}` }' />"),
+      output: null,
+      errors: [
+        folded(template(`<div :style='{ borderBottom: "1px solid var(--tokens-fineLine)" }' />`)),
+      ],
+    },
+    {
+      // an unknown path is reported on the read, with no fold suggestion
+      filename: 'Invalid.vue',
+      code: template('<div :style="{ borderBottom: `1px solid ${$themeTokens.notAToken}` }" />'),
+      output: null,
+      errors: [{ ...unknown, suggestions: [] }],
+    },
+    {
+      // text that holds the quote character gets no fold suggestion
+      filename: 'Invalid.vue',
+      code: script("const quoted = { content: `'x' ${themeTokens().text}` };"),
+      output: null,
+      errors: [unfoldable],
+    },
+    {
+      // text that holds a bare backslash, which a plain string would read as an escape
+      filename: 'Invalid.vue',
+      code: script('const quoted = { content: `\\\\201C ${themeTokens().text}` };'),
+      output: null,
+      errors: [unfoldable],
+    },
+    {
+      // a template decodes entities, and a decoded `"` would end the attribute
+      filename: 'Invalid.vue',
+      code: template('<div :style="{ fontFamily: `&quot;Noto&quot;, ${$themeTokens.text}` }" />'),
+      output: null,
+      errors: [unfoldable],
+    },
+    {
+      filename: 'Invalid.vue',
+      code: template('<div :style="{ border: `1px solid ${$themeTokens.fineLine} &amp;` }" />'),
+      output: null,
+      errors: [unfoldable],
     },
   ],
 });

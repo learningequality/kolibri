@@ -37,7 +37,7 @@
         <div>
           <div
             :style="{
-              border: `1px solid ${$themeTokens.fineLine}`,
+              border: '1px solid var(--tokens-fineLine)',
             }"
             class="group-button-border"
           >

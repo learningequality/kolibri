@@ -37,6 +37,41 @@ describe('.stylelintrc.js', () => {
     expect(output).toBe('.a { color: var(--palette-grey-v400); }');
   });
 
+  describe('`v-bind()` in a `<style>` block', () => {
+    const component = `<template>
+  <div class="a"></div>
+</template>
+
+<style lang="scss" scoped>
+  .a {
+    color: v-bind(tint);
+    background-color: v-bind(deleteHoverColor);
+    border-color: v-bind('deleteHoverColor');
+  }
+</style>
+`;
+
+    function lintComponent(fix = false) {
+      return stylelint.lint({
+        code: component,
+        codeFilename: path.join(ROOT_DIR, 'SmokeTest.vue'),
+        config: stylelintConfig,
+        configBasedir: ROOT_DIR,
+        fix,
+      });
+    }
+
+    it('keeps the case of the bound name when fixing', async () => {
+      const { output } = await lintComponent(true);
+      expect(output).toBe(component);
+    });
+
+    it('reports no error', async () => {
+      const { results } = await lintComponent();
+      expect(results[0].warnings).toEqual([]);
+    });
+  });
+
   it('accepts a valid camelCase token name', async () => {
     // `custom-property-pattern` from `stylelint-config-standard` checks `var()` usage as
     // well as declarations, so its kebab-case default reports every valid token name
@@ -46,7 +81,6 @@ describe('.stylelintrc.js', () => {
 });
 
 describe('eslint.config.mjs', () => {
-  const OFF = 0;
   const ERROR = 2;
   const CONFIG_FILE = path.join(ROOT_DIR, 'eslint.config.mjs');
   const FILE_PATH = path.join(ROOT_DIR, 'SmokeTest.vue');
@@ -116,11 +150,9 @@ describe('eslint.config.mjs', () => {
   );
 
   it(
-    'leaves `kolibri/vue-no-theme-accessor-in-inline-styles` off',
+    'enforces `kolibri/vue-no-theme-accessor-in-inline-styles`',
     () => {
-      // the rule carries a fixer and `kolibri-format` runs ESLint with `fix: true`, so
-      // turning it on rewrites every existing call site in one pass
-      expect(configuredRule('kolibri/vue-no-theme-accessor-in-inline-styles')).toEqual([OFF]);
+      expect(configuredRule('kolibri/vue-no-theme-accessor-in-inline-styles')).toEqual([ERROR]);
     },
     TIMEOUT,
   );

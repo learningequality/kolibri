@@ -353,7 +353,7 @@
       tabsWrapperStyles() {
         return {
           paddingTop: '1rem',
-          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
+          borderBottom: '1px solid var(--tokens-fineLine)',
           justifyContent: 'space-between',
         };
       },

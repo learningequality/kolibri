@@ -189,7 +189,7 @@
                       v-for="unit in completedUnits"
                       :key="unit.id"
                       class="upcoming-unit"
-                      :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
+                      :style="{ border: '1px solid var(--tokens-fineLine)' }"
                     >
                       <KRouterLink
                         :text="unit.numberedTitle"
@@ -212,7 +212,7 @@
                       v-for="unit in upcomingUnits"
                       :key="unit.id"
                       class="upcoming-unit"
-                      :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
+                      :style="{ border: '1px solid var(--tokens-fineLine)' }"
                     >
                       <KRouterLink
                         :text="unit.numberedTitle"

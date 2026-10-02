@@ -80,7 +80,7 @@
       },
       svgItemBorder() {
         return {
-          borderBottom: `2px solid ${this.$themeTokens.text}`,
+          borderBottom: '2px solid var(--tokens-text)',
         };
       },
     },

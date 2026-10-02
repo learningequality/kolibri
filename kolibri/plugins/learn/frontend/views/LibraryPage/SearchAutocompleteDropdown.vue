@@ -149,7 +149,7 @@
           class="filter-pill"
           :style="{
             backgroundColor: 'var(--brand-primary-v100)',
-            border: `1px solid ${$themeTokens.primary}`,
+            border: '1px solid var(--tokens-primary)',
             color: 'var(--tokens-primary)',
           }"
         >

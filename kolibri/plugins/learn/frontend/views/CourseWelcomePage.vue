@@ -18,12 +18,12 @@
           windowIsLarge
             ? {
               backgroundColor: 'var(--palette-grey-v100)',
-              borderBottom: `1px solid ${$themeTokens.fineLine}`,
+              borderBottom: '1px solid var(--tokens-fineLine)',
               padding: '24px 160px 64px',
             }
             : {
               backgroundColor: 'var(--palette-grey-v100)',
-              borderBottom: `1px solid ${$themeTokens.fineLine}`,
+              borderBottom: '1px solid var(--tokens-fineLine)',
               padding: isRtl ? '24px 20px 24px 0px' : '24px 0px 24px 20px',
             }
         "

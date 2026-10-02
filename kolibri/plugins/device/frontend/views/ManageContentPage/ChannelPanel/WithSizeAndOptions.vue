@@ -3,7 +3,7 @@
   <div
     class="panel"
     :class="{ 'panel-sm': windowIsSmall }"
-    :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
+    :style="{ borderTop: '1px solid var(--tokens-fineLine)' }"
   >
     <ChannelDetails :channel="channel">
       <template #belowname>

@@ -95,7 +95,7 @@
       const optionLabelStyles = computed(() => {
         if (isSelected.value) {
           return {
-            border: `4px solid ${$themeTokens.primary}`,
+            border: '4px solid var(--tokens-primary)',
             // reduce padding to keep overall option size consistent when border width increases
             padding: '10px',
             backgroundColor: 'var(--palette-blue-v100)',
@@ -106,7 +106,7 @@
         }
         const unSelectedStyles = {
           padding: '12px',
-          border: `2px solid ${$themeTokens.fineLine}`,
+          border: '2px solid var(--tokens-fineLine)',
           backgroundColor: 'var(--palette-grey-v100)',
           color: 'var(--tokens-annotation)',
         };

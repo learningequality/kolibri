@@ -51,7 +51,7 @@
         :nextEnabled="nextEnabled"
         :style="{
           backgroundColor: 'var(--tokens-surface)',
-          borderTop: `1px solid ${$themeTokens.fineLine}`,
+          borderTop: '1px solid var(--tokens-fineLine)',
         }"
         @prev="handlePrev"
         @next="handleNext"

@@ -98,8 +98,8 @@
             <thead>
               <tr
                 :style="{
-                  borderTop: `1px solid ${$themeTokens.fineLine}`,
-                  borderBottom: `1px solid ${$themeTokens.fineLine}`,
+                  borderTop: '1px solid var(--tokens-fineLine)',
+                  borderBottom: '1px solid var(--tokens-fineLine)',
                 }"
               >
                 <th

@@ -10,7 +10,7 @@
       v-if="searchable"
       class="searchbox-container"
       :style="{
-        borderBottom: `1px solid ${$themeTokens.fineLine}`,
+        borderBottom: '1px solid var(--tokens-fineLine)',
       }"
     >
       <FilterTextbox

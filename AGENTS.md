@@ -34,15 +34,19 @@ Do not create a new component without first searching for an existing solution:
 Use existing components (e.g., `KTable` for tabular data, `KCircularLoader` for loading states). If one does 80% of what you need, wrap it — do not rewrite.
 
 ### ⚠️ Use Theme Tokens, Not Hard-Coded Colors
-Never use raw color values. Access theme colors via `$themeTokens` and `$themePalette`:
+Never use raw color values. Write theme colors as CSS variables in `<style>` blocks, including pseudo-classes:
 ```vue
-<template>
-  <div :style="{ color: $themeTokens.text, backgroundColor: $themeTokens.surface }">
-    <span :style="{ color: $themeTokens.annotation }">secondary text</span>
-  </div>
-</template>
+<style lang="scss" scoped>
+  .card {
+    color: var(--tokens-text);
+    background-color: var(--tokens-surface);
+  }
+  .card:hover {
+    background-color: var(--palette-grey-v100);
+  }
+</style>
 ```
-For computed dynamic styles, use `$computedClass`. See `docs/frontend_architecture/core.rst`.
+For other dynamic values, such as props, use `v-bind()` in the `<style>` block. Do not use `$computedClass` (deprecated in KDS). Use `$themeTokens` / `$themePalette` only where JavaScript needs the value itself. See `docs/frontend_architecture/core.rst`.
 
 ### ⚠️ Style Blocks, Not Inline — RTL Depends On It
 Non-dynamic styles go in `<style>` blocks. RTLCSS auto-flips directional properties (`padding-left` → `padding-right`) in style blocks but **cannot flip inline styles**. Dynamic directional styles must check `isRtl`. → `docs/i18n.rst`
