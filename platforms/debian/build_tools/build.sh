@@ -120,6 +120,8 @@ tar xf *orig.tar.gz
 # SOURCE_DIR=`tar --exclude="*/*" -tf *.orig.tar.gz|head -1`
 SOURCE_DIR=`ls -d kolibri*/`
 cp -r ../debian $SOURCE_DIR
+# Under debian/ for the same 3.0 (quilt) reason as debian/bundled below.
+cp ../../apt-repo/migrate-apt-source.sh "$SOURCE_DIR/debian/"
 
 # Copy bundled Python tarballs and config into source tree if present.
 # These go under debian/ because dpkg-source in 3.0 (quilt) cannot represent
@@ -166,4 +168,3 @@ else
     # build with unsigned source, changes and gzip compression
     dpkg-buildpackage -A -Zgzip -z3 -us -uc
 fi
-

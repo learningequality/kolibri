@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Installs /tmp/deb/*.deb inside a bare Ubuntu container and checks it runs.
-# Run by .github/workflows/install_test.yml; locally:
+# Run by .github/workflows/platform-debian-install_test.yml; locally:
 #
 #   docker run --rm -v "$PWD/dist:/tmp/deb" -v "$PWD/tests:/tmp/tests" \
 #     -e EXPECT_BUNDLED=1 ubuntu:20.04 /tmp/tests/install_smoke_test.sh
@@ -31,6 +31,11 @@ if [ -n "$UPGRADE_FROM_DEB" ]; then
   dpkg -i /tmp/previous.deb || true
   apt-get install -f -y $APT_OPTS
   echo "Installed kolibri $(dpkg-query -W -f='${Version}' kolibri) from $UPGRADE_FROM_DEB"
+  GITHUB_IO_SOURCE=/etc/apt/sources.list.d/kolibri-github-io.list
+  PPA_SOURCE=/etc/apt/sources.list.d/kolibri-ppa.list
+  echo "deb https://learningequality.github.io/kolibri-installer-debian stable main" > "$GITHUB_IO_SOURCE"
+  echo "deb http://ppa.launchpadcontent.net/learningequality/kolibri/ubuntu focal main" > "$PPA_SOURCE"
+  cp "$PPA_SOURCE" /tmp/ppa-source.orig
 fi
 
 # dpkg -i cannot resolve dependencies; apt-get -f installs them
@@ -39,6 +44,18 @@ dpkg -i /tmp/deb/*.deb || true
 apt-get install -f -y $APT_OPTS
 dpkg --configure -a
 dpkg-query -s kolibri | grep -q "^Status: install ok installed$"
+
+if [ -n "$UPGRADE_FROM_DEB" ]; then
+  if ! grep -q "^deb https://apt.learningequality.org stable main$" "$GITHUB_IO_SOURCE"; then
+    echo "FAIL: upgrade did not migrate the github.io source: $(cat "$GITHUB_IO_SOURCE")"
+    exit 1
+  fi
+  if ! cmp -s /tmp/ppa-source.orig "$PPA_SOURCE"; then
+    echo "FAIL: upgrade modified the Launchpad PPA source: $(cat "$PPA_SOURCE")"
+    exit 1
+  fi
+  echo "PASS: upgrade migrated the github.io source and left the PPA source alone"
+fi
 
 check_interpreter() {
   if [ -n "$EXPECT_BUNDLED" ]; then

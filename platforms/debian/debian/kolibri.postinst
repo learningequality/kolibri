@@ -29,6 +29,13 @@ case "$1" in
 
   configure)
 
+    # Migrate any existing self-hosted github.io Kolibri apt source onto the
+    # canonical apt.learningequality.org host. No-op when no such source exists.
+    if [ -f /usr/share/kolibri/migrate-apt-source.sh ]; then
+        . /usr/share/kolibri/migrate-apt-source.sh
+        migrate_kolibri_apt_source
+    fi
+
     # Install bundled Python if system Python is below minimum version
     if [ -x /opt/kolibri/bin/install-python.sh ]; then
         /opt/kolibri/bin/install-python.sh

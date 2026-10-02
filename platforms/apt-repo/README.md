@@ -32,7 +32,7 @@ sudo apt update && sudo apt install kolibri
 
 ## Self-migration of the installed base
 
-`migrate-apt-source.sh` defines `migrate_kolibri_apt_source()`, which rewrites any existing `github.io` Kolibri source under `/etc/apt/sources.list.d/` to `apt.learningequality.org`. It is idempotent, and a no-op when no such source is present (e.g. a Launchpad-PPA install). `kolibri-server`'s `postinst` calls it on `configure`, so existing installs migrate on their next `apt upgrade` with no user action.
+`migrate-apt-source.sh` defines `migrate_kolibri_apt_source()`, which rewrites any existing `github.io` Kolibri source under `/etc/apt/sources.list.d/` to `apt.learningequality.org`. It is idempotent, and a no-op when no such source is present (e.g. a Launchpad-PPA install). The `postinst` of both `kolibri` and `kolibri-server` calls it on `configure`, so existing installs migrate on their next `apt upgrade` with no user action.
 
 ## seed_old_pages.sh — run once
 
