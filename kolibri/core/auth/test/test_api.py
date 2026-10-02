@@ -3658,6 +3658,78 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
         # Check that the response has a 400 Bad Request status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def _post_new_password(self):
+        return self.client.post(
+            self.url,
+            {
+                "username": "testuser",
+                "password": "newpassword",
+                "facility": self.facility.id,
+            },
+        )
+
+    def _assert_password_unchanged(self):
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.password, demographics.NOT_SPECIFIED)
+
+    def test_set_non_specified_password_learner_can_sign_in_with_no_password(self):
+        disable_picture_password(self.facility, passwordless=True)
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self._assert_password_unchanged()
+
+    def _enable_picture_password(self):
+        dataset = self.facility.dataset
+        dataset.learner_can_edit_password = False
+        dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": True,
+        }
+        dataset.save()
+
+    def test_set_non_specified_password_learner_can_sign_in_with_picture_password(
+        self,
+    ):
+        self._enable_picture_password()
+        self.user.picture_password = "1.2.3"
+        self.user.save()
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self._assert_password_unchanged()
+
+    def test_set_non_specified_password_learner_without_picture_password(self):
+        self._enable_picture_password()
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("newpassword"))
+
+    def test_set_non_specified_password_coach_in_picture_password_facility(self):
+        self._enable_picture_password()
+        self.facility.add_coach(self.user)
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("newpassword"))
+
+    def test_set_non_specified_password_coach_in_no_password_facility(self):
+        disable_picture_password(self.facility, passwordless=True)
+        self.facility.add_coach(self.user)
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("newpassword"))
+
 
 class DeleteImportedUserTestCase(APITransactionTestCase):
     databases = "__all__"
