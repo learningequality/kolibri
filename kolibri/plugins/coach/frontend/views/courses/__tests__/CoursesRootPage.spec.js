@@ -362,6 +362,26 @@ describe('CoursesRootPage', () => {
       ).toBeInTheDocument();
     });
 
+    // calculating learner progress for every lesson is expensive, so between
+    // tests and after the last one closes there is no tally to show
+    it('shows dash in learner progress column when unit_phase is post_test_pending', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.POST_TEST_PENDING,
+        test_learner_progress: null,
+      });
+      expect(screen.getByText('—')).toBeInTheDocument();
+    });
+
+    it('shows dash in learner progress column when unit_phase is complete', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_number: null,
+        active_unit_title: null,
+        test_learner_progress: null,
+      });
+      expect(screen.getByText('—')).toBeInTheDocument();
+    });
+
     it('shows entire class label in recipients column when course has group assignments', () => {
       renderWithCourse({ assignments: ['group-1'], learner_ids: [] });
       expect(screen.getByText(entireClassLabel$())).toBeInTheDocument();
