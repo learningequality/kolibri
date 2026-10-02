@@ -11,11 +11,15 @@ Subcommands:
 import argparse
 import hashlib
 import json
+import logging
 import os
 import re
+import sys
 import tempfile
 import urllib.request
 from pathlib import Path
+
+log = logging.getLogger(__name__)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
@@ -128,13 +132,16 @@ def verify_sha256(path, expected):
 
 def download_file(url, dest):
     """Download url to dest with progress indication."""
-    print(f"Downloading {dest.name}...")
+    log.info("Downloading %s...", dest.name)
 
     def report(block, block_size, total):
         done = block * block_size
         if total > 0:
             pct = min(100, done * 100 // total)
-            print(f"\r  {pct}%  ({done // (1 << 20)} / {total // (1 << 20)} MB)", end="", flush=True)
+            sys.stdout.write(
+                f"\r  {pct}%  ({done // (1 << 20)} / {total // (1 << 20)} MB)"
+            )
+            sys.stdout.flush()
 
     # urlretrieve leaves a truncated file behind at its destination when the
     # transfer fails, which a later run reads back as a complete download.
@@ -145,7 +152,7 @@ def download_file(url, dest):
     os.chmod(tmp_name, 0o644)
     try:
         urllib.request.urlretrieve(url, tmp_name, reporthook=report)
-        print()
+        sys.stdout.write("\n")
         os.replace(tmp_name, dest)
     except BaseException:
         Path(tmp_name).unlink(missing_ok=True)
@@ -177,14 +184,13 @@ def download(arches, config_path=CONFIG_PATH, dest_dir=BUILD_SRC_DIR):
         url = tarball_url(base, tag, version, arch)
 
         if dest.exists():
-            print(f"Already downloaded: {dest}")
+            log.info("Already downloaded: %s", dest)
             actual = sha256_file(dest)
             if actual == expected_sha:
-                print("Checksum verified.")
+                log.info("Checksum verified.")
                 continue
-            else:
-                print("Checksum mismatch, re-downloading...")
-                dest.unlink()
+            log.info("Checksum mismatch, re-downloading...")
+            dest.unlink()
 
         download_file(url, dest)
 
@@ -193,9 +199,9 @@ def download(arches, config_path=CONFIG_PATH, dest_dir=BUILD_SRC_DIR):
         except SystemExit:
             dest.unlink(missing_ok=True)
             raise
-        print("Checksum verified.")
+        log.info("Checksum verified.")
 
-    print("Done.")
+    log.info("Done.")
 
 
 # ---------------------------------------------------------------------------
@@ -258,12 +264,17 @@ def cmd_update(args):
         target = f"3.{target}"
 
     if not re.match(r"^3\.\d+$", target):
-        raise SystemExit(f"ERROR: Version must be in format 3.XX (e.g. 3.11), got: {target}")
+        raise SystemExit(
+            f"ERROR: Version must be in format 3.XX (e.g. 3.11), got: {target}"
+        )
 
-    print(f"Searching for latest python-build-standalone release with cpython-{target}...")
+    log.info(
+        "Searching for latest python-build-standalone release with cpython-%s...",
+        target,
+    )
 
     url = f"{GITHUB_RELEASES_URL}?per_page=20"
-    with urllib.request.urlopen(url) as resp:
+    with urllib.request.urlopen(url, timeout=30) as resp:
         releases = json.load(resp)
 
     result = find_release(releases, target)
@@ -273,9 +284,9 @@ def cmd_update(args):
         )
 
     tag, python_version, full_version, urls = result
-    print(f"Found: Python {python_version} ({full_version}) in release {tag}")
+    log.info("Found: Python %s (%s) in release %s", python_version, full_version, tag)
     for arch, u in urls.items():
-        print(f"  {arch}: {u}")
+        log.info("  %s: %s", arch, u)
 
     existing = read_config() if CONFIG_PATH.exists() else {}
     values = updated_config(
@@ -290,17 +301,17 @@ def cmd_update(args):
     for arch in SUPPORTED_ARCHES:
         dest = BUILD_SRC_DIR / tarball_filename(full_version, arch)
         if dest.exists():
-            print(f"Already downloaded: {dest}")
+            log.info("Already downloaded: %s", dest)
         else:
             download_file(urls[arch], dest)
         checksum = sha256_file(dest)
         values[f"PYTHON_SHA256_{arch.upper()}"] = checksum
-        print(f"SHA256 {arch}: {checksum}")
+        log.info("SHA256 %s: %s", arch, checksum)
 
     write_config(CONFIG_PATH, values)
 
-    print(f"\nUpdated {CONFIG_PATH}")
-    print("Review the changes, then commit.")
+    log.info("Updated %s", CONFIG_PATH)
+    log.info("Review the changes, then commit.")
 
 
 # ---------------------------------------------------------------------------
@@ -329,6 +340,7 @@ def main():
     up.add_argument("version", help="Target Python version, e.g. 3.11 or just 11.")
 
     args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     if args.command == "download":
         download([args.arch] if args.arch else list(SUPPORTED_ARCHES))
     elif args.command == "update":

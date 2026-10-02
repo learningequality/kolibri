@@ -20,4 +20,3 @@ ExecStop=/etc/init.d/kolibri stop
 
 [Install]
 WantedBy=multi-user.target
-

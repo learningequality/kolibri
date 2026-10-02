@@ -364,8 +364,7 @@ jobs:
           KOLIBRI_HOME: .kolibri
         run: uv run python -O -m pytest --reuse-db
   # Tests for platforms/ members with their own suites, each pinned to Python
-  # 3.10. debian-server needs the distro-info system package; android's
-  # websockets test dep requires >= 3.10.
+  # 3.10; android's websockets test dep requires >= 3.10.
   platform_tests:
     name: Platform tests (${{ matrix.name }})
     needs: [pre_job, stage1_required_checks]
@@ -376,10 +375,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: debian-server
-            working-directory: platforms/debian-server
+          - name: debian
+            working-directory: platforms/debian
             python-version: "3.10"
-            system-packages: distro-info
           - name: desktop-app
             working-directory: platforms/desktop-app
             python-version: "3.10"
@@ -396,9 +394,6 @@ jobs:
           enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
-      - name: Install system dependencies
-        if: ${{ matrix.system-packages }}
-        run: .github/scripts/apt-install.sh ${{ matrix.system-packages }}
       - name: Install dependencies
         # --all-packages keeps root kolibri's runtime deps in the shared venv;
         # see the sync_extras_plugin_tests note above.

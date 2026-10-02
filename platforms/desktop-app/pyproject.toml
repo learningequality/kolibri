@@ -67,8 +67,8 @@ package = false
 
 [tool.pytest.ini_options]
 # kolibri_app lives under src/ and the member isn't installed (package = false);
-# tests/conftest.py puts src/ on sys.path before collection (matching
-# platforms/debian-server), so no pytest-pythonpath plugin dependency is needed.
+# tests/conftest.py puts src/ on sys.path before collection, so no
+# pytest-pythonpath plugin dependency is needed.
 testpaths = ["tests"]
 
 [tool.ruff]

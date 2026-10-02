@@ -74,4 +74,3 @@ case "$1" in
     log_success_msg "Usage: /etc/init.d/kolibri {start|stop|restart|status}"
     exit 1
 esac
-

@@ -21,18 +21,18 @@ For example, `HTTP_PORT` can be configured as
   `KOLIBRI_HTTP_PORT=1234 kolibri start`
 
 A full list of all the available options with their documentation can be found executing:
-    `kolibri configure list-env` 
+    `kolibri configure list-env`
 
 
 
 # Controlling kolibri through the system service interface
 
-This Debian package allows running Kolibri as a system service containing the 
+This Debian package allows running Kolibri as a system service containing the
 runtime instance. The runtime process and its data is owned by a defined user
 account. The name of this user account is configured in `/etc/kolibri/username`.
 
   ## systemd (default on Ubuntu 16.04+ and Debian Jessie, Stretch, Buster+)
-`sudo systemctl start/stop/restart kolibri` 
+`sudo systemctl start/stop/restart kolibri`
 
 `sudo systemctl enable/disable kolibri`
 
@@ -43,13 +43,13 @@ account. The name of this user account is configured in `/etc/kolibri/username`.
 
 
 
-*In case kolibri is controlled through the system service interface, other 
-configurations are also possible, but notice that with the common adoption of 
-systemd , the rest of the configurations mentioned in this document are 
-considered deprecated and are being kept only to maintain backwards 
+*In case kolibri is controlled through the system service interface, other
+configurations are also possible, but notice that with the common adoption of
+systemd , the rest of the configurations mentioned in this document are
+considered deprecated and are being kept only to maintain backwards
 compatibility with previous installations.*
 
-*In case of a new installation, consider using only environment variables or 
+*In case of a new installation, consider using only environment variables or
 the `$KOLIBRI_HOME/options.ini` file mentioned in the previous section.*
 
 ## Configuring the system service
@@ -68,8 +68,8 @@ using the Kolibri `movedirectory` command:
   #### Move current content folder to <destination>
   `kolibri manage content movedirectory <destination>`
 
-You can also configure Kolibri using variables added to `conf.d` files by 
-prefixing the option name with "KOLIBRI_". 
+You can also configure Kolibri using variables added to `conf.d` files by
+prefixing the option name with "KOLIBRI_".
 For example, `HTTP_PORT` can be configured as
 
   `KOLIBRI_HTTP_PORT=1234`

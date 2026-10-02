@@ -14,6 +14,7 @@ The APP_NAME must match the one used in scripts/launchpad_copy.py.
 """
 
 import os
+import sys
 
 from launchpadlib.launchpad import Launchpad
 
@@ -23,4 +24,4 @@ CREDS_FILE = os.environ.get("LP_CREDENTIALS_FILE", "launchpad.credentials")
 
 if __name__ == "__main__":
     Launchpad.login_with(APP_NAME, "production", credentials_file=CREDS_FILE)
-    print(f"Credentials saved to: {CREDS_FILE}")
+    sys.stdout.write(f"Credentials saved to: {CREDS_FILE}\n")

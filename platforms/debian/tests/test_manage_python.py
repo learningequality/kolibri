@@ -4,19 +4,17 @@ from pathlib import Path
 import pytest
 
 from build_tools import manage_python
-from build_tools.manage_python import (
-    SUPPORTED_ARCHES,
-    download,
-    download_file,
-    find_release,
-    read_config,
-    sha256_file,
-    tarball_filename,
-    tarball_url,
-    updated_config,
-    verify_sha256,
-    write_config,
-)
+from build_tools.manage_python import download
+from build_tools.manage_python import download_file
+from build_tools.manage_python import find_release
+from build_tools.manage_python import read_config
+from build_tools.manage_python import sha256_file
+from build_tools.manage_python import SUPPORTED_ARCHES
+from build_tools.manage_python import tarball_filename
+from build_tools.manage_python import tarball_url
+from build_tools.manage_python import updated_config
+from build_tools.manage_python import verify_sha256
+from build_tools.manage_python import write_config
 
 SUFFIX = "-unknown-linux-gnu-install_only_stripped.tar.gz"
 
@@ -47,6 +45,7 @@ def make_release(tag, versions, arches=SUPPORTED_ARCHES):
 
 # --- Tests for tarball naming ---
 
+
 def test_tarball_filename():
     assert tarball_filename("3.10.20+20260510", "x86_64") == (
         "cpython-3.10.20+20260510-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
@@ -67,6 +66,7 @@ def test_tarball_url_encodes_plus():
 
 # --- Tests for config read/write ---
 
+
 def test_write_read_config_round_trip(tmp_path):
     path = tmp_path / "python_versions.env"
     write_config(path, SAMPLE_CONFIG_VALUES)
@@ -76,16 +76,17 @@ def test_write_read_config_round_trip(tmp_path):
 def test_read_config_ignores_comments_and_strips_quoting(tmp_path):
     path = tmp_path / "python_versions.env"
     path.write_text(
-        '# a comment\n'
-        '\n'
+        "# a comment\n"
+        "\n"
         '  PYTHON_VERSION = "3.10.20"  \n'
-        '# another comment\n'
-        'PYTHON_MIN_MINOR=10\n'
+        "# another comment\n"
+        "PYTHON_MIN_MINOR=10\n"
     )
     assert read_config(path) == {"PYTHON_VERSION": "3.10.20", "PYTHON_MIN_MINOR": "10"}
 
 
 # --- Tests for checksums ---
+
 
 def test_sha256_file(tmp_path):
     path = tmp_path / "blob"
@@ -109,6 +110,7 @@ def test_verify_sha256_raises_on_mismatch(tmp_path):
 
 
 # --- Tests for find_release ---
+
 
 def test_find_release_returns_versions_and_urls():
     releases = [make_release("20260510", ["3.10.20+20260510"])]
@@ -155,7 +157,7 @@ def test_find_release_ignores_other_versions_in_same_release():
 
 
 def test_find_release_does_not_match_longer_minor_version():
-    """"3.1" must not resolve to a 3.10 tarball — the version prefix is
+    """A target of "3.1" must not resolve to a 3.10 tarball — the version prefix is
     anchored on the dot separating minor from patch."""
     releases = [make_release("20260510", ["3.10.20+20260510"])]
     assert find_release(releases, "3.1") is None
@@ -174,11 +176,13 @@ def test_find_release_skips_unpublished_releases(flag):
 
 # --- Tests for downloading ---
 
+
 def fake_urlretrieve(payload, error=None):
     def urlretrieve(url, filename, reporthook=None):
         Path(filename).write_bytes(payload)
         if error is not None:
             raise error
+
     return urlretrieve
 
 
@@ -229,22 +233,32 @@ def unreachable_urlretrieve(url, filename, reporthook=None):
 def test_download_keeps_a_cached_tarball_that_verifies(tmp_path, monkeypatch):
     config = write_download_config(tmp_path, b"good")
     cached = cached_tarball(tmp_path / "build_src", b"good")
-    monkeypatch.setattr(manage_python.urllib.request, "urlretrieve", unreachable_urlretrieve)
+    monkeypatch.setattr(
+        manage_python.urllib.request, "urlretrieve", unreachable_urlretrieve
+    )
     download(["x86_64"], config, tmp_path / "build_src")
     assert cached.read_bytes() == b"good"
 
 
-def test_download_replaces_a_cached_tarball_that_fails_verification(tmp_path, monkeypatch):
+def test_download_replaces_a_cached_tarball_that_fails_verification(
+    tmp_path, monkeypatch
+):
     config = write_download_config(tmp_path, b"good")
     cached = cached_tarball(tmp_path / "build_src", b"corrupt")
-    monkeypatch.setattr(manage_python.urllib.request, "urlretrieve", fake_urlretrieve(b"good"))
+    monkeypatch.setattr(
+        manage_python.urllib.request, "urlretrieve", fake_urlretrieve(b"good")
+    )
     download(["x86_64"], config, tmp_path / "build_src")
     assert cached.read_bytes() == b"good"
 
 
-def test_download_deletes_a_fresh_download_that_fails_verification(tmp_path, monkeypatch):
+def test_download_deletes_a_fresh_download_that_fails_verification(
+    tmp_path, monkeypatch
+):
     config = write_download_config(tmp_path, b"good")
-    monkeypatch.setattr(manage_python.urllib.request, "urlretrieve", fake_urlretrieve(b"bad"))
+    monkeypatch.setattr(
+        manage_python.urllib.request, "urlretrieve", fake_urlretrieve(b"bad")
+    )
     with pytest.raises(SystemExit, match="SHA256 mismatch"):
         download(["x86_64"], config, tmp_path / "build_src")
     assert list((tmp_path / "build_src").iterdir()) == []
@@ -252,12 +266,15 @@ def test_download_deletes_a_fresh_download_that_fails_verification(tmp_path, mon
 
 def test_download_refuses_a_bundle_below_the_declared_floor(tmp_path, monkeypatch):
     config = write_download_config(tmp_path, b"good", PYTHON_MIN_MINOR="11")
-    monkeypatch.setattr(manage_python.urllib.request, "urlretrieve", unreachable_urlretrieve)
-    with pytest.raises(SystemExit, match="below the declared floor 3.11"):
+    monkeypatch.setattr(
+        manage_python.urllib.request, "urlretrieve", unreachable_urlretrieve
+    )
+    with pytest.raises(SystemExit, match=r"below the declared floor 3\.11"):
         download(["x86_64"], config, tmp_path / "build_src")
 
 
 # --- Tests for the updated config ---
+
 
 def test_updated_config_keeps_the_existing_supported_floor():
     values = updated_config(
@@ -275,7 +292,7 @@ def test_updated_config_falls_back_to_the_target_version():
 
 
 def test_updated_config_refuses_a_bundle_below_the_existing_floor():
-    with pytest.raises(SystemExit, match="below the declared floor 3.10"):
+    with pytest.raises(SystemExit, match=r"below the declared floor 3\.10"):
         updated_config(
             SAMPLE_CONFIG_VALUES, "20260901", "3.9.23", "3.9.23+20260901", "9"
         )
