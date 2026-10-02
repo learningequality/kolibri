@@ -278,7 +278,9 @@ class WorkerSupervisor:
         workers_currently_busy = len(self.future_job_mapping)
 
         if workers_currently_busy < self.regular_workers:
-            job = self.storage.get_next_queued_job(supervisor_id=self.supervisor_id)
+            job = self.storage.get_next_queued_job(
+                priority=Priority.LOW, supervisor_id=self.supervisor_id
+            )
         elif workers_currently_busy < self.max_workers:
             job = self.storage.get_next_queued_job(
                 priority=Priority.HIGH, supervisor_id=self.supervisor_id

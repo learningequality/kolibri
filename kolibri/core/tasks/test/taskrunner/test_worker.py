@@ -155,6 +155,38 @@ class TestWorker:
 
         assert job.state == State.COMPLETED
 
+    def test_regular_tasks_are_claimed_in_priority_order(self, worker):
+        # Stop the supervisor thread so it cannot claim jobs before
+        # get_next_job() is called directly.
+        worker.supervisor_thread.stop()
+        worker.supervisor_thread.join()
+
+        low_job = Job(id, args=(1,))
+        regular_job = Job(id, args=(2,))
+        high_job = Job(id, args=(3,))
+
+        # Queue them in the reverse of priority order.
+        worker.storage.enqueue_job(low_job, QUEUE, Priority.LOW)
+        worker.storage.enqueue_job(regular_job, QUEUE, Priority.REGULAR)
+        worker.storage.enqueue_job(high_job, QUEUE, Priority.HIGH)
+
+        assert worker.get_next_job().job_id == high_job.job_id
+        assert worker.get_next_job().job_id == regular_job.job_id
+        assert worker.get_next_job().job_id == low_job.job_id
+
+    def test_low_tasks_run_when_regular_workers_free(self, worker):
+        # Stop the supervisor thread so it cannot claim the job before
+        # get_next_job() is called directly.
+        worker.supervisor_thread.stop()
+        worker.supervisor_thread.join()
+
+        job = Job(id, args=(10,))
+        worker.storage.enqueue_job(job, QUEUE, Priority.LOW)
+
+        job = worker.get_next_job()
+
+        assert isinstance(job, Job) is True
+
     def test_regular_tasks_wait_when_regular_workers_busy(self, worker):
         # We have one task running right now.
         worker.future_job_mapping = {"job_id": "future"}
@@ -187,3 +219,18 @@ class TestWorker:
 
         # Worker must get this job since its a 'high' priority job.
         assert isinstance(job, Job) is True
+
+    def test_high_worker_does_not_claim_low_tasks(self, worker):
+        # Stop the supervisor thread so it cannot claim jobs before
+        # get_next_job() is called directly.
+        worker.supervisor_thread.stop()
+        worker.supervisor_thread.join()
+
+        # All regular workers are busy, so get_next_job() uses the
+        # high-priority slot.
+        worker.future_job_mapping = {"job_id": "future"}
+
+        job = Job(id, args=(10,))
+        worker.storage.enqueue_job(job, QUEUE, Priority.LOW)
+
+        assert worker.get_next_job() is None
