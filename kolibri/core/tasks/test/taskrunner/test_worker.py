@@ -1,4 +1,5 @@
 import time
+from datetime import timedelta
 
 import pytest
 
@@ -7,6 +8,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.test.taskrunner.test_job_running import EventProxy
 from kolibri.core.tasks.worker import WorkerSupervisor
+from kolibri.utils.time_utils import local_now
 
 QUEUE = "pytest"
 
@@ -174,19 +176,6 @@ class TestWorker:
         assert worker.get_next_job().job_id == regular_job.job_id
         assert worker.get_next_job().job_id == low_job.job_id
 
-    def test_low_tasks_run_when_regular_workers_free(self, worker):
-        # Stop the supervisor thread so it cannot claim the job before
-        # get_next_job() is called directly.
-        worker.supervisor_thread.stop()
-        worker.supervisor_thread.join()
-
-        job = Job(id, args=(10,))
-        worker.storage.enqueue_job(job, QUEUE, Priority.LOW)
-
-        job = worker.get_next_job()
-
-        assert isinstance(job, Job) is True
-
     def test_regular_tasks_wait_when_regular_workers_busy(self, worker):
         # We have one task running right now.
         worker.future_job_mapping = {"job_id": "future"}
@@ -234,3 +223,25 @@ class TestWorker:
         worker.storage.enqueue_job(job, QUEUE, Priority.LOW)
 
         assert worker.get_next_job() is None
+
+    def test_deferred_low_task_runs_when_due(self, worker):
+        worker.supervisor_thread.stop()
+        worker.supervisor_thread.join()
+
+        job = Job(id, args=(10,))
+        scheduled_time = local_now() + timedelta(minutes=1)
+
+        worker.storage.enqueue_at(
+            scheduled_time,
+            job,
+            QUEUE,
+            Priority.LOW,
+        )
+
+        assert worker.get_next_job() is None
+
+        worker.storage._now = lambda: scheduled_time + timedelta(minutes=1)
+
+        claimed_job = worker.get_next_job()
+
+        assert claimed_job.job_id == job.job_id

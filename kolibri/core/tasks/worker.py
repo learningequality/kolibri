@@ -264,8 +264,7 @@ class WorkerSupervisor:
         Fetches the next potential QUEUED job.
 
         If less workers are running than there are regular workers, we look first for
-        jobs with 'high' priority, if found one we run it else we look for jobs with 'regular'
-        priority, if found we run it.
+        jobs with 'high' priority, then 'regular' priority, then 'low' priority.
 
         If all regular workers are busy, then the remaining workers only look for
         'high' priority jobs. If found one, we run it.
