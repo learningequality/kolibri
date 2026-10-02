@@ -56,17 +56,19 @@ const innermost = computed(() => registrations.value[registrations.value.length 
 
 const innermostParts = computed(() => (innermost.value ? toParts(innermost.value.title) : []));
 
+const showsErrorTitle = computed(() => Boolean(error.value) && !innermost.value?.hasOwnErrorPage);
+
 export const pageHeading = computed(() =>
   innermost.value?.hasVisibleHeading ? '' : joinParts(innermostParts.value),
 );
 
 // watch() reads its sources at import, before i18nSetup() resolves, so they must not translate.
 // Not immediate: the server-rendered site title, or vue-meta's, stands until a page registers.
-watch([innermostParts, error, metaInfoComponents], ([parts, err, metaInfoCount]) => {
+watch([innermostParts, showsErrorTitle, metaInfoComponents], ([parts, isError, metaInfoCount]) => {
   if (metaInfoCount) {
     return;
   }
-  document.title = formatDocumentTitle(err ? [errorPageTitle$()] : parts);
+  document.title = formatDocumentTitle(isError ? [errorPageTitle$()] : parts);
 });
 
 /**
@@ -75,14 +77,24 @@ watch([innermostParts, error, metaInfoComponents], ([parts, err, metaInfoCount])
  * Throws after mount if another registrant is neither an ancestor nor a descendant of this one.
  * @param {string|string[]|import('vue').Ref|Function} title - The title, or its parts from
  * most to least specific, as a string or array of strings, or a ref or getter of either.
- * @param {object} [options] - Heading options.
+ * @param {object} [options] - What the page renders itself.
  * @param {boolean} [options.hasVisibleHeading=false] - The page renders its own visible <h1>,
  * so the page shell renders no hidden one.
+ * @param {boolean} [options.hasOwnErrorPage=false] - The page renders its own error state, so
+ * its title stands while an app error is set.
  * @returns {{ documentTitle: import('vue').ComputedRef<string> }} This registration's title as
  * formatted for the browser tab.
  */
-export default function usePageTitle(title, { hasVisibleHeading = false } = {}) {
-  const registration = { title, hasVisibleHeading, component: getCurrentInstance().proxy };
+export default function usePageTitle(
+  title,
+  { hasVisibleHeading = false, hasOwnErrorPage = false } = {},
+) {
+  const registration = {
+    title,
+    hasVisibleHeading,
+    hasOwnErrorPage,
+    component: getCurrentInstance().proxy,
+  };
   registrations.value = [...registrations.value, registration];
   // Checked after the render flush, as a replaced page unmounts after its replacement mounts.
   onMounted(async () => {
