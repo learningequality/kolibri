@@ -11,8 +11,8 @@ Build-Depends: debhelper (>= 13),
                po-debconf
 Standards-Version: 4.8.0
 Homepage: https://learningequality.org/kolibri
-Vcs-Git: https://github.com/learningequality/kolibri-installer-debian.git
-Vcs-Browser: https://github.com/learningequality/kolibri-installer-debian
+Vcs-Git: https://github.com/learningequality/kolibri.git -b develop [platforms/debian]
+Vcs-Browser: https://github.com/learningequality/kolibri/tree/develop/platforms/debian
 
 
 Package: kolibri

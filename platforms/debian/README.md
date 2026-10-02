@@ -37,27 +37,24 @@ To clean up any previous dist files and folders.
 
 To build the binary (Debian file), first install required dependencies:
 ```
-sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip build-essential
+sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip build-essential distro-info-data
 ```
 
-Then run:
+Then run from `platforms/debian`, so the changelog generator gets its Python dependencies:
 ```
-make kolibri.deb
+uv run make kolibri.deb
 ```
 
 This will build the debian file into the `dist` folder.
 
 ### Running tests
 
-Install the project with test dependencies:
+From `platforms/debian`:
 ```
-pip install -e ".[test]"
+uv run --group test python -O -m pytest
 ```
 
-Then run:
-```
-python3 -m pytest tests/ -v
-```
+CI runs these as the `debian` row of the `platform_tests` job in `.github/workflows/tox.yml`.
 
 ### Building sources
 
@@ -71,10 +68,10 @@ Ensure that you have registered your GPG key with your launchpad account and tha
 
 To build and upload the package run this command:
 ```
-GPG_PASSPHRASE="<passphrase for your GPG key>" make commit-new-release
+GPG_PASSPHRASE="<passphrase for your GPG key>" uv run make commit-new-release
 ```
 
 To just build the signed sources run this command:
 ```
-GPG_PASSPHRASE="<passphrase for your GPG key>" make kolibri.changes
+GPG_PASSPHRASE="<passphrase for your GPG key>" uv run make kolibri.changes
 ```

@@ -43,17 +43,13 @@ kolibri.deb: dist/kolibri.deb
 kolibri.changes: dist/%.orig.tar.gz get-python
 	build_tools/build.sh -S
 
-# Commit to kolibri-installer-debian the new release changelog
-# and upload the package to PPA
-# Both gpg key and git credentials must be set up for this to work
+# Upload the package to the kolibri-proposed PPA
+# A gpg key must be set up for this to work
 .PHONY: commit-new-release
 commit-new-release: kolibri.changes
 	find dist -name *.changes -exec dput --unchecked ppa:learningequality/kolibri-proposed {} \;
-	# find dist -name changelog -exec cp {} debian \;
-	# git commit -a -m "New release: $(shell cat dist/VERSION)"
-	# git push
 
-.PHONY:
+.PHONY: clean-tar
 clean-tar:
 	mkdir -p build_src
 	rm -f build_src/kolibri-*.tar.gz
@@ -76,15 +72,3 @@ ifndef VERSION
 	$(error VERSION is required. Usage: make update-python VERSION=3.11)
 endif
 	python3 build_tools/manage_python.py update $(VERSION)
-
-.PHONY: clean-deb
-clean-deb:
-	rm -rf incoming
-	mkdir incoming
-
-.PHONY: get-deb
-get-deb: clean-deb
-# Download a .deb file from a URL, handling content disposition headers.
-	$(eval DLFILE = $(shell wget --content-disposition -P incoming/ "${deb}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
-	$(eval DEBFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
-	[ "${DLFILE}" = "${DEBFILE}" ] || mv "${DLFILE}" "${DEBFILE}"
