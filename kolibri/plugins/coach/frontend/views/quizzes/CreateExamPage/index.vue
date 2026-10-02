@@ -104,6 +104,7 @@
       {{ closeConfirmationMessage$() }}
     </KModal>
 
+    <SidePanelTitle v-if="overlayOpen" />
     <router-view v-if="quizInitialized" />
   </CoachImmersivePage>
 
@@ -131,6 +132,7 @@
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import { provideSidePanelTitle } from '../../../composables/useSidePanelTitle';
+  import SidePanelTitle from '../../common/SidePanelTitle';
   import CreateQuizSection from './CreateQuizSection';
 
   const { createNewExamLabel$ } = createTranslator('CreateExamPage', {
@@ -147,6 +149,7 @@
       BottomAppBar,
       CreateQuizSection,
       AssignmentDetailsModal,
+      SidePanelTitle,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -177,7 +180,7 @@
         return quiz.value.title;
       });
       usePageTitle(title);
-      provideSidePanelTitle(title);
+      const { overlayOpen } = provideSidePanelTitle(title);
 
       initClassInfo();
 
@@ -198,6 +201,7 @@
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         title,
+        overlayOpen,
         classId,
         groups,
         closeConfirmationToRoute,
