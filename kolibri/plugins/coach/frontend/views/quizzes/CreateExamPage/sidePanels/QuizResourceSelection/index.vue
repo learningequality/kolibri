@@ -186,6 +186,7 @@
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import useSidePanelTitle from '../../../../../composables/useSidePanelTitle';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
@@ -205,6 +206,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      useSidePanelTitle();
       const previousRoute = usePreviousRoute();
       const isLandingRoute = computed(() => previousRoute.value === null);
 

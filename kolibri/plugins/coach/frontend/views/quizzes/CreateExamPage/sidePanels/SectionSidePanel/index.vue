@@ -44,6 +44,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
+  import useSidePanelTitle from '../../../../../composables/useSidePanelTitle';
 
   export default {
     name: 'SectionSidePanel',
@@ -51,6 +52,7 @@
       SidePanelModal,
     },
     setup() {
+      useSidePanelTitle();
       const route = useRoute();
       const router = useRouter();
 
