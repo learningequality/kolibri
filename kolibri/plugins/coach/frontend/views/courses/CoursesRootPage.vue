@@ -56,6 +56,7 @@
       </div>
       <div v-if="showCoursesTable">
         <KTable
+          class="courses-table"
           :dataLoading="coursesAreLoading"
           :emptyMessage="hasActiveFilters ? coreString('noResultsLabel') : noCoursesAssigned$()"
           :caption="tableCaption"
@@ -82,13 +83,15 @@
           </template>
           <template #cell="{ content, colIndex }">
             <template v-if="colIndex === 0">
-              <div class="course-title">
+              <KLabeledIcon
+                icon="course"
+                :color="$themeTokens.primary"
+              >
                 <KRouterLink
                   :to="courseSummaryLink(content)"
                   :text="content.title"
-                  icon="course"
                 />
-              </div>
+              </KLabeledIcon>
             </template>
             <template v-else-if="colIndex === 1">
               <KLabeledIcon nowrap>
@@ -104,6 +107,14 @@
                 <template v-else-if="content.unit_phase === UnitPhase.POST_TEST_PENDING">
                   {{ unitInProgressLabel$({ num: content.active_unit_number }) }}
                 </template>
+                <template
+                  v-else-if="
+                    content.unit_phase === UnitPhase.PRE_TEST_PENDING &&
+                      content.active_unit_number > 1
+                  "
+                >
+                  {{ unitNotStartedLabel$({ num: content.active_unit_number }) }}
+                </template>
                 <template v-else-if="content.unit_phase === UnitPhase.COMPLETE">
                   {{ coreString('completedLabel') }}
                 </template>
@@ -113,19 +124,25 @@
               </KLabeledIcon>
             </template>
             <template v-else-if="colIndex === 2">
-              <Recipients
-                :groupNames="getRecipientNamesForCourseSession(content)"
-                :hasAssignments="courseHasRecipients(content)"
-              />
-            </template>
-            <template v-else-if="colIndex === 3">
+              <template v-if="content.unit_phase === UnitPhase.COMPLETE">
+                {{ allUnitsClosedLabel$() }}
+              </template>
+              <template v-else-if="content.unit_phase === UnitPhase.POST_TEST_PENDING">
+                {{ learnersWorkingOnLessonsLabel$() }}
+              </template>
               <StatusSummary
-                v-if="content.test_learner_progress"
+                v-else-if="content.test_learner_progress"
                 :tally="content.test_learner_progress"
                 :verbose="true"
                 :showNeedsHelp="false"
               />
               <KEmptyPlaceholder v-else />
+            </template>
+            <template v-else-if="colIndex === 3">
+              <Recipients
+                :groupNames="getRecipientNamesForCourseSession(content)"
+                :hasAssignments="courseHasRecipients(content)"
+              />
             </template>
             <div
               v-else-if="colIndex === 4"
@@ -291,6 +308,9 @@
         unitInProgressLabel$,
         preTestRunningLabel$,
         postTestRunningLabel$,
+        unitNotStartedLabel$,
+        allUnitsClosedLabel$,
+        learnersWorkingOnLessonsLabel$,
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
       const { getRecipientNamesForCourseSession } = useClassSummary();
@@ -542,6 +562,9 @@
         unitInProgressLabel$,
         preTestRunningLabel$,
         postTestRunningLabel$,
+        unitNotStartedLabel$,
+        allUnitsClosedLabel$,
+        learnersWorkingOnLessonsLabel$,
         getRecipientNamesForCourseSession,
         courseHasRecipients,
       };
@@ -571,8 +594,14 @@
           {
             label: this.coreString('progressLabel'),
             dataType: 'undefined',
-            minWidth: '100px',
+            minWidth: '200px',
             columnId: 'status',
+          },
+          {
+            label: this.learnerProgressLabel$(),
+            dataType: 'undefined',
+            minWidth: '200px',
+            columnId: 'learnerProgress',
           },
           {
             label: this.coachString('recipientsLabel'),
@@ -581,15 +610,9 @@
             columnId: 'recipients',
           },
           {
-            label: this.learnerProgressLabel$(),
-            dataType: 'undefined',
-            minWidth: '100px',
-            columnId: 'learnerProgress',
-          },
-          {
             label: this.coachString('lessonVisibleLabel'),
             dataType: 'undefined',
-            minWidth: '200px',
+            minWidth: '80px',
             columnId: 'visible',
           },
           {
@@ -604,8 +627,8 @@
         return this.sortedCourses.map(course => [
           course, // title
           course, // status
-          course, // recipients
           course, // learner progress
+          course, // recipients
           course, // visible toggle
           course, // options menu
         ]);
@@ -787,10 +810,8 @@
     font-size: 12px;
   }
 
-  .course-title {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  .courses-table {
+    font-size: 14px;
   }
 
   .empty-courses {

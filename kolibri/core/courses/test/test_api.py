@@ -976,7 +976,9 @@ class CourseSessionProgressAPITestCase(APITestCase):
         self.assertEqual(progress["notStarted"], 1)
         self.assertEqual(progress["total"], 2)
 
-    def test_complete_phase_returns_post_test_progress(self):
+    def test_complete_phase_returns_null_progress(self):
+        # Once every unit is closed there is no current activity to tally;
+        # the final post-test tally would read as course completion.
         self._create_test_assignment(TestType.Pre, closed=True)
         self._create_test_assignment(TestType.Post, closed=True)
         synthetic_cid = get_synthetic_content_id(
@@ -988,15 +990,12 @@ class CourseSessionProgressAPITestCase(APITestCase):
         data = self._get_session_data()
         self.assertEqual(data["unit_phase"], UnitPhase.Complete)
         self.assertIsNone(data["active_unit_number"])
-        progress = data["test_learner_progress"]
-        self.assertIsNotNone(progress)
-        self.assertEqual(progress["completed"], 2)
-        self.assertEqual(progress["started"], 0)
-        self.assertEqual(progress["notStarted"], 0)
-        self.assertEqual(progress["total"], 2)
+        self.assertIsNone(data["test_learner_progress"])
 
-    def test_post_test_pending_returns_correct_phase_and_progress(self):
-        # Pre-test closed, post-test not yet activated: PostTestPending
+    def test_post_test_pending_returns_correct_phase_and_null_progress(self):
+        # Pre-test closed, post-test not yet activated: PostTestPending.
+        # Learners are working on lessons, so the closed pre-test tally
+        # would misrepresent their current progress.
         self._create_test_assignment(TestType.Pre, closed=True)
         synthetic_cid = get_synthetic_content_id(
             str(self.course_session.id), str(self.unit.id), TestType.Pre
@@ -1007,13 +1006,7 @@ class CourseSessionProgressAPITestCase(APITestCase):
         data = self._get_session_data()
         self.assertEqual(data["unit_phase"], UnitPhase.PostTestPending)
         self.assertEqual(data["active_unit_number"], 1)
-        # Progress reflects the closed pre-test (last test for the unit)
-        progress = data["test_learner_progress"]
-        self.assertIsNotNone(progress)
-        self.assertEqual(progress["completed"], 1)
-        self.assertEqual(progress["started"], 1)
-        self.assertEqual(progress["notStarted"], 0)
-        self.assertEqual(progress["total"], 2)
+        self.assertIsNone(data["test_learner_progress"])
 
     def test_duplicate_mastery_log_complete_wins(self):
         # A learner with both complete=True and complete=False MasteryLog rows for

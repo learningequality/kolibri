@@ -595,6 +595,21 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Status label on the Courses list page when learners are working on lessons between the pre- and post-tests; {num} is the 1-based unit number',
   },
+  learnersWorkingOnLessonsLabel: {
+    message: 'Learners working on lessons',
+    context:
+      "Shown in the 'Learner progress' column on the Courses list page between a unit's pre-test and post-test, while learners work through the unit's lessons",
+  },
+  allUnitsClosedLabel: {
+    message: 'All units closed',
+    context:
+      "Shown in the 'Learner progress' column on the Courses list page once the post-tests for every unit in the course have ended",
+  },
+  unitNotStartedLabel: {
+    message: 'Unit {num, number} not started',
+    context:
+      'Status label on the Courses list page when the previous unit is complete and the pre-test for the next unit has not been started yet; {num} is the 1-based unit number',
+  },
   preTestRunningLabel: {
     message: 'Pre-test running · Unit {num, number}',
     context:
