@@ -120,9 +120,10 @@ jobs:
       release_id: ${{ github.event.release.id }}
   zip:
     name: Build Raspberry Pi Image
-    needs: [deb, server_deb]
+    needs: [whl, deb, server_deb]
     uses: ./.github/workflows/platform-pi-build_img.yml
     with:
+      version: ${{ needs.whl.outputs.version }}
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
       server-deb-file-name: ${{ needs.server_deb.outputs.deb-file-name }}
   upload_zip:

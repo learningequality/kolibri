@@ -1,5 +1,4 @@
 name: Install smoke test
-
 on:
   workflow_call:
     inputs:
@@ -7,11 +6,13 @@ on:
         description: "Artifact name of the .deb file to test"
         required: true
         type: string
-
+permissions:
+  contents: read
 jobs:
   install_test:
     name: Install test (${{ matrix.image }}${{ matrix.runner && format(', {0}', matrix.runner) || '' }}${{ matrix.no_system_python && ', no system python3' || '' }}${{ matrix.upgrade_from_deb && ', upgrade' || '' }})
     runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -37,21 +38,24 @@ jobs:
             upgrade_from_deb: https://github.com/learningequality/kolibri/releases/download/v0.19.5/kolibri_0.19.5-0ubuntu1_all.deb
             expect_bundled: true
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@v7.0.1
       - name: Download .deb artifact
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.deb-file-name }}
           path: /tmp/deb
-
       - name: Run install test in Docker
+        env:
+          NO_SYSTEM_PYTHON: ${{ matrix.no_system_python && '1' || '' }}
+          UPGRADE_FROM_DEB: ${{ matrix.upgrade_from_deb }}
+          EXPECT_BUNDLED: ${{ matrix.expect_bundled && '1' || '' }}
+          IMAGE: ${{ matrix.image }}
         run: |
           docker run --rm \
             -v /tmp/deb:/tmp/deb \
-            -v "$PWD/tests:/tmp/tests" \
-            -e NO_SYSTEM_PYTHON="${{ matrix.no_system_python && '1' || '' }}" \
-            -e UPGRADE_FROM_DEB="${{ matrix.upgrade_from_deb }}" \
-            -e EXPECT_BUNDLED="${{ matrix.expect_bundled && '1' || '' }}" \
-            ${{ matrix.image }} \
+            -v "$PWD/platforms/debian/tests:/tmp/tests" \
+            -e NO_SYSTEM_PYTHON \
+            -e UPGRADE_FROM_DEB \
+            -e EXPECT_BUNDLED \
+            "$IMAGE" \
             /tmp/tests/install_smoke_test.sh

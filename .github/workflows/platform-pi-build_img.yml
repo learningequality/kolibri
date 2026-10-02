@@ -5,6 +5,9 @@ on:
       deb-url:
         description: 'URL for Kolibri deb file'
         required: true
+      version:
+        description: 'Kolibri version (PEP 440), used in the zip file name'
+        required: true
   workflow_call:
     inputs:
       deb-file-name:
@@ -17,6 +20,10 @@ on:
       server-deb-file-name:
         description: 'Artifact name of the kolibri-server deb to install into the image'
         required: false
+        type: string
+      version:
+        description: 'Kolibri version (PEP 440), used in the zip file name'
+        required: true
         type: string
     outputs:
       zip-file-name:
@@ -72,7 +79,9 @@ jobs:
           key: ${{ runner.OS }}-image-pi-base-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/base.Pifile', 'platforms/raspberry-pi/files/*', 'platforms/raspberry-pi/Makefile') }}
       - name: Build Pi image
         working-directory: platforms/raspberry-pi
-        run: make zipfile
+        env:
+          VERSION: ${{ inputs.version }}
+        run: make zipfile version="$VERSION"
       - name: Get ZIP filename
         id: get-zip-filename
         working-directory: platforms/raspberry-pi
