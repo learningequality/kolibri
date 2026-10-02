@@ -1,54 +1,34 @@
-name: Release PPA
-
+name: Release Kolibri PPA
 on:
   workflow_dispatch:
     inputs:
       version:
         description: 'Debian package version to promote (e.g. 0.19.3-0ubuntu1)'
         required: true
-      deb-url:
-        description: 'URL to download a .deb file (for GitHub Pages PPA)'
-        required: false
   workflow_call:
     inputs:
       version:
         description: 'Debian package version to promote'
         required: true
         type: string
-      deb-file-name:
-        description: 'Artifact name of the .deb file (from build workflow)'
-        required: true
-        type: string
-      debian-repo-signing-key-id:
-        description: 'Debian repo signing key ID (falls back to vars.DEBIAN_REPO_SIGNING_KEY_ID)'
-        required: false
-        type: string
     secrets:
       LP_CREDENTIALS:
         required: true
-      DEBIAN_REPO_SIGNING_KEY:
-        required: true
-      LE_BOT_APP_ID:
-        description: 'GitHub App ID for cross-repo authentication'
-        required: true
-      LE_BOT_PRIVATE_KEY:
-        description: 'GitHub App Private Key for cross-repo authentication'
-        required: true
-
+permissions:
+  contents: read
 jobs:
   promote:
     name: Promote packages from kolibri-proposed to kolibri
     runs-on: ubuntu-latest
+    # Past wait-for-published's own --timeout 14400 (4 h).
+    timeout-minutes: 270
+    defaults:
+      run:
+        working-directory: platforms/debian
     steps:
-      - name: Checkout codebase
-        uses: actions/checkout@v7
-        with:
-          repository: learningequality/kolibri-installer-debian
-          ref: ${{ github.ref }}
+      - uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib python3-distro-info
+        run: ../../.github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -56,122 +36,22 @@ jobs:
       - name: Promote from kolibri-proposed to kolibri
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ inputs.version }}
         run: |
-          python3 scripts/launchpad_copy.py promote \
-            --version "${{ inputs.version }}"
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            promote --version "$VERSION"
       - name: Wait for promoted packages to be published
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ inputs.version }}
         run: |
-          python3 scripts/launchpad_copy.py wait-for-published \
-            --version "${{ inputs.version }}" \
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            wait-for-published --version "$VERSION" \
             --ppa kolibri \
             --timeout 14400 \
             --interval 600
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
-
-  publish_github_pages_ppa:
-    name: Publish GitHub Pages PPA
-    runs-on: ubuntu-latest
-    concurrency:
-      group: debian-repo-publish
-      cancel-in-progress: false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-        with:
-          repository: learningequality/kolibri-installer-debian
-          ref: ${{ github.ref }}
-
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y reprepro
-
-      - name: Set GPG key ID
-        id: gpg
-        run: |
-          GPG_KEY_ID="${{ inputs.debian-repo-signing-key-id || vars.DEBIAN_REPO_SIGNING_KEY_ID }}"
-          if [ -z "$GPG_KEY_ID" ]; then
-            echo "::error::No signing key ID provided (set input or vars.DEBIAN_REPO_SIGNING_KEY_ID)"
-            exit 1
-          fi
-          echo "key-id=$GPG_KEY_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Import GPG signing key into isolated keyring
-        run: |
-          GNUPGHOME=$(mktemp -d)
-          export GNUPGHOME
-          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
-          echo "pinentry-mode loopback" > "$GNUPGHOME/gpg.conf"
-          echo "allow-loopback-pinentry" > "$GNUPGHOME/gpg-agent.conf"
-          echo "${{ secrets.DEBIAN_REPO_SIGNING_KEY }}" | gpg --batch --import
-          echo "${{ steps.gpg.outputs.key-id }}:6:" | gpg --batch --import-ownertrust
-          gpgconf --kill gpg-agent
-
-      - name: Download .deb from artifact
-        if: inputs.deb-file-name
-        uses: actions/download-artifact@v8
-        with:
-          name: ${{ inputs.deb-file-name }}
-          path: incoming
-
-      - name: Download .deb from URL
-        if: inputs.deb-url
-        env:
-          DEB_URL: ${{ inputs.deb-url }}
-        run: |
-          mkdir -p incoming
-          wget -P incoming/ "$DEB_URL"
-
-      - name: Identify .deb file
-        id: deb
-        run: |
-          DEB_FILE=$(ls incoming/*.deb 2>/dev/null | head -1)
-          if [ -z "$DEB_FILE" ]; then
-            echo "::error::No .deb file found in incoming/"
-            exit 1
-          fi
-          echo "path=$DEB_FILE" >> "$GITHUB_OUTPUT"
-          echo "Found: $DEB_FILE ($(du -h "$DEB_FILE" | cut -f1))"
-
-      - name: Build repository with reprepro
-        run: |
-          mkdir -p repo/conf
-
-          cat > repo/conf/distributions <<EOF
-          Origin: Learning Equality
-          Label: Kolibri
-          Suite: stable
-          Codename: stable
-          Architectures: amd64 i386 arm64 armhf
-          Components: main
-          Description: Kolibri Debian repository
-          SignWith: ${{ steps.gpg.outputs.key-id }}
-          EOF
-
-          reprepro -b repo includedeb stable "${{ steps.deb.outputs.path }}"
-
-          # Export public key for users
-          gpg --armor --export "${{ steps.gpg.outputs.key-id }}" > repo/pubkey.asc
-
-      - name: Generate GitHub token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
-        with:
-          app-id: ${{ secrets.LE_BOT_APP_ID }}
-          private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
-          owner: learningequality
-          repositories: kolibri-installer-debian
-
-      - name: Deploy to GitHub Pages
-        run: |
-          cd repo
-          git init
-          git checkout -b gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Update Debian repository"
-          git remote add origin "https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/learningequality/kolibri-installer-debian.git"
-          git push --force origin gh-pages
