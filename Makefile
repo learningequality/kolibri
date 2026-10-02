@@ -210,8 +210,8 @@ set-no-uv-python-version-for-tests:
 	echo "__version__ = version = \"$$VERSION\"" >> kolibri/_version.py; \
 	echo "Set version to $$VERSION"
 
-# Plaintext copy read out of our sdist by kolibri-installer-debian (pinned
-# v0.16.1) — deleting it reddens `deb`. Nothing in this repo reads it.
+# Plaintext copy read out of our sdist by platforms/debian's `dist/VERSION`
+# target, and by build_whl.yml to name the Pi image zip — deleting it reddens both.
 writeversion:
 	uv run python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 	@echo ""
