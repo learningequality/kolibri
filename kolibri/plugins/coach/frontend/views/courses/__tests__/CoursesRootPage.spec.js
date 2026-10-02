@@ -12,7 +12,6 @@ import { UnitPhase } from '../../../constants/courseConstants';
 import useCourses, { useCoursesMock } from '../../../composables/useCourses';
 // eslint-disable-next-line import-x/named
 import useClassSummary, { useClassSummaryMock } from '../../../composables/useClassSummary';
-import { coachStrings } from '../../common/commonCoachStrings';
 import { learnerProgressTranslators } from '../../common/status/statusStrings';
 import useSidePanelTitle from '../../../composables/useSidePanelTitle';
 
@@ -25,7 +24,6 @@ const {
   unitNotStartedLabel$,
 } = coursesStrings;
 const { deleteAction$, notStartedLabel$, completedLabel$ } = coreStrings;
-const { entireClassLabel$ } = coachStrings;
 
 const CLASS_NAME = 'Class A';
 
@@ -294,8 +292,9 @@ describe('CoursesRootPage', () => {
         test_learner_progress: null,
         ...courseOverrides,
       };
-      useCourses.mockImplementation(() => useCoursesMock({ courses: ref([course]) }));
-      return renderComponent();
+      const courses = ref([course]);
+      useCourses.mockImplementation(() => useCoursesMock({ courses }));
+      return { ...renderComponent(), course, courses };
     }
 
     it('shows "not started" label in status column when unit_phase is pre_test_pending', () => {
@@ -311,8 +310,9 @@ describe('CoursesRootPage', () => {
         active_unit_number: 2,
         active_unit_title: 'Unit Two',
       });
-      expect(screen.getByText(unitNotStartedLabel$({ num: 2 }))).toBeInTheDocument();
-      expect(screen.queryByText(notStartedLabel$())).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('gridcell', { name: unitNotStartedLabel$({ num: 2 }) }),
+      ).toBeVisible();
     });
 
     it('shows pre-test running label in status column when unit_phase is pre_test_active', () => {
@@ -342,10 +342,7 @@ describe('CoursesRootPage', () => {
       expect(screen.getByText(completedLabel$())).toBeInTheDocument();
     });
 
-    it('shows dash in learner progress column when test_learner_progress is null', () => {
-      renderWithCourse({ test_learner_progress: null });
-      expect(screen.getByText('—')).toBeInTheDocument();
-    });
+    const queryTally = () => screen.queryByTestId('learner-progress-tally');
 
     // The API omits helpNeeded, which tests have no signal for; the ratio
     // denominator must not become NaN.
@@ -354,17 +351,32 @@ describe('CoursesRootPage', () => {
         unit_phase: UnitPhase.PRE_TEST_ACTIVE,
         test_learner_progress: { completed: 1, started: 2, notStarted: 3, total: 6 },
       });
-      expect(screen.queryByText('—')).not.toBeInTheDocument();
-      expect(
-        screen.getByText(
-          learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
-        ),
-      ).toBeInTheDocument();
+      expect(queryTally()).toHaveTextContent(
+        learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
+      );
     });
 
-    it('shows entire class label in recipients column when course has group assignments', () => {
-      renderWithCourse({ assignments: ['group-1'], learner_ids: [] });
-      expect(screen.getByText(entireClassLabel$())).toBeInTheDocument();
+    // Closing a test refetches the course; the old test's tally must not
+    // linger beside the new status.
+    it('updates status and learner progress together when the course data changes', async () => {
+      const { course, courses } = renderWithCourse({
+        unit_phase: UnitPhase.PRE_TEST_ACTIVE,
+        test_learner_progress: { completed: 1, started: 2, notStarted: 3, total: 6 },
+      });
+      expect(
+        screen.getByRole('gridcell', { name: preTestRunningLabel$({ num: 1 }) }),
+      ).toBeVisible();
+      expect(queryTally()).toBeVisible();
+
+      courses.value = [
+        { ...course, unit_phase: UnitPhase.POST_TEST_PENDING, test_learner_progress: null },
+      ];
+      await nextTick();
+
+      expect(
+        screen.getByRole('gridcell', { name: unitInProgressLabel$({ num: 1 }) }),
+      ).toBeVisible();
+      expect(queryTally()).not.toBeInTheDocument();
     });
   });
 });

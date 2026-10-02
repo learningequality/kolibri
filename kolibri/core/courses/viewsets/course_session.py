@@ -576,7 +576,13 @@ def _compute_learner_progress(
 
     total = len(all_learners)
 
-    if course_state["unit_phase"] == UnitPhase.PreTestPending:
+    # Only a running test has progress to tally; between tests and after the
+    # last one closes, a closed test's tally would misrepresent current activity.
+    if course_state["unit_phase"] in (
+        UnitPhase.PreTestPending,
+        UnitPhase.PostTestPending,
+        UnitPhase.Complete,
+    ):
         item["test_learner_progress"] = None
         return
 

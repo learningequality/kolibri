@@ -129,6 +129,7 @@
             <template v-else-if="colIndex === 3">
               <StatusSummary
                 v-if="content.test_learner_progress"
+                data-testid="learner-progress-tally"
                 :tally="content.test_learner_progress"
                 :verbose="true"
                 :showNeedsHelp="false"
