@@ -1,102 +1,45 @@
-import { mount } from '@vue/test-utils';
+import { render } from '@testing-library/vue';
+import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import ExtraDemographics from '../index.vue';
-import ExtraDemographicField from '../ExtraDemographicField.vue';
 
-const field1 = {
+const SIX_TO_TEN = { value: '6-10', defaultLabel: 'Six to Ten' };
+const CHARM = { value: 'charm', defaultLabel: 'Charm' };
+
+const ageField = {
   id: 'age',
   description: 'Age',
-  enumValues: [
-    {
-      value: '0-5',
-      defaultLabel: 'Zero to Five',
-    },
-    {
-      value: '6-10',
-      defaultLabel: 'Six to Ten',
-    },
-    {
-      value: '11-15',
-      defaultLabel: 'Eleven to Fifteen',
-    },
-    {
-      value: '16-20',
-      defaultLabel: 'Sixteen to Twenty',
-    },
-    {
-      value: '21-25',
-      defaultLabel: 'Twenty-One to Twenty-Five',
-    },
-  ],
+  enumValues: [{ value: '0-5', defaultLabel: 'Zero to Five' }, SIX_TO_TEN],
 };
 
-const field2 = {
+const flavourField = {
   id: 'flavour',
   description: 'Flavour',
-  enumValues: [
-    {
-      value: 'up',
-      defaultLabel: 'Up',
-    },
-    {
-      value: 'down',
-      defaultLabel: 'Down',
-    },
-    {
-      value: 'strange',
-      defaultLabel: 'Strange',
-    },
-    {
-      value: 'charm',
-      defaultLabel: 'Charm',
-    },
-    {
-      value: 'top',
-      defaultLabel: 'Top',
-    },
-    {
-      value: 'bottom',
-      defaultLabel: 'Bottom',
-    },
-  ],
+  enumValues: [{ value: 'strange', defaultLabel: 'Strange' }, CHARM],
 };
 
-const mockFacilityDatasetExtraFields = {
-  demographic_fields: [field1, field2],
+const renderComponent = props => {
+  return render(ExtraDemographics, {
+    props: {
+      facilityDatasetExtraFields: { demographic_fields: [ageField, flavourField] },
+      ...props,
+    },
+  });
 };
 
 describe('ExtraDemographics', () => {
-  it('renders ExtraDemographicField for each field in customSchema', () => {
-    const wrapper = mount(ExtraDemographics, {
-      propsData: {
-        facilityDatasetExtraFields: mockFacilityDatasetExtraFields,
-        value: null,
-      },
-    });
-    const extraDemographicFields = wrapper.findAllComponents(ExtraDemographicField);
-    expect(extraDemographicFields).toHaveLength(
-      mockFacilityDatasetExtraFields.demographic_fields.length,
-    );
+  it('emits the picked answer when no answers are saved yet', async () => {
+    const { emitted } = renderComponent({ value: null });
+
+    await selectKSelectOption(ageField.description, SIX_TO_TEN.defaultLabel);
+    expect(emitted().input).toEqual([[{ [ageField.id]: SIX_TO_TEN.value }]]);
   });
 
-  it('emits input event with updated value when ExtraDemographicField emits select', () => {
-    const wrapper = mount(ExtraDemographics, {
-      propsData: {
-        facilityDatasetExtraFields: mockFacilityDatasetExtraFields,
-        value: null,
-      },
-    });
-    const extraDemographicField = wrapper.findComponent(ExtraDemographicField);
-    extraDemographicField.vm.$emit('select', '6-10');
-    expect(wrapper.emitted().input[0]).toEqual([{ age: '6-10' }]);
-  });
+  it('keeps the saved answers when another field is answered', async () => {
+    const { emitted } = renderComponent({ value: { [ageField.id]: SIX_TO_TEN.value } });
 
-  it('computes customSchema correctly', () => {
-    const wrapper = mount(ExtraDemographics, {
-      propsData: {
-        facilityDatasetExtraFields: mockFacilityDatasetExtraFields,
-        value: null,
-      },
-    });
-    expect(wrapper.vm.customSchema).toEqual(mockFacilityDatasetExtraFields.demographic_fields);
+    await selectKSelectOption(flavourField.description, CHARM.defaultLabel);
+    expect(emitted().input).toEqual([
+      [{ [ageField.id]: SIX_TO_TEN.value, [flavourField.id]: CHARM.value }],
+    ]);
   });
 });
