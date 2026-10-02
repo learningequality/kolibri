@@ -1,26 +1,44 @@
 """Tests for scripts/launchpad_copy.py.
 
-All launchpadlib and distro_info calls are mocked so tests run without
-those packages installed.
+All launchpadlib calls are mocked. distro_info is mocked, or reads a
+fixture ubuntu.csv via the ubuntu_csv fixture.
 """
 
+import datetime
 import ssl
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
-from unittest.mock import MagicMock, patch, PropertyMock
 import pytest
 
-from scripts.launchpad_copy import (
-    get_current_series,
-    get_supported_series,
-    LaunchpadWrapper,
-    PACKAGE_WHITELIST,
-    PROPOSED_PPA_NAME,
-    RELEASE_PPA_NAME,
-    SOURCE_PACKAGE_NAME,
-    BINARY_PACKAGE_NAME,
-    POCKET,
-    build_parser,
-)
+from scripts.launchpad_copy import build_parser
+from scripts.launchpad_copy import cmd_copy_to_series
+from scripts.launchpad_copy import get_current_series
+from scripts.launchpad_copy import get_supported_series
+from scripts.launchpad_copy import LaunchpadWrapper
+from scripts.launchpad_copy import PROPOSED_PPA_NAME
+
+PACKAGE_ARGS = ["--source-package", "kolibri-source", "--binary-package", "kolibri"]
+
+
+@pytest.fixture
+def ubuntu_csv(tmp_path):
+    """Point distro_info at an ubuntu.csv with an ESM-only, two LTS, and an unreleased series."""
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+
+    def days(n):
+        return (today + datetime.timedelta(days=n)).isoformat()
+
+    rows = [
+        "version,codename,series,created,release,eol,eol-server,eol-esm",
+        f"16.04 LTS,Xenial Xerus,xenial,{days(-4000)},{days(-3900)},{days(-1000)},{days(-1000)},{days(1000)}",
+        f"22.04 LTS,Jammy Jellyfish,jammy,{days(-1100)},{days(-1000)},{days(1000)},{days(1000)},{days(3000)}",
+        f"24.04 LTS,Noble Numbat,noble,{days(-600)},{days(-500)},{days(2000)},{days(2000)},{days(4000)}",
+        f"26.10,Devel,devel,{days(-10)},{days(100)},{days(300)},,",
+    ]
+    (tmp_path / "ubuntu.csv").write_text("\n".join(rows) + "\n")
+    with patch("distro_info._get_data_dir", return_value=str(tmp_path)):
+        yield
 
 
 # --- Series discovery tests ---
@@ -66,6 +84,12 @@ class TestGetSupportedSeries:
 
         assert result == ["focal", "jammy"]
 
+    @pytest.mark.usefixtures("ubuntu_csv")
+    def test_no_esm_excludes_unreleased_series(self):
+        result = get_supported_series(source_series="noble", include_esm=False)
+
+        assert result == ["jammy"]
+
     @patch("scripts.launchpad_copy.UbuntuDistroInfo", None)
     def test_raises_when_distro_info_unavailable(self):
         with pytest.raises(ImportError, match="distro-info"):
@@ -86,8 +110,12 @@ class TestGetSupportedSeries:
 # --- Helper to build a mock LaunchpadWrapper ---
 
 
-def make_mock_source(status="Published", series_name="noble", name="kolibri-source",
-                     version="0.19.3-0ubuntu1"):
+def make_mock_source(
+    status="Published",
+    series_name="noble",
+    name="kolibri-source",
+    version="0.19.3-0ubuntu1",
+):
     """Create a mock source publication."""
     source = MagicMock()
     source.status = status
@@ -105,10 +133,8 @@ def make_mock_build(state="Successfully built"):
     return build
 
 
-def make_wrapper_with_mock_lp():
-    """Create a LaunchpadWrapper with mocked Launchpad API."""
-    wrapper = LaunchpadWrapper()
-
+def make_mock_lp():
+    """Create a mocked Launchpad API: (lp, proposed PPA, release PPA, series)."""
     mock_lp = MagicMock()
     mock_owner = MagicMock()
     mock_proposed = MagicMock()
@@ -117,15 +143,23 @@ def make_wrapper_with_mock_lp():
 
     mock_lp.people.__getitem__ = MagicMock(return_value=mock_owner)
     mock_owner.getPPAByName = MagicMock(
-        side_effect=lambda name: mock_proposed if name == PROPOSED_PPA_NAME else mock_release
+        side_effect=lambda name: (
+            mock_proposed if name == PROPOSED_PPA_NAME else mock_release
+        )
     )
     mock_proposed.distribution.getSeries = MagicMock(return_value=mock_series)
 
-    # Inject cached properties
-    type(wrapper).lp = PropertyMock(return_value=mock_lp)
-    type(wrapper).owner = PropertyMock(return_value=mock_owner)
-    type(wrapper).proposed_ppa = PropertyMock(return_value=mock_proposed)
-    type(wrapper).release_ppa = PropertyMock(return_value=mock_release)
+    return mock_lp, mock_proposed, mock_release, mock_series
+
+
+def make_wrapper_with_mock_lp(
+    source_package="kolibri-source", binary_package="kolibri"
+):
+    """Create a LaunchpadWrapper with mocked Launchpad API."""
+    wrapper = LaunchpadWrapper(source_package, binary_package)
+    mock_lp, mock_proposed, mock_release, mock_series = make_mock_lp()
+    # Fills this instance's cached_property; other instances still log in
+    wrapper.lp = mock_lp
 
     return wrapper, mock_proposed, mock_release, mock_series
 
@@ -278,7 +312,9 @@ class TestCopyToSeries:
             )
         )
         wrapper.get_builds_for_source = MagicMock(return_value=[noble_build])
-        mock_ppa.syncSources.side_effect = Exception("same version already published in focal")
+        mock_ppa.syncSources.side_effect = Exception(
+            "same version already published in focal"
+        )
 
         result = wrapper.copy_to_series()
 
@@ -311,6 +347,29 @@ class TestCopyToSeries:
 
         assert result == 1
 
+    @patch("scripts.launchpad_copy.UbuntuDistroInfo")
+    def test_skips_superseded_source(self, MockDistroInfo):
+        MockDistroInfo.return_value.lts.return_value = "noble"
+        MockDistroInfo.return_value.supported.return_value = ["jammy", "noble"]
+        MockDistroInfo.return_value.supported_esm.return_value = []
+        wrapper, mock_ppa, _, _ = make_wrapper_with_mock_lp(
+            "kolibri-server", "kolibri-server"
+        )
+        source = make_mock_source(
+            name="kolibri-server", series_name="noble", status="Superseded"
+        )
+        source.getBuilds.return_value = [make_mock_build()]
+        mock_ppa.distribution.getSeries.side_effect = lambda name_or_version: (
+            name_or_version
+        )
+        mock_ppa.getPublishedSources.side_effect = lambda **kwargs: (
+            [source] if kwargs.get("distro_series") == "noble" else []
+        )
+
+        wrapper.copy_to_series()
+
+        mock_ppa.syncSources.assert_not_called()
+
 
 # --- wait_for_published tests ---
 
@@ -324,14 +383,18 @@ class TestWaitForPublished:
 
         mock_binary = MagicMock()
         mock_binary.status = "Published"
-        mock_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        mock_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        )
         mock_ppa.getPublishedBinaries.return_value = [mock_binary]
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
             "0.19.3-0ubuntu1",
-            series=["noble"], timeout=5, interval=1,
+            series=["noble"],
+            timeout=5,
+            interval=1,
         )
 
         assert result == 0
@@ -343,14 +406,14 @@ class TestWaitForPublished:
         with the source name ("kolibri-source"), which never matches the
         actual binary ("kolibri"), so the wait could only ever time out.
         """
-        assert BINARY_PACKAGE_NAME != SOURCE_PACKAGE_NAME
-
         wrapper, mock_ppa, _, _ = make_wrapper_with_mock_lp()
         source = make_mock_source(series_name="noble")
         mock_ppa.getPublishedSources.return_value = [source]
         mock_binary = MagicMock()
         mock_binary.status = "Published"
-        mock_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        mock_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        )
         mock_ppa.getPublishedBinaries.return_value = [mock_binary]
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
@@ -358,8 +421,13 @@ class TestWaitForPublished:
         result = wrapper.wait_for_published("0.19.3-0ubuntu1", timeout=5, interval=1)
 
         assert result == 0
-        assert mock_ppa.getPublishedSources.call_args.kwargs["source_name"] == SOURCE_PACKAGE_NAME
-        assert mock_ppa.getPublishedBinaries.call_args.kwargs["binary_name"] == BINARY_PACKAGE_NAME
+        assert (
+            mock_ppa.getPublishedSources.call_args.kwargs["source_name"]
+            == "kolibri-source"
+        )
+        assert (
+            mock_ppa.getPublishedBinaries.call_args.kwargs["binary_name"] == "kolibri"
+        )
 
     def test_returns_1_on_timeout(self):
         wrapper, mock_ppa, _, _ = make_wrapper_with_mock_lp()
@@ -372,7 +440,9 @@ class TestWaitForPublished:
 
         result = wrapper.wait_for_published(
             "0.19.3-0ubuntu1",
-            series=["noble"], timeout=1, interval=1,
+            series=["noble"],
+            timeout=1,
+            interval=1,
         )
 
         assert result == 1
@@ -386,16 +456,22 @@ class TestWaitForPublished:
 
         noble_binary = MagicMock()
         noble_binary.status = "Published"
-        noble_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        noble_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        )
         jammy_binary = MagicMock()
         jammy_binary.status = "Published"
-        jammy_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/jammy/amd64"
+        jammy_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/jammy/amd64"
+        )
         mock_ppa.getPublishedBinaries.return_value = [noble_binary, jammy_binary]
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
-            "0.19.3-0ubuntu1", timeout=5, interval=1,
+            "0.19.3-0ubuntu1",
+            timeout=5,
+            interval=1,
         )
 
         assert result == 0
@@ -409,7 +485,9 @@ class TestWaitForPublished:
 
         noble_binary = MagicMock()
         noble_binary.status = "Published"
-        noble_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        noble_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        )
         mock_ppa.getPublishedBinaries.return_value = [noble_binary]
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
@@ -417,7 +495,9 @@ class TestWaitForPublished:
         # Only waiting for noble, not jammy
         result = wrapper.wait_for_published(
             "0.19.3-0ubuntu1",
-            series=["noble"], timeout=5, interval=1,
+            series=["noble"],
+            timeout=5,
+            interval=1,
         )
 
         assert result == 0
@@ -431,13 +511,17 @@ class TestWaitForPublished:
 
         jammy_binary = MagicMock()
         jammy_binary.status = "Published"
-        jammy_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/jammy/amd64"
+        jammy_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/jammy/amd64"
+        )
         mock_ppa.getPublishedBinaries.return_value = [jammy_binary]
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
-            "0.19.3-0ubuntu1", timeout=5, interval=1,
+            "0.19.3-0ubuntu1",
+            timeout=5,
+            interval=1,
         )
 
         assert result == 0
@@ -456,7 +540,9 @@ class TestWaitForPublished:
 
         mock_binary = MagicMock()
         mock_binary.status = "Published"
-        mock_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        mock_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        )
         # First poll raises a transient error; the retry reconnects and succeeds.
         mock_ppa.getPublishedBinaries.side_effect = [
             ssl.SSLEOFError("EOF occurred in violation of protocol (_ssl.c:2406)"),
@@ -467,7 +553,10 @@ class TestWaitForPublished:
 
         with patch("scripts.launchpad_copy.time.sleep"):
             result = wrapper.wait_for_published(
-                "0.19.3-0ubuntu1", series=["noble"], timeout=5, interval=1,
+                "0.19.3-0ubuntu1",
+                series=["noble"],
+                timeout=5,
+                interval=1,
             )
 
         assert result == 0
@@ -486,7 +575,10 @@ class TestWaitForPublished:
         with patch("scripts.launchpad_copy.time.sleep"):
             with pytest.raises(ssl.SSLEOFError):
                 wrapper.wait_for_published(
-                    "0.19.3-0ubuntu1", series=["noble"], timeout=5, interval=1,
+                    "0.19.3-0ubuntu1",
+                    series=["noble"],
+                    timeout=5,
+                    interval=1,
                 )
 
 
@@ -511,7 +603,9 @@ class TestPromote:
 
         source = make_mock_source(series_name="noble")
         mock_proposed.getPublishedSources.return_value = [source]
-        mock_release.syncSources.side_effect = Exception("same version already published")
+        mock_release.syncSources.side_effect = Exception(
+            "same version already published"
+        )
 
         result = wrapper.promote("0.19.3-0ubuntu1")
 
@@ -542,7 +636,7 @@ class TestPromote:
         assert result == 1
 
     def test_returns_1_when_nothing_to_promote(self):
-        wrapper, mock_proposed, mock_release, _ = make_wrapper_with_mock_lp()
+        wrapper, mock_proposed, _mock_release, _ = make_wrapper_with_mock_lp()
         mock_proposed.getPublishedSources.return_value = []
 
         result = wrapper.promote("0.19.3-0ubuntu1")
@@ -595,33 +689,46 @@ def test_get_current_series_returns_lts():
 class TestBuildParser:
     def test_check_source_args(self):
         parser = build_parser()
-        args = parser.parse_args([
-            "check-source",
-            "--version", "0.19.3-0ubuntu1",
-        ])
+        args = parser.parse_args(
+            [
+                *PACKAGE_ARGS,
+                "check-source",
+                "--version",
+                "0.19.3-0ubuntu1",
+            ]
+        )
         assert args.command == "check-source"
         assert args.version == "0.19.3-0ubuntu1"
         assert args.ppa == PROPOSED_PPA_NAME
 
     def test_copy_to_series_args(self):
         parser = build_parser()
-        args = parser.parse_args(["copy-to-series", "--series", "noble"])
+        args = parser.parse_args([*PACKAGE_ARGS, "copy-to-series", "--series", "noble"])
         assert args.command == "copy-to-series"
         assert args.series == "noble"
 
     def test_copy_to_series_defaults(self):
         parser = build_parser()
-        args = parser.parse_args(["copy-to-series"])
+        args = parser.parse_args([*PACKAGE_ARGS, "copy-to-series"])
         assert args.series is None
 
     def test_wait_for_published_args(self):
         parser = build_parser()
-        args = parser.parse_args([
-            "wait-for-published",
-            "--version", "0.19.3-0ubuntu1",
-            "--timeout", "3600", "--interval", "30",
-            "--series", "noble", "jammy",
-        ])
+        args = parser.parse_args(
+            [
+                *PACKAGE_ARGS,
+                "wait-for-published",
+                "--version",
+                "0.19.3-0ubuntu1",
+                "--timeout",
+                "3600",
+                "--interval",
+                "30",
+                "--series",
+                "noble",
+                "jammy",
+            ]
+        )
         assert args.command == "wait-for-published"
         assert args.timeout == 3600
         assert args.interval == 30
@@ -629,11 +736,146 @@ class TestBuildParser:
 
     def test_promote_args(self):
         parser = build_parser()
-        args = parser.parse_args(["promote", "--version", "0.19.3-0ubuntu1"])
+        args = parser.parse_args(
+            [*PACKAGE_ARGS, "promote", "--version", "0.19.3-0ubuntu1"]
+        )
         assert args.command == "promote"
         assert args.version == "0.19.3-0ubuntu1"
 
     def test_requires_subcommand(self):
         parser = build_parser()
         with pytest.raises(SystemExit):
-            parser.parse_args([])
+            parser.parse_args(PACKAGE_ARGS)
+
+    @pytest.mark.parametrize("flag", ["--source-package", "--binary-package"])
+    def test_requires_both_package_names(self, flag):
+        index = PACKAGE_ARGS.index(flag)
+        args = PACKAGE_ARGS[:index] + PACKAGE_ARGS[index + 2 :]
+        with pytest.raises(SystemExit):
+            build_parser().parse_args([*args, "promote", "--version", "1.0"])
+
+
+class TestPackageNames:
+    """Every operation acts on the wrapper's packages, never the other pipeline's."""
+
+    def setup_method(self):
+        self.wrapper, self.ppa, self.release, _ = make_wrapper_with_mock_lp(
+            "kolibri-server", "kolibri-server"
+        )
+
+    def test_check_source_ignores_other_package(self):
+        published = [
+            make_mock_source(name="kolibri-server-extras", version="0.5.1-0ubuntu1")
+        ]
+
+        # Launchpad matches source_name as a substring unless exact_match is set
+        def published_sources(source_name, exact_match=False, **kwargs):
+            return [
+                s
+                for s in published
+                if s.source_package_name == source_name
+                or (not exact_match and source_name in s.source_package_name)
+            ]
+
+        self.ppa.getPublishedSources.side_effect = published_sources
+
+        assert self.wrapper.check_source("0.5.1-0ubuntu1") == 1
+
+    @patch("scripts.launchpad_copy.UbuntuDistroInfo")
+    def test_copy_to_series_copies_only_source_package(self, MockDistroInfo):
+        MockDistroInfo.return_value.lts.return_value = "noble"
+        MockDistroInfo.return_value.supported.return_value = ["jammy", "noble"]
+        MockDistroInfo.return_value.supported_esm.return_value = []
+        sources = [
+            make_mock_source(name=name, series_name="noble")
+            for name in ("kolibri-server", "kolibri-source")
+        ]
+        for source in sources:
+            source.getBuilds.return_value = [make_mock_build()]
+        self.ppa.distribution.getSeries.side_effect = lambda name_or_version: (
+            name_or_version
+        )
+        self.ppa.getPublishedSources.side_effect = lambda **kwargs: (
+            sources if kwargs.get("distro_series") == "noble" else []
+        )
+
+        self.wrapper.copy_to_series()
+
+        self.ppa.syncSources.assert_called_once()
+        assert self.ppa.syncSources.call_args.kwargs["source_names"] == [
+            "kolibri-server"
+        ]
+
+    @pytest.mark.parametrize("flags,esm_targeted", [([], True), (["--no-esm"], False)])
+    @pytest.mark.usefixtures("ubuntu_csv")
+    def test_copy_to_series_no_esm_flag(self, flags, esm_targeted):
+        lp, ppa, _, _ = make_mock_lp()
+        source = make_mock_source(name="kolibri-source", series_name="noble")
+        source.getBuilds.return_value = [make_mock_build()]
+        ppa.distribution.getSeries.side_effect = lambda name_or_version: name_or_version
+        ppa.getPublishedSources.side_effect = lambda **kwargs: (
+            [source] if kwargs.get("distro_series") == "noble" else []
+        )
+        args = build_parser().parse_args(
+            [*PACKAGE_ARGS, "copy-to-series", "--series", "noble", *flags]
+        )
+
+        with patch("scripts.launchpad_copy.Launchpad") as MockLaunchpad:
+            MockLaunchpad.login_with.return_value = lp
+            cmd_copy_to_series(args)
+
+        calls = ppa.syncSources.call_args_list
+        assert all(call.kwargs["source_names"] == ["kolibri-source"] for call in calls)
+        targets = [call.kwargs["to_series"] for call in calls]
+        assert "jammy" in targets
+        assert ("xenial" in targets) is esm_targeted
+        assert ("devel" in targets) is esm_targeted
+
+    def test_promote_promotes_only_source_package(self):
+        self.ppa.getPublishedSources.return_value = [
+            make_mock_source(name="kolibri-server", version="0.5.1-0ubuntu1"),
+            make_mock_source(name="kolibri-source", version="0.5.1-0ubuntu1"),
+        ]
+
+        result = self.wrapper.promote("0.5.1-0ubuntu1")
+
+        assert result == 0
+        self.release.syncSources.assert_called_once()
+        assert self.release.syncSources.call_args.kwargs["source_names"] == [
+            "kolibri-server"
+        ]
+
+    def test_promote_fails_when_only_other_package_published(self):
+        self.ppa.getPublishedSources.return_value = [
+            make_mock_source(name="kolibri-source", version="0.5.1-0ubuntu1"),
+        ]
+
+        result = self.wrapper.promote("0.5.1-0ubuntu1")
+
+        assert result == 1
+        self.release.syncSources.assert_not_called()
+
+    def test_wait_for_published_ignores_binary_name_superstring(self):
+        wrapper, ppa, _, _ = make_wrapper_with_mock_lp()
+        wrapper.get_ppa = MagicMock(return_value=ppa)
+        server_binary = MagicMock()
+        server_binary.binary_package_name = "kolibri-server"
+        server_binary.status = "Published"
+        server_binary.distro_arch_series_link = (
+            "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        )
+
+        # Launchpad matches binary_name as a substring unless exact_match is set
+        def published_binaries(binary_name, exact_match=False, **kwargs):
+            name = server_binary.binary_package_name
+            if name == binary_name or (not exact_match and binary_name in name):
+                return [server_binary]
+            return []
+
+        ppa.getPublishedBinaries.side_effect = published_binaries
+
+        result = wrapper.wait_for_published(
+            "0.20.0-0ubuntu1", series=["noble"], timeout=1, interval=1
+        )
+
+        assert result == 1

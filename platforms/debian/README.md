@@ -61,7 +61,7 @@ CI runs these as the `debian` row of the `platform_tests` job in `.github/workfl
 This is primarily used to build sources for uploading to launchpad to release to the PPA.
 Install required dependencies:
 ```
-sudo apt install -y devscripts debhelper python3-pip dput dh-python python3-all python3-pytest
+sudo apt install -y devscripts debhelper python3-pip dput dh-python python3-all python3-pytest distro-info-data
 ```
 
 Ensure that you have registered your GPG key with your launchpad account and that you are authorized to release to the kolibri-proposed PPA.

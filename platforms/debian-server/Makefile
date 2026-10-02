@@ -49,7 +49,7 @@ error-pages:
 changelog:
 	git show HEAD:./debian/changelog > debian/changelog
 	version="$${KOLIBRI_VERSION:-$$(uv run python -c 'import kolibri; print(kolibri.__version__)')}" && \
-	echo "$$version" | uv run python ../debian/build_tools/generate_changelog.py --package kolibri-server --version-file /dev/stdin
+	echo "$$version" | uv run --package kolibri-installer-debian python ../debian/build_tools/generate_changelog.py --package kolibri-server --version-file /dev/stdin
 
 release: changelog  error-pages orig
 
