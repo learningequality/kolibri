@@ -34,16 +34,18 @@ sudo apt update && sudo apt install kolibri
 
 `migrate-apt-source.sh` defines `migrate_kolibri_apt_source()`, which rewrites any existing `github.io` Kolibri source under `/etc/apt/sources.list.d/` to `apt.learningequality.org`. It is idempotent, and a no-op when no such source is present (e.g. a Launchpad-PPA install). The `postinst` of both `kolibri` and `kolibri-server` calls it on `configure`, so existing installs migrate on their next `apt upgrade` with no user action.
 
-## seed_old_pages.sh — run once
+## Cutover of the old Pages sites — run once
 
-> **Warning:** a one-shot script for the cutover release only — the first release carrying the `postinst` migration snippet. It is not part of the ongoing release process.
+> **Warning:** for the cutover release only — the first release carrying the `postinst` migration snippet. It is not part of the ongoing release process.
 
-It pushes the cutover `.deb` into the old, soon-to-be-archived Pages repo(s), so stragglers still resolving the old URL receive it on their next upgrade and self-migrate. Each old repo is read-modify-written against its own committed `conf/`, and its `Release` re-signed with the key that repo's `SignWith` names, which must already be in the gpg keyring.
+Stragglers still resolving the old URLs must receive the cutover `.deb` on their next upgrade, so they self-migrate. Each old site must deploy a `.deb` from a URL via `actions/deploy-pages`.
 
-```sh
-./seed_old_pages.sh --deb path/to/kolibri-server_<ver>_all.deb --repo kolibri-server
-./seed_old_pages.sh --deb path/to/kolibri_<ver>_all.deb        --repo kolibri-installer-debian
-```
+Dispatch each old repo's Pages workflow once with the URL of its released cutover `.deb`:
+
+- `learningequality/kolibri-server`: the `kolibri-server` `.deb`.
+- `learningequality/kolibri-installer-debian`: the `kolibri` `.deb`.
+
+The deployed `stable` repo must keep the old site's signing key and `Release` `Label`: stragglers' keyrings trust only that key, and apt rejects a changed `Label`.
 
 ## Verification
 
@@ -55,4 +57,4 @@ Each script in `tests/` covers one acceptance criterion and names it in its head
 
 - The uploader service account needs `storage.objects.delete` and `storage.objects.update` under `downloads/kolibri/apt` — `roles/storage.objectCreator`, which the release uploads run on, is not enough. A GCS overwrite is a delete plus a create, and every publish after the first rewrites `dists/`, `db/` and the root files. Reads come from the bucket's public `allUsers` grant.
 - `DEBIAN_REPO_SIGNING_KEY` must hold the private half of `platforms/raspberry-pi/files/learningequality.asc`, the key `keyring/kolibri-archive-keyring.asc` ships and the old Pages repos sign with. The workflow takes the key id from that committed key and aborts if the secret does not hold it.
-- Standing up the subdomain (DNS + Cloudflare in front of the bucket), running `seed_old_pages.sh` for the cutover release, the readthedocs user-manual update, and archiving the old Pages repos.
+- Standing up the subdomain (DNS + Cloudflare in front of the bucket), making each old repo's Pages workflow deploy from a `.deb` URL and dispatching it for the cutover release, the readthedocs user-manual update, and archiving the old Pages repos.
