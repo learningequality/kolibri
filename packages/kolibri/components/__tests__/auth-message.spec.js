@@ -1,32 +1,24 @@
 import urls from 'kolibri/urls';
 import VueRouter from 'vue-router';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import { createTranslator } from 'kolibri/utils/i18n';
 import AuthMessage from '../AuthMessage';
 
-jest.mock('kolibri/urls');
+jest.mock('kolibri/urls', () => ({
+  'kolibri:core:redirect_user': () => '/',
+}));
 jest.mock('kolibri/composables/useUser');
 
-const localVue = createLocalVue();
+const { forgetToSignIn$, registeredUser$, admin$, signInToKolibriAction$, goBackToHomeAction$ } =
+  createTranslator(AuthMessage.name, AuthMessage.$trs);
 
-localVue.use(VueRouter);
-
-const router = new VueRouter();
-
-function makeWrapper(options) {
-  return shallowMount(AuthMessage, { localVue, router, ...options });
+function renderComponent(props = {}) {
+  return render(AuthMessage, { props, routes: new VueRouter() });
 }
 
-// prettier-ignore
-function getElements(wrapper) {
-  return {
-    headerText: () => wrapper.find('.auth-message h1').text().trim(),
-    detailsText: () => wrapper.find('.auth-message p').text().trim(),
-  };
-}
-
-describe('auth message component', () => {
+describe('AuthMessage', () => {
   stubWindowLocation(beforeAll, afterAll);
 
   beforeEach(() => {
@@ -34,93 +26,61 @@ describe('auth message component', () => {
     useUser.mockImplementation(() => useUserMock());
   });
 
-  it('shows the correct details when there are no props', () => {
-    const wrapper = makeWrapper({ propsData: {} });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in to view this page');
+  it('prompts the user to sign in by default', () => {
+    renderComponent();
+    expect(screen.getByRole('heading', { name: forgetToSignIn$() })).toBeInTheDocument();
+    expect(screen.getByText(registeredUser$())).toBeInTheDocument();
   });
 
-  it('shows the correct details when authorized role is "learner"', () => {
-    const wrapper = makeWrapper({ propsData: { authorizedRole: 'learner' } });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in as a learner to view this page');
+  it('explains which role is required to view the page', () => {
+    renderComponent({ authorizedRole: 'admin' });
+    expect(screen.getByText(admin$())).toBeInTheDocument();
   });
 
-  it('shows the correct details when authorized role is "admin"', () => {
-    const wrapper = makeWrapper({ propsData: { authorizedRole: 'admin' } });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in as an admin to view this page');
+  it('shows a custom header and details when provided', () => {
+    const header = 'Signed in as device owner';
+    const details = 'Cannot be used by device owner';
+    renderComponent({ header, details });
+    expect(screen.getByRole('heading', { name: header })).toBeInTheDocument();
+    expect(screen.getByText(details)).toBeInTheDocument();
   });
 
-  it('shows correct text when both texts manually provided as prop', () => {
-    const wrapper = makeWrapper({
-      propsData: {
-        header: 'Signed in as device owner',
-        details: 'Cannot be used by device owner',
-      },
-    });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Signed in as device owner');
-    expect(detailsText()).toEqual('Cannot be used by device owner');
+  it('keeps the default header when only details are provided', () => {
+    const details = 'Must be device owner to manage resources';
+    renderComponent({ details });
+    expect(screen.getByRole('heading', { name: forgetToSignIn$() })).toBeInTheDocument();
+    expect(screen.getByText(details)).toBeInTheDocument();
   });
 
-  it('shows correct text when one text manually provided as prop', () => {
-    const wrapper = makeWrapper({
-      propsData: {
-        details: 'Must be device owner to manage resources',
-      },
-    });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('Must be device owner to manage resources');
-  });
-
-  describe('tests for sign-in page link when user plugin exists', () => {
+  describe('when the user auth plugin exists', () => {
     beforeAll(() => {
-      const userUrl = jest.fn();
-      urls['kolibri:kolibri.plugins.user_auth:user_auth'] = userUrl;
-      userUrl.mockReturnValue('http://localhost:8000/en/auth/');
+      urls['kolibri:kolibri.plugins.user_auth:user_auth'] = jest
+        .fn()
+        .mockReturnValue('http://localhost:8000/en/auth/');
     });
 
     afterAll(() => {
       delete urls['kolibri:kolibri.plugins.user_auth:user_auth'];
     });
 
-    it('shows correct link text if there is a user plugin', () => {
+    it('links to the sign in page, returning to the current page afterwards', () => {
       window.location.href = 'http://kolibri.time/#/';
-      const wrapper = makeWrapper();
-      const link = wrapper.find('[data-testid=signinlink]');
-      expect(link.attributes()).toMatchObject({
-        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
-        text: 'Sign in to Kolibri',
-      });
+      renderComponent();
+      expect(screen.getByRole('link', { name: signInToKolibriAction$() })).toHaveAttribute(
+        'href',
+        'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
+      );
     });
   });
 
-  it('shows correct link text if there is not a user plugin', () => {
-    // linkText checks to see if `userAuthPluginUrl` is truthy and it's either a
-    // function or undefined and if there is no user plugin, then it needs to be
-    // falsy for this test case
-    const wrapper = makeWrapper({
-      computed: {
-        userAuthPluginUrl() {
-          return false;
-        },
-      },
-    });
-    const link = wrapper.find('[data-testid=signinlink]');
-    expect(link.attributes()).toMatchObject({
-      href: '/',
-      text: 'Go to home page',
-    });
+  it('links to the home page when there is no user auth plugin', () => {
+    renderComponent();
+    expect(screen.getByRole('link', { name: goBackToHomeAction$() })).toHaveAttribute('href', '/');
   });
 
-  it('does not show a link if the user is logged in', () => {
+  it('does not offer to sign in when the user is already signed in', () => {
     useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-    const wrapper = makeWrapper();
-    expect(wrapper.find('[data-testid=signinlink]').exists()).toBe(false);
+    renderComponent();
+    expect(screen.queryByRole('link', { name: signInToKolibriAction$() })).not.toBeInTheDocument();
   });
 });
