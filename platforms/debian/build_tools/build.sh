@@ -40,7 +40,7 @@ fixup_control() {
     local child="$4"
     local parent="$5"
     test -r "$child" || {
-	echo "$PROGNAME: Can't read .$childtype file $child!" >&2
+	echo "$(basename "$0"): Can't read .$childtype file $child!" >&2
 	return 1
     }
 
