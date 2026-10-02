@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { render, screen, fireEvent, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -26,6 +27,8 @@ const LEARNING_OBJECTIVES = {
 
 const LEARNER = { id: 'user-1', name: 'Alice', username: 'alice', groups: [] };
 
+const UNIT_TITLE = 'Unit 3: Fractions (Post-test results)';
+
 function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
   return {
     activeTestType,
@@ -45,48 +48,107 @@ function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
   };
 }
 
-function renderComponent(props = {}) {
-  return render(LearnerSidePanel, {
-    props: { learner: LEARNER, ...props },
+// AccordionItem opens its default section after mounting
+async function renderComponent({ prefetchedData, ...props } = {}) {
+  const result = render(LearnerSidePanel, {
+    props: {
+      learner: LEARNER,
+      unitReports: [{ id: 'unit-1', title: UNIT_TITLE, prefetchedData }],
+      ...props,
+    },
   });
+  await nextTick();
+  return result;
 }
 
 describe('LearnerSidePanel', () => {
   describe('empty state', () => {
-    it('shows empty state heading when learner has no scores', () => {
-      renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
+    it('shows empty state heading when learner has no scores', async () => {
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
       expect(
         screen.getByRole('heading', { level: 3, name: noProgressLabel$() }),
       ).toBeInTheDocument();
     });
 
-    it('shows empty state description with learner name', () => {
-      renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
+    it('shows empty state description with learner name', async () => {
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
       const emptyState = document.querySelector('.empty-state');
       expect(
         within(emptyState).getByText(hasntStartedUnitsLabel$({ name: LEARNER.name })),
       ).toBeInTheDocument();
     });
 
-    it('does not show LO rows in empty state', () => {
-      renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
+    it('does not show LO rows in empty state', async () => {
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
       expect(screen.queryByText(LEARNING_OBJECTIVES['lo-1'].text)).not.toBeInTheDocument();
     });
   });
 
   describe('header', () => {
-    it('shows learner name', () => {
+    it('shows learner name', async () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByRole('heading', { level: 1, name: LEARNER.name })).toBeInTheDocument();
     });
   });
 
+  describe('unit sections', () => {
+    const EARLIER_UNIT_TITLE = 'Unit 1: Counting (Post-test results)';
+    const EARLIER_LO = { id: 'lo-0', text: 'Earlier objective', num_questions: 2 };
+
+    function earlierUnitData(scores) {
+      const data = makePrefetchedData({ scores, activeTestType: 'post' });
+      data.reportData.learning_objectives = [EARLIER_LO];
+      return data;
+    }
+
+    async function renderUnits(earlierScores) {
+      const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
+      return renderComponent({
+        unitReports: [
+          {
+            id: 'unit-0',
+            title: EARLIER_UNIT_TITLE,
+            prefetchedData: earlierUnitData(earlierScores),
+          },
+          { id: 'unit-1', title: UNIT_TITLE, prefetchedData: makePrefetchedData({ scores }) },
+        ],
+      });
+    }
+
+    it('shows a section for each unit with only the last one open', async () => {
+      await renderUnits({ 'user-1': { 'lo-0': 1 } });
+      expect(screen.getByRole('button', { name: EARLIER_UNIT_TITLE })).not.toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+      expect(screen.getByRole('button', { name: UNIT_TITLE })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+      expect(screen.getByText(LEARNING_OBJECTIVES['lo-1'].text)).toBeInTheDocument();
+      expect(screen.queryByText(EARLIER_LO.text)).not.toBeInTheDocument();
+    });
+
+    it("shows an earlier unit's objectives when its section is opened", async () => {
+      await renderUnits({ 'user-1': { 'lo-0': 1 } });
+      await fireEvent.click(screen.getByRole('button', { name: EARLIER_UNIT_TITLE }));
+      expect(screen.getByText(EARLIER_LO.text)).toBeInTheDocument();
+    });
+
+    it('shows no progress in a unit the learner has no results for', async () => {
+      await renderUnits({});
+      await fireEvent.click(screen.getByRole('button', { name: EARLIER_UNIT_TITLE }));
+      expect(screen.getByText(noProgressLabel$())).toBeInTheDocument();
+      expect(screen.queryByText(EARLIER_LO.text)).not.toBeInTheDocument();
+    });
+  });
+
   describe('warning banner', () => {
-    it('shows warning banner with count when learner has struggling LOs', () => {
+    it('shows warning banner with count when learner has struggling LOs', async () => {
       // lo-1: 2/4 = 50% (< 80%), lo-2: 2/4 = 50% (< 80%) → struggling count = 2
       const scores = { 'user-1': { 'lo-1': 2, 'lo-2': 2 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const banner = document.querySelector('.warning-banner');
       expect(banner).toBeTruthy();
       expect(within(banner).getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
@@ -95,10 +157,10 @@ describe('LearnerSidePanel', () => {
       ).toBeInTheDocument();
     });
 
-    it('shows warning for just one struggling LO', () => {
+    it('shows warning for just one struggling LO', async () => {
       // lo-1: 4/4 = 100% (not struggling), lo-2: 2/4 = 50% (< 80%, struggling) → count = 1
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 2 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const banner = document.querySelector('.warning-banner');
       expect(banner).toBeTruthy();
       expect(within(banner).getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
@@ -107,10 +169,10 @@ describe('LearnerSidePanel', () => {
       ).toBeInTheDocument();
     });
 
-    it('shows warning banner for learner with no LO scores (all ratios = 0)', () => {
+    it('shows warning banner for learner with no LO scores (all ratios = 0)', async () => {
       // Learner has a scores entry but no LO keys → all ratios are 0 → all 2 LOs struggling
       const scores = { 'user-1': {} };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const banner = document.querySelector('.warning-banner');
       expect(banner).toBeTruthy();
       expect(within(banner).getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
@@ -119,14 +181,14 @@ describe('LearnerSidePanel', () => {
       ).toBeInTheDocument();
     });
 
-    it('does not show warning banner when all LOs are at or above 80%', () => {
+    it('does not show warning banner when all LOs are at or above 80%', async () => {
       // lo-1: 4/4 = 100%, lo-2: 4/4 = 100% → no struggling
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(document.querySelector('.warning-banner')).toBeNull();
     });
 
-    it('does not show warning banner at exactly 80% per LO', () => {
+    it('does not show warning banner at exactly 80% per LO', async () => {
       // 80% boundary: lo-1: 4/5 = 80% (not struggling), lo-2: 4/5 = 80% (not struggling)
       const prefetchedData = {
         activeTestType: 'pre',
@@ -141,14 +203,14 @@ describe('LearnerSidePanel', () => {
           post_test: { status: 'not_activated', scores: {} },
         },
       };
-      renderComponent({ prefetchedData });
+      await renderComponent({ prefetchedData });
       expect(document.querySelector('.warning-banner')).toBeNull();
     });
 
-    it('shows on-track banner when all LOs are at or above 80%', () => {
+    it('shows on-track banner when all LOs are at or above 80%', async () => {
       // lo-1: 4/4 = 100%, lo-2: 4/4 = 100% → on track with 2 LOs
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const banner = document.querySelector('.success-banner');
       expect(banner).toBeTruthy();
       expect(within(banner).getByText(onTrackWithObjectivesPrefixLabel$())).toBeInTheDocument();
@@ -159,25 +221,25 @@ describe('LearnerSidePanel', () => {
   });
 
   describe('LO section', () => {
-    it('shows section heading', () => {
+    it('shows section heading', async () => {
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const loSection = screen.getByTestId('lo-section');
       expect(within(loSection).getByText(individualLoPerformanceLabel$())).toBeInTheDocument();
     });
 
-    it('shows column headers', () => {
+    it('shows column headers', async () => {
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const columnHeaders = screen.getAllByRole('columnheader');
       expect(columnHeaders[0]).toHaveTextContent(learningObjectiveLabel$());
       expect(columnHeaders[1]).toHaveTextContent(questionsCorrectLabel$());
     });
 
-    it('shows correct count and total for each LO via aria-label', () => {
+    it('shows correct count and total for each LO via aria-label', async () => {
       // lo-1: 3/4 correct, lo-2: 2/4 correct
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       // aria-labels on score spans contain the full "X of Y correct" string
       expect(
         document.querySelector(`[aria-label="${xOfYCorrectLabel$({ correct: 3, total: 4 })}"]`),
@@ -187,10 +249,10 @@ describe('LearnerSidePanel', () => {
       ).toBeTruthy();
     });
 
-    it('sorts LOs by score ascending (lowest first)', () => {
+    it('sorts LOs by score ascending (lowest first)', async () => {
       // lo-1: 4/4 = 100%, lo-2: 1/4 = 25% → lo-2 appears first
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 1 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
 
       const loSection = screen.getByTestId('lo-section');
       const allRows = within(loSection).getAllByRole('row');
@@ -200,10 +262,10 @@ describe('LearnerSidePanel', () => {
       expect(within(allRows[2]).getByText(LEARNING_OBJECTIVES['lo-1'].text)).toBeInTheDocument();
     });
 
-    it('shows 0 correct for LOs the learner did not answer', () => {
+    it('shows 0 correct for LOs the learner did not answer', async () => {
       // learner answered lo-1 but not lo-2
       const scores = { 'user-1': { 'lo-1': 3 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
+      await renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(
         document.querySelector(`[aria-label="${xOfYCorrectLabel$({ correct: 0, total: 4 })}"]`),
       ).toBeTruthy();
@@ -213,7 +275,7 @@ describe('LearnerSidePanel', () => {
   describe('close button', () => {
     it('emits close when close button is clicked', async () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
-      const { emitted } = renderComponent({
+      const { emitted } = await renderComponent({
         prefetchedData: makePrefetchedData({ scores }),
       });
       await fireEvent.click(screen.getByRole('button', { name: closeAction$() }));
