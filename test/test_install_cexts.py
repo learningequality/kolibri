@@ -86,3 +86,55 @@ def test_run_installs_tolerates_piwheels_failure(monkeypatch):
 
     # Must not raise: Piwheels is flaky and its failures are non-fatal.
     install_cexts.run_installs([_task(index_url=install_cexts.PIWHEEL_DOWNLOAD)])
+
+
+SAMPLE_INDEX_PAGE = """
+<!DOCTYPE html>
+<html>
+  <body>
+    <a href="cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl">cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl</a>
+    <a href="cffi-1.17.1-cp36-cp36m-win32.whl">cffi-1.17.1-cp36-cp36m-win32.whl</a>
+    <a href="cffi-1.17.1.tar.gz">cffi-1.17.1.tar.gz</a>
+  </body>
+</html>
+"""
+
+
+def test_parse_package_page_extracts_wheel_links_from_index_page():
+    parser = install_cexts.PackagePageParser()
+    parser.feed(SAMPLE_INDEX_PAGE)
+
+    tasks = install_cexts.parse_package_page(
+        parser.links,
+        "1.17.1",
+        install_cexts.PYPI_DOWNLOAD,
+        "/tmp/cext_cache",
+    )
+
+    assert parser.links == [
+        "cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl",
+        "cffi-1.17.1-cp36-cp36m-win32.whl",
+        "cffi-1.17.1.tar.gz",
+    ]
+    assert tasks == [
+        {
+            "package_name": "cffi",
+            "package_version": "1.17.1",
+            "index_url": install_cexts.PYPI_DOWNLOAD,
+            "platform": "manylinux1_x86_64",
+            "implementation": "cp",
+            "python_version": "36",
+            "abi": "cp36m",
+            "cache_path": "/tmp/cext_cache",
+        },
+        {
+            "package_name": "cffi",
+            "package_version": "1.17.1",
+            "index_url": install_cexts.PYPI_DOWNLOAD,
+            "platform": "win32",
+            "implementation": "cp",
+            "python_version": "36",
+            "abi": "cp36m",
+            "cache_path": "/tmp/cext_cache",
+        },
+    ]
