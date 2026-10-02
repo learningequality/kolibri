@@ -23,6 +23,8 @@ export const events = {
   RANDOMCOLLECTIONREQUESTED: 'randomcollectionrequested',
   LOADING: 'loading',
   ERROR: 'error',
+  // Handler -> host: a request only the host can serve, answered on the message's port.
+  HANDLER_REQUESTED: 'handlerrequested',
   HANDLER_REGISTRATION: 'handlerregistration',
 };
 

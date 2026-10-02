@@ -1,5 +1,6 @@
 import SandboxHandler from '../src/SandboxHandler';
 import SandboxShim from '../src/SandboxShim';
+import { events, nameSpace } from '../src/base';
 import { createMediator, destroyMediators } from './__fixtures__/mediators';
 
 class TestShim extends SandboxShim {
@@ -230,6 +231,22 @@ describe('SandboxHandler', () => {
       expect(() => handler._initializeShims(contentWindow)).not.toThrow();
       expect(contentWindow).toHaveProperty('namespacedShim');
       expect(error).toHaveBeenCalledWith('Failed to initialize shim indexedDB:', expect.any(Error));
+    });
+  });
+
+  describe('requestFromHost', () => {
+    it('should resolve with what the host answers to a handler request', async () => {
+      const host = {
+        postMessage: jest.fn((message, origin, [port]) => port.postMessage({ result: 'answer' })),
+      };
+      const handler = new BaseShimsHandler({ mediator: createMediator(host) });
+
+      await expect(handler.requestFromHost({ paths: ['A/One'] })).resolves.toBe('answer');
+      expect(host.postMessage.mock.calls[0][0]).toEqual({
+        nameSpace,
+        event: events.HANDLER_REQUESTED,
+        data: { paths: ['A/One'] },
+      });
     });
   });
 });
