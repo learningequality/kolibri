@@ -127,8 +127,14 @@
               />
             </template>
             <template v-else-if="colIndex === 3">
+              <template v-if="content.unit_phase === UnitPhase.COMPLETE">
+                {{ allUnitsClosedLabel$() }}
+              </template>
+              <template v-else-if="content.unit_phase === UnitPhase.POST_TEST_PENDING">
+                {{ learnersWorkingOnLessonsLabel$() }}
+              </template>
               <StatusSummary
-                v-if="content.test_learner_progress"
+                v-else-if="content.test_learner_progress"
                 :tally="content.test_learner_progress"
                 :verbose="true"
                 :showNeedsHelp="false"
@@ -300,6 +306,8 @@
         preTestRunningLabel$,
         postTestRunningLabel$,
         unitNotStartedLabel$,
+        allUnitsClosedLabel$,
+        learnersWorkingOnLessonsLabel$,
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
       const { getRecipientNamesForCourseSession } = useClassSummary();
@@ -552,6 +560,8 @@
         preTestRunningLabel$,
         postTestRunningLabel$,
         unitNotStartedLabel$,
+        allUnitsClosedLabel$,
+        learnersWorkingOnLessonsLabel$,
         getRecipientNamesForCourseSession,
         courseHasRecipients,
       };

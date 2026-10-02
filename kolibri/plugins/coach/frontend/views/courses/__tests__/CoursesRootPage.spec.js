@@ -21,6 +21,8 @@ const {
   preTestRunningLabel$,
   unitInProgressLabel$,
   unitNotStartedLabel$,
+  allUnitsClosedLabel$,
+  learnersWorkingOnLessonsLabel$,
 } = coursesStrings;
 const { deleteAction$, notStartedLabel$, completedLabel$ } = coreStrings;
 const { entireClassLabel$ } = coachStrings;
@@ -309,6 +311,28 @@ describe('CoursesRootPage', () => {
           learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
         ),
       ).toBeInTheDocument();
+    });
+
+    // calculating learner progress for every lesson is expensive
+    // so we just say what they are working on
+    it('shows learners working on lessons when unit_phase is post_test_pending', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.POST_TEST_PENDING,
+        test_learner_progress: null,
+      });
+      expect(screen.getByText(learnersWorkingOnLessonsLabel$())).toBeInTheDocument();
+      expect(screen.queryByText('—')).not.toBeInTheDocument();
+    });
+
+    it('shows all units closed in learner progress column when unit_phase is complete', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_number: null,
+        active_unit_title: null,
+        test_learner_progress: null,
+      });
+      expect(screen.getByText(allUnitsClosedLabel$())).toBeInTheDocument();
+      expect(screen.queryByText('—')).not.toBeInTheDocument();
     });
 
     it('shows entire class label in recipients column when course has group assignments', () => {
