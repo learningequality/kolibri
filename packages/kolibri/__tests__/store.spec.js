@@ -1,7 +1,7 @@
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
 import * as constants from 'kolibri/constants';
-import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
+import { stubWindowLocation } from 'testUtils';
 import * as useUserModule from '../composables/useUser';
 
 jest.mock('../composables/useUser');
