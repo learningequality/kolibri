@@ -2,12 +2,22 @@ import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import logger from 'kolibri-logging';
 import useSidePanelTitle from '../../../../composables/useSidePanelTitle';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import store from '../../../../store';
 import lessonsRoutes from '../../../../routes/lessonsRoutes';
 import { PageNames } from '../../../../constants';
 
+jest.mock('kolibri-logging', () => {
+  const log = {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  };
+  return { getLogger: () => log, setLevel: jest.fn() };
+});
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri-common/composables/useChannels');
@@ -77,6 +87,19 @@ describe('LessonSummaryPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useUser.mockImplementation(() => useUserMock({ isCoach: true }));
+  });
+
+  it('logs no title error once its lesson is gone from the class summary', async () => {
+    await renderDeletedLessonSummary();
+    const errors = logger.getLogger().error.mock.calls.map(([message]) => String(message));
+    expect(errors.filter(message => message.startsWith('Failed to obtain page title.'))).toEqual(
+      [],
+    );
+  });
+
+  it('titles the tab with the lesson once it is gone from the class summary', async () => {
+    await renderDeletedLessonSummary();
+    expect(document.title).toBe('Deleted lesson - Class 1 - Kolibri');
   });
 
   it('titles the tab from the class summary while the lesson loads', async () => {

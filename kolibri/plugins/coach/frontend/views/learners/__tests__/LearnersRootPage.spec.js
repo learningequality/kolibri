@@ -51,6 +51,12 @@ describe('LearnersRootPage', () => {
   });
 
   describe('page title', () => {
+    it('sets the tab title to the learners label and class name', async () => {
+      renderComponent({ className: CLASS_NAME });
+      await nextTick();
+      expect(document.title).toBe(`${learnersLabel$()} - ${CLASS_NAME} - Kolibri`);
+    });
+
     it('renders its visible header as the only h1', async () => {
       renderComponent({ className: CLASS_NAME });
       await nextTick();

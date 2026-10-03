@@ -95,6 +95,12 @@ describe('CoursesRootPage', () => {
       );
     });
 
+    it('sets the tab title to the courses label and class name', async () => {
+      renderComponent();
+      await nextTick();
+      expect(document.title).toBe(`${coursesLabel$()} - ${CLASS_NAME} - Kolibri`);
+    });
+
     it('renders its visible header as the only h1', async () => {
       renderComponent();
       await nextTick();

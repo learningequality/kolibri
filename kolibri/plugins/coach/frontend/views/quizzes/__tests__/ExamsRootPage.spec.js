@@ -20,6 +20,7 @@ const {
   titleLabel$,
 } = coachStrings;
 
+const CLASS_NAME = 'Class A';
 const GROUP = { id: 'group-a', name: 'Group A', member_ids: [] };
 
 jest.mock('kolibri-common/composables/usePageLoading');
@@ -73,6 +74,12 @@ describe('ExamsRootPage', () => {
   });
 
   describe('page title', () => {
+    it('sets the tab title to the quizzes label and class name', async () => {
+      renderComponent([]);
+      await nextTick();
+      expect(document.title).toBe(`${quizzesLabel$()} - ${CLASS_NAME} - Kolibri`);
+    });
+
     it('renders its visible header as the only h1', async () => {
       renderComponent([]);
       await nextTick();

@@ -12,8 +12,6 @@ import { classIdParamRequiredGuard, RouteSegments, COMPACT_UUID_PATTERN } from '
 
 const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE_SESSION } = RouteSegments;
 
-const COURSE_META = { titleParts: ['COURSE_NAME', 'CLASS_NAME'] };
-
 // CourseSummaryPage has a <router-view> for the assign-course side panel. Tab and panel child
 // routes must not render CourseSummaryPage again, so they use this no-op component instead.
 // $route still updates (giving CourseSummaryPage the route name/params it needs to react).
@@ -31,25 +29,21 @@ export default [
       name: PageNames.COURSE_SUMMARY_UNITS,
       params: to.params,
     }),
-    meta: COURSE_META,
     children: [
       {
         name: PageNames.COURSE_SUMMARY_UNITS,
         path: 'units',
         component: NoRender,
-        meta: COURSE_META,
       },
       {
         name: PageNames.COURSE_SUMMARY_LEARNERS,
         path: 'learners',
         component: NoRender,
-        meta: COURSE_META,
         children: [
           {
             name: PageNames.COURSE_SUMMARY_LEARNER,
             path: `:learnerId(${COMPACT_UUID_PATTERN})`,
             component: NoRender,
-            meta: COURSE_META,
           },
         ],
       },
@@ -57,13 +51,11 @@ export default [
         name: PageNames.COURSE_SUMMARY_OBJECTIVES,
         path: 'objectives',
         component: NoRender,
-        meta: COURSE_META,
         children: [
           {
             name: PageNames.COURSE_SUMMARY_OBJECTIVE,
             path: `:objectiveId(${COMPACT_UUID_PATTERN})`,
             component: NoRender,
-            meta: COURSE_META,
           },
         ],
       },
@@ -102,21 +94,16 @@ export default [
     handler() {
       store.dispatch('notLoading');
     },
-    meta: {
-      titleParts: ['COURSE_NAME', 'CLASS_NAME'],
-    },
     children: [
       {
         name: PageNames.UNIT_DETAIL_LESSONS,
         path: 'lessons',
         component: NoRender,
-        meta: { titleParts: ['COURSE_NAME', 'CLASS_NAME'] },
       },
       {
         name: PageNames.UNIT_DETAIL_OBJECTIVES,
         path: 'objectives',
         component: NoRender,
-        meta: { titleParts: ['COURSE_NAME', 'CLASS_NAME'] },
       },
     ],
   },
@@ -128,9 +115,6 @@ export default [
       if (classIdParamRequiredGuard(toRoute, PageNames.COURSES_ROOT, next)) {
         return;
       }
-    },
-    meta: {
-      titleParts: ['COURSES_LABEL', 'CLASS_NAME'],
     },
     children: [
       {

@@ -30,6 +30,11 @@ describe('LessonSelectionContentPreviewPage', () => {
     pageLoading.value = false;
   });
 
+  it("titles the tab with the previewed resource's title", async () => {
+    await renderPage();
+    await waitFor(() => expect(document.title).toBe('Resource A - Kolibri'));
+  });
+
   it("does not title the tab with the previous resource's title while loading", async () => {
     pageLoading.value = true;
     await renderPage();

@@ -23,9 +23,6 @@ export default [
       }
       defaultHandler();
     },
-    meta: {
-      titleParts: ['learnersLabel', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LEARNER_PASSWORDS,
@@ -37,26 +34,17 @@ export default [
       }
       defaultHandler();
     },
-    meta: {
-      titleParts: ['CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LEARNER_SUMMARY,
     path: CLASS + LEARNER,
     component: LearnerSummaryPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['reportsLabel', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LEARNER_LESSON_REPORT,
     path: CLASS + LEARNER + LESSON,
     component: LearnerLessonPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
   },
 ];

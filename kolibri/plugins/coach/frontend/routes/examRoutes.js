@@ -48,17 +48,11 @@ export default [
         return;
       }
     },
-    meta: {
-      titleParts: ['quizzesLabel', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.EXAM_CREATION_ROOT,
     path: CLASS + QUIZ + '/edit/:sectionIndex',
     component: CreateExamPage,
-    meta: {
-      titleParts: [],
-    },
     children: [
       {
         name: PageNames.QUIZ_SECTION_SIDE_PANEL,
@@ -164,9 +158,6 @@ export default [
     name: PageNames.EXAM_SUMMARY,
     path: CLASS + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
-    meta: {
-      titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
-    },
   },
   {
     path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER,
@@ -189,9 +180,6 @@ export default [
     path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER + TRY + QUESTION + INTERACTION,
     component: LearnerQuizPage,
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
-    meta: {
-      titleParts: ['LEARNER_NAME', 'QUIZ_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.QUIZ_PREVIEW,
@@ -199,9 +187,6 @@ export default [
     component: QuizPreviewPage,
     handler() {
       pageLoading.value = false;
-    },
-    meta: {
-      titleParts: ['previewLabel', 'QUIZ_NAME', 'CLASS_NAME'],
     },
   },
   {
@@ -217,9 +202,5 @@ export default [
     path: CLASS + OPTIONAL_GROUP + QUIZ + QUESTION + LEARNER + INTERACTION,
     component: QuestionLearnersPage,
     handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
-    meta: {
-      // Leaves out info on question
-      titleParts: ['questionLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
   },
 ];
