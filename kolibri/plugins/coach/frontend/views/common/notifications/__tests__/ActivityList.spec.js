@@ -1,16 +1,24 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { coachStrings } from '../../commonCoachStrings';
 import { PageNames } from '../../../../constants';
 import { nStrings } from '../notificationStrings';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import ActivityList from '../ActivityList';
 
+const PROGRESS_TYPE = 'Progress type';
+const STARTED = coachStrings.$tr('startedLabel');
+const COMPLETED = coreStrings.$tr('completedLabel');
 const NO_ACTIVITY = 'No activity in this classroom';
 const SHOW_MORE = coreStrings.$tr('showMoreAction');
 const LEARNER_1_STARTED = nStrings.$tr('individualStarted', {
   learnerName: 'Learner 1',
   itemName: 'Lesson 1',
+});
+const LEARNER_3_COMPLETED = nStrings.$tr('individualCompleted', {
+  learnerName: 'Learner 3',
+  itemName: 'Lesson 3',
 });
 const LESSON_2 = /Lesson 2/;
 const routes = Object.values(PageNames).map(name => ({ name, path: `/${name}` }));
@@ -89,5 +97,36 @@ describe('ActivityList', () => {
     await selectKSelectOption('Progress type', 'Started');
 
     expect(screen.queryByRole('button', { name: SHOW_MORE })).not.toBeInTheDocument();
+  });
+
+  it('hides cards that do not match the selected filter', async () => {
+    renderComponent({
+      notifications: [makeNotification('1'), makeNotification('3', { event: 'Completed' })],
+    });
+    const startedCard = await screen.findByRole('link', { name: LEARNER_1_STARTED });
+    const completedCard = screen.getByRole('link', { name: LEARNER_3_COMPLETED });
+
+    await selectKSelectOption('Progress type', 'Started');
+
+    expect(startedCard).toBeVisible();
+    expect(completedCard).not.toBeVisible();
+  });
+
+  it('disables filter options that no notification matches', async () => {
+    renderComponent({ notifications: [makeNotification('1')] });
+    await global.flushPromises();
+
+    await fireEvent.click(
+      screen
+        .getByText(PROGRESS_TYPE, { selector: '.ui-select-label-text' })
+        .closest('.ui-select-label'),
+    );
+
+    const optionFor = async label =>
+      (await screen.findByText(label, { selector: '.ui-select-option-basic' })).closest(
+        '.ui-select-option',
+      );
+    expect(await optionFor(STARTED)).not.toHaveClass('is-disabled');
+    expect(await optionFor(COMPLETED)).toHaveClass('is-disabled');
   });
 });
