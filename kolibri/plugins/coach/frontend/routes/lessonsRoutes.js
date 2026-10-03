@@ -87,6 +87,7 @@ export default [
     component: LessonSummaryPage,
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],
+      keepFocus: true,
     },
     children: [
       {
@@ -94,6 +95,7 @@ export default [
         path: 'select-resources/',
         component: LessonResourceSelection,
         redirect: 'select-resources/index',
+        meta: { panel: true },
         children: [
           {
             name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
@@ -220,6 +222,7 @@ export default [
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
     meta: {
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+      keepFocus: true,
     },
   },
   {
@@ -250,6 +253,7 @@ export default [
     meta: {
       // Leaves out attempt and interaction numbers
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+      keepFocus: true,
     },
   },
   {
@@ -268,6 +272,7 @@ export default [
     meta: {
       // Leaves out info on question
       titleParts: ['questionLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+      keepFocus: true,
     },
   },
 ];
