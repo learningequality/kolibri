@@ -44,23 +44,20 @@
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import CoreTable from 'kolibri/components/CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
   export default {
     name: 'AllFacilitiesPage',
-    metaInfo() {
-      return {
-        title: this.coreString('allFacilitiesLabel'),
-      };
-    },
     components: {
       AppBarPage,
       CoreTable,
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(coreStrings.allFacilitiesLabel$, { hasVisibleHeading: true });
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
       return { pageLoading, userIsMultiFacilityAdmin, facilities };
     },

@@ -14,7 +14,7 @@
       >
         <section>
           <h1>
-            {{ $tr('editUserDetailsHeader') }}
+            {{ editUserDetailsHeader$() }}
           </h1>
 
           <FullNameTextbox
@@ -191,20 +191,24 @@
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { handleApiError } from 'kolibri/utils/appError';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword.vue';
   import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
   import LearnerLimitReachedModal from './LearnerLimitReachedModal.vue';
 
+  export const pageTitleStrings = createTranslator('UserEditPage', {
+    editUserDetailsHeader: {
+      message: 'Edit user details',
+      context: 'Refers to edit existing users option.',
+    },
+  });
+
   export default {
     name: 'UserEditPage',
-    metaInfo() {
-      return {
-        title: this.$tr('editUserDetailsHeader'),
-      };
-    },
     components: {
       BirthYearSelect,
       ImmersivePage,
@@ -223,6 +227,8 @@
       const { currentUserId, logout } = useUser();
       const { updateFacilityConfig, selectedFacility, facilityConfig } = useFacility();
       const { picturePassword$, learnerCreationDisabled$ } = picturePasswordStrings;
+      const { editUserDetailsHeader$ } = pageTitleStrings;
+      usePageTitle(editUserDetailsHeader$, { hasVisibleHeading: true });
 
       return {
         // state
@@ -235,6 +241,7 @@
         updateFacilityConfig,
         handleApiError,
         // strings
+        editUserDetailsHeader$,
         learnerCreationDisabled$,
         picturePassword$,
       };
@@ -480,10 +487,6 @@
       },
     },
     $trs: {
-      editUserDetailsHeader: {
-        message: 'Edit user details',
-        context: 'Refers to edit existing users option.',
-      },
       changeInDeviceTabPrompt: {
         message: 'Go to Device permissions to change this',
         context: 'Refers to admin permissions.',

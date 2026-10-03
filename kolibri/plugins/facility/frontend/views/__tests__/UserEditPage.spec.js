@@ -8,7 +8,7 @@ import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFaci
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import makeStore from '../../__tests__/utils/makeStore';
-import UserEditPage from '../UserEditPage.vue';
+import UserEditPage, { pageTitleStrings } from '../UserEditPage.vue';
 import { PageNames } from '../../constants';
 
 jest.mock('kolibri/composables/useUser');
@@ -106,6 +106,16 @@ async function renderPage({
 describe('UserEditPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('titles the tab with its visible header, the only h1', async () => {
+    document.title = '';
+    await renderPage();
+    const { editUserDetailsHeader$ } = pageTitleStrings;
+    await waitFor(() => expect(document.title).toBe(`${editUserDetailsHeader$()} - Kolibri`));
+    const headings = await screen.findAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(editUserDetailsHeader$());
   });
 
   describe('picture password section', () => {
