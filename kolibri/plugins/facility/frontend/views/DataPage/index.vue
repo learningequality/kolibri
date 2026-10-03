@@ -15,7 +15,7 @@
       </p>
       <KGrid gutter="24">
         <KGridItem>
-          <h1>{{ $tr('pageHeading') }}</h1>
+          <h2 class="section-heading">{{ $tr('pageHeading') }}</h2>
         </KGridItem>
 
         <KGridItem>
@@ -195,9 +195,10 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
-  import { currentLanguage } from 'kolibri/utils/i18n';
+  import { createTranslator, currentLanguage } from 'kolibri/utils/i18n';
   import { now } from 'kolibri/utils/serverClock';
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
@@ -213,13 +214,15 @@
   import LearnMoreModal from './LearnMoreModal.vue';
   import downloadCsvFile from './downloadCsvFile';
 
+  export const pageTitleStrings = createTranslator('DataPage', {
+    documentTitle: {
+      message: 'Manage Data',
+      context: 'Refers to the page title of the Facility > Data section of Kolibri.',
+    },
+  });
+
   export default {
     name: 'DataPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       FacilityAppBarPage,
       DataPageTaskProgress,
@@ -231,6 +234,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$);
       const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const { facilityId } = useFacility();
@@ -365,10 +369,6 @@
         message: 'Individual visits to each resource.',
         context: "Description of 'Session logs'.",
       },
-      documentTitle: {
-        message: 'Manage Data',
-        context: 'Refers to the page title of the Facility > Data section of Kolibri.',
-      },
       download: {
         message: 'Download',
         context: 'Button used to download logs contained in CSV files.',
@@ -458,6 +458,11 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+  // Matches h1 as rendered: normalize.css's h1 rule loads after main.scss and wins
+  /deep/ .section-heading {
+    margin: 0.67em 0;
+    font-size: 2em;
+  }
 
   /deep/ .page-container p {
     font-size: 0.93em;
