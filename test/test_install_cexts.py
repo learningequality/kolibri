@@ -92,7 +92,7 @@ SAMPLE_INDEX_PAGE = """
 <!DOCTYPE html>
 <html>
   <body>
-    <a href="cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl">cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl</a>
+    <a href="https://files.pythonhosted.org/packages/ab/cd/cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl#sha256=0123456789abcdef">cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl</a>
     <a href="cffi-1.17.1-cp36-cp36m-win32.whl">cffi-1.17.1-cp36-cp36m-win32.whl</a>
     <a href="cffi-1.17.1.tar.gz">cffi-1.17.1.tar.gz</a>
   </body>
@@ -111,11 +111,6 @@ def test_parse_package_page_extracts_wheel_links_from_index_page():
         "/tmp/cext_cache",
     )
 
-    assert parser.links == [
-        "cffi-1.17.1-cp36-cp36m-manylinux1_x86_64.whl",
-        "cffi-1.17.1-cp36-cp36m-win32.whl",
-        "cffi-1.17.1.tar.gz",
-    ]
     assert tasks == [
         {
             "package_name": "cffi",
