@@ -1,6 +1,7 @@
-import VueRouter, { isNavigationFailure } from 'vue-router';
-import { shallowReactive } from 'vue';
+import VueRouter, { START_LOCATION, isNavigationFailure } from 'vue-router';
+import { nextTick, shallowReactive } from 'vue';
 import logger from 'kolibri-logging';
+import { focusPageHeading } from 'kolibri/composables/usePageTitle';
 
 const logging = logger.getLogger(__filename);
 
@@ -9,6 +10,69 @@ function resolveNavigationFailure(error) {
     return error;
   }
   throw error;
+}
+
+// vue-router 3 gives each route only its own record's meta, so a panel's child routes are
+// found through `matched`.
+function isPanel(route) {
+  return route.matched.some(record => record.meta.panel);
+}
+
+// Closing can land on a sibling of the panel, as when the host route redirects to a tab.
+function closesPanel(to, from) {
+  const panelIndex = from.matched.findIndex(record => record.meta.panel);
+  return panelIndex > 0 && to.matched[panelIndex - 1] === from.matched[panelIndex - 1];
+}
+
+function staysOnKeepFocusRoute(to, from) {
+  const index = to.matched.findIndex(record => record.meta.keepFocus);
+  if (index === -1 || to.matched.length !== from.matched.length) {
+    return false;
+  }
+  const record = to.matched[index];
+  const fromRecord = from.matched[index];
+  return (
+    fromRecord === record ||
+    (Boolean(record.parent) && fromRecord.parent === record.parent && fromRecord.meta.keepFocus)
+  );
+}
+
+// Navigations before the user's first input belong to page load, such as a handler's redirect.
+// Screen readers in browse mode activate links with a bare `click`.
+let userHasActed = false;
+function listenForFirstInput() {
+  for (const type of ['keydown', 'pointerdown', 'click']) {
+    document.addEventListener(type, () => (userHasActed = true), { capture: true, once: true });
+  }
+}
+
+// A panel focuses its own first element, and gives focus back to its opener when it closes.
+function moveFocusToPage(to, from) {
+  if (from === START_LOCATION || !userHasActed || to.path === from.path || isPanel(to)) {
+    return;
+  }
+  if (closesPanel(to, from)) {
+    // Runs after the panel's own return-focus timeout. Focus is left on <body> when the opener
+    // was not on this page, as after a reload on the panel's URL.
+    nextTick(() =>
+      setTimeout(() => {
+        if (document.activeElement === document.body) {
+          focusPageHeading();
+        }
+      }),
+    );
+    return;
+  }
+  if (staysOnKeepFocusRoute(to, from)) {
+    return;
+  }
+  const focused = document.activeElement;
+  nextTick(() => {
+    // Otherwise the new page has focused an element itself, such as an autofocused field.
+    if (document.activeElement === focused || document.activeElement === document.body) {
+      focusPageHeading();
+    }
+  });
 }
 
 /**
@@ -66,9 +130,20 @@ class Router {
         const navigate = this._vueRouter[method].bind(this._vueRouter);
         this._vueRouter[method] = (...args) => navigate(...args)?.catch(resolveNavigationFailure);
       }
+      listenForFirstInput();
+      this._vueRouter.afterEach(moveFocusToPage);
     }
   }
 
+  /**
+   * Adds routes. After each page change the router focuses the page's <h1>, skipping routes
+   * whose matched records set these `meta` flags:
+   * - `panel`: a side panel or modal route; opening and closing it leaves focus to the panel.
+   * - `keepFocus`: a param change on the same route, or a switch to a sibling route that also
+   *   sets it, keeps focus on in-page controls such as tabs.
+   * @param {Array<object>} routes - vue-router route configs.
+   * @returns {VueRouter} The underlying vue-router instance.
+   */
   initRoutes(routes) {
     this.initRouter();
 
