@@ -546,7 +546,12 @@ class TransferFile(TransferFileBase):
         written by this transfer and, when a checksum is known, the file matches it.
         Otherwise it is stale and gets replaced by the downloaded file on finalize.
         """
-        if self._bytes_written or not os.path.isfile(self.filepath):
+        self._using_existing = False
+        if not os.path.isfile(self.filepath):
+            # Don't reuse a checksum cached for a file that has since been removed.
+            self._existing_checksum = None
+            return False
+        if self._bytes_written:
             return False
         self._using_existing = (
             self.checksum is None or self._md5_existing_file() == self.checksum

@@ -1052,6 +1052,20 @@ class TestTransferDownloadExistingDestination(unittest.TestCase):
         with open(self.dest, "rb") as f:
             self.assertEqual(f.read(), b"")
 
+    def test_destination_removed_after_init_is_downloaded(self):
+        self._write_dest(self.content)
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            os.remove(self.dest)
+            fd.run()
+
+        self.mock_session.get.assert_called_once()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
 
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
