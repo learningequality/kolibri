@@ -79,7 +79,8 @@
   import { useLocalStorage, useMemoize, computedAsync, get } from '@vueuse/core';
   import { computed, ref, watch, inject } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import commonSyncElements, { syncStrings } from 'kolibri-common/mixins/commonSyncElements';
   import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useMinimumKolibriVersion from 'kolibri/composables/useMinimumKolibriVersion';
@@ -93,15 +94,11 @@
 
   export default {
     name: 'SelectFacility',
-    metaInfo() {
-      return {
-        title: this.getCommonSyncString('selectFacilityTitle'),
-      };
-    },
     components: { AddDeviceForm, BottomAppBar },
 
     mixins: [commonCoreStrings, commonSyncElements, commonProfileStrings],
     setup() {
+      usePageTitle(syncStrings.selectFacilityTitle$, { hasVisibleHeading: true });
       const {
         devices: _devices,
         isFetching: _isFetching,

@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import MergeDifferentAccounts from '../index.vue';
 import * as useRemoteFacility from '../../../../composables/useRemoteFacility';
 import { remoteFacilityUsers } from '../../../../composables/useRemoteFacility';
@@ -39,6 +39,8 @@ const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/MergeAccountDialog`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
