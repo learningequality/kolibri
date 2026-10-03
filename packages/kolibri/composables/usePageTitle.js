@@ -1,9 +1,10 @@
 import {
   computed,
-  getCurrentInstance,
+  inject,
   nextTick,
   onMounted,
   onUnmounted,
+  provide,
   shallowRef,
   watch,
 } from 'vue';
@@ -39,8 +40,10 @@ function formatDocumentTitle(parts) {
 // setup() runs parent-first, so the last registration is the innermost.
 const registrations = shallowRef([]);
 
-function isAncestor(ancestor, component) {
-  for (let parent = component; parent; parent = parent.$parent) {
+const PARENT_REGISTRATION = Symbol('pageTitleRegistration');
+
+function isAncestor(ancestor, registration) {
+  for (let parent = registration; parent; parent = parent.parent) {
     if (parent === ancestor) {
       return true;
     }
@@ -74,6 +77,7 @@ watch([innermostParts, showsErrorTitle, metaInfoComponents], ([parts, isError, m
 /**
  * Registers the calling route component's title for the browser tab and the page's hidden <h1>.
  * The innermost mounted registration wins; it is removed when its component unmounts.
+ * Call once per component.
  * Throws after mount if another registrant is neither an ancestor nor a descendant of this one.
  * @param {string|string[]|import('vue').Ref|Function} title - The title, or its parts from
  * most to least specific, as a string or array of strings, or a ref or getter of either.
@@ -93,8 +97,9 @@ export default function usePageTitle(
     title,
     hasVisibleHeading,
     hasOwnErrorPage,
-    component: getCurrentInstance().proxy,
+    parent: inject(PARENT_REGISTRATION, null),
   };
+  provide(PARENT_REGISTRATION, registration);
   registrations.value = [...registrations.value, registration];
   // Checked after the render flush, as a replaced page unmounts after its replacement mounts.
   onMounted(async () => {
@@ -103,14 +108,12 @@ export default function usePageTitle(
       return;
     }
     const conflict = registrations.value.find(
-      r =>
-        !isAncestor(r.component, registration.component) &&
-        !isAncestor(registration.component, r.component),
+      r => !isAncestor(r, registration) && !isAncestor(registration, r),
     );
     if (conflict) {
       throw new Error(
-        `usePageTitle: ${registration.component.$options.name} and ` +
-          `${conflict.component.$options.name} both register a title, and neither contains the other`,
+        `usePageTitle: "${joinParts(toParts(registration.title))}" and ` +
+          `"${joinParts(toParts(conflict.title))}" are both registered, and neither contains the other`,
       );
     }
   });
