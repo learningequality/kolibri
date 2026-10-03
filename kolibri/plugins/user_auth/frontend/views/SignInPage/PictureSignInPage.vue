@@ -136,7 +136,7 @@
       });
 
       onMounted(() => {
-        nextTick(() => passwordGridRef.value?.focusSentinel());
+        passwordGridRef.value?.focusSentinel();
       });
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
