@@ -57,7 +57,16 @@ Preparation of client-side resources involves:
 
 The *Makefile* contains the top-level commands for building Python distributions, in particular `wheel files <https://pythonwheels.com/>`__ (``make dist``) and `pex files <https://pex.readthedocs.io/en/latest/>`__ (``make pex``).
 
-The builds are automated using `buildkite <https://buildkite.com/learningequality>`__, whose top-level configuration lives in the Kolibri repo. Other platform distributions such as `Windows <https://github.com/learningequality/kolibri-installer-windows>`__, `Debian <https://github.com/learningequality/kolibri-installer-debian>`__, and `Android <https://github.com/learningequality/kolibri-installer-android/issues>`__ are built from the wheel files and maintained in their own repositories.
+The builds are automated with GitHub Actions. The
+`pull request workflow <https://github.com/learningequality/kolibri/blob/develop/.github/workflows/pr_build_kolibri.yml>`__
+builds test artifacts, while the
+`release workflow <https://github.com/learningequality/kolibri/blob/develop/.github/workflows/release_kolibri.yml>`__
+builds release distributions. Platform packaging is maintained in this repository for
+`Windows and macOS <https://github.com/learningequality/kolibri/tree/develop/platforms/desktop-app>`__,
+`Debian <https://github.com/learningequality/kolibri/tree/develop/platforms/debian-server>`__,
+`Android <https://github.com/learningequality/kolibri/tree/develop/platforms/android>`__,
+`Raspberry Pi <https://github.com/learningequality/kolibri/tree/develop/platforms/raspberry-pi>`__, and
+`Flatpak <https://github.com/learningequality/kolibri/tree/develop/platforms/flatpak-app>`__.
 
 Automated testing
 -----------------
