@@ -55,9 +55,12 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
@@ -72,14 +75,21 @@
   import ChannelPanel from './ChannelPanel/WithCheckbox';
   import FilteredChannelListContainer from './FilteredChannelListContainer';
 
+  export const pageTitleStrings = createTranslator('DeleteExportChannelsPage', {
+    deleteAppBarTitle: {
+      message: 'Delete channels',
+      context: "Accessed via the 'Options' button.",
+    },
+    exportAppBarTitle: {
+      message: 'Export channels',
+      context:
+        "Accessed via the 'Options' button. Admins can export Kolibri channels on a local drive in order to share with another device. ",
+    },
+  });
+
   // UI for simple bulk Deletion or Export of entire channels
   export default {
     name: 'DeleteExportChannelsPage',
-    metaInfo() {
-      return {
-        title: this.deleteMode ? this.$tr('deleteAppBarTitle') : this.$tr('exportAppBarTitle'),
-      };
-    },
     components: {
       ChannelPanel,
       FilteredChannelListContainer,
@@ -89,9 +99,16 @@
       SelectDriveModal,
     },
     mixins: [taskNotificationMixin],
-    setup() {
+    setup(props) {
       useContentTasks();
-      return { pageLoading };
+      const exportMode = computed(() => props.actionType === 'export');
+      const appBarTitle = computed(() =>
+        exportMode.value
+          ? pageTitleStrings.exportAppBarTitle$()
+          : pageTitleStrings.deleteAppBarTitle$(),
+      );
+      usePageTitle(appBarTitle, { hasVisibleHeading: true });
+      return { pageLoading, appBarTitle, exportMode };
     },
     props: {
       actionType: {
@@ -113,14 +130,8 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsBeingDeleted']),
-      appBarTitle() {
-        return this.exportMode ? this.$tr('exportAppBarTitle') : this.$tr('deleteAppBarTitle');
-      },
       backRoute() {
         return { name: PageNames.MANAGE_CONTENT_PAGE };
-      },
-      exportMode() {
-        return this.actionType === 'export';
       },
       deleteMode() {
         return this.actionType === 'delete';
@@ -211,15 +222,6 @@
       },
     },
     $trs: {
-      deleteAppBarTitle: {
-        message: 'Delete channels',
-        context: "Accessed via the 'Options' button.",
-      },
-      exportAppBarTitle: {
-        message: 'Export channels',
-        context:
-          "Accessed via the 'Options' button. Admins can export Kolibri channels on a local drive in order to share with another device. ",
-      },
       channelsOnDevice: {
         message: 'Channels on device',
         context: 'Indicates the channels which are on a device.',
