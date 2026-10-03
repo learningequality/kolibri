@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.6"
-# dependencies = ["requests==2.27.1", "beautifulsoup4==4.8.2", "pip>=20"]
+# dependencies = ["requests==2.27.1", "pip>=20"]
 # ///
 """
 This module defines functions to install c extensions for all the platforms into
@@ -33,9 +33,11 @@ import os
 import shutil
 import subprocess
 import sys
+from html.parser import HTMLParser
+from urllib.parse import unquote
+from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
 
 DIST_CEXT = os.path.join(
     os.path.dirname(os.path.realpath(os.path.dirname(__file__))),
@@ -222,6 +224,21 @@ def run_installs(tasks, max_workers=DEFAULT_MAX_WORKERS):
 supported_python3_versions = ["36", "37", "38", "39", "310", "311"]
 
 
+class PackagePageParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.links = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "a":
+            return
+
+        for name, value in attrs:
+            if name == "href":
+                self.links.append(value)
+                break
+
+
 def parse_package_page(files, pk_version, index_url, cache_path):
     """
     Parse the PYPI and Piwheels links for the package information.
@@ -234,12 +251,13 @@ def parse_package_page(files, pk_version, index_url, cache_path):
 
     result = []
     package_name = None
-    for file in files.find_all("a"):
+    for file in files:
         # Skip if not a whl file
-        if not file.string.endswith("whl"):
+        file_name = unquote(os.path.basename(urlparse(file).path))
+        if not file_name.endswith("whl"):
             continue
 
-        file_name_chunks = file.string.split("-")
+        file_name_chunks = file_name.split("-")
 
         package_version = file_name_chunks[1]
         package_name = file_name_chunks[0]
@@ -296,8 +314,9 @@ def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
             r = None
 
         if r:
-            files = BeautifulSoup(r.content, "html.parser")
-            tasks.extend(parse_package_page(files, pk_version, link, cache_path))
+            parser = PackagePageParser()
+            parser.feed(r.content.decode("utf-8"))
+            tasks.extend(parse_package_page(parser.links, pk_version, link, cache_path))
         else:
             sys.exit(f"\nUnable to find package {name} on {link}.\n")
     return tasks
