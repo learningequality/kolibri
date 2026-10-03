@@ -74,6 +74,7 @@ export default [
       showExam(store, toRoute.params, alreadyOnQuiz, toRoute);
     },
     component: ExamPage,
+    meta: { keepFocus: true },
   },
   {
     name: ClassesPageNames.EXAM_REPORT_VIEWER,
@@ -85,6 +86,7 @@ export default [
       showExamReport(store, toRoute.params);
     },
     component: ExamReportViewer,
+    meta: { keepFocus: true },
   },
   {
     path: '/course',

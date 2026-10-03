@@ -13,7 +13,7 @@ import GroupLessonExerciseLearnersPage from '../views/groups/reports/GroupLesson
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
-import { classIdParamRequiredGuard, RouteSegments } from './utils';
+import { classIdParamRequiredGuard, RouteSegments, staysOnPage } from './utils';
 
 const {
   CLASS,
@@ -66,11 +66,9 @@ export default [
     name: PageNames.GROUP_LESSON_SUMMARY,
     path: CLASS + GROUP + LESSON + '/:tabId?',
     component: LessonSummaryPage,
+    meta: { keepFocus: true },
     handler(toRoute, fromRoute) {
-      if (
-        fromRoute.name !== PageNames.GROUP_LESSON_SUMMARY ||
-        toRoute.params.lessonId !== fromRoute.params.lessonId
-      ) {
+      if (!staysOnPage(toRoute, fromRoute)) {
         return showLessonSummaryPage(store, toRoute.params);
       }
       pageLoading.value = false;
@@ -101,5 +99,6 @@ export default [
     name: PageNames.GROUP_EXAM_SUMMARY,
     path: CLASS + GROUP + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
+    meta: { keepFocus: true },
   },
 ];
