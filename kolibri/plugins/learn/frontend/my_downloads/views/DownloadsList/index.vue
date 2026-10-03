@@ -341,7 +341,7 @@
         });
       },
       getIcon(activities) {
-        return this.getLearningActivityIcon(activities);
+        return this.getLearningActivityIcon(activities[0]);
       },
       sourceDeviceIsAvailable(download) {
         return Boolean(this.networkDevices[download.source_id]);
