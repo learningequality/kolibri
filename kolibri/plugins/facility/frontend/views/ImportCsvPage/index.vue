@@ -6,7 +6,7 @@
     :loading="pageLoading"
   >
     <KPageContainer>
-      <h1>{{ $tr('pageHeader') }}</h1>
+      <h1>{{ pageHeader$() }}</h1>
 
       <Init
         v-if="status === CSVImportStatuses.NOT_STARTED"
@@ -30,25 +30,31 @@
 
   import { mapState, mapActions } from 'vuex';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { CSVImportStatuses } from '../../constants';
   import Init from './Init';
   import Preview from './Preview';
 
+  const pageTitleStrings = createTranslator('ImportCsvPage', {
+    pageHeader: {
+      message: 'Import users',
+      context: "Title of the 'Import users' page where spreadsheets can be imported.",
+    },
+  });
+
   export default {
     name: 'ImportCsvPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageHeader'),
-      };
-    },
     components: {
       ImmersivePage,
       Init,
       Preview,
     },
     setup() {
-      return { pageLoading };
+      const { pageHeader$ } = pageTitleStrings;
+      usePageTitle(pageHeader$, { hasVisibleHeading: true });
+      return { pageLoading, pageHeader$ };
     },
     computed: {
       ...mapState('importCSV', ['status']),
@@ -100,10 +106,6 @@
       toolbarHeader: {
         message: 'Import users from spreadsheet',
         context: "Heading for 'Import users' page.",
-      },
-      pageHeader: {
-        message: 'Import users',
-        context: "Title of the 'Import users' page where spreadsheets can be imported.",
       },
       loading: {
         message: 'Loading...',

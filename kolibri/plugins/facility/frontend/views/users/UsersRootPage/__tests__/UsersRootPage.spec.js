@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { render, screen } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -138,5 +138,14 @@ describe('UserPage component', () => {
     expect(
       screen.getByText(noUsersMatchFiltersAndSearch$({ filtersCount: 2 })),
     ).toBeInTheDocument();
+  });
+
+  it('titles the tab with its visible header, the only h1', async () => {
+    document.title = '';
+    await renderPage();
+    await waitFor(() => expect(document.title).toBe(`${usersLabel$()} - Kolibri`));
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(usersLabel$());
   });
 });

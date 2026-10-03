@@ -6,7 +6,7 @@
     :loading="pageLoading"
   >
     <KPageContainer v-if="!pageLoading">
-      <h1>{{ $tr('pageHeader', { className }) }}</h1>
+      <h1>{{ pageHeader }}</h1>
       <p>{{ $tr('pageSubheader') }}</p>
       <ClassEnrollForm
         :facilityUsers="facilityUsers"
@@ -24,20 +24,26 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { mapState, mapActions } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import store from '../store';
   import ClassEnrollForm from './ClassEnrollForm';
+
+  export const pageTitleStrings = createTranslator('LearnerClassEnrollmentPage', {
+    pageHeader: {
+      message: "Enroll learners into '{className}'",
+      context: 'Title of page where users can add (enroll) learners to a class.',
+    },
+  });
 
   export default {
     name: 'LearnerClassEnrollmentPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageHeader', { className: this.className }),
-      };
-    },
     components: {
       ClassEnrollForm,
       ImmersivePage,
@@ -45,7 +51,12 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      return { createSnackbar, pageLoading };
+      const className = computed(() => store.state.classAssignMembers.class.name);
+      const pageHeader = computed(() =>
+        pageTitleStrings.pageHeader$({ className: className.value }),
+      );
+      usePageTitle(pageHeader, { hasVisibleHeading: true });
+      return { createSnackbar, pageLoading, className, pageHeader };
     },
     data() {
       return {
@@ -59,9 +70,6 @@
         'totalLearners',
         'totalPageNumber',
       ]),
-      className() {
-        return this.class.name;
-      },
     },
     methods: {
       ...mapActions('classAssignMembers', ['enrollLearnersInClass']),
@@ -88,10 +96,6 @@
       },
     },
     $trs: {
-      pageHeader: {
-        message: "Enroll learners into '{className}'",
-        context: 'Title of page where users can add (enroll) learners to a class.',
-      },
       pageSubheader: {
         message: 'Only showing learners that are not enrolled in this class',
         context: "Description of 'Enroll learners into '{className}'' page.",

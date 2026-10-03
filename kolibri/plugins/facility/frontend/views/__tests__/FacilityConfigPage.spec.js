@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, within } from '@testing-library/vue';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ref, computed } from 'vue';
@@ -6,6 +6,7 @@ import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
+import { navItems } from 'kolibri/composables/useNav';
 import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import useFacilityEditor from '../../composables/useFacilityEditor';
 import facilityConfigPageStrings from '../FacilityConfigPage/strings';
@@ -21,7 +22,8 @@ const {
   picturePasswordUnavailableTitle$,
 } = picturePasswordStrings;
 
-const { learnerNeedPasswordToLogin$, learnerCanEditPassword$ } = facilityConfigPageStrings;
+const { learnerNeedPasswordToLogin$, learnerCanEditPassword$, pageHeader$ } =
+  facilityConfigPageStrings;
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => ({
@@ -36,12 +38,6 @@ jest.mock('kolibri-common/composables/useTaskPolling', () => {
     default: jest.fn(() => ({ tasks: ref([]) })),
   };
 });
-jest.mock('../FacilityAppBarPage', () => ({
-  name: 'FacilityAppBarPage',
-  render(h) {
-    return h('div', this.$slots.default);
-  },
-}));
 jest.mock('vue-router/composables', () => ({
   useRoute: jest.fn(() => ({
     params: {},
@@ -153,6 +149,17 @@ describe('facility config page view', () => {
     useUser.mockImplementation(() => useUserMock({ isAppContext: false }));
     useFacilityEditor.mockImplementation(() => createMockFacilityConfig());
     createSnackbar.mockReset();
+    navItems.value = [];
+  });
+
+  it('titles the tab with its document title, the only h1', async () => {
+    document.title = '';
+    renderPage();
+    const { documentTitle$ } = facilityConfigPageStrings;
+    await waitFor(() => expect(document.title).toBe(`${documentTitle$()} - Kolibri`));
+    const headings = screen.getAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(pageHeader$());
   });
 
   it('shows all facility setting checkboxes to the admin', () => {
@@ -322,6 +329,11 @@ describe('facility config page view', () => {
   });
 
   describe('in the Android app mode', () => {
+    // The app shell's bottom navigation bar needs a registered nav item.
+    beforeEach(() => {
+      navItems.value = [{ url: '/', label: coreString('facilityLabel'), icon: 'facility' }];
+    });
+
     it('shows Save changes in the page content instead of the bottom app bar', () => {
       renderPage({ isAppContext: true });
       const bottomBar = screen.getByTestId('bottom-bar');
