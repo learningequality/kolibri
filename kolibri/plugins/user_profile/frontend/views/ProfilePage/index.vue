@@ -18,14 +18,14 @@
             :layout8="{ span: 4, alignment: 'right' }"
             :layout12="{ span: 6, alignment: 'right' }"
           >
-            <h1>
+            <div class="edit-action">
               <KRouterLink
                 :text="coreString('editAction')"
                 appearance="raised-button"
                 :primary="true"
                 :to="profileEditRoute"
               />
-            </h1>
+            </div>
           </KGridItem>
         </KGrid>
 
@@ -205,6 +205,7 @@
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import { computed, ref } from 'vue';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -213,6 +214,7 @@
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
   import { PermissionTypes } from 'kolibri/constants';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import useTotalProgress from 'kolibri/composables/useTotalProgress';
@@ -225,13 +227,15 @@
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
+  export const pageTitleStrings = createTranslator('ProfilePage', {
+    documentTitle: {
+      message: 'User Profile',
+      context: 'Title of the user profile page.',
+    },
+  });
+
   export default {
     name: 'ProfilePage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       AppBarPage,
       BirthYearDisplayText,
@@ -244,6 +248,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const showPasswordModal = ref(false);
       const showLearnModal = ref(false);
       const { currentUser } = useCurrentUser();
@@ -390,10 +395,6 @@
         context:
           'Users have the option to change their password if, for example, they have forgotten it.\n\nThis is the text that appears on the change password prompt.',
       },
-      documentTitle: {
-        message: 'User Profile',
-        context: 'Title of the user profile page.',
-      },
       learnModalLine1: {
         message:
           'Learning facility represents the location where you are using Kolibri, such as a school, training center, or a home.',
@@ -468,6 +469,12 @@
 
   .points-cell {
     vertical-align: middle;
+  }
+
+  // Matches h1 as rendered: normalize.css's h1 rule loads after main.scss and wins
+  .edit-action {
+    margin: 0.67em 0;
+    font-size: 2em;
   }
 
 </style>
