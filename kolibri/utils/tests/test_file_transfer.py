@@ -1020,6 +1020,38 @@ class TestTransferDownloadExistingDestination(unittest.TestCase):
             self.assertEqual(f.read(), stale)
         self.assertFalse(os.path.exists(self.dest + ".transfer"))
 
+    def test_error_during_redownload_does_not_accept_stale_destination(self):
+        stale = self.content[:-1]
+        self._write_dest(stale)
+        response = MagicMock()
+        response.headers = {"content-length": str(len(self.content))}
+        response.iter_content.side_effect = ValueError
+        self.mock_session.get.return_value = response
+
+        with self.assertRaises(ValueError):
+            with FileDownload(
+                self.source, self.dest, self.checksum, session=self.mock_session
+            ) as fd:
+                fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), stale)
+
+    def test_existing_stale_destination_is_replaced_by_empty_file(self):
+        self._write_dest(self.content)
+        self._mock_get(b"")
+
+        with FileDownload(
+            self.source,
+            self.dest,
+            hashlib.md5(b"").hexdigest(),
+            session=self.mock_session,
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), b"")
+
 
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
