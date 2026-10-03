@@ -17,7 +17,7 @@ class TokenGeneratorTestCase(TestCase):
         self.assertTrue(self.generator.check_token(self.user_id, token))
 
     @mock.patch("kolibri.core.utils.token_generator.time.time")
-    def test_token_validates_within_limit(self, time_mock):
+    def test_token_expires_after_limit(self, time_mock):
         start_time = 1600000000
         time_mock.return_value = start_time
         token = self.generator.make_token(self.user_id)
