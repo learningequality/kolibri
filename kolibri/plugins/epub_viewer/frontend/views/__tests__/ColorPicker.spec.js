@@ -1,6 +1,7 @@
 import { render } from '@testing-library/vue';
 import ColorPicker from '../ColorPicker';
 
+jest.mock('alwan/css', () => {});
 // alwan instantiates a canvas-backed color picker on mount, which jsdom does not
 // implement. Replace it with a stub that captures the 'change' callback so tests
 // can simulate the user picking a color, and records the color it was initialized with.
