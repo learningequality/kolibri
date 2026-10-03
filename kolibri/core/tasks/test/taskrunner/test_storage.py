@@ -1,9 +1,11 @@
 import datetime
+import threading
 import time
 from unittest.mock import patch
 
 import pytest
 import pytz
+from django.db import connections
 from requests.exceptions import HTTPError
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
@@ -12,6 +14,8 @@ from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.models import Job as ORMJob
+from kolibri.core.tasks.notifiers import JobNotifier
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import callable_to_import_path
@@ -229,6 +233,35 @@ class TestBackend:
 
         # Assert that the last queued job matches the expected job
         assert last_queued_job_id == job3_id
+
+    def test_seconds_until_next_queued_job_none_when_empty(self, defaultbackend):
+        assert defaultbackend.seconds_until_next_queued_job() is None
+
+    def test_seconds_until_next_queued_job_non_positive_when_due(
+        self, defaultbackend, simplejob
+    ):
+        defaultbackend.enqueue_job(simplejob, QUEUE)
+        assert defaultbackend.seconds_until_next_queued_job() <= 0
+
+    def test_seconds_until_next_queued_job_returns_soonest_future_delay(
+        self, defaultbackend
+    ):
+        defaultbackend.schedule(
+            defaultbackend._now() + datetime.timedelta(seconds=60), Job(add), QUEUE
+        )
+        defaultbackend.schedule(
+            defaultbackend._now() + datetime.timedelta(seconds=10), Job(add), QUEUE
+        )
+        seconds = defaultbackend.seconds_until_next_queued_job()
+        assert 0 < seconds <= 10
+
+    def test_seconds_until_next_queued_job_ignores_lower_priority_jobs(
+        self, defaultbackend, simplejob
+    ):
+        defaultbackend.enqueue_job(simplejob, QUEUE, priority=Priority.REGULAR)
+        assert (
+            defaultbackend.seconds_until_next_queued_job(priority=Priority.HIGH) is None
+        )
 
     def test_get_canceling_jobs(self, defaultbackend):
         # Schedule jobs
@@ -922,3 +955,57 @@ class TestBackend:
         # The job must stay completed — not re-queued.
         assert final_job.state == State.COMPLETED
         assert final_orm_job.repeat == 0
+
+    def test_schedule_sends_notification_sqlite(self, defaultbackend, simplejob):
+        if connections[ORMJob.objects.db].vendor != "sqlite":
+            pytest.skip("SQLite-specific test")
+
+        notifier = JobNotifier()
+
+        notifier.wait_for_job(timeout=0.01)
+
+        defaultbackend.schedule(defaultbackend._now(), simplejob, queue=QUEUE)
+
+        result = notifier.wait_for_job(timeout=0.1)
+        assert result is True
+
+    def test_mark_job_as_canceling_sends_notification_sqlite(
+        self, defaultbackend, simplejob
+    ):
+        if connections[ORMJob.objects.db].vendor != "sqlite":
+            pytest.skip("SQLite-specific test")
+
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+
+        notifier = JobNotifier()
+
+        notifier.wait_for_job(timeout=0.01)
+
+        defaultbackend.mark_job_as_canceling(job_id)
+
+        result = notifier.wait_for_job(timeout=0.1)
+        assert result is True
+
+    def test_notifier_returns_same_instance(self, defaultbackend):
+        assert JobNotifier() is JobNotifier()
+
+    def test_notifier_construction_thread_safe(self, defaultbackend):
+        notifiers = []
+
+        def get_it():
+            notifiers.append(JobNotifier())
+
+        threads = [threading.Thread(target=get_it) for _ in range(10)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert all(n is notifiers[0] for n in notifiers)
+
+    def test_notifier_reset(self, defaultbackend):
+        notifier = JobNotifier()
+
+        JobNotifier.reset()
+
+        assert JobNotifier() is not notifier
