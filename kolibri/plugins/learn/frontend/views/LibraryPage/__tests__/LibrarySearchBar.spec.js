@@ -63,6 +63,7 @@ function renderComponent({ keywords = '', provides = {} } = {}) {
       clearKeywords: mockClearKeywords,
       selectFilterSuggestion: mockSelectFilterSuggestion,
       selectFilterCombination: mockSelectFilterCombination,
+      displayingSearchResults: ref(false),
       ...provides,
     },
     routes: [
@@ -88,6 +89,11 @@ describe('LibrarySearchBar', () => {
   });
 
   describe('rendering', () => {
+    it('exposes a search landmark so it can be reached independent of the skip link', () => {
+      renderComponent();
+      expect(screen.getByRole('search')).toBeInTheDocument();
+    });
+
     it('renders a search input', () => {
       renderComponent();
       expect(screen.getByRole('combobox', { name: searchLabel$() })).toBeInTheDocument();
@@ -96,6 +102,14 @@ describe('LibrarySearchBar', () => {
     it('renders a search submit button', () => {
       renderComponent();
       expect(screen.getByRole('button', { name: startSearchButtonLabel$() })).toBeInTheDocument();
+    });
+
+    it('marks the search input as the skip-link target, since it precedes the h1', () => {
+      renderComponent();
+      expect(screen.getByRole('combobox', { name: searchLabel$() })).toHaveAttribute(
+        'data-skip-nav-target',
+        '',
+      );
     });
   });
 
@@ -115,6 +129,34 @@ describe('LibrarySearchBar', () => {
       await fireEvent.click(screen.getByRole('button', { name: clearAction$() }));
       expect(mockClearKeywords).toHaveBeenCalled();
       expect(mockAutoCompleteHandler).toHaveBeenCalledWith('');
+    });
+  });
+
+  describe('re-orienting focus once nothing is applied', () => {
+    // Clearing the last keyword or filter loses focus. Focus on
+    // search bar (which is always there) to stay oriented/resume search
+    it('focuses the search input once displayingSearchResults settles back to false', async () => {
+      const displayingSearchResults = ref(true);
+      renderComponent({ provides: { displayingSearchResults } });
+      const input = screen.getByRole('combobox', { name: searchLabel$() });
+      input.blur();
+
+      displayingSearchResults.value = false;
+      await nextTick();
+
+      expect(input).toHaveFocus();
+    });
+
+    it('does not steal focus while a search is still applied', async () => {
+      const displayingSearchResults = ref(false);
+      renderComponent({ provides: { displayingSearchResults } });
+      const input = screen.getByRole('combobox', { name: searchLabel$() });
+      input.blur();
+
+      displayingSearchResults.value = true;
+      await nextTick();
+
+      expect(input).not.toHaveFocus();
     });
   });
 
