@@ -20,6 +20,44 @@ export function getComponentTag(vnode) {
 }
 
 /**
+ * Every vnode in a tree that was rendered from one of the given QTI tags, in
+ * document order.
+ *
+ * Most interactions pick their choices out of the default slot with a flat
+ * filter, because that is where the author has to put them. An interaction
+ * whose answer slots are embedded in its own flow content cannot: a `qti-gap`
+ * sits wherever the passage puts it — inside a blockquote, a table cell, a
+ * paragraph — so finding them means walking the tree.
+ *
+ * A match is not descended into: the QTI elements this looks for do not nest
+ * inside one another.
+ * @param {Array} vnodes - The vnodes to search, e.g. an interaction's slot content
+ * @param {string[]} tags - The QTI tags to match, e.g. `['qti-gap']`
+ * @returns {Array} The matching vnodes, in the order they appear in the item body
+ */
+export function findVNodes(vnodes, tags) {
+  const found = [];
+
+  function visit(nodes) {
+    for (const vnode of nodes || []) {
+      if (!vnode) {
+        continue;
+      }
+      if (tags.includes(getComponentTag(vnode))) {
+        found.push(vnode);
+        continue;
+      }
+      // A component keeps the children it was given under componentOptions;
+      // a plain element keeps them directly. Text vnodes have neither.
+      visit(vnode.componentOptions ? vnode.componentOptions.children : vnode.children);
+    }
+  }
+
+  visit(vnodes);
+  return found;
+}
+
+/**
  * Whether a choice is marked `fixed`, and so keeps its authored position when
  * the rest are shuffled.
  * @param {object} vnode - A choice vnode

@@ -12,8 +12,10 @@
   import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
-  import useMatchRows, { PROBLEM } from '../../composables/useMatchRows';
+  import useMatchRows from '../../composables/useMatchRows';
+  import usePlacementNotice, { explain } from '../../composables/usePlacementNotice';
   import useSlotListbox from '../../composables/useSlotListbox';
+  import PlacementNotice from '../PlacementNotice.vue';
 
   const SET_TAG = 'qti-simple-match-set';
   const CHOICE_TAG = 'qti-simple-associable-choice';
@@ -42,40 +44,10 @@
       message: 'Responses matched with {source}',
       context: 'Accessible label for the group of answers a learner has matched with one item',
     },
-    refusedAlreadyInRow: {
-      message: '{response} is already matched with {source}.',
-      context:
-        'Explains why a response the learner tried to place was not accepted: that pairing already exists',
-    },
-    refusedRowFull: {
-      message: '{source} already has as many responses as it can take.',
-      context:
-        'Explains why a response the learner tried to place was not accepted: the item being matched has reached its limit',
-    },
-    refusedNoUsesLeft: {
-      message: '{response} has already been matched as many times as it can be.',
-      context:
-        'Explains why a response the learner tried to place was not accepted: that response has reached its own limit',
-    },
-    refusedMaxAssociations: {
-      message:
-        'You can make {count, number} {count, plural, one {match} other {matches}} in this question. Remove one to make a different match.',
-      context:
-        'Explains why a response the learner tried to place was not accepted: the question has a limit on the total number of matches',
-    },
   });
 
-  const {
-    responsePoolLabel$,
-    emptyEntryPlaceholder$,
-    entryEmpty$,
-    entryFilled$,
-    rowLabel$,
-    refusedAlreadyInRow$,
-    refusedRowFull$,
-    refusedNoUsesLeft$,
-    refusedMaxAssociations$,
-  } = matchStrings;
+  const { responsePoolLabel$, emptyEntryPlaceholder$, entryEmpty$, entryFilled$, rowLabel$ } =
+    matchStrings;
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
@@ -178,35 +150,25 @@
         activeEntry.value = null;
       }
 
-      // Why the last attempted placement was refused. A refusal is otherwise
-      // silent: the response simply springs back, with nothing to say which of
-      // the item's limits stopped it.
-      const refusal = ref(null);
-
-      function explain(problem, identifier, rowIndex) {
-        const response = labelFor(identifier);
-        const source = labelFor(sourceIds.value[rowIndex]);
-        if (problem === PROBLEM.ALREADY_IN_ROW) {
-          return refusedAlreadyInRow$({ response, source });
-        }
-        if (problem === PROBLEM.ROW_FULL) {
-          return refusedRowFull$({ source });
-        }
-        if (problem === PROBLEM.NO_USES_LEFT) {
-          return refusedNoUsesLeft$({ response });
-        }
-        // ALREADY_HERE and UNKNOWN are not worth interrupting a learner over
-        return null;
-      }
+      const { notice, refuse, accept } = usePlacementNotice({
+        pairs,
+        maxAssociations: computed(() => typedProps.maxAssociations.value),
+        interactive,
+      });
 
       // The single way a placement is attempted, so no path can refuse silently
       function attemptPlace(identifier, rowIndex, entryIndex) {
         const problem = placementProblem(identifier, rowIndex, entryIndex);
         if (problem) {
-          refusal.value = explain(problem, identifier, rowIndex);
+          refuse(
+            explain(problem, {
+              response: labelFor(identifier),
+              source: labelFor(sourceIds.value[rowIndex]),
+            }),
+          );
           return false;
         }
-        refusal.value = null;
+        accept();
         place(identifier, rowIndex, entryIndex);
         return true;
       }
@@ -325,31 +287,7 @@
         variable.value.value = value.map(pair => [...pair]);
       });
 
-      watch(interactive, () => {
-        clearSelection();
-        refusal.value = null;
-      });
-
-      // A refusal explains one attempt, not the state of the question: once the
-      // rows change the learner has moved on and it is stale.
-      watch(rows, () => {
-        refusal.value = null;
-      });
-
-      const atMaxAssociations = computed(() => {
-        const max = typedProps.maxAssociations.value;
-        return max > 0 && pairs.value.length >= max;
-      });
-
-      // A refusal is about what the learner just did, so it wins while it stands
-      const notice = computed(() => {
-        if (refusal.value) {
-          return refusal.value;
-        }
-        return atMaxAssociations.value
-          ? refusedMaxAssociations$({ count: typedProps.maxAssociations.value })
-          : null;
-      });
+      watch(interactive, clearSelection);
 
       const poolStyles = computed(() => ({
         backgroundColor: 'var(--palette-grey-v100)',
@@ -588,24 +526,6 @@
         ]);
       }
 
-      // role="status" is a live region, so the notice is announced as well as
-      // shown — a screen reader user gets no springing-back chip to notice.
-      function renderNotice() {
-        return h(
-          'p',
-          {
-            class: 'qti-match-notice',
-            style: {
-              color: $themeTokens.text,
-              backgroundColor: $themePalette.grey.v_100,
-              borderColor: $themeTokens.fineLine,
-            },
-            attrs: { role: 'status' },
-          },
-          notice.value ? [h('KIcon', { props: { icon: 'infoOutline' } }), notice.value] : [],
-        );
-      }
-
       function renderRows() {
         return h(
           'ol',
@@ -697,7 +617,7 @@
               ],
               style: interactionCSSVars,
             },
-            [renderPool(), renderRows(), renderNotice()],
+            [renderPool(), renderRows(), h(PlacementNotice, { props: { message: notice.value } })],
           ),
         ]);
       };
@@ -888,18 +808,6 @@
     display: flex;
     gap: 4px;
     align-items: center;
-  }
-
-  // Reserves no space while empty, so the rows do not jump as it comes and goes
-  .qti-match-notice:not(:empty) {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    padding: 0.75rem 1.125rem;
-    margin: 1rem 0 0;
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 8px;
   }
 
 </style>
