@@ -44,6 +44,18 @@ def parse_debian_version(debian_version):
     return debian_version
 
 
+def _parse_header_version(debian_version):
+    """Split a changelog header's Debian version into Kolibri form and revision.
+
+    '0.16.0~rc0-0ubuntu2' -> ('0.16.0-rc0', 2)
+    """
+    # Convert ~ back to - for Kolibri version format
+    upstream_version = parse_debian_version(debian_version).replace("~", "-")
+    revision_match = re.search(r"-0ubuntu(\d+)", debian_version)
+    ubuntu_revision = int(revision_match.group(1)) if revision_match else 1
+    return upstream_version, ubuntu_revision
+
+
 def parse_existing_changelog(content):
     """Parse existing debian/changelog content.
 
@@ -52,13 +64,7 @@ def parse_existing_changelog(content):
     for line in content.splitlines():
         match = CHANGELOG_HEADER_RE.match(line)
         if match:
-            debian_version = match.group(2)
-            upstream_version = parse_debian_version(debian_version)
-            # Convert ~ back to - for Kolibri version format
-            upstream_version = upstream_version.replace("~", "-")
-            revision_match = re.search(r"-0ubuntu(\d+)", debian_version)
-            ubuntu_revision = int(revision_match.group(1)) if revision_match else 1
-            return upstream_version, ubuntu_revision, content
+            return (*_parse_header_version(match.group(2)), content)
     return None, 0, content
 
 
@@ -318,12 +324,7 @@ def parse_packaging_changelog(content):
                     }
                 )
             # Start new entry
-            debian_version = match.group(2)
-            upstream = parse_debian_version(debian_version)
-            upstream = upstream.replace("~", "-")
-            rev_match = re.search(r"-0ubuntu(\d+)", debian_version)
-            current_revision = int(rev_match.group(1)) if rev_match else 1
-            current_version = upstream
+            current_version, current_revision = _parse_header_version(match.group(2))
             current_lines = [line]
         else:
             current_lines.append(line)
