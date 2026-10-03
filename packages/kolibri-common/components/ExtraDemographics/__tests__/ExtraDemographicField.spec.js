@@ -1,157 +1,79 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
+import { currentLanguage } from 'kolibri/utils/i18n';
+import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import ExtraDemographicField from '../ExtraDemographicField.vue';
 
-const label = 'Age';
+const DESCRIPTION = 'Age';
+const TRANSLATED_DESCRIPTION = 'Not Age';
+
+const ZERO_TO_FIVE = { value: '0-5', defaultLabel: 'Zero to Five' };
+const SIX_TO_TEN = { value: '6-10', defaultLabel: 'Six to Ten' };
+const ELEVEN_TO_FIFTEEN = { value: '11-15', defaultLabel: 'Eleven to Fifteen' };
+
+const TRANSLATED_OPTION_LABELS = [
+  'Less than Five',
+  'More than Six but less than Ten',
+  'More than Eleven but less than Fifteen',
+];
 
 const field = {
   id: 'age',
-  description: label,
-  enumValues: [
-    {
-      value: '0-5',
-      defaultLabel: 'Zero to Five',
-    },
-    {
-      value: '6-10',
-      defaultLabel: 'Six to Ten',
-    },
-    {
-      value: '11-15',
-      defaultLabel: 'Eleven to Fifteen',
-    },
-    {
-      value: '16-20',
-      defaultLabel: 'Sixteen to Twenty',
-    },
-    {
-      value: '21-25',
-      defaultLabel: 'Twenty-One to Twenty-Five',
-    },
-  ],
+  description: DESCRIPTION,
+  enumValues: [ZERO_TO_FIVE, SIX_TO_TEN, ELEVEN_TO_FIFTEEN],
 };
 
+const translatedField = {
+  ...field,
+  translations: { [currentLanguage]: TRANSLATED_DESCRIPTION },
+  enumValues: field.enumValues.map((option, index) => ({
+    ...option,
+    translations: { [currentLanguage]: TRANSLATED_OPTION_LABELS[index] },
+  })),
+};
+
+const renderComponent = props => {
+  return render(ExtraDemographicField, {
+    props: {
+      value: '',
+      ...props,
+    },
+  });
+};
+
+// KSelect renders its options as list items once it has been opened
+const getOptionLabels = () =>
+  screen.getAllByRole('listitem').map(option => option.textContent.trim());
+
 describe('ExtraDemographicField', () => {
-  it('renders the label correctly', () => {
-    const wrapper = mount(ExtraDemographicField, {
-      propsData: {
-        field,
-        value: '0-5',
-      },
-    });
-    expect(wrapper.vm.description).toBe(label);
+  it('shows the description and the default option labels of a field without translations', async () => {
+    renderComponent({ field });
+
+    await userEvent.click(screen.getByText(DESCRIPTION));
+    expect(getOptionLabels()).toEqual([
+      ZERO_TO_FIVE.defaultLabel,
+      SIX_TO_TEN.defaultLabel,
+      ELEVEN_TO_FIFTEEN.defaultLabel,
+    ]);
   });
 
-  it('renders the translated label correctly', () => {
-    const wrapper = mount(ExtraDemographicField, {
-      propsData: {
-        field: {
-          ...field,
-          translations: {
-            en: 'Not Age',
-          },
-        },
-        value: '0-5',
-      },
-    });
-    expect(wrapper.vm.description).toBe('Not Age');
+  it('shows the description and the option labels translated into the current language', async () => {
+    renderComponent({ field: translatedField });
+
+    await userEvent.click(screen.getByText(TRANSLATED_DESCRIPTION));
+    expect(getOptionLabels()).toEqual(TRANSLATED_OPTION_LABELS);
   });
 
-  it('generates the correct options', () => {
-    const wrapper = mount(ExtraDemographicField, {
-      propsData: {
-        field,
-        value: '0-5',
-      },
-    });
+  it('shows the label of the selected option', () => {
+    renderComponent({ field, value: SIX_TO_TEN.value });
 
-    const options = wrapper.vm.options;
-    expect(options.length).toBe(5);
-    expect(options[0].value).toBe('0-5');
-    expect(options[0].label).toBe('Zero to Five');
-    expect(options[1].value).toBe('6-10');
-    expect(options[1].label).toBe('Six to Ten');
-    expect(options[2].value).toBe('11-15');
-    expect(options[2].label).toBe('Eleven to Fifteen');
-    expect(options[3].value).toBe('16-20');
-    expect(options[3].label).toBe('Sixteen to Twenty');
-    expect(options[4].value).toBe('21-25');
-    expect(options[4].label).toBe('Twenty-One to Twenty-Five');
+    expect(screen.getByText(SIX_TO_TEN.defaultLabel)).toBeInTheDocument();
   });
 
-  it('generates the correct translated options', () => {
-    const enumValues = [
-      {
-        value: '0-5',
-        defaultLabel: 'Zero to Five',
-        translations: {
-          en: 'Less than Five',
-        },
-      },
-      {
-        value: '6-10',
-        defaultLabel: 'Six to Ten',
-        translations: {
-          en: 'More than Six but less than Ten',
-        },
-      },
-      {
-        value: '11-15',
-        defaultLabel: 'Eleven to Fifteen',
-        translations: {
-          en: 'More than Eleven but less than Fifteen',
-        },
-      },
-      {
-        value: '16-20',
-        defaultLabel: 'Sixteen to Twenty',
-        translations: {
-          en: 'More than Sixteen but less than Twenty',
-        },
-      },
-      {
-        value: '21-25',
-        defaultLabel: 'Twenty-One to Twenty-Five',
-        translations: {
-          en: 'More than Twenty-One but less than Twenty-Five',
-        },
-      },
-    ];
-    const wrapper = mount(ExtraDemographicField, {
-      propsData: {
-        field: {
-          ...field,
-          enumValues,
-        },
-        value: '0-5',
-      },
-    });
+  it('emits the value of the option the user picks', async () => {
+    const { emitted } = renderComponent({ field });
 
-    const options = wrapper.vm.options;
-    expect(options.length).toBe(5);
-    expect(options[0].value).toBe('0-5');
-    expect(options[0].label).toBe('Less than Five');
-    expect(options[1].value).toBe('6-10');
-    expect(options[1].label).toBe('More than Six but less than Ten');
-    expect(options[2].value).toBe('11-15');
-    expect(options[2].label).toBe('More than Eleven but less than Fifteen');
-    expect(options[3].value).toBe('16-20');
-    expect(options[3].label).toBe('More than Sixteen but less than Twenty');
-    expect(options[4].value).toBe('21-25');
-    expect(options[4].label).toBe('More than Twenty-One but less than Twenty-Five');
-  });
-
-  it('emits the select event when the value changes', () => {
-    const wrapper = mount(ExtraDemographicField, {
-      propsData: {
-        field,
-        value: '0-5',
-      },
-    });
-
-    const input = wrapper.findComponent({ name: 'KSelect' });
-    input.vm.$emit('select', { value: '6-10' });
-
-    expect(wrapper.emitted().select).toBeTruthy();
-    expect(wrapper.emitted().select[0]).toEqual(['6-10']);
+    await selectKSelectOption(DESCRIPTION, SIX_TO_TEN.defaultLabel);
+    expect(emitted().select).toEqual([[SIX_TO_TEN.value]]);
   });
 });
