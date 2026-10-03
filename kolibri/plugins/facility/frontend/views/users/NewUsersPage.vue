@@ -214,6 +214,7 @@
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
@@ -248,6 +249,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(bulkUserManagementStrings.newUsers$, { hasVisibleHeading: true });
       usePreviousRoute();
       const route = useRoute();
       const router = useRouter();
