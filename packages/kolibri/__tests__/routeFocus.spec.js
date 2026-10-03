@@ -54,6 +54,8 @@ const AutofocusField = {
   render: h => h('input', { attrs: { 'aria-label': FIELD } }),
 };
 
+const Topic = page({ shell: AppBarPage, title: PAGE_TITLE });
+
 const routes = [
   {
     name: 'PAGE',
@@ -112,7 +114,8 @@ const routes = [
   },
   // AppBarPage routes navigate within one shell instance: in jsdom, a newly mounted SideNav
   // focuses its hidden first menu item, which a browser refuses.
-  { name: 'TOPIC', path: '/topic/:id', component: page({ shell: AppBarPage, title: PAGE_TITLE }) },
+  { name: 'TOPIC', path: '/topic/:id', component: Topic },
+  { name: 'TOPIC_SEARCH', path: '/topic/:id/search', component: Topic },
   {
     name: 'PARENT',
     path: '/parent',
@@ -161,9 +164,9 @@ async function renderAt(path) {
 }
 
 // The keypress that triggers a navigation is the user's first input after page load.
-async function navigate(location) {
+async function navigate(location, method = 'push') {
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-  await vueRouter.push(location);
+  await vueRouter[method](location);
   await settle();
 }
 
@@ -285,24 +288,14 @@ describe('focus after a route change', () => {
     expect(pageHeading()).toHaveFocus();
   });
 
-  it('keeps focus when switching between keepFocus sibling routes', async () => {
-    await renderAt('/course/one');
+  it.each([
+    ['switching between keepFocus sibling routes', '/course/one', '/course/two'],
+    ['only the query changes', '/page', { path: '/page', query: { filter: 'on' } }],
+    ['a keepFocus route changes only its params', '/question/1', '/question/2'],
+  ])('keeps focus when %s', async (_, from, to) => {
+    await renderAt(from);
     opener().focus();
-    await navigate('/course/two');
-    expect(opener()).toHaveFocus();
-  });
-
-  it('keeps focus when only the query changes', async () => {
-    await renderAt('/page');
-    opener().focus();
-    await navigate({ path: '/page', query: { filter: 'on' } });
-    expect(opener()).toHaveFocus();
-  });
-
-  it('keeps focus when a keepFocus route changes only its params', async () => {
-    await renderAt('/question/1');
-    opener().focus();
-    await navigate('/question/2');
+    await navigate(to);
     expect(opener()).toHaveFocus();
   });
 
@@ -312,6 +305,55 @@ describe('focus after a route change', () => {
     opener().focus();
     const focused = await focusTargetsDuring(() => navigate('/question/1'));
     expect(focused).toContain(pageHeading());
+  });
+
+  it.each([
+    ['another route', '/topic/a/search'],
+    ['new params', '/topic/b'],
+  ])('keeps focus when a page replaces itself with %s after loading', async (_, location) => {
+    await renderAt('/topic/c');
+    await navigate('/topic/a');
+    opener().focus();
+    await vueRouter.replace(location);
+    await settle();
+    expect(opener()).toHaveFocus();
+  });
+
+  it('keeps focus when a keypress comes before a page replaces itself', async () => {
+    await renderAt('/topic/c');
+    await navigate('/topic/b');
+    opener().focus();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+    await settle();
+    await vueRouter.replace('/topic/b/search');
+    await settle();
+    expect(opener()).toHaveFocus();
+  });
+
+  it('focuses the heading when the user replaces the route with new params', async () => {
+    await renderAt('/topic/a');
+    opener().focus();
+    await navigate('/topic/b', 'replace');
+    expect(pageHeading()).toHaveFocus();
+  });
+
+  it('focuses the heading when going back after a redundant replace', async () => {
+    await renderAt('/topic/a');
+    await navigate('/topic/b');
+    await expect(vueRouter.replace('/topic/b')).rejects.toThrow();
+    opener().focus();
+    vueRouter.back();
+    await new Promise(resolve => window.addEventListener('popstate', resolve, { once: true }));
+    await settle();
+    expect(vueRouter.currentRoute.path).toBe('/topic/a');
+    expect(pageHeading()).toHaveFocus();
+  });
+
+  it('focuses the heading when a replace changes the page', async () => {
+    await renderAt('/topic/a');
+    opener().focus();
+    await navigate('/page', 'replace');
+    expect(pageHeading()).toHaveFocus();
   });
 
   it('keeps the focus a page gives its autofocused field', async () => {

@@ -37,18 +37,55 @@ function staysOnKeepFocusRoute(to, from) {
   );
 }
 
+// A page that replaces its own route after its data loads stays mounted. A replace made while
+// handling input is the user's, as from a Next button, so focus still moves.
+// Kept as the target path: a replace that fails, as when redundant, never reaches afterEach.
+let replacedPath = null;
+function replacesOwnRoute(to, from) {
+  return (
+    to.fullPath === replacedPath &&
+    to.matched.length === from.matched.length &&
+    to.matched.every(
+      (record, i) => record.components.default === from.matched[i].components.default,
+    )
+  );
+}
+
 // Navigations before the user's first input belong to page load, such as a handler's redirect.
 // Screen readers in browse mode activate links with a bare `click`.
 let userHasActed = false;
-function listenForFirstInput() {
+// True only for the task that dispatched the input, so input during a page's load does not
+// claim the replace the page makes once its data arrives.
+let handlingInput = false;
+function listenForInput() {
   for (const type of ['keydown', 'pointerdown', 'click']) {
-    document.addEventListener(type, () => (userHasActed = true), { capture: true, once: true });
+    document.addEventListener(
+      type,
+      () => {
+        userHasActed = true;
+        if (!handlingInput) {
+          handlingInput = true;
+          setTimeout(() => {
+            handlingInput = false;
+          });
+        }
+      },
+      { capture: true },
+    );
   }
 }
 
 // A panel focuses its own first element, and gives focus back to its opener when it closes.
 function moveFocusToPage(to, from) {
-  if (from === START_LOCATION || !userHasActed || to.path === from.path || isPanel(to)) {
+  const replaced = replacesOwnRoute(to, from);
+  replacedPath = null;
+  if (
+    replaced ||
+    from === START_LOCATION ||
+    !userHasActed ||
+    to.path === from.path ||
+    isPanel(to)
+  ) {
     return;
   }
   if (closesPanel(to, from)) {
@@ -128,16 +165,23 @@ class Router {
       this._vueRouter = new VueRouter(options);
       for (const method of ['push', 'replace']) {
         const navigate = this._vueRouter[method].bind(this._vueRouter);
-        this._vueRouter[method] = (...args) => navigate(...args)?.catch(resolveNavigationFailure);
+        this._vueRouter[method] = (location, ...args) => {
+          replacedPath =
+            method === 'replace' && !handlingInput
+              ? this._vueRouter.resolve(location).route.fullPath
+              : null;
+          return navigate(location, ...args)?.catch(resolveNavigationFailure);
+        };
       }
-      listenForFirstInput();
+      listenForInput();
       this._vueRouter.afterEach(moveFocusToPage);
     }
   }
 
   /**
-   * Adds routes. After each page change the router focuses the page's <h1>, skipping routes
-   * whose matched records set these `meta` flags:
+   * Adds routes. After each page change the router focuses the page's <h1>, except when a page
+   * replaces its own route outside the task that handled the user's input, or when the routes'
+   * matched records set these `meta` flags:
    * - `panel`: a side panel or modal route; opening and closing it leaves focus to the panel.
    * - `keepFocus`: a param change on the same route, or a switch to a sibling route that also
    *   sets it, keeps focus on in-page controls such as tabs.
