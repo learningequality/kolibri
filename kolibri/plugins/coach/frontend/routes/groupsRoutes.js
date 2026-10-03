@@ -66,6 +66,7 @@ export default [
     name: PageNames.GROUP_LESSON_SUMMARY,
     path: CLASS + GROUP + LESSON + '/:tabId?',
     component: LessonSummaryPage,
+    meta: { keepFocus: true },
     handler(toRoute, fromRoute) {
       if (
         fromRoute.name !== PageNames.GROUP_LESSON_SUMMARY ||
@@ -101,5 +102,6 @@ export default [
     name: PageNames.GROUP_EXAM_SUMMARY,
     path: CLASS + GROUP + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
+    meta: { keepFocus: true },
   },
 ];
