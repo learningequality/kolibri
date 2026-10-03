@@ -28,6 +28,31 @@ describe('PersonalDataConsentForm', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  describe('initial focus', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('focuses "Usage and privacy" when nothing holds focus, as on a reload', async () => {
+      renderComponent();
+      await jest.runAllTimersAsync();
+      expect(screen.getByText(usageAndPrivacyLabel$()).closest('a')).toHaveFocus();
+    });
+
+    it('keeps focus on the heading the router focused after a navigation', async () => {
+      renderComponent();
+      const heading = screen.getByRole('heading', { level: 1 });
+      heading.setAttribute('tabindex', '-1');
+      heading.focus();
+      await jest.runAllTimersAsync();
+      expect(heading).toHaveFocus();
+    });
+  });
+
   it('opens the privacy statement modal when the user clicks "Usage and privacy"', async () => {
     renderComponent();
     fireEvent.click(screen.getByText(usageAndPrivacyLabel$()));

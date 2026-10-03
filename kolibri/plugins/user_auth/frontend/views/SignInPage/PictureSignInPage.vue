@@ -136,7 +136,8 @@
       });
 
       onMounted(() => {
-        nextTick(() => passwordGridRef.value?.focusSentinel());
+        // Not nextTick: the router focuses the H1 unless a page sets focus as it mounts.
+        passwordGridRef.value?.focusSentinel();
       });
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
