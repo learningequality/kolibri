@@ -80,6 +80,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -89,6 +90,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import plugin_data from 'kolibri-plugin-data';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
@@ -100,18 +102,21 @@
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
   import { ContentWizardErrors, PageNames } from '../../constants';
   import { availableChannelsPageLink } from '../ManageContentPage/manageContentLinks';
+  import store from '../../store';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
 
+  export const pageTitleStrings = createTranslator('SelectContentPage', {
+    selectContent: {
+      message: "Select resources from '{channelName}'",
+      context: 'Refers to selecting learning resources from a specified channel.',
+    },
+  });
+
   export default {
     name: 'SelectContentPage',
-    metaInfo() {
-      return {
-        title: this.$tr('selectContent', { channelName: this.transferredChannel.name }),
-      };
-    },
     components: {
       ChannelContentsSummary,
       ContentTreeViewer,
@@ -126,6 +131,13 @@
     setup() {
       useContentTasks();
       const { windowIsSmall } = useKResponsiveWindow();
+      usePageTitle(
+        () =>
+          pageTitleStrings.selectContent$({
+            channelName: store.state.manageContent.wizard.transferredChannel.name,
+          }),
+        { hasVisibleHeading: true },
+      );
       return {
         windowIsSmall,
         pageLoading,
@@ -350,10 +362,6 @@
       problemTransferringContents: {
         message: 'There was a problem transferring the selected resources',
         context: 'Error during channel import.',
-      },
-      selectContent: {
-        message: "Select resources from '{channelName}'",
-        context: 'Refers to selecting learning resources from a specified channel.',
       },
       kolibriStudioLabel: {
         message: 'Kolibri Studio',
