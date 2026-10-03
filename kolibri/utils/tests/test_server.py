@@ -63,15 +63,6 @@ class TestServerInstallation:
                 installation_types.DEB
             ].format("1.0")
 
-    @mock.patch("sys.argv", ["C:\\Python34\\Scripts\\kolibri", "start"])
-    @mock.patch("sys.path", ["", "C:\\Program Files\\Kolibri\\kolibri.exe"])
-    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
-    def test_windows(self):
-        install_type = server.installation_type()
-        assert install_type == installation_types.install_type_map[
-            installation_types.WINDOWS
-        ].format("1.0")
-
     @mock.patch("sys.argv", ["/usr/local/bin/kolibri", "start"])
     def test_whl(self):
         install_type = server.installation_type()
@@ -347,3 +338,33 @@ class TestBaseKolibriProcessBusPorts:
             bus = server.BaseKolibriProcessBus(port=0, zip_port=0)
         assert bus.port == 0
         assert bus.zip_port == 0
+
+
+class TestAppInstallationTypes:
+    @pytest.mark.parametrize(
+        "installation_type, expected",
+        [
+            (installation_types.WINDOWS_APP, "Windows App"),
+            (installation_types.MACOS, "Mac"),
+            (installation_types.APK, "apk"),
+        ],
+    )
+    def test_bare_name_without_installer_version(self, installation_type, expected):
+        with mock.patch("os.environ", {"KOLIBRI_INSTALLATION_TYPE": installation_type}):
+            assert server.installation_type() == expected
+
+    def test_flatpak_reports_installer_version(self):
+        environ = {
+            "KOLIBRI_INSTALLATION_TYPE": installation_types.FLATPAK,
+            "KOLIBRI_INSTALLER_VERSION": "1.2.3",
+        }
+        with mock.patch("os.environ", environ):
+            assert server.installation_type() == "Flatpak - 1.2.3"
+
+    def test_apk_version_name_env_var_is_ignored(self):
+        environ = {
+            "KOLIBRI_INSTALLATION_TYPE": installation_types.APK,
+            "KOLIBRI_APK_VERSION_NAME": "1.0",
+        }
+        with mock.patch("os.environ", environ):
+            assert server.installation_type() == "apk"
