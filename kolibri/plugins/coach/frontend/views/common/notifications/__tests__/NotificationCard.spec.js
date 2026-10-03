@@ -33,7 +33,6 @@ const notification = {
 
 const GROUP = { name: 'Group 1', type: CollectionTypes.LEARNERGROUP };
 const ASSIGNMENT = { name: 'Lesson 1', type: 'Lesson' };
-const CONTEXT_SEPARATOR = /•/;
 const RELATIVE_TIME = /ago$/;
 const routes = Object.values(PageNames).map(name => ({ name, path: `/${name}` }));
 
@@ -57,29 +56,31 @@ describe('NotificationCard', () => {
   it('shows a link describing what happened', () => {
     renderComponent({ notification });
     const name = nStrings.$tr('individualCompleted', { learnerName: 'JB', itemName: 'Lesson 1' });
-    expect(screen.getByRole('link', { name })).toBeInTheDocument();
+    const link = screen.getByRole('link', { name });
+    expect(link).toHaveAttribute('href', expect.stringContaining(PageNames.LEARNER_LESSON_REPORT));
   });
 
-  it('shows the elapsed time only when showTime is true', () => {
-    const { unmount } = renderComponent({ notification, props: { showTime: false } });
-    expect(screen.queryByText(RELATIVE_TIME)).not.toBeInTheDocument();
-    unmount();
-
+  it('shows the elapsed time when showTime is true', () => {
     renderComponent({ notification, props: { showTime: true } });
     expect(screen.getByText(RELATIVE_TIME)).toBeInTheDocument();
   });
 
+  it('hides the elapsed time when showTime is false', () => {
+    renderComponent({ notification, props: { showTime: false } });
+    expect(screen.queryByText(RELATIVE_TIME)).not.toBeInTheDocument();
+  });
   it.each([
-    ['neither group nor assignment', {}, {}, null],
     ['only a group', GROUP, {}, GROUP.name],
     ['a group and an assignment', GROUP, ASSIGNMENT, `${GROUP.name} • ${ASSIGNMENT.name}`],
     ['only an assignment', {}, ASSIGNMENT, ASSIGNMENT.name],
   ])('shows the correct context line with %s', (_, collection, assignment, expected) => {
     renderComponent({ notification: { ...notification, collection, assignment } });
-    if (expected) {
-      expect(screen.getByText(expected, { selector: 'p' })).toBeInTheDocument();
-    } else {
-      expect(screen.queryByText(CONTEXT_SEPARATOR)).not.toBeInTheDocument();
-    }
+    expect(screen.getByText(expected, { selector: 'p' })).toBeInTheDocument();
+  });
+
+  it('shows no context line with neither group nor assignment', () => {
+    renderComponent({ notification: { ...notification, collection: {}, assignment: {} } });
+    expect(screen.queryByText(GROUP.name)).not.toBeInTheDocument();
+    expect(screen.queryByText(ASSIGNMENT.name)).not.toBeInTheDocument();
   });
 });

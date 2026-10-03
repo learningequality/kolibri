@@ -12,7 +12,7 @@ const LEARNER_1_STARTED = nStrings.$tr('individualStarted', {
   learnerName: 'Learner 1',
   itemName: 'Lesson 1',
 });
-const LEARNER_2 = /Learner 2/;
+const LESSON_2 = /Lesson 2/;
 const routes = Object.values(PageNames).map(name => ({ name, path: `/${name}` }));
 
 const makeNotification = (id, overrides = {}) => ({
@@ -63,7 +63,7 @@ describe('ActivityList', () => {
     });
     await global.flushPromises();
     expect(screen.getByRole('link', { name: LEARNER_1_STARTED })).toBeInTheDocument();
-    expect(screen.queryByText(LEARNER_2)).not.toBeInTheDocument();
+    expect(screen.queryByText(LESSON_2)).not.toBeInTheDocument();
   });
 
   it('shows a "Show more" button that loads the next page when there are more results', async () => {
