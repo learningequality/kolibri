@@ -4,10 +4,11 @@ import {
   nextTick,
   onMounted,
   onUnmounted,
+  ref,
   shallowRef,
   watch,
 } from 'vue';
-import { toValue } from '@vueuse/core';
+import { toValue, useMutationObserver } from '@vueuse/core';
 import { createTranslator, currentLanguage, isRtl } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { error } from 'kolibri/utils/appError';
@@ -56,9 +57,31 @@ const innermost = computed(() => registrations.value[registrations.value.length 
 
 const innermostParts = computed(() => (innermost.value ? toParts(innermost.value.title) : []));
 
-export const pageHeading = computed(() =>
+const pageHeading = computed(() =>
   innermost.value?.hasVisibleHeading ? '' : joinParts(innermostParts.value),
 );
+
+/**
+ * The text of a page shell's hidden <h1>, or '' when it should render none.
+ * @param {import('vue').Ref<Element>} container - Searched for the page's own <h1>.
+ * @param {import('vue').Ref<Element>} hiddenHeading - Skipped in that search.
+ * @returns {import('vue').ComputedRef<string>}
+ */
+export function usePageHeading(container, hiddenHeading) {
+  // Assumed until the first check, so a shell's first page never shows two <h1>s on mount.
+  const pageHasHeading = ref(true);
+  function update() {
+    const headings = container.value?.querySelectorAll('h1') || [];
+    pageHasHeading.value = [...headings].some(heading => heading !== hiddenHeading.value);
+  }
+  const observed = computed(() => (innermost.value?.hasVisibleHeading ? container.value : null));
+  // A new registration re-observes, which drops that flush's mutation records.
+  watch([observed, innermost], update, { flush: 'post' });
+  useMutationObserver(observed, update, { childList: true, subtree: true });
+  return computed(() =>
+    pageHasHeading.value ? pageHeading.value : joinParts(innermostParts.value),
+  );
+}
 
 // watch() reads its sources at import, before i18nSetup() resolves, so they must not translate.
 // Not immediate: the server-rendered site title, or vue-meta's, stands until a page registers.
@@ -76,8 +99,8 @@ watch([innermostParts, error, metaInfoComponents], ([parts, err, metaInfoCount])
  * @param {string|string[]|import('vue').Ref|Function} title - The title, or its parts from
  * most to least specific, as a string or array of strings, or a ref or getter of either.
  * @param {object} [options] - Heading options.
- * @param {boolean} [options.hasVisibleHeading=false] - The page renders its own visible <h1>,
- * so the page shell renders no hidden one.
+ * @param {boolean} [options.hasVisibleHeading=false] - The page renders its own visible <h1>;
+ * the page shell's hidden one stands in only while the shell's default slot holds none.
  * @returns {{ documentTitle: import('vue').ComputedRef<string> }} This registration's title as
  * formatted for the browser tab.
  */
