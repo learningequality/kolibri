@@ -4,6 +4,7 @@ Tests for `kolibri.utils.main` module.
 
 import os
 import unittest
+from contextlib import contextmanager
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -19,6 +20,8 @@ from kolibri.core.deviceadmin.utils import default_backup_folder
 from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.utils import main
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.migration_lock import MIGRATION_LOCK_FILE
+from kolibri.utils.migration_lock import MigrationLockTimeout
 from kolibri.utils.version import truncate_version
 
 # from django.conf import settings
@@ -71,6 +74,83 @@ def test_update_exits_if_running(get_version, is_initialized):
             pytest.fail("Update did not exit when Kolibri was already running")
         except SystemExit:
             pass
+
+
+@pytest.mark.django_db(transaction=True)
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
+@patch("kolibri.utils.main.update")
+@patch(
+    "kolibri.utils.main.migration_lock",
+    side_effect=MigrationLockTimeout(MIGRATION_LOCK_FILE),
+)
+def test_initialize_exits_when_another_process_holds_the_lock_too_long(
+    migration_lock, update, is_initialized
+):
+    with patch.object(main, "logger") as logger:
+        with pytest.raises(SystemExit):
+            main.initialize()
+    update.assert_not_called()
+    logger.error.assert_called_once()
+    message = logger.error.call_args[0][0] % logger.error.call_args[0][1:]
+    assert MIGRATION_LOCK_FILE in message
+    assert "too long" in message
+
+
+@pytest.mark.django_db(transaction=True)
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
+def test_initialize_updates_from_the_version_read_while_holding_the_lock(
+    is_initialized,
+):
+    held = []
+    received = []
+
+    @contextmanager
+    def lock_released_by_an_upgraded_process():
+        held.append(True)
+        yield
+        held.pop()
+
+    def read_version():
+        return kolibri.__version__ if held else "0.0.1"
+
+    def recorder(step):
+        def record(updated, version):
+            received.append((step, bool(held), updated, version))
+
+        return record
+
+    with patch.object(main, "migration_lock", lock_released_by_an_upgraded_process):
+        with patch.object(main, "get_version", read_version):
+            with patch.object(
+                main, "_upgrades_before_django_setup", recorder("before setup")
+            ):
+                with patch.object(main, "_run_updates", recorder("run updates")):
+                    main.initialize()
+
+    assert received == [
+        ("before setup", True, False, kolibri.__version__),
+        ("run updates", True, False, kolibri.__version__),
+    ]
+
+
+@pytest.mark.django_db(transaction=True)
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
+@patch("kolibri.utils.main.get_version", return_value="0.0.1")
+@patch("kolibri.utils.main.update")
+@patch("kolibri.utils.main.migration_lock")
+def test_initialize_takes_lock_when_updating(
+    migration_lock, update, get_version, is_initialized
+):
+    main.initialize()
+    migration_lock.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True)
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
+@patch("kolibri.utils.main.migration_lock")
+def test_initialize_skips_lock_when_skip_update(migration_lock, is_initialized):
+    main.initialize(skip_update=True)
+    migration_lock.assert_not_called()
 
 
 @pytest.mark.django_db(transaction=True)
