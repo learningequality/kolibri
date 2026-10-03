@@ -22,9 +22,15 @@ export function updateWithNotifications(store, notifications) {
 
     // Short-circuit the update if there are missing learners, exams, lessons,
     // or content nodes in classSummary.
-    let reloadSummary = false;
+    if (!learnerMap[notification.user_id]) {
+      return store.dispatch('loadClassSummary', store.state.id);
+    }
 
-    reloadSummary = reloadSummary || !learnerMap[notification.user_id];
+    // Course notifications carry synthetic quiz ids and raw ContentNode ids, which are
+    // never in these maps. Course pages get their progress from useCourseSession instead.
+    if (notification.course_session_id) continue;
+
+    let reloadSummary = false;
 
     if (object === QUIZ) {
       reloadSummary = reloadSummary || !examMap[notification.quiz_id];
@@ -64,6 +70,12 @@ export function updateWithNotifications(store, notifications) {
         exam_id: notification.quiz_id,
       });
     }
+  }
+
+  // The mutation replaces both status maps wholesale, so an empty commit still
+  // invalidates every getter derived from them.
+  if (!examLearnerStatusMapUpdates.length && !contentLearnerStatusMapUpdates.length) {
+    return;
   }
 
   store.commit('APPLY_NOTIFICATION_UPDATES', {
