@@ -32,6 +32,20 @@ const files = [
 ];
 
 describe('DownloadButton', () => {
+  let click;
+  let clickedLink;
+
+  beforeEach(() => {
+    // Capture the link on click so assertions run in the test body, not inside the handler.
+    click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
+      clickedLink = this;
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('does not render when there are no downloadable files', () => {
     render(DownloadButton, { props: { files: [] } });
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -50,14 +64,11 @@ describe('DownloadButton', () => {
   });
 
   it('downloads the selected file with a name based on the resource title', async () => {
-    const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
-      expect(this.download).toBe('My video (187598).pdf');
-      expect(this).toHaveAttribute('href', '/content/storage/doc.pdf');
-    });
     render(DownloadButton, { props: { files, nodeTitle: 'My video' } });
     await userEvent.click(screen.getByRole('button', { name: downloadContent$() }));
     await userEvent.click(await screen.findByText(getFilePresetString(files[1])));
     expect(click).toHaveBeenCalledTimes(1);
-    click.mockRestore();
+    expect(clickedLink.download).toBe('My video (187598).pdf');
+    expect(clickedLink).toHaveAttribute('href', '/content/storage/doc.pdf');
   });
 });

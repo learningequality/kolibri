@@ -71,16 +71,22 @@ describe('AuthMessage', () => {
         'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
       );
     });
+
+    it('does not offer to sign in when the user is already signed in', () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      renderComponent();
+      expect(
+        screen.queryByRole('link', { name: signInToKolibriAction$() }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('link', { name: goBackToHomeAction$() })).toHaveAttribute(
+        'href',
+        '/',
+      );
+    });
   });
 
   it('links to the home page when there is no user auth plugin', () => {
     renderComponent();
     expect(screen.getByRole('link', { name: goBackToHomeAction$() })).toHaveAttribute('href', '/');
-  });
-
-  it('does not offer to sign in when the user is already signed in', () => {
-    useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-    renderComponent();
-    expect(screen.queryByRole('link', { name: signInToKolibriAction$() })).not.toBeInTheDocument();
   });
 });
