@@ -1,205 +1,132 @@
-import { mount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { coachStrings } from '../../commonCoachStrings';
+import { PageNames } from '../../../../constants';
+import { nStrings } from '../notificationStrings';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import ActivityList from '../ActivityList';
-import { LastPages } from '../../../../constants/lastPagesConstants';
 
-const localVue = createLocalVue();
-localVue.use(VueRouter);
+const PROGRESS_TYPE = 'Progress type';
+const STARTED = coachStrings.$tr('startedLabel');
+const COMPLETED = coreStrings.$tr('completedLabel');
+const NO_ACTIVITY = 'No activity in this classroom';
+const SHOW_MORE = coreStrings.$tr('showMoreAction');
+const LEARNER_1_STARTED = nStrings.$tr('individualStarted', {
+  learnerName: 'Learner 1',
+  itemName: 'Lesson 1',
+});
+const LEARNER_3_COMPLETED = nStrings.$tr('individualCompleted', {
+  learnerName: 'Learner 3',
+  itemName: 'Lesson 3',
+});
+const LESSON_2 = /Lesson 2/;
+const routes = Object.values(PageNames).map(name => ({ name, path: `/${name}` }));
 
-// Need a fake route to test backLinkQuery method
-const router = new VueRouter({
-  routes: [
-    {
-      path: '/fakereport/:groupId/:learnerId',
-      name: 'FakeReportPage',
-    },
-  ],
+const makeNotification = (id, overrides = {}) => ({
+  id,
+  lesson_id: 'lesson_1',
+  object: 'Lesson',
+  event: 'Started',
+  resource: { type: 'video' },
+  assignment: { name: `Lesson ${id}`, type: 'Lesson' },
+  collection: { name: 'Class', type: 'classroom', id: 'classroom_id_test' },
+  learnerSummary: { firstUserId: `learner_${id}`, firstUserName: `Learner ${id}`, total: 1 },
+  assignment_collections: [],
+  ...overrides,
 });
 
-function makeWrapper(options) {
-  const fetchMock = jest.fn(() => Promise.resolve(Boolean(options.moreResults)));
+function renderComponent({ notifications = [], moreResults = false, props = {} } = {}) {
+  const fetchMore = jest.fn(() => Promise.resolve(moreResults));
   const store = makeStore({
     coachNotifications: {
       namespaced: true,
-      state: {
-        currentClassroomId: 'classroom_id_test',
-        notifications: [],
-      },
-      actions: {
-        moreNotificationsForClass: fetchMock,
-      },
-      getters: {
-        allNotifications() {
-          return options.results || [];
-        },
-      },
+      state: { currentClassroomId: 'classroom_id_test', notifications: [] },
+      actions: { moreNotificationsForClass: fetchMore },
+      getters: { allNotifications: () => notifications },
     },
   });
-  store.state.classSummary.lessonMap = {
-    lesson_1: {
-      groups: [],
-    },
-  };
+  store.state.classSummary.lessonMap = { lesson_1: { groups: [] } };
 
-  const wrapper = mount(ActivityList, {
-    store,
-    localVue,
-    router,
-    propsData: {
-      ...(options.propsData || {}),
-    },
-    stubs: {
-      NotificationsFilter: {
-        name: 'NotificationsFilter',
-        props: ['enabledFilters'],
-        template: '<div></div>',
-      },
-      NotificationCard: {
-        name: 'NotificationCard',
-        props: ['targetPage'],
-        template: '<div></div>',
-      },
-      transition: {
-        name: 'transition',
-        template: '<div><slot></slot></div>',
-      },
-    },
-  });
-  return { fetchMock, wrapper };
+  const utils = render(ActivityList, { store, routes, props });
+  return { ...utils, fetchMore };
 }
 
-describe('ActivityList component', () => {
-  it('on first render, calls the notification resource', async () => {
-    const { fetchMock, wrapper } = makeWrapper({});
+describe('ActivityList', () => {
+  it('loads notifications when first shown', async () => {
+    const { fetchMore } = renderComponent();
     await global.flushPromises();
-    expect(fetchMock).toHaveBeenCalled();
-    expect(wrapper.vm.moreResults).toBe(false);
+    expect(fetchMore).toHaveBeenCalledTimes(1);
   });
 
-  it('shows an empty state when there are no notifications', async () => {
-    const { wrapper } = makeWrapper({
-      propsData: {
-        noActivityString: 'No activity in this classroom',
-      },
+  it('shows the empty message when there are no notifications', async () => {
+    renderComponent({ props: { noActivityString: NO_ACTIVITY } });
+    expect(await screen.findByText(NO_ACTIVITY)).toBeInTheDocument();
+  });
+
+  it('lists notifications but hides "Answered" ones', async () => {
+    renderComponent({
+      notifications: [makeNotification('1'), makeNotification('2', { event: 'Answered' })],
+      props: { noActivityString: NO_ACTIVITY },
     });
     await global.flushPromises();
-    const noActivity = wrapper.find('.notifications p');
-    expect(noActivity.text()).toEqual('No activity in this classroom');
+    expect(screen.getByRole('link', { name: LEARNER_1_STARTED })).toBeInTheDocument();
+    expect(screen.queryByText(LESSON_2)).not.toBeInTheDocument();
   });
 
-  it('has a "show more" button if there are more pages of notifications', async () => {
-    const { wrapper } = makeWrapper({ moreResults: true });
-    await global.flushPromises();
-    const showMoreButton = wrapper.findComponent({ name: 'KButton' });
-    expect(showMoreButton.exists()).toEqual(true);
+  it('shows a "Show more" button that loads the next page when there are more results', async () => {
+    const { fetchMore } = renderComponent({ moreResults: true });
+    const button = await screen.findByRole('button', { name: SHOW_MORE });
+    await fireEvent.click(button);
+    expect(fetchMore).toHaveBeenCalledTimes(2);
   });
 
-  it('does not have a "show more" button if there are no more pages of notifications', async () => {
-    const { wrapper } = makeWrapper({});
+  it('does not show a "Show more" button when there are no more results', async () => {
+    renderComponent({ moreResults: false });
     await global.flushPromises();
-    const showMoreButton = wrapper.findComponent({ name: 'KButton' });
-    expect(showMoreButton.exists()).toEqual(false);
+    expect(screen.queryByRole('button', { name: SHOW_MORE })).not.toBeInTheDocument();
   });
 
-  it('disables the "show more" button if any filters are activated', async () => {
-    const { wrapper } = makeWrapper({});
-    const showMoreButton = () => wrapper.findComponent({ name: 'KButton' });
-    await global.flushPromises();
-    wrapper.setData({
-      loading: false,
+  it('hides the "Show more" button once a filter is applied', async () => {
+    renderComponent({
+      notifications: [makeNotification('1')],
       moreResults: true,
     });
-    await wrapper.vm.$nextTick();
-    expect(showMoreButton().exists()).toBe(true);
-    wrapper.setData({
-      progressFilter: 'Completed',
-    });
-    await wrapper.vm.$nextTick();
-    expect(showMoreButton().exists()).toBe(false);
+    await screen.findByRole('button', { name: SHOW_MORE });
+
+    await selectKSelectOption('Progress type', 'Started');
+
+    expect(screen.queryByRole('button', { name: SHOW_MORE })).not.toBeInTheDocument();
   });
 
-  it('enables filters based on what is in the current notifications array', async () => {
-    const { wrapper } = makeWrapper({
-      results: [
-        {
-          lesson_id: 'lesson_1',
-          object: 'Lesson',
-          event: 'Started',
-          resource: {
-            type: 'video',
-          },
-          assignment_collections: [],
-        },
-        {
-          lesson_id: 'lesson_1',
-          object: 'Resource',
-          event: 'Started',
-          resource: {
-            type: 'exercise',
-          },
-          assignment_collections: [],
-        },
-        {
-          lesson_id: 'lesson_1',
-          object: 'Resource',
-          event: 'Completed',
-          resource: {
-            type: 'exercise',
-          },
-          assignment_collections: [],
-        },
-      ],
+  it('hides cards that do not match the selected filter', async () => {
+    renderComponent({
+      notifications: [makeNotification('1'), makeNotification('3', { event: 'Completed' })],
     });
+    const startedCard = await screen.findByRole('link', { name: LEARNER_1_STARTED });
+    const completedCard = screen.getByRole('link', { name: LEARNER_3_COMPLETED });
 
+    await selectKSelectOption('Progress type', 'Started');
+
+    expect(startedCard).toBeVisible();
+    expect(completedCard).not.toBeVisible();
+  });
+
+  it('disables filter options that no notification matches', async () => {
+    renderComponent({ notifications: [makeNotification('1')] });
     await global.flushPromises();
 
-    const filters = wrapper.findComponent({ name: 'NotificationsFilter' });
-    // Logic is very simple: just find the unique values in the notifications
-    // and disable anything that isn't there.
-    expect(filters.props().enabledFilters.progress.sort()).toMatchObject(['Completed', 'Started']);
-    expect(filters.props().enabledFilters.resource.sort()).toMatchObject([
-      'Lesson',
-      'Resource',
-      'exercise',
-      'video',
-    ]);
+    await fireEvent.click(
+      screen
+        .getByText(PROGRESS_TYPE, { selector: '.ui-select-label-text' })
+        .closest('.ui-select-label'),
+    );
+
+    const optionFor = async label =>
+      (await screen.findByText(label, { selector: '.ui-select-option-basic' })).closest(
+        '.ui-select-option',
+      );
+    expect(await optionFor(STARTED)).not.toHaveClass('is-disabled');
+    expect(await optionFor(COMPLETED)).toHaveClass('is-disabled');
   });
-
-  it('appends the correct back link query to links, depending on the embedded page', async () => {
-    const { wrapper } = makeWrapper({
-      results: [
-        {
-          lesson_id: 'lesson_1',
-          object: 'Lesson',
-          event: 'Started',
-          contentnode_kind: 'video',
-          assignment_collections: [],
-        },
-      ],
-    });
-
-    // Need to set up a route, since backLinkQuery depends on $route.params
-    await wrapper.vm.$router.push({
-      name: 'FakeReportPage',
-      params: {
-        groupId: 'group_001',
-        learnerId: 'learner_001',
-      },
-    });
-
-    // Embed in Home Activity Page
-    wrapper.setProps({
-      embeddedPageName: 'HomeActivityPage',
-    });
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.backLinkQuery).toEqual({
-      last: LastPages.HOME_ACTIVITY,
-    });
-  });
-
-  // Not tested:
-  // Filtering NotificationCards
-  // All props passed to NotificationCards
-  // Live-updating notifications from coachNotifications module
 });
