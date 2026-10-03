@@ -4,13 +4,12 @@
     :loading="pageLoading"
     :appBarTitle="currentGroup.name"
     icon="back"
-    :pageTitle="pageTitle"
     :route="$router.getRoute(PageNames.GROUP_SUMMARY)"
     :primary="false"
   >
     <KPageContainer>
       <h1>
-        {{ $tr('pageHeader', { className: currentGroup.name }) }}
+        {{ heading }}
       </h1>
       <form @submit.prevent="addSelectedUsersToGroup">
         <div class="actions-header">
@@ -80,16 +79,28 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { mapActions, mapGetters, mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
   import differenceWith from 'lodash/differenceWith';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import filterUsersByNames from 'kolibri-common/utils/filterUsersByNames';
   import UserTable from 'kolibri-common/components/UserTable';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
+  import store from '../../store';
 
   import CoachImmersivePage from '../CoachImmersivePage';
+
+  const { pageHeader$ } = createTranslator('GroupEnrollPage', {
+    pageHeader: {
+      message: "Enroll learners into '{className}'",
+      context: 'Describes title of page where the coach enrolls learners in a new group.',
+    },
+  });
 
   export default {
     name: 'GroupEnrollPage',
@@ -100,7 +111,13 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      return { pageLoading };
+      const route = useRoute();
+      const currentGroup = computed(
+        () => store.state.groups.groups.find(g => g.id === route.params.groupId) || {},
+      );
+      const heading = computed(() => pageHeader$({ className: currentGroup.value.name }));
+      usePageTitle(heading, { hasVisibleHeading: true });
+      return { pageLoading, currentGroup, heading };
     },
     data() {
       return {
@@ -111,19 +128,13 @@
       };
     },
     computed: {
-      ...mapState('groups', ['groups', 'classUsers']),
+      ...mapState('groups', ['classUsers']),
       ...mapGetters('classSummary', ['getGroupNamesForLearner']),
-      pageTitle() {
-        return this.$tr('pageHeader', { className: this.currentGroup.name });
-      },
       currentGroupUsers() {
         if (this.currentGroup) {
           return this.currentGroup.users;
         }
         return [];
-      },
-      currentGroup() {
-        return this.groups.find(g => g.id === this.$route.params.groupId) || {};
       },
       usersNotInClass() {
         return differenceWith(this.classUsers, this.currentGroupUsers, (a, b) => a.id === b.id);
@@ -192,10 +203,6 @@
       },
     },
     $trs: {
-      pageHeader: {
-        message: "Enroll learners into '{className}'",
-        context: 'Describes title of page where the coach enrolls learners in a new group.',
-      },
       userTableLabel: {
         message: 'User List',
         context: 'Indicates list of users that can be enrolled into a specific group.',

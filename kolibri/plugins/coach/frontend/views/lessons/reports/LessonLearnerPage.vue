@@ -81,6 +81,8 @@
 
 <script>
 
+  import { useRoute } from 'vue-router/composables';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -91,6 +93,8 @@
 
   import ReportsControls from '../../common/ReportsControls';
   import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
+  import { coachStrings } from '../../common/commonCoachStrings';
+  import store from '../../../store';
 
   export default {
     name: 'LessonLearnerPage',
@@ -102,6 +106,18 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { groupMap, learnerMap, lessonMap, name } = store.state.classSummary;
+          const { groupId, learnerId, lessonId } = route.params;
+          const lesson = lessonMap[lessonId]?.title;
+          return groupId
+            ? [coachStrings.learnersLabel$(), lesson, groupMap[groupId]?.name, name]
+            : [learnerMap[learnerId]?.name, lesson, name];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     computed: {

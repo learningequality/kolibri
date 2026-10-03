@@ -226,6 +226,7 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { handleApiError } from 'kolibri/utils/appError';
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
@@ -293,7 +294,8 @@
         postTestRunningLabel$,
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
-      const { getRecipientNamesForCourseSession } = useClassSummary();
+      const { getRecipientNamesForCourseSession, className } = useClassSummary();
+      usePageTitle(() => [coursesLabel$(), className.value], { hasVisibleHeading: true });
       const { show } = useKShow();
       const { windowIsSmall } = useKResponsiveWindow();
       const {
@@ -544,6 +546,7 @@
         postTestRunningLabel$,
         getRecipientNamesForCourseSession,
         courseHasRecipients,
+        className,
       };
     },
     data() {
@@ -554,9 +557,6 @@
       };
     },
     computed: {
-      className() {
-        return this.$store.state.classSummary.name;
-      },
       tableCaption() {
         return this.allCoursesForClass$({ className: this.className });
       },

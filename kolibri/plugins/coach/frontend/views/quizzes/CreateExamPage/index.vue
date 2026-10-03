@@ -4,7 +4,6 @@
     :loading="!quizInitialized"
     :appBarTitle="title"
     icon="close"
-    :pageTitle="title"
     :route="backRoute"
   >
     <UiAlert
@@ -105,6 +104,7 @@
       {{ closeConfirmationMessage$() }}
     </KModal>
 
+    <SidePanelTitle v-if="overlayOpen" />
     <router-view v-if="quizInitialized" />
   </CoachImmersivePage>
 
@@ -116,19 +116,31 @@
   import get from 'lodash/get';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { coachStrings } from '../../common/commonCoachStrings';
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
+  import { provideSidePanelTitle } from '../../../composables/useSidePanelTitle';
+  import SidePanelTitle from '../../common/SidePanelTitle';
   import CreateQuizSection from './CreateQuizSection';
+
+  const { createNewExamLabel$ } = createTranslator('CreateExamPage', {
+    createNewExamLabel: {
+      message: 'Create new quiz',
+      context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
+    },
+  });
 
   export default {
     name: 'CreateExamPage',
@@ -137,9 +149,11 @@
       BottomAppBar,
       CreateQuizSection,
       AssignmentDetailsModal,
+      SidePanelTitle,
     },
     mixins: [commonCoreStrings],
     setup() {
+      const route = useRoute();
       const closeConfirmationToRoute = ref(null);
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, groups } = useCoreCoach();
@@ -155,6 +169,18 @@
       } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
+
+      const title = computed(() => {
+        if (!quizInitialized.value) {
+          return '';
+        }
+        if (route.params.quizId === 'new') {
+          return createNewExamLabel$();
+        }
+        return quiz.value.title;
+      });
+      usePageTitle(title);
+      const { overlayOpen } = provideSidePanelTitle(title);
 
       initClassInfo();
 
@@ -174,6 +200,8 @@
       return {
         closeConfirmationTitle$,
         closeConfirmationMessage$,
+        title,
+        overlayOpen,
         classId,
         groups,
         closeConfirmationToRoute,
@@ -226,15 +254,6 @@
           };
         }
         return { name: PageNames.EXAMS_ROOT, params: { classId: this.classId } };
-      },
-      title() {
-        if (!this.quizInitialized) {
-          return '';
-        }
-        if (this.$route.params.quizId === 'new') {
-          return this.$tr('createNewExamLabel');
-        }
-        return this.quiz.title;
       },
     },
     watch: {
@@ -361,12 +380,6 @@
               this.$refs.detailsModal.handleSubmitFailure();
             }
           });
-      },
-    },
-    $trs: {
-      createNewExamLabel: {
-        message: 'Create new quiz',
-        context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
       },
     },
   };

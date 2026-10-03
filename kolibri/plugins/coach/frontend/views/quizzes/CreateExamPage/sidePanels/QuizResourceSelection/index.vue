@@ -9,6 +9,7 @@
     @shouldFocusFirstEl="() => null"
   >
     <template #header>
+      <OverlayHeading />
       <div style="display: flex; gap: 8px; align-items: center">
         <KIconButton
           v-if="goBack"
@@ -186,6 +187,7 @@
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import OverlayHeading from '../../../../common/OverlayHeading';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
@@ -199,6 +201,7 @@
     name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
+      OverlayHeading,
     },
     directives: {
       autofocusFirstEl,

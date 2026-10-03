@@ -19,9 +19,12 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
+  import useCoreCoach from '../../composables/useCoreCoach';
+  import { coachStrings } from '../common/commonCoachStrings';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import ActivityList from '../common/notifications/ActivityList';
 
@@ -33,6 +36,8 @@
     },
     mixins: [commonCoach, nStringsMixin, commonCoreStrings],
     setup() {
+      const { className } = useCoreCoach();
+      usePageTitle(() => [coachStrings.activityLabel$(), className.value]);
       return { pageLoading };
     },
     $trs: {

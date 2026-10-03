@@ -2,6 +2,7 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { createLocalVue } from '@vue/test-utils';
+import { pageHeading } from 'kolibri/composables/usePageTitle';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 // eslint-disable-next-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
@@ -22,15 +23,16 @@ jest.mock('kolibri-common/composables/usePageLoading', () => ({
 }));
 jest.mock('../../../composables/useCoreCoach', () => {
   const { ref, computed } = require('vue');
+  const store = jest.requireActual('../../../store').default;
   return {
     __esModule: true,
     default: jest.fn(() => ({
       classId: computed(() => 'test-class'),
+      className: computed(() => store.state.classSummary.name),
       appBarTitle: ref('Coach'),
       initClassInfo: jest.fn(),
       refreshClassSummary: jest.fn(),
       authorized: ref(true),
-      pageTitle: ref(''),
       groups: ref([]),
     })),
   };
@@ -199,6 +201,18 @@ describe('AttendanceNewPage', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  it('sets the tab title to the class name', async () => {
+    renderNewPage();
+    await global.flushPromises();
+    expect(document.title).toBe('Test Class - Kolibri');
+  });
+
+  it('tells the page shell it renders its own h1', async () => {
+    renderNewPage();
+    await global.flushPromises();
+    expect(pageHeading.value).toBe('');
   });
 
   it('renders learners sorted alphabetically', async () => {
@@ -406,6 +420,18 @@ describe('AttendanceEditPage', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  it('sets the tab title to the class name', async () => {
+    renderEditPage();
+    await global.flushPromises();
+    expect(document.title).toBe('Test Class - Kolibri');
+  });
+
+  it('tells the page shell it renders its own h1', async () => {
+    renderEditPage();
+    await global.flushPromises();
+    expect(pageHeading.value).toBe('');
   });
 
   it('fetches session and records on mount and pre-populates learner toggles', async () => {

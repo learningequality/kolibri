@@ -11,6 +11,7 @@
     @shouldFocusFirstEl="findFirstEl()"
   >
     <template #header>
+      <OverlayHeading />
       <h1
         v-if="$route.name === PageNames.QUIZ_SECTION_ORDER"
         class="sidepanel-title"
@@ -44,11 +45,13 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
+  import OverlayHeading from '../../../../common/OverlayHeading';
 
   export default {
     name: 'SectionSidePanel',
     components: {
       SidePanelModal,
+      OverlayHeading,
     },
     setup() {
       const route = useRoute();

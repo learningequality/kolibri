@@ -205,6 +205,7 @@
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { mapState, mapGetters } from 'vuex';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import { PageNames } from '../../constants';
@@ -242,7 +243,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const { classId, initClassInfo, refreshClassSummary } = useCoreCoach();
+      const { classId, className, initClassInfo, refreshClassSummary } = useCoreCoach();
+      usePageTitle(() => [coachStrings.quizzesLabel$(), className.value], {
+        hasVisibleHeading: true,
+      });
       const { quizzes, fetchQuizSizes } = useQuizzes();
       const showOpenConfirmationModal = ref(false);
       const showCloseConfirmationModal = ref(false);

@@ -29,9 +29,11 @@
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  import store from '../../../store';
   import LessonContentPreview from './LessonContentPreview';
 
   export default {
@@ -43,6 +45,12 @@
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
+      // The store still holds the previous resource until the next one loads.
+      usePageTitle(
+        () =>
+          pageLoading.value ? '' : store.state.lessonSummary.resources.currentContentNode.title,
+        { hasVisibleHeading: true },
+      );
       const { clearSnackbar } = useSnackbar();
       return { clearSnackbar, pageLoading };
     },

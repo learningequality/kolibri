@@ -215,8 +215,10 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
+  import useCoreCoach from '../../composables/useCoreCoach';
   import CoachAppBarPage from '../CoachAppBarPage';
   import commonCoach from '../common';
   import { coachStrings } from '../common/commonCoachStrings';
@@ -244,6 +246,10 @@
       const { lessonsAreLoading } = useLessons();
       const { createSnackbar } = useSnackbar();
       const { windowIsSmall } = useKResponsiveWindow();
+      const { className } = useCoreCoach();
+      usePageTitle(() => [coachStrings.lessonsLabel$(), className.value], {
+        hasVisibleHeading: true,
+      });
       return {
         show,
         lessonsAreLoading,

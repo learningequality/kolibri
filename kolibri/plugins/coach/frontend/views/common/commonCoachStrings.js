@@ -309,11 +309,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Translate as a VERB. Refers to the 'Plan' tab where coaches manage lessons, quizzes, and groups.",
   },
-  previewLabel: {
-    message: 'Preview',
-    context:
-      'When coaches have finished selecting resources for a quiz, they can  preview the quiz to see what it looks like.',
-  },
   questionLabel: {
     message: 'Question',
     context: 'Refers to a quiz question.',

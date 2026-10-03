@@ -96,6 +96,8 @@
   import sortBy from 'lodash/sortBy';
   import fromPairs from 'lodash/fromPairs';
   import { mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { LastPages } from '../../../constants/lastPagesConstants';
   import commonCoach from '../../common';
@@ -106,6 +108,7 @@
   import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
   import ReportsControls from '../../common/ReportsControls';
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
+  import store from '../../../store';
 
   export default {
     name: 'LessonResourceLearnersPage',
@@ -118,6 +121,15 @@
     },
     mixins: [commonCoach],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { contentMap, lessonMap, name } = store.state.classSummary;
+          const { resourceId, lessonId } = route.params;
+          return [contentMap[resourceId]?.title, lessonMap[lessonId]?.title, name];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     data() {
