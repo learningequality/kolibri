@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 import client from 'kolibri/client';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -42,6 +42,8 @@ const setPasswordTextboxValue = (wrapper, value) => {
 };
 
 describe(`ChangeFacility/MergeAccountDialog`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

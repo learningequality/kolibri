@@ -5,7 +5,7 @@ import { createTranslator } from 'kolibri/utils/i18n';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
 import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
-import MergeFacility from '../MergeFacility';
+import MergeFacility, { pageTitleStrings } from '../MergeFacility';
 
 const sendMachineEvent = jest.fn();
 jest.mock('kolibri/client');
@@ -20,7 +20,8 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
 
 const TARGET_FACILITY_NAME = 'Test Facility';
 const TARGET_FACILITY_URL = 'http://url1';
-const { documentTitle$, success$ } = createTranslator(MergeFacility.name, MergeFacility.$trs);
+const { documentTitle$ } = pageTitleStrings;
+const { success$ } = createTranslator(MergeFacility.name, MergeFacility.$trs);
 
 function renderComponent({
   taskId = 'task_1',

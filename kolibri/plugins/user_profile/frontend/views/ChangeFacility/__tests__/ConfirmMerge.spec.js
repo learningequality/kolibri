@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import ConfirmMerge from '../ConfirmMerge';
 
 const localVue = createLocalVue();
@@ -21,6 +21,8 @@ const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/ConfirmMerge`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

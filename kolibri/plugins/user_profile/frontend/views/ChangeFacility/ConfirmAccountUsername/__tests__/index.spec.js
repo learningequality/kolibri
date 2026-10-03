@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { shallowMount, mount } from '@vue/test-utils';
+import { shallowMount, mount, enableAutoDestroy } from '@vue/test-utils';
 import ConfirmAccountUsername from '../index.vue';
 
 const sendMachineEvent = jest.fn();
@@ -18,6 +18,8 @@ const getCreateNewAccountButton = wrapper => wrapper.find('[data-testid="createN
 const clickCreateNewAccountButton = wrapper => getCreateNewAccountButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/ConfirmAccountUsername`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

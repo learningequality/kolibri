@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { shallowMount, mount } from '@vue/test-utils';
+import { shallowMount, mount, enableAutoDestroy } from '@vue/test-utils';
 import ChooseAdmin from '../index.vue';
 
 const sendMachineEvent = jest.fn();
@@ -41,6 +41,8 @@ const getContinueButton = wrapper => wrapper.find('[data-testid="continueButton"
 const getUserTable = wrapper => wrapper.find('[data-testid="userTable"]');
 
 describe(`ChangeFacility/ChooseAdmin`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

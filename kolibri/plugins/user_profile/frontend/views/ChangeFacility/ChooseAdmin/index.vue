@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ pageTitleStrings.documentTitle$() }}</h1>
     <p>{{ $tr('description') }}</p>
 
     <PaginatedListContainer
@@ -46,20 +46,25 @@
 
 <script>
 
+  import { createTranslator } from 'kolibri/utils/i18n';
   import get from 'lodash/get';
   import { inject, computed, ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import UserTable from 'kolibri-common/components/UserTable';
 
+  export const pageTitleStrings = createTranslator('ChooseAdmin', {
+    documentTitle: {
+      message: 'Choose a new super admin',
+      context:
+        'Title of the step for choosing a new super admin in a source facility when a user changing facilities is the only super admin of the source facility.',
+    },
+  });
+
   export default {
     name: 'ChooseAdmin',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       BottomAppBar,
       PaginatedListContainer,
@@ -67,6 +72,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const changeFacilityService = inject('changeFacilityService');
       const changeFacilityContext = inject('state');
 
@@ -92,6 +98,7 @@
       }
 
       return {
+        pageTitleStrings,
         usersWithoutCurrentUser,
         isContinueDisabled,
         selectedUsers,
@@ -100,11 +107,6 @@
       };
     },
     $trs: {
-      documentTitle: {
-        message: 'Choose a new super admin',
-        context:
-          'Title of the step for choosing a new super admin in a source facility when a user changing facilities is the only super admin of the source facility.',
-      },
       description: {
         message: 'Choose someone to manage channels and user accounts.',
         context:
