@@ -85,10 +85,13 @@
   // Tries to decouple as much as possible from manageContent/wizard Vuex, but
   // shares the wizard.nodesForTransfer state.
 
+  import { computed, ref } from 'vue';
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { handleApiError } from 'kolibri/utils/appError';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -106,16 +109,15 @@
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
+  export const pageTitleStrings = createTranslator('ManageChannelContentsPage', {
+    appBarTitle: {
+      message: `Manage '{channelName}'`,
+      context: 'Refers to the title of the page where a user manages a specific channel.',
+    },
+  });
+
   export default {
     name: 'ManageChannelContentsPage',
-    metaInfo() {
-      if (this.channel) {
-        return {
-          title: this.appBarTitle,
-        };
-      }
-      return {};
-    },
     components: {
       ChannelContentsSummary,
       ContentTreeViewer,
@@ -130,11 +132,15 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
-      return { handleApiError, pageLoading };
+      const channel = ref(null);
+      const appBarTitle = computed(() =>
+        channel.value ? pageTitleStrings.appBarTitle$({ channelName: channel.value.name }) : '',
+      );
+      usePageTitle(appBarTitle, { hasVisibleHeading: true });
+      return { handleApiError, pageLoading, channel, appBarTitle };
     },
     data() {
       return {
-        channel: null,
         currentNodeId: null,
         freeSpace: null,
         shownModal: null,
@@ -159,13 +165,6 @@
           included: nodes.included.map(x => x.id),
           excluded: nodes.omitted.map(x => x.id),
         };
-      },
-      appBarTitle() {
-        if (this.channel) {
-          return this.$tr('appBarTitle', { channelName: this.channel.name });
-        } else {
-          return '';
-        }
       },
       availableVersions() {
         // If offline, we shouldn't see an upgrade notification
@@ -343,10 +342,6 @@
       startDeleteTask,
     },
     $trs: {
-      appBarTitle: {
-        message: `Manage '{channelName}'`,
-        context: 'Refers to the title of the page where a user manages a specific channel.',
-      },
       importMoreAction: {
         message: 'Import more',
         context: 'Button which user can use to import more channels.',
