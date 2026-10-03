@@ -955,6 +955,118 @@ class TestTransferNoFullRangesDownloadByteRangeSupportNotReported(
         return True
 
 
+class TestTransferDownloadExistingDestination(unittest.TestCase):
+    def setUp(self):
+        self.destdir = tempfile.mkdtemp()
+        self.content = os.urandom(1024 * 10)
+        self.checksum = hashlib.md5(self.content).hexdigest()
+        self.dest = os.path.join(self.destdir, "existing_file")
+        self.source = "http://example.com/existing_file"
+        self.mock_session = MagicMock()
+
+    def tearDown(self):
+        shutil.rmtree(self.destdir, ignore_errors=True)
+
+    def _write_dest(self, data):
+        with open(self.dest, "wb") as f:
+            f.write(data)
+
+    def test_existing_correct_destination_is_kept(self):
+        self._write_dest(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            fd.run()
+
+        self.mock_session.get.assert_not_called()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def _mock_get(self, data):
+        response = MagicMock()
+        response.headers = {"content-length": str(len(data))}
+        response.iter_content.return_value = iter(
+            [data[i : i + 1024] for i in range(0, len(data), 1024)]
+        )
+        self.mock_session.get.return_value = response
+
+    def test_existing_stale_destination_is_replaced(self):
+        self._write_dest(self.content[:-1])
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            fd.run()
+
+        self.mock_session.get.assert_called_once()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+        self.assertFalse(os.path.exists(self.dest + ".transfer"))
+
+    def test_corrupt_download_keeps_existing_destination(self):
+        stale = self.content[:-1]
+        self._write_dest(stale)
+        self._mock_get(self.content[:-2])
+
+        with self.assertRaises(TransferFailed):
+            with FileDownload(
+                self.source, self.dest, self.checksum, session=self.mock_session
+            ) as fd:
+                fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), stale)
+        self.assertFalse(os.path.exists(self.dest + ".transfer"))
+
+    def test_error_during_redownload_does_not_accept_stale_destination(self):
+        stale = self.content[:-1]
+        self._write_dest(stale)
+        response = MagicMock()
+        response.headers = {"content-length": str(len(self.content))}
+        response.iter_content.side_effect = ValueError
+        self.mock_session.get.return_value = response
+
+        with self.assertRaises(ValueError):
+            with FileDownload(
+                self.source, self.dest, self.checksum, session=self.mock_session
+            ) as fd:
+                fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), stale)
+
+    def test_existing_stale_destination_is_replaced_by_empty_file(self):
+        self._write_dest(self.content)
+        self._mock_get(b"")
+
+        with FileDownload(
+            self.source,
+            self.dest,
+            hashlib.md5(b"").hexdigest(),
+            session=self.mock_session,
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), b"")
+
+    def test_destination_removed_after_init_is_downloaded(self):
+        self._write_dest(self.content)
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            os.remove(self.dest)
+            fd.run()
+
+        self.mock_session.get.assert_called_once()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
         super().setUp()
