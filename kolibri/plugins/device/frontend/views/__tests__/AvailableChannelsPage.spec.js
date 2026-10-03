@@ -1,5 +1,8 @@
-import { mount } from '@vue/test-utils';
-import AvailableChannelsPage from '../AvailableChannelsPage';
+import { nextTick } from 'vue';
+import { enableAutoDestroy, mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import AvailableChannelsPage, { pageTitleStrings } from '../AvailableChannelsPage';
+import pluginStore from '../../store';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 import router from './testRouter';
 
@@ -51,6 +54,8 @@ function testChannelVisibility(wrapper, visibilities) {
 describe('availableChannelsPage', () => {
   let store;
 
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     store = makeAvailableChannelsPageStore();
   });
@@ -58,6 +63,45 @@ describe('availableChannelsPage', () => {
   function setTransferType(transferType) {
     store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
+
+  describe('page title', () => {
+    async function expectTitleAndOneH1(title) {
+      pluginStore.replaceState(store.state);
+      render(AvailableChannelsPage, { store: pluginStore, ...router });
+      await nextTick();
+      expect(document.title).toBe(`${title} - Kolibri`);
+      expect(screen.queryAllByRole('heading', { level: 1 })).toHaveLength(1);
+    }
+
+    beforeEach(() => {
+      document.title = '';
+    });
+
+    it('names the drive in LOCALIMPORT mode', async () => {
+      const selectedDrive = store.state.manageContent.wizard.driveList[1];
+      store.state.manageContent.wizard.selectedDrive = selectedDrive;
+      await expectTitleAndOneH1(
+        pageTitleStrings.documentTitleForLocalImport$({ driveName: selectedDrive.name }),
+      );
+    });
+
+    it('names Kolibri Studio in REMOTEIMPORT mode', async () => {
+      setTransferType('remoteimport');
+      await expectTitleAndOneH1(pageTitleStrings.documentTitleForRemoteImport$());
+    });
+
+    it('names the peer device in PEERIMPORT mode', async () => {
+      setTransferType('peerimport');
+      store.state.manageContent.wizard.selectedPeer = {
+        id: 'peer',
+        device_name: 'Peer device',
+        base_url: 'http://peer/',
+      };
+      await expectTitleAndOneH1(
+        pageTitleStrings.documentTitleForLocalImport$({ driveName: 'Peer device' }),
+      );
+    });
+  });
 
   it('in REMOTEIMPORT mode, the unlisted channel button is available', async () => {
     // ...and clicking it opens the channel token modal

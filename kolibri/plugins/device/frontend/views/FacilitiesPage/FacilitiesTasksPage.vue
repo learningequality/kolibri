@@ -41,11 +41,12 @@
 
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import FacilityTaskPanel from 'kolibri-common/components/syncComponentSet/FacilityTaskPanel';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import commonTaskStrings from 'kolibri-common/uiText/tasks';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import HeaderWithOptions from '../HeaderWithOptions';
   import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';
@@ -53,11 +54,6 @@
 
   export default {
     name: 'FacilitiesTasksPage',
-    metaInfo() {
-      return {
-        title: this.coreString('tasksLabel'),
-      };
-    },
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,
@@ -71,6 +67,7 @@
       commonDeviceStrings,
     ],
     setup() {
+      usePageTitle(coreStrings.tasksLabel$, { hasVisibleHeading: true });
       return { pageLoading };
     },
     data() {

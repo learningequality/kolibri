@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/vue';
 import TaskResource from 'kolibri/apiResources/TaskResource';
-import { coreString } from 'kolibri/uiText/commonCoreStrings';
+import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { syncFacilityTaskDisplayInfo, TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 import { syncSchedule } from 'kolibri-common/utils/__tests__/syncSchedule';
 import { deviceStrings } from '../../commonDeviceStrings';
@@ -11,6 +11,7 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
 }));
 
 const { emptyTasksMessage$ } = deviceStrings;
+const { tasksLabel$ } = coreStrings;
 
 const SYNC_HEADING = syncFacilityTaskDisplayInfo(syncSchedule()).headingMsg;
 
@@ -24,6 +25,16 @@ async function renderPage(tasks) {
 }
 
 describe('FacilitiesTasksPage', () => {
+  it('titles the tab with its visible header, the only h1', async () => {
+    document.title = '';
+    await renderPage([]);
+
+    expect(document.title).toBe(`${tasksLabel$()} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(tasksLabel$());
+  });
+
   it('lists a repeating sync showing the run that just finished, with no clear or retry', async () => {
     const task = syncSchedule({ lastFinishedStatus: TaskStatuses.COMPLETED });
     // Wording is asserted in syncTaskUtils.spec.js; here only that it is rendered.

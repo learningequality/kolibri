@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/vue';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import { crossComponentTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 import FacilityNameAndSyncStatus from 'kolibri-common/components/syncComponentSet/FacilityNameAndSyncStatus';
 import {
@@ -25,6 +26,7 @@ jest.mock('kolibri-common/apiResources/FacilityResource', () => ({
 }));
 
 const { syncing$ } = crossComponentTranslator(FacilityNameAndSyncStatus);
+const { facilitiesLabel$ } = coreStrings;
 
 const FACILITY = {
   id: FACILITY_ID,
@@ -47,6 +49,16 @@ async function renderPage(tasks, { loading = false } = {}) {
 }
 
 describe('FacilitiesPage', () => {
+  it('titles the tab with its visible header, the only h1', async () => {
+    document.title = '';
+    await renderPage([]);
+
+    expect(document.title).toBe(`${facilitiesLabel$()} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(facilitiesLabel$());
+  });
+
   it('shows a facility as syncing while its scheduled sync is running', async () => {
     await renderPage([syncSchedule({ status: TaskStatuses.RUNNING })]);
 
