@@ -314,3 +314,36 @@ class ServerSignalHandlerTestCase(TestCase):
         signal_handler = server.SignalHandler(bus_mock)
         signal_handler.subscribe()
         bus_mock.subscribe.assert_called_with("ENTER", signal_handler.ENTER)
+
+
+class TestBaseKolibriProcessBusPorts:
+    @pytest.fixture(autouse=True)
+    def _isolate_bus(self):
+        with mock.patch.object(server, "PIDPlugin"), mock.patch.object(
+            server, "LogPlugin"
+        ), mock.patch.object(
+            server.SystemdNotifyPlugin, "is_supported", return_value=False
+        ):
+            yield
+
+    def test_ports_default_to_options(self):
+        with mock.patch.dict(
+            OPTIONS["Deployment"], {"HTTP_PORT": 1234, "ZIP_CONTENT_PORT": 5678}
+        ):
+            bus = server.BaseKolibriProcessBus()
+        assert bus.port == 1234
+        assert bus.zip_port == 5678
+
+    def test_missing_zip_port_falls_back_to_option(self):
+        with mock.patch.dict(OPTIONS["Deployment"], {"ZIP_CONTENT_PORT": 5678}):
+            bus = server.BaseKolibriProcessBus(port=9000)
+        assert bus.port == 9000
+        assert bus.zip_port == 5678
+
+    def test_explicit_zero_ports_are_kept(self):
+        with mock.patch.dict(
+            OPTIONS["Deployment"], {"HTTP_PORT": 1234, "ZIP_CONTENT_PORT": 5678}
+        ):
+            bus = server.BaseKolibriProcessBus(port=0, zip_port=0)
+        assert bus.port == 0
+        assert bus.zip_port == 0

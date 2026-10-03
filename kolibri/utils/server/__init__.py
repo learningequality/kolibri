@@ -708,11 +708,15 @@ class BaseKolibriProcessBus(ProcessBus):
 
     def __init__(
         self,
-        port=0,
-        zip_port=0,
+        port=None,
+        zip_port=None,
         pid_file=PID_FILE,
     ):
         self.pid_file = pid_file
+        if port is None:
+            port = conf.OPTIONS["Deployment"]["HTTP_PORT"]
+        if zip_port is None:
+            zip_port = conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]
         self.port = int(port)
         self.zip_port = int(zip_port)
 
