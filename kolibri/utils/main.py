@@ -9,6 +9,7 @@ from diskcache.fanout import FanoutCache
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.db import connections
 from django.db.utils import DatabaseError
 
 import kolibri
@@ -19,6 +20,7 @@ from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.deviceadmin.utils import dbbackup
 from kolibri.core.deviceadmin.utils import default_backup_folder
 from kolibri.core.deviceadmin.utils import get_backup_files
+from kolibri.core.sqlite.statistics import refresh_planner_statistics
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
@@ -106,6 +108,10 @@ def _migrate_databases():
     """
     for database in settings.DATABASES:
         call_command("migrate", interactive=False, database=database)
+        connection = connections[database]
+        if connection.vendor == "sqlite":
+            cursor = connection.cursor()
+            refresh_planner_statistics(cursor)
 
     # load morango fixtures needed for certificate related operations
     call_command("loaddata", "scopedefinitions")
