@@ -28,6 +28,12 @@
         tabindex="-1"
         class="main"
       >
+        <h1
+          v-if="pageHeading"
+          class="visuallyhidden"
+        >
+          {{ pageHeading }}
+        </h1>
         <slot></slot>
       </div>
     </div>
@@ -45,40 +51,23 @@
 
   import get from 'lodash/get';
   import AuthMessage from 'kolibri/components/AuthMessage';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
+  import { pageHeading } from 'kolibri/composables/usePageTitle';
   import { error } from 'kolibri/utils/appError';
   import { ComponentMap } from '../constants';
   import CoreBanner from './CoreBanner';
 
   export default {
     name: 'UserAuthLayout',
-    metaInfo() {
-      return {
-        // Use arrow function to bind $tr to this component
-        titleTemplate: title => {
-          if (this.error) {
-            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
-          }
-          // If no child component sets title, it reads 'Kolibri'
-          if (!title) {
-            return this.coreString('kolibriLabel');
-          }
-          // If child component sets title, it reads 'Child Title - Kolibri'
-          return this.$tr('kolibriTitleMessage', { title });
-        },
-      };
-    },
     components: {
       AppError,
       CoreBanner,
       AuthMessage,
       GlobalSnackbar,
     },
-    mixins: [commonCoreStrings],
     setup() {
-      return { error };
+      return { error, pageHeading };
     },
     computed: {
       isAuthorized() {
@@ -108,17 +97,6 @@
           ComponentMap.AUTH_SELECT,
           ComponentMap.NEW_PASSWORD,
         ].includes(this.$route.name);
-      },
-    },
-    $trs: {
-      kolibriTitleMessage: {
-        message: '{ title } - Kolibri',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
-      },
-      errorPageTitle: {
-        message: 'Error',
-        context:
-          "When Kolibri throws an error, this is the text that's used as the title of the error page. The description of the error follows below.",
       },
     },
   };

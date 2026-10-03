@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
-import { ref, computed } from 'vue';
+import { nextTick, ref, computed } from 'vue';
 import client from 'kolibri/client';
 import {
   OptionsForSignIn,
@@ -8,10 +8,13 @@ import {
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { DemographicConstants } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { createTranslator } from 'kolibri/utils/i18n';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import SignUpPage from '../SignUpPage';
+import UserAuthLayout from '../UserAuthLayout';
 import { ComponentMap } from '../../constants';
+import { pageTitleStrings } from '../pageTitleStrings';
 
 jest.mock('../../composables/useAuthFlow');
 jest.mock('../../composables/useAuthRouter');
@@ -21,6 +24,12 @@ jest.mock('kolibri/urls');
 
 const { DEFERRED } = DemographicConstants;
 const { finishAction$ } = coreStrings;
+const { createAccount$ } = createTranslator(SignUpPage.name, SignUpPage.$trs);
+
+const PageInLayout = {
+  components: { UserAuthLayout, SignUpPage },
+  template: '<UserAuthLayout><SignUpPage /></UserAuthLayout>',
+};
 
 const SIGNUP_INPUT = {
   full_name: 'Jane Doe',
@@ -53,7 +62,11 @@ const selectedFacility = ref({
 });
 const signInOptions = ref([OptionsForSignIn.USERNAME_PASSWORD]);
 
-function renderComponent({ step = 1, _signInOptions = [OptionsForSignIn.USERNAME_PASSWORD] } = {}) {
+function renderComponent({
+  step = 1,
+  _signInOptions = [OptionsForSignIn.USERNAME_PASSWORD],
+  inLayout = false,
+} = {}) {
   signInOptions.value = _signInOptions;
   useAuthFlow.mockReturnValue(
     useAuthFlowMock({
@@ -71,7 +84,7 @@ function renderComponent({ step = 1, _signInOptions = [OptionsForSignIn.USERNAME
   );
 
   return render(
-    SignUpPage,
+    inLayout ? PageInLayout : SignUpPage,
     {
       routes: [
         { name: ComponentMap.SIGN_UP, path: '/signup' },
@@ -104,6 +117,26 @@ describe('signUpPage component', () => {
   it('smoke test', () => {
     renderComponent();
     expect(screen.getByTestId('facilityLabel')).toBeInTheDocument();
+  });
+
+  describe('page title', () => {
+    beforeEach(() => {
+      document.title = '';
+    });
+
+    it('sets the tab title to the page title', async () => {
+      renderComponent({ inLayout: true });
+      await nextTick();
+      expect(document.title).toBe(`${pageTitleStrings.signUpPageTitle$()} - Kolibri`);
+    });
+
+    it('renders its visible heading as the only h1', async () => {
+      renderComponent({ inLayout: true });
+      await nextTick();
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(createAccount$());
+    });
   });
 });
 

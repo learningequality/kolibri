@@ -140,6 +140,8 @@
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import themeConfig from 'kolibri/styles/themeConfig';
   import { validateUsername } from 'kolibri/utils/validators';
   import { LoginErrors } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -151,6 +153,7 @@
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
+  import { pageTitleStrings } from '../pageTitleStrings';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
   import useAuthRouter from '../../composables/useAuthRouter';
@@ -159,11 +162,6 @@
 
   export default {
     name: 'SignInPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       AuthContextHeading,
       AuthBase,
@@ -181,6 +179,9 @@
       const { hasMultipleFacilities, facilityId, selectedFacility, facilityConfig } = useAuthFlow();
       const { setSelectedFacilityId } = useFacilitySelect();
       const { watchForFacilityChange } = useAuthWatcher();
+      usePageTitle(pageTitleStrings.signInPageTitle$, {
+        hasVisibleHeading: themeConfig.signIn.showTitle,
+      });
 
       const backToFacilitySelectionRoute = computed(() => getFacilitySelectionRoute(false));
 
@@ -506,10 +507,6 @@
         message: 'Password is required for coaches and admins',
         context:
           'Indicates that the user needs to enter a password if their user type is either coach or admin.',
-      },
-      documentTitle: {
-        message: 'User Sign In',
-        context: 'User sign in page.',
       },
       nextLabel: {
         message: 'Next',

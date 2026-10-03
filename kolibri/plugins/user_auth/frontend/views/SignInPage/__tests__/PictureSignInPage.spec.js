@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
+import themeConfig from 'kolibri/styles/themeConfig';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { LoginErrors } from 'kolibri/constants';
@@ -11,6 +12,8 @@ import useAuthFlow from '../../../composables/useAuthFlow';
 import useAuthWatcher from '../../../composables/useAuthWatcher';
 import useAuthRouter from '../../../composables/useAuthRouter';
 import PictureSignInPage from '../PictureSignInPage.vue';
+import UserAuthLayout from '../../UserAuthLayout';
+import { pageTitleStrings } from '../../pageTitleStrings';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useSnackbar');
@@ -45,9 +48,16 @@ function createUser() {
   return userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) });
 }
 
+const { pictureSignInPageTitle$ } = pageTitleStrings;
+
+const PageInLayout = {
+  components: { UserAuthLayout, PictureSignInPage },
+  template: '<UserAuthLayout><PictureSignInPage /></UserAuthLayout>',
+};
+
 const MOCK_LEARNER_NAME = 'Alice Example';
 
-function renderComponent() {
+function renderComponent({ inLayout = false } = {}) {
   useRoute.mockReturnValue({ query: {} });
   useRouter.mockReturnValue({
     push: mockRouterPush,
@@ -84,7 +94,7 @@ function renderComponent() {
     getFacilitySelectionRoute: jest.fn(),
   });
 
-  return render(PictureSignInPage, {
+  return render(inLayout ? PageInLayout : PictureSignInPage, {
     routes: [
       { name: 'PictureSignInPage', path: '/picture' },
       { name: 'SignInPage', path: '/signin' },
@@ -426,6 +436,45 @@ describe('PictureSignInPage', () => {
       expect(
         screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('page title', () => {
+    function pageHeadings() {
+      return screen.queryAllByRole('heading', { level: 1 });
+    }
+
+    beforeEach(() => {
+      document.title = '';
+    });
+
+    afterEach(() => {
+      delete themeConfig.signIn.showTitle;
+    });
+
+    it('sets the tab title to the page title', async () => {
+      renderComponent({ inLayout: true });
+      await nextTick();
+      expect(document.title).toBe(`${pictureSignInPageTitle$()} - Kolibri`);
+    });
+
+    it('renders the visible sign-in title as the only h1 when the theme shows it', async () => {
+      themeConfig.signIn.showTitle = true;
+      renderComponent({ inLayout: true });
+      await nextTick();
+      const headings = pageHeadings();
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).not.toHaveClass('visuallyhidden');
+    });
+
+    it('renders the page title as a hidden h1 when the theme hides its title', async () => {
+      themeConfig.signIn.showTitle = false;
+      renderComponent({ inLayout: true });
+      await nextTick();
+      const headings = pageHeadings();
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(pictureSignInPageTitle$());
+      expect(headings[0]).toHaveClass('visuallyhidden');
     });
   });
 });

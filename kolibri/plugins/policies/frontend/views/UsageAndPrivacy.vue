@@ -66,13 +66,17 @@
 <script>
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import plugin_data from 'kolibri-plugin-data';
 
   export default {
     name: 'UsageAndPrivacy',
     components: { ImmersivePage },
     mixins: [commonCoreStrings],
+    setup() {
+      usePageTitle(coreStrings.usageAndPrivacyLabel$);
+    },
     props: {
       hideUsersSection: {
         type: Boolean,

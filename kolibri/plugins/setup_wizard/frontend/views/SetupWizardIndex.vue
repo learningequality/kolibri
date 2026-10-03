@@ -28,25 +28,26 @@
   import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Lockr from 'lockr';
   import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
+  import { pageTitleStrings } from './pageTitleStrings';
 
   export default {
     name: 'SetupWizardIndex',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       LoadingPage,
       ErrorPage,
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.setupWizardPageTitle$, {
+        hasVisibleHeading: true,
+        hasOwnErrorPage: true,
+      });
       const { windowIsLarge } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       return { isAppContext, windowIsLarge };
@@ -129,14 +130,6 @@
     destroyed() {
       Lockr.set('savedState', null);
       this.service.stop();
-    },
-
-    $trs: {
-      documentTitle: {
-        message: 'Setup Wizard',
-        context:
-          "The Kolibri set up wizard helps the admin through the process of creating their facility. The text 'Setup Wizard' is the title of the wizard and this can been seen the in the browser tab when the admin is setting up their facility.",
-      },
     },
   };
 

@@ -81,12 +81,16 @@
 <script>
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
 
   export default {
     name: 'CookiePolicy',
     components: { ImmersivePage },
     mixins: [commonCoreStrings],
+    setup() {
+      usePageTitle(coreStrings.cookiePolicy$, { hasVisibleHeading: true });
+    },
     computed: {
       cookiePolicyRoute() {
         // FIXME This will just go back to the root
