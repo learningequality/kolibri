@@ -5,8 +5,8 @@ import types
 from unittest.mock import MagicMock
 
 # kolibri_app lives under src/ and the member isn't installed (package = false);
-# put src/ on the path before collection so the tests can import it (matches
-# platforms/debian-server's conftest, no pytest-pythonpath plugin needed).
+# put src/ on the path before collection so the tests can import it (no
+# pytest-pythonpath plugin needed).
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 # The installer build scripts sit outside any package and import each other by

@@ -1,4 +1,4 @@
-.PHONY: get-deb clean-deb clean-images clean-tools clean install-dependencies
+.PHONY: get-deb clean-deb clean-images clean-tools clean install-dependencies check-version
 
 DIST_DIR := dist
 
@@ -64,12 +64,15 @@ images: install-dependencies
 	[ -f images/base.img ] || $(MAKE) images/base.img
 	$(MAKE) images/Kolibri.img
 
-zipfile: images
-# Get the version based on the debian file name kolibri_<version>-Xubuntu1_all.deb
-	$(eval VERSION=$(shell ls ${DIST_DIR} | grep '^kolibri_' | sed -r 's/kolibri_(.*)-[0-9]+ubuntu1_all.deb/\1/'))
+# Kolibri's PEP 440 version, not the deb's: Debian spells prereleases 0.20.0~alpha1
+check-version:
+	$(if $(version),,$(error version is required, e.g. make zipfile version=0.20.0a1))
+
+# check-version precedes images so a missing version fails before the image build
+zipfile: check-version images
 # Rename the image file to include the version
-	mv images/Kolibri.img images/kolibri-pi-image-$(VERSION).img
+	mv images/Kolibri.img images/kolibri-pi-image-$(version).img
 # Zip the image file
-	zip -j $(DIST_DIR)/kolibri-pi-image-$(VERSION).zip images/kolibri-pi-image-$(VERSION).img
+	zip -j $(DIST_DIR)/kolibri-pi-image-$(version).zip images/kolibri-pi-image-$(version).img
 # Clean up the final image file
-	rm images/kolibri-pi-image-$(VERSION).img
+	rm images/kolibri-pi-image-$(version).img

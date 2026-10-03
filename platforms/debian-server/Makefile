@@ -28,7 +28,7 @@ setup-ppa:
 
 install-build-deps:
 	$(APT_UPDATE)
-	$(APT_INSTALL) build-essential devscripts debhelper dpkg-dev
+	$(APT_INSTALL) build-essential devscripts debhelper dpkg-dev distro-info-data
 
 install-upload-deps: install-build-deps
 	$(APT_INSTALL) dput python3-launchpadlib
@@ -44,9 +44,12 @@ error-pages:
 	kolibri manage loadingpage --reload --output-dir $(CURDIR)/error_pages --version-text $(shell dpkg-parsechangelog -SVersion)
 
 # Generate debian/changelog with the .deb version bound to the Kolibri version.
-# Set KOLIBRI_VERSION=<pep440> to pin it, else the generator imports kolibri.
+# Set KOLIBRI_VERSION=<pep440> to pin it, else it is read from the workspace kolibri.
+# The generator prepends, so start from the committed changelog each run.
 changelog:
-	uv run python scripts/generate_changelog.py
+	git show HEAD:./debian/changelog > debian/changelog
+	version="$${KOLIBRI_VERSION:-$$(uv run python -c 'import kolibri; print(kolibri.__version__)')}" && \
+	echo "$$version" | uv run --package kolibri-installer-debian python ../debian/build_tools/generate_changelog.py --package kolibri-server --version-file /dev/stdin
 
 release: changelog  error-pages orig
 

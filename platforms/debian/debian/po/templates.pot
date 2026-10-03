@@ -1,0 +1,154 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kolibri-source package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-source\n"
+"Report-Msgid-Bugs-To: kolibri-source@packages.debian.org\n"
+"POT-Creation-Date: 2019-02-01 17:48+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: title
+#. Description
+#: ../kolibri.templates:1001
+msgid "Kolibri configuration"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../kolibri.templates:2001
+msgid "Do you wish to run Kolibri on start-up?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../kolibri.templates:2001
+msgid ""
+"This will automatically call the system service to start Kolibri when your "
+"system boots."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:3001
+msgid "The Kolibri system service"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:3001
+msgid ""
+"You have chosen to run Kolibri as a system service and it has been started "
+"automatically. You can start/stop/restart Kolibri with the following command"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:3001
+msgid "  sudo service kolibri [start, stop, restart]"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "Running Kolibri manually:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid ""
+"You have chosen not to run Kolibri as a system service and that means you "
+"should run it manually. Starting Kolibri with your current user account:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "  kolibri start"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "Starting Kolibri as a system-wide service:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "  sudo service kolibri start"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "Start Kolibri when the system boots:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:4001
+msgid "  sudo systemctl enable kolibri"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../kolibri.templates:5001
+msgid "Which user account should own the Kolibri server?"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../kolibri.templates:5001
+msgid ""
+"The default is to choose your preferred desktop user account, for instance "
+"to ensure access to importing data from external USB devices."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../kolibri.templates:5001
+msgid ""
+"Entering a username that doesn't exist will create a new system user with "
+"home directory /var/<username>."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid "Changing system service owner:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid ""
+"You are updating from an older version of Kolibri and we recommend that you "
+"switch the user account that runs the system service to your normal desktop "
+"user. This allows Kolibri to access your USB devices for importing and "
+"exporting content channels."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid ""
+"After finishing the installation/upgrade, follow these instructions to "
+"change the user setting and move your previous content channels and database:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../kolibri.templates:6001
+msgid "   https://learningequality.org/r/docs-debian-change-user"
+msgstr ""

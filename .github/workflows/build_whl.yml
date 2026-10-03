@@ -8,6 +8,9 @@ on:
       tar-file-name:
         description: "TAR file name"
         value: ${{ jobs.build_whl.outputs.tar-file-name }}
+      version:
+        description: "Kolibri version (PEP 440)"
+        value: ${{ jobs.build_whl.outputs.version }}
 permissions:
   contents: read
 env:
@@ -21,6 +24,7 @@ jobs:
     outputs:
       whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
+      version: ${{ steps.get-version.outputs.version }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -76,6 +80,11 @@ jobs:
         with:
           name: sandbox-static
           path: dist/static
+      - name: Get version
+        id: get-version
+        run: |
+          version=$(cat kolibri/VERSION)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Get WHL filename
         id: get-whl-filename
         run: echo "whl-file-name=$(basename dist/*.whl)" >> "$GITHUB_OUTPUT"
