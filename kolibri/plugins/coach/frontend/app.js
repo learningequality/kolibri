@@ -118,11 +118,15 @@ class CoachToolsModule extends KolibriApp {
         HomeActivityPage.name,
       ];
 
-      // If we're navigating to the same page for a quiz summary page, don't set loading
-      if (
-        !skipLoading.includes(to.name) &&
-        !(to.params.quizId && from.params.quizId && to.name === from.name)
-      ) {
+      // If we're navigating to the same page for a quiz or exercise report, or to another tab of
+      // the same group lesson, don't set loading: remounting the page would drop the user's focus
+      const staysOnPage =
+        to.name === from.name &&
+        ((to.params.quizId && from.params.quizId) ||
+          (to.params.exerciseId && from.params.exerciseId) ||
+          (to.name === PageNames.GROUP_LESSON_SUMMARY &&
+            to.params.lessonId === from.params.lessonId));
+      if (!skipLoading.includes(to.name) && !staysOnPage) {
         pageLoading.value = true;
       }
       const promises = [];
