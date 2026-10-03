@@ -32,20 +32,19 @@
 
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import commonProfileStrings from '../commonProfileStrings';
+  import commonProfileStrings, { profileStrings } from '../commonProfileStrings';
 
   export default {
     name: 'ConfirmChangeFacility',
-    metaInfo() {
-      return {
-        title: this.profileString('mergeAccounts'),
-      };
-    },
     components: { BottomAppBar },
 
     mixins: [commonCoreStrings, commonProfileStrings],
+    setup() {
+      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
+    },
 
     inject: ['changeFacilityService', 'state'],
     data() {

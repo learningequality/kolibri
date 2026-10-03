@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ pageTitleStrings.documentTitle$() }}</h1>
     <p>{{ firstLine }}</p>
     <p>{{ secondLine }}</p>
     <BottomAppBar>
@@ -31,22 +31,29 @@
 
 <script>
 
+  import { createTranslator } from 'kolibri/utils/i18n';
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonProfileStrings from '../../commonProfileStrings';
 
+  export const pageTitleStrings = createTranslator('ConfirmAccountUsername', {
+    documentTitle: {
+      message: 'Confirm account username',
+      context: 'Title of this step for the change facility page.',
+    },
+  });
+
   export default {
     name: 'ConfirmAccountUsername',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: { BottomAppBar },
 
     mixins: [commonCoreStrings, commonProfileStrings],
-
+    setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
+      return { pageTitleStrings };
+    },
     inject: ['changeFacilityService', 'state'],
     computed: {
       targetFacility() {
@@ -88,10 +95,6 @@
     },
 
     $trs: {
-      documentTitle: {
-        message: 'Confirm account username',
-        context: 'Title of this step for the change facility page.',
-      },
       confirmAccountLine1: {
         message: "You are about to join '{target_facility}' learning facility as '{username}'.",
         context:

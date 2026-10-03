@@ -1,9 +1,15 @@
 import { computed } from 'vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
+import client from 'kolibri/client';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import MergeAccountDialog from '../index.vue';
 
 import * as useRemoteFacility from '../../../../composables/useRemoteFacility';
 import remoteFacilityUserData from '../../../../composables/useRemoteFacility';
+
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
 
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();
@@ -36,8 +42,14 @@ const setPasswordTextboxValue = (wrapper, value) => {
 };
 
 describe(`ChangeFacility/MergeAccountDialog`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it(`smoke test`, () => {
@@ -125,6 +137,26 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
       'test1',
       'admin password',
       'testadmin',
+    );
+  });
+
+  it('focuses the password field when the password is rejected', async () => {
+    client.mockRejectedValue({ response: { status: 401 } });
+    render(MergeAccountDialog, {
+      provide: {
+        changeFacilityService: { send: sendMachineEvent, state: { value: 'requireAccountCreds' } },
+        state: computed(() => ({ targetAccount: { username: 'test2' } })),
+      },
+    });
+    const continueButton = screen.getByTestId('continueButton');
+    continueButton.focus();
+
+    await fireEvent.click(continueButton);
+
+    await waitFor(() =>
+      expect(
+        within(screen.getByTestId('passwordTextbox')).getByLabelText(coreStrings.passwordLabel$()),
+      ).toHaveFocus(),
     );
   });
 });
