@@ -7,9 +7,6 @@ from kolibri_app.constants import WINDOWS
 
 os.environ["KOLIBRI_INSTALLER_VERSION"] = __version__
 
-# Single-user desktop app: keep the session alive indefinitely
-os.environ["KOLIBRI_AUTO_LOGOUT_TIME"] = "0"
-
 # If on Windows and KOLIBRI_HOME is not already set externally...
 if WINDOWS and "KOLIBRI_HOME" not in os.environ:
     # Check if we are running in a PyInstaller bundle.
