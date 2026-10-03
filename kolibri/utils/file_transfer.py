@@ -487,8 +487,10 @@ class TransferFile(TransferFileBase):
     # Match ChunkedFile chunk size for compatibility
     chunk_size = 128 * 1024
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, checksum=None):
         self.filepath = filepath
+        self.checksum = checksum
+        self._existing_checksum = None
         self._file_size = None
         self._file_obj = None
         self._finalized = False
@@ -512,7 +514,7 @@ class TransferFile(TransferFileBase):
 
     def is_complete(self, start=None, end=None):
         """For TransferFile, complete means we've written all expected bytes."""
-        if os.path.exists(self.filepath):
+        if self._existing_file_valid():
             return True
         if self._file_size is not None:
             return self._bytes_written >= self._file_size
@@ -521,6 +523,25 @@ class TransferFile(TransferFileBase):
     def ensure_writable(self):
         # ensure the directories in the destination path exist
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+
+    def _md5_existing_file(self):
+        if self._existing_checksum is None:
+            md5 = hashlib.md5()
+            with open(self.filepath, "rb") as f:
+                for chunk in iter(lambda: f.read(self.chunk_size), b""):
+                    md5.update(chunk)
+            self._existing_checksum = md5.hexdigest()
+        return self._existing_checksum
+
+    def _existing_file_valid(self):
+        """
+        An existing destination file only counts as complete if nothing has been
+        written by this transfer and, when a checksum is known, the file matches it.
+        Otherwise it is stale and gets replaced by the downloaded file on finalize.
+        """
+        if self._bytes_written or not os.path.isfile(self.filepath):
+            return False
+        return self.checksum is None or self._md5_existing_file() == self.checksum
 
     def write(self, data):
         """Write data to the transfer file."""
@@ -564,21 +585,19 @@ class TransferFile(TransferFileBase):
             os.remove(self._tmp_filepath)
         except OSError:
             pass
-        try:
-            os.remove(self.filepath)
-        except OSError:
-            pass
+        # Only remove the destination if this transfer put it there.
+        if self._finalized:
+            try:
+                os.remove(self.filepath)
+            except OSError:
+                pass
 
     def md5_checksum(self):
         """Return MD5 checksum from incremental hasher."""
-        if self._bytes_written == 0 and os.path.exists(self.filepath):
+        if self._bytes_written == 0 and os.path.isfile(self.filepath):
             # The destination was already in place, so nothing was streamed
             # through the hasher. Checksum the existing file instead.
-            md5 = hashlib.md5()
-            with open(self.filepath, "rb") as f:
-                for chunk in iter(lambda: f.read(self.chunk_size), b""):
-                    md5.update(chunk)
-            return md5.hexdigest()
+            return self._md5_existing_file()
         return self.hasher.hexdigest()
 
     def close(self):
@@ -814,7 +833,7 @@ class FileDownload(Transfer):
             )
         except FileNotFoundError:
             # No chunked file exists, use TransferFile for direct download
-            self.dest_file_obj = TransferFile(self.dest)
+            self.dest_file_obj = TransferFile(self.dest, checksum=self.checksum)
         self._set_completed()
 
     def set_range(self, range_start, range_end):

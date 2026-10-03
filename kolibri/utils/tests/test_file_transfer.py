@@ -983,14 +983,42 @@ class TestTransferDownloadExistingDestination(unittest.TestCase):
         with open(self.dest, "rb") as f:
             self.assertEqual(f.read(), self.content)
 
-    def test_existing_corrupt_destination_fails_checksum(self):
+    def _mock_get(self, data):
+        response = MagicMock()
+        response.headers = {"content-length": str(len(data))}
+        response.iter_content.return_value = iter(
+            [data[i : i + 1024] for i in range(0, len(data), 1024)]
+        )
+        self.mock_session.get.return_value = response
+
+    def test_existing_stale_destination_is_replaced(self):
         self._write_dest(self.content[:-1])
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            fd.run()
+
+        self.mock_session.get.assert_called_once()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+        self.assertFalse(os.path.exists(self.dest + ".transfer"))
+
+    def test_corrupt_download_keeps_existing_destination(self):
+        stale = self.content[:-1]
+        self._write_dest(stale)
+        self._mock_get(self.content[:-2])
 
         with self.assertRaises(TransferFailed):
             with FileDownload(
                 self.source, self.dest, self.checksum, session=self.mock_session
             ) as fd:
                 fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), stale)
+        self.assertFalse(os.path.exists(self.dest + ".transfer"))
 
 
 class TestTransferCopy(BaseTestTransfer):
