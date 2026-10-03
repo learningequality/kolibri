@@ -317,8 +317,6 @@
               lessonId: this.currentLesson.id,
               resources: newResources,
             });
-            // Refresh the lesson so its size reflects the newly added resources
-            await this.updateCurrentLesson(this.currentLesson.id);
           } catch (error) {
             this.notifySaveLessonError();
             this.isSaving = false;
@@ -332,6 +330,8 @@
           // so that it can update the backup resources.
           this.$emit('workingResourcesUpdated');
           this.notifyResourcesAdded(countNewResources);
+          // Refresh the lesson so its size reflects the newly added resources
+          await this.updateCurrentLesson(this.currentLesson.id);
         }
         this.closeSidePanel(false);
       },
