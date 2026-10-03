@@ -21,7 +21,7 @@ module.exports = {
     url: 'http://kolibri.time',
   },
   transform: {
-    '^.+\\.js$': 'babel-jest',
+    '^.+\\.js$': path.resolve(__dirname, './composableIdTransform'),
     '^.+\\.vue$': '@vue/vue2-jest',
   },
   transformIgnorePatterns: [

@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
-import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia, selectKSelectOption } from 'testUtils';
 import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import ExamsRootPage from '../ExamsRootPage.vue';

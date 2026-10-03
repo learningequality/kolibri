@@ -1,7 +1,7 @@
 import urls from 'kolibri/urls';
 import VueRouter from 'vue-router';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
+import { stubWindowLocation } from 'testUtils';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import AuthMessage from '../AuthMessage';
 

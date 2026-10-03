@@ -37,6 +37,8 @@ export default {
   'kolibri/components/pages/ImmersivePage': require('kolibri/components/pages/ImmersivePage'),
   'kolibri/components/pages/NotificationsRoot': require('kolibri/components/pages/NotificationsRoot'),
   'kolibri/components/pages/ScrollingHeader': require('kolibri/components/pages/ScrollingHeader'),
+  'kolibri/composables/ComposableBase': require('kolibri/composables/ComposableBase'),
+  'kolibri/composables/GlobalStore': require('kolibri/composables/GlobalStore'),
   'kolibri/composables/useContentViewer': require('kolibri/composables/useContentViewer'),
   'kolibri/composables/useFetch': require('kolibri/composables/useFetch'),
   'kolibri/composables/useMinimumKolibriVersion': require('kolibri/composables/useMinimumKolibriVersion'),

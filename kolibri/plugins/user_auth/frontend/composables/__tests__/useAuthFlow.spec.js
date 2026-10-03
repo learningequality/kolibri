@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
-// eslint-disable-next-line import-x/named
-import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities';
+import { FacilitiesStore } from 'kolibri-common/composables/useFacilities';
 import {
   useFacilitySelect,
   useFacilityConfig,
@@ -12,8 +11,8 @@ import {
 } from 'kolibri-common/composables/useFacility';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import { handleApiError } from 'kolibri/utils/appError';
+import useAuthFlow from '../useAuthFlow';
 
-jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
 jest.mock('@vueuse/core', () => ({
   ...jest.requireActual('@vueuse/core'),
@@ -21,24 +20,27 @@ jest.mock('@vueuse/core', () => ({
 }));
 jest.mock('kolibri/utils/appError');
 
+FacilitiesStore.stub();
+
 describe('useAuthFlow', () => {
-  let persistentSignInMethod;
+  const persistentSignInMethod = ref(null);
+  const facilitiesStore = FacilitiesStore.use();
 
   function createAuthFlow() {
-    let useAuthFlow;
-
-    jest.isolateModules(() => {
-      // eslint-disable-next-line global-require
-      useAuthFlow = require('../useAuthFlow').default;
-    });
-
     return useAuthFlow();
+  }
+
+  function mockFacilities(facilities, facility) {
+    FacilitiesStore.mock({ _facilities: facilities });
+    if (facility !== undefined) {
+      facilitiesStore.getFacility.mockReturnValue(facility);
+    }
   }
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    persistentSignInMethod = ref(null);
+    persistentSignInMethod.value = null;
     useLocalStorage.mockImplementation((key, defaultVal) => {
       if (key === 'signInMethod') {
         return persistentSignInMethod;
@@ -64,23 +66,13 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }, { id: 'f2' }]),
-          hasMultipleFacilities: computed(() => true),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1', name: 'Facility One' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }, { id: 'f2' }], { id: 'f1', name: 'Facility One' });
       const { facilityId } = createAuthFlow();
       expect(facilityId.value).toBe(null);
     });
 
     it('returns the first facility if only one exists and no selection made', () => {
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }]);
       const { facilityId } = createAuthFlow();
       expect(facilityId.value).toBe('f1');
     });
@@ -91,11 +83,7 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([]),
-        }),
-      );
+      mockFacilities([]);
       const { facilityId } = createAuthFlow();
       expect(facilityId.value).toBe(null);
     });
@@ -108,13 +96,7 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }, { id: 'f2' }]),
-          hasMultipleFacilities: computed(() => true),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1', name: 'Facility One' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }, { id: 'f2' }], { id: 'f1', name: 'Facility One' });
       const { selectedFacility } = createAuthFlow();
       expect(selectedFacility.value).toBe(null);
     });
@@ -125,13 +107,7 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => 'f1'),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }, { id: 'f2' }]),
-          hasMultipleFacilities: computed(() => true),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1', name: 'Facility One' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }, { id: 'f2' }], { id: 'f1', name: 'Facility One' });
       const { selectedFacility } = createAuthFlow();
       expect(selectedFacility.value).toEqual({ id: 'f1', name: 'Facility One' });
     });
@@ -142,12 +118,7 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1', name: 'Facility One' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }], { id: 'f1', name: 'Facility One' });
       const { selectedFacility } = createAuthFlow();
       expect(selectedFacility.value).toEqual({ id: 'f1', name: 'Facility One' });
     });
@@ -208,15 +179,10 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([
-            { id: 'f1', dataset: { learner_can_sign_up: false } },
-            { id: 'f2', dataset: { learner_can_sign_up: true } },
-          ]),
-          hasMultipleFacilities: computed(() => true),
-        }),
-      );
+      mockFacilities([
+        { id: 'f1', dataset: { learner_can_sign_up: false } },
+        { id: 'f2', dataset: { learner_can_sign_up: true } },
+      ]);
 
       const { canSignUpWithAnyFacility } = createAuthFlow();
       expect(canSignUpWithAnyFacility.value).toBe(true);
@@ -228,15 +194,10 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([
-            { id: 'f1', dataset: { learner_can_sign_up: false } },
-            { id: 'f2', dataset: { learner_can_sign_up: false } },
-          ]),
-          hasMultipleFacilities: computed(() => true),
-        }),
-      );
+      mockFacilities([
+        { id: 'f1', dataset: { learner_can_sign_up: false } },
+        { id: 'f2', dataset: { learner_can_sign_up: false } },
+      ]);
 
       const { canSignUpWithAnyFacility } = createAuthFlow();
       expect(canSignUpWithAnyFacility.value).toBe(false);
@@ -248,12 +209,7 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => 'f1'),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }], { id: 'f1' });
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
           facilityConfig: ref({
@@ -273,12 +229,7 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => 'f1'),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }], { id: 'f1' });
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
           facilityConfig: ref({
@@ -298,15 +249,12 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => 'f1'),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([
-            { id: 'f1', dataset: { learner_can_sign_up: false } },
-            { id: 'f2', dataset: { learner_can_sign_up: true } },
-          ]),
-          hasMultipleFacilities: computed(() => true),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1' }),
-        }),
+      mockFacilities(
+        [
+          { id: 'f1', dataset: { learner_can_sign_up: false } },
+          { id: 'f2', dataset: { learner_can_sign_up: true } },
+        ],
+        { id: 'f1' },
       );
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
@@ -327,15 +275,12 @@ describe('useAuthFlow', () => {
           selectedFacilityId: computed(() => null),
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([
-            { id: 'f1', dataset: { learner_can_sign_up: false } },
-            { id: 'f2', dataset: { learner_can_sign_up: true } },
-          ]),
-          hasMultipleFacilities: computed(() => true),
-          getFacility: jest.fn().mockReturnValue(null),
-        }),
+      mockFacilities(
+        [
+          { id: 'f1', dataset: { learner_can_sign_up: false } },
+          { id: 'f2', dataset: { learner_can_sign_up: true } },
+        ],
+        null,
       );
 
       const { canSignUp } = createAuthFlow();
@@ -387,16 +332,9 @@ describe('useAuthFlow', () => {
 
   describe('initializeFlow', () => {
     it('fetches facilities and attempts to set up initial state', async () => {
-      const fetchFacilities = jest.fn();
       const fetchFacilityConfig = jest.fn();
 
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1' }),
-          fetchFacilities,
-        }),
-      );
+      mockFacilities([{ id: 'f1' }], { id: 'f1' });
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
           fetchFacilityConfig,
@@ -406,19 +344,12 @@ describe('useAuthFlow', () => {
       const { initializeFlow } = createAuthFlow();
       await initializeFlow();
 
-      expect(fetchFacilities).toHaveBeenCalled();
+      expect(facilitiesStore.fetchFacilities).toHaveBeenCalled();
       expect(fetchFacilityConfig).toHaveBeenCalled();
     });
 
     it('returns early when already initialized unless force is true', async () => {
-      const fetchFacilities = jest.fn();
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1' }),
-          fetchFacilities,
-        }),
-      );
+      mockFacilities([{ id: 'f1' }], { id: 'f1' });
 
       const { initializeFlow } = createAuthFlow();
 
@@ -426,20 +357,13 @@ describe('useAuthFlow', () => {
       await initializeFlow();
       await initializeFlow(true);
 
-      expect(fetchFacilities).toHaveBeenCalledTimes(2);
+      expect(facilitiesStore.fetchFacilities).toHaveBeenCalledTimes(2);
     });
 
     it('returns early when no facility is selected or inferable', async () => {
-      const fetchFacilities = jest.fn();
       const fetchFacilityConfig = jest.fn();
 
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }, { id: 'f2' }]),
-          hasMultipleFacilities: computed(() => true),
-          fetchFacilities,
-        }),
-      );
+      mockFacilities([{ id: 'f1' }, { id: 'f2' }]);
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
           fetchFacilityConfig,
@@ -449,7 +373,7 @@ describe('useAuthFlow', () => {
       const { initializeFlow } = createAuthFlow();
       await initializeFlow();
 
-      expect(fetchFacilities).toHaveBeenCalled();
+      expect(facilitiesStore.fetchFacilities).toHaveBeenCalled();
       expect(fetchFacilityConfig).not.toHaveBeenCalled();
     });
 
@@ -461,12 +385,7 @@ describe('useAuthFlow', () => {
           setSelectedFacilityId,
         }),
       );
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'missing' }]),
-          getFacility: jest.fn().mockReturnValue(null),
-        }),
-      );
+      mockFacilities([{ id: 'missing' }], null);
 
       const { initializeFlow } = createAuthFlow();
       await initializeFlow();
@@ -476,11 +395,7 @@ describe('useAuthFlow', () => {
 
     it('handles facility fetch error through app error handler', async () => {
       const error = new Error('failed facilities');
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          fetchFacilities: jest.fn().mockRejectedValue(error),
-        }),
-      );
+      facilitiesStore.fetchFacilities.mockRejectedValue(error);
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
           fetchFacilityConfig: jest.fn().mockResolvedValue(null),
@@ -498,12 +413,7 @@ describe('useAuthFlow', () => {
 
     it('handles facility config error through app error handler', async () => {
       const error = new Error('failed config');
-      useFacilities.mockReturnValue(
-        useFacilitiesMock({
-          facilities: ref([{ id: 'f1' }]),
-          getFacility: jest.fn().mockReturnValue({ id: 'f1' }),
-        }),
-      );
+      mockFacilities([{ id: 'f1' }], { id: 'f1' });
       useFacilityConfig.mockReturnValue(
         useFacilityConfigMock({
           fetchFacilityConfig: jest.fn().mockRejectedValue(error),

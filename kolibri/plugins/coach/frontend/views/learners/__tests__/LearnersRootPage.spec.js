@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
-import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { emulatePrintMedia, selectKSelectOption } from 'testUtils';
 import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import LearnersRootPage from '../LearnersRootPage.vue';

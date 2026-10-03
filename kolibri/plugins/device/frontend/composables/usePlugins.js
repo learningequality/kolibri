@@ -1,40 +1,57 @@
-/**
- * A composable function containing logic related to channels
- */
-
-import { ref } from 'vue';
+import ComposableBase from 'kolibri/composables/ComposableBase';
 import PluginsResource from 'kolibri-common/apiResources/PluginsResource';
 
-export default function usePlugins() {
-  const plugins = ref(null);
-  const fetchPlugins = PluginsResource.list().then(data => {
-    plugins.value = data;
-  });
+/**
+ * Logic related to the plugins installed on this device
+ */
+export class PluginsComposable extends ComposableBase {
+  plugins = null;
 
-  function togglePlugin(pluginId, value) {
-    const pluginIndex = plugins.value.findIndex(plugin => plugin.id === pluginId);
+  /**
+   * Fetches the plugins installed on this device
+   * @returns {Promise<void>}
+   */
+  async fetchPlugins() {
+    this.plugins = await PluginsResource.list();
+  }
+
+  /**
+   * Enables or disables a plugin
+   * @param {string} pluginId - The ID of the plugin to update.
+   * @param {boolean} value - Whether the plugin should be enabled.
+   * @returns {Promise<void>}
+   */
+  togglePlugin(pluginId, value) {
+    const pluginIndex = this.plugins.findIndex(plugin => plugin.id === pluginId);
     if (pluginIndex !== -1) {
-      const plugin = plugins.value[pluginIndex];
+      const plugin = this.plugins[pluginIndex];
       if (plugin.enabled !== value) {
         return PluginsResource.update(pluginId, { enabled: value }).then(updatedPlugin => {
-          plugins.value.splice(pluginIndex, 1, updatedPlugin);
+          this.plugins.splice(pluginIndex, 1, updatedPlugin);
         });
       }
       return Promise.resolve();
     }
     return Promise.reject(new Error(`Plugin ${pluginId} not found`));
   }
-  function enablePlugin(pluginId) {
-    return togglePlugin(pluginId, true);
+
+  /**
+   * Enables a plugin
+   * @param {string} pluginId - The ID of the plugin to enable.
+   * @returns {Promise<void>}
+   */
+  enablePlugin(pluginId) {
+    return this.togglePlugin(pluginId, true);
   }
-  function disablePlugin(pluginId) {
-    return togglePlugin(pluginId, false);
+
+  /**
+   * Disables a plugin
+   * @param {string} pluginId - The ID of the plugin to disable.
+   * @returns {Promise<void>}
+   */
+  disablePlugin(pluginId) {
+    return this.togglePlugin(pluginId, false);
   }
-  return {
-    plugins,
-    fetchPlugins,
-    enablePlugin,
-    disablePlugin,
-    togglePlugin,
-  };
 }
+
+export default PluginsComposable.use;
