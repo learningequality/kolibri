@@ -58,12 +58,14 @@ export default [
     component: CreateExamPage,
     meta: {
       titleParts: [],
+      keepFocus: true,
     },
     children: [
       {
         name: PageNames.QUIZ_SECTION_SIDE_PANEL,
         path: 'details',
         component: SectionSidePanel,
+        meta: { panel: true },
         children: [
           {
             name: PageNames.QUIZ_SECTION_EDITOR,
@@ -82,6 +84,7 @@ export default [
         path: 'select-resources',
         component: QuizResourceSelection,
         redirect: 'select-resources/landing-settings',
+        meta: { panel: true },
         children: [
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
@@ -166,6 +169,7 @@ export default [
     component: QuizSummaryPage,
     meta: {
       titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
+      keepFocus: true,
     },
   },
   {
@@ -191,6 +195,7 @@ export default [
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
     meta: {
       titleParts: ['LEARNER_NAME', 'QUIZ_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+      keepFocus: true,
     },
   },
   {
@@ -220,6 +225,7 @@ export default [
     meta: {
       // Leaves out info on question
       titleParts: ['questionLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+      keepFocus: true,
     },
   },
 ];

@@ -13,6 +13,8 @@ import { classIdParamRequiredGuard, RouteSegments, COMPACT_UUID_PATTERN } from '
 const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE_SESSION } = RouteSegments;
 
 const COURSE_META = { titleParts: ['COURSE_NAME', 'CLASS_NAME'] };
+const TAB_META = { ...COURSE_META, keepFocus: true };
+const PANEL_META = { ...COURSE_META, panel: true };
 
 // CourseSummaryPage has a <router-view> for the assign-course side panel. Tab and panel child
 // routes must not render CourseSummaryPage again, so they use this no-op component instead.
@@ -37,19 +39,19 @@ export default [
         name: PageNames.COURSE_SUMMARY_UNITS,
         path: 'units',
         component: NoRender,
-        meta: COURSE_META,
+        meta: TAB_META,
       },
       {
         name: PageNames.COURSE_SUMMARY_LEARNERS,
         path: 'learners',
         component: NoRender,
-        meta: COURSE_META,
+        meta: TAB_META,
         children: [
           {
             name: PageNames.COURSE_SUMMARY_LEARNER,
             path: `:learnerId(${COMPACT_UUID_PATTERN})`,
             component: NoRender,
-            meta: COURSE_META,
+            meta: PANEL_META,
           },
         ],
       },
@@ -57,13 +59,13 @@ export default [
         name: PageNames.COURSE_SUMMARY_OBJECTIVES,
         path: 'objectives',
         component: NoRender,
-        meta: COURSE_META,
+        meta: TAB_META,
         children: [
           {
             name: PageNames.COURSE_SUMMARY_OBJECTIVE,
             path: `:objectiveId(${COMPACT_UUID_PATTERN})`,
             component: NoRender,
-            meta: COURSE_META,
+            meta: PANEL_META,
           },
         ],
       },
@@ -71,6 +73,7 @@ export default [
         name: PageNames.COURSE_SUMMARY_ASSIGN,
         path: 'assign-course/',
         component: AssignCourseSidePanel,
+        meta: { panel: true },
         children: [
           {
             name: PageNames.COURSE_SUMMARY_ASSIGN_COURSE_DETAILS,
@@ -110,13 +113,13 @@ export default [
         name: PageNames.UNIT_DETAIL_LESSONS,
         path: 'lessons',
         component: NoRender,
-        meta: { titleParts: ['COURSE_NAME', 'CLASS_NAME'] },
+        meta: TAB_META,
       },
       {
         name: PageNames.UNIT_DETAIL_OBJECTIVES,
         path: 'objectives',
         component: NoRender,
-        meta: { titleParts: ['COURSE_NAME', 'CLASS_NAME'] },
+        meta: TAB_META,
       },
     ],
   },
@@ -137,6 +140,7 @@ export default [
         name: PageNames.COURSES_ASSIGN,
         path: 'assign-course/',
         component: AssignCourseSidePanel,
+        meta: { panel: true },
         redirect: 'assign-course/index',
         // Subpages that will be rendered inside the AssignCourse side panel
         children: [

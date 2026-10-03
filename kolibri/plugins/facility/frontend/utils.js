@@ -74,12 +74,11 @@ const sidePanelRoutes = [
 
 export function getSidePanelRoutes(pageNames, suffix = '') {
   const pages = new Set(pageNames);
-  const routes = sidePanelRoutes.filter(route => pages.has(route.name));
-  if (!suffix) {
-    return routes;
-  }
-  return routes.map(route => ({
-    ...route,
-    name: `${route.name}__${suffix}`,
-  }));
+  return sidePanelRoutes
+    .filter(route => pages.has(route.name))
+    .map(route => ({
+      ...route,
+      name: suffix ? `${route.name}__${suffix}` : route.name,
+      meta: { panel: true },
+    }));
 }
