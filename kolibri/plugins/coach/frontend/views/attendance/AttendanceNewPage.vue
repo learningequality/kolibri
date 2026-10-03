@@ -32,6 +32,7 @@
   import { computed, ref } from 'vue';
   import { now } from 'kolibri/utils/serverClock';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useCoreCoach from '../../composables/useCoreCoach';
@@ -47,7 +48,8 @@
       AttendanceFormTable,
     },
     setup() {
-      const { classId } = useCoreCoach();
+      const { classId, className } = useCoreCoach();
+      usePageTitle(className, { hasVisibleHeading: true });
       const { formatAttendanceDateTime, createSession } = useAttendance();
       const { createSnackbar } = useSnackbar();
 

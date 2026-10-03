@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
@@ -8,7 +9,9 @@ import makeStore from '../../../__tests__/utils/makeStore';
 import LearnersRootPage from '../LearnersRootPage.vue';
 
 const { viewPasswordsAction$ } = picturePasswordStrings;
-const { recipientsLabel$ } = coachStrings;
+const { recipientsLabel$, learnersLabel$ } = coachStrings;
+
+const CLASS_NAME = 'Class A';
 
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/composables/useUser');
@@ -28,8 +31,9 @@ const routes = [
 const MOCK_LEARNER = { id: 'learner-1', name: 'Learner One', username: 'learner1' };
 const GROUP = { id: 'group-a', name: 'Group A', member_ids: [MOCK_LEARNER.id] };
 
-function renderComponent({ picturePasswordSettings, learners = [], groups = [] } = {}) {
+function renderComponent({ picturePasswordSettings, learners = [], groups = [], className } = {}) {
   const store = makeStore();
+  store.state.classSummary.name = className;
   const learnerMap = {};
   learners.forEach(l => {
     learnerMap[l.id] = l;
@@ -44,6 +48,16 @@ describe('LearnersRootPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useUser.mockImplementation(() => useUserMock({ isCoach: true }));
+  });
+
+  describe('page title', () => {
+    it('renders its visible header as the only h1', async () => {
+      renderComponent({ className: CLASS_NAME });
+      await nextTick();
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(learnersLabel$());
+    });
   });
 
   describe('"View Passwords" button conditional rendering', () => {

@@ -73,11 +73,13 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../constants';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
+  import { coachStrings } from './common/commonCoachStrings';
 
   export default {
     name: 'CoachClassListPage',
@@ -88,6 +90,7 @@
     setup() {
       const { isAdmin, isClassCoach, isFacilityCoach } = useUser();
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
+      usePageTitle(() => coachStrings.classesLabel$(), { hasVisibleHeading: true });
       return {
         pageLoading,
         isAdmin,

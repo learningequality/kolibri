@@ -95,13 +95,16 @@
   import { mapState, mapActions } from 'vuex';
   import orderBy from 'lodash/orderBy';
   import CoreTable from 'kolibri/components/CoreTable';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import { useGroups } from '../../../composables/useGroups';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { GroupModals, PageNames } from '../../../constants';
   import CoachHeader from '../../common/CoachHeader.vue';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
@@ -121,6 +124,10 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { groupsAreLoading } = useGroups();
+      const { className } = useCoreCoach();
+      usePageTitle(() => [coachStrings.groupsLabel$(), className.value], {
+        hasVisibleHeading: true,
+      });
       const selectedGroup = ref({
         name: '',
         id: '',

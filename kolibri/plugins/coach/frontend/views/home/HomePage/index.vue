@@ -30,9 +30,11 @@
 <script>
 
   import { currentLanguage } from 'kolibri/utils/i18n';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import CoachAppBarPage from '../../CoachAppBarPage';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import commonCoach from '../../common';
   import AttendanceBlock from './AttendanceBlock';
   import OverviewBlock from './OverviewBlock';
@@ -53,6 +55,8 @@
     mixins: [commonCoach],
     setup() {
       const { facilityConfig } = useFacility();
+      const { className } = useCoreCoach();
+      usePageTitle(className, { hasVisibleHeading: true });
 
       return {
         pageLoading,

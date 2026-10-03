@@ -95,9 +95,11 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
+  import useCoreCoach from '../../composables/useCoreCoach';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import CoachHeader from '../common/CoachHeader';
@@ -116,8 +118,11 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { entireClassLabel$ } = coachStrings;
+      const { entireClassLabel$, learnersLabel$ } = coachStrings;
       const { viewPasswordsAction$ } = picturePasswordStrings;
+      const { className } = useCoreCoach();
+
+      usePageTitle(() => [learnersLabel$(), className.value], { hasVisibleHeading: true });
 
       const recipientSelected = ref({
         label: entireClassLabel$(),
