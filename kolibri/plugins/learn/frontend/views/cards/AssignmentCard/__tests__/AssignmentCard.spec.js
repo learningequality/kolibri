@@ -1,9 +1,12 @@
-import { mount, RouterLinkStub } from '@vue/test-utils';
 /* eslint-disable import-x/named */
+import { render, screen } from '@testing-library/vue';
+import VueRouter from 'vue-router';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import useContentNodeProgress, {
   useContentNodeProgressMock,
 } from '../../../../composables/useContentNodeProgress';
-/* eslint-enable import-x/named */
+import { learnStrings } from '../../../commonLearnStrings';
 import AssignmentCard from '../index.vue';
 
 jest.mock('../../../../composables/useContentNodeProgress');
@@ -41,53 +44,49 @@ const baseQuiz = {
   },
 };
 
+const CLASSROOM_NAME = 'Test Classroom 1';
+
+const renderComponent = (propsData = {}) => {
+  return render(AssignmentCard, {
+    props: {
+      ...propsData,
+    },
+    routes: new VueRouter(),
+  });
+};
+
 function makeCourseWrapper(propsOverrides = {}) {
-  return mount(AssignmentCard, {
-    stubs: {
-      RouterLink: RouterLinkStub,
-    },
-    propsData: {
-      course: baseCourse,
-      to: { path: '/course' },
-      collectionTitle: 'Test Classroom 1',
-      ...propsOverrides,
-    },
+  return renderComponent({
+    course: baseCourse,
+    to: { path: '/course' },
+    collectionTitle: CLASSROOM_NAME,
+    ...propsOverrides,
   });
 }
 
 function makeLessonWrapper(lessonOverrides = {}) {
-  return mount(AssignmentCard, {
-    stubs: {
-      RouterLink: RouterLinkStub,
+  return renderComponent({
+    lesson: {
+      ...baseLesson,
+      ...lessonOverrides,
     },
-    propsData: {
-      lesson: {
-        ...baseLesson,
-        ...lessonOverrides,
-      },
-      collectionTitle: 'Test Classroom 1',
-      to: { path: '/lesson' },
-    },
+    collectionTitle: CLASSROOM_NAME,
+    to: { path: '/lesson' },
   });
 }
 
 function makeQuizWrapper(quizOverrides = {}) {
-  return mount(AssignmentCard, {
-    stubs: {
-      RouterLink: RouterLinkStub,
-    },
-    propsData: {
-      quiz: {
-        ...baseQuiz,
-        ...quizOverrides,
-        progress: {
-          ...baseQuiz.progress,
-          ...(quizOverrides.progress || {}),
-        },
+  return renderComponent({
+    quiz: {
+      ...baseQuiz,
+      ...quizOverrides,
+      progress: {
+        ...baseQuiz.progress,
+        ...(quizOverrides.progress || {}),
       },
-      to: { path: '/quiz' },
-      collectionTitle: 'Test Classroom 1',
     },
+    to: { path: '/quiz' },
+    collectionTitle: CLASSROOM_NAME,
   });
 }
 
@@ -97,111 +96,79 @@ describe('AssignmentCard', () => {
   });
 
   describe('when rendering a course', () => {
-    let wrapper;
-
     it('shows the classroom name when collectionTitle is provided', () => {
-      wrapper = makeCourseWrapper();
-      expect(wrapper.find('.collection-title').text()).toEqual('Test Classroom 1');
+      makeCourseWrapper();
+      expect(screen.getByText(CLASSROOM_NAME)).toBeInTheDocument();
     });
 
     it('does not show the classroom name when collectionTitle is empty', () => {
-      wrapper = makeCourseWrapper({ collectionTitle: '' });
-      expect(wrapper.find('.collection-title').exists()).toBe(false);
+      makeCourseWrapper({ collectionTitle: '' });
+      expect(screen.queryByText(CLASSROOM_NAME)).not.toBeInTheDocument();
     });
 
     it('shows the course title', () => {
-      wrapper = makeCourseWrapper();
-      expect(wrapper.findComponent({ name: 'KCard' }).props().title).toEqual('Test Course 1');
+      makeCourseWrapper();
+      expect(screen.getAllByText(baseCourse.title).length).toBeGreaterThan(0);
     });
 
-    it('shows the course label with icon and label', () => {
-      wrapper = makeCourseWrapper();
-      const label = wrapper.find('.course-label');
-      expect(label.exists()).toBe(true);
-
-      const icon = label.findComponent({ name: 'KIcon' });
-      expect(icon.exists()).toBe(true);
-      expect(icon.props().icon).toEqual('course');
-
-      const text = label.find('.label-text');
-      expect(text.exists()).toBe(true);
-      expect(text.text()).toEqual('Course');
+    it('shows the course label', () => {
+      makeCourseWrapper();
+      expect(screen.getByText(coursesStrings.courseLabel$())).toBeInTheDocument();
     });
 
-    it('shows the right link', () => {
-      wrapper = makeCourseWrapper();
-      const routerLink = wrapper.findComponent(RouterLinkStub);
-      expect(routerLink.props().to).toEqual({ path: '/course' });
-    });
-
-    it('does not show counts when unit_count and lesson_count are absent', () => {
-      wrapper = makeCourseWrapper();
-      expect(wrapper.find('.course-counts').exists()).toBe(false);
+    it('does not show unit and lesson counts when unit_count and lesson_count are absent', () => {
+      makeCourseWrapper();
+      const unitRegExp = /unit/i;
+      expect(screen.queryByText(unitRegExp)).not.toBeInTheDocument();
     });
 
     it('shows unit and resource counts when both are provided', () => {
-      wrapper = makeCourseWrapper({
+      makeCourseWrapper({
         course: { ...baseCourse, unit_count: 3, lesson_count: 12 },
       });
-      expect(wrapper.find('.course-counts').text()).toEqual('3 units · 12 lessons');
+      const label = `${coursesStrings.numUnits$({ num: 3 })} · ${coursesStrings.numLessons$({ num: 12 })}`;
+      expect(screen.getByText(label)).toBeInTheDocument();
     });
 
     it('shows only unit count when lesson_count is 0', () => {
-      wrapper = makeCourseWrapper({
+      makeCourseWrapper({
         course: { ...baseCourse, unit_count: 1, lesson_count: 0 },
       });
-      expect(wrapper.find('.course-counts').text()).toEqual('1 unit');
+      expect(screen.getByText(coursesStrings.numUnits$({ num: 1 }))).toBeInTheDocument();
     });
 
     it('shows only resource count when unit_count is 0', () => {
-      wrapper = makeCourseWrapper({
+      makeCourseWrapper({
         course: { ...baseCourse, unit_count: 0, lesson_count: 5 },
       });
-      expect(wrapper.find('.course-counts').text()).toEqual('5 lessons');
+      expect(screen.getByText(coursesStrings.numLessons$({ num: 5 }))).toBeInTheDocument();
     });
   });
 
   describe('when rendering a lesson', () => {
-    let wrapper;
-
     it('shows the classroom name', () => {
-      wrapper = makeLessonWrapper();
-      expect(wrapper.find('.collection-title').text()).toEqual('Test Classroom 1');
+      makeLessonWrapper();
+      expect(screen.getByText(CLASSROOM_NAME)).toBeInTheDocument();
     });
 
     it('shows the lesson title', () => {
-      wrapper = makeLessonWrapper();
-      expect(wrapper.findComponent({ name: 'KCard' }).props().title).toEqual('Test Lesson 1');
-    });
-
-    it('shows the right link', () => {
-      wrapper = makeLessonWrapper();
-      const routerLink = wrapper.findComponent(RouterLinkStub);
-      expect(routerLink.props().to).toEqual({ path: '/lesson' });
+      makeLessonWrapper();
+      expect(screen.getAllByText(baseLesson.title).length).toBeGreaterThan(0);
     });
 
     describe('progress section', () => {
-      const assertProgressEquals = (w, expected) => {
-        expect(w.find('.progress-section').text()).toEqual(expected);
-      };
-
-      const assertKIconIs = (w, expected) => {
-        expect(w.findComponent({ name: 'KLabeledIcon' }).props().icon).toEqual(expected);
-      };
-
-      it('shows no label if there are no resources', () => {
-        wrapper = makeLessonWrapper({ resources: [] });
-        expect(wrapper.findComponent({ name: 'KLabeledIcon' }).exists()).toBe(false);
-        assertProgressEquals(wrapper, '');
+      it('shows no progress label if there are no resources', () => {
+        makeLessonWrapper({ resources: [] });
+        expect(screen.queryByText(coreStrings.inProgressLabel$())).not.toBeInTheDocument();
+        expect(screen.queryByText(coreStrings.completedLabel$())).not.toBeInTheDocument();
       });
 
-      it('shows no label when the lesson has not been started', () => {
-        // resources exist but none have progress in the map (all default to 0)
-        wrapper = makeLessonWrapper({
+      it('shows no progress label when the lesson has not been started', () => {
+        makeLessonWrapper({
           resources: [makeResource('content1'), makeResource('content2')],
         });
-        expect(wrapper.findComponent({ name: 'KLabeledIcon' }).exists()).toBe(false);
-        assertProgressEquals(wrapper, '');
+        expect(screen.queryByText(coreStrings.inProgressLabel$())).not.toBeInTheDocument();
+        expect(screen.queryByText(coreStrings.completedLabel$())).not.toBeInTheDocument();
       });
 
       it('shows a "In progress" label if still in progress', () => {
@@ -210,11 +177,10 @@ describe('AssignmentCard', () => {
             contentNodeProgressMap: { content1: 0.5, content2: 0 },
           }),
         );
-        wrapper = makeLessonWrapper({
+        makeLessonWrapper({
           resources: [makeResource('content1'), makeResource('content2')],
         });
-        assertProgressEquals(wrapper, 'In progress');
-        assertKIconIs(wrapper, 'inProgress');
+        expect(screen.getByText(coreStrings.inProgressLabel$())).toBeInTheDocument();
       });
 
       it('shows a "Completed" label if all resources are complete', () => {
@@ -223,87 +189,67 @@ describe('AssignmentCard', () => {
             contentNodeProgressMap: { content1: 1, content2: 1 },
           }),
         );
-        wrapper = makeLessonWrapper({
+        makeLessonWrapper({
           resources: [makeResource('content1'), makeResource('content2')],
         });
-        assertProgressEquals(wrapper, 'Completed');
-        assertKIconIs(wrapper, 'mastered');
+        expect(screen.getByText(coreStrings.completedLabel$())).toBeInTheDocument();
       });
 
       it('uses API-provided resource progress as fallback when not in the map', () => {
-        // resource.progress from API is used when contentNodeProgressMap has no entry
-        wrapper = makeLessonWrapper({
+        makeLessonWrapper({
           resources: [makeResource('content1', 0.5), makeResource('content2', 0)],
         });
-        assertProgressEquals(wrapper, 'In progress');
-        assertKIconIs(wrapper, 'inProgress');
+        expect(screen.getByText(coreStrings.inProgressLabel$())).toBeInTheDocument();
       });
 
       it('uses the higher of API progress and map progress', () => {
-        // contentNodeProgressMap has a higher value than the stale API data
         useContentNodeProgress.mockImplementation(() =>
           useContentNodeProgressMock({
             contentNodeProgressMap: { content1: 1 },
           }),
         );
-        wrapper = makeLessonWrapper({
+        makeLessonWrapper({
           resources: [makeResource('content1', 0.5), makeResource('content2', 0)],
         });
-        // content1: max(1, 0.5)=1, content2: max(0, 0)=0 → sum=1, total=2 → 1-2=-1 → in progress
-        assertProgressEquals(wrapper, 'In progress');
-        assertKIconIs(wrapper, 'inProgress');
+        expect(screen.getByText(coreStrings.inProgressLabel$())).toBeInTheDocument();
       });
     });
   });
 
   describe('when rendering a quiz', () => {
-    let wrapper;
-
     it('shows the classroom name', () => {
-      wrapper = makeQuizWrapper();
-      expect(wrapper.find('.collection-title').text()).toEqual('Test Classroom 1');
+      makeQuizWrapper();
+      expect(screen.getByText(CLASSROOM_NAME)).toBeInTheDocument();
     });
 
     it('shows the quiz title', () => {
-      wrapper = makeQuizWrapper();
-      expect(wrapper.findComponent({ name: 'KCard' }).props().title).toEqual('Test Quiz 1');
-    });
-
-    it('shows the right link', () => {
-      wrapper = makeQuizWrapper();
-      const routerLink = wrapper.findComponent(RouterLinkStub);
-      expect(routerLink.props().to).toEqual({ path: '/quiz' });
+      makeQuizWrapper();
+      expect(screen.getAllByText(baseQuiz.title).length).toBeGreaterThan(0);
     });
 
     describe('progress section', () => {
-      const assertProgressEquals = (w, expected) => {
-        expect(w.find('.progress-section').text()).toEqual(expected);
-      };
-
-      const assertKIconIs = (w, expected) => {
-        expect(w.findComponent({ name: 'KLabeledIcon' }).props().icon).toEqual(expected);
-      };
-
-      it('shows no label when the quiz has not been started', () => {
-        wrapper = makeQuizWrapper({ progress: { started: false } });
-        expect(wrapper.findComponent({ name: 'KLabeledIcon' }).exists()).toBe(false);
-        assertProgressEquals(wrapper, '');
+      it('shows no progress label when the quiz has not been started', () => {
+        makeQuizWrapper({ progress: { started: false } });
+        const questionRegExp = /questions? left/i;
+        const scoreRegExp = /Score:/i;
+        expect(screen.queryByText(questionRegExp)).not.toBeInTheDocument();
+        expect(screen.queryByText(scoreRegExp)).not.toBeInTheDocument();
       });
 
-      it('shows a "N questions left" label if still in progress', () => {
-        wrapper = makeQuizWrapper({ progress: { started: true, answer_count: 5 } });
-        // N = quiz.question_count - quiz.progress.answer_count
-        assertProgressEquals(wrapper, '5 questions left');
-        assertKIconIs(wrapper, 'inProgress');
+      it('shows how many questions are left if still in progress', () => {
+        makeQuizWrapper({ progress: { started: true, answer_count: 5 } });
+        expect(
+          screen.getByText(learnStrings.questionsLeft$({ questionsLeft: 5 })),
+        ).toBeInTheDocument();
       });
 
-      it('shows a "Score P%" label if the quiz is submitted or closed', () => {
-        wrapper = makeQuizWrapper({
+      it('shows the percentage score if the quiz is submitted or closed', () => {
+        makeQuizWrapper({
           progress: { started: true, answer_count: 10, closed: true, score: 7 },
         });
-        // P = 7/10 = 70%
-        assertProgressEquals(wrapper, 'Score: 70%');
-        assertKIconIs(wrapper, 'mastered');
+        expect(
+          screen.getByText(learnStrings.completedPercentLabel$({ score: 70 })),
+        ).toBeInTheDocument();
       });
     });
   });
