@@ -21,17 +21,23 @@
 
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonLearnStrings from '../commonLearnStrings';
+
+  export const pageTitleStrings = createTranslator('NoResourcePage', {
+    documentTitle: {
+      message: 'Resource unavailable',
+      context:
+        'Message displays if a resource has been removed or is not available for some other reason.',
+    },
+  });
 
   export default {
     name: 'NoResourcePage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     mixins: [commonLearnStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const { canManageContent, isLearner } = useUser();
       return {
         canManageContent,
@@ -65,11 +71,6 @@
         message: 'Ask your coach or administrator for assistance',
         context:
           "Description on the 'No resources available' page. A learner will see this if no resource have been assigned to them.",
-      },
-      documentTitle: {
-        message: 'Resource unavailable',
-        context:
-          'Message displays if a resource has been removed or is not available for some other reason.',
       },
     },
   };

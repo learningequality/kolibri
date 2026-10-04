@@ -10,9 +10,9 @@
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >
-        <h1 class="section-heading">
+        <h2 class="other-libraries-heading section-heading">
           {{ injectedtr('otherLibraries') }}
-        </h1>
+        </h2>
       </KGridItem>
 
       <KGridItem
@@ -71,13 +71,13 @@
       </KGridItem>
     </KGrid>
 
-    <h2
+    <h3
       v-if="!threeLibrariesOrFewer && pinnedDevicesExist && unpinnedDevicesExist"
       data-testid="pinned-label"
-      class="section-heading"
+      class="section-heading subsection-heading"
     >
       {{ injectedtr('pinned') }}
-    </h2>
+    </h3>
     <FadeInTransitionGroup class="other-libraries-grid">
       <LibraryItem
         v-for="device in fullLibrariesToDisplay"
@@ -102,13 +102,13 @@
         :layout8="{ span: 6 }"
         :layout4="{ span: 2 }"
       >
-        <h2
+        <h3
           v-if="pinnedDevicesExist"
           data-testid="more-label"
-          class="more-heading section-heading"
+          class="more-heading section-heading subsection-heading"
         >
           {{ injectedtr('moreLibraries') }}
-        </h2>
+        </h3>
       </KGridItem>
       <KGridItem
         :layout12="{ span: 2, alignment: 'right' }"
@@ -276,6 +276,20 @@
 
   .section-heading {
     margin-left: -8px;
+  }
+
+  // Matches h1 as rendered: normalize.css's h1 rule loads after main.scss and wins
+  .other-libraries-heading {
+    margin-top: 0.67em;
+    margin-bottom: 0.67em;
+    font-size: 2em;
+  }
+
+  // Matches h2 as rendered by main.scss and browser defaults
+  .subsection-heading {
+    margin-top: 0.83em;
+    margin-bottom: 0.83em;
+    font-size: 1.17em;
   }
 
   .more-heading {

@@ -2,6 +2,9 @@
 
   <div>
     <div v-if="currentChannelIsCustom">
+      <h1 class="visuallyhidden">
+        {{ topic.title }}
+      </h1>
       <CustomContentRenderer :topic="topic" />
     </div>
     <!-- appearanceOverrides overrides the default page styling -->
@@ -258,12 +261,15 @@
   import lodashSet from 'lodash/set';
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import { getCurrentInstance, ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
+  import { useRouter } from 'vue-router/composables';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
   import { handleApiError, clearError } from 'kolibri/utils/appError';
   import { ContentNodeKinds } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import Modalities from 'kolibri-constants/Modalities';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
@@ -274,6 +280,7 @@
   import useChannels from 'kolibri-common/composables/useChannels';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import SearchFiltersSidePanel from '../SearchFiltersSidePanel';
+  import store from '../../store';
   import { PageNames } from '../../constants';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
@@ -321,22 +328,16 @@
     };
   }
 
+  export const pageTitleStrings = createTranslator('TopicsPage', {
+    documentTitleForChannel: {
+      message: 'Folders - { channelTitle }',
+      context:
+        'A folder is a collection of resources and other subfolders within a channel. This string indicates the folders grouped under a specific channel.',
+    },
+  });
+
   export default {
     name: 'TopicsPage',
-    metaInfo() {
-      let title;
-      if (this.isRoot) {
-        title = this.$tr('documentTitleForChannel', {
-          channelTitle: this.channelTitle,
-        });
-      } else {
-        title = this.$tr('documentTitleForTopic', {
-          channelTitle: this.channelTitle,
-          topicTitle: this.topic ? this.topic.title : '',
-        });
-      }
-      return { title };
-    },
     components: {
       KBreadcrumbs,
       TopicsHeader,
@@ -358,9 +359,7 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
-      const currentInstance = getCurrentInstance().proxy;
-      const store = currentInstance.$store;
-      const router = currentInstance.$router;
+      const router = useRouter();
       const topic = ref(null);
       const {
         searchTerms,
@@ -384,6 +383,16 @@
       const contents = ref([]);
       const loading = ref(true);
       const sidePanelIsOpen = ref(false);
+
+      const channelTitle = computed(() => channel.value?.name || '');
+
+      usePageTitle(
+        () =>
+          isRoot.value
+            ? pageTitleStrings.documentTitleForChannel$({ channelTitle: channelTitle.value })
+            : [topic.value?.title, channelTitle.value],
+        { hasVisibleHeading: true },
+      );
 
       const _getAllDescendantChildren = topic => {
         const contentnode_id__in = [];
@@ -545,8 +554,7 @@
         windowBreakpoint,
         windowIsLarge,
         windowIsSmall,
-        isRoot,
-        channel,
+        channelTitle,
         topic,
         contents,
         isUserLoggedIn,
@@ -610,9 +618,6 @@
           }),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
-      },
-      channelTitle() {
-        return this.channel ? this.channel.name : '';
       },
       childrenToDisplay() {
         return this.windowBreakpoint === 2 || this.windowBreakpoint > 4 ? 4 : 3;
@@ -844,17 +849,6 @@
         } else {
           this.$refs.resourcePanel.focusFirstEl();
         }
-      },
-    },
-    $trs: {
-      documentTitleForChannel: {
-        message: 'Folders - { channelTitle }',
-        context:
-          'A folder is a collection of resources and other subfolders within a channel. This string indicates the folders grouped under a specific channel.',
-      },
-      documentTitleForTopic: {
-        message: '{ topicTitle } - { channelTitle }',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };
