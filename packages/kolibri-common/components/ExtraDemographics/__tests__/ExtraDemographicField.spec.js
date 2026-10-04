@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { currentLanguage } from 'kolibri/utils/i18n';
 import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
@@ -41,6 +41,13 @@ const renderComponent = props => {
   });
 };
 
+// KSelect gives its control no role or accessible name. The control is the
+// field's only tab stop, so reach it the way a keyboard user does.
+const tabToSelect = async () => {
+  await userEvent.tab();
+  return document.activeElement;
+};
+
 // KSelect renders its options as list items once it has been opened
 const getOptionLabels = () =>
   screen.getAllByRole('listitem').map(option => option.textContent.trim());
@@ -49,7 +56,10 @@ describe('ExtraDemographicField', () => {
   it('shows the description and the default option labels of a field without translations', async () => {
     renderComponent({ field });
 
-    await userEvent.click(screen.getByText(DESCRIPTION));
+    const select = await tabToSelect();
+    expect(within(select).getByText(DESCRIPTION)).toBeVisible();
+
+    await userEvent.click(select);
     expect(getOptionLabels()).toEqual([
       ZERO_TO_FIVE.defaultLabel,
       SIX_TO_TEN.defaultLabel,
@@ -60,7 +70,10 @@ describe('ExtraDemographicField', () => {
   it('shows the description and the option labels translated into the current language', async () => {
     renderComponent({ field: translatedField });
 
-    await userEvent.click(screen.getByText(TRANSLATED_DESCRIPTION));
+    const select = await tabToSelect();
+    expect(within(select).getByText(TRANSLATED_DESCRIPTION)).toBeVisible();
+
+    await userEvent.click(select);
     expect(getOptionLabels()).toEqual(TRANSLATED_OPTION_LABELS);
   });
 
