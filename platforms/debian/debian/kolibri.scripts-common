@@ -1,0 +1,437 @@
+# -*- sh -*-
+# This file can be included with #SCRIPTSCOMMON#
+# Thanks to the openldap debian package for this
+# method!
+
+# Uncomment to have debug output while for instance doing 'gdebi package.deb'
+# KOLIBRI_DEB_DEBUG="YES"
+
+###########################################
+# TRACEBACK & DEBUG
+###########################################
+
+
+# Tracebacks in bash
+# https://docwhat.org/tracebacks-in-bash/
+#
+# Just take the code between the "cut here" lines
+# and put it in your own program.
+#
+# Written by Christian Höltje
+# Donated to the public domain in 2013
+
+#--------->8---------cut here---------8<---------
+set -e
+
+trap _exit_trap EXIT
+trap _err_trap ERR
+_showed_traceback=f
+
+function _exit_trap
+{
+  local _ec="$?"
+  if [[ $_ec != 0 && "${_showed_traceback}" != t ]]; then
+    traceback 1
+  fi
+}
+
+function _err_trap
+{
+  local _ec="$?"
+  local _cmd="${BASH_COMMAND:-unknown}"
+  traceback 1
+  _showed_traceback=t
+  echo "The command ${_cmd} exited with exit code ${_ec}." 1>&2
+}
+
+function traceback
+{
+  # Hide the traceback() call.
+  local -i start=$(( ${1:-0} + 1 ))
+  local -i end=${#BASH_SOURCE[@]}
+  local -i i=0
+  local -i j=0
+
+  echo "Traceback (last called is first):" 1>&2
+  for ((i=${start}; i < ${end}; i++)); do
+    j=$(( $i - 1 ))
+    local function="${FUNCNAME[$i]}"
+    local file="${BASH_SOURCE[$i]}"
+    local line="${BASH_LINENO[$j]}"
+    echo "     ${function}() in ${file}:${line}" 1>&2
+  done
+}
+
+#--------->8---------cut here---------8<---------
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
+debug()
+{
+    if ! [ "$KOLIBRI_DEB_DEBUG" = "" ]
+    then
+        echo "$1"
+    fi
+}
+
+
+######################################
+# SCRIPT FUNCTIONS
+######################################
+
+
+args=("$@")
+
+# References:
+# More info on debconf: "man debconf-devel"
+#   install debconf-doc and debian-policy first!
+# Debconf tutorial:
+# http://www.fifi.org/doc/debconf-doc/tutorial.html
+
+
+
+# This generates the contents of /etc/kolibri/daemon.conf so we don't have the
+# file tracked by dpkg
+default_user_conf() {
+	cat <<EOF
+# /etc/kolibri/default
+#
+# Define kolibri environment settings here
+#
+# This is a Debian specific file
+#
+# Example environment vars to set (shell syntax)
+#
+# KOLIBRI_USER="kolibri"  # Default is to use content of /etc/kolibri/username
+# KOLIBRI_HOME="~/.kolibri"
+# KOLIBRI_LISTEN_PORT="8080"
+# KOLIBRI_COMMAND="kolibri"
+# KOLIBRI_DEBUG=1  # Switches on debug log level (noisy!)
+# DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
+
+EOF
+}
+
+
+########################################################
+# HANDLING OF INSTALLATION STATE
+########################################################
+
+
+export STATE_FILE=/tmp/kolibri_dpkg.state
+
+has_state() {
+    debug "Checking for state $1"
+    if [ -f "$STATE_FILE" ]
+    then
+        grep -q "$1" "$STATE_FILE"
+        has_state=$?
+        debug "Result: $has_state"
+        return $has_state
+    fi
+    debug "No state file"
+    return 2
+}
+
+add_state() {
+    debug "Adding state $1"
+    echo $1 >> "$STATE_FILE"
+}
+
+rm_states() {
+    debug "Removing states"
+    rm -f "$STATE_FILE"
+}
+
+
+
+#################################################
+# UTILITIES FOR PREINST/POSTINST/CONFIG
+#################################################
+
+
+# Stops the system service if it's installed
+stop_kolibri_service()
+{
+    if [ -x /etc/init.d/kolibri ]
+    then
+        if which systemctl > /dev/null 2>&1
+        then
+            systemctl stop kolibri || true
+        # Sysv
+        else
+            # Stop service -- nevermind if it fails
+            invoke-rc.d kolibri stop || true
+        fi
+    fi
+}
+
+# Fetches known configuration and sets variables
+kolibri_get_config()
+{
+    # This function exports variables of the configuration
+
+    # Enable init.d script
+    db_get kolibri/init
+    [ "$RET" = "true" ] && export ENABLE_INIT_D=true || export ENABLE_INIT_D=false
+
+    # Create user for kolibri if it doesn't exist
+    db_get kolibri/user
+    export KOLIBRI_USER="$RET"
+
+}
+
+
+# Ask the users questions
+# Used in .config
+kolibri_debconf_ask()
+{
+
+    if ! has_state "after_preinst"
+    then
+        return
+    fi
+
+    # Get the current configuration -- or rather: These are the defaults
+    # or presets before asking.
+    kolibri_get_config
+
+    db_settitle kolibri/window-title
+    db_go || true
+
+    # Run as system script?
+    db_input high kolibri/init || true
+    db_go || true
+
+    # Give init.d instructions
+    db_get kolibri/init
+    if [ "$RET" = "true" ]
+    then
+        db_input high kolibri/init-instructions || true
+    else
+        db_input high kolibri/manual-instructions || true
+    fi
+    db_go || true
+
+    # Which user should run the script?
+    KOLIBRI_USER=""
+    while [ "$KOLIBRI_USER" = "" ]; do
+      db_input critical kolibri/user || true
+      db_go || true
+      db_get kolibri/user
+      export KOLIBRI_USER="$RET"
+    done
+
+    # Give instructions for <0.10 upgrades
+    db_input high kolibri/pre-010-upgrade-system-user || true
+    db_go || true
+
+}
+
+
+# Configures the package during the postinst script
+kolibri_configure()
+{
+
+    mkdir -p /etc/kolibri/conf.d
+
+    if ! [ -e "/etc/kolibri/daemon.conf" ]
+    then
+        default_user_conf > /etc/kolibri/daemon.conf
+    fi
+
+    # Fetch configuration settings
+    kolibri_get_config
+
+    # This way of writing if statements with failing sub commands will work
+    # while using errexit
+    ( ! getent passwd "$KOLIBRI_USER" 1>/dev/null ) && {
+        echo "Creating new user $KOLIBRI_USER"
+        adduser --system --group --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
+    }
+
+    # Sets the primary user group for previous installations w/o one
+    # THIS CAN BE DEPRECATED ONCE WE DO NOT WANT TO SUPPORT DIRECT UPGRADES FROM
+    # RELEASES BEFORE 0.11.1-ubuntu1.
+    KOLIBRI_USER_GROUP=`id "$KOLIBRI_USER" -g`
+    if [ "$KOLIBRI_USER_GROUP" = "65534" ]
+    then
+        if getent group "$KOLIBRI_USER" 1>/dev/null
+        then
+            new_group_name="${KOLIBRI_USER}_group"
+        else
+            new_group_name="$KOLIBRI_USER"
+        fi
+        addgroup --system "$new_group_name"
+        usermod -g "$KOLIBRI_USER" "$new_group_name"
+
+        # If a ~/.kolibri already existed, then set group ownership
+        DEFAULT_KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
+        if [ -e "$DEFAULT_KOLIBRI_HOME" ]
+        then
+            echo "Changing group ownership on $DEFAULT_KOLIBRI_HOME"
+            chgrp --recursive "$new_group_name" "$DEFAULT_KOLIBRI_HOME"
+        fi
+    fi
+
+    # After the user has been successfully created, save it in the configuration
+    # for the system service.
+    if ! [ -e "/etc/kolibri/username" ]
+    then
+        echo -n "$KOLIBRI_USER" > /etc/kolibri/username
+    fi
+
+    # Remove because we might re-register as systemd during an upgrade
+    update-rc.d -f kolibri remove
+
+    KERNEL_RASPBERRY=`uname -a|grep arm` || true
+    [ ! -z "$KERNEL_RASPBERRY" ] && echo "\n\n  NB! This operation can take some time, please be patient!"
+
+    if $ENABLE_INIT_D
+    then
+        # Register init script as service
+        if which systemctl > /dev/null 2>&1 ; then
+            # Works no matter if it's already enabled
+            systemctl enable kolibri
+            systemctl start kolibri || true
+        # Sysv
+        else
+            # Works no matter if it's already enabled
+            update-rc.d kolibri defaults
+            # Start service -- nevermind if it fails
+            invoke-rc.d kolibri start || true
+        fi
+    fi
+
+    add_state "after_postinst"
+
+}
+
+# This is run at the beginning of kolibri_debconf_ask
+# kolibri.config is run twice: before kolibri.preinst
+# and after kolibri.postinst configure!
+kolibri_debconf_set_defaults()
+{
+    if has_state "did_set_defaults"
+    then
+        return
+    fi
+
+    add_state "did_set_defaults"
+
+    # Ask for user name, default is "kolibri"
+    # First, test if the username is already seen. Otherwise, change it and
+    # mark it as unseen (changing a db value automatically marks it as seen)
+    db_fget kolibri/user seen
+    USER_SEEN="$RET"
+
+    # Extra sensitivity for upgrades from <0.10 - this can be deleted at some
+    # point without causing serious harm, it's just nice to have for the bulk of
+    # users upgrading upon release.
+    #
+    # Because of some weird issue, we cannot *avoid* having
+    # kolibri_debconf_set_defaults called during upgrades, because we cannot
+    # reliably detect all upgrades from args[0]=="uprade". So to avoid
+    # suggesting the desktop user account to systems installed before 0.10, we
+    # make an extra check that there isn't already a "kolibri" configured using
+    # the old convention:
+    db_fget kolibri/pre-010-upgrade-system-user seen
+    UPGRADE_010_SEEN="$RET"
+    if [ "$UPGRADE_010_SEEN" == "false" ] && [ -e /etc/default/kolibri ] && cat /etc/default/kolibri | grep -q '^KOLIBRI_USER="kolibri"'
+    then
+        USER_SEEN="true"
+        db_fset kolibri/pre-010-upgrade-system-user seen false
+    else
+        db_fset kolibri/pre-010-upgrade-system-user seen true
+    fi
+
+    if [ -s /etc/kolibri/username ]    # Test that file exists with non-zero size
+    then
+        KOLIBRI_USER=$(cat /etc/kolibri/username)
+        db_set kolibri/user "$KOLIBRI_USER"
+    else
+        if [ "$USER_SEEN" == "false" ]
+        then
+            # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
+            DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
+            if ! [ "$DESKTOP_USER" == "" ]
+            then
+                # Set default to the user running the installation
+                db_set kolibri/user "$DESKTOP_USER"
+                db_fset kolibri/user seen false
+            fi
+        fi
+    fi
+
+    # Because of some strange bug in debconf, we always purge the notes
+    # separately -- and this cannot be done in kolibri_purge because then
+    # debconf will assume that the note should be displayed unconditionally
+    # without calling db_input
+    # Furthermore, the note contents may have changed
+    db_fset kolibri/manual-instructions seen false
+    db_fset kolibri/init-instructions seen false
+
+}
+
+kolibri_preinst()
+{
+
+    # Initialize: Remove the states file. This is expected to work fine, and
+    # also HAS to be done somewhere, otherwise state may be transferred between
+    # different dpkg processes! For instance, "apt-get install" followed by
+    # "apt-get remove" should not transfer state!
+    # https://github.com/learningequality/ka-lite-installers/issues/474
+    rm_states
+
+    # Because of a perceived bug in some Ubuntu version, we reliably feel like
+    # our scripts are run with the "install" even though it's an upgrade on
+    # top of a previous package. There for DO NOT distungish behavior according
+    # to whether or not something is an upgrade. Just assume both and find
+    # other was to detect if it's an upgrade.
+    if [ "${args[0]}" = "install" ] ||
+       [ "${args[0]}" = "upgrade" ]
+    then
+
+        # Step 1: Stop the system service
+        stop_kolibri_service
+
+        # Setting the defaults should only happen during a new installation. The
+        # installation may happen on an unclean system, for instance if kolibri
+        # was removed with "apt-get remove" instead of "apt-get purge"
+        # NB! Using "dpkg -i" on 16.04 most definitely triggers that the preinst
+        # scripts are run with the "install" flag, even though they are upgrades :/
+        if [ "${args[0]}" = "install" ]
+        then
+            kolibri_debconf_set_defaults
+        fi
+
+        # Ask questions - consider not doing that during upgrade, but this is
+        # not a good idea in case we add new entries in kolibri.template
+        kolibri_debconf_ask
+    fi
+
+    add_state "after_preinst"
+
+}
+
+kolibri_prerm()
+{
+    stop_kolibri_service
+
+    # Removes .pyc files in the Kolibri directory
+    # so that the Kolibri package can be completely removed later.
+    # python3 is only Recommends, so py3clean may not be installed.
+    if command -v py3clean >/dev/null 2>&1; then
+        py3clean -p kolibri
+    fi
+}
+
+kolibri_purge()
+{
+    # Remove the username file such that a prompt will be shown at next install
+    rm -f /etc/kolibri/username
+    # Make sure that there are no more state persistent data saved for another
+    # install
+    rm_states
+}

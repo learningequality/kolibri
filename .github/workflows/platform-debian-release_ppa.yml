@@ -1,0 +1,57 @@
+name: Release Kolibri PPA
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Debian package version to promote (e.g. 0.19.3-0ubuntu1)'
+        required: true
+  workflow_call:
+    inputs:
+      version:
+        description: 'Debian package version to promote'
+        required: true
+        type: string
+    secrets:
+      LP_CREDENTIALS:
+        required: true
+permissions:
+  contents: read
+jobs:
+  promote:
+    name: Promote packages from kolibri-proposed to kolibri
+    runs-on: ubuntu-latest
+    # Past wait-for-published's own --timeout 14400 (4 h).
+    timeout-minutes: 270
+    defaults:
+      run:
+        working-directory: platforms/debian
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install dependencies
+        run: ../../.github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
+      - name: Write Launchpad credentials
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+        run: echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
+      - name: Promote from kolibri-proposed to kolibri
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            promote --version "$VERSION"
+      - name: Wait for promoted packages to be published
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 scripts/launchpad_copy.py \
+            --source-package kolibri-source --binary-package kolibri \
+            wait-for-published --version "$VERSION" \
+            --ppa kolibri \
+            --timeout 14400 \
+            --interval 600
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt

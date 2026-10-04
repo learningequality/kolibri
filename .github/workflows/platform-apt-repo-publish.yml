@@ -50,9 +50,8 @@ jobs:
       - name: Import the Debian repo signing key
         id: gpg
         run: |
-          # Same key, keyring layout and loopback pinentry as the release_ppa
-          # workflow in learningequality/kolibri-installer-debian, which publishes
-          # the Pages repos this one replaces.
+          # Same key, keyring layout and loopback pinentry as the Pages
+          # workflows this one replaces.
           GNUPGHOME=$(mktemp -d)
           export GNUPGHOME
           echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
