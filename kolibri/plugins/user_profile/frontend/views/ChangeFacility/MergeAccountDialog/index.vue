@@ -77,26 +77,24 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { computed, getCurrentInstance, inject, ref, watch } from 'vue';
+  import { computed, inject, ref, watch } from 'vue';
   import get from 'lodash/get';
   import remoteFacilityUserData from '../../../composables/useRemoteFacility';
-  import commonProfileStrings from '../../commonProfileStrings';
+  import commonProfileStrings, { profileStrings } from '../../commonProfileStrings';
 
   export default {
     name: 'MergeAccountDialog',
-    metaInfo() {
-      return {
-        title: this.profileString('mergeAccounts'),
-      };
-    },
     components: { BottomAppBar },
 
     mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
+      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
 
+      const passwordTextbox = ref(null);
       const isFormSubmitted = ref(false);
       const isPasswordInvalid = ref(false);
       const usingAdminPasswordState = ref(false);
@@ -137,9 +135,9 @@
         return !get(state, 'value.targetFacility.learner_can_login_with_no_password', false);
       }
 
-      function focusOnInvalidField(component) {
+      function focusOnInvalidField() {
         if (showPasswordTextbox && isPasswordInvalid.value) {
-          component.$refs.passwordTextbox.focus();
+          passwordTextbox.value.focus();
         }
       }
 
@@ -156,7 +154,6 @@
         });
       }
 
-      const component = getCurrentInstance().proxy;
       function handleContinue() {
         const facility = get(state, 'value.targetFacility', {});
         remoteFacilityUserData(
@@ -168,7 +165,7 @@
         ).then(user_info => {
           if (user_info === 'error') {
             isPasswordInvalid.value = true;
-            focusOnInvalidField(component);
+            focusOnInvalidField();
           } else {
             isPasswordInvalid.value = false;
             isFormSubmitted.value = true;
@@ -190,6 +187,7 @@
       }
 
       return {
+        passwordTextbox,
         formData,
         isPasswordInvalid,
         usingAdminPasswordState,

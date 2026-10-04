@@ -20,7 +20,8 @@
 
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { computed } from 'vue';
   import { interpret } from 'xstate';
   import useUser from 'kolibri/composables/useUser';
@@ -31,14 +32,10 @@
 
   export default {
     name: 'ChangeFacility',
-    metaInfo() {
-      return {
-        title: this.coreString('changeLearningFacility'),
-      };
-    },
     components: { NotificationsRoot, ImmersivePage },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(coreStrings.changeLearningFacility$);
       const { session } = useUser();
       const { userKind } = useUserKind();
       return { pageLoading, session, userKind, handleError };

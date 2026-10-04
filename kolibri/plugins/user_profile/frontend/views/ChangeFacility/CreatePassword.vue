@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ pageTitleStrings.documentTitle$() }}</h1>
     <p>{{ description }}</p>
     <p>{{ $tr('hint') }}</p>
     <PasswordTextbox
@@ -43,19 +43,24 @@
 
 <script>
 
+  import { createTranslator } from 'kolibri/utils/i18n';
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import useUser from 'kolibri/composables/useUser';
 
+  export const pageTitleStrings = createTranslator('CreatePassword', {
+    documentTitle: {
+      message: 'Create new password',
+      context:
+        'Title of the step for creating a new password for the user in the target facility when changing facility.',
+    },
+  });
+
   export default {
     name: 'CreatePassword',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       BottomAppBar,
       PasswordTextbox,
@@ -63,8 +68,9 @@
     mixins: [commonCoreStrings],
     inject: ['changeFacilityService', 'state'],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const { session } = useUser();
-      return { session };
+      return { session, pageTitleStrings };
     },
     data() {
       return {
@@ -108,11 +114,6 @@
       },
     },
     $trs: {
-      documentTitle: {
-        message: 'Create new password',
-        context:
-          'Title of the step for creating a new password for the user in the target facility when changing facility.',
-      },
       description: {
         message:
           '‘{targetFacility}’ requires accounts to have passwords. Enter a password that you would like to use for ‘{username}’ in ‘{targetFacility}’',

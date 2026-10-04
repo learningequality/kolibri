@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import Vuex from 'vuex';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import CreateAccount from '../index.vue';
@@ -39,6 +39,8 @@ const setPasswordTextboxValue = (wrapper, value) => {
 };
 
 describe(`ChangeFacility/CreateAccount`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
     useUser.mockImplementation(() => useUserMock());

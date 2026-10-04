@@ -4,7 +4,7 @@
   <ImmersivePage
     v-if="!isLearnerOnlyImport"
     icon="close"
-    :appBarTitle="$tr('editProfileHeader')"
+    :appBarTitle="pageTitleStrings.editProfileHeader$()"
     :route="profileRoute"
     :loading="pageLoading"
   >
@@ -16,7 +16,7 @@
         class="form"
         @submit.prevent="handleSubmit"
       >
-        <h1>{{ $tr('editProfileHeader') }}</h1>
+        <h1>{{ pageTitleStrings.editProfileHeader$() }}</h1>
 
         <FullNameTextbox
           ref="fullNameTextbox"
@@ -74,6 +74,7 @@
 
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
@@ -83,6 +84,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacility from 'kolibri-common/composables/useFacility';
@@ -90,13 +92,15 @@
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { RoutesMap } from '../constants';
 
+  export const pageTitleStrings = createTranslator('ProfileEditPage', {
+    editProfileHeader: {
+      message: 'Edit profile',
+      context: "Title of the 'Edit profile' page.",
+    },
+  });
+
   export default {
     name: 'ProfileEditPage',
-    metaInfo() {
-      return {
-        title: this.$tr('editProfileHeader'),
-      };
-    },
     components: {
       GenderSelect,
       BirthYearSelect,
@@ -106,9 +110,11 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.editProfileHeader$, { hasVisibleHeading: true });
       const { isLearnerOnlyImport, isLearner, currentUserId } = useUser();
       const { facilityConfig } = useFacility();
       return {
+        pageTitleStrings,
         pageLoading,
         isLearnerOnlyImport,
         isLearner,
@@ -227,12 +233,6 @@
             this.$refs.usernameTextbox.focus();
           }
         });
-      },
-    },
-    $trs: {
-      editProfileHeader: {
-        message: 'Edit profile',
-        context: "Title of the 'Edit profile' page.",
       },
     },
   };

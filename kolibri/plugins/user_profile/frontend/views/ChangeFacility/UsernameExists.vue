@@ -36,22 +36,19 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import { computed, inject } from 'vue';
   import get from 'lodash/get';
-  import commonProfileStrings from '../commonProfileStrings';
+  import commonProfileStrings, { profileStrings } from '../commonProfileStrings';
 
   export default {
     name: 'UsernameExists',
-    metaInfo() {
-      return {
-        title: this.profileString('mergeAccounts'),
-      };
-    },
     components: { BottomAppBar },
 
     mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
+      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
 

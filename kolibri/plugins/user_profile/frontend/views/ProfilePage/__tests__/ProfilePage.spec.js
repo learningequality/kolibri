@@ -1,7 +1,7 @@
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-import { mount, RouterLinkStub, createLocalVue } from '@vue/test-utils';
+import { mount, RouterLinkStub, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import { render, screen } from '@testing-library/vue';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
@@ -9,7 +9,7 @@ import { UserKinds } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
-import ProfilePage from '../index';
+import ProfilePage, { pageTitleStrings } from '../index';
 import makeStore from '../../../__tests__/utils/makeStore';
 import useOnMyOwnSetup, {
   // eslint-disable-next-line import-x/named
@@ -25,7 +25,7 @@ jest.mock('kolibri/urls');
 jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
 
-const { fullNameLabel$ } = coreStrings;
+const { fullNameLabel$, profileLabel$ } = coreStrings;
 const { changePasswordPrompt$ } = createTranslator(ProfilePage.name, ProfilePage.$trs);
 
 jest.spyOn(FacilityUserResource, 'retrieve').mockResolvedValue({});
@@ -58,6 +58,8 @@ function makeWrapper() {
 }
 
 describe('profilePage component', () => {
+  enableAutoDestroy(afterEach);
+
   beforeAll(() => {
     useOnMyOwnSetup.mockImplementation(() => useOnMyOwnSetupMock({ onMyOwnSetup: true }));
     useKResponsiveWindow.mockImplementation(() => ({
@@ -72,7 +74,39 @@ describe('profilePage component', () => {
   });
 });
 
-describe('picture password row', () => {
+async function renderProfile({
+  userKind = UserKinds.LEARNER,
+  picturePasswordSettings = null,
+  picturePassword = null,
+} = {}) {
+  useUser.mockImplementation(() =>
+    useUserMock({
+      isLearner: userKind === UserKinds.LEARNER,
+      isCoach: userKind === UserKinds.COACH,
+      isAdmin: userKind === UserKinds.ADMIN || userKind === UserKinds.SUPERUSER,
+      isSuperuser: userKind === UserKinds.SUPERUSER,
+    }),
+  );
+  useFacility.mockImplementation(() =>
+    useFacilityMock({
+      facilityConfig: ref({
+        picture_password_settings: picturePasswordSettings,
+        learner_can_edit_password: false,
+      }),
+    }),
+  );
+  FacilityUserResource.retrieve.mockResolvedValue({ picture_password: picturePassword });
+
+  const localRouter = new VueRouter();
+  localRouter.getRoute = () => '/';
+
+  return render(ProfilePage, {
+    store: makeStore(),
+    routes: localRouter,
+  });
+}
+
+describe('rendered page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useOnMyOwnSetup.mockImplementation(() => useOnMyOwnSetupMock({ onMyOwnSetup: false }));
@@ -80,37 +114,15 @@ describe('picture password row', () => {
     useFacilities.mockImplementation(() => useFacilitiesMock({ facilities: ref([]) }));
   });
 
-  async function renderProfile({
-    userKind = UserKinds.LEARNER,
-    picturePasswordSettings = null,
-    picturePassword = null,
-  } = {}) {
-    useUser.mockImplementation(() =>
-      useUserMock({
-        isLearner: userKind === UserKinds.LEARNER,
-        isCoach: userKind === UserKinds.COACH,
-        isAdmin: userKind === UserKinds.ADMIN || userKind === UserKinds.SUPERUSER,
-        isSuperuser: userKind === UserKinds.SUPERUSER,
-      }),
-    );
-    useFacility.mockImplementation(() =>
-      useFacilityMock({
-        facilityConfig: ref({
-          picture_password_settings: picturePasswordSettings,
-          learner_can_edit_password: false,
-        }),
-      }),
-    );
-    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: picturePassword });
-
-    const localRouter = new VueRouter();
-    localRouter.getRoute = () => '/';
-
-    return render(ProfilePage, {
-      store: makeStore(),
-      routes: localRouter,
-    });
-  }
+  it('titles the tab User Profile, with Profile as the only h1', async () => {
+    document.title = '';
+    await renderProfile();
+    await nextTick();
+    expect(document.title).toBe(`${pageTitleStrings.documentTitle$()} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(profileLabel$());
+  });
 
   it('fetches the facility and its config on mount', async () => {
     // Without this fetch the page-level facilityConfig is empty, which silently

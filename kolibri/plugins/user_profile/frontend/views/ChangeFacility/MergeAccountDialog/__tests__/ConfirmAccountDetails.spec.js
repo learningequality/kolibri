@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import { FacilityUserGender } from 'kolibri/constants';
 import ConfirmAccountDetails from '../ConfirmAccountDetails';
 
@@ -28,6 +28,8 @@ const getBackButton = wrapper => wrapper.find('[data-testid="backButton"]');
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
