@@ -2,6 +2,7 @@
 
 import socket
 from contextlib import contextmanager
+from unittest import mock
 
 import main
 
@@ -36,5 +37,17 @@ def test_resolve_server_port_falls_back_when_the_port_is_taken():
         assert main._resolve_server_port(port) == 0
 
 
-def test_resolve_server_port_leaves_zero_alone():
-    assert main._resolve_server_port(0) == 0
+def test_resolve_server_port_defers_to_options_when_there_is_no_port():
+    assert main._resolve_server_port(0) is None
+    assert main._resolve_server_port(None) is None
+
+
+def test_bus_leaves_an_unset_port_to_the_base_class():
+    with (
+        mock.patch.object(
+            main.BaseKolibriProcessBus, "__init__", return_value=None
+        ) as base_init,
+        mock.patch.object(main.AndroidKolibriProcessBus, "_setup_plugins"),
+    ):
+        main.AndroidKolibriProcessBus()
+    base_init.assert_called_once_with(port=None)
