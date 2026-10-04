@@ -98,10 +98,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Estimated time',
     context: 'Refers to the expected time it will take the learner to complete a resource.',
   },
-  documentTitle: {
-    message: '{ contentTitle } - { channelTitle }',
-    context: 'DO NOT TRANSLATE\nCopy the source string.',
-  },
   shareFile: {
     message: 'Share',
     context: 'Option to share a specific file from a learning resource.',
