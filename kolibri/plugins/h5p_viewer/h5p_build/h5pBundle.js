@@ -5,9 +5,13 @@
  * bundle, so are not actually always present.
  */
 import jQuery from 'jquery';
+import './vendor/h5p/styles/h5p-fonts.css';
 import './vendor/h5p/styles/h5p.css';
-import './vendor/h5p/styles/h5p-core-button.css';
 import './vendor/h5p/styles/h5p-confirmation-dialog.css';
+import './vendor/h5p/styles/h5p-core-button.css';
+import './vendor/h5p/styles/h5p-theme.css';
+import './vendor/h5p/styles/h5p-theme-variables.css';
+import './h5pOverrides.css';
 
 const logging = console; //elsint-disable-line no-console
 
