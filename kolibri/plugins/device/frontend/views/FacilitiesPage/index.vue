@@ -196,7 +196,7 @@
 <script>
 
   import { computed } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import CoreTable from 'kolibri/components/CoreTable';
@@ -209,6 +209,7 @@
   import some from 'lodash/some';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
@@ -228,11 +229,6 @@
 
   export default {
     name: 'FacilitiesPage',
-    metaInfo() {
-      return {
-        title: this.coreString('facilitiesLabel'),
-      };
-    },
     components: {
       DeviceAppBarPage,
       ConfirmationRegisterModal,
@@ -251,6 +247,7 @@
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       const { createSnackbar } = useSnackbar();
+      usePageTitle(coreStrings.facilitiesLabel$, { hasVisibleHeading: true });
       const {
         data: facilitiesData,
         loading,

@@ -9,7 +9,7 @@
       class="device-container"
     >
       <div>
-        <h1>{{ $tr('header') }}</h1>
+        <h1>{{ pageTitleStrings.header$() }}</h1>
         <table :class="windowIsSmall ? 'mobile-table' : ''">
           <tr>
             <th>
@@ -53,7 +53,7 @@
           </tr>
         </table>
 
-        <h1>{{ $tr('advanced') }}</h1>
+        <h2 class="advanced-heading">{{ $tr('advanced') }}</h2>
         <p>{{ $tr('advancedDescription') }}</p>
         <div>
           <KButton
@@ -84,22 +84,26 @@
 <script>
 
   import { mapState } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import TechnicalTextBlock from 'kolibri/components/error/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';
 
+  export const pageTitleStrings = createTranslator('DeviceInfoPage', {
+    header: {
+      message: 'Device info',
+      context: 'Title of the Device > Info page.',
+    },
+  });
+
   export default {
     name: 'DeviceInfoPage',
-    metaInfo() {
-      return {
-        title: this.$tr('header'),
-      };
-    },
     components: {
       DeviceAppBarPage,
       DeviceNameModal,
@@ -109,10 +113,12 @@
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       const { createSnackbar } = useSnackbar();
+      usePageTitle(pageTitleStrings.header$, { hasVisibleHeading: true });
       return {
         windowIsSmall,
         createSnackbar,
         pageLoading,
+        pageTitleStrings,
       };
     },
     data() {
@@ -164,10 +170,6 @@
       },
     },
     $trs: {
-      header: {
-        message: 'Device info',
-        context: 'Title of the Device > Info page.',
-      },
       kolibriVersion: {
         message: 'Kolibri version',
         context: 'Indicates the version of Kolibri currently running on the device.',
@@ -234,6 +236,12 @@
 
   .link:not(:last-child) {
     margin-bottom: 8px;
+  }
+
+  // Matches h1 as rendered: normalize.css's h1 rule loads after main.scss and wins
+  .advanced-heading {
+    margin: 0.67em 0;
+    font-size: 2em;
   }
 
   .bottom-section {

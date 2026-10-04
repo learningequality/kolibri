@@ -1,6 +1,9 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { createLocalVue, enableAutoDestroy, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import NewChannelVersionPage from '../ManageContentPage/NewChannelVersionPage';
+import { render, screen } from '@testing-library/vue';
+import NewChannelVersionPage, {
+  pageTitleStrings,
+} from '../ManageContentPage/NewChannelVersionPage';
 import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/urls');
@@ -29,7 +32,7 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
-function makeWrapper(routeQuery = {}) {
+function makeMountOptions(routeQuery) {
   const store = makeSelectContentPageStore();
   const router = new VueRouter({
     routes: [
@@ -46,10 +49,30 @@ function makeWrapper(routeQuery = {}) {
     params: { channel_id: 'awesome_channel' },
     query: routeQuery,
   });
-  return mount(NewChannelVersionPage, { localVue, store, router });
+  return { localVue, store, router };
+}
+
+function makeWrapper(routeQuery = {}) {
+  return mount(NewChannelVersionPage, makeMountOptions(routeQuery));
 }
 
 describe('NewChannelVersionPage', () => {
+  enableAutoDestroy(afterEach);
+
+  it('titles the tab with the loaded version text, its only h1', async () => {
+    document.title = '';
+    render(NewChannelVersionPage, makeMountOptions({}));
+    await global.flushPromises();
+    const versionText = pageTitleStrings.versionIsAvailable$({
+      channelName: 'Awesome Channel',
+      nextVersion: '10',
+    });
+    expect(document.title).toBe(`${versionText} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(versionText);
+  });
+
   it('includes token in params when token is in route query', () => {
     const wrapper = makeWrapper({ token: 'my-special-token' });
     expect(wrapper.vm.params.token).toEqual('my-special-token');

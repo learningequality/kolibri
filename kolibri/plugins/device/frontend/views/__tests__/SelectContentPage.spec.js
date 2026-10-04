@@ -1,7 +1,9 @@
+import { nextTick } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import { createTranslator, i18nSetup } from 'kolibri/utils/i18n';
 import bytesForHumans from 'kolibri/uiText/bytesForHumans';
-import SelectContentPage from '../SelectContentPage';
+import SelectContentPage, { pageTitleStrings } from '../SelectContentPage';
+import pluginStore from '../../store';
 import {
   makeSelectContentPageStore,
   selectContentTransferredChannel,
@@ -43,6 +45,20 @@ describe('SelectContentPage', () => {
 
   beforeEach(() => {
     store = makeSelectContentPageStore();
+  });
+
+  it('titles the tab with the channel name, with the channel name the only h1', async () => {
+    document.title = '';
+    const { name } = selectContentTransferredChannel;
+    pluginStore.replaceState(store.state);
+    renderComponent({ store: pluginStore });
+    await nextTick();
+    expect(document.title).toBe(
+      `${pageTitleStrings.selectContent$({ channelName: name })} - Kolibri`,
+    );
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(name);
   });
 
   it('shows the thumbnail, title, descripton, and version of the channel', () => {

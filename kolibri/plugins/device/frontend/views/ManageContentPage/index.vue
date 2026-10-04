@@ -90,11 +90,13 @@
   import get from 'lodash/get';
   import sortBy from 'lodash/sortBy';
   import { mapState, mapGetters, mapActions } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useUser from 'kolibri/composables/useUser';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';
@@ -109,13 +111,15 @@
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
+  export const pageTitleStrings = createTranslator('ManageContentPage', {
+    documentTitle: {
+      message: 'Manage Device Channels',
+      context: 'Title of page where admin can manage channels on the device.',
+    },
+  });
+
   export default {
     name: 'ManageContentPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       DeviceAppBarPage,
       ChannelPanel,
@@ -128,6 +132,7 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const { isLearnerOnlyImport, currentUserId } = useUser();
       return { isLearnerOnlyImport, userId: currentUserId, pageLoading };
     },
@@ -275,10 +280,6 @@
       import: {
         message: 'Import',
         context: 'Option to import channels or users from another device.',
-      },
-      documentTitle: {
-        message: 'Manage Device Channels',
-        context: 'Title of page where admin can manage channels on the device.',
       },
       exportChannels: {
         message: 'Export channels',

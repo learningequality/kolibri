@@ -121,12 +121,15 @@
 
 <script>
 
+  import { computed, ref } from 'vue';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import sortBy from 'lodash/sortBy';
   import map from 'lodash/map';
   import get from 'lodash/get';
   import { mapActions, mapState } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import TaskResource from 'kolibri/apiResources/TaskResource';
@@ -139,13 +142,16 @@
   import useContentTasks from '../../composables/useContentTasks';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
+  export const pageTitleStrings = createTranslator('NewChannelVersionPage', {
+    versionIsAvailable: {
+      message: `Version {nextVersion} of '{channelName}' is available`,
+      context:
+        'When a new version of a channel is available, users can download it from this page.',
+    },
+  });
+
   export default {
     name: 'NewChannelVersionPage',
-    metaInfo() {
-      return {
-        title: this.versionAvailableText,
-      };
-    },
     components: {
       CoreInfoIcon,
       BottomAppBar,
@@ -154,12 +160,22 @@
     mixins: [commonCoreStrings],
     setup() {
       useContentTasks();
-      return { handleApiError, pageLoading };
+      const channelName = ref('');
+      const nextVersion = ref(null);
+      const versionAvailableText = computed(() => {
+        if (channelName.value && nextVersion.value !== null) {
+          return pageTitleStrings.versionIsAvailable$({
+            channelName: channelName.value,
+            nextVersion: String(nextVersion.value),
+          });
+        }
+        return channelName.value;
+      });
+      usePageTitle(versionAvailableText, { hasVisibleHeading: true });
+      return { handleApiError, pageLoading, channelName, nextVersion, versionAvailableText };
     },
     data() {
       return {
-        channelName: '',
-        nextVersion: null,
         currentVersion: null,
         deletedResources: null,
         newResources: null,
@@ -182,15 +198,6 @@
       },
       hasNextVersion() {
         return this.nextVersion !== null;
-      },
-      versionAvailableText() {
-        if (this.channelName && this.hasNextVersion) {
-          return this.$tr('versionIsAvailable', {
-            channelName: this.channelName,
-            nextVersion: String(this.nextVersion),
-          });
-        }
-        return this.channelName || '';
       },
       params() {
         return pickBy({
@@ -332,11 +339,6 @@
       },
     },
     $trs: {
-      versionIsAvailable: {
-        message: `Version {nextVersion} of '{channelName}' is available`,
-        context:
-          'When a new version of a channel is available, users can download it from this page.',
-      },
       youAreCurrentlyOnVersion: {
         message: 'You are currently on version {currentVersion}',
         context: 'Indicates to the user which version of the channel they are currently using.',

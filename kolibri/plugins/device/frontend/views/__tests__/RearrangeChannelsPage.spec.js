@@ -1,8 +1,10 @@
-import { shallowMount } from '@vue/test-utils';
+import { enableAutoDestroy, shallowMount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import makeStore from '../../__tests__/utils/makeStore';
-import RearrangeChannelsPage from '../RearrangeChannelsPage';
+import RearrangeChannelsPage, { pageTitleStrings } from '../RearrangeChannelsPage';
+import router from './testRouter';
 
 jest.mock('../../composables/useContentTasks');
 jest.mock('kolibri/composables/useUser');
@@ -27,6 +29,7 @@ async function makeWrapper() {
 }
 
 describe('RearrangeChannelsPage', () => {
+  enableAutoDestroy(afterEach);
   const createSnackbar = jest.fn();
   beforeAll(() => {
     useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
@@ -38,6 +41,18 @@ describe('RearrangeChannelsPage', () => {
     expect(wrapper.vm.postNewOrder).toHaveBeenCalledWith(['2', '1']);
     await global.flushPromises();
   }
+
+  it('titles the tab with the page title, also its only h1', async () => {
+    document.title = '';
+    useUser.mockImplementation(() => useUserMock({ canManageContent: true }));
+    render(RearrangeChannelsPage, { store: makeStore(), ...router });
+    await global.flushPromises();
+    const title = pageTitleStrings.editChannelOrderTitle$();
+    expect(document.title).toBe(`${title} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(title);
+  });
 
   it('loads the data on mount', async () => {
     const { wrapper } = await makeWrapper();
