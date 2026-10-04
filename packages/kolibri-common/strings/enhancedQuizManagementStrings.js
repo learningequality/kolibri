@@ -44,6 +44,11 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfQuestionsLabel: {
     message: 'Number of questions',
   },
+  invalidNumberOfQuestions: {
+    message: 'Enter a whole number from 1 to { count, number }.',
+    context:
+      'An error message shown when the number of questions for a quiz section is not a whole number within the allowed range.',
+  },
   numberOfQuestionsToAdd: {
     message: 'Number of questions to add',
   },

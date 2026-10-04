@@ -1,5 +1,5 @@
 import { markRaw, ref } from 'vue';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import QuestionsSettings from '../QuestionsSettings.vue';
 
@@ -12,6 +12,20 @@ jest.mock('../../../../../../../composables/useQuizCreation', () => ({
 }));
 
 describe('QuestionsSettings', () => {
+  function renderComponent() {
+    const setContinueAction = jest.fn();
+
+    render(QuestionsSettings, {
+      props: {
+        channelsFetch: markRaw({ data: ref([{ num_assessments: 10 }]), error: ref(null) }),
+        settings: { maxQuestions: 10, questionCount: 5 },
+        setContinueAction,
+      },
+    });
+
+    return setContinueAction;
+  }
+
   it('shows an error and disables Continue when channels fail to load', () => {
     const setContinueAction = jest.fn();
 
@@ -27,4 +41,17 @@ describe('QuestionsSettings', () => {
     expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
     expect(setContinueAction).toHaveBeenLastCalledWith(expect.objectContaining({ disabled: true }));
   });
+
+  it.each([2.5, 0, 11])(
+    'marks %s as invalid and disables Continue',
+    async questionCount => {
+      const setContinueAction = renderComponent();
+
+      await fireEvent.update(screen.getByRole('spinbutton'), questionCount);
+
+      expect(setContinueAction).toHaveBeenLastCalledWith(
+        expect.objectContaining({ disabled: true }),
+      );
+    },
+  );
 });

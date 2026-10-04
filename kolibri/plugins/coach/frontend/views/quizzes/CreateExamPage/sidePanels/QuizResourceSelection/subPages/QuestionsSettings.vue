@@ -27,8 +27,12 @@
             :label="numberOfQuestionsLabel$()"
             :max="maxQuestions"
             :min="1"
-            :invalid="questionCount > maxQuestions"
-            :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+            :invalid="questionCount > maxQuestions || invalidQuestionCount"
+            :invalidText="
+              questionCount > maxQuestions
+                ? maxNumberOfQuestions$({ count: maxQuestions })
+                : invalidNumberOfQuestions$({ count: settings.maxQuestions })
+            "
             :disabled="!questionCountIsEditable"
             :showInvalidText="true"
             class="question-textbox"
@@ -110,6 +114,7 @@
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         maxNumberOfQuestions$,
+        invalidNumberOfQuestions$,
         chooseQuestionsManuallyLabel$,
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
@@ -143,13 +148,21 @@
       const workingQuestionCount = ref(props.settings.questionCount);
       const workingIsChoosingManually = ref(Boolean(props.settings.isChoosingManually));
 
+      const invalidQuestionCount = computed(() => {
+        return (
+          !Number.isInteger(workingQuestionCount.value) ||
+          workingQuestionCount.value < 1
+        );
+      });
+
       const invalidSettings = computed(() => {
         if (workingIsChoosingManually.value) {
           return false;
         }
 
         return (
-          workingQuestionCount.value > props.settings.maxQuestions || workingQuestionCount.value < 1
+          invalidQuestionCount.value ||
+          workingQuestionCount.value > props.settings.maxQuestions
         );
       });
 
@@ -169,7 +182,8 @@
       onMounted(() => {
         props.setContinueAction({
           handler: continueHandler,
-          disabled: !!channelsError.value || addableQuestionCount.value === 0,
+          disabled:
+            !!channelsError.value || invalidSettings.value || addableQuestionCount.value === 0,
           text: continueText,
         });
       });
@@ -190,6 +204,7 @@
       return {
         showAlert,
         questionCount: workingQuestionCount,
+        invalidQuestionCount,
         isChoosingManually: workingIsChoosingManually,
         clearSelectionNotice$,
         questionCountIsEditable,
@@ -199,6 +214,7 @@
             : addableQuestionCount.value,
         ),
         maxNumberOfQuestions$,
+        invalidNumberOfQuestions$,
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         chooseQuestionsManuallyLabel$,
