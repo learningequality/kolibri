@@ -4,12 +4,13 @@ import AttemptLogItem from '../AttemptLogItem';
 
 /* A JSON blob yanked from devtools that inclues questions data with correct and
  * incorrect answers.*/
-import sampleAttemptLogs from './sample-attempt-logs.json';
+import sampleAttemptLogsRaw from './sample-attempt-logs.json';
+
+const sampleAttemptLogs = JSON.parse(sampleAttemptLogsRaw);
 
 describe('AttemptLogItem', () => {
   describe('when viewing a survey (isSurvey prop is true)', () => {
-    it.each(
-      sampleAttemptLogs,
+    it.each(sampleAttemptLogs)(
       'does not show icons for any questions regardless of their status',
       attemptLog => {
         render(AttemptLogItem, {
@@ -38,7 +39,7 @@ describe('AttemptLogItem', () => {
           displayTag: 'span',
         },
       });
-      expect(screen.getByTestId('question-attempt-icons')).toBeInTheDocument();
+      expect(screen.getAllByTestId('question-attempt-icons').length).toBeGreaterThan(0);
     });
   });
 });

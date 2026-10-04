@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import CurrentTryOverview from '../CurrentTryOverview';
+
+const { statusLabel$, masteryModelLabel$, scoreLabel$, questionsCorrectLabel$, timeSpentLabel$ } =
+  coreStrings;
 
 jest.mock('kolibri/composables/useUser');
 
@@ -78,85 +82,81 @@ describe('ExamReport/CurrentTryOverview', () => {
   });
 
   describe('status', () => {
-    it('shows a ProgressIcon when hideStatus is false', () => {
+    it('shows the current status of the try when hideStatus is false', () => {
       renderComponent(defaultProps);
-      expect(screen.getByTestId('try-status')).toBeInTheDocument();
+      expect(screen.getByText(statusLabel$())).toBeInTheDocument();
     });
 
     it('shows nothing when hideStatus is true', () => {
       renderComponent(defaultPropsWith({ hideStatus: true }));
-      expect(screen.queryByTestId('try-status')).not.toBeInTheDocument();
+      expect(screen.queryByText(statusLabel$())).not.toBeInTheDocument();
     });
   });
 
   describe('mastery model', () => {
-    it('shows a MasteryModel component when computed masterModel is truthy', () => {
+    it('shows the mastery model when the try has one', () => {
       renderComponent(defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }));
-      expect(screen.getByTestId('try-mastery-model')).toBeInTheDocument();
+      expect(screen.getByText(masteryModelLabel$())).toBeInTheDocument();
     });
 
-    it('shows nothing when masteryModel computed is null', () => {
-      // We know it is null due to the test suite describing 'is null when ... is "quiz"'
+    it('does not show the mastery model for quizzes', () => {
+      // defaultTry has mastery_criterion { type: 'quiz' }.
       renderComponent(defaultProps);
-      expect(screen.queryByTestId('try-mastery-model')).not.toBeInTheDocument();
+      expect(screen.queryByText(masteryModelLabel$())).not.toBeInTheDocument();
     });
 
     it('shows nothing when isSurvey', () => {
       renderComponent(
         defaultPropsWith({ isSurvey: true }, { mastery_criterion: nonQuizValidMasteryCriterion }),
       );
-      expect(screen.queryByTestId('try-mastery-model')).not.toBeInTheDocument();
+      expect(screen.queryByText(masteryModelLabel$())).not.toBeInTheDocument();
     });
   });
 
   describe('percentage score', () => {
     describe('not displaying the score', () => {
-      it('is not shown if computed masteryModel is truthy', () => {
+      it('is not shown when the try has a mastery model', () => {
         renderComponent(defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }));
-        expect(screen.queryByTestId('try-score')).not.toBeInTheDocument();
+        expect(screen.queryByText(scoreLabel$())).not.toBeInTheDocument();
       });
 
       it('is not shown if currentTry.correct is `undefined`', () => {
         // Aside from the overridden prop, this would have shown
         renderComponent(defaultPropsWith({}, { correct: undefined }));
-        expect(screen.queryByTestId('try-score')).not.toBeInTheDocument();
+        expect(screen.queryByText(scoreLabel$())).not.toBeInTheDocument();
       });
 
       it('is not shown when the prop isSurvey is true', () => {
         // Aside from the overridden prop, this would have shown
         renderComponent(defaultPropsWith({ isSurvey: true }));
-        expect(screen.queryByTestId('try-score')).not.toBeInTheDocument();
+        expect(screen.queryByText(scoreLabel$())).not.toBeInTheDocument();
       });
     });
 
-    it('shows the value of computed score as a %', () => {
-      const cases = [0, 2, 5, 10];
-      cases.forEach(n => {
-        const { unmount } = renderComponent(defaultPropsWith({}, { correct: n }));
-        const expectedPct = Math.round((n / defaultProps.totalQuestions) * 100);
-        expect(screen.getByTestId('try-score')).toHaveTextContent(`${expectedPct}%`);
-        unmount();
-      });
+    it.each([0, 2, 5, 10])('shows %i of 10 correct as a percentage', n => {
+      renderComponent(defaultPropsWith({}, { correct: n }));
+      const expectedPct = Math.round((n / defaultProps.totalQuestions) * 100);
+      expect(screen.getByText(scoreLabel$()).closest('tr')).toHaveTextContent(`${expectedPct}%`);
     });
   });
 
   describe('questions correct', () => {
     describe('not displaying the questions correct', () => {
-      it('is not shown if computed masteryModel is truthy', () => {
+      it('is not shown when the try has a mastery model', () => {
         renderComponent(defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }));
-        expect(screen.queryByTestId('try-questions-correct')).not.toBeInTheDocument();
+        expect(screen.queryByText(questionsCorrectLabel$())).not.toBeInTheDocument();
       });
 
       it('is not shown if currentTry.correct is `undefined`', () => {
         // Aside from the overridden prop, this would have shown
         renderComponent(defaultPropsWith({}, { correct: undefined }));
-        expect(screen.queryByTestId('try-questions-correct')).not.toBeInTheDocument();
+        expect(screen.queryByText(questionsCorrectLabel$())).not.toBeInTheDocument();
       });
 
       it('is not shown when the prop isSurvey is true', () => {
         // Aside from the overridden prop, this would have shown
         renderComponent(defaultPropsWith({ isSurvey: true }));
-        expect(screen.queryByTestId('try-questions-correct')).not.toBeInTheDocument();
+        expect(screen.queryByText(questionsCorrectLabel$())).not.toBeInTheDocument();
       });
     });
 
@@ -164,13 +164,23 @@ describe('ExamReport/CurrentTryOverview', () => {
       /* Display logic */
       it('is shown when currentTry.correct and prop totalQuestions are set', () => {
         renderComponent(defaultProps);
-        expect(screen.getByTestId('try-questions-correct')).toBeInTheDocument();
+        expect(screen.getByText(questionsCorrectLabel$())).toBeInTheDocument();
       });
 
       it('displays annotation string when diff.correct is set and viewed by owning user', () => {
         useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
         renderComponent(defaultPropsWith({}, { diff: betterDiff }));
-        expect(screen.getByTestId('try-questions-correct')).toHaveTextContent(
+        expect(screen.getByText(questionsCorrectLabel$()).closest('tr')).toHaveTextContent(
+          translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
+            value: betterDiff.correct,
+          }),
+        );
+      });
+
+      it('does not display annotation string when viewed by another user', () => {
+        useUser.mockImplementation(() => useUserMock({ currentUserId: 'other' }));
+        renderComponent(defaultPropsWith({}, { diff: betterDiff }));
+        expect(screen.getByText(questionsCorrectLabel$()).closest('tr')).not.toHaveTextContent(
           translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
             value: betterDiff.correct,
           }),
@@ -182,17 +192,17 @@ describe('ExamReport/CurrentTryOverview', () => {
   describe('time spent', () => {
     it('is not shown when the prop isSurvey is true', () => {
       renderComponent(defaultPropsWith({ isSurvey: true }));
-      expect(screen.queryByTestId('try-time-spent')).not.toBeInTheDocument();
+      expect(screen.queryByText(timeSpentLabel$())).not.toBeInTheDocument();
     });
 
     it('is not shown when currentTry.time_spent is falsy', () => {
       renderComponent(defaultPropsWith({}, { time_spent: 0 }));
-      expect(screen.queryByTestId('try-time-spent')).not.toBeInTheDocument();
+      expect(screen.queryByText(timeSpentLabel$())).not.toBeInTheDocument();
     });
 
-    it('displays a TimeDuration component representation', () => {
+    it('shows the total time spent on the try', () => {
       renderComponent(defaultProps);
-      expect(screen.getByTestId('try-time-spent')).toBeInTheDocument();
+      expect(screen.getByText(timeSpentLabel$())).toBeInTheDocument();
     });
 
     describe('showing the time spent annotation', () => {
@@ -201,7 +211,7 @@ describe('ExamReport/CurrentTryOverview', () => {
           useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           renderComponent(defaultPropsWith({}, { diff: betterDiff }));
           const diffTime = Math.abs(Math.floor(betterDiff.time_spent / 60));
-          expect(screen.getByTestId('try-time-spent')).toHaveTextContent(
+          expect(screen.getByText(timeSpentLabel$()).closest('tr')).toHaveTextContent(
             translator.$tr('practiceQuizReportFasterTimeLabel', {
               value: diffTime,
             }),
@@ -214,9 +224,28 @@ describe('ExamReport/CurrentTryOverview', () => {
           useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           renderComponent(defaultPropsWith({}, { diff: worseDiff }));
           const diffTime = Math.floor(worseDiff.time_spent / 60);
-          expect(screen.getByTestId('try-time-spent')).toHaveTextContent(
+          expect(screen.getByText(timeSpentLabel$()).closest('tr')).toHaveTextContent(
             translator.$tr('practiceQuizReportSlowerTimeLabel', {
               value: diffTime,
+            }),
+          );
+        });
+      });
+
+      describe('sub-minute time diffs (magnitude < 60s)', () => {
+        it('displays no annotation', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+          renderComponent(defaultPropsWith({}, { diff: { time_spent: 40 } }));
+          // Since the difference is less than 60s, it rounds to 0 minutes,
+          // which shouldn't show the label
+          expect(screen.getByText(timeSpentLabel$()).closest('tr')).not.toHaveTextContent(
+            translator.$tr('practiceQuizReportFasterTimeLabel', {
+              value: 0,
+            }),
+          );
+          expect(screen.getByText(timeSpentLabel$()).closest('tr')).not.toHaveTextContent(
+            translator.$tr('practiceQuizReportSlowerTimeLabel', {
+              value: 0,
             }),
           );
         });
@@ -225,9 +254,9 @@ describe('ExamReport/CurrentTryOverview', () => {
   });
 
   describe('time ago', () => {
-    it('displays ElapsedTime component representation', () => {
+    it('shows how long ago the try was attempted', () => {
       renderComponent(defaultProps);
-      expect(screen.getByTestId('try-attempted-ago')).toBeInTheDocument();
+      expect(screen.getByText(translator.$tr('attemptedLabel'))).toBeInTheDocument();
     });
   });
 });
