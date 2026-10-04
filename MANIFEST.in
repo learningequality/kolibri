@@ -3,8 +3,6 @@ include CONTRIBUTING.md
 include CHANGELOG.md
 include LICENSE
 include README.md
-# Read out of the sdist by platforms/debian — see `writeversion` in the Makefile.
-include kolibri/VERSION
 recursive-include kolibri/locale *.mo
 recursive-include kolibri/locale *.json
 recursive-include kolibri/locale *.po

@@ -14,13 +14,7 @@ build_src/%.tar.gz:
 
 dist/VERSION: build_src/kolibri-*.tar.gz
 	mkdir -p dist
-	@# Use head of archive list to determine version location
-	ARCHIVE_ROOT=$$(tar -tf $< | head -1)
-	VERSION_PATH=$${ARCHIVE_ROOT}kolibri/VERSION
-
-	tar -zxvf $< $$VERSION_PATH
-	mv $$VERSION_PATH $@
-	rm -rf $$ARCHIVE_ROOT
+	basename $< .tar.gz | sed 's/^kolibri-//' > $@
 
 
 dist/DEB_VERSION: dist/VERSION

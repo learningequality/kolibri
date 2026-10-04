@@ -1,8 +1,8 @@
 SHELL := /bin/bash
 CROWDIN_BRANCH := release
 
-# `dist` writes to tracked files before it builds (setrequirements, writeversion,
-# assets compression), so setuptools_scm sees a dirty tree and stamps the next
+# `dist` writes to tracked files before it builds (setrequirements, assets
+# compression), so setuptools_scm sees a dirty tree and stamps the next
 # guessed version plus a `.d<date>` local segment instead of the tag. Overriding
 # just the `dirty` field leaves tag, distance and node coming from git.
 export SETUPTOOLS_SCM_PRETEND_METADATA_FOR_KOLIBRI := {dirty=false}
@@ -11,7 +11,7 @@ export SETUPTOOLS_SCM_PRETEND_METADATA_FOR_KOLIBRI := {dirty=false}
 export SETUPTOOLS_SCM_IGNORE_VCS_ROOTS := $(CURDIR)
 
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext strip-staticdeps writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext strip-staticdeps setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-demoserver docker-devserver docker-envlist
 
 
 help:
@@ -32,7 +32,6 @@ help:
 	@echo "clean-build: remove build artifacts"
 	@echo "clean-pyc: remove Python file artifacts"
 	@echo "clean-assets: removes JavaScript build assets"
-	@echo "writeversion: updates the kolibri/VERSION file"
 	@echo "release: package and upload a release"
 	@echo "setrequirements: creates a customized requirements.txt"
 	@echo "buildconfig: customizes the default plugins and Django settings module"
@@ -71,7 +70,6 @@ clean-assets:
 	pnpm run clean
 
 clean-build:
-	rm -f kolibri/VERSION
 	rm -f kolibri/_version.py
 	rm -fr build/
 	rm -fr dist/
@@ -210,13 +208,6 @@ set-no-uv-python-version-for-tests:
 	echo "__version__ = version = \"$$VERSION\"" >> kolibri/_version.py; \
 	echo "Set version to $$VERSION"
 
-# Plaintext copy read out of our sdist by platforms/debian's `dist/VERSION`
-# target, and by build_whl.yml to name the Pi image zip — deleting it reddens both.
-writeversion:
-	uv run python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
-	@echo ""
-	@echo "Current version is now `cat kolibri/VERSION`"
-
 preseeddb:
 	./build_tools/preseed_home.sh
 
@@ -230,7 +221,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: setrequirements writeversion staticdeps staticdeps-cext strip-staticdeps buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
+dist: setrequirements staticdeps staticdeps-cext strip-staticdeps buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
 	uv build
 	ls -l dist
 
