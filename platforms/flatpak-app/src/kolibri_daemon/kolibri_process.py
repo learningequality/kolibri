@@ -9,7 +9,6 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.device.utils import device_provisioned
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri.dist.magicbus.plugins.tasks import Monitor
-from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.globals import KOLIBRI_HOME_PATH
@@ -25,10 +24,7 @@ class KolibriDaemonProcess(KolibriProcessBus):
     __application: Application
 
     def __init__(self, application: Application):
-        super().__init__(
-            port=OPTIONS["Deployment"]["HTTP_PORT"],
-            zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
-        )
+        super().__init__()
         # The thread_wait plugin seems be causing a hang when kolibri-daemon is
         # running as a systemd system service with KillMode=control-group.
         self.thread_wait.unsubscribe()
