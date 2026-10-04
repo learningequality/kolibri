@@ -184,6 +184,19 @@ describe('usePageTitle', () => {
     expect(document.title).toBe(tabTitle('Lessons'));
   });
 
+  it('keeps the title of a page that renders its own error state', async () => {
+    render({
+      setup() {
+        usePageTitle('Setup', { hasOwnErrorPage: true });
+      },
+      template: '<div />',
+    });
+    await nextTick();
+    error.value = 'boom';
+    await nextTick();
+    expect(document.title).toBe(tabTitle('Setup'));
+  });
+
   it('leaves the title to vue-meta while a metaInfo component is mounted', async () => {
     const title = ref('Lessons');
     const showLegacy = ref(true);

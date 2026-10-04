@@ -12,5 +12,8 @@
         "kolibri-plugin-data": "workspace:*",
         "lodash": "catalog:",
         "vue": "catalog:"
+    },
+    "devDependencies": {
+        "@testing-library/vue": "catalog:"
     }
 }
