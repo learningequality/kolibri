@@ -25,7 +25,7 @@ export default function useDraggableRegion(props, emit, getRootEl) {
   // Regions grouped for cross-region drops share a <DraggableUniverse>
   const universe = injectDraggableUniverse() || createDraggableUniverse();
 
-  const { currentOrder$, itemMovedToRegion$ } = dragSortStrings;
+  const { currentOrder$, itemMovedToPosition$, itemMovedToRegion$ } = dragSortStrings;
 
   let sortable = null;
 
@@ -34,7 +34,7 @@ export default function useDraggableRegion(props, emit, getRootEl) {
   // frame handle for the deferred focus-exit announcement, null when none is queued
   let pendingAnnouncement = null;
 
-  // used only for the full-order announcement when focus leaves the region.
+  // labels for the drag-move and full-order (focus leaves the region) announcements.
   const registeredItems = {};
 
   // This region's API, registered with the universe so a *source* region can hand
@@ -98,6 +98,7 @@ export default function useDraggableRegion(props, emit, getRootEl) {
     if (to === from) {
       emit('update:items', reordered(props.items, oldDraggableIndex, newDraggableIndex));
       addBounce(item);
+      announceMove(oldDraggableIndex, newDraggableIndex);
       return;
     }
 
@@ -164,6 +165,22 @@ export default function useDraggableRegion(props, emit, getRootEl) {
     () => updateOption('group', groupOption()),
   );
   watch(universe.delay, delay => updateOption('delay', delay));
+
+  // Same message the move buttons send, so a drag and a button press sound alike.
+  // The label is the one registered at the item's position before the move.
+  function announceMove(fromIndex, toIndex) {
+    const entry = Object.values(registeredItems).find(({ position }) => position === fromIndex + 1);
+    if (!entry) {
+      return;
+    }
+    universe.sendPoliteMessage(
+      itemMovedToPosition$({
+        item: entry.label,
+        position: toIndex + 1,
+        total: props.items.length,
+      }),
+    );
+  }
 
   function announceOrder() {
     const entries = Object.values(registeredItems);
