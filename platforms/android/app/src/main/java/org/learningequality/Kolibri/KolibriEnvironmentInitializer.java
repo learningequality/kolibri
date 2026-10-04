@@ -80,15 +80,11 @@ public class KolibriEnvironmentInitializer {
       }
       environ.callAttr("__setitem__", "KOLIBRI_HOME", kolibriHome.getAbsolutePath());
 
-      // Version information
-      String versionName = BuildConfig.VERSION_NAME;
-      environ.callAttr("__setitem__", "KOLIBRI_APK_VERSION_NAME", versionName);
+      // Reported as "apk" in device info
+      environ.callAttr("__setitem__", "KOLIBRI_INSTALLATION_TYPE", "apk");
 
       // Disable restart hooks (not needed on Android)
       environ.callAttr("__setitem__", "KOLIBRI_RESTART_HOOKS", "");
-
-      // Single-user embedded app: keep the session alive indefinitely
-      environ.callAttr("__setitem__", "KOLIBRI_AUTO_LOGOUT_TIME", "0");
 
       // Timezone
       TimeZone tz = TimeZone.getDefault();
@@ -96,10 +92,6 @@ public class KolibriEnvironmentInitializer {
 
       // Locale
       environ.callAttr("__setitem__", "LC_CTYPE", "en_US.UTF-8");
-
-      // Android language
-      String language = context.getResources().getConfiguration().getLocales().get(0).getLanguage();
-      environ.callAttr("__setitem__", "ANDROID_LANG", language);
 
       // CherryPy thread pool size (keep it small for mobile)
       environ.callAttr("__setitem__", "KOLIBRI_CHERRYPY_THREAD_POOL", "2");
@@ -110,10 +102,6 @@ public class KolibriEnvironmentInitializer {
       } else {
         environ.callAttr("__setitem__", "KOLIBRI_RUN_MODE", "");
       }
-
-      // Auth token
-      String authToken = org.learningequality.Kolibri.util.AuthUtils.getOrCreateAuthToken();
-      environ.callAttr("__setitem__", "KOLIBRI_AUTH_TOKEN", authToken);
 
       // Morango node ID (from Android ID)
       String androidId =
