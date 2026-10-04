@@ -1,11 +1,8 @@
 import os
 import sys
 
-from kolibri_app._version import __version__
 from kolibri_app.constants import MAC
 from kolibri_app.constants import WINDOWS
-
-os.environ["KOLIBRI_INSTALLER_VERSION"] = __version__
 
 # If on Windows and KOLIBRI_HOME is not already set externally...
 if WINDOWS and "KOLIBRI_HOME" not in os.environ:
@@ -23,5 +20,10 @@ if WINDOWS and "KOLIBRI_HOME" not in os.environ:
         kolibri_home_path = os.path.join(os.path.expanduser("~"), ".kolibri")
     os.environ["KOLIBRI_HOME"] = kolibri_home_path
 
-if MAC:
+# Literals rather than kolibri.utils.constants.installation_types: importing
+# Kolibri here would run set_env(), which sets a default KOLIBRI_HOME before
+# the block above can.
+if WINDOWS:
+    os.environ["KOLIBRI_INSTALLATION_TYPE"] = "windowsapp"
+elif MAC:
     os.environ["KOLIBRI_INSTALLATION_TYPE"] = "mac"
