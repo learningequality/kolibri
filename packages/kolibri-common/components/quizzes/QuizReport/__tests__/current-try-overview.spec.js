@@ -237,17 +237,17 @@ describe('ExamReport/CurrentTryOverview', () => {
           useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           renderComponent(defaultPropsWith({}, { diff: { time_spent: 40 } }));
           // Since the difference is less than 60s, it rounds to 0 minutes,
-          // which shouldn't show the label
-          expect(screen.getByText(timeSpentLabel$()).closest('tr')).not.toHaveTextContent(
-            translator.$tr('practiceQuizReportFasterTimeLabel', {
-              value: 0,
-            }),
-          );
-          expect(screen.getByText(timeSpentLabel$()).closest('tr')).not.toHaveTextContent(
-            translator.$tr('practiceQuizReportSlowerTimeLabel', {
-              value: 0,
-            }),
-          );
+          // which shouldn't show the label. We also assert value 1
+          // is absent to catch Math.ceil bugs.
+          const row = screen.getByText(timeSpentLabel$()).closest('tr');
+          [0, 1].forEach(val => {
+            expect(row).not.toHaveTextContent(
+              translator.$tr('practiceQuizReportFasterTimeLabel', { value: val }),
+            );
+            expect(row).not.toHaveTextContent(
+              translator.$tr('practiceQuizReportSlowerTimeLabel', { value: val }),
+            );
+          });
         });
       });
     });
