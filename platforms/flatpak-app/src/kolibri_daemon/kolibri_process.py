@@ -5,7 +5,6 @@ import queue
 import threading
 
 import kolibri
-from kolibri.core.device.models import DeviceAppKey
 from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.device.utils import device_provisioned
 from kolibri.dist.magicbus.plugins import SimplePlugin
@@ -96,7 +95,6 @@ class _DBusPlugin(SimplePlugin):
 
     def ENTER(self):
         self.__update_state(
-            app_key=DeviceAppKey.get_app_key(),
             app_initialize_url=app_initialize_url(),
             kolibri_home=KOLIBRI_HOME_PATH.as_posix(),
             kolibri_version=kolibri.__version__,
