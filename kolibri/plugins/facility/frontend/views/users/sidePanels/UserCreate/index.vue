@@ -12,7 +12,7 @@
   >
     <template #header>
       <h1 class="side-panel-title">
-        {{ $tr('createNewUserHeader') }}
+        {{ createNewUserHeader$() }}
       </h1>
     </template>
     <template #default>
@@ -187,10 +187,12 @@
 
 <script>
 
-  import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
+  import { ref, computed, nextTick, onBeforeMount } from 'vue';
   import { useRouter, onBeforeRouteLeave } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import useFacility from 'kolibri-common/composables/useFacility';
@@ -217,13 +219,16 @@
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
+  export const pageTitleStrings = createTranslator('UserCreateSidePanel', {
+    createNewUserHeader: {
+      message: 'Create new user',
+      context:
+        "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
+    },
+  });
+
   export default {
     name: 'UserCreateSidePanel',
-    metaInfo() {
-      return {
-        title: this.$tr('createNewUserHeader'),
-      };
-    },
     components: {
       GenderSelect,
       ClassesSelect,
@@ -240,8 +245,8 @@
     setup(props) {
       const formId = 'create-user-form';
       const router = useRouter();
-      const instance = getCurrentInstance();
-      const $refs = instance.proxy.$refs;
+      const { createNewUserHeader$ } = pageTitleStrings;
+      usePageTitle(createNewUserHeader$, { hasVisibleHeading: true });
       const {
         facilityConfig,
         selectedFacility,
@@ -299,6 +304,9 @@
       );
 
       const closeConfirmationGuardRef = ref(null);
+      const fullNameTextbox = ref(null);
+      const usernameTextbox = ref(null);
+      const passwordTextbox = ref(null);
 
       const fullName = ref('');
       const fullNameValid = ref(false);
@@ -333,9 +341,9 @@
         caughtErrors.value = [];
         busy.value = false;
         selectedClasses.value = [];
-        $refs.fullNameTextbox?.reset();
-        $refs.usernameTextbox?.reset();
-        $refs.passwordTextbox?.reset();
+        fullNameTextbox.value?.reset();
+        usernameTextbox.value?.reset();
+        passwordTextbox.value?.reset();
       };
 
       const facilityUsers = computed(() => store.state.userManagement.facilityUsers);
@@ -386,11 +394,11 @@
       const focusOnInvalidField = async () => {
         await nextTick();
         if (!fullNameValid.value) {
-          $refs.fullNameTextbox.focus();
+          fullNameTextbox.value.focus();
         } else if (!usernameValid.value) {
-          $refs.usernameTextbox.focus();
+          usernameTextbox.value.focus();
         } else if (!passwordValid.value) {
-          $refs.passwordTextbox.focus();
+          passwordTextbox.value.focus();
         }
       };
 
@@ -513,7 +521,7 @@
         if (success) {
           resetForm();
           await nextTick();
-          $refs.fullNameTextbox.focus();
+          fullNameTextbox.value.focus();
         }
       };
 
@@ -560,6 +568,9 @@
         kind,
         hasUnsavedChanges,
         closeConfirmationGuardRef,
+        fullNameTextbox,
+        usernameTextbox,
+        passwordTextbox,
         classCoachIsSelected,
         selectedClasses,
         busy,
@@ -574,6 +585,7 @@
         saveAndClose,
         formId,
         facilityConfig,
+        createNewUserHeader$,
         saveAndClose$,
         saveAndAddAnother$,
         defaultErrorMessage$,
@@ -607,13 +619,6 @@
       onChange: {
         type: Function,
         default: () => {},
-      },
-    },
-    $trs: {
-      createNewUserHeader: {
-        message: 'Create new user',
-        context:
-          "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
       },
     },
   };

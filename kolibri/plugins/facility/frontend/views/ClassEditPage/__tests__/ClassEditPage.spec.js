@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import VueRouter from 'vue-router';
@@ -6,7 +6,7 @@ import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFaci
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
-import ClassEditPage from '../index.vue';
+import ClassEditPage, { pageTitleStrings } from '../index.vue';
 import { PageNames } from '../../../constants';
 
 jest.mock('kolibri-common/composables/useFacility');
@@ -15,6 +15,7 @@ const { printPicturePasswordsAction$ } = picturePasswordStrings;
 const { optionsLabel$ } = coreStrings;
 
 const classId = 'test-class-id';
+const CLASS_NAME = 'Test Class';
 
 function createRouter() {
   return new VueRouter({
@@ -48,7 +49,7 @@ function createRouter() {
 async function renderPage({ facilityConfig = {} } = {}) {
   const store = makeStore();
   store.commit('classEditManagement/SET_STATE', {
-    currentClass: { id: classId, name: 'Test Class' },
+    currentClass: { id: classId, name: CLASS_NAME },
     classCoaches: [],
     classLearners: [],
     classes: [],
@@ -69,6 +70,17 @@ async function renderPage({ facilityConfig = {} } = {}) {
 }
 
 describe('ClassEditPage', () => {
+  it('titles the tab "Edit Class", leaving the class name as the only h1', async () => {
+    document.title = '';
+    await renderPage();
+    await waitFor(() =>
+      expect(document.title).toBe(`${pageTitleStrings.documentTitle$()} - Kolibri`),
+    );
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(CLASS_NAME);
+  });
+
   it('does not show "View Passwords" option when picture_password_settings is null', async () => {
     await renderPage({ facilityConfig: { picture_password_settings: null } });
 

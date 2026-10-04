@@ -8,7 +8,13 @@ import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import { DemographicConstants, UserKinds } from 'kolibri/constants';
-import UserCreateSidePanel from '../index.vue';
+import VueRouter from 'vue-router';
+import useUserManagement from '../../../../../composables/useUserManagement';
+import { useUserManagementMock } from '../../../../../composables/__mocks__/useUserManagement';
+import makeStore from '../../../../../__tests__/utils/makeStore';
+import { PageNames } from '../../../../../constants';
+import NewUsersPage from '../../../NewUsersPage.vue';
+import UserCreateSidePanel, { pageTitleStrings } from '../index.vue';
 
 const { NOT_SPECIFIED } = DemographicConstants;
 
@@ -17,13 +23,15 @@ jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri-common/apiResources/FacilityUserResource');
 jest.mock('kolibri-common/apiResources/RoleResource');
 jest.mock('kolibri-common/apiResources/MembershipResource');
+jest.mock('../../../../../composables/useUserManagement');
 jest.mock('../../../../../store', () => ({
   state: { userManagement: { facilityUsers: [] } },
 }));
 jest.mock('vue-router/composables', () => ({
-  useRoute: () => ({ params: { facility_id: 'test-facility-id' } }),
+  useRoute: () => ({ params: { facility_id: 'test-facility-id' }, query: {} }),
   useRouter: () => ({ push: jest.fn(), back: jest.fn() }),
   onBeforeRouteLeave: jest.fn(),
+  onBeforeRouteUpdate: jest.fn(),
 }));
 
 const PICTURE_PASSWORD_SETTINGS = { icon_style: 'colorful', show_icon_text: false };
@@ -85,6 +93,40 @@ const saveAndAddAnotherButton = () =>
 describe('UserCreateSidePanel', () => {
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('restores the New users title when the panel closes', async () => {
+    useFacility.mockImplementation(() => useFacilityMock());
+    useUserManagement.mockImplementation(() =>
+      useUserManagementMock({ numAppliedFilters: computed(() => 0) }),
+    );
+    const router = new VueRouter({
+      routes: [
+        { name: PageNames.USER_MGMT_PAGE, path: '/users' },
+        {
+          name: PageNames.NEW_USERS_PAGE,
+          path: '/users/new-users',
+          component: NewUsersPage,
+          children: [
+            {
+              name: PageNames.ADD_NEW_USER_SIDE_PANEL__NEW_USERS,
+              path: 'new',
+              component: UserCreateSidePanel,
+            },
+          ],
+        },
+      ],
+    });
+    await router.push({ name: PageNames.ADD_NEW_USER_SIDE_PANEL__NEW_USERS });
+    render({ render: h => h('router-view') }, { store: makeStore(), router });
+    await waitFor(() =>
+      expect(document.title).toBe(`${pageTitleStrings.createNewUserHeader$()} - Kolibri`),
+    );
+
+    await router.push({ name: PageNames.NEW_USERS_PAGE });
+    await waitFor(() =>
+      expect(document.title).toBe(`${bulkUserManagementStrings.newUsers$()} - Kolibri`),
+    );
   });
 
   describe('initial state', () => {
@@ -277,6 +319,25 @@ describe('UserCreateSidePanel', () => {
       await waitForFormReady();
       await fireEvent.click(saveAndCloseButton());
       expect(FacilityUserResource.create).not.toHaveBeenCalled();
+    });
+
+    it('focuses the full name field when submitted without a full name', async () => {
+      setup();
+      await waitForFormReady();
+      await fireEvent.click(saveAndCloseButton());
+      await waitFor(() =>
+        expect(screen.getByLabelText(coreStrings.fullNameLabel$())).toHaveFocus(),
+      );
+    });
+
+    it('focuses the username field when submitted with only a full name', async () => {
+      setup();
+      await waitForFormReady();
+      await fireEvent.update(screen.getByLabelText(coreStrings.fullNameLabel$()), 'Test User');
+      await fireEvent.click(saveAndCloseButton());
+      await waitFor(() =>
+        expect(screen.getByLabelText(coreStrings.usernameLabel$())).toHaveFocus(),
+      );
     });
 
     it('does not call FacilityUserResource when picture passwords are exhausted', async () => {

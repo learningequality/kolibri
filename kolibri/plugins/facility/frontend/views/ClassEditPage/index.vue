@@ -146,7 +146,9 @@
 
   import { mapState, mapActions } from 'vuex';
   import { ref, computed } from 'vue';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import UserTable from 'kolibri-common/components/UserTable';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -160,13 +162,15 @@
   import useDeleteClass from '../../composables/useDeleteClass';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
+  export const pageTitleStrings = createTranslator('ClassEditPage', {
+    documentTitle: {
+      message: 'Edit Class',
+      context: 'Page title.',
+    },
+  });
+
   export default {
     name: 'ClassEditPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       ClassCopyModal,
       ClassDeleteModal,
@@ -177,6 +181,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const classToCopy = ref({});
       const { copyClass$, renameClassLabel$, deleteClass$ } = bulkUserManagementStrings;
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
@@ -322,10 +327,6 @@
         message: "You don't have any enrolled learners",
         context:
           'This text displays in the edit class page if there are no learners enrolled in a class.',
-      },
-      documentTitle: {
-        message: 'Edit Class',
-        context: 'Page title.',
       },
     },
   };
