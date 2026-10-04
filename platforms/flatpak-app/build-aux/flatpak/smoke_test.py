@@ -100,7 +100,7 @@ PROVISION_DATA = {
     "superuser": {"username": "smokeadmin", "password": "smokepass123"},
 }
 
-_procs = []  # [(name, Popen)] spawned children, for teardown
+_procs: list[tuple[str, subprocess.Popen]] = []  # spawned children, for teardown
 
 
 def _reset_kolibri_home():

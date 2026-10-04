@@ -3,6 +3,10 @@ rules:
     config:
       policies:
         '*': ref-pin
+  # Its `$/` fix fails actionlint (https://github.com/rhysd/actionlint/issues/711)
+  # and is skipped by check_workflow_permissions.py, which follows only `./`.
+  self-repository:
+    disable: true
 # `--min-confidence medium`, passed by both callers, defers 92 findings as of
 # this commit: 54 artipacked, 20 cache-poisoning, 18 informational
 # template-injection.
