@@ -264,8 +264,7 @@ class WorkerSupervisor:
         Fetches the next potential QUEUED job.
 
         If less workers are running than there are regular workers, we look first for
-        jobs with 'high' priority, if found one we run it else we look for jobs with 'regular'
-        priority, if found we run it.
+        jobs with 'high' priority, then 'regular' priority, then 'low' priority.
 
         If all regular workers are busy, then the remaining workers only look for
         'high' priority jobs. If found one, we run it.
@@ -278,7 +277,9 @@ class WorkerSupervisor:
         workers_currently_busy = len(self.future_job_mapping)
 
         if workers_currently_busy < self.regular_workers:
-            job = self.storage.get_next_queued_job(supervisor_id=self.supervisor_id)
+            job = self.storage.get_next_queued_job(
+                priority=Priority.LOW, supervisor_id=self.supervisor_id
+            )
         elif workers_currently_busy < self.max_workers:
             job = self.storage.get_next_queued_job(
                 priority=Priority.HIGH, supervisor_id=self.supervisor_id
