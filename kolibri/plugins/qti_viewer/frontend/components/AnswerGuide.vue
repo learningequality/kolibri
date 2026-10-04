@@ -31,9 +31,10 @@
       message: 'Drag to reorder, or use the up/down buttons for keyboard navigation:',
       context: 'Tells the learner how to reorder the answer choices',
     },
-    orderKeyboard: {
-      message: 'Use the right/left buttons to reorder:',
-      context: 'Tells the learner how to reorder the answer choices using the keyboard',
+    orderHorizontal: {
+      message: 'Drag to reorder, or use the left/right buttons for keyboard navigation:',
+      context:
+        'Tells the learner how to reorder the answer choices when they are laid out in a row',
     },
     inlineChoice: {
       message: 'Choose the best inline option for {count, plural, one {the} other {each}} gap.',
