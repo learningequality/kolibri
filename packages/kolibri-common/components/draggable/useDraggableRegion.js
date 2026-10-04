@@ -4,6 +4,7 @@ import { injectDraggableUniverse, createDraggableUniverse } from './useDraggable
 import { DISABLED_CLASS, PLACED_CLASS } from './classDefinitions';
 import { removeNode, insertNodeAt } from './domUtils';
 import { dragSortStrings } from './dragSortStrings';
+import './rtlRowSortPlugin';
 
 // Default `clone` transform: a copy that is a distinct object but keeps every field
 // of the original, identifiers included. Consumers whose clones need independent

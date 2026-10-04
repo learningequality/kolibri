@@ -11,11 +11,14 @@ jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
 // lifecycle callbacks (onStart / onEnd / group.put) against real jsdom nodes.
 let mockInstances;
 jest.mock('sortablejs', () =>
-  jest.fn().mockImplementation((el, options) => {
-    const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
-    mockInstances.push(instance);
-    return instance;
-  }),
+  Object.assign(
+    jest.fn().mockImplementation((el, options) => {
+      const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
+      mockInstances.push(instance);
+      return instance;
+    }),
+    { mount: jest.fn() },
+  ),
 );
 
 // A row element carrying the draggable marker class, so insertNodeAt has real
