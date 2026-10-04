@@ -10,11 +10,13 @@ from django.db import connections
 from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.models import Job as ORMJob
 from kolibri.core.tasks.models import Supervisor as ORMSupervisor
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.worker import execute_job
+from kolibri.core.tasks.worker import POLL_INTERVAL
 from kolibri.core.tasks.worker import WorkerSupervisor
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.time_utils import local_now
@@ -56,6 +58,19 @@ def _reclaimed_mid_run(new_supervisor_id, token):
     _simulate_peer_reclaim(new_supervisor_id)
     get_current_job().check_for_cancel()
     _record_token(token)
+
+
+_release_blocking_job = threading.Event()
+
+
+def _block_until_released():
+    _release_blocking_job.wait(timeout=10)
+
+
+def _expected_standalone_loop_interval(supervisor):
+    if connections[ORMJob.objects.db].vendor == "postgresql":
+        return supervisor._heartbeat_interval
+    return POLL_INTERVAL
 
 
 @pytest.fixture
@@ -1176,6 +1191,87 @@ class TestWorkerSupervisor:
             finally:
                 w.storage.clear(force=True)
                 w.shutdown()
+
+    def test_loop_interval_defaults_to_heartbeat_interval(self):
+        w = WorkerSupervisor(regular_workers=1, high_workers=1)
+        try:
+            assert w.loop_interval == w._heartbeat_interval
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_standalone_workers_poll_on_poll_interval(self):
+        w = WorkerSupervisor(regular_workers=1, high_workers=1, standalone_workers=True)
+        try:
+            assert w.loop_interval == _expected_standalone_loop_interval(w)
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_standalone_flag_threads_through_initialize_workers(self):
+        w = initialize_workers(standalone_workers=True)
+        try:
+            assert w.loop_interval == _expected_standalone_loop_interval(w)
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_standalone_polling_skips_next_job_lookahead(self):
+        if connections[ORMJob.objects.db].vendor == "postgresql":
+            pytest.skip("PostgreSQL standalone workers do not poll")
+        w = WorkerSupervisor(regular_workers=1, high_workers=1, standalone_workers=True)
+        try:
+            with mock.patch.object(
+                w.storage, "seconds_until_next_queued_job"
+            ) as lookahead:
+                assert w._next_wait() == POLL_INTERVAL
+            lookahead.assert_not_called()
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_near_future_job_runs_before_the_idle_interval(self, worker):
+        assert worker.loop_interval > 1
+        job_id = worker.storage.enqueue_in(
+            datetime.timedelta(seconds=0.3), Job(id, args=(9,)), QUEUE
+        )
+
+        deadline = time.time() + 3
+        while worker.storage.get_job(job_id).state != State.COMPLETED:
+            assert time.time() < deadline, (
+                "Scheduled job did not run before the interval"
+            )
+            time.sleep(0.05)
+
+    def test_queued_job_starts_when_a_worker_slot_frees(self, worker):
+        assert worker.loop_interval > 1
+        _release_blocking_job.clear()
+        try:
+            blocker_id = worker.storage.enqueue_job(Job(_block_until_released), QUEUE)
+            deadline = time.time() + 3
+            while worker.storage.get_job(blocker_id).state != State.RUNNING:
+                assert time.time() < deadline, "Blocking job did not start"
+                time.sleep(0.05)
+
+            waiting_id = worker.storage.enqueue_job(Job(id, args=(9,)), QUEUE)
+            time.sleep(0.3)
+            assert worker.storage.get_job(waiting_id).state == State.QUEUED
+
+            _release_blocking_job.set()
+            deadline = time.time() + 3
+            while worker.storage.get_job(waiting_id).state != State.COMPLETED:
+                assert time.time() < deadline, (
+                    "Queued job did not start when the worker slot freed"
+                )
+                time.sleep(0.05)
+        finally:
+            _release_blocking_job.set()
+
+    def test_due_unclaimed_job_rechecks_at_poll_interval(self, worker):
+        with mock.patch.object(
+            worker.storage, "seconds_until_next_queued_job", return_value=0
+        ):
+            assert worker._next_wait() == POLL_INTERVAL
 
     def test_supervisor_unregisters_on_shutdown(self):
         w = WorkerSupervisor(regular_workers=1, high_workers=1)
