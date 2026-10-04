@@ -46,18 +46,7 @@ kolibri-source (0.19.0-0ubuntu1) noble; urgency=medium
 
 
 def test_parse_existing_changelog_returns_latest_version():
-    latest_version, latest_revision, _existing_content = parse_existing_changelog(
-        SAMPLE_CHANGELOG
-    )
-    assert latest_version == "0.19.1"
-    assert latest_revision == 1
-
-
-def test_parse_existing_changelog_preserves_content():
-    _latest_version, _latest_revision, existing_content = parse_existing_changelog(
-        SAMPLE_CHANGELOG
-    )
-    assert existing_content == SAMPLE_CHANGELOG
+    assert parse_existing_changelog(SAMPLE_CHANGELOG) == "0.19.1"
 
 
 def test_version_ordering_basic():

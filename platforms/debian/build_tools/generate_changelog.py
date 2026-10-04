@@ -57,10 +57,7 @@ def _parse_header_version(debian_version):
 
 
 def parse_existing_changelog(content):
-    """Parse existing debian/changelog content.
-
-    Returns (latest_upstream_version, latest_ubuntu_revision, full_content).
-    """
+    """Return the latest upstream version in debian/changelog content, or None."""
     for line in content.splitlines():
         match = CHANGELOG_HEADER_RE.match(line)
         if match:
@@ -368,7 +365,7 @@ def generate_updated_changelog(
 
     Combines new release entries, packaging entries, and existing content.
     """
-    latest_existing, _, _ = parse_existing_changelog(existing_content)
+    latest_existing = parse_existing_changelog(existing_content)
 
     if latest_existing is None:
         latest_existing = "0.0.0"
@@ -448,7 +445,7 @@ def main(
         with open(packaging_changelog_path) as f:
             packaging_changelog = f.read()
 
-    latest_existing, _, _ = parse_existing_changelog(existing_content)
+    latest_existing = parse_existing_changelog(existing_content)
     releases = fetch_github_releases(latest_existing=latest_existing)
     updated = generate_updated_changelog(
         existing_content=existing_content,
