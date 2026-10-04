@@ -29,10 +29,10 @@ describe('Order guide', () => {
     ).toBeVisible();
   });
 
-  it('shows the keyboard-specific order prompt for a horizontal layout', () => {
+  it('shows the horizontal order prompt for a horizontal layout', () => {
     renderAssessmentItem(items['q15-order-example-2'].xml);
     expect(
-      screen.getByText(answerGuideStrings.orderKeyboard$(), {
+      screen.getByText(answerGuideStrings.orderHorizontal$(), {
         selector: 'p.qti-selection-instructions',
       }),
     ).toBeVisible();
