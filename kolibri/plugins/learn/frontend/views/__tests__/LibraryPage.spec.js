@@ -1,16 +1,21 @@
-import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount, shallowMount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import flushPromises from 'flush-promises';
 import Vuex, { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import useUser from 'kolibri/composables/useUser';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+// eslint-disable-next-line import-x/named
+import useUser, { useUserMock } from 'kolibri/composables/useUser';
 /* eslint-disable import-x/named */
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 /* eslint-enable import-x/named */
 import { PageNames } from '../../constants';
+import { learnStrings } from '../commonLearnStrings';
+import { pageTitleStrings } from '../LibraryPage/NoResourcePage';
 import LibraryPage from '../LibraryPage';
 import SearchFiltersSidePanel from '../SearchFiltersSidePanel';
 import OtherLibraries from '../LibraryPage/OtherLibraries';
@@ -49,20 +54,24 @@ jest.mock('../../composables/usePinnedDevices');
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/composables/useTotalProgress');
 jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () => true));
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('kolibri/urls');
 
-async function makeWrapper({ options, fullMount = false } = {}) {
-  const store = new Store({
+function makeStore() {
+  return new Store({
     state: { core: {} },
     getters: {},
     mutations: {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
-      SET_PAGE_NAME: jest.fn(),
     },
   });
+}
+
+async function makeWrapper({ options, fullMount = false } = {}) {
+  const store = makeStore();
   let wrapper;
   if (fullMount) {
     wrapper = mount(LibraryPage, { store, localVue, router, ...options });
@@ -74,6 +83,8 @@ async function makeWrapper({ options, fullMount = false } = {}) {
 }
 
 describe('LibraryPage', () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     // reset back to defaults
     useKResponsiveWindow.mockImplementation(() => ({
@@ -349,6 +360,49 @@ describe('LibraryPage', () => {
       const wrapper = await makeWrapper();
       await wrapper.setData({ metadataSidePanelContent: { learning_activities: [] } });
       expect(wrapper.find('[data-testid="side-panel-modal"').element).toBeTruthy();
+    });
+  });
+
+  describe('page title', () => {
+    beforeEach(() => {
+      document.title = '';
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
+    });
+
+    async function renderPage() {
+      render(LibraryPage, { store: makeStore(), router });
+      await flushPromises();
+    }
+
+    it('titles the library "Learn", with "Your library" as the only h1', async () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      await renderPage();
+      expect(screen.getByTestId('other-libraries')).toBeInTheDocument();
+      expect(document.title).toBe(`${learnStrings.learnLabel$()} - ${coreStrings.kolibriLabel$()}`);
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(coreStrings.yourLibrary$());
+    });
+
+    it('titles an empty library "Resource unavailable", with one h1', async () => {
+      useUser.mockImplementation(() => useUserMock());
+      ContentNodeResource.list.mockImplementation(() => Promise.resolve([]));
+      await renderPage();
+      expect(document.title).toBe(
+        `${pageTitleStrings.documentTitle$()} - ${coreStrings.kolibriLabel$()}`,
+      );
+      expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    });
+
+    it('gives search results a hidden "Learn" h1', async () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: true }));
+      await renderPage();
+      expect(screen.getByTestId('search-results')).toBeInTheDocument();
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(learnStrings.learnLabel$());
+      expect(headings[0]).toHaveClass('visuallyhidden');
     });
   });
 });

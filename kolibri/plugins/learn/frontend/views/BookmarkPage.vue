@@ -90,12 +90,13 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
@@ -110,11 +111,6 @@
 
   export default {
     name: 'BookmarkPage',
-    metaInfo() {
-      return {
-        title: this.coreString('bookmarksLabel'),
-      };
-    },
     components: {
       BrowseResourceMetadata,
       SidePanelModal,
@@ -125,6 +121,7 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
+      usePageTitle(coreStrings.bookmarksLabel$, { hasVisibleHeading: true });
       const { canDownloadExternally } = useCoreLearn();
       const { fetchContentNodeProgress } = useContentNodeProgress();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();

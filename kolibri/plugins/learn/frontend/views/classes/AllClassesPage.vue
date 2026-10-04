@@ -27,8 +27,9 @@
   import { mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import AuthMessage from 'kolibri/components/AuthMessage';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
@@ -37,11 +38,6 @@
 
   export default {
     name: 'AllClassesPage',
-    metaInfo() {
-      return {
-        title: this.coreString('classesLabel'),
-      };
-    },
     components: {
       KBreadcrumbs,
       AuthMessage,
@@ -51,6 +47,7 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { isUserLoggedIn } = useUser();
+      usePageTitle(coreStrings.classesLabel$, { hasVisibleHeading: !isUserLoggedIn.value });
       return {
         isUserLoggedIn,
         pageLoading,

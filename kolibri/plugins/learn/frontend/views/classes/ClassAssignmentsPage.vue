@@ -40,6 +40,8 @@
   import { useTimeoutPoll } from '@vueuse/core';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
 
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -51,13 +53,16 @@
   import AssignedQuizzesCards from './AssignedQuizzesCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 
+  export const pageTitleStrings = createTranslator('ClassAssignmentsPage', {
+    documentTitle: {
+      message: 'Class assignments',
+      context:
+        'Page/tab title displayed for the Learn page when the learner is enrolled in a class. This is where the learners can see the list of lessons and quizzes coaches have opened and made available for them.',
+    },
+  });
+
   export default {
     name: 'ClassAssignmentsPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       AssignedCoursesCards,
       AssignedQuizzesCards,
@@ -67,6 +72,7 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const {
         fetchClass,
         getClass,
@@ -117,13 +123,6 @@
             link: { name: ClassesPageNames.CLASS_ASSIGNMENTS },
           },
         ];
-      },
-    },
-    $trs: {
-      documentTitle: {
-        message: 'Class assignments',
-        context:
-          'Page/tab title displayed for the Learn page when the learner is enrolled in a class. This is where the learners can see the list of lessons and quizzes coaches have opened and made available for them.',
       },
     },
   };

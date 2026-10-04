@@ -2,6 +2,13 @@
 
   <div>
     <template v-if="sessionReady">
+      <!-- QuizReport's h1 needs a userId, so a guest's finished quiz gets this one -->
+      <h1
+        v-if="(practiceQuiz || survey) && complete && !currentUserId"
+        class="visuallyhidden"
+      >
+        {{ content.title }}
+      </h1>
       <ContentViewer
         v-if="!content.assessmentmetadata"
         class="content-viewer"
@@ -91,9 +98,8 @@
 
 <script>
 
-  import get from 'lodash/get';
   import { mapState } from 'vuex';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { handleApiError } from 'kolibri/utils/appError';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -101,6 +107,7 @@
   import Modalities from 'kolibri-constants/Modalities';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
@@ -113,14 +120,6 @@
 
   export default {
     name: 'ContentPage',
-    metaInfo() {
-      return {
-        title: this.learnString('documentTitle', {
-          contentTitle: this.content.title,
-          channelTitle: this.content.ancestors[0] ? this.content.ancestors[0].title : '',
-        }),
-      };
-    },
     components: {
       AssessmentWrapper,
       CompletionModal,
@@ -128,7 +127,14 @@
       MarkAsCompleteModal,
     },
     mixins: [commonLearnStrings],
-    setup() {
+    setup(props) {
+      const modality = computed(() => props.content.options?.modality);
+      const practiceQuiz = computed(() => modality.value === Modalities.QUIZ);
+      const survey = computed(() => modality.value === Modalities.SURVEY);
+      // QuizRenderer renders the page's h1.
+      usePageTitle(() => [props.content.title, props.content.ancestors[0]?.title], {
+        hasVisibleHeading: practiceQuiz.value || survey.value,
+      });
       const {
         progress,
         time_spent,
@@ -154,6 +160,8 @@
       const { isUserLoggedIn, currentUserId, full_name } = useUser();
       const { createSnackbar } = useSnackbar();
       return {
+        practiceQuiz,
+        survey,
         errored,
         progress,
         time_spent,
@@ -252,12 +260,6 @@
     },
     computed: {
       ...mapState(['showCompleteContentModal']),
-      practiceQuiz() {
-        return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
-      },
-      survey() {
-        return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
-      },
       masteryLevel() {
         return this.context?.mastery_level;
       },

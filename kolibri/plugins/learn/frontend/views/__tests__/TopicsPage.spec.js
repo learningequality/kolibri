@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import { render, screen } from '@testing-library/vue';
 import { handleApiError } from 'kolibri/utils/appError';
-import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
+import { createLocalVue, enableAutoDestroy, shallowMount, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
 import { ContentNodeKinds } from 'kolibri/constants';
@@ -22,10 +22,11 @@ import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChan
 // eslint-disable-next-line import-x/named
 import useUser, { useUserMock } from 'kolibri/composables/useUser';
 import Modalities from 'kolibri-constants/Modalities';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import makeStore from '../../__tests__/utils/makeStore';
 import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../constants';
-import TopicsPage from '../TopicsPage';
+import TopicsPage, { pageTitleStrings } from '../TopicsPage';
 
 jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 jest.mock('kolibri-plugin-data', () => {
@@ -121,6 +122,8 @@ const router = new VueRouter({
 describe('TopicsPage', () => {
   let store;
 
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     useBaseSearch.mockImplementation(() =>
       useBaseSearchMock({
@@ -211,6 +214,21 @@ describe('TopicsPage', () => {
       await flushPromises();
       expect(wrapper.findComponent(CustomContentRenderer).exists()).toBe(true);
     });
+
+    it('renders the topic title as the only h1, visually hidden', async () => {
+      useBaseSearch.mockImplementation(() => useBaseSearchMock());
+      ContentNodeResource.fetchTree.mockResolvedValue({
+        ...DEFAULT_TOPIC,
+        options: { modality: 'CUSTOM_NAVIGATION' },
+        files: [],
+      });
+      render(TopicsPage, { router, store, props: { id: 'topic-id' } });
+      await flushPromises();
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(DEFAULT_TOPIC.title);
+      expect(headings[0]).toHaveClass('visuallyhidden');
+    });
   });
 
   describe('Displaying the header', () => {
@@ -288,34 +306,36 @@ describe('TopicsPage', () => {
 
   describe('showing cards', () => {
     let wrapper;
-    beforeEach(async () => {
-      useKResponsiveWindow.mockImplementation(() => ({
-        windowIsSmall: true,
-        windowIsLarge: false,
-        windowBreakpoint: ref(0),
-      }));
-      wrapper = shallowMount(TopicsPage, {
-        store: store,
-        localVue,
-        router,
-        computed: {
-          breadcrumbs: () => [{}],
-        },
+    describe('on a small screen', () => {
+      beforeEach(async () => {
+        useKResponsiveWindow.mockImplementation(() => ({
+          windowIsSmall: true,
+          windowIsLarge: false,
+          windowBreakpoint: ref(0),
+        }));
+        wrapper = shallowMount(TopicsPage, {
+          store: store,
+          localVue,
+          router,
+          computed: {
+            breadcrumbs: () => [{}],
+          },
+        });
+        await flushPromises();
       });
-      await flushPromises();
-    });
 
-    it('shows breadcrumbs when screen is small', () => {
-      expect(wrapper.find("[data-testid='mobile-breadcrumbs']").exists()).toBe(true);
-    });
-    it('displays folders button when there are topics and the screen is not large', () => {
-      expect(wrapper.find("[data-testid='folders-button']").exists()).toBe(true);
-    });
-    it('displays the search bar when the screen is small', () => {
-      expect(wrapper.find("[data-testid='library-search-bar']").exists()).toBe(true);
-    });
-    it('displays the filter pills when the screen is small', () => {
-      expect(wrapper.find("[data-testid='horizontal-filter-pills']").exists()).toBe(true);
+      it('shows breadcrumbs when screen is small', () => {
+        expect(wrapper.find("[data-testid='mobile-breadcrumbs']").exists()).toBe(true);
+      });
+      it('displays folders button when there are topics and the screen is not large', () => {
+        expect(wrapper.find("[data-testid='folders-button']").exists()).toBe(true);
+      });
+      it('displays the search bar when the screen is small', () => {
+        expect(wrapper.find("[data-testid='library-search-bar']").exists()).toBe(true);
+      });
+      it('displays the filter pills when the screen is small', () => {
+        expect(wrapper.find("[data-testid='horizontal-filter-pills']").exists()).toBe(true);
+      });
     });
 
     describe('when showing search results', () => {
@@ -534,5 +554,37 @@ describe('TopicsPage', () => {
 
     // Not tested
     // breadcrumbs in Lessons Mode
+  });
+
+  describe('page title', () => {
+    beforeEach(() => {
+      document.title = '';
+    });
+
+    it('titles a channel root with its folders, under the header as the only h1', async () => {
+      render(TopicsPage, { router, store, props: { id: 'topic-id' } });
+      await flushPromises();
+      expect(document.title).toBe(
+        `${pageTitleStrings.documentTitleForChannel$({ channelTitle: CHANNEL.name })} - ${coreStrings.kolibriLabel$()}`,
+      );
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(DEFAULT_TOPIC.title);
+    });
+
+    it('titles a subtopic with its title and channel', async () => {
+      const subtopic = DEFAULT_TOPIC.children.results[0];
+      ContentNodeResource.fetchTree.mockResolvedValue(subtopic);
+      useBaseSearch.mockImplementation(() =>
+        useBaseSearchMock({
+          currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC_SEARCH, query: {} })),
+        }),
+      );
+      render(TopicsPage, { router, store, props: { id: 'child-topic-id' } });
+      await flushPromises();
+      expect(document.title).toBe(
+        `${subtopic.title} - ${CHANNEL.name} - ${coreStrings.kolibriLabel$()}`,
+      );
+    });
   });
 });

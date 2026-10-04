@@ -29,6 +29,9 @@
         />
       </div>
       <div v-else>
+        <h1 class="visuallyhidden">
+          {{ documentTitle }}
+        </h1>
         <p class="no-exercise">
           {{ $tr('missingContent') }}
         </p>
@@ -52,31 +55,48 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import store from '../store';
   import { PageNames, ClassesPageNames } from '../constants';
   import useLearnerResources from '../composables/useLearnerResources';
 
+  export const pageTitleStrings = createTranslator('LearnExamReportViewer', {
+    documentTitle: {
+      message: 'Report for { examTitle }',
+      context:
+        "Title indicating for a learner's report page that also indicates the name of the quiz.",
+    },
+  });
+
   export default {
     name: 'LearnExamReportViewer',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle', { examTitle: this.exam.title }),
-      };
-    },
     components: {
       ExamReport,
       ImmersivePage,
     },
     mixins: [commonCoreStrings],
     setup() {
+      const documentTitle = computed(() =>
+        pageTitleStrings.documentTitle$({ examTitle: store.state.examReportViewer.exam.title }),
+      );
+      usePageTitle(documentTitle, { hasVisibleHeading: true });
       const { full_name, currentUserId } = useUser();
       const { activeClassesQuizzes } = useLearnerResources();
-      return { userName: full_name, userId: currentUserId, activeClassesQuizzes, pageLoading };
+      return {
+        userName: full_name,
+        userId: currentUserId,
+        activeClassesQuizzes,
+        pageLoading,
+        documentTitle,
+      };
     },
     computed: {
       ...mapState('examReportViewer', [
@@ -131,11 +151,6 @@
       },
     },
     $trs: {
-      documentTitle: {
-        message: 'Report for { examTitle }',
-        context:
-          "Title indicating for a learner's report page that also indicates the name of the quiz.",
-      },
       missingContent: {
         message: 'This quiz cannot be displayed because some resources were deleted',
         context:

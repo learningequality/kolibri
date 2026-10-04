@@ -85,11 +85,14 @@
 
 <script>
 
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed } from 'vue';
+  import { useRouter } from 'vue-router/composables';
   import { get, set, useSessionStorage } from '@vueuse/core';
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { handleApiError } from 'kolibri/utils/appError';
   import useChannels from 'kolibri-common/composables/useChannels';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -105,6 +108,7 @@
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import { inClasses } from '../../composables/useCoreLearn';
   import { PageNames } from '../../constants';
+  import store from '../../store';
   import AssignedCoursesCards from '../classes/AssignedCoursesCards';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
@@ -137,9 +141,8 @@
     },
     mixins: [commonLearnStrings],
     setup() {
-      const currentInstance = getCurrentInstance().proxy;
-      const store = currentInstance.$store;
-      const router = currentInstance.$router;
+      usePageTitle(coreStrings.homeLabel$);
+      const router = useRouter();
       const { isUserLoggedIn, currentUserId, isLearner } = useUser();
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,

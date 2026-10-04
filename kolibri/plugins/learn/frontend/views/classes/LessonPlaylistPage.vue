@@ -73,7 +73,9 @@
   import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import store from '../../store';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
@@ -84,11 +86,6 @@
 
   export default {
     name: 'LessonPlaylistPage',
-    metaInfo() {
-      return {
-        title: this.currentLesson.title,
-      };
-    },
     components: {
       KBreadcrumbs,
       HybridLearningLessonCard,
@@ -99,6 +96,9 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
+      usePageTitle(() => store.state.lessonPlaylist.currentLesson.title, {
+        hasVisibleHeading: true,
+      });
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { contentNodeProgressMap } = useContentNodeProgress();
       const { windowIsSmall } = useKResponsiveWindow();
