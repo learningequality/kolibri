@@ -279,7 +279,11 @@
       },
     },
     methods: {
-      ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapActions('lessonSummary', [
+        'saveLessonResources',
+        'addToResourceCache',
+        'updateCurrentLesson',
+      ]),
       ...mapMutations('lessonSummary', {
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),
@@ -326,6 +330,8 @@
           // so that it can update the backup resources.
           this.$emit('workingResourcesUpdated');
           this.notifyResourcesAdded(countNewResources);
+          // Refresh the lesson so its size reflects the newly added resources
+          await this.updateCurrentLesson(this.currentLesson.id);
         }
         this.closeSidePanel(false);
       },
