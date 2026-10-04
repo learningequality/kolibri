@@ -91,6 +91,7 @@
 
 <script>
 
+  import { useRoute } from 'vue-router/composables';
   import { mapState } from 'vuex';
   import find from 'lodash/find';
   import sortBy from 'lodash/sortBy';
@@ -99,6 +100,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { handleApiError } from 'kolibri/utils/appError';
   import { convertExamQuestionSources } from 'kolibri-common/quizzes/utils';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -107,9 +109,10 @@
 
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import { coachStrings, coachStringsMixin } from '../../common/commonCoachStrings';
   import ReportsControls from '../../common/ReportsControls';
   import LearnersTable from '../../common/tables/ReportsLearnersTable';
+  import store from '../../../store';
   import DifficultQuestionsTable from './tables/DifficultQuestionsTable';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
@@ -132,6 +135,14 @@
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { examMap, name } = store.state.classSummary;
+          return [examMap[route.params.quizId]?.title, coachStrings.quizzesLabel$(), name];
+        },
+        { hasVisibleHeading: true },
+      );
       const { createSnackbar, clearSnackbar } = useSnackbar();
 
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();

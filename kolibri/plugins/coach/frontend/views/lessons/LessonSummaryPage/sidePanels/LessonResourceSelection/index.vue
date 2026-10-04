@@ -117,6 +117,7 @@
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import useSidePanelTitle from '../../../../../composables/useSidePanelTitle';
   import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
@@ -128,6 +129,7 @@
       autofocusFirstEl,
     },
     setup() {
+      useSidePanelTitle();
       const previousRoute = usePreviousRoute();
       const isLandingRoute = computed(() => previousRoute.value === null);
 

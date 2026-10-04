@@ -5,10 +5,9 @@
     :appBarTitle="className"
     icon="back"
     :route="backlink"
-    :pageTitle="$tr('pageHeader', { className: className })"
   >
     <KPageContainer>
-      <h1>{{ $tr('pageHeader', { className: className }) }}</h1>
+      <h1>{{ heading }}</h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
         appearance="basic-link"
@@ -90,16 +89,27 @@
 
   import CoreTable from 'kolibri/components/CoreTable';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { SyncStatus } from 'kolibri/constants';
   import { mapState } from 'vuex';
   import SyncStatusDisplay from 'kolibri/components/SyncStatusDisplay';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../composables/fetchClassSyncStatus';
+  import useCoreCoach from '../composables/useCoreCoach';
   import { PageNames } from '../constants';
   import CoachImmersivePage from './CoachImmersivePage';
   import SyncStatusDescription from './common/SyncStatusDescription';
   import StorageNotificationBanner from './StorageNotificationBanner';
+
+  const { pageHeader$ } = createTranslator('ClassLearnersListPage', {
+    pageHeader: {
+      message: "Learners in '{className}'",
+      context: 'Main page heading. Refers to a list of learners in a specific class.',
+    },
+  });
 
   export default {
     name: 'ClassLearnersListPage',
@@ -113,7 +123,10 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      return { pageLoading };
+      const { className } = useCoreCoach();
+      const heading = computed(() => pageHeader$({ className: className.value }));
+      usePageTitle(heading, { hasVisibleHeading: true });
+      return { pageLoading, className, heading };
     },
     data: function () {
       return {
@@ -126,9 +139,6 @@
     },
     computed: {
       ...mapState('classSummary', ['learnerMap']),
-      className() {
-        return this.$store.state.classSummary.name;
-      },
       syncStatusOptions() {
         const options = [];
         for (const [value] of Object.entries(SyncStatus)) {
@@ -202,10 +212,6 @@
       },
     },
     $trs: {
-      pageHeader: {
-        message: "Learners in '{className}'",
-        context: 'Main page heading. Refers to a list of learners in a specific class.',
-      },
       deviceStatus: {
         message: 'Device status',
         context: "Indicates the status of an individual learner's device.",

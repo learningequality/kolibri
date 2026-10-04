@@ -54,6 +54,8 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -63,6 +65,8 @@
   import ReportsResourceHeader from '../ReportsResourceHeader';
   import ReportsControls from '../ReportsControls';
   import { PageNames } from '../../../constants';
+  import { coachStrings } from '../commonCoachStrings';
+  import store from '../../../store';
 
   export default {
     name: 'ExerciseQuestionListPage',
@@ -74,6 +78,21 @@
     },
     mixins: [commonCoach],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { contentMap, groupMap, lessonMap, name } = store.state.classSummary;
+          const { exerciseId, groupId, lessonId } = route.params;
+          return [
+            coachStrings.questionsLabel$(),
+            contentMap[exerciseId]?.title,
+            lessonMap[lessonId]?.title,
+            groupMap[groupId]?.name,
+            name,
+          ];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     computed: {

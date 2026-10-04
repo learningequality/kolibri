@@ -9,9 +9,9 @@
         />
       </p>
 
-      <div v-if="!currentGroup">
+      <h1 v-if="!currentGroup">
         {{ $tr('groupDoesNotExist') }}
-      </div>
+      </h1>
 
       <div v-else>
         <h1>
@@ -123,14 +123,18 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
   import CoreTable from 'kolibri/components/CoreTable';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import { GroupModals } from '../../../constants';
   import CoachAppBarPage from '../../CoachAppBarPage';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import RenameGroupModal from '../GroupsRootPage/RenameGroupModal';
   import DeleteGroupModal from '../GroupsRootPage/DeleteGroupModal';
+  import store from '../../../store';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {
@@ -144,6 +148,14 @@
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { groupMap, name } = store.state.classSummary;
+          return [coachStrings.membersLabel$(), groupMap[route.params.groupId]?.name, name];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     data() {

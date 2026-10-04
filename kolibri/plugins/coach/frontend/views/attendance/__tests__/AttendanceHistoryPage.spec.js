@@ -1,6 +1,7 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
+import { pageHeading } from 'kolibri/composables/usePageTitle';
 import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 // eslint-disable-next-line import-x/named
@@ -37,7 +38,6 @@ jest.mock('../../../composables/useCoreCoach', () => {
   return () => ({
     classId: computed(() => 'class-123'),
     className: computed(() => store.state.classSummary.name || ''),
-    pageTitle: computed(() => ''),
     appBarTitle: computed(() => ''),
     authorized: computed(() => true),
   });
@@ -48,6 +48,8 @@ jest.mock('kolibri/utils/serverClock', () => ({
 
 const { markAttendanceAction$, dateRangeLabel$, pastDays$, customLabel$, $formatDate } =
   attendanceStrings;
+
+enableAutoDestroy(afterEach);
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -184,6 +186,18 @@ describe('AttendanceHistoryPage', () => {
     it('renders the page heading', () => {
       const { wrapper } = makeWrapper();
       expect(wrapper.find('h1').text()).toBe('Attendance History');
+    });
+
+    it('sets the tab title to the class name', async () => {
+      makeWrapper({ className: 'Class A' });
+      await nextTick();
+      expect(document.title).toBe('Class A - Kolibri');
+    });
+
+    it('tells the page shell it renders its own h1', async () => {
+      makeWrapper();
+      await nextTick();
+      expect(pageHeading.value).toBe('');
     });
 
     it('renders the back to class link', () => {

@@ -28,40 +28,18 @@
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { error } from 'kolibri/utils/appError';
   import useCoreCoach from '../composables/useCoreCoach';
 
   export default {
     name: 'CoachImmersivePage',
-    metaInfo() {
-      return {
-        // Use arrow function to bind $tr to this component
-        titleTemplate: title => {
-          if (this.error) {
-            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
-          }
-          if (!title) {
-            // If no child component sets title, it reads 'Kolibri'
-            return this.coreString('kolibriLabel');
-          }
-          // If child component sets title, it reads 'Child Title - Kolibri'
-          return this.$tr('kolibriTitleMessage', { title });
-        },
-        title: this.pageTitle || this.defaultPageTitle,
-      };
-    },
     components: { ImmersivePage, NotificationsRoot },
-    mixins: [commonCoreStrings],
     setup() {
-      const { authorized, pageTitle, appBarTitle } = useCoreCoach();
+      const { authorized, appBarTitle } = useCoreCoach();
 
       return {
         authorized,
         authorizedRole: 'adminOrCoach',
-        defaultPageTitle: pageTitle,
         defaultAppBarTitle: appBarTitle,
-        error,
       };
     },
     props: {
@@ -82,10 +60,6 @@
         type: Boolean,
         default: null,
       },
-      pageTitle: {
-        type: String,
-        default: null,
-      },
       primary: {
         type: Boolean,
         required: false,
@@ -94,17 +68,6 @@
       route: {
         type: Object,
         default: null,
-      },
-    },
-    $trs: {
-      kolibriTitleMessage: {
-        message: '{ title } - Kolibri',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
-      },
-      errorPageTitle: {
-        message: 'Error',
-        context:
-          "When Kolibri throws an error, this is the text that's used as the title of the error page. The description of the error follows below.",
       },
     },
   };

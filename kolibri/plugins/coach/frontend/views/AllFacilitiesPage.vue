@@ -3,7 +3,6 @@
   <CoachAppBarPage
     :loading="pageLoading"
     :appBarTitle="coreString('coachLabel')"
-    :pageTitle="coreString('allFacilitiesLabel')"
   >
     <KPageContainer>
       <h1>{{ coreString('facilitiesLabel') }}</h1>
@@ -41,8 +40,9 @@
 <script>
 
   import CoreTable from 'kolibri/components/CoreTable';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from './common';
@@ -58,6 +58,7 @@
     setup() {
       const { userFacilityId } = useUser();
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
+      usePageTitle(() => coreString('allFacilitiesLabel'), { hasVisibleHeading: true });
       return { pageLoading, userFacilityId, userIsMultiFacilityAdmin, facilities };
     },
     props: {

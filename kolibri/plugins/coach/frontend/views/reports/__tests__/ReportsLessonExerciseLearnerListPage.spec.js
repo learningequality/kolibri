@@ -1,12 +1,19 @@
-import { mount, createLocalVue, RouterLinkStub } from '@vue/test-utils';
+import { nextTick } from 'vue';
+import { mount, createLocalVue, enableAutoDestroy, RouterLinkStub } from '@vue/test-utils';
 import VueRouter from 'vue-router';
+import { pageHeading } from 'kolibri/composables/usePageTitle';
 
 import { STATUSES } from '../../../modules/classSummary/constants';
 import makeStore from '../../../__tests__/utils/makeStore';
+import store from '../../../store';
+import { coachStrings } from '../../common/commonCoachStrings';
 import LessonExerciseLearnersPage from '../../lessons/reports/LessonExerciseLearnersPage.vue';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
+
+// Two mounted pages' title registrations conflict: destroy each page before mounting another.
+enableAutoDestroy(afterEach);
 
 // commonCoach mixin imports kolibri customized router and uses getRoute method
 jest.mock('kolibri/router', () => {
@@ -22,7 +29,6 @@ jest.mock('../../../composables/fetchClassSyncStatus', () => ({
 jest.mock('../../../composables/useCoreCoach', () => {
   return () => {
     return {
-      pageTitle: '',
       appBarTitle: '',
     };
   };
@@ -118,6 +124,7 @@ const initWrapper = lessonMap => {
   if (!lessonMap) {
     lessonMap = {
       [LESSON_ID]: {
+        title: 'Numbers lesson',
         groups: [],
         assignments: [CLASSROOM.id],
         learner_ids: [],
@@ -169,11 +176,12 @@ const initWrapper = lessonMap => {
     },
   };
 
-  const store = makeStore();
+  store.replaceState(makeStore().state);
 
   store.state.classSummary = {
     ...store.state.classSummary,
     id: CLASSROOM.id,
+    name: CLASSROOM.name,
     lessonMap,
     groupMap,
     learnerMap,
@@ -201,6 +209,18 @@ describe('LessonExerciseLearnersPage', () => {
 
   beforeEach(() => {
     wrapper = initWrapper();
+  });
+
+  it('sets the tab title to learners, exercise, lesson and class', async () => {
+    await nextTick();
+    expect(document.title).toBe(
+      `${coachStrings.learnersLabel$()} - Compare 3-digit numbers - Numbers lesson - classroom - Kolibri`,
+    );
+  });
+
+  it('tells the page shell it renders its own h1', async () => {
+    await nextTick();
+    expect(pageHeading.value).toBe('');
   });
 
   it('renders view by groups checkbox as unchecked when group not in url query', () => {
@@ -238,6 +258,7 @@ describe('LessonExerciseLearnersPage', () => {
 
     describe('when displaying all learners', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
       });
 
@@ -264,6 +285,7 @@ describe('LessonExerciseLearnersPage', () => {
 
     describe('when displaying all learners', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
       });
 
@@ -280,6 +302,7 @@ describe('LessonExerciseLearnersPage', () => {
 
     describe('when displaying learners by groups', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
         router.push(ROUTE_LEARNERS_BY_GROUP);
       });
@@ -324,6 +347,7 @@ describe('LessonExerciseLearnersPage', () => {
 
     describe('when displaying all learners', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
       });
 
@@ -341,6 +365,7 @@ describe('LessonExerciseLearnersPage', () => {
 
     describe('when displaying learners by groups', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
         router.push(ROUTE_LEARNERS_BY_GROUP);
       });

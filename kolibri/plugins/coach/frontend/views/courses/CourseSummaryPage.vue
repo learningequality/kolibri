@@ -1,9 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :loading="pageLoading"
-    :pageTitle="coachPageTitle"
-  >
+  <CoachAppBarPage :loading="pageLoading">
     <KCircularLoader v-if="pageLoading" />
     <KGrid v-else>
       <!-- Header row (full width) -->
@@ -376,6 +373,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading as appPageLoading } from 'kolibri-common/composables/usePageLoading';
   import store from '../../store';
@@ -391,6 +389,7 @@
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import { overrideRoute } from '../../utils';
   import { useCourses } from '../../composables/useCourses';
+  import { provideSidePanelTitle } from '../../composables/useSidePanelTitle';
   import useAssignCourse from './composables/useAssignCourse';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
   import LearnersReport from './LearnersReport.vue';
@@ -533,9 +532,9 @@
       const { getRecipientNamesForCourseSession, className } = useClassSummary();
       const { deleteCourse } = useCourses();
 
-      const coachPageTitle = computed(() =>
-        [course.value?.title, className.value].filter(Boolean).join(' - '),
-      );
+      const title = () => [course.value?.title, className.value];
+      usePageTitle(title, { hasVisibleHeading: true });
+      provideSidePanelTitle(title);
 
       // Learner counts derived from the active unit's report
       // (activeUnitReport is defined below after unitReportInfo is set up)
@@ -951,7 +950,6 @@
       });
 
       return {
-        coachPageTitle,
         backRoute,
         contentMissing,
         dataLoading,

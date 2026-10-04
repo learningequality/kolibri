@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
@@ -10,10 +11,12 @@ const {
   filterLessonVisible$,
   filterLessonNotVisible$,
   filterLessonStatus$,
+  lessonsLabel$,
   recipientsLabel$,
   titleLabel$,
 } = coachStrings;
 
+const CLASS_NAME = 'Class A';
 const GROUP = { id: 'group-a', name: 'Group A', member_ids: [] };
 
 jest.mock('kolibri-common/composables/usePageLoading');
@@ -44,6 +47,7 @@ function makeLesson(overrides) {
 
 function renderComponent(lessons, groups = []) {
   const store = makeStore();
+  store.state.classSummary.name = CLASS_NAME;
   store.state.lessonsRoot.lessons = lessons;
   store.state.classSummary.groupMap = Object.fromEntries(groups.map(group => [group.id, group]));
   return render(LessonsRootPage, { store, routes });
@@ -53,6 +57,22 @@ describe('LessonsRootPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useUser.mockImplementation(() => useUserMock({ isCoach: true }));
+  });
+
+  describe('page title', () => {
+    it('sets the tab title to the lessons label and class name', async () => {
+      renderComponent([]);
+      await nextTick();
+      expect(document.title).toBe(`${lessonsLabel$()} - ${CLASS_NAME} - Kolibri`);
+    });
+
+    it('renders its visible header as the only h1', async () => {
+      renderComponent([]);
+      await nextTick();
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(lessonsLabel$());
+    });
   });
 
   describe('when printing', () => {

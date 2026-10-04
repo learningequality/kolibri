@@ -158,11 +158,6 @@
 
   export default {
     name: 'LessonContentPreview',
-    metaInfo() {
-      return {
-        title: this.currentContentNode.title,
-      };
-    },
     components: {
       QuestionList,
       ContentArea,

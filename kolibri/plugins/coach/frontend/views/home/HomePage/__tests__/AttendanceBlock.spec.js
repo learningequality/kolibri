@@ -14,7 +14,6 @@ jest.mock('../../../../composables/useCoreCoach', () => {
   const { computed } = jest.requireActual('vue');
   return () => ({
     classId: computed(() => 'test-class-id'),
-    pageTitle: computed(() => ''),
     appBarTitle: computed(() => ''),
     authorized: computed(() => true),
   });

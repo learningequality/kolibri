@@ -97,7 +97,9 @@
 
 <script>
 
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
 
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
@@ -105,6 +107,7 @@
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
   import ReportsControls from '../../common/ReportsControls';
+  import store from '../../../store';
 
   export default {
     name: 'LearnerLessonPage',
@@ -114,6 +117,15 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { lessonMap, learnerMap, name } = store.state.classSummary;
+          const { lessonId, learnerId } = route.params;
+          return [lessonMap[lessonId]?.title, learnerMap[learnerId]?.name, name];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     computed: {

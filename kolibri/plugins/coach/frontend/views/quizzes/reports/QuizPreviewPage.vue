@@ -6,7 +6,6 @@
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
     icon="close"
-    :pageTitle="title"
     :route="backRouteForQuery($route.query)"
   >
     <KPageContainer v-if="!loading">
@@ -32,7 +31,10 @@
 
 <script>
 
+  import { computed, ref } from 'vue';
   import fromPairs from 'lodash/fromPairs';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -40,6 +42,13 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { fetchQuizSummaryPageData } from '../QuizSummaryPage/api';
+
+  const { pageTitle$ } = createTranslator('QuizPreviewPage', {
+    pageTitle: {
+      message: `Preview of quiz '{title}'`,
+      context: "Title that displays when use selects the 'Preview' option of a quiz.",
+    },
+  });
 
   export default {
     name: 'QuizPreviewPage',
@@ -49,10 +58,19 @@
     },
     mixins: [commonCoach],
     setup() {
+      const quiz = ref({
+        learners_see_fixed_order: false,
+        question_sources: [],
+        title: '',
+      });
+      const title = computed(() => pageTitle$({ title: quiz.value.title }));
+      usePageTitle(title, { hasVisibleHeading: true });
       const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
         enhancedQuizManagementStrings;
       return {
         pageLoading,
+        quiz,
+        title,
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
         handleApiError,
@@ -60,11 +78,6 @@
     },
     data() {
       return {
-        quiz: {
-          learners_see_fixed_order: false,
-          question_sources: [],
-          title: '',
-        },
         selectedExercises: {},
         loading: true,
       };
@@ -77,9 +90,6 @@
         return this.quizIsRandomized
           ? this.randomizedSectionOptionDescription$()
           : this.fixedSectionOptionDescription$();
-      },
-      title() {
-        return this.$tr('pageTitle', { title: this.quiz.title });
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -115,12 +125,6 @@
         this.handleApiError({ error });
         this.loading = false;
         pageLoading.value = false;
-      },
-    },
-    $trs: {
-      pageTitle: {
-        message: `Preview of quiz '{title}'`,
-        context: "Title that displays when use selects the 'Preview' option of a quiz.",
       },
     },
   };

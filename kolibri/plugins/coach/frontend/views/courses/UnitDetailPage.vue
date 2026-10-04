@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage :pageTitle="coachPageTitle">
+  <CoachAppBarPage>
     <KPageContainer :topMargin="24">
       <KRouterLink
         v-if="courseTitle"
@@ -215,6 +215,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
@@ -292,9 +293,7 @@
       useCourseNotificationPolling(store, courseSessionId, fetchData);
 
       const { className } = useClassSummary();
-      const coachPageTitle = computed(() =>
-        [courseTitle.value, className.value].filter(Boolean).join(' - '),
-      );
+      usePageTitle(() => [courseTitle.value, className.value], { hasVisibleHeading: true });
 
       const backLinkText = computed(() => backToCourseLabel$({ course: courseTitle.value }));
 
@@ -344,7 +343,6 @@
         tabsPanelStyle,
         windowIsSmall,
         objectivesForLesson,
-        coachPageTitle,
         lessonsLabel$,
         progressLabel$,
         titleLabel$,

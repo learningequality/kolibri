@@ -29,6 +29,8 @@
 
   import sortBy from 'lodash/sortBy';
   import { mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
@@ -39,6 +41,8 @@
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
   import ReportsControls from '../../common/ReportsControls';
   import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
+  import { coachStrings } from '../../common/commonCoachStrings';
+  import store from '../../../store';
 
   export default {
     name: 'GroupLessonExerciseLearnersPage',
@@ -50,6 +54,21 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { contentMap, groupMap, lessonMap, name } = store.state.classSummary;
+          const { exerciseId, groupId, lessonId } = route.params;
+          return [
+            coachStrings.learnersLabel$(),
+            contentMap[exerciseId]?.title,
+            lessonMap[lessonId]?.title,
+            groupMap[groupId]?.name,
+            name,
+          ];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     computed: {

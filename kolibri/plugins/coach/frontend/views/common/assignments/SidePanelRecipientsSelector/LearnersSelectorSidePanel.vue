@@ -4,6 +4,7 @@
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
+    :inert="routedPanelOpen"
     @closePanel="$emit('close')"
     @shouldFocusFirstEl="focusFirstEl"
   >
@@ -13,6 +14,7 @@
       </h1>
     </template>
     <template #default>
+      <OverlayHeading />
       <LearnersAndGroupsSelector
         :groups="groups"
         :adHocLearners.sync="workingAdHocLearners"
@@ -39,6 +41,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import OverlayHeading from '../../OverlayHeading';
   import { coachStringsMixin } from '../../commonCoachStrings';
   import LearnersAndGroupsSelector from '../LearnersAndGroupsSelector.vue';
 
@@ -46,6 +49,7 @@
     name: 'LearnersSelectorSidePanel',
     components: {
       SidePanelModal,
+      OverlayHeading,
       LearnersAndGroupsSelector,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
@@ -76,7 +80,14 @@
       return {
         workingAdHocLearners: this.adHocLearners,
         workingSelectedGroupIds: this.selectedGroupIds,
+        openedAtDepth: this.$route.matched.length,
       };
+    },
+    computed: {
+      // Browser Back can open a routed side panel over this one.
+      routedPanelOpen() {
+        return this.$route.matched.length > this.openedAtDepth;
+      },
     },
     methods: {
       focusFirstEl() {

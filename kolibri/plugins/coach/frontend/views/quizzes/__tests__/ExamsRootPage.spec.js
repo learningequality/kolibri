@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
@@ -14,10 +15,12 @@ const {
   filterQuizEnded$,
   filterQuizStatus$,
   quizClosedLabel$,
+  quizzesLabel$,
   recipientsLabel$,
   titleLabel$,
 } = coachStrings;
 
+const CLASS_NAME = 'Class A';
 const GROUP = { id: 'group-a', name: 'Group A', member_ids: [] };
 
 jest.mock('kolibri-common/composables/usePageLoading');
@@ -28,8 +31,8 @@ jest.mock('../../../composables/useCoreCoach', () => {
   const { ref } = require('vue');
   return () => ({
     classId: ref('class-id'),
+    className: ref('Class A'),
     initClassInfo: () => Promise.resolve(),
-    pageTitle: '',
     appBarTitle: '',
   });
 });
@@ -68,6 +71,22 @@ describe('ExamsRootPage', () => {
     jest.clearAllMocks();
     ChannelResource.list.mockResolvedValue([]);
     ExamResource.fetchQuizzesSizes.mockResolvedValue([]);
+  });
+
+  describe('page title', () => {
+    it('sets the tab title to the quizzes label and class name', async () => {
+      renderComponent([]);
+      await nextTick();
+      expect(document.title).toBe(`${quizzesLabel$()} - ${CLASS_NAME} - Kolibri`);
+    });
+
+    it('renders its visible header as the only h1', async () => {
+      renderComponent([]);
+      await nextTick();
+      const headings = screen.queryAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(quizzesLabel$());
+    });
   });
 
   describe('when printing', () => {

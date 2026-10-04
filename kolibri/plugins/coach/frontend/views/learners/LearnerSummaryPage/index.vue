@@ -126,15 +126,19 @@
 
 <script>
 
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import { STATUSES } from '../../../modules/classSummary/constants';
   import { PageNames } from '../../../constants';
   import ReportsControls from '../../common/ReportsControls';
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
+  import store from '../../../store';
   import LearnerHeader from './LearnerHeader';
 
   export default {
@@ -146,6 +150,14 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { learnerMap, name } = store.state.classSummary;
+          return [coachStrings.reportsLabel$(), learnerMap[route.params.learnerId]?.name, name];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     data() {

@@ -89,7 +89,8 @@
   import { mapState, mapActions, mapMutations } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { computed, getCurrentInstance, watch } from 'vue';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { computed, watch } from 'vue';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { useRoute } from 'vue-router/composables';
   import commonCoach from '../../common';
@@ -98,6 +99,7 @@
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
   import { showLessonSummaryPage } from '../../../modules/lessonSummary/handlers';
+  import store from '../../../store';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
@@ -107,11 +109,6 @@
 
   export default {
     name: 'LessonSummaryPage',
-    metaInfo() {
-      return {
-        title: this.currentLesson.title,
-      };
-    },
     components: {
       ReportsControls,
       CoachAppBarPage,
@@ -122,13 +119,23 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const store = getCurrentInstance().proxy.$store;
       const route = useRoute();
       const lessonId = computed(() => route.params.lessonId);
 
       showLessonSummaryPage(store, route.params);
 
       watch(lessonId, () => showLessonSummaryPage(store, route.params));
+
+      // Reads currentLesson first, as a deleted lesson leaves lessonMap before the redirect.
+      // lessonMap covers the gap while currentLesson loads.
+      usePageTitle(
+        () => [
+          store.state.lessonSummary.currentLesson.title ??
+            store.state.classSummary.lessonMap?.[lessonId.value]?.title,
+          store.state.classSummary.name,
+        ],
+        { hasVisibleHeading: true },
+      );
 
       const { createSnackbar, clearSnackbar } = useSnackbar();
       return { lessonId, pageLoading, createSnackbar, clearSnackbar };
