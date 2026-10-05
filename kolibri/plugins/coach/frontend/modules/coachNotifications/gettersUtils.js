@@ -121,6 +121,18 @@ const pageNameToNotificationPropsMap = [
 ];
 
 export function notificationLink(notification) {
+  if (notification.course_session_id) {
+    return {
+      name: PageNames.COURSE_SUMMARY,
+      params: {
+        // collection.id is the LearnerGroup id whenever the learner matched an
+        // assignment group, so classroom_id is the only correct :classId here.
+        classId: notification.classroom_id,
+        courseSessionId: notification.course_session_id,
+      },
+    };
+  }
+
   let object;
   const { learnerSummary } = notification;
   if (notification.object === 'Resource') {

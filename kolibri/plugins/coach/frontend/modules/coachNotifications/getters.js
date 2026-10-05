@@ -3,15 +3,37 @@ import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
 import sortedUniqBy from 'lodash/sortedUniqBy';
 import { ContentNodeKinds } from 'kolibri/constants';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { NotificationObjects, NotificationEvents } from '../../constants/notificationsConstants';
 import { CollectionTypes } from '../../constants/lessonsConstants';
+import { TestType } from '../../constants/courseConstants';
 
 const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
+
+const { preTestItemLabel$, postTestItemLabel$, preTestLabel$, postTestLabel$ } = coursesStrings;
+
+function unitTestName({ test_type, title }) {
+  if (test_type === TestType.PRE) {
+    return title ? preTestItemLabel$({ unitTitle: title }) : preTestLabel$();
+  }
+  return title ? postTestItemLabel$({ unitTitle: title }) : postTestLabel$();
+}
 
 export function allNotifications(state, getters, rootState, rootGetters) {
   const classSummary = rootGetters['classSummary/notificationModuleData'];
 
-  function getResource(contentnode_id) {
+  function getResource(notification) {
+    const contentnode_id = notification.contentnode_id;
+    // ActivityList builds its resource-kind filter from every resource.type, and a Quiz
+    // or Lesson row's title/kind is its unit or lesson node, not a resource.
+    if (notification.course_session_id && notification.object === RESOURCE) {
+      return {
+        name: notification.title || '',
+        type: notification.kind || '',
+        id: contentnode_id,
+        content_id: '',
+      };
+    }
     if (classSummary.contentNodes[contentnode_id]) {
       return {
         name: classSummary.contentNodes[contentnode_id].title,
@@ -35,10 +57,17 @@ export function allNotifications(state, getters, rootState, rootGetters) {
     }
 
     const { object } = notification;
-    // Finds the first group the user_id is in and just uses that label.
-    // Does not make additional notifications if the user is in more than
-    // one group that has been assigned lesson or quiz.
-    if (object === QUIZ) {
+    // classSummary holds no course data, so course notifications are named from the
+    // fields the API resolved for them.
+    const isCourse = Boolean(notification.course_session_id);
+    if (isCourse) {
+      if (object === QUIZ && !notification.test_type) {
+        return null;
+      }
+      if (object === LESSON && !notification.lesson_title) {
+        return null;
+      }
+    } else if (object === QUIZ) {
       const examMatch = classSummary.exams[notification.quiz_id];
       if (!examMatch) {
         return null;
@@ -49,6 +78,9 @@ export function allNotifications(state, getters, rootState, rootGetters) {
         return null;
       }
     }
+    // Finds the first group the user_id is in and just uses that label.
+    // Does not make additional notifications if the user is in more than
+    // one group that has been assigned lesson or quiz.
     const groups = notification.assignment_collections
       .map(idx => classSummary.learnerGroups[idx])
       .filter(Boolean);
@@ -77,13 +109,17 @@ export function allNotifications(state, getters, rootState, rootGetters) {
     let assignment = {};
     if (object === QUIZ) {
       assignment = {
-        name: classSummary.exams[notification.quiz_id].title,
+        name: isCourse
+          ? unitTestName(notification)
+          : classSummary.exams[notification.quiz_id].title,
         type: ContentNodeKinds.EXAM,
         id: notification.quiz_id,
       };
     } else {
       assignment = {
-        name: classSummary.lessons[notification.lesson_id].title,
+        name: isCourse
+          ? notification.lesson_title
+          : classSummary.lessons[notification.lesson_id].title,
         type: ContentNodeKinds.LESSON,
         id: notification.lesson_id,
       };
@@ -95,7 +131,7 @@ export function allNotifications(state, getters, rootState, rootGetters) {
       collection,
       id: Number(notification.id),
       assignment,
-      resource: getResource(notification.contentnode_id),
+      resource: getResource(notification),
       learnerSummary: {
         firstUserName: classSummary.learners[notification.user_id].name,
         firstUserId: notification.user_id,
