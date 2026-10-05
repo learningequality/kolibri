@@ -243,7 +243,7 @@
     },
     data() {
       return {
-        title: '',
+        title: this.defaultTitle,
         goBack: null,
         isSaving: false,
         isCloseConfirmationModalOpen: false,
