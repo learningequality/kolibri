@@ -1,14 +1,18 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import flushPromises from 'flush-promises';
 import client from 'kolibri/client';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
 import Modalities from 'kolibri-constants/Modalities';
+import { ContentErrorConstants } from 'kolibri/constants';
+import AddDeviceForm from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/AddDeviceForm';
 // eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import makeStore from '../../__tests__/utils/makeStore';
 import TopicsContentPage from '../TopicsContentPage';
+import { learnStrings } from '../commonLearnStrings';
 /* eslint-disable import-x/named */
 import useDownloadRequests, {
   useDownloadRequestsMock,
@@ -288,6 +292,77 @@ describe('TopicsContentPage', () => {
           });
         });
       });
+    });
+  });
+
+  describe('with the information side panel open', () => {
+    const RESOURCE = {
+      id: CONTENT_ID,
+      content_id: 'content-content-id',
+      channel_id: CHANNEL_ID,
+      kind: 'document',
+      title: 'Resource title',
+      ancestors: [],
+      parent: 'root',
+      files: [],
+      options: {},
+      assessmentmetadata: null,
+    };
+    const FAIL_TO_LOAD = 'Fail to load';
+    const FINISH = 'Finish';
+    const ContentViewer = {
+      template: `
+        <div>
+          <button @click="$emit('error', { error: '${ContentErrorConstants.LOADING_ERROR}' })">
+            ${FAIL_TO_LOAD}
+          </button>
+          <button @click="$emit('finished')">${FINISH}</button>
+        </div>
+      `,
+    };
+
+    afterEach(() => {
+      client.__reset();
+    });
+
+    async function renderRemoteContentWithInfoPanel() {
+      ContentNodeResource.retrieve.mockResolvedValue(RESOURCE);
+      render(TopicsContentPage, {
+        props: { id: CONTENT_ID, deviceId: 'remote-device-id' },
+        store: makeStore(),
+        routes: [],
+        // eslint-disable-next-line kolibri/tests-no-stubs
+        stubs: { ContentViewer },
+      });
+      await flushPromises();
+      await fireEvent.click(
+        await screen.findByRole('button', { name: coreStrings.viewInformation$() }),
+      );
+      await flushPromises();
+      expect(screen.getByRole('dialog', { name: RESOURCE.title })).toBeInTheDocument();
+    }
+
+    it('closes the panel when the remote content fails to load', async () => {
+      await renderRemoteContentWithInfoPanel();
+      await fireEvent.click(screen.getByRole('button', { name: FAIL_TO_LOAD }));
+      await flushPromises();
+      expect(screen.queryByRole('dialog', { name: RESOURCE.title })).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('dialog', {
+          name: crossComponentTranslator(AddDeviceForm).$tr('errorCouldNotConnect'),
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('closes the panel when the completion modal opens', async () => {
+      client.__setPayload({ complete: true, progress: 0.5, extra_fields: {} });
+      await renderRemoteContentWithInfoPanel();
+      await fireEvent.click(screen.getByRole('button', { name: FINISH }));
+      await flushPromises();
+      expect(screen.queryByRole('dialog', { name: RESOURCE.title })).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('dialog', { name: learnStrings.resourceCompletedLabel$() }),
+      ).toBeInTheDocument();
     });
   });
 
