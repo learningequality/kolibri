@@ -59,14 +59,18 @@ describe('DownloadButton', () => {
   it('lists an option for each file when opened', async () => {
     render(DownloadButton, { props: { files, nodeTitle: 'My video' } });
     await userEvent.click(screen.getByRole('button', { name: downloadContent$() }));
-    expect(await screen.findByText(getFilePresetString(files[0]))).toBeInTheDocument();
-    expect(screen.getByText(getFilePresetString(files[1]))).toBeInTheDocument();
+    const options = await screen.findAllByRole('menu-item');
+    expect(options).toHaveLength(files.length);
+    files.forEach((file, i) => {
+      expect(options[i]).toHaveTextContent(getFilePresetString(file));
+    });
   });
 
   it('downloads the selected file with a name based on the resource title', async () => {
     render(DownloadButton, { props: { files, nodeTitle: 'My video' } });
     await userEvent.click(screen.getByRole('button', { name: downloadContent$() }));
-    await userEvent.click(await screen.findByText(getFilePresetString(files[1])));
+    const options = await screen.findAllByRole('menu-item');
+    await userEvent.click(options[1]);
     expect(click).toHaveBeenCalledTimes(1);
     expect(clickedLink.download).toBe('My video (187598).pdf');
     expect(clickedLink).toHaveAttribute('href', '/content/storage/doc.pdf');

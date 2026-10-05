@@ -29,12 +29,12 @@ describe('AuthMessage', () => {
   it('prompts the user to sign in by default', () => {
     renderComponent();
     expect(screen.getByRole('heading', { name: forgetToSignIn$() })).toBeInTheDocument();
-    expect(screen.getByText(registeredUser$())).toBeInTheDocument();
+    expect(screen.getByTestId('details')).toHaveTextContent(registeredUser$());
   });
 
   it('explains which role is required to view the page', () => {
     renderComponent({ authorizedRole: 'admin' });
-    expect(screen.getByText(admin$())).toBeInTheDocument();
+    expect(screen.getByTestId('details')).toHaveTextContent(admin$());
   });
 
   it('shows a custom header and details when provided', () => {
@@ -42,14 +42,14 @@ describe('AuthMessage', () => {
     const details = 'Cannot be used by device owner';
     renderComponent({ header, details });
     expect(screen.getByRole('heading', { name: header })).toBeInTheDocument();
-    expect(screen.getByText(details)).toBeInTheDocument();
+    expect(screen.getByTestId('details')).toHaveTextContent(details);
   });
 
   it('keeps the default header when only details are provided', () => {
     const details = 'Must be device owner to manage resources';
     renderComponent({ details });
     expect(screen.getByRole('heading', { name: forgetToSignIn$() })).toBeInTheDocument();
-    expect(screen.getByText(details)).toBeInTheDocument();
+    expect(screen.getByTestId('details')).toHaveTextContent(details);
   });
 
   describe('when the user auth plugin exists', () => {

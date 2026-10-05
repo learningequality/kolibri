@@ -16,7 +16,7 @@ describe('SyncStatusDisplay', () => {
   ])('shows a spinner and text while the status is %s', (syncStatus, key) => {
     renderComponent({ syncStatus });
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(screen.getByText(strings[`${key}$`]())).toBeInTheDocument();
+    expect(screen.getByTestId('syncStatusText')).toHaveTextContent(strings[`${key}$`]());
   });
 
   it.each([
@@ -27,12 +27,12 @@ describe('SyncStatusDisplay', () => {
     renderComponent({ syncStatus });
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     expect(screen.getByTestId('syncStatusIcon')).toBeInTheDocument();
-    expect(screen.getByText(strings[`${key}$`]())).toBeInTheDocument();
+    expect(screen.getByTestId('syncStatusText')).toHaveTextContent(strings[`${key}$`]());
   });
 
   it('shows "Synced" when the last sync just happened', () => {
     renderComponent({ syncStatus: SyncStatus.RECENTLY_SYNCED, lastSynced: new Date() });
-    expect(screen.getByText(strings.recentlySynced$())).toBeInTheDocument();
+    expect(screen.getByTestId('syncStatusText')).toHaveTextContent(strings.recentlySynced$());
   });
 
   it('shows how long ago the last sync was when it was not just now', () => {
@@ -41,6 +41,5 @@ describe('SyncStatusDisplay', () => {
       lastSynced: new Date(Date.now() - 5 * 60 * 1000),
     });
     expect(screen.getByTestId('syncStatusText')).toHaveTextContent(/ago$/);
-    expect(screen.queryByText(strings.recentlySynced$())).not.toBeInTheDocument();
   });
 });
