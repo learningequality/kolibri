@@ -5,7 +5,7 @@ import { RouteSegments } from '../utils';
 
 const { CLASS, QUIZ } = RouteSegments;
 
-jest.mock('../store', () => ({
+jest.mock('../../store', () => ({
   state: {},
   dispatch: jest.fn(),
   commit: jest.fn(),
@@ -13,7 +13,7 @@ jest.mock('../store', () => ({
 jest.mock('kolibri-common/composables/usePageLoading', () => ({
   pageLoading: { value: false },
 }));
-jest.mock('../modules/examReportDetail/handlers', () => ({
+jest.mock('../../modules/examReportDetail/handlers', () => ({
   generateExamReportDetailHandler: jest.fn(),
 }));
 

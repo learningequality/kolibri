@@ -5,7 +5,7 @@ import { RouteSegments } from '../utils';
 
 const { CLASS, LESSON } = RouteSegments;
 
-jest.mock('../store', () => ({
+jest.mock('../../store', () => ({
   state: {},
   dispatch: jest.fn(),
   commit: jest.fn(),
@@ -13,23 +13,23 @@ jest.mock('../store', () => ({
 jest.mock('kolibri-common/composables/usePageLoading', () => ({
   pageLoading: { value: false },
 }));
-jest.mock('../composables/useLessons', () => ({
+jest.mock('../../composables/useLessons', () => ({
   useLessons: jest.fn(() => ({ showLessonsRootPage: jest.fn() })),
 }));
-jest.mock('../modules/lessonResources/handlers', () => ({
+jest.mock('../../modules/lessonResources/handlers', () => ({
   showLessonResourceContentPreview: jest.fn(),
 }));
-jest.mock('../modules/resourceDetail/handlers', () => ({
+jest.mock('../../modules/resourceDetail/handlers', () => ({
   generateResourceHandler: jest.fn(),
 }));
-jest.mock('../modules/exerciseDetail/handlers', () => ({
+jest.mock('../../modules/exerciseDetail/handlers', () => ({
   exerciseRootRedirectHandler: jest.fn(),
   generateExerciseDetailHandler: jest.fn(),
 }));
-jest.mock('../modules/questionList/handlers', () => ({
+jest.mock('../../modules/questionList/handlers', () => ({
   generateQuestionListHandler: jest.fn(),
 }));
-jest.mock('../modules/questionDetail/handlers', () => ({
+jest.mock('../../modules/questionDetail/handlers', () => ({
   generateQuestionDetailHandler: jest.fn(),
   questionRootRedirectHandler: jest.fn(),
 }));
