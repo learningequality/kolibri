@@ -38,7 +38,7 @@ Make targets
   `release_kolibri.yml <https://github.com/learningequality/kolibri/blob/develop/.github/workflows/release_kolibri.yml>`__
   creates release distributions. Platform-specific sources live under ``platforms/`` for
   `Windows and macOS <https://github.com/learningequality/kolibri/tree/develop/platforms/desktop-app>`__,
-  `Debian <https://github.com/learningequality/kolibri/tree/develop/platforms/debian-server>`__,
+  `Debian <https://github.com/learningequality/kolibri/tree/develop/platforms/debian>`__,
   `Android <https://github.com/learningequality/kolibri/tree/develop/platforms/android>`__,
   `Raspberry Pi <https://github.com/learningequality/kolibri/tree/develop/platforms/raspberry-pi>`__, and
   `Flatpak <https://github.com/learningequality/kolibri/tree/develop/platforms/flatpak-app>`__.
