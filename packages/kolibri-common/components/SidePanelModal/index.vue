@@ -14,7 +14,10 @@
         @shouldFocusLastEl="focusLastEl"
       >
         <section
+          ref="dialog"
           class="side-panel"
+          role="dialog"
+          aria-modal="true"
           :style="sidePanelStyles"
           :aria-label="ariaLabel"
         >
@@ -79,9 +82,10 @@
 
 <script>
 
-  import { ref } from 'vue';
+  import { onMounted, onUpdated, ref } from 'vue';
   import { get } from '@vueuse/core';
   import throttle from 'lodash/throttle';
+  import uniqueId from 'lodash/uniqueId';
   import Backdrop from 'kolibri/components/Backdrop';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -92,7 +96,7 @@
       Backdrop,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
 
       const isScrolled = ref(false);
@@ -103,6 +107,27 @@
 
       const handleScroll = throttle(_handleScroll, 100);
 
+      const dialog = ref(null);
+      const fixedHeader = ref(null);
+
+      // Set on the DOM, not rendered, so the name is in place before focus moves in
+      function labelByHeaderHeading() {
+        const heading = props.ariaLabel
+          ? null
+          : fixedHeader.value.querySelector('h1, h2, h3, h4, h5, h6');
+        if (!heading) {
+          dialog.value.removeAttribute('aria-labelledby');
+          return;
+        }
+        if (!heading.id) {
+          heading.id = uniqueId('side-panel-title-');
+        }
+        dialog.value.setAttribute('aria-labelledby', heading.id);
+      }
+
+      onMounted(labelByHeaderHeading);
+      onUpdated(labelByHeaderHeading);
+
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
@@ -110,6 +135,8 @@
         lastFocus: null,
         isScrolled,
         handleScroll,
+        dialog,
+        fixedHeader,
       };
     },
     props: {
