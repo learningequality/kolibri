@@ -1,5 +1,5 @@
 import { markRaw, ref } from 'vue';
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { render, screen, fireEvent, within } from '@testing-library/vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import QuestionsSettings from '../QuestionsSettings.vue';
@@ -42,6 +42,12 @@ describe('QuestionsSettings', () => {
       return setContinueAction;
     }
 
+    // KTextbox doesn't link its invalid text to the input with aria-describedby,
+    // so look for the message inside the textbox itself.
+    function questionCountField() {
+      return within(screen.getByRole('spinbutton').closest('.ui-textbox'));
+    }
+
     it.each(['2.5', '0', '-3', ''])('disables Continue and explains why for %p', async value => {
       const setContinueAction = renderSettings();
 
@@ -51,7 +57,7 @@ describe('QuestionsSettings', () => {
         expect.objectContaining({ disabled: true }),
       );
       expect(
-        screen.getByText(enhancedQuizManagementStrings.wholeNumberOfQuestions$()),
+        questionCountField().getByText(enhancedQuizManagementStrings.wholeNumberOfQuestions$()),
       ).toBeInTheDocument();
     });
 
@@ -64,7 +70,7 @@ describe('QuestionsSettings', () => {
         expect.objectContaining({ disabled: false }),
       );
       expect(
-        screen.queryByText(enhancedQuizManagementStrings.wholeNumberOfQuestions$()),
+        questionCountField().queryByText(enhancedQuizManagementStrings.wholeNumberOfQuestions$()),
       ).not.toBeInTheDocument();
     });
   });
