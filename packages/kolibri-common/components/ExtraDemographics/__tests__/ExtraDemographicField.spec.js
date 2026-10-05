@@ -52,14 +52,20 @@ const tabToSelect = async () => {
 const getOptionLabels = () =>
   screen.getAllByRole('listitem').map(option => option.textContent.trim());
 
+// The description is the select's label: it is shown in the control and
+// clicking it opens this select's option list.
+const openSelectFromDescription = async description => {
+  const select = await tabToSelect();
+  const label = within(select).getByText(description);
+  expect(label).toBeVisible();
+  await userEvent.click(label);
+};
+
 describe('ExtraDemographicField', () => {
   it('shows the description and the default option labels of a field without translations', async () => {
     renderComponent({ field });
 
-    const select = await tabToSelect();
-    expect(within(select).getByText(DESCRIPTION)).toBeVisible();
-
-    await userEvent.click(select);
+    await openSelectFromDescription(DESCRIPTION);
     expect(getOptionLabels()).toEqual([
       ZERO_TO_FIVE.defaultLabel,
       SIX_TO_TEN.defaultLabel,
@@ -70,17 +76,23 @@ describe('ExtraDemographicField', () => {
   it('shows the description and the option labels translated into the current language', async () => {
     renderComponent({ field: translatedField });
 
-    const select = await tabToSelect();
-    expect(within(select).getByText(TRANSLATED_DESCRIPTION)).toBeVisible();
-
-    await userEvent.click(select);
+    await openSelectFromDescription(TRANSLATED_DESCRIPTION);
     expect(getOptionLabels()).toEqual(TRANSLATED_OPTION_LABELS);
   });
 
-  it('shows the label of the selected option', () => {
-    renderComponent({ field, value: SIX_TO_TEN.value });
+  it('shows the selected option as the value and keeps it selected when the list opens', async () => {
+    const { emitted } = renderComponent({ field, value: SIX_TO_TEN.value });
 
-    expect(screen.getByText(SIX_TO_TEN.defaultLabel)).toBeInTheDocument();
+    const select = await tabToSelect();
+    // The closed control also holds the hidden option list, so the displayed
+    // value is the label that sits outside of it
+    expect(within(select).getByText(SIX_TO_TEN.defaultLabel, { ignore: 'li *' })).toBeVisible();
+
+    // Opening the list highlights the selected option, so confirming right
+    // away picks that option again
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
+    expect(emitted().select).toEqual([[SIX_TO_TEN.value]]);
   });
 
   it('emits the value of the option the user picks', async () => {
