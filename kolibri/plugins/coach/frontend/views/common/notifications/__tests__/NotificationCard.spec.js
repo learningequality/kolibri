@@ -33,7 +33,8 @@ const notification = {
 
 const GROUP = { name: 'Group 1', type: CollectionTypes.LEARNERGROUP };
 const ASSIGNMENT = { name: 'Lesson 1', type: 'Lesson' };
-const RELATIVE_TIME = /ago$/;
+const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+const ELAPSED_TIME = '3 days ago';
 const routes = Object.values(PageNames).map(name => ({ name, path: `/${name}` }));
 
 function renderComponent({ notification: notificationOverrides = {}, props = {} } = {}) {
@@ -60,15 +61,27 @@ describe('NotificationCard', () => {
     expect(link).toHaveAttribute('href', expect.stringContaining(PageNames.LEARNER_LESSON_REPORT));
   });
 
-  it('shows the elapsed time when showTime is true', () => {
-    renderComponent({ notification, props: { showTime: true } });
-    expect(screen.getByText(RELATIVE_TIME)).toBeInTheDocument();
+  describe('elapsed time', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date(notification.timestamp).getTime() + THREE_DAYS_MS);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('shows the elapsed time when showTime is true', () => {
+      renderComponent({ notification, props: { showTime: true } });
+      expect(screen.getByText(ELAPSED_TIME)).toBeInTheDocument();
+    });
+
+    it('hides the elapsed time when showTime is false', () => {
+      renderComponent({ notification, props: { showTime: false } });
+      expect(screen.queryByText(ELAPSED_TIME)).not.toBeInTheDocument();
+    });
   });
 
-  it('hides the elapsed time when showTime is false', () => {
-    renderComponent({ notification, props: { showTime: false } });
-    expect(screen.queryByText(RELATIVE_TIME)).not.toBeInTheDocument();
-  });
   it.each([
     ['only a group', GROUP, {}, GROUP.name],
     ['a group and an assignment', GROUP, ASSIGNMENT, `${GROUP.name} • ${ASSIGNMENT.name}`],
