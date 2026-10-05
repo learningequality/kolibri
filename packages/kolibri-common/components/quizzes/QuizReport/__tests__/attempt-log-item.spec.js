@@ -1,20 +1,27 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import AttemptLogItem from '../AttemptLogItem';
 
 /* A JSON blob yanked from devtools that inclues questions data with correct and
  * incorrect answers.*/
-import sampleAttemptLogs from './sample-attempt-logs.json';
+import sampleAttemptLogsRaw from './sample-attempt-logs.json';
+
+const sampleAttemptLogs = JSON.parse(sampleAttemptLogsRaw);
 
 describe('AttemptLogItem', () => {
   describe('when viewing a survey (isSurvey prop is true)', () => {
-    it.each(
-      sampleAttemptLogs, // Tests all of the sample logs
+    it.each(sampleAttemptLogs)(
       'does not show icons for any questions regardless of their status',
       attemptLog => {
-        const wrapper = mount(AttemptLogItem, {
-          propsData: { isSurvey: true, attemptLog },
+        render(AttemptLogItem, {
+          props: {
+            isSurvey: true,
+            attemptLog,
+            questionNumber: 1,
+            displayTag: 'span',
+          },
         });
-        expect(wrapper.find('[data-testid="question-attempt-icons"]').element).toBeFalsy();
+        expect(screen.queryByTestId('question-attempt-icons')).not.toBeInTheDocument();
       },
     );
   });
@@ -24,10 +31,15 @@ describe('AttemptLogItem', () => {
      * status of each sample log shows the correct icon. Maybe if this ever needs to
      * change it would be worth covering the display logic a bit */
     it('shows icons indicating information about the status', () => {
-      const wrapper = mount(AttemptLogItem, {
-        propsData: { attemptLog: sampleAttemptLogs[0] },
+      render(AttemptLogItem, {
+        props: {
+          isSurvey: false,
+          attemptLog: sampleAttemptLogs[0],
+          questionNumber: 1,
+          displayTag: 'span',
+        },
       });
-      expect(wrapper.find('[data-testid="question-attempt-icons"]').element).toBeTruthy();
+      expect(screen.getAllByTestId('question-attempt-icons').length).toBeGreaterThan(0);
     });
   });
 });
