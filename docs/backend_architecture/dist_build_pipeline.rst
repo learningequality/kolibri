@@ -32,7 +32,16 @@ Make targets
 
 - To build a wheel file, run ``make dist``
 - To build a pex file, run ``make pex`` after ``make dist``
-- Builds for additional platforms are triggered from buildkite  based on *.buildkite/pipeline.yml*
+- Platform distributions are built with GitHub Actions:
+  `pr_build_kolibri.yml <https://github.com/learningequality/kolibri/blob/develop/.github/workflows/pr_build_kolibri.yml>`__
+  creates pull request artifacts and
+  `release_kolibri.yml <https://github.com/learningequality/kolibri/blob/develop/.github/workflows/release_kolibri.yml>`__
+  creates release distributions. Platform-specific sources live under ``platforms/`` for
+  `Windows and macOS <https://github.com/learningequality/kolibri/tree/develop/platforms/desktop-app>`__,
+  `Debian <https://github.com/learningequality/kolibri/tree/develop/platforms/debian>`__,
+  `Android <https://github.com/learningequality/kolibri/tree/develop/platforms/android>`__,
+  `Raspberry Pi <https://github.com/learningequality/kolibri/tree/develop/platforms/raspberry-pi>`__, and
+  `Flatpak <https://github.com/learningequality/kolibri/tree/develop/platforms/flatpak-app>`__.
 
 
 More on version numbers
