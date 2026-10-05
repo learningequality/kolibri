@@ -46,6 +46,7 @@
     "./composables/useContentViewer": "./composables/useContentViewer",
     "./composables/useFetch": "./composables/useFetch",
     "./composables/useMinimumKolibriVersion": "./composables/useMinimumKolibriVersion",
+    "./composables/useModalPanelOpen": "./composables/useModalPanelOpen",
     "./composables/useNav": "./composables/useNav",
     "./composables/useNow": "./composables/useNow",
     "./composables/usePageTitle": "./composables/usePageTitle",
