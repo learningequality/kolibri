@@ -164,7 +164,7 @@ export default function useQuizCreation() {
       throw new TypeError('Resource pool must be a non-empty array of resources');
     }
 
-    if (!questionCount || questionCount < 1) {
+    if (!Number.isInteger(questionCount) || questionCount < 1) {
       throw new TypeError('Question count must be a positive integer');
     }
 

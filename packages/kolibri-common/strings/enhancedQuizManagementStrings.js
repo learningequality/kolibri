@@ -81,6 +81,11 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   maxNumberOfQuestions: {
     message: 'Maximum number of questions is { count, number }',
   },
+  wholeNumberOfQuestions: {
+    message: 'Enter a whole number of 1 or more',
+    context:
+      "Error shown under the 'Number of questions' field when the value is not a whole number or is less than 1.",
+  },
   replaceQuestions: {
     message: "Replace questions in '{ sectionTitle }'",
   },

@@ -27,8 +27,8 @@
             :label="numberOfQuestionsLabel$()"
             :max="maxQuestions"
             :min="1"
-            :invalid="questionCount > maxQuestions"
-            :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+            :invalid="Boolean(questionCountInvalidText)"
+            :invalidText="questionCountInvalidText"
             :disabled="!questionCountIsEditable"
             :showInvalidText="true"
             class="question-textbox"
@@ -110,6 +110,7 @@
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         maxNumberOfQuestions$,
+        wholeNumberOfQuestions$,
         chooseQuestionsManuallyLabel$,
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
@@ -149,7 +150,9 @@
         }
 
         return (
-          workingQuestionCount.value > props.settings.maxQuestions || workingQuestionCount.value < 1
+          !Number.isInteger(workingQuestionCount.value) ||
+          workingQuestionCount.value > props.settings.maxQuestions ||
+          workingQuestionCount.value < 1
         );
       });
 
@@ -187,18 +190,31 @@
 
       const questionCountIsEditable = computed(() => !workingIsChoosingManually.value);
 
+      const maxQuestions = computed(() =>
+        addableQuestionCount.value > props.settings.maxQuestions
+          ? props.settings.maxQuestions
+          : addableQuestionCount.value,
+      );
+
+      const questionCountInvalidText = computed(() => {
+        const count = workingQuestionCount.value;
+        if (count > maxQuestions.value) {
+          return maxNumberOfQuestions$({ count: maxQuestions.value });
+        }
+        if (!Number.isInteger(count) || count < 1) {
+          return wholeNumberOfQuestions$();
+        }
+        return '';
+      });
+
       return {
         showAlert,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
         clearSelectionNotice$,
         questionCountIsEditable,
-        maxQuestions: computed(() =>
-          addableQuestionCount.value > props.settings.maxQuestions
-            ? props.settings.maxQuestions
-            : addableQuestionCount.value,
-        ),
-        maxNumberOfQuestions$,
+        maxQuestions,
+        questionCountInvalidText,
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         chooseQuestionsManuallyLabel$,
