@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { syncStrings } from 'kolibri-common/mixins/commonSyncElements';
 import { profileStrings } from '../../commonProfileStrings';
 import ChangeFacility from '../index';
@@ -68,19 +69,19 @@ describe('ChangeFacility page title', () => {
   });
 
   describe.each([
-    { Step: ConfirmChangeFacility, title$: profileStrings.mergeAccounts$ },
+    { Step: ConfirmChangeFacility, title$: coreStrings.changeLearningFacility$ },
     { Step: ConfirmAccountUsername, title$: confirmAccountUsernameStrings.documentTitle$ },
     { Step: CreatePassword, title$: createPasswordStrings.documentTitle$ },
     { Step: ChooseAdmin, title$: chooseAdminStrings.documentTitle$ },
     { Step: ConfirmMerge, title$: profileStrings.mergeAccounts$ },
     { Step: MergeFacility, title$: mergeFacilityStrings.documentTitle$ },
-    { Step: CreateAccount, title$: profileStrings.mergeAccounts$ },
-    { Step: UsernameExists, title$: profileStrings.mergeAccounts$ },
+    { Step: CreateAccount, title$: profileStrings.createAccount$ },
+    { Step: UsernameExists, title$: coreStrings.changeLearningFacility$ },
     { Step: MergeAccountDialog, title$: profileStrings.mergeAccounts$ },
     { Step: ConfirmAccountDetails, title$: confirmAccountDetailsStrings.documentTitle$ },
     { Step: MergeDifferentAccounts, title$: profileStrings.mergeAccounts$ },
   ])('$Step.name', ({ Step, title$ }) => {
-    it("titles the tab with the step's title, leaving one h1", async () => {
+    it("titles the tab with the step's h1, leaving one h1", async () => {
       render(
         {
           components: { ImmersivePage, Step },
@@ -100,7 +101,9 @@ describe('ChangeFacility page title', () => {
       );
       await nextTick();
       expect(document.title).toBe(`${title$()} - Kolibri`);
-      expect(pageHeadings()).toHaveLength(1);
+      const headings = pageHeadings();
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(title$());
     });
   });
 });
