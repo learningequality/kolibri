@@ -29,8 +29,8 @@ The general template of a test file will be like:
      test("smoke test", () => {
        renderComponent();
 
-       // Make a basic assertion about the outermost container in the smoke test
-       expect(screen.getByText("Sample Component")).toBeInTheDocument();
+       // Make a basic assertion about the component's main element in the smoke test
+       expect(screen.getByRole("heading", { name: samplePropB })).toBeInTheDocument();
      })
 
      test('describe some use case', async () => {
@@ -41,7 +41,7 @@ The general template of a test file will be like:
        // Perform some user interaction
        await userEvent.click(screen.getByRole("button", { name: "Click" }))
 
-       expect(screen.getByText(samplePropA)).toBeInTheDocument();
+       expect(screen.getByRole("status")).toHaveTextContent(samplePropA);
      });
    });
 

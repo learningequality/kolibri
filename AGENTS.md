@@ -105,11 +105,13 @@ See `docs/backend_architecture/api_patterns.rst`.
   // describe, it, expect are Jest globals — do NOT import them
   describe('MyComponent', () => {
     it('renders', () => {
-      render(MyComponent, { props: { title: 'Hello' } });
-      expect(screen.getByText('Hello')).toBeTruthy();
+      const TITLE = 'Hello';
+      render(MyComponent, { props: { title: TITLE } });
+      expect(screen.getByRole('heading', { name: TITLE })).toBeInTheDocument();
     });
   });
   ```
+- **Assertions:** Find elements by role + `name`, `within()` around a role query, or, when no role fits, test id + `toHaveTextContent`. Do NOT assert that a `*ByText` match exists, even inside `within()`; pair every negated `queryByText` with a test where the same query matches — the one place a `*ByText` match may be asserted. → "Assert on specific elements, not text presence" in `docs/frontend_architecture/unit_testing.rst`
 - **TDD:** Write a failing test first, then make it pass. This is especially important for bug fixes — always write a test that reproduces the bug before fixing it.
 
 ### ⚠️ Pre-commit Auto-fixes Files
