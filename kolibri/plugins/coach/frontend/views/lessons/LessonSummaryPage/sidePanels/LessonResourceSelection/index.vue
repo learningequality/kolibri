@@ -79,7 +79,6 @@
 
     <KModal
       v-if="isCloseConfirmationModalOpen"
-      appendToOverlay
       :submitText="continueAction$()"
       :cancelText="cancelAction$()"
       :title="closeConfirmationTitle$()"
