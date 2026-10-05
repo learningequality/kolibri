@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -202,7 +202,9 @@ describe('ExamReport/CurrentTryOverview', () => {
 
     it('shows the total time spent on the try', () => {
       renderComponent(defaultProps);
-      expect(screen.getByText(timeSpentLabel$())).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('try-time-spent')).getByText(timeSpentLabel$()),
+      ).toBeInTheDocument();
     });
 
     describe('showing the time spent annotation', () => {
@@ -256,7 +258,9 @@ describe('ExamReport/CurrentTryOverview', () => {
   describe('time ago', () => {
     it('shows how long ago the try was attempted', () => {
       renderComponent(defaultProps);
-      expect(screen.getByText(translator.$tr('attemptedLabel'))).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('try-attempted-ago')).getByText(translator.$tr('attemptedLabel')),
+      ).toBeInTheDocument();
     });
   });
 });
