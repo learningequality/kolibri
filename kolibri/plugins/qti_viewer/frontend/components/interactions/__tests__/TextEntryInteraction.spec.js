@@ -135,6 +135,33 @@ describe('Zero value handling (regression)', () => {
   });
 });
 
+// Regression coverage for #13804: an unanswered question must render as an empty
+// field in report mode, not fall back to displaying its placeholder-text as though
+// it were the learner's response.
+describe('Report mode placeholder (regression)', () => {
+  const xml = () => items['q20-textentry-placeholder'].xml;
+  const placeholderText = 'e.g. jumped';
+  const typedResponse = 'leapt';
+
+  it('renders an empty field when there is no response, instead of the placeholder', () => {
+    renderAssessmentItem(xml(), { interactive: false });
+    expect(document.querySelector('.qti-text-entry-interaction-report')).toHaveTextContent('');
+    expect(screen.queryByText(placeholderText)).not.toBeInTheDocument();
+  });
+
+  it('still displays a real response when one was given', () => {
+    renderAssessmentItem(xml(), { answerState: { RESPONSE: typedResponse }, interactive: false });
+    expect(
+      screen.getByText(typedResponse, { selector: '.qti-text-entry-interaction-report' }),
+    ).toBeVisible();
+  });
+
+  it('still shows the placeholder as input hint text while answering', () => {
+    renderAssessmentItem(xml());
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', placeholderText);
+  });
+});
+
 // pattern-mask
 describe('Pattern mask', () => {
   // pattern-mask="([0-9.]{0,6})" with a data-patternmask-message
