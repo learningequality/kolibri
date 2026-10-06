@@ -82,12 +82,8 @@ build_repo "$DOC/kolibri-server" /tmp/kolibri-server_1.0_all.deb   # OLD (github
 build_repo "$DOC"                /tmp/kolibri-server_1.0.1_all.deb  # NEW (apt.learningequality.org)
 
 # --- serve both hosts from one server; resolve both names to localhost -------
-printf '127.0.0.1 apt.learningequality.org\n127.0.0.1 learningequality.github.io\n' >> /etc/hosts
-python3 -m http.server 80 --directory "$DOC" >/dev/null 2>&1 &
-for i in 1 2 3 4 5 6 7 8 9 10; do
-  if python3 -c "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:80/kolibri-server/dists/stable/Release')" 2>/dev/null; then break; fi
-  sleep 0.5
-done
+serve_docroot "$DOC" kolibri-server/dists/stable/Release \
+  apt.learningequality.org learningequality.github.io
 
 # --- client trusts the key and starts on the OLD github.io source -----------
 mkdir -p /etc/apt/keyrings
