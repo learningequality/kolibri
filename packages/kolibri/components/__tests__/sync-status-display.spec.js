@@ -30,16 +30,33 @@ describe('SyncStatusDisplay', () => {
     expect(screen.getByTestId('syncStatusText')).toHaveTextContent(strings[`${key}$`]());
   });
 
-  it('shows "Synced" when the last sync just happened', () => {
-    renderComponent({ syncStatus: SyncStatus.RECENTLY_SYNCED, lastSynced: new Date() });
-    expect(screen.getByTestId('syncStatusText')).toHaveTextContent(strings.recentlySynced$());
-  });
+  describe('when recently synced', () => {
+    const NOW = new Date('2026-01-15T12:00:00Z');
 
-  it('shows how long ago the last sync was when it was not just now', () => {
-    renderComponent({
-      syncStatus: SyncStatus.RECENTLY_SYNCED,
-      lastSynced: new Date(Date.now() - 5 * 60 * 1000),
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(NOW);
     });
-    expect(screen.getByTestId('syncStatusText')).toHaveTextContent(/ago$/);
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('shows "Synced" when the last sync just happened', () => {
+      renderComponent({ syncStatus: SyncStatus.RECENTLY_SYNCED, lastSynced: NOW });
+      expect(screen.getByTestId('syncStatusText')).toHaveTextContent(
+        new RegExp(`^${strings.recentlySynced$()}$`),
+      );
+    });
+
+    it('shows how long ago the last sync was when it was not just now', () => {
+      renderComponent({
+        syncStatus: SyncStatus.RECENTLY_SYNCED,
+        lastSynced: new Date(NOW.getTime() - 5 * 60 * 1000),
+      });
+      expect(screen.getByTestId('syncStatusText')).toHaveTextContent(
+        new RegExp(`^${strings.recentlySyncedRelative$({ relativeTime: '5 minutes ago' })}$`),
+      );
+    });
   });
 });
