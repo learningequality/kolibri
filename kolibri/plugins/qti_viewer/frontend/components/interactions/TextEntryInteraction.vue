@@ -44,7 +44,7 @@
       :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
       :style="widthStyle"
     >
-      {{ reportDisplayValue || placeholder }}
+      {{ reportDisplayValue }}
     </span>
   </span>
 
