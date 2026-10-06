@@ -22,6 +22,17 @@ export const PROBLEM = Object.freeze({
 });
 
 /**
+ * Which end of a directed pair the row's source is. A pair is ordered, so an
+ * interaction has to say which of its two sets the base type names first:
+ * `qti-match-interaction` authors its pairs source-first, `qti-gap-match-interaction`
+ * authors them pool-choice-first.
+ */
+export const PAIR_ORDER = Object.freeze({
+  ROW_FIRST: 'rowFirst',
+  POOL_FIRST: 'poolFirst',
+});
+
+/**
  * Track which targets are paired with each source, and the limits on doing so.
  * @param {object} options - The interaction's choices and limits
  * @param {import('vue').Ref<string[]>|string[]} options.sourceIds - First set,
@@ -32,13 +43,27 @@ export const PROBLEM = Object.freeze({
  * own `match-max`, where 0 means no limit
  * @param {import('vue').Ref<number>|number} [options.maxAssociations] - Cap on
  * the total number of pairs, where 0 means no limit
+ * @param {string} [options.pairOrder] - Which end of each directed pair the row's
+ * source is, see {@link PAIR_ORDER}. Fixed for an interaction, so not a ref.
  * @returns {object} The row state and the operations over it
  */
-export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAssociations = 0 }) {
+export default function useMatchRows({
+  sourceIds,
+  targetIds,
+  matchMaxOf,
+  maxAssociations = 0,
+  pairOrder = PAIR_ORDER.ROW_FIRST,
+}) {
   const stored = ref([]);
 
   const sources = () => unref(sourceIds);
   const targets = () => unref(targetIds);
+
+  // Reading and writing a pair go through these two, so the order can never be
+  // applied in one direction and forgotten in the other.
+  const poolFirst = pairOrder === PAIR_ORDER.POOL_FIRST;
+  const toPair = (source, target) => (poolFirst ? [target, source] : [source, target]);
+  const fromPair = pair => (poolFirst ? [pair[1], pair[0]] : [pair[0], pair[1]]);
 
   // Normalise on read, so a change to the choices cannot leave stale rows
   const rows = computed(() =>
@@ -202,9 +227,9 @@ export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAsso
     );
   }
 
-  /** One directed pair per entry, source first, as the base type requires. */
+  /** One directed pair per entry, ordered as the interaction's base type requires. */
   const pairs = computed(() =>
-    rows.value.flatMap((row, index) => row.map(identifier => [sources()[index], identifier])),
+    rows.value.flatMap((row, index) => row.map(identifier => toPair(sources()[index], identifier))),
   );
 
   function hydrate(value) {
@@ -216,7 +241,7 @@ export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAsso
       if (!Array.isArray(pair) || pair.length !== 2) {
         continue;
       }
-      const [source, target] = pair;
+      const [source, target] = fromPair(pair);
       const rowIndex = rowOf.get(source);
       // Drop anything a learner could not have produced, so a malformed value
       // cannot push the rows past the limits the item declares
