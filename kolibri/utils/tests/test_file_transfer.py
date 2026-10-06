@@ -1087,6 +1087,15 @@ class TestTransferCopy(BaseTestTransfer):
             fc.run()
         self.assertTrue(os.path.isfile(self.dest))
 
+    def test_copy_empty_file(self):
+        with tempfile.NamedTemporaryFile(delete=False) as testfile:
+            pass
+        self.addCleanup(os.remove, testfile.name)
+        with FileCopy(testfile.name, self.dest, hashlib.md5(b"").hexdigest()) as fc:
+            fc.run()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), b"")
+
 
 class TestRetryImport(unittest.TestCase):
     def _retry_import_helper(self, exception_class, *args, **kwargs):

@@ -528,17 +528,23 @@ class TransferFile(TransferFileBase):
         # ensure the directories in the destination path exist
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
 
-    def write(self, data):
-        """Write data to the transfer file."""
+    def _open_tmp_file(self):
         if self._file_obj is None:
             # Owned by this object until close().
             self._file_obj = open(self._tmp_filepath, "wb")  # noqa: SIM115
+
+    def write(self, data):
+        """Write data to the transfer file."""
+        self._open_tmp_file()
         self._file_obj.write(data)
         self.hasher.update(data)
         self._bytes_written += len(data)
 
     def write_all(self, data_generator, progress_callback=None):
         """Write all data from generator to file."""
+        # Open the file before reading any data, so that an empty source
+        # still produces an empty file.
+        self._open_tmp_file()
         for data in data_generator:
             self.write(data)
             if callable(progress_callback):
@@ -557,10 +563,8 @@ class TransferFile(TransferFileBase):
         if self._file_obj:
             self._file_obj.close()
             self._file_obj = None
-        if not os.path.exists(self._tmp_filepath):
-            # Nothing was written because the downloaded file is empty.
-            open(self._tmp_filepath, "wb").close()
-        os.replace(self._tmp_filepath, self.filepath)
+        if os.path.exists(self._tmp_filepath):
+            os.replace(self._tmp_filepath, self.filepath)
         self._finalized = True
 
     def delete(self):
@@ -1090,14 +1094,16 @@ class FileCopy(Transfer):
         self.started = True
 
     def run(self, progress_update=None):
-        while True:
-            self.cancel_check()
-            block = self.source_file_obj.read(self.block_size)
-            if not block:
-                break
-            self.dest_file_obj.write(block)
+        def progress_callback(block):
             if callable(progress_update):
                 progress_update(len(block))
+            self.cancel_check()
+
+        self.cancel_check()
+        self.dest_file_obj.write_all(
+            iter(lambda: self.source_file_obj.read(self.block_size), b""),
+            progress_callback=progress_callback,
+        )
         self.complete_close_and_finalize()
 
     def close(self):
