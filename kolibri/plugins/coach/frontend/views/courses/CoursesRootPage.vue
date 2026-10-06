@@ -242,6 +242,7 @@
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import useClassSummary from '../../composables/useClassSummary';
+  import { provideSidePanelTitle } from '../../composables/useSidePanelTitle';
   import Recipients from '../common/Recipients.vue';
   import StatusSummary from '../common/status/StatusSummary.vue';
   import CoachStatusIcon from '../common/status/CoachStatusIcon.vue';
@@ -295,7 +296,9 @@
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
       const { getRecipientNamesForCourseSession, className } = useClassSummary();
-      usePageTitle(() => [coursesLabel$(), className.value], { hasVisibleHeading: true });
+      const title = () => [coursesLabel$(), className.value];
+      usePageTitle(title, { hasVisibleHeading: true });
+      provideSidePanelTitle(title);
       const { show } = useKShow();
       const { windowIsSmall } = useKResponsiveWindow();
       const {

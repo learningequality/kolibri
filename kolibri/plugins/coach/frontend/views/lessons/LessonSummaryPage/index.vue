@@ -99,6 +99,7 @@
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
   import { showLessonSummaryPage } from '../../../modules/lessonSummary/handlers';
+  import { provideSidePanelTitle } from '../../../composables/useSidePanelTitle';
   import store from '../../../store';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';
@@ -128,14 +129,13 @@
 
       // Reads currentLesson first, as a deleted lesson leaves lessonMap before the redirect.
       // lessonMap covers the gap while currentLesson loads.
-      usePageTitle(
-        () => [
-          store.state.lessonSummary.currentLesson.title ??
-            store.state.classSummary.lessonMap?.[lessonId.value]?.title,
-          store.state.classSummary.name,
-        ],
-        { hasVisibleHeading: true },
-      );
+      const title = () => [
+        store.state.lessonSummary.currentLesson.title ??
+          store.state.classSummary.lessonMap?.[lessonId.value]?.title,
+        store.state.classSummary.name,
+      ];
+      usePageTitle(title, { hasVisibleHeading: true });
+      provideSidePanelTitle(title);
 
       const { createSnackbar, clearSnackbar } = useSnackbar();
       return { lessonId, pageLoading, createSnackbar, clearSnackbar };

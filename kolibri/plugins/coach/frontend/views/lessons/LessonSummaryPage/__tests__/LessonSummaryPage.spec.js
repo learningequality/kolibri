@@ -110,10 +110,10 @@ describe('LessonSummaryPage', () => {
     expect(document.title).toBe('Mapped lesson - Class 1 - Kolibri');
   });
 
-  it('leaves the tab at the site title while the resource selection panel is open', async () => {
+  it('gives the resource selection side panel the page title', async () => {
     await renderDeletedLessonSummary({ routeName: PageNames.LESSON_SELECT_RESOURCES });
     expect(screen.getByTestId('panel')).toBeInTheDocument();
-    expect(document.title).toBe('Kolibri');
+    expect(document.title).toBe('Deleted lesson - Class 1 - Kolibri');
   });
 
   it('renders its visible header as the only h1', async () => {
