@@ -93,7 +93,6 @@ describe('NotificationCard', () => {
 
   it('shows no context line with neither group nor assignment', () => {
     renderComponent({ notification: { ...notification, collection: {}, assignment: {} } });
-    expect(screen.queryByText(GROUP.name)).not.toBeInTheDocument();
-    expect(screen.queryByText(ASSIGNMENT.name)).not.toBeInTheDocument();
+    expect(screen.getByTestId('context')).toHaveTextContent('');
   });
 });

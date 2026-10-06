@@ -72,6 +72,7 @@ describe('ActivityList', () => {
     await global.flushPromises();
     expect(screen.getByRole('link', { name: LEARNER_1_STARTED })).toBeInTheDocument();
     expect(screen.queryByText(LESSON_2)).not.toBeInTheDocument();
+    expect(screen.queryByText(NO_ACTIVITY)).not.toBeInTheDocument();
   });
 
   it('shows a "Show more" button that loads the next page when there are more results', async () => {
