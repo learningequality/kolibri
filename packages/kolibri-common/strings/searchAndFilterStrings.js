@@ -76,7 +76,12 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
   filterToggledResultsCount: {
     message: '{count, number} {count, plural, one {result} other {results}} for {filterLabels}',
     context:
-      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video'), replacing the browser's default announcement of the next checkbox with the updated result count and the filters now applied. 'filterLabels' is a comma-separated list of the active filter labels, e.g. '14 results for School, Video'.",
+      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video'), replacing the browser's default announcement of the next checkbox with the updated result count and the filters now applied. 'filterLabels' is a list of the active filter labels, e.g. '14 results for School, Video'.",
+  },
+  filterToggledOverResultsCount: {
+    message: 'Over {count, number} results for {filterLabels}',
+    context:
+      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video') when there are more matching results than were loaded. 'filterLabels' is a list of the active filter labels, e.g. 'Over 25 results for School, Video'.",
   },
   autocompleteResultsAvailable: {
     message:

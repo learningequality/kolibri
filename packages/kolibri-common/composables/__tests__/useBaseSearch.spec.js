@@ -40,7 +40,7 @@ function prep(query = {}, descendant = null, filters = null) {
 
 // injectBaseSearch's helpers are provide-only, so drive them from a child of
 // a component that called useBaseSearch, with a router that updates the route.
-function mountSearch() {
+function mountSearch(options = {}) {
   const mockRoute = Vue.observable({ query: {}, name });
   const mockRouter = {
     push: jest.fn(next => {
@@ -59,7 +59,7 @@ function mountSearch() {
   });
   const Parent = defineComponent({
     setup() {
-      useBaseSearch({});
+      useBaseSearch(options);
       return () => h(Child);
     },
   });
@@ -644,7 +644,7 @@ describe(`useBaseSearch`, () => {
   });
 
   describe('screen reader announcements', () => {
-    const { filterToggledResultsCount$ } = searchAndFilterStrings;
+    const { filterToggledResultsCount$, filterToggledOverResultsCount$ } = searchAndFilterStrings;
 
     beforeEach(() => {
       mockSendPoliteMessage.mockClear();
@@ -660,7 +660,7 @@ describe(`useBaseSearch`, () => {
           labels: {},
         }),
       );
-      const api = mountSearch().getApi();
+      const api = mountSearch({ announceResults: true }).getApi();
 
       api.setKeywords('math');
       await nextTick();
@@ -675,7 +675,7 @@ describe(`useBaseSearch`, () => {
       ContentNodeResource.list.mockReturnValue(
         Promise.resolve({ results: [{ id: '1' }], labels: {} }),
       );
-      const api = mountSearch().getApi();
+      const api = mountSearch({ announceResults: true }).getApi();
 
       api.toggleFilter({ key: 'learning_activities', value: LearningActivities.WATCH });
       await nextTick();
@@ -686,11 +686,39 @@ describe(`useBaseSearch`, () => {
       );
     });
 
-    it('does not announce anything once clearing back to no search at all', async () => {
+    it('announces "over" the count when more results are available than were fetched', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], more: { cursor: 'next' }, labels: {} }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).toHaveBeenCalledWith(
+        filterToggledOverResultsCount$({ count: 1, filterLabels: 'math' }),
+      );
+    });
+
+    it('does not announce unless the caller opts in', async () => {
       ContentNodeResource.list.mockReturnValue(
         Promise.resolve({ results: [{ id: '1' }], labels: {} }),
       );
       const api = mountSearch().getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).not.toHaveBeenCalled();
+    });
+
+    it('does not announce anything once clearing back to no search at all', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], labels: {} }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
 
       api.setKeywords('math');
       await nextTick();
