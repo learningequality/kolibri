@@ -15,7 +15,7 @@ import {
   ResourcesNeededTypes,
 } from 'kolibri/constants';
 import useUser from 'kolibri/composables/useUser';
-import { currentLanguage } from 'kolibri/utils/i18n';
+import { currentLanguage, formatList } from 'kolibri/utils/i18n';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 
@@ -195,6 +195,7 @@ export default function useBaseSearch({
   searchResultsRouteName,
   reloadOnDescendantChange = true,
   fetchContentNodeProgress,
+  announceResults = false,
 }) {
   const route = useRoute();
   const router = useRouter();
@@ -604,19 +605,20 @@ export default function useBaseSearch({
   );
 
   const { sendPoliteMessage } = useKLiveRegion();
-  const { filterToggledResultsCount$ } = searchAndFilterStrings;
+  const { filterToggledResultsCount$, filterToggledOverResultsCount$ } = searchAndFilterStrings;
 
-  // announce search results explicitly on every change
+  // announce search results explicitly on every change, for callers that opt in
   watch(searchLoading, (loading, wasLoading) => {
-    if (wasLoading && !loading && get(pendingSearchAnnouncement)) {
+    if (announceResults && wasLoading && !loading && get(pendingSearchAnnouncement)) {
       set(pendingSearchAnnouncement, false);
       if (!get(displayingSearchResults)) {
         return;
       }
-      const filterLabels = appliedFilters()
-        .map(({ key, value }) => labelForFilter(key, value))
-        .join(', ');
-      sendPoliteMessage(filterToggledResultsCount$({ count: get(results).length, filterLabels }));
+      const filterLabels = formatList(
+        appliedFilters().map(({ key, value }) => labelForFilter(key, value)),
+      );
+      const announce = get(more) ? filterToggledOverResultsCount$ : filterToggledResultsCount$;
+      sendPoliteMessage(announce({ count: get(results).length, filterLabels }));
     }
   });
 

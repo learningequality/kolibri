@@ -289,7 +289,7 @@
         search,
         searchMore,
         currentRoute,
-      } = useSearch();
+      } = useSearch(null, { announceResults: true });
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
 
