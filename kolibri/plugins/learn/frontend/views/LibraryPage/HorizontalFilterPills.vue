@@ -22,7 +22,7 @@
           @click="guardClick"
           @change="handleToggle(entry, $event)"
           @focus="focusedEntryId = entryId(entry)"
-          @blur="focusedEntryId = null"
+          @blur="handleBlur"
         >
         <KIcon
           v-if="entry.icon"
@@ -89,7 +89,7 @@
 
 <script>
 
-  import { computed, nextTick, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { get } from '@vueuse/core';
   import { CategoriesLookup } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -215,11 +215,34 @@
       // accurately read out with the screenreader.
       // Managing via js causes lags.
       function handleToggle(entry, event) {
-        // Entries are keyed by identity, so the same input survives the reorder
-        // that toggling causes, but moving it in the DOM drops its focus.
-        const checkbox = event.target;
         toggleFilter({ key: entry.termKey, value: entry.value });
-        nextTick(() => checkbox.focus());
+        toggledCheckbox = event.target;
+      }
+
+      // Entries are keyed by identity, so the same input survives the reorder
+      // that toggling causes, but moving it in the DOM drops its focus. The
+      // reorder lands only once the route updates, so reclaim focus after each
+      // re-render until the search settles, unless the user has moved on.
+      let toggledCheckbox = null;
+      watch(
+        [entries, searchLoading],
+        ([, loading]) => {
+          if (toggledCheckbox && document.activeElement === document.body) {
+            toggledCheckbox.focus();
+          }
+          if (!loading) {
+            toggledCheckbox = null;
+          }
+        },
+        { flush: 'post' },
+      );
+
+      function handleBlur(event) {
+        focusedEntryId.value = null;
+        // A blur with somewhere to go is the user moving on, not a reorder
+        if (event.relatedTarget) {
+          toggledCheckbox = null;
+        }
       }
 
       function pillColorStyleFor(entry) {
@@ -254,6 +277,7 @@
         focusedEntryId,
         guardClick,
         handleToggle,
+        handleBlur,
         clearSearch,
         loading: searchLoading,
         allFilters$,

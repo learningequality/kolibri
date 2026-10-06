@@ -177,6 +177,37 @@ describe('HorizontalFilterPills', () => {
       expect(checkbox).not.toBeChecked();
       expect(checkbox).toHaveFocus();
     });
+
+    it('keeps focus on the checkbox when the reorder lands after the toggle, as it does via the route', async () => {
+      // In the app, toggling updates the route, so the applied filters (and the
+      // reorder they cause) change a few ticks after the click, while loading.
+      // Checking "Listen" moves its own pill to the front of the row.
+      const applied = ref([]);
+      const searchLoading = ref(false);
+      let applyPending;
+      renderComponent({
+        searchLoading,
+        appliedFilters: () => applied.value,
+        isFilterActive: (key, value) => applied.value.some(f => f.key === key && f.value === value),
+        toggleFilter: ({ key, value }) => {
+          searchLoading.value = true;
+          applyPending = () => {
+            applied.value = [{ key, value }];
+          };
+        },
+      });
+
+      const checkbox = screen.getByRole('checkbox', { name: listen$() });
+      checkbox.focus();
+      await fireEvent.click(checkbox);
+      await nextTick();
+      applyPending();
+      await nextTick();
+      searchLoading.value = false;
+      await nextTick();
+
+      expect(checkbox).toHaveFocus();
+    });
   });
 
   describe('while loading', () => {
