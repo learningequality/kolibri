@@ -6,6 +6,7 @@
       class="icon"
     />
     <p
+      data-testid="context"
       class="context icon-spacer"
       :style="{ color: 'var(--tokens-annotation)' }"
     >
