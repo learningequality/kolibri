@@ -1,24 +1,28 @@
 <template>
 
-  <div class="filter-pills">
-    <fieldset class="filters-fieldset">
-      <legend class="visuallyhidden">{{ filtersGroupLabel$() }}</legend>
+  <fieldset class="filters-fieldset">
+    <legend class="visuallyhidden">{{ filtersGroupLabel$() }}</legend>
+    <div class="filter-pills">
       <label
         v-for="entry in entries"
-        :key="`${entry.termKey}:${entry.value}`"
+        :key="entryId(entry)"
         :data-testid="`${entry.type}-pill`"
         class="pill"
-        :class="[$computedClass(pillFocusWithinStyle), { loading }]"
-        :style="pillColorStyleFor(entry)"
+        :class="{ loading }"
+        :style="[
+          pillColorStyleFor(entry),
+          focusedEntryId === entryId(entry) && { ...$coreOutline, outlineOffset: 0 },
+        ]"
       >
         <input
-          :ref="`${entry.termKey}:${entry.value}`"
           type="checkbox"
           class="visuallyhidden"
           :checked="isFilterActive(entry.termKey, entry.value)"
           :aria-disabled="loading"
           @click="guardClick"
-          @change="handleToggle(entry)"
+          @change="handleToggle(entry, $event)"
+          @focus="focusedEntryId = entryId(entry)"
+          @blur="focusedEntryId = null"
         >
         <KIcon
           v-if="entry.icon"
@@ -26,63 +30,66 @@
           :color="entry.type === 'activity' ? null : $themeTokens.primary"
           class="pill-icon"
         />
-        <span dir="auto">{{ entry.label }}</span>
+        <span
+          dir="auto"
+          class="pill-label"
+        >{{ entry.label }}</span>
         <KIcon
           v-if="iconAfterFor(entry)"
           :icon="iconAfterFor(entry)"
           class="pill-icon-after"
         />
       </label>
-    </fieldset>
-    <span
-      v-if="hasAvailableLabels"
-      class="all-filters-group"
-    >
       <span
-        class="pill-divider"
-        :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
-      ></span>
-      <KButton
-        data-testid="all-filters-pill"
-        :text="allFilters$()"
-        appearance="flat-button"
-        class="pill"
-        :appearanceOverrides="pillColorStyleFor({})"
-        :disabled="loading"
-        @click="$emit('openFilters')"
+        v-if="hasAvailableLabels"
+        class="all-filters-group"
       >
-        <template #icon>
-          <KIcon
-            icon="filter"
-            class="pill-icon"
-          />
-        </template>
-        <template #iconAfter>
-          <KIcon
-            :icon="isRtl ? 'chevronLeft' : 'chevronRight'"
-            class="pill-icon-after"
-          />
-        </template>
-      </KButton>
-    </span>
-    <KButton
-      v-if="hasActiveFilters"
-      data-testid="clear-all"
-      :text="clearAllAction$()"
-      appearance="flat-button"
-      icon="close"
-      class="clear-all"
-      :disabled="loading"
-      @click="clearSearch"
-    />
-  </div>
+        <span
+          class="pill-divider"
+          :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
+        ></span>
+        <KButton
+          data-testid="all-filters-pill"
+          :text="allFilters$()"
+          appearance="flat-button"
+          class="pill"
+          :appearanceOverrides="pillColorStyleFor({})"
+          :disabled="loading"
+          @click="$emit('openFilters')"
+        >
+          <template #icon>
+            <KIcon
+              icon="filter"
+              class="pill-icon"
+            />
+          </template>
+          <template #iconAfter>
+            <KIcon
+              :icon="isRtl ? 'chevronLeft' : 'chevronRight'"
+              class="pill-icon-after"
+            />
+          </template>
+        </KButton>
+      </span>
+      <KButton
+        v-if="hasActiveFilters"
+        data-testid="clear-all"
+        :text="clearAllAction$()"
+        appearance="flat-button"
+        icon="close"
+        class="clear-all"
+        :disabled="loading"
+        @click="clearSearch"
+      />
+    </div>
+  </fieldset>
 
 </template>
 
 
 <script>
 
-  import { computed, getCurrentInstance, nextTick } from 'vue';
+  import { computed, nextTick, ref } from 'vue';
   import { get } from '@vueuse/core';
   import { CategoriesLookup } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -94,7 +101,6 @@
   export default {
     name: 'HorizontalFilterPills',
     setup() {
-      const instance = getCurrentInstance().proxy;
       const {
         availableLearningActivities,
         availableLibraryCategories,
@@ -197,18 +203,23 @@
         }
       }
 
+      function entryId(entry) {
+        return `${entry.termKey}:${entry.value}`;
+      }
+
+      // Tracked by hand rather than with `:focus-within`, which is below the
+      // browser floor, to show the outline on the visually hidden checkbox's pill
+      const focusedEntryId = ref(null);
+
       // Use click's default action so that the checkbox's state is
       // accurately read out with the screenreader.
       // Managing via js causes lags.
-      function handleToggle(entry) {
-        const refName = `${entry.termKey}:${entry.value}`;
+      function handleToggle(entry, event) {
+        // Entries are keyed by identity, so the same input survives the reorder
+        // that toggling causes, but moving it in the DOM drops its focus.
+        const checkbox = event.target;
         toggleFilter({ key: entry.termKey, value: entry.value });
-        nextTick(() => {
-          const [checkbox] = instance.$refs[refName] || [];
-          if (checkbox) {
-            checkbox.focus();
-          }
-        });
+        nextTick(() => checkbox.focus());
       }
 
       function pillColorStyleFor(entry) {
@@ -229,11 +240,6 @@
         };
       }
 
-      // for a11y, the pill is a semantic checkbox and label
-      // but visually styled to match KButton for sighted users
-      const pillFocusWithinStyle = computed(() => ({
-        ':focus-within': { ...instance.$coreOutline, outlineOffset: 0 },
-      }));
       const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
       const { clearAllAction$ } = coreStrings;
 
@@ -244,7 +250,8 @@
         isFilterActive,
         iconAfterFor,
         pillColorStyleFor,
-        pillFocusWithinStyle,
+        entryId,
+        focusedEntryId,
         guardClick,
         handleToggle,
         clearSearch,
@@ -261,18 +268,20 @@
 
 <style lang="scss" scoped>
 
+  // Strip the fieldset's default border/padding/min-width. The div inside it is
+  // the flex container, since older browsers can't lay out a fieldset as flex.
+  .filters-fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
   .filter-pills {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
-  }
-
-  // Strip the fieldset's default border/padding/min-width and let its pills
-  // lay out as direct flex children of .filter-pills, same as before grouping.
-  .filters-fieldset {
-    all: unset;
-    display: contents;
   }
 
   .filter-pills .pill {
@@ -290,6 +299,12 @@
     user-select: none;
     border-radius: 24px;
     transition: background-color 0.2s ease;
+  }
+
+  .pill-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .filter-pills .pill:hover:not(.loading) {
@@ -328,12 +343,15 @@
   // the icon props — not the slots we use here — so add the gap ourselves.
   // `.icon-container` (the leading-icon wrapper) also carries `top: 4px` to
   // centre icons in the default 36px button; our slim pill needs it pulled back.
+  // Icons keep their size; a long label truncates instead
   .pill-icon {
     top: -2px;
+    flex-shrink: 0;
     margin-right: 8px;
   }
 
   .pill-icon-after {
+    flex-shrink: 0;
     margin-left: 8px;
   }
 

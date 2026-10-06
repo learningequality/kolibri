@@ -94,15 +94,13 @@ describe('HorizontalFilterPills', () => {
       expect(within(group).getByRole('checkbox', { name: school$() })).toBeInTheDocument();
     });
 
-    it('does not include the all-filters or clear-all actions in the group', () => {
+    it('includes the all-filters and clear-all actions in the group', () => {
       renderComponent({
         appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
       });
       const group = screen.getByRole('group', { name: filtersGroupLabel$() });
-      expect(within(group).queryByRole('button', { name: allFilters$() })).not.toBeInTheDocument();
-      expect(
-        within(group).queryByRole('button', { name: clearAllAction$() }),
-      ).not.toBeInTheDocument();
+      expect(within(group).getByRole('button', { name: allFilters$() })).toBeInTheDocument();
+      expect(within(group).getByRole('button', { name: clearAllAction$() })).toBeInTheDocument();
     });
   });
 
