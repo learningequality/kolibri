@@ -79,6 +79,11 @@ export default [
     component: LessonCreationPage,
   },
   {
+    name: PageNames.LESSON_EDIT_DETAILS,
+    path: CLASS + LESSON + '/edit',
+    component: LessonEditDetailsPage,
+  },
+  {
     name: PageNames.LESSON_SUMMARY,
     path: CLASS + LESSON + '/:tabId?',
     component: LessonSummaryPage,
@@ -133,11 +138,6 @@ export default [
         ],
       },
     ],
-  },
-  {
-    name: PageNames.LESSON_EDIT_DETAILS,
-    path: CLASS + LESSON + '/edit',
-    component: LessonEditDetailsPage,
   },
   {
     name: PageNames.RESOURCE_CONTENT_PREVIEW,

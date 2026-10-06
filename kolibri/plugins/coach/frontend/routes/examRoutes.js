@@ -155,6 +155,14 @@ export default [
     ],
   },
   {
+    name: PageNames.QUIZ_PREVIEW,
+    path: CLASS + QUIZ + '/preview',
+    component: QuizPreviewPage,
+    handler() {
+      pageLoading.value = false;
+    },
+  },
+  {
     name: PageNames.EXAM_SUMMARY,
     path: CLASS + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
@@ -180,14 +188,6 @@ export default [
     path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER + TRY + QUESTION + INTERACTION,
     component: LearnerQuizPage,
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
-  },
-  {
-    name: PageNames.QUIZ_PREVIEW,
-    path: CLASS + QUIZ + '/preview',
-    component: QuizPreviewPage,
-    handler() {
-      pageLoading.value = false;
-    },
   },
   {
     name: PageNames.QUIZ_QUESTION_PAGE_ROOT,
