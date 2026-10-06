@@ -1,9 +1,6 @@
 import VueRouter from 'vue-router';
 import examRoutes from '../examRoutes';
-import { PageNames } from '../constants';
-import { RouteSegments } from '../utils';
-
-const { CLASS, QUIZ } = RouteSegments;
+import { PageNames } from '../../constants';
 
 jest.mock('../../store', () => ({
   state: {},
