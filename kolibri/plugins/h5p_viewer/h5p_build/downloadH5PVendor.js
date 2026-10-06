@@ -71,7 +71,6 @@ function downloadFiles() {
                             ],
                             safelist: [/^((?!hub).)*$/],
                             blocklist: [/hub/],
-                            fontFace: true,
                           })
                           .then(result => {
                             const css = result[0].css;
