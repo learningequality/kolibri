@@ -1758,6 +1758,7 @@ class ImportContentTestCase(TestCase):
             manager = RemoteChannelResourceImportManager(self.the_channel_id)
             manager.run()
 
+    @patch("kolibri.utils.file_transfer.FileDownload._run_download")
     @patch("kolibri.core.content.utils.resource_import.get_free_space")
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
     @patch(
@@ -1773,6 +1774,7 @@ class ImportContentTestCase(TestCase):
         path_mock,
         _move_tmp_to_dest_mock,
         get_free_space_mock,
+        run_download_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2046,6 +2048,7 @@ class ImportContentTestCase(TestCase):
 
         mock_overall_progress.assert_any_call(expected_file_size)
 
+    @patch("kolibri.utils.file_transfer.FileDownload._run_download")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
@@ -2062,6 +2065,7 @@ class ImportContentTestCase(TestCase):
         _checksum_correct_mock,
         is_cancelled_mock,
         path_mock,
+        run_download_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2107,6 +2111,7 @@ class ImportContentTestCase(TestCase):
             admin_imported=True,
         )
 
+    @patch("kolibri.utils.file_transfer.FileDownload._run_download")
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
@@ -2120,6 +2125,7 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         path_mock,
         _move_tmp_to_dest_mock,
+        run_download_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2722,6 +2728,7 @@ class ImportContentTestCase(TestCase):
             manager.run()
         self.annotation_mock.set_content_visibility.assert_called()
 
+    @patch("kolibri.utils.file_transfer.FileDownload._run_download")
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
     @patch(
@@ -2732,6 +2739,7 @@ class ImportContentTestCase(TestCase):
         path_mock,
         finalize_dest_mock,
         logger_mock,
+        run_download_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):

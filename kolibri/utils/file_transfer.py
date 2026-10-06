@@ -481,6 +481,14 @@ class ChunkedFile(TransferFileBase):
         return True
 
 
+def _md5_file(filepath, chunk_size):
+    md5 = hashlib.md5()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
+
+
 class TransferFile(TransferFileBase):
     """Simple file transfer class that writes directly to disk without chunking."""
 
@@ -512,8 +520,6 @@ class TransferFile(TransferFileBase):
 
     def is_complete(self, start=None, end=None):
         """For TransferFile, complete means we've written all expected bytes."""
-        if os.path.exists(self.filepath):
-            return True
         if self._file_size is not None:
             return self._bytes_written >= self._file_size
         return False
@@ -522,17 +528,23 @@ class TransferFile(TransferFileBase):
         # ensure the directories in the destination path exist
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
 
-    def write(self, data):
-        """Write data to the transfer file."""
+    def _open_tmp_file(self):
         if self._file_obj is None:
             # Owned by this object until close().
             self._file_obj = open(self._tmp_filepath, "wb")  # noqa: SIM115
+
+    def write(self, data):
+        """Write data to the transfer file."""
+        self._open_tmp_file()
         self._file_obj.write(data)
         self.hasher.update(data)
         self._bytes_written += len(data)
 
     def write_all(self, data_generator, progress_callback=None):
         """Write all data from generator to file."""
+        # Open the file before reading any data, so that an empty source
+        # still produces an empty file.
+        self._open_tmp_file()
         for data in data_generator:
             self.write(data)
             if callable(progress_callback):
@@ -556,16 +568,12 @@ class TransferFile(TransferFileBase):
         self._finalized = True
 
     def delete(self):
-        """Delete the transfer file and any temporary files."""
+        """Delete the temporary transfer file."""
         if self._file_obj:
             self._file_obj.close()
             self._file_obj = None
         try:
             os.remove(self._tmp_filepath)
-        except OSError:
-            pass
-        try:
-            os.remove(self.filepath)
         except OSError:
             pass
 
@@ -792,10 +800,26 @@ class FileDownload(Transfer):
 
         self._initialize_dest_file()
 
-    def _set_completed(self):
-        self.completed = self.dest_file_obj.is_complete(
-            start=self.range_start, end=self.range_end
+    def _dest_file_valid(self):
+        """
+        Whether the destination file is already in place and, when a checksum is
+        known, matches it, so there is nothing left to download.
+        """
+        return os.path.isfile(self.dest) and (
+            not self.checksum
+            or _md5_file(self.dest, self.dest_file_obj.chunk_size) == self.checksum
         )
+
+    def _set_completed(self):
+        if self._dest_file_valid():
+            # The file is already in place, so there is nothing to verify or move.
+            self.completed = True
+            self.finalized = True
+        else:
+            self.completed = self.dest_file_obj.is_complete(
+                start=self.range_start, end=self.range_end
+            )
+            self.finalized = False
 
     def _initialize_dest_file(self):
         try:
@@ -892,7 +916,7 @@ class FileDownload(Transfer):
             except (ChunkedFileDoesNotExist, ValueError):
                 # If the chunked file does not exist, we need to start from the beginning
                 # unless a simultaneous download has already completed the file.
-                if not os.path.exists(self.dest):
+                if not self._dest_file_valid():
                     raise
                 # Set as finalized as the file already exists
                 self.finalized = True
@@ -1070,14 +1094,16 @@ class FileCopy(Transfer):
         self.started = True
 
     def run(self, progress_update=None):
-        while True:
-            self.cancel_check()
-            block = self.source_file_obj.read(self.block_size)
-            if not block:
-                break
-            self.dest_file_obj.write(block)
+        def progress_callback(block):
             if callable(progress_update):
                 progress_update(len(block))
+            self.cancel_check()
+
+        self.cancel_check()
+        self.dest_file_obj.write_all(
+            iter(lambda: self.source_file_obj.read(self.block_size), b""),
+            progress_callback=progress_callback,
+        )
         self.complete_close_and_finalize()
 
     def close(self):
