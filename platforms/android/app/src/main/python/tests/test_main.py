@@ -42,12 +42,10 @@ def test_resolve_server_port_defers_to_options_when_there_is_no_port():
     assert main._resolve_server_port(None) is None
 
 
-def test_bus_leaves_an_unset_port_to_the_base_class():
+def test_bus_with_no_port_ends_up_on_the_http_port_option():
     with (
-        mock.patch.object(
-            main.BaseKolibriProcessBus, "__init__", return_value=None
-        ) as base_init,
+        mock.patch.dict(conf.OPTIONS["Deployment"], {"HTTP_PORT": 4321}),
         mock.patch.object(main.AndroidKolibriProcessBus, "_setup_plugins"),
     ):
-        main.AndroidKolibriProcessBus()
-    base_init.assert_called_once_with(port=None)
+        bus = main.AndroidKolibriProcessBus(port=main._resolve_server_port(0))
+    assert bus.port == 4321
