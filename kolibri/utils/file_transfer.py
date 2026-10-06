@@ -128,6 +128,13 @@ class TransferFileBase(BufferedIOBase, ABC):
     def ensure_writable(self):
         pass
 
+    def reset(self):
+        """Reset transfer destination to empty state."""
+
+    def resume_offset(self):
+        """Return byte offset from which download can resume, or 0 if starting fresh."""
+        return 0
+
 
 class ChunkedFileDirectoryManager:
     """
@@ -528,15 +535,47 @@ class TransferFile(TransferFileBase):
         # ensure the directories in the destination path exist
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
 
+    def resume_offset(self):
+        """Return the resume byte offset, or 0 if starting fresh / file was removed."""
+        if self._bytes_written > 0:
+            if not os.path.exists(self._tmp_filepath):
+                self.reset()
+                return 0
+            return self._bytes_written
+        return 0
+
+    def reset(self):
+        """Reset transfer file to empty state."""
+        if self._file_obj:
+            self._file_obj.close()
+            self._file_obj = None
+        try:
+            os.remove(self._tmp_filepath)
+        except OSError:
+            pass
+        self.hasher = hashlib.md5()
+        self._bytes_written = 0
+
     def _open_tmp_file(self):
-        if self._file_obj is None:
-            # Owned by this object until close().
-            self._file_obj = open(self._tmp_filepath, "wb")  # noqa: SIM115
+        if self._file_obj is None or self._file_obj.closed:
+            if self._bytes_written > 0:
+                if not os.path.exists(self._tmp_filepath):
+                    raise FileNotFoundError(
+                        f"Temporary file {self._tmp_filepath} does not exist"
+                    )
+                # Resume writing to the existing transfer file
+                self._file_obj = open(self._tmp_filepath, "r+b")  # noqa: SIM115
+                self._file_obj.seek(self._bytes_written)
+                self._file_obj.truncate()
+            else:
+                # Start fresh
+                self._file_obj = open(self._tmp_filepath, "wb")  # noqa: SIM115
 
     def write(self, data):
         """Write data to the transfer file."""
         self._open_tmp_file()
         self._file_obj.write(data)
+        self._file_obj.flush()
         self.hasher.update(data)
         self._bytes_written += len(data)
 
@@ -569,13 +608,7 @@ class TransferFile(TransferFileBase):
 
     def delete(self):
         """Delete the temporary transfer file."""
-        if self._file_obj:
-            self._file_obj.close()
-            self._file_obj = None
-        try:
-            os.remove(self._tmp_filepath)
-        except OSError:
-            pass
+        self.reset()
 
     def md5_checksum(self):
         """Return MD5 checksum from incremental hasher."""
@@ -893,6 +926,7 @@ class FileDownload(Transfer):
                         self._initialize_dest_file()
                         self._headers_set = False
                         self._set_headers()
+                    self.dest_file_obj.close()
                     logger.info(
                         "Waiting %ss before retrying import: %s",
                         self.retry_wait,
@@ -1030,8 +1064,35 @@ class FileDownload(Transfer):
                 )
 
     def _run_no_byte_range_download(self, progress_callback):
-        response = self.session.get(self.source, stream=True, timeout=self.timeout)
+        headers = {}
+        resume_start = None
+        offset = self.dest_file_obj.resume_offset()
+        if offset > 0:
+            if not self.compressed:
+                resume_start = offset
+                headers["Range"] = f"bytes={resume_start}-"
+            else:
+                self.dest_file_obj.reset()
+
+        get_kwargs = {
+            "stream": True,
+            "timeout": self.timeout,
+        }
+        if headers:
+            get_kwargs["headers"] = headers
+
+        response = self.session.get(self.source, **get_kwargs)
+
         response.raise_for_status()
+
+        if resume_start is not None:
+            content_range = response.headers.get("content-range", "").lower()
+            range_honored = response.status_code == 206 or content_range.startswith(
+                f"bytes {resume_start}-"
+            )
+            if not range_honored:
+                self.dest_file_obj.reset()
+
         if not self._headers_set:
             self._set_transfer_info_from_response(response)
         if not self.total_size:
