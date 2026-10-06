@@ -230,9 +230,10 @@
       });
 
       // Keep user in search area after the last filter is cleared
-      // so they don't get lost
+      // so they don't get lost. Only when focus was actually lost, so a
+      // pill that keeps its own focus isn't overridden.
       watch(displayingSearchResults, (isSearching, wasSearching) => {
-        if (wasSearching && !isSearching) {
+        if (wasSearching && !isSearching && document.activeElement === document.body) {
           const el = get(searchInput);
           if (el) {
             el.focus();

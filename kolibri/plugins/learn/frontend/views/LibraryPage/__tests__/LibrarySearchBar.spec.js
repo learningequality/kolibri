@@ -147,6 +147,22 @@ describe('LibrarySearchBar', () => {
       expect(input).toHaveFocus();
     });
 
+    it('leaves focus where it is if it was never lost', async () => {
+      const displayingSearchResults = ref(true);
+      renderComponent({ provides: { displayingSearchResults } });
+      const input = screen.getByRole('combobox', { name: searchLabel$() });
+      const other = document.createElement('button');
+      document.body.appendChild(other);
+      other.focus();
+
+      displayingSearchResults.value = false;
+      await nextTick();
+
+      expect(other).toHaveFocus();
+      expect(input).not.toHaveFocus();
+      other.remove();
+    });
+
     it('does not steal focus while a search is still applied', async () => {
       const displayingSearchResults = ref(false);
       renderComponent({ provides: { displayingSearchResults } });
