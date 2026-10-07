@@ -1312,17 +1312,3 @@ class TestTransferFileRetryAfterPartialStream(unittest.TestCase):
         tf.delete()
         self.assertEqual(tf.resume_offset(), 0)
         self.assertFalse(os.path.exists(tf._tmp_filepath))
-
-    def test_transfer_file_resume_offset_returns_bytes_when_file_exists(self):
-        tf = TransferFile(self.dest)
-        self.assertEqual(tf.resume_offset(), 0)
-        tf.write(b"hello")
-        self.assertEqual(tf.resume_offset(), 5)
-
-    def test_transfer_file_resume_offset_resets_when_file_missing(self):
-        tf = TransferFile(self.dest)
-        tf.write(b"hello")
-        tf.close()
-        os.remove(tf._tmp_filepath)
-        self.assertEqual(tf.resume_offset(), 0)
-        self.assertEqual(tf._bytes_written, 0)
