@@ -71,11 +71,13 @@
   import { useRouter, useRoute } from 'vue-router/composables';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { computed } from 'vue';
+  import useAuthPageTitle from '../composables/useAuthPageTitle';
   import useAuthFlow from '../composables/useAuthFlow';
   import useAuthWatcher from '../composables/useAuthWatcher';
   import useAuthRouter from '../composables/useAuthRouter';
   import AuthBase from './AuthBase';
   import commonUserStrings, { userString } from './commonUserStrings';
+  import { pageTitleStrings } from './pageTitleStrings';
   import AuthContextHeading from './AuthContextHeading.vue';
 
   export default {
@@ -88,6 +90,7 @@
       const { homeRoute, signInRoute, signUpRoute } = useAuthRouter(route);
       const { facilities, facilityId, setFacilityId } = useAuthFlow();
       const { watchForFacilityChange } = useAuthWatcher();
+      useAuthPageTitle(pageTitleStrings.facilitySelectPageTitle$);
 
       const backTo = computed(() => homeRoute.value);
       const heading = computed(() => {

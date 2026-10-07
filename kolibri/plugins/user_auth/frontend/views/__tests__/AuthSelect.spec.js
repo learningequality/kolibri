@@ -5,8 +5,11 @@ import { ref } from 'vue';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import AuthSelect from '../AuthSelect';
+import UserAuthLayout from '../UserAuthLayout';
 import { userString } from '../commonUserStrings';
+import { pageTitleStrings } from '../pageTitleStrings';
 import { ComponentMap } from '../../constants';
+import describeAuthPageTitle from './describeAuthPageTitle';
 
 const { signInLabel$ } = coreStrings;
 
@@ -47,11 +50,11 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
   query,
 }));
 
-function renderComponent() {
+function setupMocks({ canSignUpWithAnyFacility = true } = {}) {
   useAuthFlow.mockReturnValue(
     useAuthFlowMock({
       hasMultipleFacilities: ref(true),
-      canSignUpWithAnyFacility: ref(true),
+      canSignUpWithAnyFacility: ref(canSignUpWithAnyFacility),
     }),
   );
   useAuthRouter.mockReturnValue(
@@ -65,6 +68,10 @@ function renderComponent() {
       })),
     }),
   );
+}
+
+function renderComponent() {
+  setupMocks();
   return render(AuthSelect, {
     routes,
   });
@@ -77,5 +84,26 @@ describe('user index page component', () => {
     const createAccountLink = screen.getByRole('link', { name: userString('createAccountAction') });
     expect(signInLink).toHaveAttribute('href', '#/facilities');
     expect(createAccountLink).toHaveAttribute('href', '#/facilities');
+  });
+});
+
+describe('AuthSelect in UserAuthLayout', () => {
+  const PageInLayout = {
+    components: { UserAuthLayout, AuthSelect },
+    template: '<UserAuthLayout><AuthSelect /></UserAuthLayout>',
+  };
+
+  function renderInLayout(options) {
+    setupMocks(options);
+    return render(PageInLayout, { routes });
+  }
+
+  describeAuthPageTitle(renderInLayout, pageTitleStrings.authSelectPageTitle$);
+
+  describe('when no facility allows sign-up', () => {
+    describeAuthPageTitle(
+      () => renderInLayout({ canSignUpWithAnyFacility: false }),
+      pageTitleStrings.signInPageTitle$,
+    );
   });
 });
