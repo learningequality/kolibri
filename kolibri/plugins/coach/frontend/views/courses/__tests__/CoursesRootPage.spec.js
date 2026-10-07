@@ -109,7 +109,7 @@ describe('CoursesRootPage', () => {
       expect(headings[0]).toHaveTextContent(coursesLabel$());
     });
 
-    it('leaves the tab at the site title while a side panel is open', async () => {
+    it('gives the side panel the page title', async () => {
       const SidePanel = {
         setup() {
           useSidePanelTitle();
@@ -126,7 +126,7 @@ describe('CoursesRootPage', () => {
         }),
       });
       await screen.findByTestId('side-panel');
-      expect(document.title).toBe('Kolibri');
+      expect(document.title).toBe(`${coursesLabel$()} - ${CLASS_NAME} - Kolibri`);
     });
   });
 
