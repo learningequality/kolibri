@@ -63,8 +63,6 @@
 
   import { computed, nextTick, onMounted, ref } from 'vue';
   import useUser from 'kolibri/composables/useUser';
-  import usePageTitle from 'kolibri/composables/usePageTitle';
-  import themeConfig from 'kolibri/styles/themeConfig';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { useRouter, useRoute } from 'vue-router/composables';
@@ -75,6 +73,7 @@
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import useAuthPageTitle from '../../composables/useAuthPageTitle';
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
@@ -111,9 +110,7 @@
       } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
       const { setSelectedFacilityId } = useFacilitySelect();
-      usePageTitle(pageTitleStrings.pictureSignInPageTitle$, {
-        hasVisibleHeading: themeConfig.signIn.showTitle,
-      });
+      useAuthPageTitle(pageTitleStrings.pictureSignInPageTitle$);
 
       const busy = ref(false);
       const clearSequence = ref(false);

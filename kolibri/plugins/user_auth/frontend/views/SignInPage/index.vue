@@ -140,14 +140,13 @@
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useUser from 'kolibri/composables/useUser';
-  import usePageTitle from 'kolibri/composables/usePageTitle';
-  import themeConfig from 'kolibri/styles/themeConfig';
   import { validateUsername } from 'kolibri/utils/validators';
   import { LoginErrors } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed } from 'vue';
   import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
+  import useAuthPageTitle from '../../composables/useAuthPageTitle';
   import FacilityUsernameResource from '../../apiResources/FacilityUsernameResource';
   import { ComponentMap, MAX_USERS_FOR_LISTING_VIEW } from '../../constants';
   import AuthBase from '../AuthBase';
@@ -179,9 +178,7 @@
       const { hasMultipleFacilities, facilityId, selectedFacility, facilityConfig } = useAuthFlow();
       const { setSelectedFacilityId } = useFacilitySelect();
       const { watchForFacilityChange } = useAuthWatcher();
-      usePageTitle(pageTitleStrings.signInPageTitle$, {
-        hasVisibleHeading: themeConfig.signIn.showTitle,
-      });
+      useAuthPageTitle(pageTitleStrings.signInPageTitle$);
 
       const backToFacilitySelectionRoute = computed(() => getFacilitySelectionRoute(false));
 
