@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
 from rest_framework.serializers import IntegerField
+from rest_framework.serializers import JSONField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -67,6 +68,21 @@ class QuizSectionSerializer(Serializer):
     )
 
 
+class QuestionSourcesField(JSONField):
+    """
+    Validates writes as V3 quiz sections, but returns the stored JSON unchanged on
+    read. Quizzes created before V3 keep their original question_sources shape,
+    which the frontend converts, so it must not be reshaped into sections here.
+    """
+
+    def to_internal_value(self, data):
+        serializer = QuizSectionSerializer(
+            many=True, data=data, partial=getattr(self.root, "partial", False)
+        )
+        serializer.is_valid(raise_exception=True)
+        return serializer.validated_data
+
+
 class ExamSerializer(ModelSerializer):
     """
     Serializer for Exam and DraftExam. Used with ValuesViewset: read-path fields
@@ -84,7 +100,7 @@ class ExamSerializer(ModelSerializer):
         child=PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
         required=False,
     )
-    question_sources = QuizSectionSerializer(many=True, required=False)
+    question_sources = QuestionSourcesField(required=False)
     draft = BooleanField(default=True, required=False)
 
     class Meta:
