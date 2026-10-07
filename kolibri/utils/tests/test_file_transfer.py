@@ -1097,6 +1097,15 @@ class TestTransferCopy(BaseTestTransfer):
         with open(self.dest, "rb") as f:
             self.assertEqual(f.read(), b"")
 
+    def test_copy_with_preexisting_transfer_file(self):
+        transfer_file = self.dest + ".transfer"
+        with open(transfer_file, "wb") as f:
+            f.write(b"stale partial content")
+        with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
+            fc.run()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
 
 class TestRetryImport(unittest.TestCase):
     def _retry_import_helper(self, exception_class, *args, **kwargs):

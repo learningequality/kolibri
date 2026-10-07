@@ -512,7 +512,6 @@ class TransferFile(TransferFileBase):
         self._bytes_written = 0
 
         self.ensure_writable()
-        self._read_state_from_disk()
 
     def _read_state_from_disk(self):
         """Read existing transfer file from disk to initialize state."""
@@ -1058,13 +1057,7 @@ class FileDownload(Transfer):
                     expected_content_range = (
                         f"bytes {start_byte}-{expected_end}/{self.total_size}"
                     )
-                    range_response_supported = (
-                        content_range == expected_content_range
-                        or (
-                            response.status_code == 206
-                            and content_range.startswith(f"bytes {start_byte}-")
-                        )
-                    )
+                    range_response_supported = content_range == expected_content_range
 
                     data_generator = response.iter_content(
                         self.dest_file_obj.chunk_size
