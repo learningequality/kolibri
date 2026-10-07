@@ -13,7 +13,7 @@
 
 <script>
 
-  import { ref, onMounted, onUnmounted } from 'vue';
+  import { ref, onMounted, onUnmounted, nextTick } from 'vue';
   import Alwan from 'alwan';
   import 'alwan/css';
 
@@ -29,12 +29,14 @@
         alwanInstance = new Alwan(colorPickerEl.value, {
           theme: 'light',
           toggle: false,
+          popover: false,
           preset: false,
           color: props.color,
           default: props.color,
           parent: pickerBox.value,
           opacity: false,
         });
+        patchAlwanAccessibility(pickerRoot.value);
         alwanInstance.on('change', color => {
           // alwan reports the color as an object; emit only the hex string so the
           // value stays consistent with the string we were initialized with.
@@ -47,6 +49,19 @@
           alwanInstance.destroy();
         }
       });
+      function patchAlwanAccessibility(root) {
+        nextTick(() => {
+          const selector = root.querySelector('.alwan__selector');
+          if (selector && !selector.hasAttribute('role')) {
+            selector.setAttribute('role', 'application');
+          }
+          root.querySelectorAll('svg[aria-role]').forEach(svg => {
+            svg.removeAttribute('aria-role');
+            svg.setAttribute('aria-hidden', 'true');
+          });
+        });
+      }
+
 
       return {
         pickerRoot,
