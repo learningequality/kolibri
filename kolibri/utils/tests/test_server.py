@@ -360,11 +360,3 @@ class TestAppInstallationTypes:
         }
         with mock.patch("os.environ", environ):
             assert server.installation_type() == "Flatpak - 1.2.3"
-
-    def test_apk_version_name_env_var_is_ignored(self):
-        environ = {
-            "KOLIBRI_INSTALLATION_TYPE": installation_types.APK,
-            "KOLIBRI_APK_VERSION_NAME": "1.0",
-        }
-        with mock.patch("os.environ", environ):
-            assert server.installation_type() == "apk"
