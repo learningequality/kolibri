@@ -1,11 +1,12 @@
-/* eslint-disable import-x/named */
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+/* eslint-disable import-x/named */
 import useContentNodeProgress, {
   useContentNodeProgressMock,
 } from '../../../../composables/useContentNodeProgress';
+/* eslint-enable import-x/named */
 import { learnStrings } from '../../../commonLearnStrings';
 import AssignmentCard from '../index.vue';
 
@@ -98,7 +99,7 @@ describe('AssignmentCard', () => {
   describe('when rendering a course', () => {
     it('shows the classroom name when collectionTitle is provided', () => {
       makeCourseWrapper();
-      expect(screen.getByText(CLASSROOM_NAME)).toBeInTheDocument();
+      expect(screen.getByText(CLASSROOM_NAME)).toHaveClass('collection-title');
     });
 
     it('does not show the classroom name when collectionTitle is empty', () => {
@@ -108,18 +109,27 @@ describe('AssignmentCard', () => {
 
     it('shows the course title', () => {
       makeCourseWrapper();
-      expect(screen.getAllByText(baseCourse.title).length).toBeGreaterThan(0);
+      expect(screen.getByRole('heading', { level: 3, name: baseCourse.title })).toBeInTheDocument();
     });
 
     it('shows the course label', () => {
-      makeCourseWrapper();
-      expect(screen.getByText(coursesStrings.courseLabel$())).toBeInTheDocument();
+      const { container } = makeCourseWrapper();
+      expect(
+        within(container.querySelector('.course-label')).getByText(coursesStrings.courseLabel$()),
+      ).toBeInTheDocument();
     });
 
-    it('does not show unit and lesson counts when unit_count and lesson_count are absent', () => {
+    it('shows the right link', () => {
       makeCourseWrapper();
-      const unitRegExp = /unit/i;
-      expect(screen.queryByText(unitRegExp)).not.toBeInTheDocument();
+      expect(screen.getByRole('link', { name: baseCourse.title })).toHaveAttribute(
+        'href',
+        expect.stringContaining('/course'),
+      );
+    });
+
+    it('does not show counts when unit_count and lesson_count are absent', () => {
+      const { container } = makeCourseWrapper();
+      expect(container.querySelector('.course-counts')).not.toBeInTheDocument();
     });
 
     it('shows unit and resource counts when both are provided', () => {
@@ -127,48 +137,55 @@ describe('AssignmentCard', () => {
         course: { ...baseCourse, unit_count: 3, lesson_count: 12 },
       });
       const label = `${coursesStrings.numUnits$({ num: 3 })} · ${coursesStrings.numLessons$({ num: 12 })}`;
-      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(label)).toHaveClass('course-counts');
     });
 
     it('shows only unit count when lesson_count is 0', () => {
       makeCourseWrapper({
         course: { ...baseCourse, unit_count: 1, lesson_count: 0 },
       });
-      expect(screen.getByText(coursesStrings.numUnits$({ num: 1 }))).toBeInTheDocument();
+      expect(screen.getByText(coursesStrings.numUnits$({ num: 1 }))).toHaveClass('course-counts');
     });
 
     it('shows only resource count when unit_count is 0', () => {
       makeCourseWrapper({
         course: { ...baseCourse, unit_count: 0, lesson_count: 5 },
       });
-      expect(screen.getByText(coursesStrings.numLessons$({ num: 5 }))).toBeInTheDocument();
+      expect(screen.getByText(coursesStrings.numLessons$({ num: 5 }))).toHaveClass('course-counts');
     });
   });
 
   describe('when rendering a lesson', () => {
     it('shows the classroom name', () => {
       makeLessonWrapper();
-      expect(screen.getByText(CLASSROOM_NAME)).toBeInTheDocument();
+      expect(screen.getByText(CLASSROOM_NAME)).toHaveClass('collection-title');
     });
 
     it('shows the lesson title', () => {
       makeLessonWrapper();
-      expect(screen.getAllByText(baseLesson.title).length).toBeGreaterThan(0);
+      expect(screen.getByRole('heading', { level: 3, name: baseLesson.title })).toBeInTheDocument();
+    });
+
+    it('shows the right link', () => {
+      makeLessonWrapper();
+      expect(screen.getByRole('link', { name: baseLesson.title })).toHaveAttribute(
+        'href',
+        expect.stringContaining('/lesson'),
+      );
     });
 
     describe('progress section', () => {
       it('shows no progress label if there are no resources', () => {
-        makeLessonWrapper({ resources: [] });
-        expect(screen.queryByText(coreStrings.inProgressLabel$())).not.toBeInTheDocument();
-        expect(screen.queryByText(coreStrings.completedLabel$())).not.toBeInTheDocument();
+        const { container } = makeLessonWrapper({ resources: [] });
+        expect(container.querySelector('.progress-section')).toBeEmptyDOMElement();
       });
 
       it('shows no progress label when the lesson has not been started', () => {
-        makeLessonWrapper({
+        // resources exist but none have progress in the map (all default to 0)
+        const { container } = makeLessonWrapper({
           resources: [makeResource('content1'), makeResource('content2')],
         });
-        expect(screen.queryByText(coreStrings.inProgressLabel$())).not.toBeInTheDocument();
-        expect(screen.queryByText(coreStrings.completedLabel$())).not.toBeInTheDocument();
+        expect(container.querySelector('.progress-section')).toBeEmptyDOMElement();
       });
 
       it('shows a "In progress" label if still in progress', () => {
@@ -177,10 +194,14 @@ describe('AssignmentCard', () => {
             contentNodeProgressMap: { content1: 0.5, content2: 0 },
           }),
         );
-        makeLessonWrapper({
+        const { container } = makeLessonWrapper({
           resources: [makeResource('content1'), makeResource('content2')],
         });
-        expect(screen.getByText(coreStrings.inProgressLabel$())).toBeInTheDocument();
+        expect(
+          within(container.querySelector('.progress-section')).getByText(
+            coreStrings.inProgressLabel$(),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('shows a "Completed" label if all resources are complete', () => {
@@ -189,29 +210,44 @@ describe('AssignmentCard', () => {
             contentNodeProgressMap: { content1: 1, content2: 1 },
           }),
         );
-        makeLessonWrapper({
+        const { container } = makeLessonWrapper({
           resources: [makeResource('content1'), makeResource('content2')],
         });
-        expect(screen.getByText(coreStrings.completedLabel$())).toBeInTheDocument();
+        expect(
+          within(container.querySelector('.progress-section')).getByText(
+            coreStrings.completedLabel$(),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('uses API-provided resource progress as fallback when not in the map', () => {
-        makeLessonWrapper({
+        // resource.progress from API is used when contentNodeProgressMap has no entry
+        const { container } = makeLessonWrapper({
           resources: [makeResource('content1', 0.5), makeResource('content2', 0)],
         });
-        expect(screen.getByText(coreStrings.inProgressLabel$())).toBeInTheDocument();
+        expect(
+          within(container.querySelector('.progress-section')).getByText(
+            coreStrings.inProgressLabel$(),
+          ),
+        ).toBeInTheDocument();
       });
 
       it('uses the higher of API progress and map progress', () => {
+        // contentNodeProgressMap has a higher value than the stale API data
         useContentNodeProgress.mockImplementation(() =>
           useContentNodeProgressMock({
             contentNodeProgressMap: { content1: 1 },
           }),
         );
-        makeLessonWrapper({
+        const { container } = makeLessonWrapper({
           resources: [makeResource('content1', 0.5), makeResource('content2', 0)],
         });
-        expect(screen.getByText(coreStrings.inProgressLabel$())).toBeInTheDocument();
+        // content1: max(1, 0.5)=1, content2: max(0, 0)=0 → sum=1, total=2 → 1-2=-1 → in progress
+        expect(
+          within(container.querySelector('.progress-section')).getByText(
+            coreStrings.inProgressLabel$(),
+          ),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -219,36 +255,47 @@ describe('AssignmentCard', () => {
   describe('when rendering a quiz', () => {
     it('shows the classroom name', () => {
       makeQuizWrapper();
-      expect(screen.getByText(CLASSROOM_NAME)).toBeInTheDocument();
+      expect(screen.getByText(CLASSROOM_NAME)).toHaveClass('collection-title');
     });
 
     it('shows the quiz title', () => {
       makeQuizWrapper();
-      expect(screen.getAllByText(baseQuiz.title).length).toBeGreaterThan(0);
+      expect(screen.getByRole('heading', { level: 3, name: baseQuiz.title })).toBeInTheDocument();
+    });
+
+    it('shows the right link', () => {
+      makeQuizWrapper();
+      expect(screen.getByRole('link', { name: baseQuiz.title })).toHaveAttribute(
+        'href',
+        expect.stringContaining('/quiz'),
+      );
     });
 
     describe('progress section', () => {
       it('shows no progress label when the quiz has not been started', () => {
-        makeQuizWrapper({ progress: { started: false } });
-        const questionRegExp = /questions? left/i;
-        const scoreRegExp = /Score:/i;
-        expect(screen.queryByText(questionRegExp)).not.toBeInTheDocument();
-        expect(screen.queryByText(scoreRegExp)).not.toBeInTheDocument();
+        const { container } = makeQuizWrapper({ progress: { started: false } });
+        expect(container.querySelector('.progress-section')).toBeEmptyDOMElement();
       });
 
       it('shows how many questions are left if still in progress', () => {
-        makeQuizWrapper({ progress: { started: true, answer_count: 5 } });
+        const { container } = makeQuizWrapper({ progress: { started: true, answer_count: 5 } });
+        // N = quiz.question_count - quiz.progress.answer_count
         expect(
-          screen.getByText(learnStrings.questionsLeft$({ questionsLeft: 5 })),
+          within(container.querySelector('.progress-section')).getByText(
+            learnStrings.questionsLeft$({ questionsLeft: 5 }),
+          ),
         ).toBeInTheDocument();
       });
 
       it('shows the percentage score if the quiz is submitted or closed', () => {
-        makeQuizWrapper({
+        const { container } = makeQuizWrapper({
           progress: { started: true, answer_count: 10, closed: true, score: 7 },
         });
+        // P = 7/10 = 70%
         expect(
-          screen.getByText(learnStrings.completedPercentLabel$({ score: 70 })),
+          within(container.querySelector('.progress-section')).getByText(
+            learnStrings.completedPercentLabel$({ score: 70 }),
+          ),
         ).toBeInTheDocument();
       });
     });
