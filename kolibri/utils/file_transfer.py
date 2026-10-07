@@ -512,6 +512,25 @@ class TransferFile(TransferFileBase):
         self._bytes_written = 0
 
         self.ensure_writable()
+        self._read_state_from_disk()
+
+    def _read_state_from_disk(self):
+        """Read existing transfer file from disk to initialize state."""
+        if self._file_obj:
+            self._file_obj.close()
+            self._file_obj = None
+        self.hasher = hashlib.md5()
+        self._bytes_written = 0
+        if os.path.exists(self._tmp_filepath):
+            file_size = os.path.getsize(self._tmp_filepath)
+            if file_size > 0:
+                with open(self._tmp_filepath, "rb") as f:
+                    while True:
+                        chunk = f.read(self.chunk_size)
+                        if not chunk:
+                            break
+                        self.hasher.update(chunk)
+                self._bytes_written = file_size
 
     @property
     def file_size(self):
@@ -528,6 +547,8 @@ class TransferFile(TransferFileBase):
     def is_complete(self, start=None, end=None):
         """For TransferFile, complete means we've written all expected bytes."""
         if self._file_size is not None:
+            if end is not None:
+                return self._bytes_written > end
             return self._bytes_written >= self._file_size
         return False
 
@@ -537,12 +558,11 @@ class TransferFile(TransferFileBase):
 
     def resume_offset(self):
         """Return the resume byte offset, or 0 if starting fresh / file was removed."""
-        if self._bytes_written > 0:
-            if not os.path.exists(self._tmp_filepath):
-                self.reset()
-                return 0
-            return self._bytes_written
-        return 0
+        if not os.path.exists(self._tmp_filepath):
+            self.reset()
+            return 0
+        self._read_state_from_disk()
+        return self._bytes_written
 
     def reset(self):
         """Reset transfer file to empty state."""
@@ -575,7 +595,6 @@ class TransferFile(TransferFileBase):
         """Write data to the transfer file."""
         self._open_tmp_file()
         self._file_obj.write(data)
-        self._file_obj.flush()
         self.hasher.update(data)
         self._bytes_written += len(data)
 
@@ -637,14 +656,11 @@ class TransferFile(TransferFileBase):
 
     # Compatibility methods for ChunkedFile interface used by FileDownload
     def get_next_missing_range(self, start=None, end=None, full_range=False):
-        """For TransferFile, if not complete, return the full range."""
+        """For TransferFile, if not complete, return the missing range."""
         if self.is_complete(start, end):
             return None, None, None
-        # Return full file range as missing
-        range_start = start or 0
-        range_end = (
-            end if end is not None else (self._file_size - 1 if self._file_size else 0)
-        )
+        range_start = max(start or 0, self._bytes_written)
+        range_end = end
         return (0,), range_start, range_end
 
     @contextmanager
@@ -1020,17 +1036,34 @@ class FileDownload(Transfer):
                     # If while waiting for a lock on a chunk, any of the chunks we were trying to
                     # download were already downloaded, then we can skip downloading those chunks.
                     # Easiest to just start over and get the fresh list of chunks to download.
+                    range_header = (
+                        f"bytes={start_byte}-{end_byte}"
+                        if end_byte is not None
+                        else f"bytes={start_byte}-"
+                    )
                     response = self.session.get(
                         self.source,
-                        headers={"Range": f"bytes={start_byte}-{end_byte}"},
+                        headers={"Range": range_header},
                         stream=True,
                         timeout=self.timeout,
                     )
                     response.raise_for_status()
 
+                    expected_end = (
+                        end_byte
+                        if end_byte is not None
+                        else (self.total_size - 1 if self.total_size else None)
+                    )
+                    content_range = response.headers.get("content-range", "").lower()
+                    expected_content_range = (
+                        f"bytes {start_byte}-{expected_end}/{self.total_size}"
+                    )
                     range_response_supported = (
-                        response.headers.get("content-range", "")
-                        == f"bytes {start_byte}-{end_byte}/{self.total_size}"
+                        content_range == expected_content_range
+                        or (
+                            response.status_code == 206
+                            and content_range.startswith(f"bytes {start_byte}-")
+                        )
                     )
 
                     data_generator = response.iter_content(
@@ -1044,6 +1077,7 @@ class FileDownload(Transfer):
                             progress_callback=progress_callback,
                         )
                     else:
+                        self.dest_file_obj.reset()
                         # Lock all chunks except the chunks we already locked, so as to avoid trying
                         # to acquire the same lock twice, and also so that no one else tries to download
                         # the same chunks while we are streaming them.
@@ -1064,35 +1098,10 @@ class FileDownload(Transfer):
                 )
 
     def _run_no_byte_range_download(self, progress_callback):
-        headers = {}
-        resume_start = None
-        offset = self.dest_file_obj.resume_offset()
-        if offset > 0:
-            if not self.compressed:
-                resume_start = offset
-                headers["Range"] = f"bytes={resume_start}-"
-            else:
-                self.dest_file_obj.reset()
-
-        get_kwargs = {
-            "stream": True,
-            "timeout": self.timeout,
-        }
-        if headers:
-            get_kwargs["headers"] = headers
-
-        response = self.session.get(self.source, **get_kwargs)
-
+        if self.dest_file_obj.resume_offset() > 0:
+            self.dest_file_obj.reset()
+        response = self.session.get(self.source, stream=True, timeout=self.timeout)
         response.raise_for_status()
-
-        if resume_start is not None:
-            content_range = response.headers.get("content-range", "").lower()
-            range_honored = response.status_code == 206 or content_range.startswith(
-                f"bytes {resume_start}-"
-            )
-            if not range_honored:
-                self.dest_file_obj.reset()
-
         if not self._headers_set:
             self._set_transfer_info_from_response(response)
         if not self.total_size:
@@ -1122,12 +1131,11 @@ class FileDownload(Transfer):
         # by trying to make a range request, and if it fails, we need to fall back to the old
         # behavior of downloading the whole file.
         # We also only bother doing byte range downloads if we are writing to a ChunkedFile,
-        # as there is no point in doing byte range requests if we are downloading to a single
-        # file anyway.
+        # or resuming a TransferFile that already has partial content on disk.
         byte_range_download = (
             self.content_length_header
             and not self.compressed
-            and isinstance(self.dest_file_obj, ChunkedFile)
+            and (self.chunked_file_download or self.dest_file_obj.resume_offset() > 0)
         )
         if byte_range_download:
             self._run_byte_range_download(progress_callback)
