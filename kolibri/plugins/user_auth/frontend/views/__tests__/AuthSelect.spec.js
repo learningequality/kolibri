@@ -1,12 +1,16 @@
 import { render, screen } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
+import themeConfig from 'kolibri/styles/themeConfig';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import AuthSelect from '../AuthSelect';
+import UserAuthLayout from '../UserAuthLayout';
 import { userString } from '../commonUserStrings';
+import { pageTitleStrings } from '../pageTitleStrings';
 import { ComponentMap } from '../../constants';
+import describeAuthPageTitle from './describeAuthPageTitle';
 
 const { signInLabel$ } = coreStrings;
 
@@ -47,11 +51,11 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
   query,
 }));
 
-function renderComponent() {
+function setupMocks({ canSignUpWithAnyFacility = true } = {}) {
   useAuthFlow.mockReturnValue(
     useAuthFlowMock({
       hasMultipleFacilities: ref(true),
-      canSignUpWithAnyFacility: ref(true),
+      canSignUpWithAnyFacility: ref(canSignUpWithAnyFacility),
     }),
   );
   useAuthRouter.mockReturnValue(
@@ -65,6 +69,10 @@ function renderComponent() {
       })),
     }),
   );
+}
+
+function renderComponent() {
+  setupMocks();
   return render(AuthSelect, {
     routes,
   });
@@ -77,5 +85,34 @@ describe('user index page component', () => {
     const createAccountLink = screen.getByRole('link', { name: userString('createAccountAction') });
     expect(signInLink).toHaveAttribute('href', '#/facilities');
     expect(createAccountLink).toHaveAttribute('href', '#/facilities');
+  });
+});
+
+describe('AuthSelect in UserAuthLayout', () => {
+  const PageInLayout = {
+    components: { UserAuthLayout, AuthSelect },
+    template: '<UserAuthLayout><AuthSelect /></UserAuthLayout>',
+  };
+
+  function renderInLayout(options) {
+    setupMocks(options);
+    return render(PageInLayout, { routes });
+  }
+
+  describeAuthPageTitle(renderInLayout, pageTitleStrings.authSelectPageTitle$);
+
+  describe('when no facility allows sign-up', () => {
+    afterEach(() => {
+      delete themeConfig.signIn.showTitle;
+    });
+
+    it('titles the page as sign-in', async () => {
+      themeConfig.signIn.showTitle = false;
+      renderInLayout({ canSignUpWithAnyFacility: false });
+      await nextTick();
+      const title = pageTitleStrings.signInPageTitle$();
+      expect(document.title).toBe(`${title} - Kolibri`);
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(title);
+    });
   });
 });

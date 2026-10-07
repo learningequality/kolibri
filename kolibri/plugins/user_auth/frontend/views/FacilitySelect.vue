@@ -71,6 +71,7 @@
   import { useRouter, useRoute } from 'vue-router/composables';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { computed } from 'vue';
+  import useAuthPageTitle from '../composables/useAuthPageTitle';
   import useAuthFlow from '../composables/useAuthFlow';
   import useAuthWatcher from '../composables/useAuthWatcher';
   import useAuthRouter from '../composables/useAuthRouter';
@@ -93,6 +94,7 @@
       const heading = computed(() => {
         return props.signUpNext ? userString('createAccountAction') : coreString('facilitiesLabel');
       });
+      useAuthPageTitle(() => heading.value);
 
       /**
        * Navigate to sign-in or sign-up page
