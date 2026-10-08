@@ -44,6 +44,12 @@ configure_file(
 )
 
 configure_file(
+    input: 'kolibri_plugin.py',
+    output: 'kolibri_plugin.py',
+    copy: true
+)
+
+configure_file(
     input: 'login_tokens.py',
     output: 'login_tokens.py',
     copy: true
