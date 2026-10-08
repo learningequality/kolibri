@@ -20,18 +20,17 @@ Feature: Kolibri integration testing scenarios
     	And I see a language selector drop-down
     	And I see an *OK* and a *Cancel* button
     When I click the *OK* button
-    Then I see the *Setup* screen informing me that I need to have Python 3.6+ installed in order to run Kolibri.
-    	And I see a *Yes* and a *No* button
-    When I click the *Yes* button
-    Then I see Python being installed in the background
-    	And after that I see the *Select Destination Location* screen
-    	And I see an option to select a different folder and a *Browse* button
-    	And I see a *Next* and a *Cancel* button
-    When I click *Next*
-    Then I see the *Ready to install* screen
-    	And I see information about the destination location and the *Start Menu* folder
-    	And I see a *Back*, an *Install* and a *Cancel* button
-    When I click *Install*
+    Then I see the *Select Destination Location* screen
+    	And I see that *C:\Program Files\Kolibri* is the default path
+    When I click the *Next* button
+    Then I see the *Select Start Menu Folder* screen
+    	And I see that *(Default)* is the default value
+    When I click the *Next* button
+    Then I see the *Select Additional Tasks* screen
+    	And I see that *Run Kolibri automatically when the computer starts* and *Create a desktop icon* are selected by default
+    When I click the *Next* button
+    Then I see the *Ready to Install* screen
+    When I click the *Install* button
     Then I see the *Installing* screen
     	And I see a progress bar
     	And I see a *Cancel* button
@@ -42,7 +41,8 @@ Feature: Kolibri integration testing scenarios
     	And I see a *Finish* button
     When I click the *Finish* button
     Then I see a *Kolibri is starting* notification in the notification bar
-    	And I see *Kolibri* running at http://127.0.0.1:8080/en/
+    	And I see the *Kolibri* app running
+    	And I see the *How are you using Kolibri?* step of the setup wizard
 
   Scenario: Mac app installation
   	Given that the kolibri app is not installed and running (not intended for use as a server).
@@ -93,9 +93,9 @@ Feature: Kolibri integration testing scenarios
   		And I see *Setting up Kolibri*
   		And I see *This may take several minutes*
   	When Kolibri finishes loading
-  	Then I see a modal *Welcome to Kolibri!*
+  	Then I see a *Welcome to Kolibri!* modal
   	When I click *Continue*
-  	Then I am at *Learn > Library* page
+  	Then I am at the *Learn > Library* page
 
   Scenario: Change learning facility - default path
   	Given I’ve set up my Kolibri device with the *On my own* device setup option
@@ -141,16 +141,16 @@ Feature: Kolibri integration testing scenarios
   		And I see the *Device status*
   		And I see only the *Learn* and *Device* sections of the sidebar
 
-  Scenario: Learn-only device - assigned lesson and quiz resources are automatically transferred to the LOD
+  Scenario: Learn-only device - assigned lesson, quiz and course resources are automatically transferred to the LOD
   	Given I am signed in as learner on a learn-only device
   		And there is a Kolibri server in the network
-  		And a coach has enrolled the learner to a class and assigned lesson and quiz resources to the learner
+  		And a coach has enrolled the learner to a class and assigned lesson, quiz and course resources to the learner
   	When I go to the *Home* page
   		And I click on the class name
-  	Then I see all the lesson and quiz resources already downloaded on my device
+  	Then I see all the lesson, quiz and course resources already downloaded on my device
   	When I complete a resource
-  	Then a coach is able to see the lesson and quiz completion progress at *Coach > Class home* and *Coach > Reports*
-  	When a coach assigns a new lesson or a quiz
+  	Then after a successful sync a coach is able to see the lesson, quiz and course completion progress at *Coach > Class home > <class>* and *Coach > Courses*, *Coach > Lessons*, *Coach > Quizzes*,
+  	When a coach assigns a new lesson, quiz or course
   	Then after a reasonable period of time the resources get automatically transferred to the learn-only device
   		And I am able to interact with and complete the resources
   	When I expand the sidebar
@@ -1121,7 +1121,8 @@ Feature: Kolibri integration testing scenarios
   Scenario: Learner interacts with and completes a course
   	Given I am signed in as a learner user
   		And a coach has assigned a course to me
-  		And as a learner I've completed all course units
+  		And as a learner I'm at the final unit
+  		And a coach has started the final post-test
   	When I click on the course card
     Then I can see the course page
       And I can see an enabled *Resume course* button
@@ -1665,15 +1666,16 @@ Feature: Kolibri integration testing scenarios
   Scenario: Super admin can see the device info and change the device name
   	Given I am signed in as a super admin
 		When I go to *Device > Info*
-		Then I see the correct info for the following: Server URL, Free disk space, Kolibri version and Device name
-			And I see the Advanced section
+		Then I see the correct info for the following: Server URLs, Free disk space, Kolibri version and Device name
+			And I see the *Advanced* section
 		When I click the *Show* link
 		Then I see advanced info for the version, OS, Python, installer, server, database, free disk space, server time, server timezone, device id
 			And I see a *Copy to clipboard* button
 		When I click *Edit* next to the device name
     Then I see the *Device name* modal
     When I enter a new name
-    	And I click *Save*
+    Then I see the following info text under the *Device name* field: This device will be reachable at http://<device name>.local:8080
+    When I click the *Save* button
     Then I see the new device name
       And I see a snackbar that says *Changes saved*
 

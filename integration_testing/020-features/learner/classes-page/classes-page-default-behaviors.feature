@@ -15,7 +15,12 @@ Feature: Classes page default behaviors
     Then I see the resource's viewer page
       And I can interact with the resource
 
-	Scenario: Learner opens a a quiz
+	Scenario: Learner opens a quiz and interacts with the available questions
       When I click on the quiz card
       Then I am at the quiz page
         And I can see and interact with the available questions
+
+  Scenario: Learner opens a course
+      When I click on the course card
+      Then I am at the course page
+        And I can see and interact with the available course resources
