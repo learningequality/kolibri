@@ -49,6 +49,15 @@
           alwanInstance.destroy();
         }
       });
+
+      // Alwan does not expose these elements through its API, so we patch its DOM
+      // to fix two axe violations:
+      //  - .alwan__selector is a focusable div with an aria-label but no role
+      //    (aria-prohibited-attr); give it a role so assistive technology can
+      //    interpret the color picker correctly.
+      //  - its control icons use the invalid attribute aria-role="none"
+      //    (aria-valid-attr); replace it with aria-hidden so AT skips the
+      //    decorative svgs.
       function patchAlwanAccessibility(root) {
         nextTick(() => {
           const selector = root.querySelector('.alwan__selector');
