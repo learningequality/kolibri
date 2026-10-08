@@ -6,7 +6,6 @@
     :authorized="true"
     authorizedRole="adminOrCoach"
     icon="close"
-    :pageTitle="coachString('createLessonAction')"
     :route="{ name: 'LESSONS_ROOT', params: { classId } }"
   >
     <KPageContainer>
@@ -31,11 +30,13 @@
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
+  import { coachStrings } from '../common/commonCoachStrings';
 
   export default {
     name: 'LessonCreationPage',
@@ -45,6 +46,7 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      usePageTitle(coachStrings.createLessonAction$);
       return { pageLoading };
     },
     computed: {

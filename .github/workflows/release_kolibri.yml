@@ -84,10 +84,9 @@ jobs:
   deb:
     name: Build DEB file
     needs: whl
-    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.18.0
+    uses: ./.github/workflows/platform-debian-build_deb.yml
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.16.1
   upload_deb:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: deb
@@ -96,9 +95,27 @@ jobs:
     with:
       filename: ${{ needs.deb.outputs.deb-file-name }}
       release_id: ${{ github.event.release.id }}
+  deb_prerelease:
+    name: Pre-release Kolibri to kolibri-proposed PPA
+    needs: whl
+    uses: ./.github/workflows/platform-debian-prerelease.yml
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
   server_deb:
     name: Build kolibri-server DEB file
     uses: ./.github/workflows/platform-debian-server-build_deb.yml
+  upload_server_deb:
+    uses: ./.github/workflows/upload_github_release_asset.yml
+    needs: server_deb
+    permissions:
+      contents: write
+    with:
+      filename: ${{ needs.server_deb.outputs.deb-file-name }}
+      release_id: ${{ github.event.release.id }}
   exe:
     name: Build EXE file
     needs: whl
@@ -234,13 +251,25 @@ jobs:
           path: 'static'
           destination: '${{ secrets.STUDIO_BCK_CONTENT_STATIC_BUCKET }}'
           process_gcloudignore: false
+  deb_publish_proposed:
+    name: Publish the .debs to the APT repo's proposed suite
+    # One call for both .debs: each job queued in the apt-repo-publish group
+    # cancels the one already pending there.
+    needs: [deb, server_deb]
+    uses: ./.github/workflows/platform-apt-repo-publish.yml
+    with:
+      deb-artifact-pattern: '{${{ needs.deb.outputs.deb-file-name }},${{ needs.server_deb.outputs.deb-file-name }}}'
+    secrets:
+      DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
+      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
   block_release_step:
     # This step ties to the release environment which requires manual approval
     # before it can execute. Once manual approval has been granted, the release is
     # unblocked and all the subsequent steps in this workflow will happen.
     name: Job to block publish of a release until it has been manually approved
     if: ${{ !github.event.release.prerelease }}
-    needs: [whl, pex, dmg, deb, exe, zip, apk, test_pypi_upload]
+    needs: [whl, pex, dmg, deb, exe, zip, apk, test_pypi_upload, deb_publish_proposed]
     runs-on: ubuntu-latest
     # Only bounds the job once approval is granted; the approval wait itself
     # happens before the job starts and is not subject to this timeout.
@@ -279,14 +308,29 @@ jobs:
   server_release:
     name: Release kolibri-server
     if: ${{ !github.event.release.prerelease }}
-    needs: [server_deb, block_release_step]
+    needs: block_release_step
     uses: ./.github/workflows/platform-debian-server-release.yml
-    with:
-      deb-artifact-name: ${{ needs.server_deb.outputs.deb-file-name }}
     secrets:
       LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
       GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+  deb_release_ppa:
+    name: Release Kolibri PPA
+    if: ${{ !github.event.release.prerelease }}
+    needs: [deb_prerelease, block_release_step]
+    uses: ./.github/workflows/platform-debian-release_ppa.yml
+    with:
+      version: ${{ needs.deb_prerelease.outputs.version }}
+    secrets:
+      LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+  apt_promote:
+    name: Promote the APT repo's proposed suite to stable
+    if: ${{ !github.event.release.prerelease }}
+    needs: [block_release_step, deb_publish_proposed]
+    uses: ./.github/workflows/platform-apt-repo-promote.yml
+    with:
+      packages: ${{ needs.deb_publish_proposed.outputs.packages }}
+    secrets:
       DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
       GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
       KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}

@@ -1,9 +1,10 @@
+import { nextTick } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
-import ManageContentPage from '../index.vue';
+import ManageContentPage, { pageTitleStrings } from '../index.vue';
 
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
@@ -14,7 +15,8 @@ jest.mock('kolibri-plugin-data', () => ({
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/useContentTasks');
 
-const { continueAction$ } = coreStrings;
+const { continueAction$, channelsLabel$ } = coreStrings;
+const { documentTitle$ } = pageTitleStrings;
 
 const FIRST_ADMIN_ID = 'first-admin-id';
 const SECOND_ADMIN_ID = 'second-admin-id';
@@ -40,6 +42,17 @@ async function dismissWelcomeModal() {
 describe('ManageContentPage', () => {
   afterEach(() => {
     window.localStorage.clear();
+  });
+
+  it('titles the tab with the page title, with its visible header the only h1', async () => {
+    document.title = '';
+    window.localStorage.setItem(`DEVICE_WELCOME_MODAL_DISMISSED-${FIRST_ADMIN_ID}`, 'true');
+    renderComponent({ currentUserId: FIRST_ADMIN_ID });
+    await nextTick();
+    expect(document.title).toBe(`${documentTitle$()} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(channelsLabel$());
   });
 
   it("stores the welcome modal dismissal under the current user's ID", async () => {

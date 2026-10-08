@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ pageTitleStrings.documentTitle$() }}</h1>
     <div
       class="task-panel"
       :class="{ 'task-panel-sm': windowIsSmall }"
@@ -90,7 +90,9 @@
 
 <script>
 
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
@@ -104,18 +106,21 @@
   import client from 'kolibri/client';
   import { getTaskString } from 'kolibri-common/uiText/tasks';
 
+  export const pageTitleStrings = createTranslator('MergeFacility', {
+    documentTitle: {
+      message: 'Changing learning facility',
+      context: 'Title of this step for the change facility page.',
+    },
+  });
+
   export default {
     name: 'MergeFacility',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       BottomAppBar,
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
       const picturePasswordPending = useSessionStorage(
@@ -339,6 +344,7 @@
       });
 
       return {
+        pageTitleStrings,
         percentage,
         taskError,
         taskCompleted,
@@ -352,10 +358,6 @@
     },
 
     $trs: {
-      documentTitle: {
-        message: 'Changing learning facility',
-        context: 'Title of this step for the change facility page.',
-      },
       success: {
         message: "Successfully joined '{target_facility}' learning facility.",
         context: 'Status message for a successful task.',

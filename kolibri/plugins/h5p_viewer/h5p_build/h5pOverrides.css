@@ -1,0 +1,50 @@
+/*
+ * Upstream scopes this to html.h5p-iframe, which H5P only adds to iframes it
+ * writes itself; Kolibri's externalEmbed page never has it.
+ */
+.h5p-theme {
+  font-family: var(--h5p-theme-font-name);
+}
+
+/*
+ * Upstream hides these labels with display: none, which leaves the cancel
+ * button, having no aria-label, without an accessible name.
+ */
+/* stylelint-disable-next-line csstree/validator -- csstree 3.0.0 predates @container */
+@container (max-width: 400px) {
+  .h5p-theme .h5p-confirmation-dialog-buttons span {
+    position: absolute;
+    display: block;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* Upstream removed this shadow in h5p-php-library 8703485d. */
+.h5p-confirmation-dialog-popup {
+  box-shadow: 0 0 6px 6px rgba(10, 10, 10, 0.3);
+}
+
+/*
+ * Upstream's relative-color background-color contains var(), so browsers
+ * without relative color syntax drop it at computed-value time and render
+ * a transparent backdrop instead of falling back to the earlier rgba().
+ */
+@supports not (color: hsl(from red h s l)) {
+  .h5p-confirmation-dialog-background,
+  .throbber-wrapper {
+    background-color: rgba(44, 44, 44, 0.9);
+  }
+
+  .h5p-theme .h5p-confirmation-dialog-background {
+    background-color: rgba(0, 0, 0, 0.85);
+  }
+
+  /* Separate rule: browsers without :has() drop a whole selector list. */
+  .h5p-content:has(.h5p-theme) .h5p-popup-dialog {
+    background-color: rgba(0, 0, 0, 0.85);
+  }
+}

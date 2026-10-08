@@ -95,9 +95,6 @@ export default [
         error => handleApiError({ error, reloadOnReconnect: true }),
       );
     },
-    meta: {
-      titleParts: ['classesLabel'],
-    },
   },
   {
     name: PageNames.HOME_PAGE,
@@ -110,9 +107,6 @@ export default [
       await showHomePage(toRoute);
       pageLoading.value = false;
     },
-    meta: {
-      titleParts: ['CLASS_NAME'],
-    },
   },
   {
     path: '/:classId/home/activity',
@@ -120,9 +114,6 @@ export default [
     handler: async toRoute => {
       await showHomePage(toRoute);
       pageLoading.value = false;
-    },
-    meta: {
-      titleParts: ['activityLabel', 'CLASS_NAME'],
     },
   },
   {

@@ -1,16 +1,22 @@
-import { mount, createLocalVue, RouterLinkStub } from '@vue/test-utils';
+import { nextTick } from 'vue';
+import { mount, createLocalVue, enableAutoDestroy, RouterLinkStub } from '@vue/test-utils';
 import VueRouter from 'vue-router';
+import { pageHeading } from 'kolibri/composables/usePageTitle';
 import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
 
 import { coachStrings } from '../../common/commonCoachStrings';
 import { STATUSES } from '../../../modules/classSummary/constants';
 import makeStore from '../../../__tests__/utils/makeStore';
+import store from '../../../store';
 import LessonResourceLearnersPage from '../../lessons/reports/LessonResourceLearnersPage';
 
 LessonResourceLearnersPage;
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
+
+// Two mounted pages' title registrations conflict: destroy each page before mounting another.
+enableAutoDestroy(afterEach);
 
 // commonCoach mixin imports kolibri customized router and uses getRoute method
 jest.mock('kolibri/router', () => {
@@ -26,7 +32,6 @@ jest.mock('../../../composables/fetchClassSyncStatus', () => ({
 jest.mock('../../../composables/useCoreCoach', () => {
   return () => {
     return {
-      pageTitle: '',
       appBarTitle: '',
     };
   };
@@ -140,6 +145,7 @@ const initWrapper = (lessonMap, resource) => {
   if (!lessonMap) {
     lessonMap = {
       [LESSON_ID]: {
+        title: 'Clothing lesson',
         groups: [],
         assignments: [CLASSROOM.id],
         learner_ids: [],
@@ -191,11 +197,12 @@ const initWrapper = (lessonMap, resource) => {
     },
   };
 
-  const store = makeStore();
+  store.replaceState(makeStore().state);
 
   store.state.classSummary = {
     ...store.state.classSummary,
     id: CLASSROOM.id,
+    name: CLASSROOM.name,
     lessonMap,
     groupMap,
     learnerMap,
@@ -227,6 +234,16 @@ describe('LessonResourceLearnersPage', () => {
 
   beforeEach(() => {
     wrapper = initWrapper();
+  });
+
+  it('sets the tab title to resource, lesson and class', async () => {
+    await nextTick();
+    expect(document.title).toBe('Boys’ Clothing - Clothing lesson - classroom - Kolibri');
+  });
+
+  it('tells the page shell it renders its own h1', async () => {
+    await nextTick();
+    expect(pageHeading.value).toBe('');
   });
 
   it('renders view by groups checkbox as unchecked when group not in url query', () => {
@@ -264,6 +281,7 @@ describe('LessonResourceLearnersPage', () => {
 
     describe('when displaying all learners', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
       });
 
@@ -290,6 +308,7 @@ describe('LessonResourceLearnersPage', () => {
 
     describe('when displaying all learners', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
       });
 
@@ -310,6 +329,7 @@ describe('LessonResourceLearnersPage', () => {
 
     describe('when displaying learners by groups', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
         router.push(ROUTE_LEARNERS_BY_GROUP);
       });
@@ -360,6 +380,7 @@ describe('LessonResourceLearnersPage', () => {
 
     describe('when displaying all learners', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
       });
 
@@ -381,6 +402,7 @@ describe('LessonResourceLearnersPage', () => {
 
     describe('when displaying learners by groups', () => {
       beforeEach(() => {
+        wrapper.destroy();
         wrapper = initWrapper(lessonMap);
         router.push(ROUTE_LEARNERS_BY_GROUP);
       });
@@ -416,6 +438,7 @@ describe('LessonResourceLearnersPage', () => {
     emulatePrintMedia(beforeEach, afterEach);
 
     it('prints Class and Lesson once and no license info icon', () => {
+      wrapper.destroy();
       wrapper = initWrapper(undefined, { license_name: 'CC BY' });
       expect(countHeaderKeys(wrapper, coachStrings.classLabel$())).toBe(1);
       expect(countHeaderKeys(wrapper, coachStrings.lessonLabel$())).toBe(1);
@@ -423,6 +446,7 @@ describe('LessonResourceLearnersPage', () => {
     });
 
     it('prints Class and Lesson once when viewing by groups', async () => {
+      wrapper.destroy();
       wrapper = initWrapper();
       await router.push(ROUTE_LEARNERS_BY_GROUP);
       expect(countHeaderKeys(wrapper, coachStrings.classLabel$())).toBe(1);

@@ -31,10 +31,22 @@ jobs:
   deb:
     name: Build DEB file
     needs: whl
-    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.18.0
+    uses: ./.github/workflows/platform-debian-build_deb.yml
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.16.1
+  deb_source:
+    name: Build DEB source package
+    needs: whl
+    uses: ./.github/workflows/platform-debian-build_deb.yml
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      source-package: true
+  deb_install_test:
+    name: DEB install tests
+    needs: deb
+    uses: ./.github/workflows/platform-debian-install_test.yml
+    with:
+      deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
   server_deb:
     name: Build kolibri-server DEB file
     uses: ./.github/workflows/platform-debian-server-build_deb.yml

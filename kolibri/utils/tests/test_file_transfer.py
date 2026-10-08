@@ -22,6 +22,7 @@ from kolibri.utils.file_transfer import retry_import
 from kolibri.utils.file_transfer import RETRY_STATUS_CODE
 from kolibri.utils.file_transfer import SSLERROR
 from kolibri.utils.file_transfer import TransferFailed
+from kolibri.utils.file_transfer import TransferFile
 
 
 class BaseTestTransfer(unittest.TestCase):
@@ -955,6 +956,118 @@ class TestTransferNoFullRangesDownloadByteRangeSupportNotReported(
         return True
 
 
+class TestTransferDownloadExistingDestination(unittest.TestCase):
+    def setUp(self):
+        self.destdir = tempfile.mkdtemp()
+        self.content = os.urandom(1024 * 10)
+        self.checksum = hashlib.md5(self.content).hexdigest()
+        self.dest = os.path.join(self.destdir, "existing_file")
+        self.source = "http://example.com/existing_file"
+        self.mock_session = MagicMock()
+
+    def tearDown(self):
+        shutil.rmtree(self.destdir, ignore_errors=True)
+
+    def _write_dest(self, data):
+        with open(self.dest, "wb") as f:
+            f.write(data)
+
+    def test_existing_correct_destination_is_kept(self):
+        self._write_dest(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            fd.run()
+
+        self.mock_session.get.assert_not_called()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def _mock_get(self, data):
+        response = MagicMock()
+        response.headers = {"content-length": str(len(data))}
+        response.iter_content.return_value = iter(
+            [data[i : i + 1024] for i in range(0, len(data), 1024)]
+        )
+        self.mock_session.get.return_value = response
+
+    def test_existing_stale_destination_is_replaced(self):
+        self._write_dest(self.content[:-1])
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            fd.run()
+
+        self.mock_session.get.assert_called_once()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+        self.assertFalse(os.path.exists(self.dest + ".transfer"))
+
+    def test_corrupt_download_keeps_existing_destination(self):
+        stale = self.content[:-1]
+        self._write_dest(stale)
+        self._mock_get(self.content[:-2])
+
+        with self.assertRaises(TransferFailed):
+            with FileDownload(
+                self.source, self.dest, self.checksum, session=self.mock_session
+            ) as fd:
+                fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), stale)
+        self.assertFalse(os.path.exists(self.dest + ".transfer"))
+
+    def test_error_during_redownload_does_not_accept_stale_destination(self):
+        stale = self.content[:-1]
+        self._write_dest(stale)
+        response = MagicMock()
+        response.headers = {"content-length": str(len(self.content))}
+        response.iter_content.side_effect = ValueError
+        self.mock_session.get.return_value = response
+
+        with self.assertRaises(ValueError):
+            with FileDownload(
+                self.source, self.dest, self.checksum, session=self.mock_session
+            ) as fd:
+                fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), stale)
+
+    def test_existing_stale_destination_is_replaced_by_empty_file(self):
+        self._write_dest(self.content)
+        self._mock_get(b"")
+
+        with FileDownload(
+            self.source,
+            self.dest,
+            hashlib.md5(b"").hexdigest(),
+            session=self.mock_session,
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), b"")
+
+    def test_destination_removed_after_init_is_downloaded(self):
+        self._write_dest(self.content)
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            os.remove(self.dest)
+            fd.run()
+
+        self.mock_session.get.assert_called_once()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
         super().setUp()
@@ -974,6 +1087,24 @@ class TestTransferCopy(BaseTestTransfer):
         with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
             fc.run()
         self.assertTrue(os.path.isfile(self.dest))
+
+    def test_copy_empty_file(self):
+        with tempfile.NamedTemporaryFile(delete=False) as testfile:
+            pass
+        self.addCleanup(os.remove, testfile.name)
+        with FileCopy(testfile.name, self.dest, hashlib.md5(b"").hexdigest()) as fc:
+            fc.run()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), b"")
+
+    def test_copy_with_preexisting_transfer_file(self):
+        transfer_file = self.dest + ".transfer"
+        with open(transfer_file, "wb") as f:
+            f.write(b"stale partial content")
+        with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
+            fc.run()
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
 
 
 class TestRetryImport(unittest.TestCase):
@@ -1012,3 +1143,181 @@ class TestRetryImport(unittest.TestCase):
                 retry_import(e),
                 f"Expected no retry for {exception_class.__name__}",
             )
+
+
+class TestTransferFileRetryAfterPartialStream(unittest.TestCase):
+    def setUp(self):
+        self.destdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.destdir, ignore_errors=True)
+        self.dest = os.path.join(self.destdir, "test_file")
+        self.content = os.urandom(1024 * 10)
+
+    def _response(self, chunks):
+        response = MagicMock()
+        response.headers = {"content-length": str(len(self.content))}
+        response.iter_content.return_value = chunks
+        return response
+
+    def _partial_stream(self):
+        yield self.content[:4096]
+        raise ConnectionError
+
+    def _download(self, checksum):
+        session = MagicMock()
+        session.get.side_effect = [
+            self._response(self._partial_stream()),
+            self._response(iter([self.content])),
+        ]
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            checksum,
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            fd.run()
+
+    def test_retry_with_checksum(self):
+        self._download(hashlib.md5(self.content).hexdigest())
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_retry_without_checksum(self):
+        self._download(None)
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_retry_resumes_when_server_honours_range(self):
+        session = MagicMock()
+
+        def _get(url, headers=None, **kwargs):
+            if session.get.call_count == 1:
+                return self._response(self._partial_stream())
+            self.assertIsNotNone(headers)
+            self.assertEqual(headers.get("Range"), "bytes=4096-")
+            res = MagicMock()
+            res.status_code = 206
+            res.headers = {
+                "content-length": str(len(self.content) - 4096),
+                "content-range": f"bytes 4096-{len(self.content) - 1}/{len(self.content)}",
+            }
+            res.iter_content.return_value = iter([self.content[4096:]])
+            return res
+
+        session.get.side_effect = _get
+
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            hashlib.md5(self.content).hexdigest(),
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_retry_compressed_does_not_send_range_and_restarts(self):
+        session = MagicMock()
+
+        def _get(url, headers=None, **kwargs):
+            if session.get.call_count == 1:
+                res = self._response(self._partial_stream())
+                res.headers["content-encoding"] = "gzip"
+                return res
+            self.assertFalse(headers and "Range" in headers)
+            res = self._response(iter([self.content]))
+            res.headers["content-encoding"] = "gzip"
+            return res
+
+        session.get.side_effect = _get
+
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            hashlib.md5(self.content).hexdigest(),
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_retry_when_server_ignores_range_resets_and_downloads_full(self):
+        session = MagicMock()
+
+        def _get(url, headers=None, **kwargs):
+            if session.get.call_count == 1:
+                return self._response(self._partial_stream())
+            self.assertIsNotNone(headers)
+            self.assertEqual(headers.get("Range"), "bytes=4096-")
+            res = self._response(iter([self.content]))
+            res.status_code = 200
+            return res
+
+        session.get.side_effect = _get
+
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            hashlib.md5(self.content).hexdigest(),
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_retry_when_transfer_file_missing_resets_and_downloads_full(self):
+        session = MagicMock()
+
+        def _get(url, headers=None, **kwargs):
+            if session.get.call_count == 1:
+                return self._response(self._partial_stream())
+            self.assertFalse(headers and "Range" in headers)
+            return self._response(iter([self.content]))
+
+        session.get.side_effect = _get
+
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            hashlib.md5(self.content).hexdigest(),
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            orig_close = fd.dest_file_obj.close
+            removed = False
+
+            def _remove_transfer():
+                nonlocal removed
+                orig_close()
+                if not removed and os.path.exists(fd.dest_file_obj._tmp_filepath):
+                    os.remove(fd.dest_file_obj._tmp_filepath)
+                    removed = True
+
+            fd.dest_file_obj.close = _remove_transfer
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_transfer_file_resume_missing_file_raises_filenotfounderror(self):
+        tf = TransferFile(self.dest)
+        tf.write(b"partial")
+        tf.close()
+        os.remove(tf._tmp_filepath)
+        with self.assertRaises(FileNotFoundError):
+            tf.write(b"more")
+
+    def test_transfer_file_delete_calls_reset(self):
+        tf = TransferFile(self.dest)
+        tf.write(b"test")
+        self.assertEqual(tf.resume_offset(), 4)
+        self.assertTrue(os.path.exists(tf._tmp_filepath))
+        tf.delete()
+        self.assertEqual(tf.resume_offset(), 0)
+        self.assertFalse(os.path.exists(tf._tmp_filepath))

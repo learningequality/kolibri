@@ -117,6 +117,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserType from 'kolibri-common/utils/userType';
   import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
@@ -125,15 +126,20 @@
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import store from '../../store';
   import { PageNames } from '../../constants';
+
+  export const pageTitleStrings = createTranslator('UserPermissionsPage', {
+    documentTitle: {
+      message: "{ name }'s Device Permissions",
+      context:
+        'Page title for the individual user device permissions view. This is not seen in the UI.',
+    },
+  });
 
   export default {
     name: 'UserPermissionsPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle', { name: this.user.full_name }),
-      };
-    },
     components: {
       ImmersivePage,
       PermissionsIcon,
@@ -143,6 +149,13 @@
     setup() {
       const { currentUserId } = useUser();
       const { facilities } = useFacilities();
+      usePageTitle(
+        () => {
+          const { user } = store.state.userPermissions;
+          return user?.id ? pageTitleStrings.documentTitle$({ name: user.full_name }) : '';
+        },
+        { hasVisibleHeading: true },
+      );
       return { currentUserId, facilities, pageLoading };
     },
     data() {
@@ -229,11 +242,6 @@
         message: 'Can manage resources on this device',
         context:
           'Label for the checkbox to confirm granting a user permissions to manage content on the device.',
-      },
-      documentTitle: {
-        message: "{ name }'s Device Permissions",
-        context:
-          'Page title for the individual user device permissions view. This is not seen in the UI.',
       },
       makeSuperAdmin: {
         message: 'Make super admin',

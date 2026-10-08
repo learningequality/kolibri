@@ -6,3 +6,12 @@ Architectures: amd64 i386 arm64 armhf
 Components: main
 Description: Kolibri self-hosted APT repository
 SignWith: __REPREPRO_SIGN_KEY__
+
+Origin: Learning Equality
+Label: Kolibri
+Codename: proposed
+Suite: proposed
+Architectures: amd64 i386 arm64 armhf
+Components: main
+Description: Kolibri self-hosted APT repository (proposed)
+SignWith: __REPREPRO_SIGN_KEY__

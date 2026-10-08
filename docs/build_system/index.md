@@ -41,7 +41,6 @@ Kolibri has two distinct build workflows:
 Each external repository specializes in one platform:
 
 - **kolibri-app**: macOS .dmg with app signing and notarization
-- **kolibri-installer-debian**: .deb packages for Debian/Ubuntu
 - **kolibri-installer-windows**: .exe with Windows code signing
 - **kolibri-installer-android**: .apk with Google Play Store publishing
 
@@ -54,7 +53,7 @@ Both PR and release workflows follow a similar orchestration pattern but with di
 2. **PEX Build**: Creates a PEX (Python EXecutable - a self-contained Python application) using the WHL
 3. **Platform Builds**: Triggers platform-specific build workflows:
    - **DMG** (macOS disk image): `learningequality/kolibri-app`
-   - **DEB** (Debian/Ubuntu package): `learningequality/kolibri-installer-debian`
+   - **DEB** (Debian/Ubuntu package): built locally from `platforms/debian/` via `platform-debian-build_deb.yml`
    - **EXE** (Windows installer): `learningequality/kolibri-installer-windows`
    - **APK** (Android app package): `learningequality/kolibri-installer-android`
    - **ZIP** (Raspberry Pi disk image): built locally from `platforms/raspberry-pi/` via `platform-pi-build_img.yml`

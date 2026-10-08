@@ -72,9 +72,6 @@ export default [
       }
       showLessonsRootPage(store, toRoute.params.classId);
     },
-    meta: {
-      titleParts: ['lessonsLabel', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_CREATION_ROOT,
@@ -82,12 +79,14 @@ export default [
     component: LessonCreationPage,
   },
   {
+    name: PageNames.LESSON_EDIT_DETAILS,
+    path: CLASS + LESSON + '/edit',
+    component: LessonEditDetailsPage,
+  },
+  {
     name: PageNames.LESSON_SUMMARY,
     path: CLASS + LESSON + '/:tabId?',
     component: LessonSummaryPage,
-    meta: {
-      titleParts: ['LESSON_NAME', 'CLASS_NAME'],
-    },
     children: [
       {
         name: PageNames.LESSON_SELECT_RESOURCES,
@@ -141,11 +140,6 @@ export default [
     ],
   },
   {
-    name: PageNames.LESSON_EDIT_DETAILS,
-    path: CLASS + LESSON + '/edit',
-    component: LessonEditDetailsPage,
-  },
-  {
     name: PageNames.RESOURCE_CONTENT_PREVIEW,
     path: CLASS + LESSON + '/resource' + PREVIEW,
     component: LessonSelectionContentPreviewPage,
@@ -175,27 +169,18 @@ export default [
     path: CLASS + LESSON + RESOURCE + ALL_LEARNERS,
     component: LessonResourceLearnersPage,
     handler: generateResourceHandler(['resourceId']),
-    meta: {
-      titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_LEARNER_REPORT,
     path: CLASS + LESSON + LEARNER,
     component: LessonLearnerPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
     path: CLASS + LESSON + EXERCISE + ALL_LEARNERS,
     component: LessonExerciseLearnersPage,
     handler: generateResourceHandler(['exerciseId']),
-    meta: {
-      titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT,
@@ -209,27 +194,18 @@ export default [
         query,
       );
     },
-    meta: {
-      titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_EXERCISE_LEARNER_REPORT,
     path: CLASS + LESSON + EXERCISE + LEARNER + TRY + QUESTION + INTERACTION,
     component: LessonExerciseLearnerPage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
-    meta: {
-      titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTIONS_REPORT,
     path: CLASS + LESSON + EXERCISE + QUESTIONS,
     component: ExerciseQuestionListPage,
     handler: generateQuestionListHandler(['lessonId', 'exerciseId']),
-    meta: {
-      titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     path: CLASS + LESSON + LEARNER + EXERCISE,
@@ -238,19 +214,12 @@ export default [
       const { params } = to;
       return exerciseRootRedirectHandler(params, PageNames.LESSON_LEARNER_EXERCISE_REPORT, next);
     },
-    meta: {
-      titleParts: ['EXERCISE_NAME', 'LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_LEARNER_EXERCISE_REPORT,
     path: CLASS + LESSON + LEARNER + EXERCISE + TRY + QUESTION + INTERACTION,
     component: LessonLearnerExercisePage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
-    meta: {
-      // Leaves out attempt and interaction numbers
-      titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
@@ -265,9 +234,5 @@ export default [
     path: CLASS + OPTIONAL_GROUP + LESSON + EXERCISE + QUESTION + LEARNER + INTERACTION,
     component: QuestionLearnersPage,
     handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
-    meta: {
-      // Leaves out info on question
-      titleParts: ['questionLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
   },
 ];

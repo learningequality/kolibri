@@ -1,11 +1,16 @@
 <template>
 
-  <AllPasswordsPage
-    :learners="learners"
-    :className="className"
-    :facilityName="facilityName"
-    :route="backRoute"
-  />
+  <NotificationsRoot
+    :authorized="authorized"
+    authorizedRole="adminOrCoach"
+  >
+    <AllPasswordsPage
+      :learners="learners"
+      :className="className"
+      :facilityName="facilityName"
+      :route="backRoute"
+    />
+  </NotificationsRoot>
 
 </template>
 
@@ -14,21 +19,23 @@
 
   import { computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import AllPasswordsPage from 'kolibri-common/components/AllPasswordsPage';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import useCoreCoach from '../../composables/useCoreCoach';
   import store from '../../store';
   import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
 
   export default {
     name: 'CoachAllPasswordsPage',
-    components: { AllPasswordsPage },
+    components: { AllPasswordsPage, NotificationsRoot },
     setup() {
       const { currentFacilityName } = useFacility();
       const route = useRoute();
+      const { authorized, className } = useCoreCoach(store);
 
       const learners = computed(() => store.getters['classSummary/learners']);
-      const className = computed(() => store.state.classSummary.name);
       const facilityName = computed(() => currentFacilityName.value);
       const backRoute = computed(() => {
         const classId = route.params.classId;
@@ -37,7 +44,7 @@
           : { name: PageNames.LEARNERS_ROOT, params: { classId } };
       });
 
-      return { learners, className, facilityName, backRoute };
+      return { authorized, learners, className, facilityName, backRoute };
     },
   };
 

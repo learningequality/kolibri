@@ -135,7 +135,7 @@ To avoid repeating boilerplate code while testing Vue components, define a ``ren
         showPoints: true,
       });
 
-      expect(screen.getByText('10')).toBeInTheDocument();
+      expect(screen.getByTestId('total-points')).toHaveTextContent('10');
     });
 
 In this example, the ``renderComponent`` function is used to render the ``TotalPoints`` component. All the keys in the ``props`` object are passed as props to the component, and the ``store`` object is used to mock the Vuex store. To see more such mocking examples, you can check out the `testing layout documentation <testing_layout.html>`__.
@@ -178,8 +178,10 @@ When querying the DOM in tests, never use hardcoded strings or regex patterns to
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   const { noTestDataLabel$, sparklineDistributionLabel$ } = coursesStrings;
 
-  getByText(noTestDataLabel$());
-  getByText(sparklineDistributionLabel$({ lowCount: 1, midCount: 0, highCount: 4 }));
+  expect(getByTestId('empty-state')).toHaveTextContent(noTestDataLabel$());
+  expect(getByTestId('sparkline-summary')).toHaveTextContent(
+    sparklineDistributionLabel$({ lowCount: 1, midCount: 0, highCount: 4 }),
+  );
 
   // when strings defined as in-component `$trs` (obsolete pattern),
   // have to use `createTranslator` in the test
@@ -188,7 +190,7 @@ When querying the DOM in tests, never use hardcoded strings or regex patterns to
 
   const { minutes$ } = createTranslator(TimeDuration.name, TimeDuration.$trs);
 
-  getByText(minutes$({ value: 2 }));
+  expect(getByTestId('time-spent')).toHaveTextContent(minutes$({ value: 2 }));
 
 For strings that appear in the test itself (e.g. test data), assign the value to a named constant and reference it in both the setup and the assertion. This makes the relationship between input and expected output explicit and avoids the risk of typos or mismatches between the two.
 
@@ -210,9 +212,10 @@ The only exceptions are hardcoded strings used as ``data-testid`` values for ``*
   // ✅
   screen.getByTestId('summary-table');
 
-  screen.getAllByText('—');
-  screen.getByText('52');
-  screen.findByText('90%');
+  // KTable cells are 'gridcell', not 'cell'
+  screen.getAllByRole('gridcell', { name: '—' });
+  screen.getByRole('gridcell', { name: '52' });
+  await screen.findByRole('gridcell', { name: '90%' });
 
 Avoid using stubs
 ~~~~~~~~~~~~~~~~~
@@ -247,6 +250,56 @@ Queries
 ~~~~~~~
 
 VTL provides a number of `queries <https://testing-library.com/docs/vue-testing-library/cheatsheet#queries>`__ that can be used to query the DOM nodes. There are primarily three types of queries: ``get``, ``query`` and ``find``. All of these queries have different variants, which are used to query the DOM nodes based on different criteria. Some examples of the same include: ``getByText``, ``queryByRole``, ``findByText`` etc. These queries also have a recommened priority based on what the user would most likely interact with. You can read more about the same `here <https://testing-library.com/docs/queries/about#priority>`__.
+
+Assert on specific elements, not text presence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A ``*ByText`` query matches anywhere in the DOM, so asserting that its match exists passes wherever the text renders: in the wrong element, the wrong state, or a leftover from another branch. These assertions are too weak to fail:
+
+- ``getByText(...)`` with ``toBeInTheDocument()`` or ``toBeVisible()``
+- ``getAllByText(...).length > 0``
+- a bare ``getByText(...)``, ``getAllByText(...)`` or ``findByText(...)`` used as the assertion
+- any of these scoped with ``within()``: the match can still be any element in the region
+
+Instead, find the element by what it is, then assert on it:
+
+- a role query with ``name``
+- ``within()`` scoping a role query to the region under test
+- ``getByTestId(...)`` with `toHaveTextContent <https://github.com/testing-library/jest-dom#tohavetextcontent>`__ when no role fits
+
+.. code-block:: javascript
+
+  // ❌
+  expect(screen.getByText(deleteAction$())).toBeInTheDocument();
+  expect(screen.getByText(noTestDataLabel$())).toBeVisible();
+  expect(screen.getAllByText(minutes$({ value: 2 })).length).toBeGreaterThan(0);
+
+  // ✅
+  expect(screen.getByRole('button', { name: deleteAction$() })).toBeEnabled();
+  const dialog = screen.getByRole('dialog', { name: learnerLimitReachedHeading$() });
+  expect(within(dialog).getByRole('button', { name: goToFacilitySettingsLabel$() })).toBeVisible();
+  expect(screen.getByTestId('empty-state')).toHaveTextContent(noTestDataLabel$());
+
+Negation is the inverse case: the broad query makes it strong.
+
+- ``expect(screen.queryByText(...)).not.toBeInTheDocument()`` fails if the text appears anywhere in the DOM as an element's whole own text.
+- ``.not.toBeVisible()`` fails if the text is visible; it also fails on ``null``, so only use it for text that renders hidden.
+- A negated check also passes for a string that never renders, such as the wrong translation key, so pair it with a test where the same query matches. That positive test is the one place a ``*ByText`` match may be asserted.
+- ``toContainElement`` in the positive test also pins the match inside the expected region:
+
+.. code-block:: javascript
+
+  const queryLimitMessage = () => screen.queryByText(learnerCreationDisabled$());
+
+  it('explains why learner creation is disabled at the learner limit', () => {
+    renderComponent({ learnerLimitReached: true });
+    expect(screen.getByTestId('learner-limit-message')).toContainElement(queryLimitMessage());
+  });
+
+  it('shows no learner limit message below the limit', () => {
+    renderComponent({ learnerLimitReached: false });
+    expect(queryLimitMessage()).not.toBeInTheDocument();
+  });
 
 Making use of VTL ``screen`` object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

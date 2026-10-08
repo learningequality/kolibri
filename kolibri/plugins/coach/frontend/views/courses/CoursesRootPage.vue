@@ -226,6 +226,7 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { handleApiError } from 'kolibri/utils/appError';
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
@@ -241,6 +242,7 @@
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import useClassSummary from '../../composables/useClassSummary';
+  import { provideSidePanelTitle } from '../../composables/useSidePanelTitle';
   import Recipients from '../common/Recipients.vue';
   import StatusSummary from '../common/status/StatusSummary.vue';
   import CoachStatusIcon from '../common/status/CoachStatusIcon.vue';
@@ -293,7 +295,10 @@
         postTestRunningLabel$,
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
-      const { getRecipientNamesForCourseSession } = useClassSummary();
+      const { getRecipientNamesForCourseSession, className } = useClassSummary();
+      const title = () => [coursesLabel$(), className.value];
+      usePageTitle(title, { hasVisibleHeading: true });
+      provideSidePanelTitle(title);
       const { show } = useKShow();
       const { windowIsSmall } = useKResponsiveWindow();
       const {
@@ -544,6 +549,7 @@
         postTestRunningLabel$,
         getRecipientNamesForCourseSession,
         courseHasRecipients,
+        className,
       };
     },
     data() {
@@ -554,9 +560,6 @@
       };
     },
     computed: {
-      className() {
-        return this.$store.state.classSummary.name;
-      },
       tableCaption() {
         return this.allCoursesForClass$({ className: this.className });
       },

@@ -2,7 +2,7 @@ import flushPromises from 'flush-promises';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import { shallowMount } from '@vue/test-utils';
+import { enableAutoDestroy, shallowMount } from '@vue/test-utils';
 import BookmarkPage from '../BookmarkPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
@@ -13,6 +13,8 @@ jest.mock('kolibri/urls');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 
 describe('Bookmark Page', () => {
+  enableAutoDestroy(afterEach);
+
   let wrapper;
 
   const fakeBookmarks = [{ bookmark: { id: 1 } }, { bookmark: { id: 2 } }, { bookmark: { id: 3 } }];
@@ -28,7 +30,6 @@ describe('Bookmark Page', () => {
   });
 
   it('smoke test', () => {
-    const wrapper = shallowMount(BookmarkPage);
     expect(wrapper.exists()).toBe(true);
   });
   describe('When the user clicks the remove from bookmarks icon', () => {

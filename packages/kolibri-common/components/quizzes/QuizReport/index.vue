@@ -21,7 +21,8 @@
           :layout4="{ span: 4, alignment: 'left' }"
         >
           <div>
-            <h1
+            <component
+              :is="`h${headingLevel}`"
               v-if="userId"
               class="title"
             >
@@ -29,7 +30,7 @@
                 icon="person"
                 :label="userName"
               />
-            </h1>
+            </component>
             <KLabeledIcon
               :icon="titleIcon"
               :label="title"
@@ -258,6 +259,12 @@
       userName: {
         type: String,
         required: true,
+      },
+      // Level of the user name heading; 2 when the page already has an h1
+      headingLevel: {
+        type: Number,
+        default: 1,
+        validator: level => [1, 2].includes(level),
       },
       // Which specific interaction within an attempt to show
       selectedInteractionIndex: {
@@ -607,6 +614,13 @@
 
 
 <style lang="scss" scoped>
+
+  // Matches h1 as rendered: normalize.css's h1 rule loads after main.scss and wins
+  .title {
+    margin-top: 0.67em;
+    margin-bottom: 0.67em;
+    font-size: 2em;
+  }
 
   .exercise-container {
     padding: 8px;

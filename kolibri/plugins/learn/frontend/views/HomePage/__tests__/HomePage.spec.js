@@ -1,9 +1,11 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { enableAutoDestroy, mount, createLocalVue } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import Vuex, { Store } from 'vuex';
 import flushPromises from 'flush-promises';
 import { set } from '@vueuse/core';
 import client from 'kolibri/client';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 
 import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
@@ -40,13 +42,12 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
-function makeWrapper() {
+function makeMountOptions() {
   const mockStore = new Store({
     state: { core: {}, welcomeModalVisible: false },
     getters: {},
     mutations: {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
-      SET_PAGE_NAME: jest.fn(),
     },
     actions: {},
   });
@@ -75,12 +76,15 @@ function makeWrapper() {
   router.push = jest.fn();
   router.replace = jest.fn();
 
-  return mount(HomePage, {
-    localVue,
+  return {
     router,
     stubs: ['SideNav'],
     store: mockStore,
-  });
+  };
+}
+
+function makeWrapper() {
+  return mount(HomePage, { localVue, ...makeMountOptions() });
 }
 
 function getClassesSection(wrapper) {
@@ -108,6 +112,8 @@ function getExploreChannelsSection(wrapper) {
 }
 
 describe(`HomePage`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeAll(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
@@ -141,6 +147,14 @@ describe(`HomePage`, () => {
   it(`smoke test`, () => {
     const wrapper = makeWrapper();
     expect(wrapper.exists()).toBe(true);
+  });
+
+  it(`renders a single hidden "Home" h1`, () => {
+    render(HomePage, makeMountOptions());
+    const headings = screen.getAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(coreStrings.homeLabel$());
+    expect(headings[0]).toHaveClass('visuallyhidden');
   });
 
   describe(`"Your classes" section`, () => {

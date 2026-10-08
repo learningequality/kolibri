@@ -105,6 +105,7 @@
   import { ref, computed, watch, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
@@ -146,6 +147,7 @@
       const router = useRouter();
       const { createSnackbar } = useSnackbar();
       const { classId, className } = useCoreCoach();
+      usePageTitle(className, { hasVisibleHeading: true });
 
       const { attendanceLoading, sessions, totalPages, sessionCount, fetchSessions } =
         useAttendance();

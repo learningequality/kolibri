@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="$tr('appBarTitle')"
+    :appBarTitle="pageTitleStrings.appBarTitle$()"
     :route="backRoute"
     :loading="pageLoading"
   >
@@ -49,12 +49,10 @@
           :key="task.id"
           :task="task"
           class="task-panel"
-          :appBarTitle="$tr('appBarTitle')"
           :style="{ borderBottomColor: 'var(--palette-grey-v300)' }"
           @clickclear="handleClickClear(task)"
           @clickcancel="handleClickCancel(task)"
           @restart="restartTask(task)"
-          @update-title="updateAppBarTitle"
         />
       </transition-group>
       <BottomAppBar v-if="immersivePage">
@@ -73,28 +71,34 @@
 
 <script>
 
+  import { computed, ref, watch } from 'vue';
   import some from 'lodash/some';
   import { mapGetters } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import TaskResource from 'kolibri/apiResources/TaskResource';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
-  import commonDeviceStrings from '../commonDeviceStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import commonDeviceStrings, { deviceStrings } from '../commonDeviceStrings';
   import useContentTasks from '../../composables/useContentTasks';
   import { PageNames } from '../../constants';
+  import store from '../../store';
 
   import TaskPanel from './TaskPanel';
+
+  export const pageTitleStrings = createTranslator('ManageTasksPage', {
+    appBarTitle: {
+      message: 'Task manager',
+      context: 'Title of the page that displays all the tasks in the task manager. ',
+    },
+  });
 
   // A page to view content import/export/deletion tasks
   export default {
     name: 'ManageTasksPage',
-    metaInfo() {
-      return {
-        title: this.pageTitle,
-      };
-    },
     components: {
       TaskPanel,
       BottomAppBar,
@@ -104,15 +108,68 @@
     setup() {
       useContentTasks();
       const { windowIsLarge } = useKResponsiveWindow();
+
+      // Title tracks tasks only after the task list first changes, which keeps
+      // the vue-meta title's behaviour (#15396)
+      const tasksChanged = ref(false);
+      watch(
+        () => store.getters['manageContent/managedTasks'],
+        () => {
+          tasksChanged.value = true;
+        },
+        { deep: true },
+      );
+
+      const pageTitle = computed(() => {
+        if (!tasksChanged.value) {
+          return pageTitleStrings.appBarTitle$();
+        }
+        const managedTasks = store.getters['manageContent/managedTasks'];
+        const inProgressTasks = managedTasks.filter(task => task.status === 'RUNNING');
+        const failedTasks = managedTasks.filter(task => task.status === 'FAILED');
+        const canceledTasks = managedTasks.filter(task => task.status === 'CANCELED');
+        const totalTasks = managedTasks.length;
+        const completedTasks = managedTasks.filter(task => task.status === 'COMPLETED');
+
+        if (failedTasks.length === 1) {
+          return [deviceStrings.statusFailed$(), failedTasks[0].extra_metadata.channel_name];
+        } else if (failedTasks.length > 1) {
+          return [coreStrings.$formatNumber(failedTasks.length), deviceStrings.statusFailed$()];
+        } else if (totalTasks === 1 && inProgressTasks.length === 1) {
+          const inProgressTask = inProgressTasks[0];
+          return [
+            coreStrings.$formatNumber(inProgressTask.percentage, { style: 'percent' }),
+            inProgressTask.extra_metadata.channel_name,
+          ];
+        } else if (totalTasks > 1 && inProgressTasks.length >= 1) {
+          const averageProgress =
+            inProgressTasks.reduce((sum, task) => sum + task.percentage, 0) /
+            inProgressTasks.length;
+          if (averageProgress === 1) {
+            return deviceStrings.statusComplete$();
+          }
+          return [
+            coreStrings.$formatNumber(averageProgress, { style: 'percent' }),
+            deviceStrings.statusInProgress$(),
+          ];
+        } else if (totalTasks > 0 && completedTasks.length === totalTasks) {
+          return deviceStrings.statusComplete$();
+        } else if (canceledTasks.length > 0) {
+          return deviceStrings.statusCanceled$();
+        }
+        return pageTitleStrings.appBarTitle$();
+      });
+      usePageTitle(pageTitle, { hasVisibleHeading: true });
+
       return {
         windowIsLarge,
         pageLoading,
+        pageTitleStrings,
       };
     },
     data() {
       return {
         loading: true,
-        pageTitle: this.$tr('appBarTitle'),
       };
     },
     computed: {
@@ -154,57 +211,9 @@
       }
     },
     methods: {
-      formattedPercentage(val) {
-        return this.$formatNumber(val, { style: 'percent' });
-      },
-      formattedNumber(val) {
-        return this.$formatNumber(val);
-      },
-
       updateManagedTasks(val) {
         if (val.length > 0) {
           this.loading = false;
-        }
-        // Additional logic or updates related to managedTasks
-        this.updateAppBarTitle();
-      },
-      updateAppBarTitle() {
-        const inProgressTasks = this.managedTasks.filter(task => task.status === 'RUNNING');
-        const failedTasks = this.managedTasks.filter(task => task.status === 'FAILED');
-        const canceledTasks = this.managedTasks.filter(task => task.status === 'CANCELED');
-        const totalTasks = this.managedTasks.length;
-        const completedTasks = this.managedTasks.filter(task => task.status === 'COMPLETED');
-
-        if (failedTasks.length === 1) {
-          this.pageTitle = `${this.deviceString('statusFailed')} - ${
-            failedTasks[0].extra_metadata.channel_name
-          } `;
-        } else if (failedTasks.length > 1) {
-          this.pageTitle = `${this.formattedNumber(failedTasks.length)} - ${this.deviceString(
-            'statusFailed',
-          )}`;
-        } else if (totalTasks === 1 && inProgressTasks.length === 1) {
-          const inProgressTask = inProgressTasks[0];
-          this.pageTitle = `${this.formattedPercentage(inProgressTask.percentage)} - ${
-            inProgressTask.extra_metadata.channel_name
-          } `;
-        } else if (totalTasks > 1 && inProgressTasks.length >= 1) {
-          const averageProgress =
-            inProgressTasks.reduce((sum, task) => sum + task.percentage, 0) /
-            inProgressTasks.length;
-          if (averageProgress === 1) {
-            this.pageTitle = this.deviceString('statusComplete');
-          } else {
-            this.pageTitle = `${this.formattedPercentage(averageProgress)} - ${this.deviceString(
-              'statusInProgress',
-            )}`;
-          }
-        } else if (totalTasks > 0 && completedTasks.length === totalTasks) {
-          this.pageTitle = this.deviceString('statusComplete');
-        } else if (canceledTasks.length > 0) {
-          this.pageTitle = this.deviceString('statusCanceled');
-        } else {
-          this.pageTitle = this.$tr('appBarTitle');
         }
       },
       handleClickClear(task) {
@@ -238,10 +247,6 @@
         message: 'Clear completed',
         context:
           'Button on the task manager page. When pressed it will clear all the completed tasks from the list.',
-      },
-      appBarTitle: {
-        message: 'Task manager',
-        context: 'Title of the page that displays all the tasks in the task manager. ',
       },
     },
   };

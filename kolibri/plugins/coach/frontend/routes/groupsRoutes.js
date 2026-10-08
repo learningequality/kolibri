@@ -45,9 +45,6 @@ export default [
       }
       showGroupsPage(store, toRoute.params.classId, toRoute);
     },
-    meta: {
-      titleParts: ['groupsLabel', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.GROUP_SUMMARY,
@@ -55,9 +52,6 @@ export default [
     component: GroupMembersPage,
     handler(to) {
       showGroupsPage(store, to.params.classId, to);
-    },
-    meta: {
-      titleParts: ['membersLabel', 'GROUP_NAME', 'CLASS_NAME'],
     },
   },
   {
@@ -84,43 +78,28 @@ export default [
     props: {
       editable: false,
     },
-    meta: {
-      titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.GROUP_LESSON_LEARNER,
     path: CLASS + GROUP + LESSON + LEARNER,
     component: LessonLearnerPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['learnersLabel', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT,
     path: CLASS + GROUP + LESSON + EXERCISE + ALL_LEARNERS,
     component: GroupLessonExerciseLearnersPage,
     handler: generateResourceHandler(['exerciseId']),
-    meta: {
-      titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.GROUP_LESSON_EXERCISE_QUESTIONS_REPORT,
     path: CLASS + GROUP + LESSON + EXERCISE + QUESTIONS,
     component: ExerciseQuestionListPage,
     handler: generateQuestionListHandler(['groupId', 'lessonId', 'exerciseId']),
-    meta: {
-      titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.GROUP_EXAM_SUMMARY,
     path: CLASS + GROUP + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
-    meta: {
-      titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
-    },
   },
 ];

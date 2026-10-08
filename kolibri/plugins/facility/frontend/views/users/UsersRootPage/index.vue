@@ -200,7 +200,8 @@
   import PaginationActions from 'kolibri-common/components/PaginationActions';
   import { ref, computed, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useFacility from 'kolibri-common/composables/useFacility';
@@ -221,11 +222,6 @@
 
   export default {
     name: 'UsersRootPage',
-    metaInfo() {
-      return {
-        title: this.coreString('usersLabel'),
-      };
-    },
     components: {
       UsersTable,
       UsersTableToolbar,
@@ -236,6 +232,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(coreStrings.usersLabel$, { hasVisibleHeading: true });
       usePreviousRoute();
       const route = useRoute();
       const router = useRouter();

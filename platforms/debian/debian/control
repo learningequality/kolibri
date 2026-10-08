@@ -1,0 +1,33 @@
+Source: kolibri-source
+Priority: optional
+Section: education
+Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
+Build-Depends: debhelper (>= 13),
+               dh-python,
+               python3-all,
+               python3-setuptools,
+               python3-pytest,
+               python3-pip,
+               po-debconf
+Standards-Version: 4.8.0
+Homepage: https://learningequality.org/kolibri
+Vcs-Git: https://github.com/learningequality/kolibri.git -b develop [platforms/debian]
+Vcs-Browser: https://github.com/learningequality/kolibri/tree/develop/platforms/debian
+
+
+Package: kolibri
+Architecture: all
+Depends: adduser
+Recommends: python3 (>= 3.10),
+            python3-cryptography (>= 1.2.3)
+Description: The offline app for universal education
+ An educational platform for learners of all ages.
+ .
+ Retrieve and Distribute Open Educational Resources (OER) from online
+ resources or from device to device.
+ .
+ Resources are shared as 'channels', amongst which can be found
+ Khan Academy, PhET and CK-12.
+ .
+ To find more channels and create your own, please visit
+ our website: http://studio.learningequality.org/

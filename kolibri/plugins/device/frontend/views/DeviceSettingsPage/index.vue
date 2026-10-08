@@ -17,7 +17,7 @@
       </UiAlert>
       <section>
         <h1>
-          {{ $tr('pageHeader') }}
+          {{ pageTitleStrings.pageHeader$() }}
         </h1>
         <p>
           {{ $tr('pageDescription') }}
@@ -382,11 +382,17 @@
   import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri/utils/i18n';
+  import {
+    availableLanguages,
+    createTranslator,
+    currentLanguage,
+    sortLanguages,
+  } from 'kolibri/utils/i18n';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonDeviceStrings from '../commonDeviceStrings';
@@ -409,13 +415,15 @@
     ALLOW_GUEST_ACCESS: 'ALLOW_GUEST_ACCESS',
   });
 
+  export const pageTitleStrings = createTranslator('DeviceSettingsPage', {
+    pageHeader: {
+      message: 'Device settings',
+      context: 'Title of page where user can configure device settings.',
+    },
+  });
+
   export default {
     name: 'DeviceSettingsPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageHeader'),
-      };
-    },
     components: {
       DeviceAppBarPage,
       BottomAppBar,
@@ -434,6 +442,7 @@
       const dataPlugins = ref(null);
       const { snackbarIsVisible, createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
+      usePageTitle(pageTitleStrings.pageHeader$, { hasVisibleHeading: true });
       fetchPlugins.then(() => {
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
       });
@@ -473,6 +482,7 @@
         createSnackbar,
         facilities,
         pageLoading,
+        pageTitleStrings,
       };
     },
     data() {
@@ -990,10 +1000,6 @@
       pageDescription: {
         message: 'The changes you make here will affect this device only.',
         context: "Description on 'Device settings' page.",
-      },
-      pageHeader: {
-        message: 'Device settings',
-        context: 'Title of page where user can configure device settings.',
       },
       saveFailureNotification: {
         message: 'Settings have not been updated',

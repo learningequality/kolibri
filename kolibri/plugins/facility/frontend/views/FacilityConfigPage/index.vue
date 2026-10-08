@@ -352,6 +352,7 @@
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
@@ -373,11 +374,6 @@
 
   export default {
     name: 'FacilityConfigPage',
-    metaInfo() {
-      return {
-        title: facilityConfigPageStrings.documentTitle$(),
-      };
-    },
     components: {
       FacilityAppBarPage,
       EditFacilityNameModal,
@@ -392,6 +388,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(facilityConfigPageStrings.documentTitle$, { hasVisibleHeading: true });
       const { showSnackbarNotification } = commonCoreStrings.methods;
       const { createSnackbar } = useSnackbar();
       const { isAppContext, isSuperuser } = useUser();

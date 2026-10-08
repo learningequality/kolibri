@@ -1,0 +1,74 @@
+name: Promote proposed to stable in the self-hosted APT repo
+on:
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Space-separated Package=Version pins to promote (e.g. kolibri=0.19.3-0ubuntu1 kolibri-server=0.19.3-0ubuntu1)'
+        required: true
+      allow-downgrade:
+        description: 'Roll stable back to older pinned versions'
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      packages:
+        description: 'Space-separated Package=Version pins to promote'
+        required: true
+        type: string
+    secrets:
+      DEBIAN_REPO_SIGNING_KEY:
+        required: true
+      GH_UPLOADER_GCP_SA_CREDENTIALS:
+        required: true
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET:
+        required: true
+permissions:
+  contents: read
+jobs:
+  promote:
+    name: Copy pinned versions from proposed to stable
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Shares the publish workflow's group: both read-modify-write the same bucket.
+    concurrency:
+      group: apt-repo-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install reprepro and Debian packaging tools
+        run: .github/scripts/apt-install.sh reprepro dpkg-dev debhelper build-essential
+      - name: Import the Debian repo signing key
+        id: gpg
+        env:
+          DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
+        run: .github/scripts/import-apt-repo-signing-key.sh
+      - uses: "google-github-actions/auth@v3"
+        with:
+          credentials_json: "${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}"
+      - name: Set up Cloud SDK
+        uses: "google-github-actions/setup-gcloud@v3"
+      - name: Build the kolibri-archive-keyring package
+        # Serves the version-less kolibri-archive-keyring.deb at the repo root
+        # (via promote.sh's KOLIBRI_KEYRING_DEB hook) so the new-user
+        # `curl .../kolibri-archive-keyring.deb` bootstrap resolves.
+        working-directory: platforms/apt-repo/keyring
+        run: dpkg-buildpackage -b -us -uc
+      - name: Promote proposed to stable
+        env:
+          KOLIBRI_APT_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
+          REPREPRO_SIGN_KEY: ${{ steps.gpg.outputs.key-id }}
+          PACKAGES: ${{ inputs.packages }}
+          ALLOW_DOWNGRADE: ${{ inputs.allow-downgrade }}
+        run: |
+          KOLIBRI_KEYRING_DEB=$(ls "$GITHUB_WORKSPACE"/platforms/apt-repo/kolibri-archive-keyring_*.deb)
+          export KOLIBRI_KEYRING_DEB
+          read -ra pins <<< "$PACKAGES"
+          if [ "$ALLOW_DOWNGRADE" = true ]; then
+            pins=(--allow-downgrade "${pins[@]}")
+          fi
+          bash platforms/apt-repo/promote.sh "${pins[@]}"
+      - name: Clean up GPG material
+        if: always()
+        run: |
+          gpgconf --kill gpg-agent || true
+          rm -rf "$GNUPGHOME"

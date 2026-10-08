@@ -4,7 +4,7 @@
     <h1>
       {{ header }}
     </h1>
-    <p>
+    <p data-testid="details">
       <slot name="details">
         {{ detailsText }}
       </slot>

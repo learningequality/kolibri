@@ -2,23 +2,12 @@ name: Release kolibri-server
 on:
   workflow_dispatch:
   workflow_call:
-    inputs:
-      deb-artifact-name:
-        description: 'Artifact name of the already-built kolibri-server .deb to publish to the self-hosted APT repo'
-        required: true
-        type: string
     secrets:
       LP_CREDENTIALS:
         required: true
       GPG_SIGNING_KEY:
         required: true
       GPG_PASSPHRASE:
-        required: true
-      DEBIAN_REPO_SIGNING_KEY:
-        required: true
-      GH_UPLOADER_GCP_SA_CREDENTIALS:
-        required: true
-      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET:
         required: true
 permissions:
   contents: read
@@ -55,10 +44,13 @@ jobs:
               ;;
           esac
           echo "KOLIBRI_VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Install the changelog generator's LTS data
+        run: .github/scripts/apt-install.sh distro-info-data
       - name: Generate the changelog from the Kolibri version
         working-directory: platforms/debian-server
         env:
           KOLIBRI_VERSION: ${{ steps.kolibri.outputs.KOLIBRI_VERSION }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: make changelog
       - name: Extract the Debian version from the changelog
         id: version
@@ -83,15 +75,14 @@ jobs:
           cache-python: true
       - name: Install the workspace so kolibri resolves from it
         run: uv sync --all-packages
-      - name: Generate the changelog targeting the runner series
-        working-directory: platforms/debian-server
-        run: |
-          SERIES=$(. /etc/os-release && echo "$VERSION_CODENAME")
-          echo "Targeting series: ${SERIES}"
-          DISTRIBUTION="$SERIES" make changelog
       - name: Install build and upload dependencies
         working-directory: platforms/debian-server
         run: make install-upload-deps
+      - name: Generate the changelog from the Kolibri version
+        working-directory: platforms/debian-server
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: make changelog
       - name: Install Kolibri
         working-directory: platforms/debian-server
         run: make install-kolibri
@@ -105,13 +96,21 @@ jobs:
         working-directory: platforms/debian-server
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.check_version.outputs.version }}
         run: |
-          if python3 scripts/launchpad_copy.py check-source \
-            --package kolibri-server \
-            --version "${{ needs.check_version.outputs.version }}"; then
+          set +e
+          python3 ../debian/scripts/launchpad_copy.py \
+            --source-package kolibri-server --binary-package kolibri-server \
+            check-source --version "$VERSION"
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ]; then
             echo "already_uploaded=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$rc" -eq 1 ]; then
             echo "already_uploaded=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Failed to check source package status"
+            exit "$rc"
           fi
       - name: Import GPG key
         if: steps.check_source.outputs.already_uploaded != 'true'
@@ -143,7 +142,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: .github/scripts/apt-install.sh python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -153,12 +152,11 @@ jobs:
         working-directory: platforms/debian-server
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.check_version.outputs.version }}
         run: |
-          SERIES=$(. /etc/os-release && echo "$VERSION_CODENAME")
-          python3 scripts/launchpad_copy.py wait-for-published \
-            --package kolibri-server \
-            --version "${{ needs.check_version.outputs.version }}" \
-            --series "$SERIES"
+          python3 ../debian/scripts/launchpad_copy.py \
+            --source-package kolibri-server --binary-package kolibri-server \
+            wait-for-published --version "$VERSION"
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
@@ -170,7 +168,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: .github/scripts/apt-install.sh python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -181,7 +179,9 @@ jobs:
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
-          python3 scripts/launchpad_copy.py copy-to-series
+          python3 ../debian/scripts/launchpad_copy.py \
+            --source-package kolibri-server --binary-package kolibri-server \
+            copy-to-series --no-esm
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
@@ -196,7 +196,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: .github/scripts/apt-install.sh python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -206,17 +206,16 @@ jobs:
         working-directory: platforms/debian-server
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.check_version.outputs.version }}
         run: |
-          python3 scripts/launchpad_copy.py wait-for-published \
-            --package kolibri-server \
-            --version "${{ needs.check_version.outputs.version }}"
+          python3 ../debian/scripts/launchpad_copy.py \
+            --source-package kolibri-server --binary-package kolibri-server \
+            wait-for-published --version "$VERSION"
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
   block_release_step:
     name: Job to block publish of a release until it has been manually approved
-    needs:
-      - wait_for_copies_published
     runs-on: ubuntu-latest
     # Only bounds the job once approval is granted; the approval wait itself
     # happens before the job starts and is not subject to this timeout.
@@ -228,6 +227,7 @@ jobs:
     name: Promote packages from kolibri-proposed to kolibri
     needs:
       - check_version
+      - wait_for_copies_published
       - block_release_step
     runs-on: ubuntu-latest
     # launchpad_copy.py wait-for-published gives up after 30 minutes of its own.
@@ -236,7 +236,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: .github/scripts/apt-install.sh python3-launchpadlib
+        run: .github/scripts/apt-install.sh python3-launchpadlib python3-distro-info
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -246,32 +246,20 @@ jobs:
         working-directory: platforms/debian-server
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.check_version.outputs.version }}
         run: |
-          python3 scripts/launchpad_copy.py promote \
-            --version "${{ needs.check_version.outputs.version }}"
+          python3 ../debian/scripts/launchpad_copy.py \
+            --source-package kolibri-server --binary-package kolibri-server \
+            promote --version "$VERSION"
       - name: Wait for promoted packages to be published
         working-directory: platforms/debian-server
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+          VERSION: ${{ needs.check_version.outputs.version }}
         run: |
-          python3 scripts/launchpad_copy.py wait-for-published \
-            --package kolibri-server \
-            --version "${{ needs.check_version.outputs.version }}" \
-            --ppa kolibri
+          python3 ../debian/scripts/launchpad_copy.py \
+            --source-package kolibri-server --binary-package kolibri-server \
+            wait-for-published --version "$VERSION" --ppa kolibri
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
-  publish_apt_repo:
-    name: Publish the kolibri-server .deb to the self-hosted APT repo
-    # Releases an already-built .deb, passed in by the caller. To publish an
-    # existing release asset instead, dispatch platform-apt-repo-publish.yml
-    # directly with its deb-url input.
-    if: ${{ inputs.deb-artifact-name }}
-    needs: block_release_step
-    uses: ./.github/workflows/platform-apt-repo-publish.yml
-    with:
-      deb-artifact-name: ${{ inputs.deb-artifact-name }}
-    secrets:
-      DEBIAN_REPO_SIGNING_KEY: ${{ secrets.DEBIAN_REPO_SIGNING_KEY }}
-      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
-      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}

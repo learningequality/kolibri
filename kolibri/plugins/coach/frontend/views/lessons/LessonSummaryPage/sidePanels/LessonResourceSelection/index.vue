@@ -117,6 +117,7 @@
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import useSidePanelTitle from '../../../../../composables/useSidePanelTitle';
   import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
@@ -128,6 +129,7 @@
       autofocusFirstEl,
     },
     setup() {
+      useSidePanelTitle();
       const previousRoute = usePreviousRoute();
       const isLandingRoute = computed(() => previousRoute.value === null);
 
@@ -279,7 +281,11 @@
       },
     },
     methods: {
-      ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapActions('lessonSummary', [
+        'saveLessonResources',
+        'addToResourceCache',
+        'updateCurrentLesson',
+      ]),
       ...mapMutations('lessonSummary', {
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),
@@ -326,6 +332,8 @@
           // so that it can update the backup resources.
           this.$emit('workingResourcesUpdated');
           this.notifyResourcesAdded(countNewResources);
+          // Refresh the lesson so its size reflects the newly added resources
+          await this.updateCurrentLesson(this.currentLesson.id);
         }
         this.closeSidePanel(false);
       },

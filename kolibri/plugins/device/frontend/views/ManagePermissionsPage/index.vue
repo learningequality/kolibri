@@ -60,24 +60,28 @@
 <script>
 
   import { mapState } from 'vuex';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri/constants';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { deviceString } from '../commonDeviceStrings';
   import UserGrid from './UserGrid';
 
   const ALL_FILTER = 'all';
 
+  export const pageTitleStrings = createTranslator('ManagePermissionsPage', {
+    documentTitle: {
+      message: 'Manage Device Permissions',
+      context: "Title of the 'Device permissions' page.",
+    },
+  });
+
   export default {
     name: 'ManagePermissionsPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       DeviceAppBarPage,
       PaginatedListContainer,
@@ -86,6 +90,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { facilities } = useFacilities();
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       return { facilities, pageLoading };
     },
     data() {
@@ -254,10 +259,6 @@
       searchPlaceholder: {
         message: 'Search for a user…',
         context: "Refers to the search for a user option on the 'Device permissions' page.",
-      },
-      documentTitle: {
-        message: 'Manage Device Permissions',
-        context: "Title of the 'Device permissions' page.",
       },
       adminsLabel: {
         message: 'Admins',

@@ -55,20 +55,16 @@
 
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri-common/components/userAccounts/PrivacyLinkAndModal';
   import useUser from 'kolibri/composables/useUser';
-  import commonProfileStrings from '../../commonProfileStrings';
+  import commonProfileStrings, { profileStrings } from '../../commonProfileStrings';
 
   export default {
     name: 'CreateAccount',
-    metaInfo() {
-      return {
-        title: this.profileString('mergeAccounts'),
-      };
-    },
     components: {
       BottomAppBar,
       UsernameTextbox,
@@ -77,6 +73,7 @@
     },
     mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
+      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
       const { session } = useUser();
       return { session };
     },

@@ -1,7 +1,7 @@
 <template>
 
   <KPageContainer>
-    <h1>{{ $tr('sectionTitle') }}</h1>
+    <h2 class="section-heading">{{ $tr('sectionTitle') }}</h2>
     <p>
       {{ $tr('sectionDescription') }}
     </p>

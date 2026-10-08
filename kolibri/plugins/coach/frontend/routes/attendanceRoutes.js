@@ -17,26 +17,17 @@ export default [
     path: CLASS + '/attendance/new',
     component: AttendanceNewPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['CLASS_NAME'],
-    },
   },
   {
     name: PageNames.ATTENDANCE_HISTORY,
     path: CLASS + '/attendance/history',
     component: AttendanceHistoryPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['CLASS_NAME'],
-    },
   },
   {
     name: PageNames.ATTENDANCE_EDIT,
     path: CLASS + '/attendance/:attendanceId',
     component: AttendanceEditPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['CLASS_NAME'],
-    },
   },
 ];

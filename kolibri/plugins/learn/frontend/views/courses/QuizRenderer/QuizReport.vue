@@ -8,6 +8,7 @@
     :duration="content.duration"
     :userName="userName"
     :userId="userId"
+    :headingLevel="2"
     :selectedInteractionIndex="selectedInteractionIndex"
     :questionNumber="questionNumber"
     :tryIndex="tryIndex"

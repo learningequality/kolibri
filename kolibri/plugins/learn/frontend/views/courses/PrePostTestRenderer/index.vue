@@ -15,9 +15,9 @@
           :description="completionDescription"
         />
         <div v-else>
-          <h1>
+          <h2 class="question-heading">
             {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
-          </h1>
+          </h2>
           <ContentViewer
             v-if="itemId"
             ref="contentViewer"
@@ -496,6 +496,13 @@
 
 
 <style lang="scss" scoped>
+
+  // Matches h1 as rendered: normalize.css's h1 rule loads after main.scss and wins
+  .question-heading {
+    margin-top: 0.67em;
+    margin-bottom: 0.67em;
+    font-size: 2em;
+  }
 
   .bottom-bar {
     display: flex;

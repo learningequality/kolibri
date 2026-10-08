@@ -27,6 +27,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { CoursesModals, PageNames } from '../../../../constants';
   import { overrideRoute } from '../../../../utils';
+  import useSidePanelTitle from '../../../../composables/useSidePanelTitle';
   import { injectAssignCourse } from '../../composables/useAssignCourse';
   import CloseConfirmationModal from '../../modals/CloseConfirmationModal.vue';
 
@@ -54,6 +55,7 @@
       CloseConfirmationModal,
     },
     setup(props, { emit }) {
+      useSidePanelTitle();
       const route = useRoute();
       const router = useRouter();
 

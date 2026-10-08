@@ -1,7 +1,7 @@
 <template>
 
   <KPageContainer :style="containerStyle">
-    <h1>{{ $tr('syncData') }}</h1>
+    <h2 class="section-heading">{{ $tr('syncData') }}</h2>
     <p>
       <KButton
         appearance="basic-link"

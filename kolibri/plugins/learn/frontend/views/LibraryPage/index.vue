@@ -109,19 +109,23 @@
           />
         </div>
 
-        <SearchResultsGrid
-          v-else-if="displayingSearchResults"
-          data-testid="search-results"
-          :allowDownloads="allowDownloads"
-          :results="results"
-          :moreLoading="moreLoading"
-          :searchMore="searchMore"
-          :currentCardViewStyle="currentCardViewStyle"
-          :searchLoading="searchLoading"
-          :more="more"
-          @setCardStyle="style => (currentCardViewStyle = style)"
-          @setSidePanelMetadataContent="content => (metadataSidePanelContent = content)"
-        />
+        <div v-else-if="displayingSearchResults">
+          <h1 class="visuallyhidden">
+            {{ learnString('learnLabel') }}
+          </h1>
+          <SearchResultsGrid
+            data-testid="search-results"
+            :allowDownloads="allowDownloads"
+            :results="results"
+            :moreLoading="moreLoading"
+            :searchMore="searchMore"
+            :currentCardViewStyle="currentCardViewStyle"
+            :searchLoading="searchLoading"
+            :more="more"
+            @setCardStyle="style => (currentCardViewStyle = style)"
+            @setSidePanelMetadataContent="content => (metadataSidePanelContent = content)"
+          />
+        </div>
       </main>
 
       <!-- All filters side panel -->
@@ -186,12 +190,14 @@
 
   import { get, set, useSessionStorage } from '@vueuse/core';
 
-  import { getCurrentInstance, ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
+  import { useRouter } from 'vue-router/composables';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useNav from 'kolibri/composables/useNav';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { handleApiError, clearError } from 'kolibri/utils/appError';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -205,6 +211,7 @@
   import useTour from 'kolibri/composables/useTour';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
+  import store from '../../store';
   import SearchFiltersSidePanel from '../SearchFiltersSidePanel';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
@@ -219,7 +226,7 @@
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
-  import commonLearnStrings from '../commonLearnStrings';
+  import commonLearnStrings, { learnStrings } from '../commonLearnStrings';
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
@@ -235,11 +242,6 @@
 
   export default {
     name: 'LibraryPage',
-    metaInfo() {
-      return {
-        title: this.learnString('learnLabel'),
-      };
-    },
     components: {
       BrowseResourceMetadata,
       ChannelCardGroupGrid,
@@ -259,9 +261,8 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
-      const currentInstance = getCurrentInstance().proxy;
-      const store = currentInstance.$store;
-      const router = currentInstance.$router;
+      usePageTitle(learnStrings.learnLabel$, { hasVisibleHeading: true });
+      const router = useRouter();
       const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
       const { isUserLoggedIn, hasRole, currentUserId } = useUser();
       const picturePasswordPending = useSessionStorage(

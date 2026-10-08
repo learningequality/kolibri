@@ -31,6 +31,10 @@ You can also make changes in the cloned repository in the following workflow:
 #. Set up the monorepo pre-commit hooks (run ``prek install`` at the repository root)
 #. Make your changes
 #. Build the package with ``make deb``
+
+   - Needs ``distro-info-data`` (``/usr/share/distro-info/ubuntu.csv``)
+   - Needs network access to ``api.github.com``
+   - Set ``GITHUB_TOKEN`` to avoid the unauthenticated rate limit
 #. Test the package with  ``sudo dpkg -i ../kolibri-server_VERSION.deb``
 #. If you have further changes, you can keep editing and invoking ``make dist``
 #. Finally, commit your changes and open a PR
@@ -45,16 +49,16 @@ Release workflow
 
 Releases are published to Launchpad by the ``platform-debian-server-release.yml`` workflow ("Release kolibri-server"), run manually via ``workflow_dispatch``. It:
 
+#. Requests manual approval via the ``release`` environment at workflow start; promotion waits for it
 #. Resolves the workspace Kolibri version and refuses to publish a dev/local build — only real releases and pre-releases reach the PPA
 #. Generates ``debian/changelog`` from that Kolibri version
 #. Builds, signs, and uploads the source package to the ``kolibri-proposed`` PPA via ``dput``
-#. Waits for Launchpad to build the source package
+#. Waits for Launchpad to build the source package in the current Ubuntu LTS
 #. Copies the built package to all supported Ubuntu series
 #. Waits for all copy builds to complete
-#. Requires manual approval via the ``release`` environment
 #. Promotes packages from ``kolibri-proposed`` to the ``kolibri`` PPA
 
-The ``.deb`` version is bound to the Kolibri version, so there is no separate release tag to validate against. Building and publishing the GitHub Pages APT repo is handled separately and is not part of this workflow.
+The ``.deb`` version is bound to the Kolibri version, so there is no separate release tag to validate against. ``release_kolibri.yml`` publishes the ``.deb`` to the self-hosted APT repo; see ``platforms/apt-repo/README.md``.
 
 Launchpad credentials setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,7 +70,7 @@ To generate credentials:
 #. Install launchpadlib: ``pip install launchpadlib``
 #. Run the credentials helper script::
 
-     python3 scripts/create_lp_creds.py
+     python3 ../debian/scripts/create_lp_creds.py
 
 #. Approve the authorization request in your browser. This writes a credentials file (default: ``launchpad.credentials``).
 #. Copy the full content of the credentials file.
@@ -92,27 +96,31 @@ All copy and promote steps are idempotent, so if a release fails partway through
 Launchpad copy script
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``scripts/launchpad_copy.py`` script manages Launchpad PPA operations with four subcommands:
+The workflow uses ``../debian/scripts/launchpad_copy.py``, which requires the package names before its subcommand::
+
+    python3 ../debian/scripts/launchpad_copy.py --source-package kolibri-server --binary-package kolibri-server <subcommand>
+
+It has four subcommands:
 
 ``check-source``
   Checks whether a source package version already exists in a PPA::
 
-    python3 scripts/launchpad_copy.py check-source --package kolibri-server --version 0.19.0
+    check-source --version 0.19.0
 
 ``wait-for-published``
   Polls Launchpad until published binaries appear for a source package::
 
-    python3 scripts/launchpad_copy.py wait-for-published --package kolibri-server --version 0.19.0
+    wait-for-published --version 0.19.0
 
 ``copy-to-series``
-  Copies packages from the source Ubuntu series to all other supported series within the ``kolibri-proposed`` PPA::
+  Copies packages from the current Ubuntu LTS to all other supported series within the ``kolibri-proposed`` PPA::
 
-    python3 scripts/launchpad_copy.py copy-to-series
+    copy-to-series --no-esm
 
 ``promote``
   Promotes all published packages from ``kolibri-proposed`` to the ``kolibri`` PPA::
 
-    python3 scripts/launchpad_copy.py promote --version 0.19.0
+    promote --version 0.19.0
 
 All subcommands are idempotent — rerunning them after a partial success safely skips packages that were already copied or promoted.
 
@@ -137,8 +145,4 @@ You can configure the main Nginx site and overwrite defaults by adding ``.conf``
 Testing
 -------
 
-Run the Launchpad-tooling unit tests from ``platforms/debian-server`` with::
-
-  uv run python -O -m pytest
-
-The ``pr_build_kolibri.yml`` PR build also builds the ``.deb`` and runs ``tests/serving_smoke_test.sh`` against it, asserting Kolibri is served behind Nginx/UWSGI after installation.
+The ``pr_build_kolibri.yml`` PR build builds the ``.deb`` and runs ``tests/serving_smoke_test.sh`` against it, asserting Kolibri is served behind Nginx/UWSGI after installation.

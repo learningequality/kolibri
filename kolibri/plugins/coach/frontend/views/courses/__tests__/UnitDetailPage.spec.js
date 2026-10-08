@@ -1,15 +1,23 @@
 /* global flushPromises */
-import { ref, reactive } from 'vue';
+import { nextTick, ref, reactive } from 'vue';
 import { render, screen, fireEvent } from '@testing-library/vue';
+import VueRouter from 'vue-router';
 import { useRoute, useRouter } from 'vue-router/composables';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import { pageHeading } from 'kolibri/composables/usePageTitle';
 import { PageNames } from '../../../constants';
 // eslint-disable-next-line import-x/named
 import useUnitDetail, { useUnitDetailMock } from '../../../composables/useUnitDetail';
+// eslint-disable-next-line import-x/named
+import useClassSummary, { useClassSummaryMock } from '../../../composables/useClassSummary';
 import useCourseNotificationPolling from '../../../composables/useCourseNotificationPolling';
 import UnitDetailPage from '../UnitDetailPage.vue';
 
 const { learningObjectivesLabel$ } = coursesStrings;
+
+const CLASS_NAME = 'Class A';
+const COURSE_TITLE = 'Human Biology';
+const UNIT_TITLE = 'Unit 1: Cells';
 
 jest.mock('vue-router/composables', () => ({ useRoute: jest.fn(), useRouter: jest.fn() }));
 jest.mock('../../../store', () => ({ __esModule: true, default: { dispatch: jest.fn() } }));
@@ -63,6 +71,38 @@ describe('UnitDetailPage', () => {
       }),
     });
     useUnitDetail.mockImplementation(() => useUnitDetailMock());
+    useClassSummary.mockImplementation(() => useClassSummaryMock({ className: ref(CLASS_NAME) }));
+  });
+
+  describe('page title', () => {
+    // The back link to the course renders once courseTitle is set.
+    function renderWithBackLink() {
+      return render(UnitDetailPage, {
+        routes: new VueRouter({ routes: [{ name: PageNames.COURSE_SUMMARY, path: '/course' }] }),
+      });
+    }
+
+    beforeEach(() => {
+      useUnitDetail.mockImplementation(() =>
+        useUnitDetailMock({
+          courseTitle: ref(COURSE_TITLE),
+          numberedUnitTitle: ref(UNIT_TITLE),
+        }),
+      );
+    });
+
+    it('sets the tab title to the course title and class name', async () => {
+      renderWithBackLink();
+      await nextTick();
+      expect(document.title).toBe(`${COURSE_TITLE} - ${CLASS_NAME} - Kolibri`);
+    });
+
+    it('tells the page shell it renders its own h1', async () => {
+      renderWithBackLink();
+      await nextTick();
+      expect(pageHeading.value).toBe('');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(UNIT_TITLE);
+    });
   });
 
   it('calls useUnitDetail with courseSessionId and unitContentnodeId from route params', () => {

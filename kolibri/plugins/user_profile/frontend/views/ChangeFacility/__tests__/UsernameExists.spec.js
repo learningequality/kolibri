@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
 import UsernameExists from '../UsernameExists';
 
 const localVue = createLocalVue();
@@ -27,6 +27,8 @@ const clickMergeButton = wrapper => getMergeButton(wrapper).trigger('click');
 const clickCreateButton = wrapper => getCreateButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/UsernameExists`, () => {
+  enableAutoDestroy(afterEach);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

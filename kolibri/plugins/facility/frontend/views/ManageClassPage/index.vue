@@ -123,13 +123,15 @@
 
 <script>
 
-  import { ref, getCurrentInstance } from 'vue';
+  import { ref } from 'vue';
   import { mapState, mapGetters } from 'vuex';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { Modals } from '../../constants';
+  import store from '../../store';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../common/ClassRenameModal.vue';
   import ClassDeleteModal from '../common/ClassDeleteModal';
@@ -139,11 +141,6 @@
 
   export default {
     name: 'ManageClassPage',
-    metaInfo() {
-      return {
-        title: this.coreString('classesLabel'),
-      };
-    },
     components: {
       FacilityAppBarPage,
       ClassCreateModal,
@@ -153,6 +150,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(coreStrings.classesLabel$, { hasVisibleHeading: true });
       const classDetails = ref({
         id: '',
         name: '',
@@ -160,7 +158,6 @@
       const classToCopy = ref({});
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { fetchFacilities, userIsMultiFacilityAdmin } = useFacilities();
-      const store = getCurrentInstance().proxy.$store;
       const displayModal = payload => store.dispatch('classManagement/displayModal', payload);
 
       const { copyClass$, renameClassLabel$, deleteClass$ } = bulkUserManagementStrings;

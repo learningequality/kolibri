@@ -1,5 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import flushPromises from 'flush-promises';
+import client from 'kolibri/client';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import Modalities from 'kolibri-constants/Modalities';
 // eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -284,6 +288,70 @@ describe('TopicsContentPage', () => {
           });
         });
       });
+    });
+  });
+
+  describe('page title', () => {
+    const RESOURCE_TITLE = 'Resource title';
+    const CHANNEL_TITLE = 'Channel title';
+    const resource = {
+      id: CONTENT_ID,
+      content_id: 'content-content-id',
+      channel_id: CHANNEL_ID,
+      kind: 'document',
+      title: RESOURCE_TITLE,
+      ancestors: [{ id: 'root', title: CHANNEL_TITLE }],
+      parent: 'root',
+      files: [],
+      options: {},
+      assessmentmetadata: null,
+    };
+
+    const practiceQuiz = {
+      ...resource,
+      kind: 'exercise',
+      options: { modality: Modalities.QUIZ },
+      assessmentmetadata: {
+        assessment_item_ids: ['item-1', 'item-2'],
+        mastery_model: { type: 'pre_post_test' },
+      },
+    };
+
+    async function renderPage(content) {
+      ContentNodeResource.retrieve.mockResolvedValue(content);
+      render(TopicsContentPage, { props: { id: CONTENT_ID }, store: makeStore(), routes: [] });
+      await flushPromises();
+    }
+
+    beforeEach(() => {
+      document.title = '';
+    });
+
+    it('titles a resource with its title and channel, under one hidden h1', async () => {
+      await renderPage(resource);
+      expect(document.title).toBe(
+        `${RESOURCE_TITLE} - ${CHANNEL_TITLE} - ${coreStrings.kolibriLabel$()}`,
+      );
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(`${RESOURCE_TITLE} - ${CHANNEL_TITLE}`);
+      expect(headings[0]).toHaveClass('visuallyhidden');
+    });
+
+    it("leaves a practice quiz's question heading as its only h1", async () => {
+      await renderPage(practiceQuiz);
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).not.toHaveClass('visuallyhidden');
+    });
+
+    it("gives a guest's mastered practice quiz one hidden h1", async () => {
+      client.__setPayload({ complete: true, progress: 1, pastattempts: [], extra_fields: {} });
+      await renderPage(practiceQuiz);
+      const headings = screen.getAllByRole('heading', { level: 1 });
+      expect(headings).toHaveLength(1);
+      expect(headings[0]).toHaveTextContent(RESOURCE_TITLE);
+      expect(headings[0]).toHaveClass('visuallyhidden');
     });
   });
 });

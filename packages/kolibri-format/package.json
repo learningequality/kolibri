@@ -1,6 +1,6 @@
 {
   "name": "kolibri-format",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A module for formatting frontend code to Kolibri standards",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "chalk": "4.1.2",
-    "commander": "^15.0.0",
+    "commander": "^14.0.0",
     "@eslint/js": "^9.39.0",
     "eslint": "^9.39.0",
     "eslint-config-prettier": "^10.1.8",

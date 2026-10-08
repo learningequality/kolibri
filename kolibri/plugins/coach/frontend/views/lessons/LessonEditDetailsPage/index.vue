@@ -6,7 +6,6 @@
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
     icon="close"
-    :pageTitle="$tr('pageTitle', { title: lesson.title })"
     :route="previousPageRoute"
   >
     <KPageContainer v-if="!loading">
@@ -25,10 +24,13 @@
 <script>
 
   import cloneDeep from 'lodash/cloneDeep';
+  import { ref } from 'vue';
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import { handleApiError } from 'kolibri/utils/appError';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -36,6 +38,14 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import { PageNames } from '../../../constants';
+
+  const { pageTitle$ } = createTranslator('LessonEditDetailsPage', {
+    pageTitle: {
+      message: `Edit lesson details for '{title}'`,
+      context:
+        "Page title for page which coach accesses using the 'Edit details' option on the Plan > Lessons tab.",
+    },
+  });
 
   export default {
     name: 'LessonEditDetailsPage',
@@ -45,6 +55,13 @@
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
+      const lesson = ref({
+        title: '',
+        description: '',
+        assignments: [],
+        active: false,
+      });
+      usePageTitle(() => pageTitle$({ title: lesson.value.title }));
       const { createSnackbar } = useSnackbar();
       const { isSuperuser } = useUser();
       const { fetchFacilities, facilities } = useFacilities();
@@ -55,16 +72,11 @@
         fetchFacilities,
         facilities,
         pageLoading,
+        lesson,
       };
     },
     data() {
       return {
-        lesson: {
-          title: '',
-          description: '',
-          assignments: [],
-          active: false,
-        },
         lessonBaseline: null,
         loading: true,
         disabled: false,
@@ -141,11 +153,6 @@
       },
     },
     $trs: {
-      pageTitle: {
-        message: `Edit lesson details for '{title}'`,
-        context:
-          "Page title for page which coach accesses using the 'Edit details' option on the Plan > Lessons tab.",
-      },
       appBarTitle: {
         message: 'Edit lesson details',
         context:

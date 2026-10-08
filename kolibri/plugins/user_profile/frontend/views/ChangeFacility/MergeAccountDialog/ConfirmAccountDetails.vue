@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ pageTitleStrings.documentTitle$() }}</h1>
 
     {{ confirmAccountUserInfo }}
     <table>
@@ -84,7 +84,9 @@
 
 <script>
 
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { DemographicConstants } from 'kolibri/constants';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
@@ -92,17 +94,20 @@
   import { computed, inject } from 'vue';
   import get from 'lodash/get';
 
+  export const pageTitleStrings = createTranslator('ConfirmAccountDetails', {
+    documentTitle: {
+      message: 'Confirm account details',
+      context: 'Title of this step for the change facility page.',
+    },
+  });
+
   export default {
     name: 'ConfirmAccountDetails',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: { BottomAppBar, GenderDisplayText, BirthYearDisplayText },
 
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(pageTitleStrings.documentTitle$, { hasVisibleHeading: true });
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
       const targetAccount = computed(() => get(state, 'value.targetAccount', {}));
@@ -130,6 +135,7 @@
       }
 
       return {
+        pageTitleStrings,
         confirmAccountUserInfo,
         cleanValue,
         sendBack,
@@ -138,10 +144,6 @@
       };
     },
     $trs: {
-      documentTitle: {
-        message: 'Confirm account details',
-        context: 'Title of this step for the change facility page.',
-      },
       confirmAccountUserInfo: {
         message:
           "Your account will be merged into this account in '{target_facility}'. You will need to use the username and password for this account from now on.",

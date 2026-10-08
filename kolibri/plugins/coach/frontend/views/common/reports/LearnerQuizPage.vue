@@ -29,12 +29,15 @@
 
 <script>
 
+  import { useRoute } from 'vue-router/composables';
   import { mapState } from 'vuex';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { PageNames } from '../../../constants';
+  import store from '../../../store';
 
   export default {
     name: 'LearnerQuizPage',
@@ -44,6 +47,20 @@
     },
     mixins: [commonCoach],
     setup() {
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { examMap, groupMap, learnerMap, name } = store.state.classSummary;
+          const { groupId, learnerId, quizId } = route.params;
+          return [
+            learnerMap[learnerId]?.name,
+            examMap[quizId]?.title,
+            groupMap[groupId]?.name,
+            name,
+          ];
+        },
+        { hasVisibleHeading: true },
+      );
       return { pageLoading };
     },
     data() {

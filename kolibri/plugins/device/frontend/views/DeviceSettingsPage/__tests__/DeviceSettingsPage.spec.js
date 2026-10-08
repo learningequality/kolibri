@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { Store } from 'vuex';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import DeviceSettingsPage from '../index.vue';
+import DeviceSettingsPage, { pageTitleStrings } from '../index.vue';
 import usePlugins, {
   // eslint-disable-next-line import-x/named
   usePluginsMock,
@@ -13,6 +13,7 @@ import * as api from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 const { saveChangesAction$ } = coreStrings;
+const { pageHeader$ } = pageTitleStrings;
 
 const {
   allowGuestAccess$,
@@ -119,6 +120,15 @@ describe('DeviceSettingsPage', () => {
     api.getDeviceSettings.mockResolvedValue(DeviceSettingsData);
     getFreeSpaceOnServer.mockResolvedValue({ freeSpace: 0 });
     api.saveDeviceSettings.mockResolvedValue({});
+  });
+
+  it('titles the tab with its visible header, the only h1', async () => {
+    document.title = '';
+    await makeWrapper();
+    expect(document.title).toBe(`${pageHeader$()} - Kolibri`);
+    const headings = screen.queryAllByRole('heading', { level: 1 });
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveTextContent(pageHeader$());
   });
 
   it('loads the data from getDeviceSettings', async () => {

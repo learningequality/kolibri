@@ -323,7 +323,9 @@
   import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { annotateSections } from 'kolibri-common/quizzes/utils';
   import useUser from 'kolibri/composables/useUser';
+  import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import store from '../../store';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -331,11 +333,6 @@
 
   export default {
     name: 'ExamPage',
-    metaInfo() {
-      return {
-        title: this.exam.title,
-      };
-    },
     components: {
       AnswerHistory,
       BottomAppBar,
@@ -345,6 +342,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePageTitle(() => store.state.examViewer.exam.title);
       const {
         pastattempts,
         time_spent,
