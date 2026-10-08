@@ -2,6 +2,7 @@ import hashlib
 import logging
 import math
 import os
+import re
 import shutil
 import sys
 from abc import ABC
@@ -494,6 +495,27 @@ def _md5_file(filepath, chunk_size):
         for chunk in iter(lambda: f.read(chunk_size), b""):
             md5.update(chunk)
     return md5.hexdigest()
+
+
+CONTENT_RANGE_RE = re.compile(r"bytes (\d+)-(\d+)/(\d+|\*)")
+
+
+def _content_range_satisfies(content_range, start, end, total_size):
+    """
+    Whether a lowercased Content-Range response header confirms that the server
+    returned exactly the requested [start, end] byte range.
+
+    The total length component of the header may be reported as "*" when the
+    server does not disclose it (RFC 7233 section 4.2), so that is accepted as
+    well, as long as the returned start/end match what was requested.
+    """
+    match = CONTENT_RANGE_RE.fullmatch(content_range)
+    if not match:
+        return False
+    range_start, range_end, range_total = match.groups()
+    if int(range_start) != start or int(range_end) != end:
+        return False
+    return range_total == "*" or int(range_total) == total_size
 
 
 class TransferFile(TransferFileBase):
@@ -1054,10 +1076,12 @@ class FileDownload(Transfer):
                         else (self.total_size - 1 if self.total_size else None)
                     )
                     content_range = response.headers.get("content-range", "").lower()
-                    expected_content_range = (
-                        f"bytes {start_byte}-{expected_end}/{self.total_size}"
+                    range_response_supported = (
+                        expected_end is not None
+                        and _content_range_satisfies(
+                            content_range, start_byte, expected_end, self.total_size
+                        )
                     )
-                    range_response_supported = content_range == expected_content_range
 
                     data_generator = response.iter_content(
                         self.dest_file_obj.chunk_size

@@ -1218,6 +1218,41 @@ class TestTransferFileRetryAfterPartialStream(unittest.TestCase):
         with open(self.dest, "rb") as f:
             self.assertEqual(f.read(), self.content)
 
+    def test_retry_resumes_when_server_reports_unknown_total_length(self):
+        # RFC 7233 section 4.2 allows a server to report the total length as
+        # "*" when it does not know or does not wish to disclose it. A range
+        # response in that form should still be treated as supported.
+        session = MagicMock()
+
+        def _get(url, headers=None, **kwargs):
+            if session.get.call_count == 1:
+                return self._response(self._partial_stream())
+            self.assertIsNotNone(headers)
+            self.assertEqual(headers.get("Range"), "bytes=4096-")
+            res = MagicMock()
+            res.status_code = 206
+            res.headers = {
+                "content-length": str(len(self.content) - 4096),
+                "content-range": f"bytes 4096-{len(self.content) - 1}/*",
+            }
+            res.iter_content.return_value = iter([self.content[4096:]])
+            return res
+
+        session.get.side_effect = _get
+
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            hashlib.md5(self.content).hexdigest(),
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            fd.run()
+
+        self.assertEqual(session.get.call_count, 2)
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
     def test_retry_compressed_does_not_send_range_and_restarts(self):
         session = MagicMock()
 
