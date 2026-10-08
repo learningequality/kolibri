@@ -88,7 +88,6 @@
 
 </script>
 
-
 <style lang="scss" scoped>
 
   .picker-box {
