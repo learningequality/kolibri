@@ -22,6 +22,7 @@
           <KButton
             ref="decreaseFontSizeButton"
             class="settings-button"
+            :appearanceOverrides="settingsButtonFocus"
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
@@ -41,6 +42,7 @@
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
             class="settings-button"
+            :appearanceOverrides="settingsButtonFocus"
             @click="$emit('increaseFontSize')"
           >
             <template #icon>
@@ -426,11 +428,6 @@
     margin: 2px;
     line-height: unset;
     transition: none;
-
-    &:focus {
-      outline: 2px solid var(--tokens-focusOutline);
-      outline-offset: 0;
-    }
   }
 
   .theme-button {

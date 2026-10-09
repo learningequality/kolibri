@@ -153,20 +153,20 @@
     cursor: pointer;
     border-left: 4px solid transparent;
 
-    &:hover {
-      background-color: var(--palette-grey-v300);
-    }
-
-    &:focus {
-      outline: 3px solid var(--tokens-focusOutline);
-      outline-offset: 4px;
-    }
-
     &.active {
       font-weight: bold;
       color: var(--tokens-text);
       background-color: var(--palette-grey-v400);
       border-left-color: var(--tokens-watch);
+    }
+
+    &:hover {
+      background-color: var(--palette-grey-v300);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--tokens-focusOutline);
+      outline-offset: 4px;
     }
 
     .transcript-cue-time,
