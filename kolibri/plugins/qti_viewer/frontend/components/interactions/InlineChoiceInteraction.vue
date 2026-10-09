@@ -8,10 +8,7 @@
       v-if="interactive"
       type="button"
       class="qti-inline-choice-trigger"
-      :class="[
-        $computedClass({ ':focus': coreOutline }),
-        { 'qti-inline-choice-answered': isAnswered },
-      ]"
+      :class="{ 'qti-inline-choice-answered': isAnswered }"
       :style="triggerStyles"
       :aria-label="triggerAriaLabel"
     >
@@ -57,7 +54,6 @@
 <script>
 
   import { computed, inject } from 'vue';
-  import { themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import {
@@ -173,7 +169,6 @@
       }
 
       return {
-        coreOutline: themeOutlineStyle(),
         interactive,
         options,
         isAnswered,
@@ -225,6 +220,11 @@
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease;
+
+    &:focus {
+      outline: 3px solid var(--tokens-focusOutline);
+      outline-offset: 4px;
+    }
   }
 
   .qti-inline-choice-answered {

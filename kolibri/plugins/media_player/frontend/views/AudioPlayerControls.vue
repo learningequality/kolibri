@@ -7,7 +7,6 @@
     <div class="transport-row">
       <button
         class="icon-button"
-        :class="$computedClass(iconHoverStyle)"
         :aria-label="mediaStrings.replay$()"
         @click="rewind()"
       >
@@ -15,7 +14,6 @@
       </button>
       <button
         class="play-button"
-        :class="$computedClass(playButtonStyle)"
         :aria-label="isPlaying ? mediaStrings.pause$() : mediaStrings.play$()"
         @click="togglePlay"
       >
@@ -24,7 +22,6 @@
       </button>
       <button
         class="icon-button"
-        :class="$computedClass(iconHoverStyle)"
         :aria-label="mediaStrings.forward$()"
         @click="forward()"
       >
@@ -72,7 +69,6 @@
 
     <button
       class="icon-button volume-button"
-      :class="$computedClass(iconHoverStyle)"
       :aria-label="muted ? mediaStrings.unmute$() : mediaStrings.mute$()"
       @click="toggleMute"
     >
@@ -82,7 +78,6 @@
 
     <button
       class="rate-button"
-      :class="$computedClass(iconHoverStyle)"
       :aria-label="mediaStrings.playbackRateWithValue$({ rate: playbackRate })"
       @click="cyclePlaybackRate"
     >
@@ -95,7 +90,7 @@
 
 <script>
 
-  import { ref, computed, getCurrentInstance } from 'vue';
+  import { ref } from 'vue';
   // Direct SVG imports rather than KIcon — these render inside custom-sized
   // circular buttons where KIcon's wrapper markup would conflict with sizing.
   import PlayArrowIcon from 'kolibri-design-system/lib/KIcon/precompiled-icons/material-icons/play_arrow/baseline.vue';
@@ -118,24 +113,11 @@
       VolumeOffIcon,
     },
     setup() {
-      const instance = getCurrentInstance().proxy;
       const progressBar = ref(null);
-
-      const iconHoverStyle = computed(() => ({
-        ':hover': {
-          backgroundColor: instance.$themePalette.grey.v_200,
-        },
-      }));
-      const playButtonStyle = computed(() => ({
-        backgroundColor: instance.$themeTokens.primary,
-        color: instance.$themeTokens.textInverted,
-      }));
 
       return {
         progressBar,
         ...useSeekBar(progressBar),
-        iconHoverStyle,
-        playButtonStyle,
         mediaStrings,
       };
     },
@@ -353,11 +335,18 @@
     }
   }
 
-  // .play-button takes its colours from inline theme styles; .icon-button
-  // inherits text colour and stays transparent.
+  .play-button {
+    color: var(--tokens-textInverted);
+    background-color: var(--tokens-primary);
+  }
+
   .icon-button {
     color: inherit;
     background: none;
+
+    &:hover {
+      background-color: var(--palette-grey-v200);
+    }
   }
 
   .time-display {
@@ -411,6 +400,10 @@
     background: none;
     border: 0;
     border-radius: 4px;
+
+    &:hover {
+      background-color: var(--palette-grey-v200);
+    }
 
     &:focus {
       outline: 3px solid var(--focus-color);

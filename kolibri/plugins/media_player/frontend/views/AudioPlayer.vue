@@ -65,7 +65,6 @@
         >
           <button
             class="transcript-toggle-button"
-            :class="$computedClass(transcriptToggleHoverStyle)"
             :aria-pressed="transcriptVisible"
             @click="toggleTranscript"
           >
@@ -194,12 +193,6 @@
       const transcriptContainerStyle = computed(() => ({
         borderTop: `1px solid ${instance.$themeTokens.fineLine}`,
       }));
-      const transcriptToggleHoverStyle = computed(() => ({
-        ':hover': {
-          backgroundColor: instance.$themePalette.grey.v_200,
-        },
-      }));
-
       // Methods
       function audioSourceType(extension) {
         return audioExtensionToMimeType[extension] || `audio/${extension}`;
@@ -251,7 +244,6 @@
         isDefaultTrack,
         cardStyle,
         transcriptContainerStyle,
-        transcriptToggleHoverStyle,
         mediaStrings,
       };
     },
@@ -323,6 +315,10 @@
     &:focus {
       outline: 3px solid currentcolor;
       outline-offset: 4px;
+    }
+
+    &:hover {
+      background-color: var(--palette-grey-v200);
     }
   }
 

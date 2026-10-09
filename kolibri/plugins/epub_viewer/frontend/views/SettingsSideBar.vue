@@ -21,7 +21,7 @@
         <KFixedGridItem span="1">
           <KButton
             ref="decreaseFontSizeButton"
-            :class="['settings-button', $computedClass(settingsButtonFocus)]"
+            class="settings-button"
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
@@ -40,7 +40,7 @@
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
-            :class="['settings-button', $computedClass(settingsButtonFocus)]"
+            class="settings-button"
             @click="$emit('increaseFontSize')"
           >
             <template #icon>
@@ -426,6 +426,11 @@
     margin: 2px;
     line-height: unset;
     transition: none;
+
+    &:focus {
+      outline: 2px solid var(--tokens-focusOutline);
+      outline-offset: 0;
+    }
   }
 
   .theme-button {
