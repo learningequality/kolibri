@@ -9,6 +9,7 @@ import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManage
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import { DemographicConstants, UserKinds } from 'kolibri/constants';
 import VueRouter from 'vue-router';
+import { onBeforeRouteLeave } from 'vue-router/composables';
 import useUserManagement from '../../../../../composables/useUserManagement';
 import { useUserManagementMock } from '../../../../../composables/__mocks__/useUserManagement';
 import makeStore from '../../../../../__tests__/utils/makeStore';
@@ -345,5 +346,18 @@ describe('UserCreateSidePanel', () => {
       await fireEvent.click(saveAndCloseButton());
       expect(FacilityUserResource.create).not.toHaveBeenCalled();
     });
+  });
+
+  it('shows the unsaved-changes confirmation inside the modal panel', async () => {
+    setup();
+    await waitForFormReady();
+    await fillRequired();
+    const [[beforeRouteLeave]] = onBeforeRouteLeave.mock.calls;
+    beforeRouteLeave({}, {}, jest.fn());
+
+    const confirmation = await screen.findByRole('dialog', {
+      name: coreStrings.closeConfirmationTitle$(),
+    });
+    expect(confirmation.closest('[aria-modal="true"]')).toBeInTheDocument();
   });
 });
