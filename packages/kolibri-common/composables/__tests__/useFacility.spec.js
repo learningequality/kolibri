@@ -331,18 +331,6 @@ describe('useFacilityConfig', () => {
       expect(facilityConfig.value).toEqual({});
     });
 
-    it('returns isAttendanceFeatureEnabled as true when currentLanguage is en', () => {
-      const { useFacilityConfig } = loadUseFacilityModule();
-      const { isAttendanceFeatureEnabled } = useFacilityConfig('facility-1');
-      expect(isAttendanceFeatureEnabled.value).toBe(true);
-    });
-
-    it('returns isPictureLoginFeatureEnabled as true when currentLanguage is en', () => {
-      const { useFacilityConfig } = loadUseFacilityModule();
-      const { isPictureLoginFeatureEnabled } = useFacilityConfig('facility-1');
-      expect(isPictureLoginFeatureEnabled.value).toBe(true);
-    });
-
     it('returns signInOptions with USERNAME_PASSWORD by default', () => {
       const { useFacilityConfig } = loadUseFacilityModule();
       const { signInOptions } = useFacilityConfig('facility-1');

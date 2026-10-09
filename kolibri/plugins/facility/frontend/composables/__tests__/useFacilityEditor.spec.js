@@ -61,8 +61,6 @@ describe('useFacilityEditor', () => {
       facilityId: ref(mockFacilityId),
       selectedFacility: ref(mockFacility),
       facilityConfig,
-      isAttendanceFeatureEnabled: computed(() => true),
-      isPictureLoginFeatureEnabled: computed(() => true),
       signInOptions,
       picturePasswordSettings,
       fetchFacility: jest.fn().mockResolvedValue(mockFacility),
@@ -109,8 +107,6 @@ describe('useFacilityEditor', () => {
       const {
         settingsHaveChanged,
         isPinSet,
-        isAttendanceFeatureEnabled,
-        isPictureLoginFeatureEnabled,
         signInOption,
         signInOptions,
         picturePasswordSettings,
@@ -120,8 +116,6 @@ describe('useFacilityEditor', () => {
 
       expect(settingsHaveChanged.value).toBe(false);
       expect(isPinSet.value).toBeNull();
-      expect(isAttendanceFeatureEnabled.value).toBeDefined();
-      expect(isPictureLoginFeatureEnabled.value).toBeDefined();
       expect(signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
       expect(signInOptions.value).toEqual([OptionsForSignIn.USERNAME_PASSWORD]);
       expect(picturePasswordSettings.value).toBeNull();

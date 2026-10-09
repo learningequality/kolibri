@@ -13,10 +13,6 @@ export default createTranslator('FacilityConfigPage', {
     message: 'Allow learners to create accounts',
     context: "Option on 'Facility settings' page.",
   },
-  learnerNeedPasswordToLogin: {
-    message: 'Require password for learners',
-    context: "Option on 'Facility settings' page.",
-  },
   learnerCanEditPassword: {
     message: 'Allow learners to edit their password when signed in',
     context: "Option on 'Facility settings' page.",
