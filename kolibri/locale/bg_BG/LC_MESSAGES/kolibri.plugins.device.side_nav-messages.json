@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Устройство",
-  "CommonDeviceStrings.emptyTasksMessage": "Няма задачи за показване",
-  "CommonDeviceStrings.newChannelLabel": "Нов",
-  "CommonDeviceStrings.newEnabledPluginsState": "Когато махнеш отметката от страница, тя ще стане невидима за потребителите, дори ако имат разрешение за достъп до нея.",
-  "CommonDeviceStrings.newResourceLabel": "Нов",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Няма достатъчно място на устройството. Освободи място или избери по-малко материали",
-  "CommonDeviceStrings.permissionsLabel": "Разрешения",
-  "CommonDeviceStrings.primaryStorageLabel": "Новоизтеглените ресурси ще бъдат добавени към основното хранилище",
-  "CommonDeviceStrings.statusCanceled": "Отказано",
-  "CommonDeviceStrings.statusCanceling": "Отказване",
-  "CommonDeviceStrings.statusComplete": "Завършено",
-  "CommonDeviceStrings.statusFailed": "Неуспешно",
-  "CommonDeviceStrings.statusInProgress": "В изпълнение",
-  "CommonDeviceStrings.statusInQueue": "Изчакване",
-  "CommonDeviceStrings.unlistedChannelLabel": "Скрит канал"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Канали",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Устройство",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Институции",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Информация",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Разрешения",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Настройки",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Потребители"
 }

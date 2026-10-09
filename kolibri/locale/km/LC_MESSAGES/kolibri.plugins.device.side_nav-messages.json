@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "ឧបករណ៍",
-  "CommonDeviceStrings.emptyTasksMessage": "គ្មានភាកិច្ចត្រូវបង្ហាញទេ",
-  "CommonDeviceStrings.newChannelLabel": "ថ្មី",
-  "CommonDeviceStrings.newEnabledPluginsState": "នៅពេលអ្នកដោះធីកទំព័រមួយ អ្នកប្រើប្រាស់នឹងមើលមិនឃើញ បើទោះបីជាពួកគេមានសិទ្ធិចូលប្រើវាក៏ដោយ។",
-  "CommonDeviceStrings.newResourceLabel": "ថ្មី",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "គ្មានទំហំទំនេរគ្រប់គ្រាន់នៅលើឧបករណ៍របស់អ្នកទេ។ បង្កើនទំហំថាស ឬជ្រើសរើសធនធានដែលតិចជាង",
-  "CommonDeviceStrings.permissionsLabel": "ការអនុញ្ញាត",
-  "CommonDeviceStrings.primaryStorageLabel": "ធនធានដែលបានទាញយកថ្មីនឹងត្រូវបន្ថែមទៅទីតាំងផ្ទុកបឋម",
-  "CommonDeviceStrings.statusCanceled": "បានបោះបង់",
-  "CommonDeviceStrings.statusCanceling": "កំពុងបោះបង់",
-  "CommonDeviceStrings.statusComplete": "បានបញ្ចប់ហើយ",
-  "CommonDeviceStrings.statusFailed": "បានបរាជ័យ",
-  "CommonDeviceStrings.statusInProgress": "កំពុងដំណើរការ",
-  "CommonDeviceStrings.statusInQueue": "កំពុងរងចាំ",
-  "CommonDeviceStrings.unlistedChannelLabel": "មិននៅក្នុងបញ្ជីឆានែល"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "ឆានែល",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "ឧបករណ៍",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "ទីតាំងនានា",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "ព័ត៌មាន",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "ការអនុញ្ញាត",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "ការ​កំណត់",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "អ្នកប្រើប្រាស់នានា"
 }

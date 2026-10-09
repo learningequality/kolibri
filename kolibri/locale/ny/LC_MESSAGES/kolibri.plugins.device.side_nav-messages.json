@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Chipangizo",
-  "CommonDeviceStrings.emptyTasksMessage": "Palibe zochitika zomwe tingaonetse",
-  "CommonDeviceStrings.newChannelLabel": "Yatsopano",
-  "CommonDeviceStrings.newEnabledPluginsState": "Mukachotsa chizindikiro chowonetsa kuti mwasankha tsamba, tsambalo silidzawonedwa ndi ogwiritsa ntchito ena ngakhale ali ndi chilolezo cholipeza tsambali.",
-  "CommonDeviceStrings.newResourceLabel": "Yatsopano",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Malo osungira zinthu ndiochepa. Fufutani zinthu zina kuti mukhale ndi malo osungira zinthu ambiri",
-  "CommonDeviceStrings.permissionsLabel": "Zilolezo",
-  "CommonDeviceStrings.primaryStorageLabel": "Zipangizo zomwe zangotsitsidwa kumene pa intaneti zidzayikidwa m'malo osungiramo oyambirira",
-  "CommonDeviceStrings.statusCanceled": "Yayimitsidwa",
-  "CommonDeviceStrings.statusCanceling": "Ikuyimitsidwa",
-  "CommonDeviceStrings.statusComplete": "Yamaliza",
-  "CommonDeviceStrings.statusFailed": "Yalephereka",
-  "CommonDeviceStrings.statusInProgress": "Zilimkati",
-  "CommonDeviceStrings.statusInQueue": "Dikirani",
-  "CommonDeviceStrings.unlistedChannelLabel": "Matchanelo amene sali pa mndandanda"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Matchanelo",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Chipangizo",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Malo",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Zokhudza",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Zilolezo",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Ma seting'i",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Munthu"
 }

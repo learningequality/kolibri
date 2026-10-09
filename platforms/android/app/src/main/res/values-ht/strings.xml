@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Aktivite a kòmanse…</string>
+    <string name="notification_service_channel_content">Ap kontinye</string>
+    <string name="notification_service_channel_action">Gade administratè aktivite</string>
+    <string name="notification_default_channel_title">Aktivite</string>
+    <string name="notification_download_complete_title">Telechajman fini</string>
+    <string name="os_user_name">Elèv</string>
+</resources>

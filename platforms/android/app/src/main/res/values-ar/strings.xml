@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">كوليبري</string>
+    <string name="notification_channel_ticker">بدأت المهمة…</string>
+    <string name="notification_service_channel_content">جاري العمل عليه</string>
+    <string name="notification_service_channel_action">عرض مدير المهام</string>
+    <string name="notification_default_channel_title">المهام</string>
+    <string name="notification_download_complete_title">اكتمل التحميل</string>
+    <string name="os_user_name">المتعلّم</string>
+</resources>
