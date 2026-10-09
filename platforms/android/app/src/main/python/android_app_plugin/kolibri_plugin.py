@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class AndroidApp(KolibriPluginBase):
-    pass
+    kolibri_option_defaults = "options_defaults"
 
 
 @register_hook

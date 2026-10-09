@@ -37,9 +37,6 @@ ENVIRONMENT_VARIABLES = {
             integers, fall back to the default of 10000.
         """,
     },
-    "KOLIBRI_APK_VERSION_NAME": {
-        "description": "Version name for the Kolibri APK (Android Installer)",
-    },
     "KOLIBRI_NO_C_EXTENSIONS": {
         "description": "Disable C extensions.",
     },

@@ -63,15 +63,6 @@ class TestServerInstallation:
                 installation_types.DEB
             ].format("1.0")
 
-    @mock.patch("sys.argv", ["C:\\Python34\\Scripts\\kolibri", "start"])
-    @mock.patch("sys.path", ["", "C:\\Program Files\\Kolibri\\kolibri.exe"])
-    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
-    def test_windows(self):
-        install_type = server.installation_type()
-        assert install_type == installation_types.install_type_map[
-            installation_types.WINDOWS
-        ].format("1.0")
-
     @mock.patch("sys.argv", ["/usr/local/bin/kolibri", "start"])
     def test_whl(self):
         install_type = server.installation_type()
@@ -314,3 +305,58 @@ class ServerSignalHandlerTestCase(TestCase):
         signal_handler = server.SignalHandler(bus_mock)
         signal_handler.subscribe()
         bus_mock.subscribe.assert_called_with("ENTER", signal_handler.ENTER)
+
+
+class TestBaseKolibriProcessBusPorts:
+    @pytest.fixture(autouse=True)
+    def _isolate_bus(self):
+        with mock.patch.object(server, "PIDPlugin"), mock.patch.object(
+            server, "LogPlugin"
+        ), mock.patch.object(
+            server.SystemdNotifyPlugin, "is_supported", return_value=False
+        ):
+            yield
+
+    def test_ports_default_to_options(self):
+        with mock.patch.dict(
+            OPTIONS["Deployment"], {"HTTP_PORT": 1234, "ZIP_CONTENT_PORT": 5678}
+        ):
+            bus = server.BaseKolibriProcessBus()
+        assert bus.port == 1234
+        assert bus.zip_port == 5678
+
+    def test_missing_zip_port_falls_back_to_option(self):
+        with mock.patch.dict(OPTIONS["Deployment"], {"ZIP_CONTENT_PORT": 5678}):
+            bus = server.BaseKolibriProcessBus(port=9000)
+        assert bus.port == 9000
+        assert bus.zip_port == 5678
+
+    def test_explicit_zero_ports_are_kept(self):
+        with mock.patch.dict(
+            OPTIONS["Deployment"], {"HTTP_PORT": 1234, "ZIP_CONTENT_PORT": 5678}
+        ):
+            bus = server.BaseKolibriProcessBus(port=0, zip_port=0)
+        assert bus.port == 0
+        assert bus.zip_port == 0
+
+
+class TestAppInstallationTypes:
+    @pytest.mark.parametrize(
+        "installation_type, expected",
+        [
+            (installation_types.WINDOWS_APP, "Windows App"),
+            (installation_types.MACOS, "Mac"),
+            (installation_types.APK, "apk"),
+        ],
+    )
+    def test_bare_name_without_installer_version(self, installation_type, expected):
+        with mock.patch("os.environ", {"KOLIBRI_INSTALLATION_TYPE": installation_type}):
+            assert server.installation_type() == expected
+
+    def test_flatpak_reports_installer_version(self):
+        environ = {
+            "KOLIBRI_INSTALLATION_TYPE": installation_types.FLATPAK,
+            "KOLIBRI_INSTALLER_VERSION": "1.2.3",
+        }
+        with mock.patch("os.environ", environ):
+            assert server.installation_type() == "Flatpak - 1.2.3"

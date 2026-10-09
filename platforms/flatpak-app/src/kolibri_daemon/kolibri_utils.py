@@ -7,6 +7,7 @@ import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 
+from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from .content_extensions_manager import ContentExtensionsManager
@@ -61,8 +62,13 @@ def kolibri_home_lock() -> Iterator[None]:
 
 
 def _init_kolibri_env():
-    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app.kolibri_settings"
     os.environ["KOLIBRI_PROJECT"] = "kolibri-gnome"
+
+    # Reported as "Flatpak - <version>" in device info. Literal rather than
+    # installation_types.FLATPAK: like globals.py, this avoids importing Kolibri,
+    # whose import has side effects.
+    os.environ["KOLIBRI_INSTALLATION_TYPE"] = "flatpak"
+    os.environ["KOLIBRI_INSTALLER_VERSION"] = PROJECT_VERSION
 
     # Kolibri defaults to a very large thread pool. Because we expect this
     # application to be used in a single user environment with a limited

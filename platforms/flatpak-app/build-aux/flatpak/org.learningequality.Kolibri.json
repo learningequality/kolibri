@@ -13,7 +13,6 @@
         "--socket=wayland",
         "--system-talk-name=org.learningequality.Kolibri.Daemon",
         "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri/data/kolibri",
-        "--env=KOLIBRI_HTTP_PORT=0",
         "--env=PYTHONPATH=/app/kolibri-plugins/lib/python"
     ],
     "add-extensions" : {

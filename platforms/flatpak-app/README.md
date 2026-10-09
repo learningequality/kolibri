@@ -129,8 +129,6 @@ results from kolibri.
 allow other modules to interact with the running Kolibri. It is possible to
 run it as a system service, as opposed to a session service, using
 configuration such as <https://github.com/endlessm/eos-kolibri>.
-Exposes an App Key property that the frontend must use in order to
-authenticate the webview.
 
 **kolibri_launcher:** Launcher of kolibri-gnome. Understands desktop
 URIs like `kolibri-channel://`, `x-kolibri-dispatch://` and converts

@@ -255,10 +255,6 @@ def start(port, zip_port, background):
     """
     Start the server on given port.
     """
-    port = OPTIONS["Deployment"]["HTTP_PORT"] if port is None else port
-    zip_port = (
-        OPTIONS["Deployment"]["ZIP_CONTENT_PORT"] if zip_port is None else zip_port
-    )
     try:
         server.start(
             port=port,

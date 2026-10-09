@@ -40,7 +40,6 @@ class KolibriState(typing.NamedTuple):
     status: KolibriStatus = KolibriStatus.STOPPED
     base_url: str = ""
     extra_url: str = ""
-    app_key: str = ""
     app_initialize_url: str = ""
     is_device_provisioned: bool = False
     kolibri_home: str = ""
@@ -146,7 +145,6 @@ class PublicDBusInterface(object):
 
     def set_kolibri_state(self, state: KolibriState):
         self.__kolibri_state = state
-        self.__skeleton.props.app_key = state.app_key
         self.__skeleton.props.app_initialize_url = state.app_initialize_url
         self.__skeleton.props.base_url = state.base_url
         self.__skeleton.props.extra_url = state.extra_url
