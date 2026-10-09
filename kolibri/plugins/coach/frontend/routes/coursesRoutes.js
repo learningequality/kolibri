@@ -34,16 +34,19 @@ export default [
         name: PageNames.COURSE_SUMMARY_UNITS,
         path: 'units',
         component: NoRender,
+        meta: { keepFocus: true },
       },
       {
         name: PageNames.COURSE_SUMMARY_LEARNERS,
         path: 'learners',
         component: NoRender,
+        meta: { keepFocus: true },
         children: [
           {
             name: PageNames.COURSE_SUMMARY_LEARNER,
             path: `:learnerId(${COMPACT_UUID_PATTERN})`,
             component: NoRender,
+            meta: { panel: true },
           },
         ],
       },
@@ -51,11 +54,13 @@ export default [
         name: PageNames.COURSE_SUMMARY_OBJECTIVES,
         path: 'objectives',
         component: NoRender,
+        meta: { keepFocus: true },
         children: [
           {
             name: PageNames.COURSE_SUMMARY_OBJECTIVE,
             path: `:objectiveId(${COMPACT_UUID_PATTERN})`,
             component: NoRender,
+            meta: { panel: true },
           },
         ],
       },
@@ -63,6 +68,7 @@ export default [
         name: PageNames.COURSE_SUMMARY_ASSIGN,
         path: 'assign-course/',
         component: AssignCourseSidePanel,
+        meta: { panel: true },
         children: [
           {
             name: PageNames.COURSE_SUMMARY_ASSIGN_COURSE_DETAILS,
@@ -99,11 +105,13 @@ export default [
         name: PageNames.UNIT_DETAIL_LESSONS,
         path: 'lessons',
         component: NoRender,
+        meta: { keepFocus: true },
       },
       {
         name: PageNames.UNIT_DETAIL_OBJECTIVES,
         path: 'objectives',
         component: NoRender,
+        meta: { keepFocus: true },
       },
     ],
   },
@@ -121,6 +129,7 @@ export default [
         name: PageNames.COURSES_ASSIGN,
         path: 'assign-course/',
         component: AssignCourseSidePanel,
+        meta: { panel: true },
         redirect: 'assign-course/index',
         // Subpages that will be rendered inside the AssignCourse side panel
         children: [

@@ -310,6 +310,7 @@
 
   import { ref } from 'vue';
   import { mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
   import { handleApiError } from 'kolibri/utils/appError';
   import isEqual from 'lodash/isEqual';
   import {
@@ -342,7 +343,12 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      usePageTitle(() => store.state.examViewer.exam.title);
+      const route = useRoute();
+      // The store keeps the previous quiz until this one loads; its title must not be focused.
+      usePageTitle(() => {
+        const { exam } = store.state.examViewer;
+        return exam.id === route.params.examId ? exam.title : '';
+      });
       const {
         pastattempts,
         time_spent,

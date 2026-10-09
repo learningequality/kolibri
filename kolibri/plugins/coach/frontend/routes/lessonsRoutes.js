@@ -87,12 +87,14 @@ export default [
     name: PageNames.LESSON_SUMMARY,
     path: CLASS + LESSON + '/:tabId?',
     component: LessonSummaryPage,
+    meta: { keepFocus: true },
     children: [
       {
         name: PageNames.LESSON_SELECT_RESOURCES,
         path: 'select-resources/',
         component: LessonResourceSelection,
         redirect: 'select-resources/index',
+        meta: { panel: true },
         children: [
           {
             name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
@@ -200,6 +202,7 @@ export default [
     path: CLASS + LESSON + EXERCISE + LEARNER + TRY + QUESTION + INTERACTION,
     component: LessonExerciseLearnerPage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
+    meta: { keepFocus: true },
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTIONS_REPORT,
@@ -220,6 +223,7 @@ export default [
     path: CLASS + LESSON + LEARNER + EXERCISE + TRY + QUESTION + INTERACTION,
     component: LessonLearnerExercisePage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
+    meta: { keepFocus: true },
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
@@ -234,5 +238,6 @@ export default [
     path: CLASS + OPTIONAL_GROUP + LESSON + EXERCISE + QUESTION + LEARNER + INTERACTION,
     component: QuestionLearnersPage,
     handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
+    meta: { keepFocus: true },
   },
 ];

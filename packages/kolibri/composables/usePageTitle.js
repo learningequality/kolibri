@@ -74,10 +74,28 @@ watch([innermostParts, showsErrorTitle, metaInfoComponents], ([parts, isError, m
   document.title = formatDocumentTitle(isError ? [errorPageTitle$()] : parts);
 });
 
+export function focusPageHeading() {
+  if (!registrations.value.length) {
+    return;
+  }
+  // The main region first skips header <h1>s, such as Learn's hidden storage banner one.
+  // User_auth's layout has only `role="main"`, and the setup wizard has no main region.
+  const heading =
+    document.querySelector('#main h1, [role="main"] h1') ?? document.querySelector('h1');
+  if (!heading) {
+    return;
+  }
+  if (!heading.hasAttribute('tabindex')) {
+    heading.setAttribute('tabindex', '-1');
+  }
+  heading.focus();
+}
+
 /**
  * Registers the calling route component's title for the browser tab and the page's hidden <h1>.
  * The innermost mounted registration wins; it is removed when its component unmounts.
  * Call once per component.
+ * While any title is registered, the router focuses the page's <h1> after each page change.
  * Throws after mount if another registrant is neither an ancestor nor a descendant of this one.
  * @param {string|string[]|import('vue').Ref|Function} title - The title, or its parts from
  * most to least specific, as a string or array of strings, or a ref or getter of either.

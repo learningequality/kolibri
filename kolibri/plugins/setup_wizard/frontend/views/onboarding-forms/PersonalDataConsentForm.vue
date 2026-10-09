@@ -99,16 +99,16 @@
       },
       // HACK need to manually refocus on button/form after closing modal
       focusOnModalButton() {
-        this.$nextTick().then(() => {
+        // HACK to prevent the modal from opening from an keyup.enter event from
+        // previous form, we have to delay focusing the "More information" button.
+        setTimeout(() => {
+          // After a route change the router has already focused the step heading.
+          // The button may have remounted since, so read the ref now.
           const { modalButton } = this.$refs;
-          if (modalButton.$refs.button) {
-            // HACK to prevent the modal from opening from an keyup.enter event from
-            // previous form, we have to delay focusing the "More information" button.
-            setTimeout(() => {
-              modalButton.$refs.button.focus();
-            }, 200);
+          if (modalButton && document.activeElement === document.body) {
+            modalButton.$refs.button.focus();
           }
-        });
+        }, 200);
       },
     },
     $trs: {
