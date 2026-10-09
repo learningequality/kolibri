@@ -99,12 +99,15 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
 
   // Sign-in errors
   wrongPicturesTryAgain: {
-    message: 'Wrong pictures, try again!',
+    message: 'Wrong pictures, try again.',
     context:
-      'Error notification and assertive screen reader announcement when the learner submits an incorrect picture password sequence.',
+      'Visible error notification when the learner submits an incorrect picture password sequence. Hidden from screen readers, which announce "Wrong words, try again." instead.',
   },
-
-  // wrong words try again
+  wrongWordsTryAgain: {
+    message: 'Wrong words, try again.',
+    context:
+      'Screen reader announcement when the learner submits an incorrect picture password sequence. Not shown visually; sighted learners see "Wrong pictures, try again." instead.',
+  },
 
   learnerLimitReachedHeading: {
     message: 'Learner limit reached',
