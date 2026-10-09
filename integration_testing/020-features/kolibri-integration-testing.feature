@@ -1197,6 +1197,7 @@ Feature: Kolibri integration testing scenarios
       And there is one or several submissions
     When I click the *Print* button
     Then I can print the generated file
+    	And I can see that it contains the correct *Date range* value
       And I can see that it contains the correct *Present* and *Absent* values for each date
 
   Scenario: Coach can review a lesson report
