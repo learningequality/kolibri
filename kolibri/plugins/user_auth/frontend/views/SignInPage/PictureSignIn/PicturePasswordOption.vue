@@ -8,12 +8,11 @@
     <label
       :for="checkboxId"
       class="option-label"
-      :class="[
-        $computedClass(optionLabelStyles),
-        $computedClass({
-          ':focus-within': $coreOutline,
-        }),
-      ]"
+      :class="{
+        selected: isSelected,
+        disabled: disabled && !isSelected,
+        hoverable: !isSelected && !disabled,
+      }"
     >
       <!--
         Native checkbox: visually hidden but keyboard-focusable.
@@ -71,7 +70,7 @@
 <script>
 
   import { computed } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
   export default {
@@ -79,7 +78,6 @@
 
     setup(props, { emit }) {
       const $themeTokens = themeTokens();
-      const $themePalette = themePalette();
 
       // Unique per page because the parent (PicturePasswordGrid) renders each icon exactly once.
       const checkboxId = `picture-password-option-${props.icon}`;
@@ -91,44 +89,6 @@
       const iconColor = computed(() =>
         isSelected.value && !props.icon.endsWith('Colorful') ? $themeTokens.primary : null,
       );
-
-      const optionLabelStyles = computed(() => {
-        if (isSelected.value) {
-          return {
-            border: '4px solid var(--tokens-primary)',
-            // reduce padding to keep overall option size consistent when border width increases
-            padding: '10px',
-            backgroundColor: 'var(--palette-blue-v100)',
-            cursor: 'pointer',
-            color: 'var(--tokens-text)',
-            fontWeight: 600,
-          };
-        }
-        const unSelectedStyles = {
-          padding: '12px',
-          border: '2px solid var(--tokens-fineLine)',
-          backgroundColor: 'var(--palette-grey-v100)',
-          color: 'var(--tokens-annotation)',
-        };
-
-        if (props.disabled) {
-          return {
-            ...unSelectedStyles,
-            cursor: 'not-allowed',
-          };
-        }
-        return {
-          ...unSelectedStyles,
-          cursor: 'pointer',
-          ':hover': {
-            borderColor: $themeTokens.primary,
-            backgroundColor: $themePalette.blue.v_100,
-          },
-          ':hover .option-icon': {
-            fill: $themeTokens.primary,
-          },
-        };
-      });
 
       const labelText = computed(() => {
         const getter = picturePasswordStrings[`${props.iconName}$`];
@@ -157,7 +117,6 @@
         checkboxId,
         isSelected,
         iconColor,
-        optionLabelStyles,
         labelText,
         iconContainerStyle,
         onSelect,
@@ -225,10 +184,45 @@
     flex: 1;
     align-items: center;
     justify-content: center;
+    padding: 12px;
+    color: var(--tokens-annotation);
+    cursor: pointer;
+    background-color: var(--palette-grey-v100);
+    border: 2px solid var(--tokens-fineLine);
     border-radius: 8px;
     transition:
       border-color $core-time,
       background-color $core-time;
+
+    &.selected {
+      // reduce padding to keep overall option size consistent when border width increases
+      padding: 10px;
+      font-weight: 600;
+      color: var(--tokens-text);
+      background-color: var(--palette-blue-v100);
+      border: $selected-border-width solid var(--tokens-primary);
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+    }
+
+    &.hoverable:hover {
+      background-color: var(--palette-blue-v100);
+      border-color: var(--tokens-primary);
+
+      // KIcon sets its fill as an inline style, which only !important can override
+      .option-icon {
+        fill: var(--tokens-primary) !important;
+      }
+    }
+  }
+
+  // The focus lands on the visually hidden checkbox, so the outline goes on the label.
+  // Like $coreOutline, it only shows when navigating with the keyboard.
+  body[modality='keyboard'] .option-label:focus-within {
+    outline: 3px solid var(--tokens-focusOutline);
+    outline-offset: 4px;
   }
 
   .icon-container {
