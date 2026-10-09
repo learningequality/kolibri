@@ -5,7 +5,6 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 
-from kolibri.core.auth.management import utils
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -32,8 +31,8 @@ class UserDeleteTestCase(TestCase):
             user=cls.user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
         )
 
-    def test_user_delete(self):
-        utils.input = mock.MagicMock(name="input", return_value="yes")
+    @mock.patch("builtins.input", return_value="yes")
+    def test_user_delete(self, mock_input):
         call_command("deleteuser", "user")
         self.assertFalse(FacilityUser.objects.exists())
         # sanity checks to make sure cascade deletion still works
@@ -41,8 +40,8 @@ class UserDeleteTestCase(TestCase):
         self.assertFalse(Membership.objects.exists())
         self.assertFalse(ContentSessionLog.objects.exists())
 
-    def test_user_delete_with_facility(self):
-        utils.input = mock.MagicMock(name="input", return_value="yes")
+    @mock.patch("builtins.input", return_value="yes")
+    def test_user_delete_with_facility(self, mock_input):
         call_command("deleteuser", "user", facility=self.facility.id)
         self.assertFalse(FacilityUser.objects.exists())
 
