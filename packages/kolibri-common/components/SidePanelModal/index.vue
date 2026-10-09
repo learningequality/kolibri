@@ -4,6 +4,7 @@
     ref="sidePanel"
     tabindex="-1"
     role="presentation"
+    class="side-panel-modal"
     :class="{ 'is-rtl': isRtl, 'is-mobile': isMobile }"
     @keyup.esc="closePanel"
   >
@@ -254,6 +255,13 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+
+  .side-panel-modal {
+    position: relative;
+
+    /* Ensures we are above the app-mode bottom bar when present */
+    z-index: 21;
+  }
 
   .header-content {
     display: flex;

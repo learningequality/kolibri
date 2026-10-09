@@ -47,7 +47,6 @@
     <!-- Side panel for showing the information of selected content with a link to view it -->
     <SidePanelModal
       v-if="sidePanelContent"
-      class="fix-pos"
       alignment="right"
       closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
@@ -201,11 +200,6 @@
 
 
 <style lang="scss" scoped>
-
-  .fix-pos {
-    position: fixed;
-    z-index: 4;
-  }
 
   .side-panel-chips {
     display: flex;
