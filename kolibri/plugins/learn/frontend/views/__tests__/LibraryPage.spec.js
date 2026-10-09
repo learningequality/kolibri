@@ -6,7 +6,7 @@ import VueRouter from 'vue-router';
 import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 // eslint-disable-next-line import-x/named
 import useUser, { useUserMock } from 'kolibri/composables/useUser';
 /* eslint-disable import-x/named */
@@ -105,6 +105,15 @@ describe('LibraryPage', () => {
       Promise.resolve([{ id: 'test', title: 'test', channel_id: CHANNEL_ID }]),
     );
   });
+  describe('skip navigation', () => {
+    it("names the main landmark to match the page's own heading", async () => {
+      const wrapper = await makeWrapper();
+      expect(wrapper.find('main.main-grid').attributes('aria-label')).toBe(
+        coreString('yourLibrary'),
+      );
+    });
+  });
+
   describe('search bar', () => {
     it('is visible when channels are available', async () => {
       const wrapper = await makeWrapper();
