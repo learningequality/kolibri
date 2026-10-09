@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import { nextTick, ref } from 'vue';
 import { pageHeading } from 'kolibri/composables/usePageTitle';
 import { emulatePrintMedia } from 'testUtils'; // eslint-disable-line
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 // eslint-disable-next-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
@@ -46,8 +47,13 @@ jest.mock('kolibri/utils/serverClock', () => ({
   now: () => new Date('2026-03-12T12:00:00Z'),
 }));
 
-const { markAttendanceAction$, dateRangeLabel$, pastDays$, customLabel$, $formatDate } =
-  attendanceStrings;
+const {
+  markAttendanceAction$,
+  dateRangeLabel$,
+  customLabel$,
+  attendanceHistoryTitle$,
+  $formatDate,
+} = attendanceStrings;
 
 enableAutoDestroy(afterEach);
 
@@ -185,7 +191,7 @@ describe('AttendanceHistoryPage', () => {
   describe('page structure', () => {
     it('renders the page heading', () => {
       const { wrapper } = makeWrapper();
-      expect(wrapper.find('h1').text()).toBe('Attendance History');
+      expect(wrapper.find('h1').text()).toBe(attendanceHistoryTitle$());
     });
 
     it('sets the tab title to the class name', async () => {
@@ -226,7 +232,7 @@ describe('AttendanceHistoryPage', () => {
         const { wrapper } = makeWrapper();
         const printedFilters = () => wrapper.find('[data-testid="printed-filters"]').text();
         expect(printedFilters()).toContain(dateRangeLabel$());
-        expect(printedFilters()).toContain(pastDays$({ count: 30 }));
+        expect(printedFilters()).toContain(coreString('lastNDaysLabel', { num: 30 }));
         expect(printedFilters()).toContain($formatDate(new Date('2026-02-10T12:00:00Z')));
         expect(printedFilters()).toContain($formatDate(new Date('2026-03-12T12:00:00Z')));
 
@@ -286,7 +292,7 @@ describe('AttendanceHistoryPage', () => {
       const exporterInstance = CSVExporter.mock.results[0].value;
       expect(exporterInstance.addNames).toHaveBeenCalledWith(
         expect.objectContaining({
-          report: 'Attendance History',
+          report: attendanceHistoryTitle$(),
           date: expect.stringContaining('2026'),
         }),
       );
@@ -454,7 +460,7 @@ describe('AttendanceHistoryPage', () => {
     it('shows empty state when no sessions', async () => {
       const { wrapper } = makeWrapper({ sessions: [] });
       await global.flushPromises();
-      expect(wrapper.text()).toContain('No attendance sessions found');
+      expect(wrapper.text()).toContain('No results');
     });
   });
 

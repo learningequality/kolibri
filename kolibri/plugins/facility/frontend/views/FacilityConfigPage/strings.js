@@ -26,7 +26,7 @@ export default createTranslator('FacilityConfigPage', {
     context: "Option on 'Facility settings' page.\n",
   },
   enableMarkAttendance: {
-    message: 'Allow coaches to take attendance (English only)',
+    message: 'Allow coaches to mark attendance',
     context: "Option on 'Facility settings' page.",
   },
   saveFailure: {

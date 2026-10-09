@@ -248,6 +248,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Used when users want to filter a list of elements by type. For example, they can filter users by user type, or simply view a list of all users in a facility.',
   },
+  allTimeLabel: {
+    message: 'All time',
+    context: 'Date range filter option that shows items from any date, with no date restriction',
+  },
+  lastNDaysLabel: {
+    message: '{num, plural, one {Last # day} other {Last # days}}',
+    context:
+      'Date range filter option for items from the last N days, e.g. "Last 7 days", "Last 30 days". Consider if it requires PLURAL in your locale.',
+  },
   allLessonsLabel: {
     message: 'All lessons',
     context:
@@ -376,6 +385,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
+  lastSyncedLabel: {
+    message: 'Last synced',
+    context:
+      'Table column heading for the last time a device synced, e.g. in the class learners list or the sync schedules table.',
+  },
   infoLabel: {
     message: 'Info',
     context: "Title of tab in 'Device' section.",
@@ -434,6 +448,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   noUsersExistLabel: {
     message: 'No users exist',
     context: 'Displays when there are no users in the facility.',
+  },
+  noLearnersInClassLabel: {
+    message: 'There are no learners in this class',
+    context: 'Empty state message shown when a class has no enrolled learners',
   },
   noResultsLabel: {
     message: 'No results',

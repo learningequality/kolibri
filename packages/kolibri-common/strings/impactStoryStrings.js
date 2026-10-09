@@ -7,8 +7,8 @@ export const impactStoryStrings = createTranslator('ImpactStoryBanner', {
   },
   message: {
     message:
-      "We're collecting before-and-after moments of teachers or learners using Kolibri. " +
-      "Help us inspire others by sharing the impact Kolibri has made on an individual's journey.",
+      "We're collecting stories of teachers and learners using Kolibri. " +
+      'Help us inspire others by sharing the impact Kolibri has made for you and your community.',
     context: 'Body text on the impact-story banner.',
   },
   dismiss: {

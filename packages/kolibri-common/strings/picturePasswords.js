@@ -68,22 +68,22 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
       'Screen reader announcement after the third icon is chosen in the picture password sequence.',
   },
   allIconsSelected: {
-    message: '3 icons already selected. To change an icon, uncheck it and select another.',
+    message: 'You already selected 3 words. To change one, uncheck it, and select another.',
     context:
       'Screen reader announcement when the learner taps a disabled icon after 3 have already been chosen.',
   },
 
   // Submit button aria-label states
   selectThreeIconsToSignIn: {
-    message: 'Select 3 pictures to sign in',
+    message: 'Select 3 words to sign in',
     context: 'Submit button label when no pictures have been selected yet.',
   },
   selectTwoMoreIcons: {
-    message: 'Select 2 more pictures',
+    message: 'Select 2 more words',
     context: 'Submit button label when exactly 1 picture has been selected.',
   },
   selectOneMoreIcon: {
-    message: 'Select 1 more picture',
+    message: 'Select 1 more word',
     context: 'Submit button label when exactly 2 pictures have been selected.',
   },
   signInWithSequence: {
@@ -92,7 +92,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
       'Submit button label when all 3 pictures have been selected; lists them in order for screen readers.',
   },
   formAriaLabel: {
-    message: 'Select 3 pictures below to sign in to Kolibri',
+    message: 'Select 3 words below to sign in to Kolibri',
     context:
       'Accessible label for the picture password form. Read by screen readers when the form receives focus.',
   },
@@ -103,6 +103,8 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Error notification and assertive screen reader announcement when the learner submits an incorrect picture password sequence.',
   },
+
+  // wrong words try again
 
   learnerLimitReachedHeading: {
     message: 'Learner limit reached',
@@ -120,11 +122,11 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context: 'Part of the learner limit notice modal that provides instruction for the notice.',
   },
   goToFacilitySettingsLabel: {
-    message: 'Go to facility settings',
+    message: 'Go to Facility settings',
     context: 'Button label for navigating to facility settings page.',
   },
   learnerCreationDisabled: {
-    message: 'Learner creation is currently disabled due to reaching limit of 1300 learners.',
+    message: 'You cannot add new learners to the facility because it reached the limit of 1300.',
     context:
       'Message shown to admins when they cannot create new learner accounts because the facility has reached the picture password learner limit.',
   },
@@ -181,7 +183,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context: 'Label for icon style radio group',
   },
   viewPasswordsAction: {
-    message: 'View Passwords',
+    message: 'View passwords',
     context: 'Button label that navigates to the page listing all learner picture passwords',
   },
   printPicturePasswordsAction: {
@@ -193,10 +195,6 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'No picture password',
     context: 'Shown in the learner password list when a learner has no picture password set',
   },
-  printAction: {
-    message: 'Print',
-    context: 'Button label to print the learner picture password list',
-  },
   allPasswordsHeader: {
     message: 'All passwords',
     context: 'App bar title for the page listing all learner passwords',
@@ -205,10 +203,6 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Learners can sign in with their username',
     context:
       'Shown below the no picture password text to inform that learners without a picture password can still sign in using their username',
-  },
-  noLearnersInClass: {
-    message: 'There are no learners in this class',
-    context: 'Shown on the all passwords page when the class has no enrolled learners',
   },
 
   // Info modal for picture password radio option
@@ -223,12 +217,12 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   },
   picturePasswordInfoBody: {
     message:
-      'Learners sign in by selecting a 3-picture sequence unique to their account. Each sequence is auto-generated and assigned by Kolibri and cannot be changed. This feature is only available in facilities with fewer than 1,300 learners.',
+      'Learners sign in with a 3-picture sequence unique to their account. Each sequence is auto-generated and assigned by Kolibri, so it cannot be changed. This feature is only available in facilities with fewer than 1300 learners.',
     context: 'Main content in the information modal about the picture password sign-in method.',
   },
   picturePasswordInfoNote: {
     message:
-      'Learners who join the facility after the 1,300 user limit can sign in with a username.',
+      'Learners who join the facility after the 1300 user limit can sign in with a username.',
     context:
       'Note shown in the picture password info modal about learners added after the limit is reached.',
   },
@@ -262,7 +256,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   },
   childFriendlyIconsInfoDescription: {
     message:
-      'The child-friendly icons are designed for young learners. These icons use the same objects as the standard set, in a more colorful and engaging style.',
+      'The child-friendly icons are designed for young learners. This version uses the same objects as the standard icons, in a more colorful and engaging style.',
     context: 'Description shown in the icon styles information modal.',
   },
   childFriendlyIconsColumnLabel: {
@@ -286,10 +280,8 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
       'Title for the modal explaining why picture password is unavailable when the learner limit is reached.',
   },
   picturePasswordUnavailableBody: {
-    message:
-      'Picture passwords are only available for facilities with up to {learnerLimit} learners.',
-    context:
-      'Body of the modal explaining why picture password is not available. {learnerLimit} is the maximum number of learners allowed for picture password.',
+    message: 'Picture passwords are only available for facilities with fewer than 1300 learners.',
+    context: 'Body of the modal explaining why picture password is not available.',
   },
   picturePasswordUnavailableLearnerCount: {
     message: 'Current number of learners in {facilityName}: {learnerCount}',
@@ -325,11 +317,11 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
 
   // Sign-in
   enterPictures: {
-    message: 'Enter pictures instead',
+    message: 'Sign in with pictures',
     context: 'Link text on the sign-in page for switching to the picture password method',
   },
   enterUsername: {
-    message: 'Enter username instead',
+    message: 'Sign in with username',
     context: 'Link text on the sign-in page for switching to the username & password method',
   },
   isThisYou: {

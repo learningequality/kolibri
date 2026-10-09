@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/vue';
 import { createLocalVue } from '@vue/test-utils';
 import { pageHeading } from 'kolibri/composables/usePageTitle';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
@@ -301,7 +301,7 @@ describe('AttendanceNewPage', () => {
     expect(buttons.length).toBe(2);
   });
 
-  it('re-opens modal on a single click after "Go back" was clicked in the mark-all modal', async () => {
+  it('re-opens modal on a single click after "Cancel" was clicked in the mark-all modal', async () => {
     // Regression: after cancelling the modal, the KSwitch stayed visually "on" even though
     // allPresent was false. The next click fired @change(false) instead of @change(true),
     // so the modal never re-opened — requiring a second click to trigger it again.
@@ -316,8 +316,10 @@ describe('AttendanceNewPage', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    // Click "Go back" inside the modal
-    await fireEvent.click(screen.getByRole('button', { name: coreString('goBackAction') }));
+    // Click "Cancel" inside the modal
+    await fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: coreString('cancelAction') }),
+    );
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -343,7 +345,7 @@ describe('AttendanceNewPage', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    await fireEvent.click(screen.getByText(attendanceStrings.markAllPresentAction$()));
+    await fireEvent.click(screen.getByRole('button', { name: coreString('confirmAction') }));
 
     await waitFor(() => {
       expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
@@ -358,9 +360,7 @@ describe('AttendanceNewPage', () => {
     });
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
-    await fireEvent.click(
-      screen.getByRole('button', { name: attendanceStrings.submitAttendanceAction$() }),
-    );
+    await fireEvent.click(screen.getByRole('button', { name: coreString('saveAction') }));
     await global.flushPromises();
 
     expect(createSession).toHaveBeenCalledWith(
@@ -385,9 +385,7 @@ describe('AttendanceNewPage', () => {
     const initialRoute = router.currentRoute.name;
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
-    await fireEvent.click(
-      screen.getByRole('button', { name: attendanceStrings.submitAttendanceAction$() }),
-    );
+    await fireEvent.click(screen.getByRole('button', { name: coreString('saveAction') }));
     await global.flushPromises();
 
     expect(createSnackbar).toHaveBeenCalled();
@@ -587,7 +585,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.noLearnersInClassMessage$())).toBeInTheDocument();
+      expect(screen.getByText(coreString('noLearnersInClassLabel'))).toBeInTheDocument();
     });
 
     expect(
@@ -608,9 +606,7 @@ describe('AttendanceEditPage', () => {
       ).toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByText(attendanceStrings.noLearnersInClassMessage$()),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(coreString('noLearnersInClassLabel'))).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: coreString('saveAction') }),
     ).not.toBeInTheDocument();
