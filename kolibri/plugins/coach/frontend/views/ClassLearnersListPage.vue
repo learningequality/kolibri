@@ -46,7 +46,7 @@
           </th>
           <th>{{ coreString('usernameLabel') }}</th>
           <th>{{ $tr('deviceStatus') }}</th>
-          <th>{{ $tr('lastSyncedStatus') }}</th>
+          <th>{{ coreString('lastSyncedLabel') }}</th>
         </template>
 
         <template #tbody>
@@ -215,11 +215,6 @@
       deviceStatus: {
         message: 'Device status',
         context: "Indicates the status of an individual learner's device.",
-      },
-      lastSyncedStatus: {
-        message: 'Last synced',
-        context:
-          "Header for the table column in the 'Class learners' page that displays the last time each device synced with the server.",
       },
       howToTroubleshootModalHeader: {
         message: 'Information about sync statuses',

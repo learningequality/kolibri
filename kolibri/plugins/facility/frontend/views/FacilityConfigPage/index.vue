@@ -63,25 +63,10 @@
               data-testid="learner_can_sign_up"
             />
             <KCheckbox
-              v-if="isAttendanceFeatureEnabled"
               v-model="settings.enable_mark_attendance"
               :label="enableMarkAttendance$()"
               data-testid="enable_mark_attendance"
             />
-            <template v-if="!isPictureLoginFeatureEnabled">
-              <KCheckbox
-                :checked="signInOption === OptionsForSignIn.USERNAME_PASSWORD"
-                :label="learnerNeedPasswordToLogin$()"
-                data-testid="learner_can_login_with_no_password"
-                @change="handleNoPicturePasswordSignInOptionToggle"
-              />
-              <KCheckbox
-                v-model="settings.learner_can_edit_password"
-                :disabled="signInOption !== OptionsForSignIn.USERNAME_PASSWORD"
-                :label="learnerCanEditPassword$()"
-                data-testid="learner_can_edit_password"
-              />
-            </template>
           </div>
         </section>
 
@@ -98,10 +83,7 @@
         </section>
 
         <!-- How learners sign in Section -->
-        <section
-          v-if="isPictureLoginFeatureEnabled"
-          class="facility-settings learner-signin"
-        >
+        <section class="facility-settings learner-signin">
           <h3>{{ howLearnersSignIn$() }}</h3>
           <div class="settings">
             <KRadioButtonGroup>
@@ -401,8 +383,6 @@
         facilityDataLoading,
         settingsHaveChanged,
         isPinSet,
-        isAttendanceFeatureEnabled,
-        isPictureLoginFeatureEnabled,
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
@@ -425,7 +405,6 @@
         showDownloadButtonInLearn$,
         enableMarkAttendance$,
         learnerCanEditPassword$,
-        learnerNeedPasswordToLogin$,
         deviceManagementPin$,
         deviceManagementDescription$,
         createPinBtn$,
@@ -563,16 +542,6 @@
         }
       }
 
-      const handleNoPicturePasswordSignInOptionToggle = () => {
-        // When picture password is disabled in the UI, just treat it
-        // being enabled as 'USERNAME_ONLY' to avoid ambiguous state.
-        if (signInOption.value !== OptionsForSignIn.USERNAME_PASSWORD) {
-          signInOption.value = OptionsForSignIn.USERNAME_PASSWORD;
-        } else {
-          signInOption.value = OptionsForSignIn.USERNAME_ONLY;
-        }
-      };
-
       const { tasks: facilityTasks } = useTaskPolling('facility_task');
       const pictureLoginTaskLoading = ref(false);
 
@@ -621,8 +590,6 @@
         deviceSettingsUrl,
         lastPartId,
         dropdownOptions,
-        isAttendanceFeatureEnabled,
-        isPictureLoginFeatureEnabled,
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
@@ -638,7 +605,6 @@
         handleRemovePinSubmit,
         handleCreatePin,
         handleSelect,
-        handleNoPicturePasswordSignInOptionToggle,
 
         // Strings
         pageHeader$,
@@ -649,7 +615,6 @@
         learnerCanSignUp$,
         enableMarkAttendance$,
         learnerCanEditPassword$,
-        learnerNeedPasswordToLogin$,
         showDownloadButtonInLearn$,
         deviceManagementPin$,
         deviceManagementDescription$,

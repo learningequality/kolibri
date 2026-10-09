@@ -147,6 +147,7 @@ wxapp-extract-strings:
 		--package-name=kolibri-app \
 		--output=- \
 		src/kolibri_app/*.py \
+		src/kolibri_app/windows/*.py \
 	| msgen \
 		--no-wrap \
 		--output=src/kolibri_app/locales/en/LC_MESSAGES/wxapp.po \

@@ -1,6 +1,5 @@
 import { ref, computed, unref } from 'vue';
 import { useLocalStorage, StorageSerializers } from '@vueuse/core';
-import { currentLanguage } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import { OptionsForSignIn } from '../constants/Auth';
@@ -50,11 +49,6 @@ export function useFacilitySelect(listenToStorageChanges = false) {
 export function useFacilityConfig(facilityId) {
   const _facilityId = facilityId;
   const facilityConfig = ref({});
-
-  // computed feature flags
-  const _isEnglish = () => currentLanguage === 'en';
-  const isAttendanceFeatureEnabled = computed(_isEnglish);
-  const isPictureLoginFeatureEnabled = computed(_isEnglish);
 
   // computed
   const signInOptions = computed(() => {
@@ -106,8 +100,6 @@ export function useFacilityConfig(facilityId) {
 
   return {
     facilityConfig,
-    isAttendanceFeatureEnabled,
-    isPictureLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
     fetchFacilityConfig,
@@ -123,8 +115,6 @@ const { fetchFacilities, fetchFacility: _fetchFacility, getFacility } = useFacil
 const {
   facilityConfig,
   fetchFacilityConfig: _fetchFacilityConfig,
-  isAttendanceFeatureEnabled,
-  isPictureLoginFeatureEnabled,
   signInOptions,
   picturePasswordSettings,
 } = useFacilityConfig(selectedFacilityId);
@@ -185,10 +175,6 @@ async function fetchFacilityConfig() {
  * @property {import('vue').ComputedRef<string>} currentFacilityName - The selected facility's name,
  * or an empty string when none is selected
  * @property {import('vue').Ref<object>} facilityConfig - The selected facility's dataset config
- * @property {import('vue').ComputedRef<boolean>} isAttendanceFeatureEnabled - Whether the
- * attendance feature is enabled for the current language
- * @property {import('vue').ComputedRef<boolean>} isPictureLoginFeatureEnabled - Whether picture
- * login is enabled for the current language
  * @property {import('vue').ComputedRef<string[]>} signInOptions - The sign-in options available for
  * the selected facility
  * @property {import('vue').ComputedRef<object|null>} picturePasswordSettings - The picture password
@@ -213,8 +199,6 @@ export default function useFacility() {
     selectedFacility,
     currentFacilityName,
     facilityConfig,
-    isAttendanceFeatureEnabled,
-    isPictureLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
     fetchFacilities,

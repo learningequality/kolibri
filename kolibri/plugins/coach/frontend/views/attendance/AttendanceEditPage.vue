@@ -15,7 +15,7 @@
         <h1>{{ pageTitle }}</h1>
 
         <p v-if="!hasAnyLearners">
-          {{ noLearnersInClassMessage$() }}
+          {{ coreString('noLearnersInClassLabel') }}
         </p>
 
         <AttendanceFormTable
@@ -94,7 +94,6 @@
         submitErrorMessage$,
         presentCount$,
         absentCount$,
-        noLearnersInClassMessage$,
       } = attendanceStrings;
 
       const loading = ref(true);
@@ -219,7 +218,6 @@
         saveConfirmationTitle$,
         presentCount$,
         absentCount$,
-        noLearnersInClassMessage$,
       };
     },
     beforeRouteLeave(to, from, next) {

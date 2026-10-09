@@ -28,7 +28,7 @@
           class="header-row print-button"
         >
           <KButton
-            :text="printAction$()"
+            :text="printPasswordsDialogHeader$()"
             :disabled="!hasPicturePasswords"
             @click="openPrintDialog"
           />
@@ -40,7 +40,7 @@
         :headers="tableHeaders"
         :rows="tableRows"
         :caption="allPasswordsHeader$()"
-        :emptyMessage="noLearnersInClass$()"
+        :emptyMessage="noLearnersInClassLabel$()"
         :defaultSort="{ columnId: 'full_name', direction: 'asc' }"
         sortable
         disableBuiltinSorting
@@ -160,11 +160,15 @@
 
       const { windowBreakpoint } = useKResponsiveWindow();
 
-      const { nameLabel$, usernameLabel$, passwordLabel$, cancelAction$, continueAction$ } =
-        coreStrings;
       const {
-        noLearnersInClass$,
-        printAction$,
+        nameLabel$,
+        usernameLabel$,
+        passwordLabel$,
+        cancelAction$,
+        continueAction$,
+        noLearnersInClassLabel$,
+      } = coreStrings;
+      const {
         allPasswordsHeader$,
         printWithImages$,
         printWithTextOnly$,
@@ -247,8 +251,7 @@
         closePrintDialog,
         cancelAction$,
         continueAction$,
-        noLearnersInClass$,
-        printAction$,
+        noLearnersInClassLabel$,
         allPasswordsHeader$,
         printWithImages$,
         printWithTextOnly$,

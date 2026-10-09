@@ -132,16 +132,15 @@
       :title="markAllModalTitle$({ count: sortedLearners.length })"
       @cancel="cancelMarkAll"
     >
-      <p>{{ markAllModalDescription$({ count: currentAbsentCount }) }}</p>
       <template #actions>
         <KButtonGroup>
           <KButton
-            :text="coreString('goBackAction')"
+            :text="coreString('cancelAction')"
             @click="cancelMarkAll"
           />
           <KButton
             data-testid="mark-all-confirm"
-            :text="markAllPresentAction$()"
+            :text="coreString('confirmAction')"
             :appearanceOverrides="confirmButtonStyles"
             @click="confirmMarkAll"
           />
@@ -151,13 +150,13 @@
 
     <KModal
       v-if="pendingRoute"
-      :title="unsavedChangesTitle$()"
-      :submitText="leaveAction$()"
-      :cancelText="stayAction$()"
+      :title="coreString('closeConfirmationTitle')"
+      :submitText="coreString('confirmAction')"
+      :cancelText="coreString('cancelAction')"
       @submit="confirmLeave"
       @cancel="cancelLeave"
     >
-      <p>{{ unsavedChangesDescription$() }}</p>
+      <p>{{ coreString('closeConfirmationMessage') }}</p>
     </KModal>
   </div>
 
@@ -187,14 +186,8 @@
         presentLabel$,
         markAllPresentLabel$,
         markAllModalTitle$,
-        markAllModalDescription$,
-        unsavedChangesTitle$,
-        unsavedChangesDescription$,
-        leaveAction$,
-        stayAction$,
         presentCount$,
         absentCount$,
-        markAllPresentAction$,
         learnersLabel$,
         markAttendanceAction$,
         previouslyEnrolledLabel$,
@@ -206,7 +199,6 @@
         markAllPresent: markAllSwitchValue,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
-        currentAbsentCount: currentAbsentCountValue,
         showMarkAllModal,
         pendingRoute,
         isPresent,
@@ -256,7 +248,6 @@
         markAllSwitchValue,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
-        currentAbsentCount: currentAbsentCountValue,
         showMarkAllModal,
         pendingRoute,
         isPresent,
@@ -271,14 +262,8 @@
         presentLabel$,
         markAllPresentLabel$,
         markAllModalTitle$,
-        markAllModalDescription$,
-        unsavedChangesTitle$,
-        unsavedChangesDescription$,
-        leaveAction$,
-        stayAction$,
         presentCount$,
         absentCount$,
-        markAllPresentAction$,
         learnersLabel$,
         markAttendanceAction$,
         previouslyEnrolledLabel$,

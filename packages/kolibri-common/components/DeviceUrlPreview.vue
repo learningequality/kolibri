@@ -23,18 +23,12 @@
       context:
         'Live preview of the .local web address the device name produces. {url} is e.g. http://tonyslaptop.local:8080',
     },
-    noCustomAddress: {
-      message:
-        'This name doesn’t produce a custom web address, but this device will still be reachable at {url} and its IP address.',
-      context:
-        'Shown when the entered name has no letters or numbers, so no custom .local address can be created. {url} is the bare base address, e.g. http://kolibri.local:8080',
-    },
   });
 
   export default {
     name: 'DeviceUrlPreview',
     setup(props) {
-      const { reachableAtUrl$, noCustomAddress$ } = previewStrings;
+      const { reachableAtUrl$ } = previewStrings;
       const { sendPoliteMessage } = useKLiveRegion();
       const previewText = computed(() => {
         if (!props.deviceName.trim()) {
@@ -44,7 +38,7 @@
         const url = deviceLocalUrl(props.deviceName, port);
         if (!url) {
           // typed name yields no slug — fall back to the bare base address
-          return noCustomAddress$({ url: baseDeviceUrl(port) });
+          return reachableAtUrl$({ url: baseDeviceUrl(port) });
         }
         return reachableAtUrl$({ url });
       });
