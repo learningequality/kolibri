@@ -44,111 +44,23 @@
         </div>
       </template>
 
-      <!-- Content: learner has scores -->
-      <template v-else>
-        <!-- Warning banner when learner is struggling with some LOs -->
-        <div
-          v-if="strugglingCount > 0"
-          class="warning-banner"
-          :style="{ backgroundColor: 'var(--palette-yellow-v100)' }"
+      <!-- Content: one section per unit, the most recent open -->
+      <AccordionContainer v-else>
+        <AccordionItem
+          v-for="(unitReport, index) in unitReports"
+          :key="unitReport.id"
+          :title="unitReport.title"
+          :isOpenByDefault="index === unitReports.length - 1"
         >
-          <KIcon
-            icon="error"
-            :color="$themePalette.orange.v_600"
-            class="warning-icon"
-          />
-          {{ strugglingWithObjectivesPrefixLabel$() }}
-          <b>{{ strugglingWithObjectivesSuffixLabel$({ count: strugglingCount }) }}</b>
-        </div>
-
-        <!-- Success banner when learner is on track with all LOs -->
-        <div
-          v-else
-          class="success-banner"
-          :style="{ backgroundColor: 'var(--palette-green-v100)' }"
-        >
-          <KIcon
-            icon="correct"
-            :color="$themePalette.green.v_600"
-            class="success-icon"
-          />
-          {{ onTrackWithObjectivesPrefixLabel$() }}
-          <b>{{ onTrackWithObjectivesSuffixLabel$({ count: loTotalCount }) }}</b>
-        </div>
-
-        <!-- LO section -->
-        <div
-          class="lo-section"
-          data-testid="lo-section"
-        >
-          <div class="lo-section-heading">
-            {{ individualLoPerformanceLabel$() }}
-          </div>
-          <div
-            class="lo-section-subheading"
-            :style="{ color: 'var(--tokens-annotation)' }"
-          >
-            {{ sortedByScoreLowestFirstLabel$() }}
-          </div>
-
-          <table
-            class="lo-table"
-            :aria-label="individualLoPerformanceLabel$()"
-          >
-            <thead>
-              <tr
-                :style="{
-                  borderTop: '1px solid var(--tokens-fineLine)',
-                  borderBottom: '1px solid var(--tokens-fineLine)',
-                }"
-              >
-                <th
-                  scope="col"
-                  class="lo-th"
-                >
-                  {{ learningObjectiveLabel$() }}
-                </th>
-                <th
-                  scope="col"
-                  class="lo-th lo-th-score"
-                >
-                  {{ questionsCorrectLabel$() }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="lo in sortedLOs"
-                :key="lo.id"
-                :style="{
-                  backgroundColor:
-                    lo.ratio >= MasteryThreshold.HIGH
-                      ? 'var(--palette-green-v100)'
-                      : 'var(--palette-yellow-v100)',
-                }"
-              >
-                <td class="lo-td">{{ lo.text }}</td>
-                <td class="lo-td lo-td-score">
-                  <span
-                    class="lo-score"
-                    :aria-label="xOfYCorrectLabel$({ correct: lo.correct, total: lo.numQuestions })"
-                  >
-                    <strong
-                      class="lo-count"
-                      aria-hidden="true"
-                    >{{ lo.correct }}</strong>
-                    <span
-                      class="lo-of-n"
-                      :style="{ color: 'var(--tokens-annotation)' }"
-                      aria-hidden="true"
-                    >{{ ofNQuestionsLabel$({ total: lo.numQuestions }) }}</span>
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </template>
+          <template #content>
+            <LearnerUnitReport
+              :prefetchedData="unitReport.prefetchedData"
+              :unitTitle="unitReport.title"
+              :learner="learner"
+            />
+          </template>
+        </AccordionItem>
+      </AccordionContainer>
     </SidePanelLayout>
   </SidePanelModal>
 
@@ -157,72 +69,31 @@
 
 <script>
 
-  import { computed, toRef } from 'vue';
+  import { computed } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+  import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
+  import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
-  import { MasteryThreshold } from '../../constants/courseConstants';
+  import { learnerTestScores } from '../../utils';
+  import LearnerUnitReport from './LearnerUnitReport.vue';
 
   export default {
     name: 'LearnerSidePanel',
     components: {
+      AccordionContainer,
+      AccordionItem,
+      LearnerUnitReport,
       SidePanelModal,
       SidePanelLayout,
     },
     setup(props, { emit }) {
-      const {
-        learnerReportLabel$,
-        noProgressLabel$,
-        hasntStartedUnitsLabel$,
-        strugglingWithObjectivesPrefixLabel$,
-        strugglingWithObjectivesSuffixLabel$,
-        onTrackWithObjectivesPrefixLabel$,
-        onTrackWithObjectivesSuffixLabel$,
-        xOfYCorrectLabel$,
-        individualLoPerformanceLabel$,
-        sortedByScoreLowestFirstLabel$,
-        learningObjectiveLabel$,
-        questionsCorrectLabel$,
-        ofNQuestionsLabel$,
-      } = coursesStrings;
+      const { learnerReportLabel$, noProgressLabel$, hasntStartedUnitsLabel$ } = coursesStrings;
 
-      const data = toRef(props, 'prefetchedData');
-
-      const activeTestScores = computed(() => {
-        if (!data.value?.reportData || !data.value?.activeTestType) return {};
-        const testKey = data.value.activeTestType === 'post' ? 'post_test' : 'pre_test';
-        return data.value.reportData[testKey]?.scores || {};
-      });
-
-      const learningObjectives = computed(() => {
-        return data.value?.reportData?.learning_objectives || [];
-      });
-
-      const learnerScores = computed(() => {
-        return activeTestScores.value[props.learner.id] || null;
-      });
-
-      const hasAttempted = computed(() => learnerScores.value !== null);
-
-      const loData = computed(() => {
-        return learningObjectives.value.map(lo => {
-          const attempted =
-            learnerScores.value !== null && learnerScores.value[lo.id] !== undefined;
-          const correct = learnerScores.value ? learnerScores.value[lo.id] || 0 : 0;
-          const numQuestions = lo.num_questions;
-          const ratio = numQuestions > 0 ? correct / numQuestions : 0;
-          return { id: lo.id, text: lo.text, correct, numQuestions, ratio, attempted };
-        });
-      });
-
-      const sortedLOs = computed(() => {
-        return [...loData.value].sort((a, b) => a.ratio - b.ratio);
-      });
-
-      const loTotalCount = computed(() => loData.value.length);
-
-      const strugglingCount = computed(
-        () => loData.value.filter(lo => lo.ratio < MasteryThreshold.HIGH).length,
+      const hasAttempted = computed(() =>
+        props.unitReports.some(({ prefetchedData }) =>
+          learnerTestScores(prefetchedData, props.learner.id),
+        ),
       );
 
       function closePanel() {
@@ -230,30 +101,19 @@
       }
 
       return {
-        MasteryThreshold,
         learnerReportLabel$,
         noProgressLabel$,
         hasntStartedUnitsLabel$,
-        strugglingWithObjectivesPrefixLabel$,
-        strugglingWithObjectivesSuffixLabel$,
-        onTrackWithObjectivesPrefixLabel$,
-        onTrackWithObjectivesSuffixLabel$,
-        xOfYCorrectLabel$,
-        individualLoPerformanceLabel$,
-        sortedByScoreLowestFirstLabel$,
-        learningObjectiveLabel$,
-        questionsCorrectLabel$,
-        ofNQuestionsLabel$,
         hasAttempted,
-        loTotalCount,
-        strugglingCount,
-        sortedLOs,
         closePanel,
       };
     },
     props: {
-      prefetchedData: {
-        type: Object,
+      /**
+       * Units to report on, in course order: `{ id, title, prefetchedData }`
+       */
+      unitReports: {
+        type: Array,
         required: true,
       },
       learner: {
@@ -341,97 +201,6 @@
   .stats-value {
     font-size: 13px;
     font-weight: 500;
-  }
-
-  .warning-banner {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    padding: 8px 16px;
-    margin: 16px 0;
-    font-size: 14px;
-  }
-
-  .warning-icon {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-  }
-
-  .success-banner {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    padding: 12px 16px;
-    margin: 16px 0;
-    border-radius: 4px;
-  }
-
-  .success-icon {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-  }
-
-  .lo-section {
-    margin-top: 24px;
-  }
-
-  .lo-section-heading {
-    margin-bottom: 4px;
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .lo-section-subheading {
-    margin-bottom: 16px;
-    font-size: 13px;
-  }
-
-  .lo-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .lo-th {
-    padding: 10px 8px;
-    font-size: 13px;
-    font-weight: 700;
-    text-align: left;
-  }
-
-  .lo-th-score {
-    text-align: right;
-  }
-
-  .lo-td {
-    padding: 14px 8px;
-    font-size: 15px;
-    vertical-align: middle;
-  }
-
-  .lo-td-score {
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .lo-score {
-    display: flex;
-    gap: 4px;
-    align-items: baseline;
-    justify-content: flex-end;
-    white-space: nowrap;
-  }
-
-  .lo-count {
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .lo-of-n {
-    font-size: 14px;
   }
 
 </style>
