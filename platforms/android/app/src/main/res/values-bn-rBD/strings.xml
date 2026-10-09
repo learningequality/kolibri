@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">কলিব্রি</string>
+    <string name="notification_channel_ticker">টাস্ক শুরু হয়েছে…</string>
+    <string name="notification_service_channel_content">চলছে</string>
+    <string name="notification_service_channel_action">টাস্ক ম্যানেজার দেখুন</string>
+    <string name="notification_default_channel_title">টাস্ক</string>
+    <string name="notification_download_complete_title">ডাউনলোড সম্পূর্ণ হয়েছে</string>
+    <string name="os_user_name">শিক্ষার্থী</string>
+</resources>

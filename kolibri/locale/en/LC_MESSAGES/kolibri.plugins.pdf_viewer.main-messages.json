@@ -1,7 +1,5 @@
 {
   "BookmarkItem.expand": "Expand bookmark",
   "Bookmarks.bookmarksSection": "Bookmarks section. You can switch between the pdf document and bookmarks section pressing shift + enter.",
-  "PdfPage.numPage": "Page {number} of {total}",
-  "PdfRendererIndex.enterFullscreen": "Enter fullscreen",
-  "PdfRendererIndex.exitFullscreen": "Exit fullscreen"
+  "PdfPage.numPage": "Page {number} of {total}"
 }

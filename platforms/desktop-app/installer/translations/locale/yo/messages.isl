@@ -1,0 +1,67 @@
+[Messages]
+SetupAppTitle=Ṣeto
+SetupWindowTitle=Ṣeto- %1
+UninstallAppTitle=Aifi si po
+UninstallAppFullTitle=%1 Aifi si po
+InformationTitle=Alaye
+ConfirmTitle=Fidire munle
+ErrorTitle=Àṣìṣe
+SetupLdrStartupMessage=Eyi Yoo fi sori ẹrọ %1. ṣe iwọ fẹ si tẹsiwaju?
+SetupAlreadyRunning=Ṣeto jẹ tẹlẹ nṣiṣẹ.
+WindowsVersionNotSupported=Eyi iwe eto ṣe kii ṣe atilẹyin Awọn ti ikede ti ferese rẹ kọmputa jẹnṣiṣẹ.
+ExitSetupMessage=Ṣeto jẹkii ṣe pari. ti o baiwọ tẹlẹ bayi, Awọn etoYoo kii ṣe jẹ fi sori ẹrọ. %n%niwọ Ṣe ṣiṣe ṣeto lẹẹkansi ni miiranaago si pari Awọn fifi soriẹrọ.%n%ntẹlẹ ṣeto?
+ButtonBack=< &Pada
+ButtonNext=&Itele >
+ButtonInstall=&Fi sori ẹrọ
+ButtonOK=Óti da
+ButtonCancel=Fagi lée
+ButtonYes=&Bẹ́ẹ̀ni
+ButtonNo=&Rara
+ButtonFinish=&Parí
+ButtonBrowse=&lọkiriayelujara...
+ButtonWizardBrowse=B&rowse...
+ButtonNewFolder=&ṣe Titun Folda
+SelectLanguageTitle=Yan ṣeto Ede
+SelectLanguageLabel=Yan awọn ede si lilo nigba Awọn fifi sori ẹrọ.
+ClickNext=Tẹ Itele si tẹsiwaju tabi Fagilee si tẹlẹ ṣeto.
+BrowseDialogTitle=Lọ kiri ayelujara Fun Folda
+BrowseDialogLabel=Yan a obinrin folda ni Awọn Akojọ ni isalẹ, lẹhinna tẹ O dara.
+NewFolderName=Titun Folda
+WizardSelectDir=Yan Ibi ti nlo ipo
+SelectDirDesc=Nibi ti yẹ [name] jẹ fi sori ẹrọ?
+SelectDirLabel3=Ṣeto yoo fi sori ẹrọ [name] sinu Awọn wọnyi folda.
+SelectDirBrowseLabel=Si tẹsiwaju, tẹ Itele. Ti o ba iwọ yoo bi si yan a obinrin yatọ
+folda, tẹ lọ kiri ayelujara.
+DiskSpaceMBLabel=Ni o kere [mb] MB ti ṣ''ofo disiki Aaye jẹ ti a beer.
+DiskSpaceWarningTitle=Kii ṣe to disiki Aaye
+WizardSelectProgramGroup=Yan bẹrẹ akojọ aṣayan folda
+SelectStartMenuFolderDesc=Wà yẹ ṣeto Ibi Awọn awọn eto ọna Abuja?
+SelectStartMenuFolderLabel3=Ṣeto eto yoo ṣẹda Awọn awọn eto awọn ọna abuja ni Awọn wọnyi bẹrẹ akojọ aṣayan folda.
+SelectStartMenuFolderBrowseLabel=Si tẹsiwaju, tẹ Itele. Ti o ba iwọ yoo bi si yan a obinrin yatọ
+folda, tẹ lọ kiri ayelujara.
+MustEnterGroupName=Iwọ gbọdọ tẹ a obinrin folda orukọ.
+BadGroupName=Awọn folda orukọ ko le ṣe pẹlu eyikeyi ti Awọn wọnyi ohun kikọ:%n%n%1
+WizardReady=Setan si fi sori ẹrọ
+ReadyLabel1=Ṣeto jẹ bayi setan si berè fifi sori ẹrọ [name] lori rẹ kọmputa.
+ReadyLabel2a=Tẹ fi sori ẹrọ si tẹsiwaju pẹlu Awọn fifi sori ẹrọ, tabi tẹ pada ti o ba iwọ fẹ si atunyẹwo tabi iyipada eyikeyi ètò.
+ReadyLabel2b=Tẹ fi sori ẹrọ si tẹsiwaju pẹlu Awọn fifi sori ẹrọ.
+ReadyMemoDir=Ibi ti nlo ipo:
+ReadyMemoGroup=Bẹrẹ akojọ aṣayan folda:
+WizardPreparing=Ngbaradi si fi sori ẹrọ
+PreparingDesc=Ṣeto jẹ ngbaradi si fi sori ẹrọ [orukọ] lori rẹ kọmputa.
+CannotContinue=Ṣeto ko le ṣe tẹsiwaju. Jowo tẹ Fagilee si tẹlẹ.
+WizardInstalling=Fifi sori ẹrọ
+InstallingLabel=Jowo duro nigba ti ṣeto nfi sii [orukọ] lori rẹ kọmputa.
+FinishedHeadingLabel=I pari Awọn [orukọ] ṣeto oluṣeto
+FinishedLabelNoIcons=Ṣeto ni o ni pari fifi sori ẹrọ [name] lori rẹ kọmputa.
+FinishedLabel=Ṣeto yoo pari fifi sori ẹrọ [name] lori rẹ kọmputa. Awọn ohun elo Ṣe jẹ se igbekale nipasẹ yiyan Awọn fi sori ẹrọ ọna abuja.
+ClickFinish=Tẹ pari si tẹlẹ ṣeto.
+AbortRetryIgnoreCancel=Fagilee fifi sori ẹrọ
+StatusExtractFiles=Jijade awọn faili...
+StatusRunProgram=Ipari fifi sori ẹrọ...
+ConfirmUninstall=Jẹ iwọ daju iwọ fẹ si patapata yọ kuro %1 ati gbogbo ti awọn oniwe- patapata?
+UninstallStatusLabel=Jowo duro nigba ti %1 jẹ yọ kuro lati rẹ kọmputa.
+UninstalledAll=%1 je ni ifijišẹ yọ kuro lati rẹ kọmputa.
+UninstalledMost=%1 aifi si po pari. %n%nDiẹ ninu awọn awọn eroja Le kii ṣe 
+jẹ kuro. wọnyi le jẹ kuro pẹlu ọwọ.
+

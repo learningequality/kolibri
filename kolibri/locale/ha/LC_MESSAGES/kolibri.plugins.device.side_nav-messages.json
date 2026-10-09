@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Na'ura",
-  "CommonDeviceStrings.emptyTasksMessage": "Ba wani abu da za a nuna",
-  "CommonDeviceStrings.newChannelLabel": "Sabo",
-  "CommonDeviceStrings.newEnabledPluginsState": "Idan ka sauke zaben shafi, masu amfani za su daina ganinta ko sa kuwa suna sa isnin hakan.",
-  "CommonDeviceStrings.newResourceLabel": "Sabo",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ba isasshen wuri a kan na'urarka. Samar da wuri a disk ko a zabi albarkatu kadan",
-  "CommonDeviceStrings.permissionsLabel": "Izini",
-  "CommonDeviceStrings.primaryStorageLabel": "Sabbin kaéyyakin da aka saukar za a ajiye su a wannan ma'aji",
-  "CommonDeviceStrings.statusCanceled": "An soke",
-  "CommonDeviceStrings.statusCanceling": "Ana sokewa",
-  "CommonDeviceStrings.statusComplete": "An gama",
-  "CommonDeviceStrings.statusFailed": "An kasa",
-  "CommonDeviceStrings.statusInProgress": "Ana-yi",
-  "CommonDeviceStrings.statusInQueue": "Ana jira",
-  "CommonDeviceStrings.unlistedChannelLabel": "Tashar da ba a jera da sunanta ba"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Tashoshi",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Na'ura",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Cibiyoyi",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Bayani",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Izini",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Saiti",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Yuza yuza"
 }

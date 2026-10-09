@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Gerät",
-  "CommonDeviceStrings.emptyTasksMessage": "Keine Aufgaben vorhanden",
-  "CommonDeviceStrings.newChannelLabel": "Neu",
-  "CommonDeviceStrings.newEnabledPluginsState": "Wenn Sie die Auswahl für eine Seite aufheben, wird sie für Benutzer unsichtbar, selbst wenn diese normalerweise Seitenzugriff haben.",
-  "CommonDeviceStrings.newResourceLabel": "Neu",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Nicht ausreichend Speicherplatz auf dem Gerät. Geben Sie Speicherplatz auf dem Gerät frei oder wählen Sie weniger Materialien aus.",
-  "CommonDeviceStrings.permissionsLabel": "Berechtigungen",
-  "CommonDeviceStrings.primaryStorageLabel": "Neu heruntergeladene Materialien werden zum primären Speicherort hinzugefügt",
-  "CommonDeviceStrings.statusCanceled": "Abgebrochen",
-  "CommonDeviceStrings.statusCanceling": "Vorgang wird abgebrochen",
-  "CommonDeviceStrings.statusComplete": "Abgeschlossen",
-  "CommonDeviceStrings.statusFailed": "Fehlgeschlagen",
-  "CommonDeviceStrings.statusInProgress": "In Bearbeitung",
-  "CommonDeviceStrings.statusInQueue": "Warten",
-  "CommonDeviceStrings.unlistedChannelLabel": "Nicht aufgeführter Kanal"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Kanäle",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Gerät",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Einrichtungen",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Info",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Berechtigungen",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Einstellungen",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Benutzer"
 }

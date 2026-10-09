@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">کُلیبری</string>
+    <string name="notification_channel_ticker">فعالیت آغاز شد…</string>
+    <string name="notification_service_channel_content">در حال انجام</string>
+    <string name="notification_service_channel_action">مشاهده مدیریت وظایف</string>
+    <string name="notification_default_channel_title">کارها</string>
+    <string name="notification_download_complete_title">بارگیری کامل شد</string>
+    <string name="os_user_name">دانش‌آموز</string>
+</resources>

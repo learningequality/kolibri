@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Колібрі</string>
+    <string name="notification_channel_ticker">Завдання розпочато…</string>
+    <string name="notification_service_channel_content">В процесі</string>
+    <string name="notification_service_channel_action">Переглянути диспетчер завдань</string>
+    <string name="notification_default_channel_title">Завдання</string>
+    <string name="notification_download_complete_title">Звантаження завершено</string>
+    <string name="os_user_name">Учень</string>
+</resources>

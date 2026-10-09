@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Attività avviata...</string>
+    <string name="notification_service_channel_content">In corso</string>
+    <string name="notification_service_channel_action">Visualizza elenco delle attività</string>
+    <string name="notification_default_channel_title">Attività</string>
+    <string name="notification_download_complete_title">Download completo</string>
+    <string name="os_user_name">Studente</string>
+</resources>

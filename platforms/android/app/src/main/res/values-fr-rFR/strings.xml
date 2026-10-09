@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Tâche commencée…</string>
+    <string name="notification_service_channel_content">En cours</string>
+    <string name="notification_service_channel_action">Voir le gestionnaire des tâches</string>
+    <string name="notification_default_channel_title">Tâches</string>
+    <string name="notification_download_complete_title">Téléchargement terminé</string>
+    <string name="os_user_name">Apprenant</string>
+</resources>

@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Dispositivo",
-  "CommonDeviceStrings.emptyTasksMessage": "No hay tareas para mostrar",
-  "CommonDeviceStrings.newChannelLabel": "Nuevo",
-  "CommonDeviceStrings.newEnabledPluginsState": "Cuando desmarque una página, será invisible para los usuarios incluso si tienen permiso para acceder a ella.",
-  "CommonDeviceStrings.newResourceLabel": "Nuevo",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "No hay suficiente espacio disponible en el dispositivo. Liberar espacio en el disco o seleccionar menos recursos",
-  "CommonDeviceStrings.permissionsLabel": "Permisos",
-  "CommonDeviceStrings.primaryStorageLabel": "Los recursos descargados se guardarán en la ubicación de almacenamiento principal",
-  "CommonDeviceStrings.statusCanceled": "Cancelada",
-  "CommonDeviceStrings.statusCanceling": "Cancelando",
-  "CommonDeviceStrings.statusComplete": "Completada",
-  "CommonDeviceStrings.statusFailed": "Ha fallado",
-  "CommonDeviceStrings.statusInProgress": "En curso",
-  "CommonDeviceStrings.statusInQueue": "Esperando",
-  "CommonDeviceStrings.unlistedChannelLabel": "Canal privado"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Canales",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Dispositivo",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Centros educativos",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Información",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Permisos",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Configuración",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Usuarios"
 }

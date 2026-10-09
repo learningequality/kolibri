@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">An fara aiki...</string>
+    <string name="notification_service_channel_content">Ana kai</string>
+    <string name="notification_service_channel_action">Duba mai sarrafa aiki</string>
+    <string name="notification_default_channel_title">Ayyuka</string>
+    <string name="notification_download_complete_title">An kammala saukewa</string>
+    <string name="os_user_name">Mai koyo</string>
+</resources>
