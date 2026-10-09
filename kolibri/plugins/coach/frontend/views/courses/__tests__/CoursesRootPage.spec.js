@@ -22,6 +22,7 @@ const {
   editRecipientsAction$,
   preTestRunningLabel$,
   unitInProgressLabel$,
+  unitNotStartedLabel$,
 } = coursesStrings;
 const { deleteAction$, notStartedLabel$, completedLabel$ } = coreStrings;
 const { entireClassLabel$ } = coachStrings;
@@ -302,6 +303,18 @@ describe('CoursesRootPage', () => {
       expect(screen.getByText(notStartedLabel$())).toBeInTheDocument();
     });
 
+    // After a unit's post-test ends, the next unit is pre_test_pending too;
+    // it must not look like the course was never started.
+    it('shows the next unit number when pre_test_pending follows a completed unit', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.PRE_TEST_PENDING,
+        active_unit_number: 2,
+        active_unit_title: 'Unit Two',
+      });
+      expect(screen.getByText(unitNotStartedLabel$({ num: 2 }))).toBeInTheDocument();
+      expect(screen.queryByText(notStartedLabel$())).not.toBeInTheDocument();
+    });
+
     it('shows pre-test running label in status column when unit_phase is pre_test_active', () => {
       renderWithCourse({
         unit_phase: UnitPhase.PRE_TEST_ACTIVE,
@@ -347,6 +360,26 @@ describe('CoursesRootPage', () => {
           learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
         ),
       ).toBeInTheDocument();
+    });
+
+    // calculating learner progress for every lesson is expensive, so between
+    // tests and after the last one closes there is no tally to show
+    it('shows dash in learner progress column when unit_phase is post_test_pending', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.POST_TEST_PENDING,
+        test_learner_progress: null,
+      });
+      expect(screen.getByText('—')).toBeInTheDocument();
+    });
+
+    it('shows dash in learner progress column when unit_phase is complete', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_number: null,
+        active_unit_title: null,
+        test_learner_progress: null,
+      });
+      expect(screen.getByText('—')).toBeInTheDocument();
     });
 
     it('shows entire class label in recipients column when course has group assignments', () => {
