@@ -10,6 +10,9 @@ import { setUnspecifiedPassword } from '../../../api';
 import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import useAuthRouter, { useAuthRouterMock } from '../../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import NewPasswordPage from '../NewPasswordPage.vue';
+import UserAuthLayout from '../../UserAuthLayout';
+import { pageTitleStrings } from '../../pageTitleStrings';
+import describeAuthPageTitle from '../../__tests__/describeAuthPageTitle';
 
 const { passwordLabel$ } = coreStrings;
 
@@ -24,7 +27,7 @@ jest.mock('../../../composables/useAuthRouter');
 const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
 
-function renderComponent() {
+function setupMocks() {
   useUser.mockImplementation(() => ({
     login: mockLogin,
     userFacilityId: ref(null),
@@ -40,7 +43,10 @@ function renderComponent() {
       signInRoute: ref({ name: 'SignInPage' }),
     }),
   );
+}
 
+function renderComponent() {
+  setupMocks();
   return render(
     NewPasswordPage,
     {
@@ -137,4 +143,19 @@ describe('NewPasswordPage', () => {
       expect(mockRouterPush).toHaveBeenCalledWith({ name: 'SignInPage' });
     });
   });
+});
+
+describe('NewPasswordPage in UserAuthLayout', () => {
+  const PageInLayout = {
+    components: { UserAuthLayout, NewPasswordPage },
+    template:
+      '<UserAuthLayout><NewPasswordPage username="testuser" facilityId="facility_1" /></UserAuthLayout>',
+  };
+
+  function renderInLayout() {
+    setupMocks();
+    return render(PageInLayout, { routes: [{ name: 'SignInPage', path: '/signin' }] });
+  }
+
+  describeAuthPageTitle(renderInLayout, pageTitleStrings.newPasswordPageTitle$);
 });

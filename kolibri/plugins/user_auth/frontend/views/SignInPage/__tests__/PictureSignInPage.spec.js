@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { nextTick, ref } from 'vue';
-import themeConfig from 'kolibri/styles/themeConfig';
+import { ref } from 'vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { LoginErrors } from 'kolibri/constants';
@@ -14,6 +13,7 @@ import useAuthRouter from '../../../composables/useAuthRouter';
 import PictureSignInPage from '../PictureSignInPage.vue';
 import UserAuthLayout from '../../UserAuthLayout';
 import { pageTitleStrings } from '../../pageTitleStrings';
+import describeAuthPageTitle from '../../__tests__/describeAuthPageTitle';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useSnackbar');
@@ -461,42 +461,5 @@ describe('PictureSignInPage', () => {
     });
   });
 
-  describe('page title', () => {
-    function pageHeadings() {
-      return screen.queryAllByRole('heading', { level: 1 });
-    }
-
-    beforeEach(() => {
-      document.title = '';
-    });
-
-    afterEach(() => {
-      delete themeConfig.signIn.showTitle;
-    });
-
-    it('sets the tab title to the page title', async () => {
-      renderComponent({ inLayout: true });
-      await nextTick();
-      expect(document.title).toBe(`${pictureSignInPageTitle$()} - Kolibri`);
-    });
-
-    it('renders the visible sign-in title as the only h1 when the theme shows it', async () => {
-      themeConfig.signIn.showTitle = true;
-      renderComponent({ inLayout: true });
-      await nextTick();
-      const headings = pageHeadings();
-      expect(headings).toHaveLength(1);
-      expect(headings[0]).not.toHaveClass('visuallyhidden');
-    });
-
-    it('renders the page title as a hidden h1 when the theme hides its title', async () => {
-      themeConfig.signIn.showTitle = false;
-      renderComponent({ inLayout: true });
-      await nextTick();
-      const headings = pageHeadings();
-      expect(headings).toHaveLength(1);
-      expect(headings[0]).toHaveTextContent(pictureSignInPageTitle$());
-      expect(headings[0]).toHaveClass('visuallyhidden');
-    });
-  });
+  describeAuthPageTitle(() => renderComponent({ inLayout: true }), pictureSignInPageTitle$);
 });
