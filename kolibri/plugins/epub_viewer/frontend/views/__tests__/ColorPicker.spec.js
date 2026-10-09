@@ -52,8 +52,8 @@ describe('ColorPicker', () => {
     await nextTick();
 
     const picker = container.querySelector('[aria-label="Color picker"]');
-    expect(picker).toHaveAttribute('role');
-
+    expect(picker).toHaveAttribute('role', 'application');
+    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     expect(container.querySelectorAll('svg[aria-role]')).toHaveLength(0);
   });
 });

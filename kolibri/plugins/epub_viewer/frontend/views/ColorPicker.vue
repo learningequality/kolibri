@@ -71,7 +71,6 @@
         });
       }
 
-
       return {
         pickerRoot,
         colorPickerEl,
@@ -85,15 +84,13 @@
       },
     },
   };
-
 </script>
 
-<style lang="scss" scoped>
 
+<style lang="scss" scoped>
   .picker-box {
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
 </style>
