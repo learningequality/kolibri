@@ -21,6 +21,8 @@ jest.mock('alwan', () => ({
   },
 }));
 
+jest.mock('alwan/css', () => {});
+
 const { customThemePreview$, selectBackgroundColor$, selectAction$, addAction$ } =
   customThemeStrings;
 
