@@ -11,11 +11,14 @@ jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
 // lifecycle callbacks (onStart / onEnd / group.put) against real jsdom nodes.
 let mockInstances;
 jest.mock('sortablejs', () =>
-  jest.fn().mockImplementation((el, options) => {
-    const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
-    mockInstances.push(instance);
-    return instance;
-  }),
+  Object.assign(
+    jest.fn().mockImplementation((el, options) => {
+      const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
+      mockInstances.push(instance);
+      return instance;
+    }),
+    { mount: jest.fn() },
+  ),
 );
 
 // A row element carrying the draggable marker class, so insertNodeAt has real
@@ -151,6 +154,44 @@ describe('DraggableRegion', () => {
       const emitted = wrapper.emitted('update:items');
       expect(emitted).toHaveLength(1);
       expect(emitted[0][0].map(i => i.id)).toEqual(['b', 'c', 'a']);
+    });
+
+    it('announces the moved item and its new position', async () => {
+      const { wrapper, options } = await mountRegion();
+      const provided = wrapper.vm._provided;
+      provided.registerSortItem(0, 'First', 1);
+      provided.registerSortItem(1, 'Second', 2);
+      provided.registerSortItem(2, 'Third', 3);
+      const from = wrapper.element;
+      [row('a'), row('b'), row('c')].forEach(r => from.appendChild(r));
+
+      options.onEnd({
+        item: from.children[0],
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 2,
+      });
+
+      expect(sendPoliteMessage).toHaveBeenCalledWith('First moved to position 3 of 3');
+    });
+
+    it('does not announce a move when the item has no registered label', async () => {
+      const { wrapper, options } = await mountRegion();
+      const from = wrapper.element;
+      [row('a'), row('b'), row('c')].forEach(r => from.appendChild(r));
+
+      options.onEnd({
+        item: from.children[0],
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 2,
+      });
+
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
     });
 
     it('emits nothing for a no-op drag (same index)', async () => {

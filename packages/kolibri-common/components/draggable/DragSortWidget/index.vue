@@ -17,7 +17,7 @@
       class="btn up"
       size="mini"
       :ariaLabel="moveUpAriaLabel"
-      :class="{ visuallyhidden: !hasFocus && !horizontal }"
+      :class="{ visuallyhidden: !hasFocus }"
       @click="clickUp"
       @keyup.space="clickUp"
     />
@@ -26,7 +26,6 @@
       See https://github.com/google/material-design-icons/issues/786
      -->
     <KIcon
-      v-if="!horizontal"
       icon="dragHorizontal"
       :color="color"
       class="grip"
@@ -40,7 +39,7 @@
       class="btn dn"
       size="mini"
       :ariaLabel="moveDownAriaLabel"
-      :class="{ visuallyhidden: !hasFocus && !horizontal }"
+      :class="{ visuallyhidden: !hasFocus }"
       @click="clickDown"
       @keyup.space="clickDown"
     />
@@ -168,16 +167,11 @@
       },
     },
     mounted() {
-      // no need to track focus for horizontal mode, since the buttons are always visible
-      if (!this.horizontal) {
-        window.addEventListener('focus', this.updateFocus, true);
-      }
+      window.addEventListener('focus', this.updateFocus, true);
       this.syncRegistration();
     },
     destroyed() {
-      if (!this.horizontal) {
-        window.removeEventListener('focus', this.updateFocus, true);
-      }
+      window.removeEventListener('focus', this.updateFocus, true);
       if (this.unregisterSortItem) {
         this.unregisterSortItem(this._uid);
       }
@@ -248,7 +242,6 @@
     width: 24px;
     height: 24px;
     transition: opacity $core-time ease;
-    transform: rotate(90deg);
   }
 
   .btn {
@@ -258,6 +251,10 @@
   }
 
   .sort-widget-vertical {
+    .grip {
+      transform: rotate(90deg);
+    }
+
     .up {
       inset-inline-start: 0;
       top: -16px;
@@ -272,15 +269,13 @@
   // .up = "move toward start" = left in LTR, right in RTL.
   // .dn = "move toward end"   = right in LTR, left in RTL.
   .sort-widget-horizontal {
-    width: 28px;
-
     .up {
-      inset-inline-start: -12px;
+      inset-inline-start: -16px;
       top: 0;
     }
 
     .dn {
-      inset-inline-end: -12px;
+      inset-inline-start: 4px;
       top: 0;
     }
   }
@@ -289,7 +284,7 @@
     opacity: 0.08;
   }
 
-  .sort-widget-vertical.not-focused .btn {
+  .not-focused .btn {
     opacity: 0;
   }
 

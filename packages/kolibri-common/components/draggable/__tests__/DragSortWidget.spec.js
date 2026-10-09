@@ -66,6 +66,38 @@ describe('DragSortWidget', () => {
     });
   });
 
+  describe('horizontal mode', () => {
+    it('renders a drag grip', () => {
+      const wrapper = makeWrapper({ horizontal: true });
+      expect(wrapper.find('.grip').exists()).toBe(true);
+    });
+
+    it('hides the move buttons until one has keyboard focus', async () => {
+      const wrapper = mount(DragSortWidget, {
+        propsData: { isFirst: false, isLast: false, horizontal: true },
+        attachTo: document.body,
+      });
+      const buttons = [
+        wrapper.findComponent({ ref: 'upBtn' }),
+        wrapper.findComponent({ ref: 'dnBtn' }),
+      ];
+      buttons.forEach(button => expect(button.classes()).toContain('visuallyhidden'));
+
+      buttons[0].element.focus();
+      await wrapper.vm.$nextTick();
+      buttons.forEach(button => expect(button.classes()).not.toContain('visuallyhidden'));
+      wrapper.destroy();
+    });
+
+    it('keeps both move buttons working', async () => {
+      const wrapper = makeWrapper({ horizontal: true });
+      await wrapper.findComponent({ ref: 'upBtn' }).vm.$emit('click');
+      await wrapper.findComponent({ ref: 'dnBtn' }).vm.$emit('click');
+      expect(wrapper.emitted('moveUp')).toHaveLength(1);
+      expect(wrapper.emitted('moveDown')).toHaveLength(1);
+    });
+  });
+
   describe('icon colour', () => {
     const ICON_COLOR = 'rgb(97, 97, 97)';
     const ICON_SELECTORS = ['.up svg', '.grip', '.dn svg'];

@@ -50,7 +50,7 @@
       const responseIdentifier = typedProps.responseIdentifier;
       const isHorizontal = computed(() => orientation.value === Orientation.HORIZONTAL);
       const orderGuideText = computed(() =>
-        isHorizontal.value ? answerGuideStrings.orderKeyboard$() : answerGuideStrings.order$(),
+        isHorizontal.value ? answerGuideStrings.orderHorizontal$() : answerGuideStrings.order$(),
       );
 
       const labelFn = computed(() => {
