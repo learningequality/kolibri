@@ -62,12 +62,12 @@ Every publish includes an SLSA provenance attestation linking the npm version to
 Python packages
 ===============
 
-Packages in ``python_packages/`` are published to PyPI independently of Kolibri releases and independently of each other. Only publishable packages are published; everything else is workspace-only. A package is publishable if it's listed in ``pypi_packages_publish.yml``'s ``paths:`` filter and ``workflow_dispatch`` options.
+Packages in ``python_packages/`` are published to PyPI independently of Kolibri releases and independently of each other. A package can opt out by declaring the ``Private :: Do Not Upload`` classifier in its ``pyproject.toml`` — none currently do. PyPI rejects any distribution carrying a ``Private ::`` classifier, so the marker is enforced server-side as well.
 
 Automatic publishing
 --------------------
 
-When code merging to ``develop`` changes a listed package's ``pyproject.toml``, the ``pypi_packages_publish.yml`` workflow compares that package's version against PyPI and publishes it if newer.
+When code merging to ``develop`` changes a package's ``pyproject.toml``, the ``pypi_packages_publish.yml`` workflow compares that package's version against PyPI and publishes it if newer.
 
 Authentication uses PyPI OIDC trusted publishing (no API tokens).
 
