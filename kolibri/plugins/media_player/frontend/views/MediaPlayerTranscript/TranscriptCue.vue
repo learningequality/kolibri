@@ -3,7 +3,7 @@
   <a
     role="button"
     tabindex="0"
-    :class="['transcript-cue', { active }, $computedClass(style)]"
+    :class="['transcript-cue', { active }]"
     :title="$tr('title', { startTime })"
     :aria-current="active.toString()"
     @click="triggerSeekEvent"
@@ -63,24 +63,6 @@
       },
       startTime() {
         return videojs.formatTime(this.cue.startTime, this.mediaDuration);
-      },
-      style() {
-        const activeStyles = this.active
-          ? {
-            backgroundColor: this.$themePalette.grey.v_400,
-            borderLeftColor: this.$themeTokens.watch,
-            // Darken text on the grey highlight: annotation grey on grey.v_400
-            // is only 2:1, below the WCAG AA 4.5:1 threshold.
-            color: this.$themeTokens.text,
-          }
-          : {};
-
-        return Object.assign(activeStyles, {
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_300,
-          },
-          ':focus': this.$coreOutline,
-        });
       },
       text() {
         return this.cue.text.replace(SPEAKER_REGEX, '');
@@ -173,6 +155,18 @@
 
     &.active {
       font-weight: bold;
+      color: var(--tokens-text);
+      background-color: var(--palette-grey-v400);
+      border-left-color: var(--tokens-watch);
+    }
+
+    &:hover {
+      background-color: var(--palette-grey-v300);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--tokens-focusOutline);
+      outline-offset: 4px;
     }
 
     .transcript-cue-time,

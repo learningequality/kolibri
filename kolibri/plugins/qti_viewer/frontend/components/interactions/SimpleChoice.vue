@@ -4,16 +4,6 @@
     class="qti-simple-choice"
     role="option"
     tabindex="0"
-    :class="[
-      $computedClass({
-        '::before': {
-          border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
-          backgroundColor: selected ? $themeTokens.primary : $themeTokens.surface,
-          color: selected ? $themeTokens.textInverted : $themePalette.grey.v_400,
-        },
-        ':focus': coreOutline,
-      }),
-    ]"
     :aria-selected="String(selected)"
     :style="[extraStyles]"
     @click="handleClick"
@@ -29,16 +19,7 @@
 <script>
 
   import { computed, inject } from 'vue';
-  import {
-    themeTokens,
-    themePalette,
-    themeOutlineStyle,
-  } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
-
-  const $themeTokens = themeTokens();
-  const $themePalette = themePalette();
-  const coreOutline = themeOutlineStyle();
 
   export default {
     name: 'SimpleChoice',
@@ -71,9 +52,6 @@
       });
 
       return {
-        $themeTokens,
-        $themePalette,
-        coreOutline,
         selected,
         handleClick,
         extraStyles,
@@ -110,6 +88,11 @@
       content: '';
     }
 
+    &:focus {
+      outline: 3px solid var(--tokens-focusOutline);
+      outline-offset: 4px;
+    }
+
     &::before {
       position: absolute;
       inset-inline-start: 1rem;
@@ -120,8 +103,17 @@
       justify-content: center;
       width: 2rem;
       height: 2rem;
+      color: var(--palette-grey-v400);
+      background-color: var(--tokens-surface);
+      border: 2px solid var(--tokens-annotation);
       border-radius: 50%;
       transform: translateY(-50%);
+    }
+
+    &[aria-selected='true']::before {
+      color: var(--tokens-textInverted);
+      background-color: var(--tokens-primary);
+      border-color: var(--tokens-textInverted);
     }
   }
 

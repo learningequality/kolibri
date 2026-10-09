@@ -21,7 +21,8 @@
         <KFixedGridItem span="1">
           <KButton
             ref="decreaseFontSizeButton"
-            :class="['settings-button', $computedClass(settingsButtonFocus)]"
+            class="settings-button"
+            :appearanceOverrides="settingsButtonFocus"
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
@@ -40,7 +41,8 @@
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
-            :class="['settings-button', $computedClass(settingsButtonFocus)]"
+            class="settings-button"
+            :appearanceOverrides="settingsButtonFocus"
             @click="$emit('increaseFontSize')"
           >
             <template #icon>
