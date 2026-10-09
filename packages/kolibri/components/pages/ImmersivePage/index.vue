@@ -27,11 +27,13 @@
     </ScrollingHeader>
     <div
       id="main"
+      ref="main"
       class="main-wrapper"
       :style="wrapperStyles"
     >
       <h1
         v-if="pageHeading"
+        ref="hiddenHeading"
         class="visuallyhidden"
       >
         {{ pageHeading }}
@@ -45,8 +47,9 @@
 
 <script>
 
+  import { ref } from 'vue';
   import useUser from 'kolibri/composables/useUser';
-  import { pageHeading } from 'kolibri/composables/usePageTitle';
+  import { usePageHeading } from 'kolibri/composables/usePageTitle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import ScrollingHeader from '../ScrollingHeader';
@@ -58,11 +61,15 @@
     setup() {
       const { windowHeight, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
+      const main = ref(null);
+      const hiddenHeading = ref(null);
       return {
         windowHeight,
         windowIsSmall,
         isAppContext,
-        pageHeading,
+        main,
+        hiddenHeading,
+        pageHeading: usePageHeading(main, hiddenHeading),
       };
     },
     props: {
