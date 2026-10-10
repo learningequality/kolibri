@@ -183,7 +183,7 @@
       destinationExplanation: {
         message: `Will be copied to '{classroomName}'`,
         context:
-          'Coaches can copy lessons to a different group or or another class in their facility. This is a validation message informing the coach where the lesson will be copied to.',
+          'Coaches can copy lessons to a different group or another class in their facility. This is a validation message informing the coach where the lesson will be copied to.',
       },
     },
   };

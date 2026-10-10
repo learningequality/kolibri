@@ -6,7 +6,7 @@ To use
 
 .. code-block:: html
 
-    {% load webpack_tags %}
+    {% load content_tags %}
 
     <!-- Render on-demand async inclusion tag for content viewers -->
     {% content_viewer_assets %}

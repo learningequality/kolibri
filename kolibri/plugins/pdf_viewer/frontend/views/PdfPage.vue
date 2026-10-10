@@ -247,7 +247,6 @@
 
 <style lang="scss" scoped>
 
-  // Also defined in index.vue
   $page-margin: 8px;
 
   @import '../utils/text_layer_builder.css';
