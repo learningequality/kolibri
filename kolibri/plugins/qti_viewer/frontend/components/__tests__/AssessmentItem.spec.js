@@ -100,6 +100,13 @@ async function renderAssessmentItem(
       answerState: ref(answerState),
       interactive: computed(() => interactive),
     },
+    // eslint-disable-next-line kolibri/tests-no-stubs
+    stubs: {
+      NumericKeypad: {
+        name: 'NumericKeypad',
+        template: '<div data-testid="numeric-keypad" />',
+      },
+    },
   });
 
   // Wait for async template resolution to complete before returning
@@ -231,6 +238,182 @@ describe('AssessmentItem', () => {
       });
       // Custom template scores 5 for correct answer, not 1 like match_correct
       expect(checkAnswer().outcomes.SCORE).toBe(5);
+    });
+  });
+
+  describe('unsupported interaction fallback', () => {
+    // Minimal QTI item with an unsupported hotspot interaction
+    const HOTSPOT_ITEM_XML = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd"
+      identifier="hotspot-test" title="Hotspot Test" adaptive="false" time-dependent="false">
+      <qti-response-declaration base-type="identifier" cardinality="single" identifier="RESPONSE">
+        <qti-correct-response>
+          <qti-value>C</qti-value>
+        </qti-correct-response>
+      </qti-response-declaration>
+      <qti-outcome-declaration base-type="float" cardinality="single" identifier="SCORE"/>
+      <qti-item-body>
+        <p>Please choose the correct location on the map.</p>
+        <qti-hotspot-interaction max-choices="1" response-identifier="RESPONSE">
+          <img src="https://example.com/map.png" alt="Map" />
+          <qti-hotspot-choice coords="10,10,5" identifier="A" shape="circle"/>
+          <qti-hotspot-choice coords="20,20,5" identifier="B" shape="circle"/>
+        </qti-hotspot-interaction>
+      </qti-item-body>
+      <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct.xml"/>
+    </qti-assessment-item>`;
+
+    it('should render unsupported interaction fallback for hotspot interaction', async () => {
+      const { wrapper } = await renderAssessmentItem(HOTSPOT_ITEM_XML);
+
+      // The unsupported interaction should be replaced with the fallback component
+      // which renders an alert with the unsupported message
+      expect(wrapper.getByRole('alert')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported Question Type')).toBeInTheDocument();
+      expect(wrapper.getByText(
+        'This question contains an interaction type that cannot be displayed in the current viewer. Please contact your content administrator.'
+      )).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported interaction: Hotspot')).toBeInTheDocument();
+    });
+
+    // Minimal QTI item with an unsupported extended-text interaction
+    const EXTENDED_TEXT_ITEM_XML = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd"
+      identifier="extended-text-test" title="Extended Text Test" adaptive="false" time-dependent="false">
+      <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="string"/>
+      <qti-item-body>
+        <p>Write a short essay.</p>
+        <qti-extended-text-interaction response-identifier="RESPONSE">
+          <qti-prompt>Your essay here.</qti-prompt>
+        </qti-extended-text-interaction>
+      </qti-item-body>
+    </qti-assessment-item>`;
+
+    it('should render unsupported interaction fallback for extended-text interaction', async () => {
+      const { wrapper } = await renderAssessmentItem(EXTENDED_TEXT_ITEM_XML);
+
+      expect(wrapper.getByRole('alert')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported Question Type')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported interaction: Extended Text')).toBeInTheDocument();
+    });
+
+    // Minimal QTI item with an unsupported graphic-gap-match interaction
+    const GRAPHIC_GAP_MATCH_ITEM_XML = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd"
+      identifier="graphic-gap-match-test" title="Graphic Gap Match Test" adaptive="false" time-dependent="false">
+      <qti-response-declaration base-type="directedPair" cardinality="multiple" identifier="RESPONSE">
+        <qti-correct-response>
+          <qti-value>GLA A</qti-value>
+        </qti-correct-response>
+      </qti-response-declaration>
+      <qti-outcome-declaration base-type="float" cardinality="single" identifier="SCORE"/>
+      <qti-item-body>
+        <p>Match the airport codes.</p>
+        <qti-graphic-gap-match-interaction max-associations="0" response-identifier="RESPONSE">
+          <img src="https://example.com/map.png" alt="Map" />
+          <qti-gap-img identifier="GLA" match-max="1">
+            <img src="https://example.com/gla.png" alt="GLA" />
+          </qti-gap-img>
+          <qti-associable-hotspot coords="10,10,20,20" identifier="A" match-max="1" shape="rect"></qti-associable-hotspot>
+        </qti-graphic-gap-match-interaction>
+      </qti-item-body>
+      <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/map_response.xml"/>
+    </qti-assessment-item>`;
+
+    it('should render unsupported interaction fallback for graphic-gap-match interaction', async () => {
+      const { wrapper } = await renderAssessmentItem(GRAPHIC_GAP_MATCH_ITEM_XML);
+
+      expect(wrapper.getByRole('alert')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported Question Type')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported interaction: Graphic Gap Match')).toBeInTheDocument();
+    });
+
+    // Test that supported interactions still work correctly
+    const CHOICE_ITEM_XML = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd"
+      identifier="choice-test" title="Choice Test" adaptive="false" time-dependent="false">
+      <qti-response-declaration base-type="identifier" cardinality="single" identifier="RESPONSE">
+        <qti-correct-response>
+          <qti-value>choice_a</qti-value>
+        </qti-correct-response>
+      </qti-response-declaration>
+      <qti-outcome-declaration base-type="float" cardinality="single" identifier="SCORE"/>
+      <qti-item-body>
+        <p>Choose the correct answer.</p>
+        <qti-choice-interaction max-choices="1" response-identifier="RESPONSE">
+          <qti-simple-choice identifier="choice_a">Correct</qti-simple-choice>
+          <qti-simple-choice identifier="choice_b">Incorrect</qti-simple-choice>
+        </qti-choice-interaction>
+      </qti-item-body>
+      <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct.xml"/>
+    </qti-assessment-item>`;
+
+    it('should still render supported choice interactions correctly', async () => {
+      const { wrapper } = await renderAssessmentItem(CHOICE_ITEM_XML);
+
+      // Should NOT show the unsupported fallback
+      expect(wrapper.queryByRole('alert')).not.toBeInTheDocument();
+      expect(wrapper.queryByText('Unsupported Question Type')).not.toBeInTheDocument();
+      // Should show the choice interaction content
+      expect(wrapper.getByText('Choose the correct answer.')).toBeInTheDocument();
+      expect(wrapper.getByText('Correct')).toBeInTheDocument();
+      expect(wrapper.getByText('Incorrect')).toBeInTheDocument();
+    });
+
+    // Test that an item with multiple interactions (some supported, some unsupported) works
+    const MIXED_ITEM_XML = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd"
+      identifier="mixed-test" title="Mixed Test" adaptive="false" time-dependent="false">
+      <qti-response-declaration base-type="identifier" cardinality="single" identifier="RESPONSE1">
+        <qti-correct-response>
+          <qti-value>choice_a</qti-value>
+        </qti-correct-response>
+      </qti-response-declaration>
+      <qti-response-declaration base-type="identifier" cardinality="single" identifier="RESPONSE2">
+        <qti-correct-response>
+          <qti-value>C</qti-value>
+        </qti-correct-response>
+      </qti-response-declaration>
+      <qti-outcome-declaration base-type="float" cardinality="single" identifier="SCORE"/>
+      <qti-item-body>
+        <p>Choose the correct answer.</p>
+        <qti-choice-interaction max-choices="1" response-identifier="RESPONSE1">
+          <qti-simple-choice identifier="choice_a">Correct</qti-simple-choice>
+          <qti-simple-choice identifier="choice_b">Incorrect</qti-simple-choice>
+        </qti-choice-interaction>
+        <p>Now choose the location.</p>
+        <qti-hotspot-interaction max-choices="1" response-identifier="RESPONSE2">
+          <img src="https://example.com/map.png" alt="Map" />
+          <qti-hotspot-choice coords="10,10,5" identifier="A" shape="circle"/>
+          <qti-hotspot-choice coords="20,20,5" identifier="B" shape="circle"/>
+          <qti-hotspot-choice coords="30,30,5" identifier="C" shape="circle"/>
+        </qti-hotspot-interaction>
+      </qti-item-body>
+      <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct.xml"/>
+    </qti-assessment-item>`;
+
+    it('should render supported interactions and show fallback for unsupported ones in the same item', async () => {
+      const { wrapper } = await renderAssessmentItem(MIXED_ITEM_XML);
+
+      // Should show the supported choice interaction
+      expect(wrapper.getByText('Choose the correct answer.')).toBeInTheDocument();
+      expect(wrapper.getByText('Correct')).toBeInTheDocument();
+      expect(wrapper.getByText('Incorrect')).toBeInTheDocument();
+
+      // Should also show the unsupported fallback for the hotspot interaction
+      expect(wrapper.getByRole('alert')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported Question Type')).toBeInTheDocument();
+      expect(wrapper.getByText('Unsupported interaction: Hotspot')).toBeInTheDocument();
     });
   });
 });
