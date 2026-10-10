@@ -42,6 +42,7 @@
   import SimpleAssociableChoice from './interactions/SimpleAssociableChoice.vue';
   import MatchInteraction from './interactions/MatchInteraction.vue';
   import SimpleMatchSet from './interactions/SimpleMatchSet.vue';
+  import UnsupportedInteraction from './interactions/UnsupportedInteraction.vue';
 
   const $themeTokens = themeTokens();
 
@@ -58,7 +59,75 @@
     [SimpleAssociableChoice.tag]: SimpleAssociableChoice,
     [MatchInteraction.tag]: MatchInteraction,
     [SimpleMatchSet.tag]: SimpleMatchSet,
+    [UnsupportedInteraction.tag]: UnsupportedInteraction,
   });
+
+  // List of supported QTI interaction tag names (without the 'qti-' prefix)
+  // These are the interactions that have dedicated Vue components
+  const SUPPORTED_INTERACTION_TAGS = new Set([
+    'qti-choice-interaction',
+    'qti-inline-choice-interaction',
+    'qti-text-entry-interaction',
+    'qti-order-interaction',
+    'qti-match-interaction',
+    'qti-associate-interaction',
+    'qti-gap-match-interaction',
+    'qti-custom-interaction',
+    'qti-end-attempt-interaction',
+  ]);
+
+  // All known QTI interaction tags (used for detecting unsupported ones)
+  // This includes both supported and unsupported interactions
+  const KNOWN_QTI_INTERACTION_TAGS = new Set([
+    'qti-choice-interaction',
+    'qti-inline-choice-interaction',
+    'qti-text-entry-interaction',
+    'qti-order-interaction',
+    'qti-match-interaction',
+    'qti-associate-interaction',
+    'qti-gap-match-interaction',
+    'qti-graphic-gap-match-interaction',
+    'qti-hotspot-interaction',
+    'qti-hottext-interaction',
+    'qti-extended-text-interaction',
+    'qti-custom-interaction',
+    'qti-media-interaction',
+    'qti-select-point-interaction',
+    'qti-slider-interaction',
+    'qti-upload-interaction',
+    'qti-drawing-interaction',
+    'qti-end-attempt-interaction',
+  ]);
+
+  /**
+   * Replace unsupported QTI interaction elements with the fallback component.
+   * This operates on an XML element (or clone) before it gets serialized to HTML.
+   * @param {Element} element - The element to process (typically a cloned qti-item-body)
+   */
+  function replaceUnsupportedInteractions(element) {
+    if (!element) {
+      return;
+    }
+    // Find all elements in the subtree
+    const allElements = element.querySelectorAll('*');
+    for (const el of allElements) {
+      const tagName = el.tagName.toLowerCase();
+      // Check if this is a QTI interaction element that is not supported
+      if (
+        tagName.startsWith('qti-') &&
+        tagName.endsWith('-interaction') &&
+        KNOWN_QTI_INTERACTION_TAGS.has(tagName) &&
+        !SUPPORTED_INTERACTION_TAGS.has(tagName)
+      ) {
+        // Replace with our fallback component
+        // We need to create the element in the same document as the parent
+        const doc = el.ownerDocument;
+        const fallback = doc.createElement('qti-unsupported-interaction');
+        fallback.setAttribute('original-tag', tagName);
+        el.replaceWith(fallback);
+      }
+    }
+  }
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
 
@@ -87,7 +156,19 @@
 
       // Process item body for display. Inline gaps are annotated with their passage position so
       // each can render a distinct accessible name; item bodies without gaps pass through as-is.
-      const itemBodyMarkup = computed(() => numberPassageGaps(itemBody.value));
+      const processedItemBody = computed(() => {
+        if (!itemBody.value) {
+          return '';
+        }
+        // Clone the item body so we can modify it without affecting the original
+        const clone = itemBody.value.cloneNode(true);
+        // Replace unsupported QTI interactions with the fallback component
+        replaceUnsupportedInteractions(clone);
+        // Then number passage gaps and serialize
+        return numberPassageGaps(clone);
+      });
+
+      const itemBodyMarkup = processedItemBody;
 
       // Guides shown once above the passage for inline interactions that cannot render their
       // own block-level guide
