@@ -371,6 +371,8 @@ export default [
       // Colors in `<style>` blocks use the `--tokens-*` CSS variables.
       'kolibri/vue-no-theme-tokens-in-v-bind': ERROR,
       'kolibri/vue-no-theme-accessor-in-inline-styles': ERROR,
+      // Warn about fixed inline styles that should be moved to <style> blocks
+      'kolibri/vue-no-fixed-inline-styles': 'warn',
 
       // Narrows `vue/no-root-v-if` to the components that can hit the Vue 2.7 bug it
       // guards against, which are the ones whose `<style>` block uses `v-bind()`.

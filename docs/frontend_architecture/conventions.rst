@@ -46,6 +46,7 @@ Styling anti-patterns
 - **Hard-coded values** - rely on variables defined in the core theme, such as ``var(--tokens-text)`` in a ``<style>`` block. See :doc:`core`
 - **Theme accessors in inline styles** - write ``'var(--tokens-text)'`` instead of ``$themeTokens.text`` in a ``:style`` binding
 - **Computed classes** - ``$computedClass`` is deprecated. Write the rule, including any pseudo-class, in the ``<style>`` block instead
+- **Fixed inline styles** - avoid literal ``style=""`` attributes and literal-only ``:style`` bindings. Move styles to the ``<style>`` block. The ``kolibri/vue-no-fixed-inline-styles`` rule reports these at warning level.
 - **Left or right alignment on user-generated text** - use ``dir="auto"`` instead for RTL support
 - **Directional inline styles** - avoid using ``style=""`` or ``:style=""`` with properties like ``margin-left``, ``padding-right``, ``text-align: right``, etc. Use CSS classes instead to ensure RTLCSS can flip them for RTL languages. When inline styles are unavoidable, use CSS Logical Properties (``margin-inline-start``, ``padding-inline-end``, etc.). See :doc:`/i18n` for details.
 
