@@ -255,7 +255,10 @@
                   id="slider"
                   v-model="limitForAutodownload"
                   :style="sliderStyle"
-                  :class="{ 'window-is-small': windowIsSmall, 'not-enough-space': notEnoughFreeSpace }"
+                  :class="{
+                    'window-is-small': windowIsSmall,
+                    'not-enough-space': notEnoughFreeSpace,
+                  }"
                   :disabled="notEnoughFreeSpace || isRemoteContent"
                   type="range"
                   min="0"
