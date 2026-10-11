@@ -3,7 +3,6 @@
   <router-link
     class="link"
     :style="{ color: 'var(--tokens-text)' }"
-    :class="themeClass"
     :to="to"
   >
     <KFixedGrid
@@ -76,20 +75,6 @@
         validators: validateLinkObject,
       },
     },
-    computed: {
-      themeClass() {
-        return this.$computedClass({
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_200,
-            // Add equal and opposite margin and padding to give the highlighted
-            // region more space without increasing the size of the parent div.
-            margin: '-8px',
-            padding: '8px',
-            borderRadius: '4px',
-          },
-        });
-      },
-    },
   };
 
 </script>
@@ -132,6 +117,13 @@
   .link {
     display: block;
     text-decoration: none;
+
+    &:hover {
+      padding: 8px;
+      margin: -8px;
+      background-color: var(--palette-grey-v200);
+      border-radius: 4px;
+    }
   }
 
   .wrapper {

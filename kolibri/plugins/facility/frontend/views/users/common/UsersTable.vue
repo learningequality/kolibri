@@ -62,7 +62,6 @@
               :omitLearner="true"
               class="role-badge"
               data-testid="userRoleBadge"
-              :class="$computedClass(userRoleBadgeStyle)"
             />
           </span>
           <!-- Column 3: User identifier -->
@@ -327,17 +326,6 @@
         return { checked: isChecked, indeterminate: isIndeterminate };
       });
 
-      const userRoleBadgeStyle = computed(() => {
-        const $themeTokens = themeTokens();
-        return {
-          color: 'var(--tokens-textInverted)',
-          backgroundColor: 'var(--tokens-annotation)',
-          '::selection': {
-            color: $themeTokens.text,
-          },
-        };
-      });
-
       const userToChangeSet = computed(() => {
         return userToChange.value && userToChange.value.id
           ? new Set([userToChange.value.id])
@@ -497,7 +485,6 @@
         tableHeaders,
         tableRows,
         selectAllState,
-        userRoleBadgeStyle,
         Modals,
         modalShown,
         userToChange,
@@ -563,8 +550,14 @@
     margin-left: 12px;
     font-size: 12px;
     font-weight: 500;
+    color: var(--tokens-textInverted);
     white-space: nowrap;
+    background-color: var(--tokens-annotation);
     border-radius: 2px;
+
+    &::selection {
+      color: var(--tokens-text);
+    }
   }
 
   .user-roster {

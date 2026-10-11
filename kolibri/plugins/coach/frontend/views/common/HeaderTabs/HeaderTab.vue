@@ -6,7 +6,6 @@
     class="header-tab"
     :activeClass="activeClasses"
     :style="{ color: 'var(--tokens-annotation)' }"
-    :class="defaultStyles"
   >
     <div
       class="inner"
@@ -36,15 +35,7 @@
     computed: {
       activeClasses() {
         // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
-      },
-      defaultStyles() {
-        return this.$computedClass({
-          ':focus': this.$coreOutline,
-          ':hover': {
-            backgroundColor: this.$themePalette.blue.v_100,
-          },
-        });
+        return 'router-link-active';
       },
     },
   };
@@ -85,6 +76,15 @@
     outline-offset: -2px !important;
     transition: background-color $core-time ease;
 
+    &:focus-visible {
+      outline: 3px solid var(--tokens-focusOutline);
+      outline-offset: 4px;
+    }
+
+    &:hover {
+      background-color: var(--palette-blue-v100);
+    }
+
     @media print {
       min-width: 0;
       min-height: 0;
@@ -109,6 +109,7 @@
 
   .router-link-active .inner {
     margin-bottom: 0;
+    color: var(--tokens-primary);
     border-bottom-width: 2px;
 
     @media print {

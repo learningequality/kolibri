@@ -1,9 +1,6 @@
 <template>
 
-  <span
-    class="new-badge"
-    :class="$computedClass(badgeStyle)"
-  >
+  <span class="new-badge">
     {{ label }}
   </span>
 
@@ -23,17 +20,6 @@
         required: true,
       },
     },
-    computed: {
-      badgeStyle() {
-        return {
-          color: 'var(--tokens-textInverted)',
-          backgroundColor: 'var(--tokens-success)',
-          '::selection': {
-            color: this.$themeTokens.text,
-          },
-        };
-      },
-    },
   };
 
 </script>
@@ -45,7 +31,13 @@
     padding: 2px 8px;
     font-size: 14px;
     font-weight: bold;
+    color: var(--tokens-textInverted);
+    background-color: var(--tokens-success);
     border-radius: 2px;
+
+    &::selection {
+      color: var(--tokens-text);
+    }
   }
 
 </style>

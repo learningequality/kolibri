@@ -229,7 +229,7 @@
             <div
               v-show="setLimitForAutodownload"
               class="left-margin limit-for-autodownload"
-              :class="$computedClass(limitForAutodownloadStyle)"
+              :class="{ 'window-is-small': windowIsSmall }"
               :disabled="isRemoteContent"
             >
               <KTextbox
@@ -248,13 +248,14 @@
               />
               <div
                 class="slider-section"
-                :class="$computedClass(sliderSectionStyle)"
+                :class="{ 'window-is-small': windowIsSmall }"
               >
                 <p class="slider-min-max">{{ $formatNumber(0) }}</p>
                 <input
                   id="slider"
                   v-model="limitForAutodownload"
-                  :class="$computedClass(sliderStyle)"
+                  :style="sliderStyle"
+                  :class="{ 'window-is-small': windowIsSmall, 'not-enough-space': notEnoughFreeSpace }"
                   :disabled="notEnoughFreeSpace || isRemoteContent"
                   type="range"
                   min="0"
@@ -568,50 +569,13 @@
         });
         return this.readOnlyPaths >= 1;
       },
-      limitForAutodownloadStyle() {
-        const alignItems = this.windowIsSmall ? 'start' : 'center';
-        const flexDirection = this.windowIsSmall ? 'column' : 'row';
-        return {
-          alignItems,
-          flexDirection,
-        };
-      },
-      sliderSectionStyle() {
-        const paddingLeft = this.windowIsSmall ? '0px' : '20px';
-        return {
-          paddingLeft,
-        };
-      },
       sliderStyle() {
-        const width = this.windowIsSmall ? '35vw' : '12vw';
-        if (this.notEnoughFreeSpace) {
-          return {
-            background: `linear-gradient(to right, ${this.$themeTokens.primary} 0%, ${
-              this.$themeTokens.primary
-            }
-          ${((0 - 0) / (100 - 0)) * 100}%, ${this.$themeTokens.fineLine} ${
-              ((0 - 0) / (100 - 0)) * 100
-            }%, ${this.$themeTokens.fineLine} 100%)`,
-            '::-webkit-slider-thumb': {
-              background: this.$themeTokens.fineLine,
-            },
-            width,
-          };
-        } else {
-          return {
-            background: `linear-gradient(to right, ${this.$themeTokens.primary} 0%, ${
-              this.$themeTokens.primary
-            }
-          ${((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100}%,
-          ${this.$themeTokens.fineLine} ${
-              ((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100
-            }%, ${this.$themeTokens.fineLine} 100%)`,
-            '::-webkit-slider-thumb': {
-              background: this.$themeTokens.primary,
-            },
-            width,
-          };
-        }
+        const pct = this.notEnoughFreeSpace
+          ? 0
+          : ((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100;
+        return {
+          background: `linear-gradient(to right, var(--tokens-primary) 0%, var(--tokens-primary) ${pct}%, var(--tokens-fineLine) ${pct}%, var(--tokens-fineLine) 100%)`,
+        };
       },
       canCheckMeteredConnection() {
         return pluginData.canCheckMeteredConnection;
@@ -1236,6 +1200,11 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    &.window-is-small {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   input[type='range'] {
@@ -1244,6 +1213,10 @@
     margin-left: 10px;
     appearance: none;
     outline: none;
+
+    &.window-is-small {
+      width: 35vw;
+    }
   }
 
   input[type='range']::-webkit-slider-thumb {
@@ -1251,7 +1224,12 @@
     height: 12px;
     appearance: none;
     cursor: pointer;
+    background-color: var(--tokens-primary);
     border-radius: 10px;
+  }
+
+  input[type='range'].not-enough-space::-webkit-slider-thumb {
+    background-color: var(--tokens-fineLine);
   }
 
   .download-limit-textbox {
@@ -1263,6 +1241,10 @@
     flex-direction: row;
     justify-content: space-between;
     padding-left: 20px;
+
+    &.window-is-small {
+      padding-left: 0;
+    }
   }
 
   .slider-min-max {

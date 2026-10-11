@@ -89,7 +89,7 @@
                     tabindex="0"
                     class="question-button"
                     appearance="basic-link"
-                    :class="[listItemClass, isSelected(question) ? selectedListItemClass : '']"
+                    :class="[isSelected(question) ? 'selected' : '']"
                     :style="accordionStyleOverrides"
                     @click="handleQuestionChange(i, index)"
                   >
@@ -310,21 +310,6 @@
           textDecoration: 'none',
         };
       },
-      listItemClass() {
-        return this.$computedClass({
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_100,
-          },
-        });
-      },
-      selectedListItemClass() {
-        return this.$computedClass({
-          backgroundColor: this.$themePalette.grey.v_100,
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_200,
-          },
-        });
-      },
       resourceMissingText() {
         return this.coreString('resourceNotFoundOnDevice');
       },
@@ -419,6 +404,18 @@
     width: 100%;
     height: 100%;
     padding: 0.5em;
+
+    &:hover {
+      background-color: var(--palette-grey-v100);
+    }
+
+    &.selected {
+      background-color: var(--palette-grey-v100);
+
+      &:hover {
+        background-color: var(--palette-grey-v200);
+      }
+    }
   }
 
 </style>

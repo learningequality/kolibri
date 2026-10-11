@@ -1,6 +1,6 @@
 <template>
 
-  <span :class="[styleClass, $computedClass(style)]">
+  <span :class="[styleClass]">
     {{ label }}
   </span>
 
@@ -40,18 +40,6 @@
         }
         return [];
       },
-      style() {
-        if (this.new) {
-          return {
-            color: 'var(--tokens-textInverted)',
-            backgroundColor: 'var(--tokens-success)',
-            '::selection': {
-              color: this.$themeTokens.text,
-            },
-          };
-        }
-        return {};
-      },
       label() {
         if (this.new && this.isTopic === false) {
           return this.deviceString('newResourceLabel');
@@ -89,7 +77,13 @@
     margin-left: 8px;
     font-size: 14px;
     font-weight: bold;
+    color: var(--tokens-textInverted);
+    background-color: var(--tokens-success);
     border-radius: 2px;
+
+    &::selection {
+      color: var(--tokens-text);
+    }
   }
 
 </style>

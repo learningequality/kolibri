@@ -158,8 +158,7 @@
                 <KButton
                   primary
                   :text="unitStatusMessages.buttonLabel"
-                  :class="$computedClass(testButtonStyles)"
-                  :style="activeUnitButtonStyles"
+                  :style="[activeUnitButtonStyles, testButtonStyle]"
                   @click="onUnitButtonClick"
                 />
               </div>
@@ -369,7 +368,6 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -880,15 +878,7 @@
         }
       }
 
-      const testButtonStyles = computed(() => {
-        const color = activeTest.value ? themeTokens().error : '';
-        return {
-          background: color,
-          ':hover': {
-            background: color,
-          },
-        };
-      });
+      const testButtonClass = computed(() => (activeTest.value ? 'test-active-button' : ''));
 
       // Flat learner data for the Learners tab: prefer active unit, else first unit with data
       const learnersReportData = computed(() => {
@@ -970,7 +960,7 @@
         courseSession,
         completedUnits,
         upcomingUnits,
-        testButtonStyles,
+        testButtonClass,
         activeUnitStyles,
         activeUnitTitleStyles,
         activeUnitButtonStyles,
@@ -1166,6 +1156,14 @@
 
   .objective-accordion-item {
     font-size: 14px;
+  }
+
+  .test-active-button {
+    background-color: var(--tokens-error) !important;
+
+    &:hover {
+      background-color: var(--tokens-error) !important;
+    }
   }
 
 </style>
