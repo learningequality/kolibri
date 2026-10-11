@@ -161,7 +161,6 @@ describe('NewUsersPage', () => {
 
     await router.push({
       name: PageNames.NEW_USERS_PAGE,
-      query: { search: 'Ana' },
     });
 
     render(NewUsersPage, {
