@@ -878,7 +878,10 @@
         }
       }
 
-      const testButtonClass = computed(() => (activeTest.value ? 'test-active-button' : ''));
+      const testButtonStyle = computed(() => {
+        const color = activeTest.value ? 'var(--tokens-error)' : '';
+        return { backgroundColor: color };
+      });
 
       // Flat learner data for the Learners tab: prefer active unit, else first unit with data
       const learnersReportData = computed(() => {
@@ -960,7 +963,7 @@
         courseSession,
         completedUnits,
         upcomingUnits,
-        testButtonClass,
+        testButtonStyle,
         activeUnitStyles,
         activeUnitTitleStyles,
         activeUnitButtonStyles,
@@ -1156,14 +1159,6 @@
 
   .objective-accordion-item {
     font-size: 14px;
-  }
-
-  .test-active-button {
-    background-color: var(--tokens-error) !important;
-
-    &:hover {
-      background-color: var(--tokens-error) !important;
-    }
   }
 
 </style>
