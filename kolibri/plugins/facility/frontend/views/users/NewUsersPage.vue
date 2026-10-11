@@ -37,6 +37,7 @@
           >
             <template #headerActions>
               <KRouterLink
+                v-if="showUsersTable"
                 primary
                 appearance="raised-button"
                 :text="newUser$()"
