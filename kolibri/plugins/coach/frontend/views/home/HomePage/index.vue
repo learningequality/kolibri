@@ -7,7 +7,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 6 }">
         <KGrid gutter="16">
-          <KGridItem v-if="currentLanguage === 'en' && facilityConfig.enable_mark_attendance">
+          <KGridItem v-if="facilityConfig.enable_mark_attendance">
             <AttendanceBlock />
           </KGridItem>
           <KGridItem>
@@ -29,7 +29,6 @@
 
 <script>
 
-  import { currentLanguage } from 'kolibri/utils/i18n';
   import usePageTitle from 'kolibri/composables/usePageTitle';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -61,7 +60,6 @@
       return {
         pageLoading,
         facilityConfig,
-        currentLanguage,
       };
     },
   };

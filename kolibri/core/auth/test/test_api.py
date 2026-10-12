@@ -2143,6 +2143,35 @@ class LoginLogoutTestCase(APITestCase):
 
         self.assertEqual(response_user3.status_code, 401)
 
+    def test_case_variant_usernames_no_exact_match_wrong_password(self):
+        # "Shared_Username" and "shared_username" both match case-insensitively,
+        # but neither matches this casing exactly
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "SHARED_USERNAME",
+                "password": "wrong_password",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.data[0]["id"], error_constants.INVALID_CREDENTIALS)
+
+    def test_case_variant_usernames_no_exact_match_missing_password(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "SHARED_USERNAME",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
+
     def test_not_specified_password(self):
         self.user.password = demographics.NOT_SPECIFIED
         self.user.save()

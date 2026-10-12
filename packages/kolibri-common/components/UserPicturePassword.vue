@@ -10,7 +10,6 @@
       <li
         v-for="(icon, index) in picturePasswordIcons"
         :key="`${icon.label}-${index}`"
-        :class="$computedClass({ color: $themeTokens.annotation })"
       >
         <figure :data-testid="`picture-password-icon-${icon.iconName}`">
           <KIcon
@@ -127,6 +126,7 @@
       flex-direction: column;
       align-items: center;
       margin: 0;
+      color: var(--tokens-annotation);
       list-style: none;
       counter-increment: list-item;
     }

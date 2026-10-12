@@ -143,14 +143,14 @@ describe('AttendanceBlock', () => {
   it('renders empty state when no sessions exist but learners are enrolled', async () => {
     const { wrapper } = makeWrapper({ sessions: [], learners: MOCK_LEARNERS });
     await global.flushPromises();
-    expect(wrapper.text()).toContain('No attendance sessions yet');
+    expect(wrapper.text()).toContain('There are no attendance sessions');
     expect(wrapper.text()).not.toContain('Enroll learners');
   });
 
   it('renders enroll message when no sessions and no learners are enrolled', async () => {
     const { wrapper } = makeWrapper({ sessions: [], learners: [] });
     await global.flushPromises();
-    expect(wrapper.text()).toContain('No attendance sessions yet');
+    expect(wrapper.text()).toContain('There are no attendance sessions');
     expect(wrapper.text()).toContain('Enroll learners to mark attendance');
   });
 

@@ -25,10 +25,6 @@ import useFacility from 'kolibri-common/composables/useFacility';
  * the saved snapshot
  * @property {import('vue').ComputedRef<string|null>} isPinSet - The configured PIN code, or null
  * when none is set
- * @property {import('vue').ComputedRef<boolean>} isAttendanceFeatureEnabled - Whether the
- * attendance feature is enabled
- * @property {import('vue').ComputedRef<boolean>} isPictureLoginFeatureEnabled - Whether picture
- * login is enabled
  * @property {import('vue').WritableComputedRef<string>} signInOption - The selected sign-in option
  * @property {import('vue').ComputedRef<string[]>} signInOptions - The available sign-in options
  * @property {import('vue').ComputedRef<object|null>} picturePasswordSettings - The picture password
@@ -65,8 +61,6 @@ export default function useFacilityEditor() {
     facilityId,
     selectedFacility: facility,
     facilityConfig: settings,
-    isAttendanceFeatureEnabled,
-    isPictureLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
     fetchFacility,
@@ -264,8 +258,6 @@ export default function useFacilityEditor() {
     facility,
     settingsHaveChanged,
     isPinSet,
-    isAttendanceFeatureEnabled,
-    isPictureLoginFeatureEnabled,
     signInOption,
     signInOptions,
     picturePasswordSettings,

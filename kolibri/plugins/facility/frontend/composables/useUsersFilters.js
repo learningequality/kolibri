@@ -67,8 +67,7 @@ export default function useUsersFilters({ classes }) {
     return count;
   });
 
-  const { lastNDaysLabel$, thisMonthLabel$, lastNMonthsLabel$, lastYearLabel$, allTimeLabel$ } =
-    bulkUserManagementStrings;
+  const { thisMonthLabel$, lastNMonthsLabel$, lastYearLabel$ } = bulkUserManagementStrings;
 
   const userFilterOptions = [
     { id: UserKinds.SUPERUSER, label: coreStrings.superAdminsLabel$(), icon: 'superAdmins' },
@@ -89,14 +88,14 @@ export default function useUsersFilters({ classes }) {
   const creationDateOptions = [
     {
       value: DateRangeFilters.LAST_7_DAYS,
-      label: lastNDaysLabel$({ num: 7 }),
+      label: coreStrings.lastNDaysLabel$({ num: 7 }),
       dateSubtraction: {
         days: 7,
       },
     },
     {
       value: DateRangeFilters.LAST_30_DAYS,
-      label: lastNDaysLabel$({ num: 30 }),
+      label: coreStrings.lastNDaysLabel$({ num: 30 }),
       dateSubtraction: {
         days: 30,
       },
@@ -124,7 +123,7 @@ export default function useUsersFilters({ classes }) {
     },
     {
       value: DateRangeFilters.ALL_TIME,
-      label: allTimeLabel$(),
+      label: coreStrings.allTimeLabel$(),
     },
   ];
 

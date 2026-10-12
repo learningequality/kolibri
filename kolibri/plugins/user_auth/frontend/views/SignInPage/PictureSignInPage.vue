@@ -32,7 +32,14 @@
       type="error"
       :dismissible="false"
     >
-      {{ wrongPicturesTryAgain$() }}
+      <span
+        aria-hidden="true"
+        data-testid="wrong-pictures-visible-message"
+      >{{ wrongPicturesTryAgain$() }}</span>
+      <span
+        class="visuallyhidden"
+        data-testid="wrong-pictures-sr-message"
+      >{{ wrongWordsTryAgain$() }}</span>
     </UiAlert>
 
     <PicturePasswordGrid
@@ -100,7 +107,7 @@
       const { login } = useUser();
       const { createSnackbar } = useSnackbar();
       const { windowIsLandscape } = useKResponsiveWindow();
-      const { wrongPicturesTryAgain$ } = picturePasswordStrings;
+      const { wrongPicturesTryAgain$, wrongWordsTryAgain$ } = picturePasswordStrings;
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
       const {
         hasMultipleFacilities,
@@ -262,6 +269,7 @@
         onGridSelect,
         // strings
         wrongPicturesTryAgain$,
+        wrongWordsTryAgain$,
       };
     },
   };

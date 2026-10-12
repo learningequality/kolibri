@@ -60,10 +60,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Date range filters
-  lastNDaysLabel: {
-    message: 'Last {num, number} days',
-    context: 'Label for the last N days date range filter',
-  },
   thisMonthLabel: {
     message: 'This month',
     context: 'Label for the this month date range filter',
@@ -75,10 +71,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   lastYearLabel: {
     message: 'Last year',
     context: 'Label for the last year date range filter',
-  },
-  allTimeLabel: {
-    message: 'All time',
-    context: 'Label for the all time date range filter',
   },
 
   // Dropdown options

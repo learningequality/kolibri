@@ -63,14 +63,9 @@
               :class="{ 'gap-collapsed': isAnyPressed }"
             >
               <div
-                class="btn-bg"
-                :class="[
-                  $computedClass({
-                    backgroundColor: cancelBg,
-                    ':hover': { backgroundColor: cancelBgHover },
-                  }),
-                  { 'btn-collapsed': isConfirmPressed },
-                ]"
+                class="btn-bg btn-cancel"
+                :class="{ 'btn-collapsed': isConfirmPressed }"
+                :style="{ '--btn-hover-bg': cancelBgHover }"
               >
                 <KIconButton
                   icon="close"
@@ -80,14 +75,9 @@
                 />
               </div>
               <div
-                class="btn-bg"
-                :class="[
-                  $computedClass({
-                    backgroundColor: confirmBg,
-                    ':hover': { backgroundColor: confirmBgHover },
-                  }),
-                  { 'btn-collapsed': isCancelPressed },
-                ]"
+                class="btn-bg btn-confirm"
+                :class="{ 'btn-collapsed': isCancelPressed }"
+                :style="{ '--btn-hover-bg': confirmBgHover }"
               >
                 <KIconButton
                   ref="confirmBtn"
@@ -153,11 +143,12 @@
       });
       const { isThisYou$, yourPasswordIs$, yesConfirmAction$, noGoBackAction$ } =
         picturePasswordStrings;
+      // The hover colors are darkened in JS. They are passed as an inline custom property
+      // rather than v-bind() in <style>: KOverlay moves this content out of the component's
+      // root element, so the variables v-bind() sets on that root would not reach it.
       const palette = themePalette();
-      const cancelBg = palette.grey.v_200;
-      const cancelBgHover = darken1(cancelBg);
-      const confirmBg = palette.green.v_600;
-      const confirmBgHover = darken1(confirmBg);
+      const cancelBgHover = darken1(palette.grey.v_200);
+      const confirmBgHover = darken1(palette.green.v_600);
 
       const passwordIcons = computed(() =>
         getPicturePasswordIcons(props.picturePassword, props.iconStyle),
@@ -223,9 +214,7 @@
         isThisYou$,
         yesConfirmAction$,
         noGoBackAction$,
-        cancelBg,
         cancelBgHover,
-        confirmBg,
         confirmBgHover,
         isCancelPressed,
         isConfirmPressed,
@@ -358,6 +347,19 @@
     &.btn-collapsed {
       max-width: 0;
       opacity: 0;
+    }
+
+    &.btn-cancel {
+      background-color: var(--palette-grey-v200);
+    }
+
+    &.btn-confirm {
+      background-color: var(--palette-green-v600);
+    }
+
+    // Same specificity as the two rules above, so it has to come after them.
+    &:hover {
+      background-color: var(--btn-hover-bg);
     }
 
     @media (prefers-reduced-motion: reduce) {

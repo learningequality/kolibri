@@ -106,7 +106,14 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         target_try["diff"] = (
             {
                 "correct": target_try["correct"] - previous_try["correct"],
-                "time_spent": target_try["time_spent"] - previous_try["time_spent"],
+                # time_spent is null for tries recorded before it was tracked
+                # (logger migration 0011), so their difference is unknown.
+                "time_spent": (
+                    target_try["time_spent"] - previous_try["time_spent"]
+                    if target_try["time_spent"] is not None
+                    and previous_try["time_spent"] is not None
+                    else None
+                ),
             }
             if previous_try
             else None

@@ -80,9 +80,6 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     () => Object.values(previouslyEnrolledMap.value).filter(r => r.present).length,
   );
   const presentCount = computed(() => currentPresentCount.value + removedPresentCount.value);
-  const currentAbsentCount = computed(
-    () => sortedLearners.value.length - currentPresentCount.value,
-  );
   const absentCount = computed(
     () =>
       sortedLearners.value.length +
@@ -174,7 +171,6 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     setEnrolledLearnerIds,
     presentCount,
     absentCount,
-    currentAbsentCount,
     allPresent,
     markAllPresent,
     showMarkAllModal,

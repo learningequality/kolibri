@@ -1,10 +1,11 @@
 import { nextTick, ref } from 'vue';
 import { render, screen, fireEvent } from '@testing-library/vue';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
-const { noPicturePasswordDescription$, printAction$, noLearnersInClass$, allPasswordsHeader$ } =
+const { noPicturePasswordDescription$, printPasswordsDialogHeader$, allPasswordsHeader$ } =
   picturePasswordStrings;
 
 const CLASS_NAME = 'Test Class';
@@ -107,23 +108,29 @@ describe('AllPasswordsPage', () => {
   describe('print button', () => {
     it('renders a Print button', () => {
       renderComponent();
-      expect(screen.getByRole('button', { name: printAction$() })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: printPasswordsDialogHeader$() }),
+      ).toBeInTheDocument();
     });
   });
 
   describe('print dialog', () => {
     it('opens the print format dialog when the Print button is clicked', async () => {
       renderComponent();
-      fireEvent.click(screen.getByRole('button', { name: picturePasswordStrings.printAction$() }));
+      fireEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.printPasswordsDialogHeader$() }),
+      );
       await global.flushPromises();
       expect(
-        screen.getByText(picturePasswordStrings.printPasswordsDialogHeader$()),
+        screen.getByRole('dialog', { name: picturePasswordStrings.printPasswordsDialogHeader$() }),
       ).toBeInTheDocument();
     });
 
     it('shows hyphenated icon labels in the preview when text format is selected', async () => {
       renderComponent();
-      fireEvent.click(screen.getByRole('button', { name: picturePasswordStrings.printAction$() }));
+      fireEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.printPasswordsDialogHeader$() }),
+      );
       await global.flushPromises();
       fireEvent.click(
         screen.getByRole('radio', { name: picturePasswordStrings.printWithTextOnly$() }),
@@ -142,7 +149,7 @@ describe('AllPasswordsPage', () => {
 
     it('renders the empty class message', () => {
       renderComponent({ learners: [] });
-      expect(screen.getByText(noLearnersInClass$())).toBeInTheDocument();
+      expect(screen.getByText(coreStrings.noLearnersInClassLabel$())).toBeInTheDocument();
     });
   });
 });

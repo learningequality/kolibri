@@ -41,7 +41,7 @@
             <tr>
               <th>{{ coreString('deviceNameLabel') }}</th>
               <th>{{ $tr('Schedule') }}</th>
-              <th>{{ $tr('lastSyncLabel') }}</th>
+              <th>{{ coreString('lastSyncedLabel') }}</th>
               <th>{{ coreString('statusLabel') }}</th>
               <th></th>
             </tr>
@@ -273,11 +273,6 @@
     },
 
     $trs: {
-      lastSyncLabel: {
-        message: 'Last sync',
-        context:
-          'Column heading for when a scheduled sync last ran, e.g. "Finished 2 minutes ago".',
-      },
       syncSchedules: {
         message: 'Sync schedules',
         context: "Heading or title for 'manage sync schedule' page.",

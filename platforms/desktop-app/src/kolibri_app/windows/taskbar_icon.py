@@ -305,8 +305,8 @@ class KolibriTaskBarIcon:
     def notify_server_ready(self, url):
         """Show notification that server is ready."""
         self.server_starting_notified = False  # Reset for next time
-        message = _("Kolibri is running.")
-        self.show_notification(_("Kolibri Ready"), message)
+        message = _("Kolibri is running")
+        self.show_notification(_("Kolibri is ready"), message)
 
     def notify_server_failed(self):
         """Show notification that server failed to start."""
@@ -314,7 +314,9 @@ class KolibriTaskBarIcon:
         home_path = os.environ.get("KOLIBRI_HOME", "")
         log_path = os.path.join(home_path, "logs")
         message = _("Kolibri failed to start.\nCheck logs at: {}").format(log_path)
-        self.show_notification(_("Kolibri Error"), message, timeout=10)
+        self.show_notification(
+            _("Kolibri is experiencing an error"), message, timeout=10
+        )
 
     def _show_window(self, main_window):
         """Un-minimize, show, and raise the given main window."""
@@ -340,21 +342,23 @@ class KolibriTaskBarIcon:
         """Create and return the right-click menu."""
         menu = wx.Menu()
 
-        # 1. Open UI
-        open_item = menu.Append(wx.ID_ANY, _("Open UI"))
+        # 1. Open Kolibri App
+        open_item = menu.Append(wx.ID_ANY, _("Open Kolibri App"))
         open_item.Enable(bool(self.app.kolibri_url))
         self.frame.Bind(wx.EVT_MENU, self.on_open_ui, open_item)
 
         menu.AppendSeparator()
 
-        # 2. Open kolibri UI on logon (Toggle) - Per-user setting
-        startup_ui_item = menu.AppendCheckItem(wx.ID_ANY, _("Open Kolibri UI on logon"))
+        # 2. Open Kolibri App after sign in (Toggle) - Per-user setting
+        startup_ui_item = menu.AppendCheckItem(
+            wx.ID_ANY, _("Open Kolibri App after sign in")
+        )
         startup_ui_item.Check(is_ui_startup_enabled())
         self.frame.Bind(wx.EVT_MENU, self.on_toggle_startup_ui, startup_ui_item)
 
-        # 3. Run Kolibri service on start (Toggle) - System-wide setting
+        # 3. Run Kolibri service on Windows startup (Toggle) - System-wide setting
         self.run_on_start_item = menu.AppendCheckItem(
-            wx.ID_ANY, _("Run Kolibri service on start")
+            wx.ID_ANY, _("Run Kolibri service on Windows startup")
         )
         start_type = get_service_start_type()
         if start_type in ["auto", "disabled"]:
@@ -362,7 +366,7 @@ class KolibriTaskBarIcon:
         else:
             self.run_on_start_item.Enable(False)
             self.run_on_start_item.SetItemLabel(
-                _("Run Kolibri service on start (Unavailable)")
+                _("Run Kolibri service on Windows startup (Unavailable)")
             )
         self.frame.Bind(
             wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item
@@ -377,10 +381,10 @@ class KolibriTaskBarIcon:
         return menu
 
     def on_open_ui(self, event):
-        """Open UI - either in WebView2 or browser depending on availability."""
+        """Open Kolibri App - either in WebView2 or browser depending on availability."""
         if not self.app.kolibri_url:
             wx.MessageBox(
-                _("Kolibri server is not ready yet."),
+                _("Kolibri service is not ready yet"),
                 _("Info"),
                 wx.OK | wx.ICON_INFORMATION,
             )
@@ -399,20 +403,28 @@ class KolibriTaskBarIcon:
             webbrowser.open(self.app.kolibri_url)
 
     def on_toggle_startup_ui(self, event):
-        """Toggle the 'Open kolibri UI on logon' setting."""
+        """Toggle the 'Open Kolibri App after sign in' setting."""
         enabled = event.IsChecked()
         if set_ui_startup_enabled(enabled):
-            status_translated = _("enabled") if enabled else _("disabled")
+            status_translated = (
+                # i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
+                _("enabled")
+                if enabled
+                # i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
+                else _("disabled")
+            )
             self.show_notification(
-                _("Kolibri UI Startup Updated"),
-                _("Opening the UI on logon has been {}.").format(status_translated),
+                _("Kolibri App Setting Updated"),
+                _("Opening Kolibri App after sign in has been {}").format(
+                    status_translated
+                ),
             )
         else:
             # Revert checkbox state if operation failed
             event.GetEventObject().Check(not enabled)
             self.show_notification(
-                _("Kolibri UI Startup Error"),
-                _("Failed to change the UI startup setting."),
+                _("Kolibri App Setting Error"),
+                _("Failed to change the Kolibri App startup setting"),
             )
 
     def on_toggle_service_startup(self, event):

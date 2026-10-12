@@ -4,109 +4,67 @@
 #
 # Usage: publish.sh DEB_PATH [DEB_PATH...]
 #
-# Env:
-#   KOLIBRI_APT_BUCKET   GCS bucket name; the repo lives under its
-#                        downloads/kolibri/apt prefix, alongside the release
-#                        downloads (required)
-#   REPREPRO_SIGN_KEY    key id/fingerprint for SignWith + pubkey.asc export (required)
-#   KOLIBRI_KEYRING_DEB  optional path to the kolibri-archive-keyring .deb; when set it
-#                        is includedeb'd AND copied to the bucket root as the version-less
-#                        kolibri-archive-keyring.deb for the new-user curl bootstrap.
+# Env: repo.sh's.
 set -euo pipefail
 
 if [ "$#" -lt 1 ]; then
   echo "usage: publish.sh DEB_PATH [DEB_PATH...]" >&2
   exit 2
 fi
-: "${KOLIBRI_APT_BUCKET:?KOLIBRI_APT_BUCKET must be set (GCS bucket name)}"
-: "${REPREPRO_SIGN_KEY:?REPREPRO_SIGN_KEY must be set (signing key id/fingerprint)}"
 
-REPO_ROOT="gs://$KOLIBRI_APT_BUCKET/downloads/kolibri/apt"
-
-HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-
-WORKDIR=$(mktemp -d)
-trap 'rm -rf "$WORKDIR"' EXIT
-mkdir -p "$WORKDIR/repo/conf"
-
-# --- sync down (full tree) --------------------------------------------------
-# The whole tree must be fetched so the deleting up-leg does not delete state we
-# never saw. A masked download failure followed by the deleting up-leg would
-# wipe the live repo, so only a genuinely empty prefix may skip the down-leg.
-#
-# `gcloud storage ls` exits non-zero both for a genuinely empty prefix and for
-# a transient network/throttle/auth failure — exit status alone cannot tell
-# them apart. Inspect the listing instead: a clean exit means objects exist
-# (sync down); the unambiguous "matched no objects" error means the prefix is
-# empty (skip); any other failure is fatal and must abort *before* the
-# destructive up-leg rather than fall through to "starting fresh".
-if ls_err=$(gcloud storage ls "$REPO_ROOT/**" 2>&1 >/dev/null); then
-  gcloud storage rsync -r "$REPO_ROOT" "$WORKDIR/repo"
-elif printf '%s' "$ls_err" | grep -qiF 'matched no objects'; then
-  echo "empty prefix — first publish, starting fresh"
-else
-  echo "aborting: cannot list $REPO_ROOT to confirm it is empty" >&2
-  printf '%s\n' "$ls_err" >&2
+# Each suite serves one version per package, so a second .deb of a package would
+# replace the first, whichever is newer.
+dupes=$(for deb in "$@"; do dpkg-deb -f "$deb" Package; done | sort | uniq -d)
+if [ -n "$dupes" ]; then
+  echo "aborting: more than one .deb of: $dupes" >&2
   exit 1
 fi
 
-# --- render conf (committed template always wins) ---------------------------
-sed "s/__REPREPRO_SIGN_KEY__/$REPREPRO_SIGN_KEY/" \
-  "$HERE/conf/distributions.in" > "$WORKDIR/repo/conf/distributions"
+HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+. "$HERE/repo.sh"
+
+repo_pull
 
 # --- add the release .deb(s) ------------------------------------------------
 # A published version is immutable, and reprepro refuses a same-version .deb whose
 # bytes differ with a hard error. That would fail any re-publish of a rebuilt
 # artifact — CI rebuilds the keyring .deb every run, and a re-run of a release job
 # rebuilds its .deb too. Keep what is already published and say so; ship changes by
-# bumping the version.
-include_deb() {
-  pkg=$(dpkg-deb -f "$1" Package)
-  ver=$(dpkg-deb -f "$1" Version)
-  if reprepro -b "$WORKDIR/repo" list stable "$pkg" | grep -qF "$pkg $ver"; then
-    echo "$pkg $ver already published — keeping the published build"
-  else
-    reprepro -b "$WORKDIR/repo" includedeb stable "$1"
-  fi
-}
-
-for deb in "$@"; do
-  include_deb "$deb"
-done
-
-# --- export the served public key -------------------------------------------
-gpg --armor --export "$REPREPRO_SIGN_KEY" > "$WORKDIR/repo/pubkey.asc"
-
-# --- bootstrap deb at the repo root (optional) ------------------------------
-if [ -n "${KOLIBRI_KEYRING_DEB:-}" ]; then
-  include_deb "$KOLIBRI_KEYRING_DEB"
-  cp "$KOLIBRI_KEYRING_DEB" "$WORKDIR/repo/kolibri-archive-keyring.deb"
-fi
-
-# --- sync up (checksum compare, delete extras) ------------------------------
-# --checksums-only is required, not cosmetic: reprepro rewrites db/*.db in place,
-# often without changing size or mtime (fixed-size BDB pages, sub-second rewrite).
-# A default mtime+size comparison then skips the modified db, leaving the
-# published db stale against the freshly-exported pool/dists — a silently
-# inconsistent repo.
+# bumping the version. A version stable serves counts as published too: once
+# proposed has moved on, a re-run of a promoted release must not touch it.
 #
-# Cache-Control is set per prefix, not once for the tree: a cached index served
-# against a newer pool is a Hash Sum mismatch for the client, while pool files
-# never change once published.
-sync_up() {
-  gcloud storage rsync -r --checksums-only --delete-unmatched-destination-objects \
-    --cache-control="$2" "$WORKDIR/repo/$1" "$REPO_ROOT/$1"
-}
-
-# pool goes first, so no index is ever published naming a file that is not there.
-sync_up pool 'public, max-age=2592000'
-sync_up dists 'no-cache'
-# reprepro's own state: read back by the next publish, never by a client.
-sync_up db 'no-cache'
-sync_up conf 'no-cache'
-
-# Root files are rewritten in place rather than versioned, so they stay uncached.
-for root_file in "$WORKDIR"/repo/*; do
-  [ -f "$root_file" ] || continue
-  gcloud storage cp --cache-control='no-cache' "$root_file" "$REPO_ROOT/${root_file##*/}"
+# Each suite serves one version per package, and includedeb silently skips a
+# version older than the suite's. Remove any other version first, so proposed
+# serves the build just published — a patch release after a newer prerelease
+# included.
+#
+# A version no suite serves has no pool file left, so reprepro cannot refuse its
+# rebuild, yet the CDN may still cache the old bytes at that pool path (repo.sh's
+# pool max-age). db/published-debs records every published checksum, so a rebuild
+# is refused; republish the release asset instead.
+published_debs="$WORKDIR/repo/db/published-debs"
+mkdir -p "${published_debs%/*}"
+touch "$published_debs"
+for deb in "$@"; do
+  pkg=$(dpkg-deb -f "$deb" Package)
+  ver=$(dpkg-deb -f "$deb" Version)
+  arch=$(dpkg-deb -f "$deb" Architecture)
+  published=$(suite_version proposed "$pkg")
+  if [ "$published" = "$ver" ] || [ "$(suite_version stable "$pkg")" = "$ver" ]; then
+    echo "$pkg $ver already published — keeping the published build"
+    continue
+  fi
+  sha=$(sha256sum "$deb" | cut -d' ' -f1)
+  recorded=$(awk -v k="$pkg $ver $arch" '$1" "$2" "$3 == k { print $4 }' "$published_debs")
+  if [ -n "$recorded" ] && [ "$recorded" != "$sha" ]; then
+    echo "aborting: $pkg $ver $arch was published with other bytes; publish its release asset" >&2
+    exit 1
+  fi
+  if [ -n "$published" ]; then
+    reprepro -b "$WORKDIR/repo" remove proposed "$pkg"
+  fi
+  reprepro -b "$WORKDIR/repo" includedeb proposed "$deb"
+  [ -n "$recorded" ] || echo "$pkg $ver $arch $sha" >> "$published_debs"
 done
+
+repo_push

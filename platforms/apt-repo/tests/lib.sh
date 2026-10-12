@@ -20,12 +20,12 @@ assert_file() {
 
 # assert_contains <file> <extended-regex> [message]
 assert_contains() {
-  grep -Eq "$2" "$1" || fail "${3:-expected /$2/ in $1}"
+  grep -Eq -e "$2" "$1" || fail "${3:-expected /$2/ in $1}"
 }
 
 # assert_absent <file-or-dir> <extended-regex> [message] — recursive
 assert_absent() {
-  if grep -rEq "$2" "$1"; then fail "${3:-unexpected match for /$2/ under $1}"; fi
+  if grep -rEq -e "$2" "$1"; then fail "${3:-unexpected match for /$2/ under $1}"; fi
 }
 
 # assert_equals <actual> <expected> [message]
@@ -42,6 +42,19 @@ assert_output_contains() {
 # assert_files_equal <a> <b> [message]
 assert_files_equal() {
   cmp -s "$1" "$2" || fail "${3:-files differ: $1 vs $2}"
+}
+
+# field_of <Packages> <name> <Field> — <Field> of every <name> stanza, one per line.
+field_of() {
+  awk -v pkg="$2" -v field="$3:" '
+    /^Package: / { cur = $2 }
+    $1 == field && cur == pkg { print $2 }
+  ' "$1"
+}
+
+# versions_of <Packages> <name> — every Version listed for <name>, one per line.
+versions_of() {
+  field_of "$1" "$2" Version
 }
 
 # require_tools <tool>... — SKIP (or FAIL under APT_REPO_TESTS_STRICT=1) if any absent
@@ -110,13 +123,15 @@ case "$cmd" in
     ;;
   rsync)
     echo "rsync $*" >> "$FAKE_GCS_RSYNC_LOG"
-    delete=0
+    delete=""
+    checksum=""
     src=""
     dst=""
     for arg in "$@"; do
       case "$arg" in
-        -r|--recursive|--checksums-only|--cache-control=*) ;;
-        --delete-unmatched-destination-objects) delete=1 ;;
+        -r|--recursive|--cache-control=*) ;;
+        --checksums-only) checksum=--checksum ;;
+        --delete-unmatched-destination-objects) delete=--delete ;;
         -*) echo "ERROR: (gcloud.storage.rsync) unrecognized arguments: $arg" >&2; exit 2 ;;
         *) if [ -z "$src" ]; then src=$arg; else dst=$arg; fi ;;
       esac
@@ -124,11 +139,8 @@ case "$cmd" in
     src=$(localise "$src")
     dst=$(localise "$dst")
     mkdir -p "$src" "$dst"
-    if [ "$delete" -eq 1 ]; then
-      rsync -a --delete "$src/" "$dst/"
-    else
-      rsync -a "$src/" "$dst/"
-    fi
+    # Without --checksum, rsync skips a same-size rewrite within the same second.
+    rsync -a $checksum $delete "$src/" "$dst/"
     ;;
   cp)
     src=""
@@ -200,10 +212,29 @@ pack_deb() {
   dpkg-deb --build "$STAGE" "$1" >/dev/null
 }
 
-# build_min_deb <name> — payload-free .deb at $WORK/<name>_1.0_all.deb.
+# build_min_deb <name> [version] — payload-free .deb at
+# $WORK/<name>_<version>_all.deb; version defaults to 1.0.
 build_min_deb() {
-  stage_min_deb "$1" 1.0
-  pack_deb "$WORK/${1}_1.0_all.deb"
+  _v=${2:-1.0}
+  stage_min_deb "$1" "$_v"
+  pack_deb "$WORK/${1}_${_v}_all.deb"
+}
+
+# serve_docroot <docroot> <probe-path> <host>... — in-container: serve <docroot>
+# on port 80 as every <host>, and wait until <probe-path> answers. http.server
+# ignores the Host header, so all hosts share the one docroot.
+serve_docroot() {
+  _doc=$1
+  _probe=$2
+  shift 2
+  for _h in "$@"; do printf '127.0.0.1 %s\n' "$_h" >> /etc/hosts; done
+  python3 -m http.server 80 --directory "$_doc" >/dev/null 2>&1 &
+  for _i in 1 2 3 4 5 6 7 8 9 10; do
+    python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:80/$_probe')" 2>/dev/null \
+      && return
+    sleep 0.5
+  done
+  fail "http.server never served $_probe"
 }
 
 # run_debian_container <label> — run the script on stdin in debian:trixie-slim

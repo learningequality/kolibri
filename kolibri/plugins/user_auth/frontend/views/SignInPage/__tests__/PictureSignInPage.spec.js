@@ -364,6 +364,28 @@ describe('PictureSignInPage', () => {
       });
     });
 
+    it('announces "wrong words" to screen readers instead of the visible "wrong pictures" text', async () => {
+      const user = createUser();
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('wrong-pictures-sr-message')).toHaveTextContent(
+          picturePasswordStrings.wrongWordsTryAgain$(),
+        );
+      });
+      expect(screen.getByTestId('wrong-pictures-sr-message')).toHaveClass('visuallyhidden');
+      expect(screen.getByTestId('wrong-pictures-visible-message')).toHaveAttribute(
+        'aria-hidden',
+        'true',
+      );
+    });
+
     it('shows a visible error notification after confirm login fails', async () => {
       mockLogin
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })

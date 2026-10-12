@@ -6,13 +6,7 @@
     @submit="$emit('close')"
     @cancel="$emit('close')"
   >
-    <p>
-      {{
-        picturePasswordUnavailableBody$({
-          learnerLimit: $formatNumber(LEARNER_PICTURE_PASSWORD_LIMIT),
-        })
-      }}
-    </p>
+    <p>{{ picturePasswordUnavailableBody$() }}</p>
     <p>
       {{
         picturePasswordUnavailableLearnerCount$({
@@ -31,9 +25,6 @@
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
-  // Must match LEARNER_PICTURE_PASSWORD_LIMIT in kolibri/core/auth/constants/picture_passwords.py
-  const LEARNER_PICTURE_PASSWORD_LIMIT = 1300;
-
   export default {
     name: 'PicturePasswordUnavailableModal',
     setup() {
@@ -45,7 +36,6 @@
 
       return {
         coreString,
-        LEARNER_PICTURE_PASSWORD_LIMIT,
         picturePasswordUnavailableTitle$,
         picturePasswordUnavailableBody$,
         picturePasswordUnavailableLearnerCount$,

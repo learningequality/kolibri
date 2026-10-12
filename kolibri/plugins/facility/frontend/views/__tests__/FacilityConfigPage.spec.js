@@ -17,13 +17,11 @@ const {
   picturePasswordInfoBody$,
   childFriendlyIconsInfoLabel$,
   childFriendlyIcons$,
-  howLearnersSignIn$,
   picturePasswordUnavailableExplanation$,
   picturePasswordUnavailableTitle$,
 } = picturePasswordStrings;
 
-const { learnerNeedPasswordToLogin$, learnerCanEditPassword$, pageHeader$ } =
-  facilityConfigPageStrings;
+const { pageHeader$ } = facilityConfigPageStrings;
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => ({
@@ -108,8 +106,6 @@ function createMockFacilityConfig(overrides = {}) {
     facilityDataLoading: ref(false),
     settingsHaveChanged: ref(false),
     isPinSet: ref(null),
-    isAttendanceFeatureEnabled: ref(true),
-    isPictureLoginFeatureEnabled: ref(true),
     picturePasswordSettings: ref({
       icon_style: PicturePasswordIconStyle.COLORFUL,
       show_icon_text: false,
@@ -400,79 +396,6 @@ describe('facility config page view', () => {
       renderExhausted({ signInOption: OptionsForSignIn.PICTURE_PASSWORD });
       expect(screen.getByTestId('child_friendly_icons').querySelector('input')).toBeDisabled();
       expect(screen.getByTestId('standard_icons').querySelector('input')).toBeDisabled();
-    });
-  });
-
-  describe('when the picture login feature is disabled', () => {
-    function renderDisabled(extra = {}) {
-      return renderPage({
-        mockFacilityConfig: {
-          isPictureLoginFeatureEnabled: ref(false),
-          ...extra,
-        },
-      });
-    }
-
-    function getUsersSection() {
-      return screen.getByRole('heading', { name: coreString('usersLabel') }).closest('section');
-    }
-
-    it('hides the "how learners sign in" section', () => {
-      renderDisabled();
-      expect(screen.queryByRole('heading', { name: howLearnersSignIn$() })).not.toBeInTheDocument();
-    });
-
-    it('shows the legacy require-password checkbox inside the Users section, reflecting the inverted setting', () => {
-      const settings = ref({ learner_can_login_with_no_password: false });
-      renderDisabled({ settings });
-      const checkbox = within(getUsersSection()).getByRole('checkbox', {
-        name: learnerNeedPasswordToLogin$(),
-      });
-      expect(checkbox).toBeChecked();
-    });
-
-    it('switches signInOption to USERNAME_ONLY when the require-password checkbox is unchecked', async () => {
-      const mockFacilityConfig = createMockFacilityConfig({
-        isPictureLoginFeatureEnabled: ref(false),
-      });
-      renderPage({ mockFacilityConfig });
-      await userEvent.click(screen.getByRole('checkbox', { name: learnerNeedPasswordToLogin$() }));
-      expect(mockFacilityConfig.signInOption.value).toBe(OptionsForSignIn.USERNAME_ONLY);
-    });
-
-    it('shows the edit-password checkbox inside the Users section regardless of signInOption', () => {
-      // With signInOption=USERNAME_ONLY this checkbox would normally be hidden by
-      // the signin-section template; once the section is gone it must remain visible.
-      renderDisabled({ signInOption: OptionsForSignIn.USERNAME_ONLY });
-      expect(
-        within(getUsersSection()).getByRole('checkbox', { name: learnerCanEditPassword$() }),
-      ).toBeInTheDocument();
-    });
-
-    it('disables the edit-password checkbox when password is not required', () => {
-      renderDisabled({ signInOption: OptionsForSignIn.USERNAME_ONLY });
-      expect(screen.getByRole('checkbox', { name: learnerCanEditPassword$() })).toBeDisabled();
-    });
-
-    describe('when picture-password is already selected in settings', () => {
-      it('shows the require-password checkbox unchecked', () => {
-        renderDisabled({ signInOption: OptionsForSignIn.PICTURE_PASSWORD });
-        expect(
-          screen.getByRole('checkbox', { name: learnerNeedPasswordToLogin$() }),
-        ).not.toBeChecked();
-      });
-
-      it('switches signInOption to USERNAME_PASSWORD when the require-password checkbox is checked', async () => {
-        const mockFacilityConfig = createMockFacilityConfig({
-          isPictureLoginFeatureEnabled: ref(false),
-          signInOption: OptionsForSignIn.PICTURE_PASSWORD,
-        });
-        renderPage({ mockFacilityConfig });
-        await userEvent.click(
-          screen.getByRole('checkbox', { name: learnerNeedPasswordToLogin$() }),
-        );
-        expect(mockFacilityConfig.signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
-      });
     });
   });
 });

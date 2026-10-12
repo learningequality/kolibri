@@ -247,13 +247,7 @@
       const router = useRouter();
       const { createNewUserHeader$ } = pageTitleStrings;
       usePageTitle(createNewUserHeader$, { hasVisibleHeading: true });
-      const {
-        facilityConfig,
-        selectedFacility,
-        facilityId,
-        fetchFacilities,
-        isPictureLoginFeatureEnabled,
-      } = useFacility();
+      const { facilityConfig, selectedFacility, facilityId, fetchFacilities } = useFacility();
       const picturePasswordSettings = computed(
         () => facilityConfig.value?.picture_password_settings || null,
       );
@@ -261,9 +255,7 @@
 
       const showLearnerLimitModal = ref(false);
 
-      const isPictureLoginActive = computed(
-        () => isPictureLoginFeatureEnabled.value && picturePasswordSettings.value != null,
-      );
+      const isPictureLoginActive = computed(() => picturePasswordSettings.value != null);
       const learnerLimitReached = computed(
         () => isPictureLoginActive.value && selectedFacility.value?.picture_passwords_exhausted,
       );

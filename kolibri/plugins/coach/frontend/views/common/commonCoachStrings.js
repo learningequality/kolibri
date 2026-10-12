@@ -431,13 +431,13 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   saveLessonErrorDeletedUsers: {
     message:
-      'There was a problem saving this lesson. One or more selected users no longer exist in this class. Please refresh the page and try again.',
+      'There was a problem saving this lesson. One or more selected users are no longer enrolled in this class. Please refresh the page and try again.',
     context:
       'Error message shown when saving a lesson fails because one or more selected individual learners have been deleted from the facility.',
   },
   saveQuizErrorDeletedUsers: {
     message:
-      'There was a problem saving this quiz. One or more selected users no longer exist in this class. Please refresh the page and try again.',
+      'There was a problem saving this quiz. One or more selected users are no longer enrolled in this class. Please refresh the page and try again.',
     context:
       'Error message shown when saving a quiz fails because one or more selected individual learners have been deleted from the facility.',
   },

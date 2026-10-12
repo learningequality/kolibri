@@ -40,7 +40,6 @@ function setup({
   pictureLogin = false,
   exhausted = false,
   learnerCanLoginWithNoPassword = false,
-  pictureLoginFeatureEnabled = true,
 } = {}) {
   useFacility.mockImplementation(() =>
     useFacilityMock({
@@ -50,7 +49,6 @@ function setup({
         extra_fields: null,
       }),
       selectedFacility: ref({ picture_passwords_exhausted: exhausted }),
-      isPictureLoginFeatureEnabled: computed(() => pictureLoginFeatureEnabled),
       setFacilityId: jest.fn().mockResolvedValue(undefined),
     }),
   );
@@ -346,49 +344,6 @@ describe('UserCreateSidePanel', () => {
       await fillRequired();
       await fireEvent.click(saveAndCloseButton());
       expect(FacilityUserResource.create).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('when the picture login feature is disabled (non-English locale)', () => {
-    it('hides the picture password info block even when the facility has picture passwords configured', async () => {
-      setup({ pictureLogin: true, pictureLoginFeatureEnabled: false });
-      await waitForFormReady();
-      expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('heading', { name: picturePasswordStrings.signingInHeading$() }),
-      ).not.toBeInTheDocument();
-    });
-
-    it('shows the password input for learners even when the facility has picture passwords configured', async () => {
-      setup({ pictureLogin: true, pictureLoginFeatureEnabled: false });
-      await waitForFormReady();
-      expect(screen.getByLabelText(coreStrings.passwordLabel$())).toHaveValue('');
-    });
-
-    it('hides the learner-limit-exhausted warning and keeps the submit buttons enabled', async () => {
-      setup({ pictureLogin: true, exhausted: true, pictureLoginFeatureEnabled: false });
-      await waitForFormReady();
-      expect(
-        screen.queryByText(picturePasswordStrings.learnerCreationDisabled$()),
-      ).not.toBeInTheDocument();
-      expect(saveAndCloseButton()).toBeEnabled();
-      expect(saveAndAddAnotherButton()).toBeEnabled();
-    });
-
-    it('submits the form with the user-supplied password when the facility has picture passwords configured', async () => {
-      FacilityUserResource.create.mockResolvedValue({ id: 'new-user-id', facility: 'fac-1' });
-      setup({ pictureLogin: true, pictureLoginFeatureEnabled: false });
-      await waitForFormReady();
-      await fillRequired();
-      await setPassword('secret123');
-      await fireEvent.click(saveAndCloseButton());
-
-      await waitFor(() => {
-        expect(FacilityUserResource.create).toHaveBeenCalledTimes(1);
-      });
-      expect(FacilityUserResource.create).toHaveBeenCalledWith(
-        expect.objectContaining({ password: 'secret123' }),
-      );
     });
   });
 });

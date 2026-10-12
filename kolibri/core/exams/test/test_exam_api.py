@@ -568,6 +568,73 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         # A fully populated section round-trips its exact content.
         self.assertEqual(sections[1], full_section)
 
+    def _assert_legacy_question_sources_round_trip(
+        self, data_model_version, question_sources
+    ):
+        # Quizzes created before V3 keep their original question_sources shape,
+        # which the frontend converts on read, so the API must return it as stored.
+        # Written via update() to bypass Exam.save(), which assumes V3 sections.
+        exam = models.Exam.objects.create(
+            title=f"legacy-v{data_model_version}",
+            collection=self.classroom,
+            creator=self.admin,
+            active=True,
+            question_sources=[],
+        )
+        models.Exam.objects.filter(pk=exam.id).update(
+            data_model_version=data_model_version,
+            question_sources=question_sources,
+        )
+
+        self.login_as_admin()
+        response = self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": exam.id}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["data_model_version"], data_model_version)
+        self.assertEqual(response.data["question_sources"], question_sources)
+
+    @override_settings(DEBUG=True)
+    def test_retrieve_returns_v0_question_sources_as_stored(self):
+        self._assert_legacy_question_sources_round_trip(
+            0,
+            [
+                {
+                    "exercise_id": uuid.uuid4().hex,
+                    "number_of_questions": 3,
+                    "title": "Exercise",
+                }
+            ],
+        )
+
+    @override_settings(DEBUG=True)
+    def test_retrieve_returns_v1_question_sources_as_stored(self):
+        self._assert_legacy_question_sources_round_trip(
+            1,
+            [
+                {
+                    "exercise_id": uuid.uuid4().hex,
+                    "question_id": uuid.uuid4().hex,
+                    "title": "Exercise",
+                }
+            ],
+        )
+
+    @override_settings(DEBUG=True)
+    def test_retrieve_returns_v2_question_sources_as_stored(self):
+        self._assert_legacy_question_sources_round_trip(
+            2,
+            [
+                {
+                    "exercise_id": uuid.uuid4().hex,
+                    "question_id": uuid.uuid4().hex,
+                    "title": "Exercise",
+                    "counter_in_exercise": 1,
+                }
+            ],
+        )
+
     def test_complete_mastery_logs_when_exam_is_closed(self):
         self.login_as_admin()
         group = LearnerGroup.objects.create(name="test", parent=self.classroom)

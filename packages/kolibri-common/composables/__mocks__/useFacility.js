@@ -9,8 +9,6 @@ const MOCK_DEFAULTS = {
   facilityId: ref(null),
   facilityConfig: ref({}),
   currentFacilityName: ref(''),
-  isAttendanceFeatureEnabled: computed(() => true),
-  isPictureLoginFeatureEnabled: computed(() => true),
   signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
   picturePasswordSettings: computed(() => null),
   fetchFacilities: jest.fn(),
@@ -27,8 +25,6 @@ const MOCK_DEFAULTS_SELECT = {
 
 const MOCK_DEFAULTS_CONFIG = {
   facilityConfig: ref({}),
-  isAttendanceFeatureEnabled: computed(() => true),
-  isPictureLoginFeatureEnabled: computed(() => true),
   signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
   picturePasswordSettings: computed(() => null),
   fetchFacilityConfig: jest.fn(),

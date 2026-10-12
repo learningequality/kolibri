@@ -49,16 +49,16 @@ Release workflow
 
 Releases are published to Launchpad by the ``platform-debian-server-release.yml`` workflow ("Release kolibri-server"), run manually via ``workflow_dispatch``. It:
 
+#. Requests manual approval via the ``release`` environment at workflow start; promotion waits for it
 #. Resolves the workspace Kolibri version and refuses to publish a dev/local build — only real releases and pre-releases reach the PPA
 #. Generates ``debian/changelog`` from that Kolibri version
 #. Builds, signs, and uploads the source package to the ``kolibri-proposed`` PPA via ``dput``
 #. Waits for Launchpad to build the source package in the current Ubuntu LTS
 #. Copies the built package to all supported Ubuntu series
 #. Waits for all copy builds to complete
-#. Requires manual approval via the ``release`` environment
 #. Promotes packages from ``kolibri-proposed`` to the ``kolibri`` PPA
 
-The ``.deb`` version is bound to the Kolibri version, so there is no separate release tag to validate against. Building and publishing the GitHub Pages APT repo is handled separately and is not part of this workflow.
+The ``.deb`` version is bound to the Kolibri version, so there is no separate release tag to validate against. ``release_kolibri.yml`` publishes the ``.deb`` to the self-hosted APT repo; see ``platforms/apt-repo/README.md``.
 
 Launchpad credentials setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
