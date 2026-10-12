@@ -527,6 +527,34 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         diff = response.data.get("diff")
         self.assertEqual(diff["correct"], 3.0)
 
+    def _get_diff_with_null_time_spent(self, null_try_index):
+        user_index = 2
+        user_tries = self.user_tries[user_index]
+        # Tries recorded before logger migration 0011 have a null time_spent
+        MasteryLog.objects.filter(id=user_tries[null_try_index].id).update(
+            time_spent=None
+        )
+        self.client.force_login(self.users[user_index])
+        return self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": 0}),
+            data={
+                "content": user_tries[0].summarylog.content_id,
+                "user": user_tries[0].user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+
+    def test_diff_previous_try_null_time_spent(self):
+        response = self._get_diff_with_null_time_spent(null_try_index=1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["diff"], {"correct": 0.0, "time_spent": None})
+
+    def test_diff_target_try_null_time_spent(self):
+        response = self._get_diff_with_null_time_spent(null_try_index=0)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["diff"], {"correct": 0.0, "time_spent": None})
+
 
 class TotalContentProgressViewSetTest(APITestCase):
     databases = "__all__"
