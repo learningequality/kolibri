@@ -166,13 +166,16 @@ class CreateSessionSerializer(serializers.Serializer):
                 }
             ) from e
         except FacilityUser.MultipleObjectsReturned:
-            # Handle case of multiple matching usernames
+            # Handle case of multiple matching usernames. If none matches exactly,
+            # there is no single user to describe, so fall through to the generic errors.
             unauthenticated_user = FacilityUser.objects.filter(
                 username__exact=username, facility=facility
             ).first()
 
-        if unauthenticated_user.password == NOT_SPECIFIED and not hasattr(
-            unauthenticated_user, "os_user"
+        if (
+            unauthenticated_user is not None
+            and unauthenticated_user.password == NOT_SPECIFIED
+            and not hasattr(unauthenticated_user, "os_user")
         ):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
