@@ -61,21 +61,14 @@
       <button
         type="submit"
         class="submit-button"
-        :class="[
-          $computedClass({
-            ':hover': submitEnabled
-              ? {
-                backgroundColor: $themeTokens.primaryDark,
-              }
-              : {},
-          }),
-          { pulsing: submitPulsing },
-          { bouncing: arrowBouncing },
-        ]"
+        :class="{
+          'submit-enabled': submitEnabled,
+          pulsing: submitPulsing,
+          bouncing: arrowBouncing,
+        }"
         data-testid="submit-button"
         :aria-disabled="!submitEnabled ? 'true' : undefined"
         :aria-label="submitButtonAriaLabel"
-        :style="submitButtonStyle"
       >
         <KIcon
           data-testid="submit-icon"
@@ -314,11 +307,6 @@
         });
       };
 
-      const submitButtonStyle = computed(() => ({
-        backgroundColor: submitEnabled.value ? 'var(--tokens-primary)' : 'var(--palette-grey-v200)',
-        cursor: submitEnabled.value ? 'pointer' : 'not-allowed',
-      }));
-
       /**
        * Returns focus to the form element, e.g. after a failed sign-in attempt
        * so that screen reader users land back inside the grid instead of on
@@ -349,7 +337,6 @@
         progressSlots,
         submitEnabled,
         submitButtonAriaLabel,
-        submitButtonStyle,
         submitPulsing,
         bouncingId,
         arrowBouncing,
@@ -465,9 +452,20 @@
     align-items: center;
     justify-content: center;
     padding: 0;
+    cursor: not-allowed;
+    background-color: var(--palette-grey-v200);
     border: 0;
     border-radius: 8px;
     transition: $core-time;
+
+    &.submit-enabled {
+      cursor: pointer;
+      background-color: var(--tokens-primary);
+
+      &:hover {
+        background-color: var(--tokens-primaryDark);
+      }
+    }
   }
 
   .submit-icon {
