@@ -24,7 +24,7 @@
           @click="$emit('input', key)"
         >
           <KIcon
-            :icon="activityIcon(activity)"
+            :icon="getLearningActivityIcon(key, true)"
             class="activity-icon"
           />
           <p class="activity-button-text">
@@ -44,7 +44,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
-  import { getLearningActivityIcon } from 'kolibri-common/utils/learningActivityIcon';
+  import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
 
   export default {
     name: 'ActivityButtonsGroup',
@@ -52,11 +52,13 @@
     setup() {
       const { availableLearningActivities, searchableLabels, activeSearchTerms, searchLoading } =
         injectBaseSearch();
+      const { getLearningActivityIcon } = useLearningActivities();
       return {
         availableLearningActivities,
         searchableLabels,
         activeSearchTerms,
         searchLoading,
+        getLearningActivityIcon,
       };
     },
     computed: {
@@ -101,7 +103,6 @@
       camelCase(id) {
         return camelCase(id);
       },
-      activityIcon: getLearningActivityIcon,
       isKeyActive(key) {
         return key !== null && !!this.activeKeys.filter(k => k.includes(key)).length;
       },

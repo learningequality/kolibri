@@ -87,7 +87,7 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { injectBaseSearch, searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import { getCategoryIcon } from 'kolibri-common/utils/categoryIcon';
-  import { getLearningActivityIcon } from 'kolibri-common/utils/learningActivityIcon';
+  import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
 
   export default {
     name: 'HorizontalFilterPills',
@@ -129,6 +129,8 @@
         ),
       );
 
+      const { getLearningActivityIcon } = useLearningActivities();
+
       // Decorate a {termKey, value} pair with the label and icon for its pill
       function entryFor(termKey, value) {
         if (termKey === 'keywords') {
@@ -141,7 +143,7 @@
             termKey,
             value,
             label: key ? coreString(key) : value,
-            icon: key ? getLearningActivityIcon(key) : null,
+            icon: getLearningActivityIcon(value, true),
           };
         }
         if (termKey === 'categories') {
