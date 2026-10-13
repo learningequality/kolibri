@@ -22,7 +22,9 @@
 <script>
 
   import { computed, inject, provide, ref, watch } from 'vue';
+  import clamp from 'lodash/clamp';
   import cloneDeep from 'lodash/cloneDeep';
+  import round from 'lodash/round';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import useKeypad from 'kolibri-common/composables/useKeypad';
@@ -64,6 +66,9 @@
 
   /**
    * @typedef {object} CheckAnswerResult
+   * @property {number} correct
+   * `SCORE / MAXSCORE` clamped to [0, 1]; missing `SCORE` is 0,
+   * missing or non-positive `MAXSCORE` is 1.
    * @property {{[key: string]: QTIValue}} outcomes
    * Snapshot of current outcome variable values keyed by identifier, e.g.
    * `{ SCORE: 1 }`. Written by response processing during `checkAnswer`.
@@ -142,8 +147,12 @@
         for (const [id, variable] of Object.entries(qtiContext.outcomes.value)) {
           outcomes[id] = variable.value;
         }
+        const score = outcomes.SCORE ?? 0;
+        const maxScore = outcomes.MAXSCORE > 0 ? outcomes.MAXSCORE : 1;
 
         return {
+          // Rounding absorbs float error, e.g. mapped values 0.7 + 0.2 + 0.1.
+          correct: clamp(round(score / maxScore, 9), 0, 1),
           outcomes,
           answerState,
         };

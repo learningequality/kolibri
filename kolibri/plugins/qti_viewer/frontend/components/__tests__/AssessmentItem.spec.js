@@ -7,6 +7,13 @@ import { render } from '@testing-library/vue';
 import AssessmentItem from '../AssessmentItem.vue';
 import itemsMap from '../__fixtures__/items.js';
 import { parseXML } from '../../utils/xml.js';
+import {
+  defaultValue,
+  itemXml,
+  op,
+  outcomeDecl,
+  responseDecl,
+} from '../../utils/qti/__tests__/qtiXmlHelpers.js';
 
 // Mock xml.js so tests don't pull in the real ZipFile / urls dependencies.
 // The jsdom test env already provides a working DOMParser via the globalThis
@@ -76,6 +83,19 @@ function minimalItemXml(baseType, scoreExpr) {
   `;
 }
 
+// Item whose outcomes are fixed at their declared defaults; no response processing.
+function outcomesOnlyItemXml(outcomeDefaults) {
+  return itemXml(
+    [
+      responseDecl('RESPONSE', 'string'),
+      ...Object.entries(outcomeDefaults).map(([id, value]) =>
+        outcomeDecl(id, 'float', 'single', defaultValue(value)),
+      ),
+    ],
+    '<qti-item-body><p>Enter</p></qti-item-body>',
+  );
+}
+
 async function renderAssessmentItem(
   xml,
   { answerState = {}, interactive = true, qtiPackage = null } = {},
@@ -131,6 +151,7 @@ describe('AssessmentItem', () => {
       const { checkAnswer } = await renderAssessmentItem(MATCH_CORRECT_XML, { answerState });
       const result = checkAnswer();
       expect(result.outcomes.SCORE).toBe(1);
+      expect(result.correct).toBe(1);
     });
 
     it('should score incorrect response as 0 with match_correct template', async () => {
@@ -138,6 +159,7 @@ describe('AssessmentItem', () => {
       const { checkAnswer } = await renderAssessmentItem(MATCH_CORRECT_XML, { answerState });
       const result = checkAnswer();
       expect(result.outcomes.SCORE).toBe(0);
+      expect(result.correct).toBe(0);
     });
 
     it('should compute mapped scores with map_response template', async () => {
@@ -154,6 +176,62 @@ describe('AssessmentItem', () => {
       const { checkAnswer } = await renderAssessmentItem(MAP_RESPONSE_XML, { answerState });
       const result = checkAnswer();
       expect(result.outcomes.SCORE).toBe(0);
+    });
+  });
+
+  describe('correct', () => {
+    it('should be the SCORE to MAXSCORE ratio for partial credit', async () => {
+      const xml = outcomesOnlyItemXml({ SCORE: 3, MAXSCORE: 4 });
+      const { checkAnswer } = await renderAssessmentItem(xml);
+      expect(checkAnswer().correct).toBe(0.75);
+    });
+
+    it('should cap at 1 when SCORE exceeds the default MAXSCORE', async () => {
+      const { checkAnswer } = await renderAssessmentItem(outcomesOnlyItemXml({ SCORE: 5 }));
+      expect(checkAnswer().correct).toBe(1);
+    });
+
+    it('should be 0 for a negative SCORE', async () => {
+      const xml = minimalItemXml('string', '<qti-base-value base-type="float">-1</qti-base-value>');
+      const { checkAnswer } = await renderAssessmentItem(xml);
+      expect(checkAnswer().correct).toBe(0);
+    });
+
+    it('should be 0 when no SCORE is declared', async () => {
+      const { checkAnswer } = await renderAssessmentItem(outcomesOnlyItemXml({}));
+      expect(checkAnswer().correct).toBe(0);
+    });
+
+    it('should treat a MAXSCORE of 0 as 1', async () => {
+      const xml = outcomesOnlyItemXml({ SCORE: 0.5, MAXSCORE: 0 });
+      const { checkAnswer } = await renderAssessmentItem(xml);
+      expect(checkAnswer().correct).toBe(0.5);
+    });
+
+    it('should be 1 when mapped values sum to MAXSCORE with float rounding error', async () => {
+      // 0.7 + 0.2 + 0.1 === 0.9999999999999999 in floating point.
+      const xml = itemXml(
+        [
+          responseDecl(
+            'RESPONSE',
+            'identifier',
+            'multiple',
+            `<qti-mapping default-value="0" upper-bound="1">
+              <qti-map-entry map-key="a" mapped-value="0.7" />
+              <qti-map-entry map-key="b" mapped-value="0.2" />
+              <qti-map-entry map-key="c" mapped-value="0.1" />
+            </qti-mapping>`,
+          ),
+          outcomeDecl('SCORE', 'float', 'single', defaultValue(0)),
+        ],
+        `<qti-item-body><p>Choose</p></qti-item-body>
+        <qti-response-processing>
+          <qti-set-outcome-value identifier="SCORE">${op('map-response', { identifier: 'RESPONSE' })}</qti-set-outcome-value>
+        </qti-response-processing>`,
+      );
+      const answerState = { RESPONSE: ['a', 'b', 'c'] };
+      const { checkAnswer } = await renderAssessmentItem(xml, { answerState });
+      expect(checkAnswer().correct).toBe(1);
     });
   });
 
