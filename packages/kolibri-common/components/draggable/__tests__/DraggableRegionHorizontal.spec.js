@@ -124,6 +124,10 @@ function renderedOrder() {
 }
 
 describe('DraggableRegion in a horizontal row', () => {
+  // jsdom has neither, so they are assigned rather than spied on
+  const { elementFromPoint } = document;
+  const { matchMedia } = window;
+
   beforeEach(() => {
     jest.useFakeTimers();
     useKLiveRegion.mockReturnValue({ sendPoliteMessage: jest.fn() });
@@ -137,6 +141,8 @@ describe('DraggableRegion in a horizontal row', () => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
     jest.restoreAllMocks();
+    document.elementFromPoint = elementFromPoint;
+    window.matchMedia = matchMedia;
   });
 
   function renderRow(direction) {
