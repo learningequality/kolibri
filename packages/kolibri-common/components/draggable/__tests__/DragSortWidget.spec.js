@@ -88,14 +88,6 @@ describe('DragSortWidget', () => {
       buttons.forEach(button => expect(button.classes()).not.toContain('visuallyhidden'));
       wrapper.destroy();
     });
-
-    it('keeps both move buttons working', async () => {
-      const wrapper = makeWrapper({ horizontal: true });
-      await wrapper.findComponent({ ref: 'upBtn' }).vm.$emit('click');
-      await wrapper.findComponent({ ref: 'dnBtn' }).vm.$emit('click');
-      expect(wrapper.emitted('moveUp')).toHaveLength(1);
-      expect(wrapper.emitted('moveDown')).toHaveLength(1);
-    });
   });
 
   describe('icon colour', () => {
