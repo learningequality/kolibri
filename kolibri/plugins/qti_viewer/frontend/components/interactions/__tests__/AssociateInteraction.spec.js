@@ -96,10 +96,12 @@ describe('Restoring an answer', () => {
   it('fills slots from injected answerState and disables those responses in the pool', () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
       answerState: {
-        RESPONSE: [
-          ['C1', 'C4'],
-          ['C2', 'C5'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['C1', 'C4'],
+            ['C2', 'C5'],
+          ],
+        },
       },
     });
 
@@ -116,7 +118,7 @@ describe('Restoring an answer', () => {
     );
     expect(availablePoolChips(container)).toHaveLength(6);
 
-    setAnswerState({ RESPONSE: [['C3', 'C6']] });
+    setAnswerState({ responses: { RESPONSE: [['C3', 'C6']] } });
 
     await waitFor(() => {
       expect(availablePoolChips(container).sort()).toEqual([
@@ -144,7 +146,7 @@ describe('Placed responses in the pool', () => {
 
   it('does not let a disabled response be picked up from the pool', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
-      answerState: { RESPONSE: [['C1', 'C4']] },
+      answerState: { responses: { RESPONSE: [['C1', 'C4']] } },
     });
 
     await fireEvent.click(poolChip(container, 'France'));
@@ -154,7 +156,7 @@ describe('Placed responses in the pool', () => {
 
   it('leaves a disabled response out of the draggable items', () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
-      answerState: { RESPONSE: [['C1', 'C4']] },
+      answerState: { responses: { RESPONSE: [['C1', 'C4']] } },
     });
 
     expect(poolChip(container, 'France').closest('.draggable-item')).toBeNull();
@@ -235,7 +237,7 @@ describe('Placing by drag', () => {
 
   it('frees the displaced response in the pool when dropped on a filled slot', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
-      answerState: { RESPONSE: [['C1', 'C4']] },
+      answerState: { responses: { RESPONSE: [['C1', 'C4']] } },
     });
 
     await dragInto(firstSlotFilled$({ number: 1, response: 'France' }), 'C3');
@@ -248,10 +250,12 @@ describe('Placing by drag', () => {
   it('swaps two responses when one filled slot is dropped on the other', async () => {
     renderAssessmentItem(items['associate-interaction-1'].xml, {
       answerState: {
-        RESPONSE: [
-          ['C1', 'C4'],
-          ['C2', 'C5'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['C1', 'C4'],
+            ['C2', 'C5'],
+          ],
+        },
       },
     });
 
@@ -267,7 +271,7 @@ describe('Placing by drag', () => {
 
   it('empties the slot when a response is dragged back to the pool', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
-      answerState: { RESPONSE: [['C1', 'C4']] },
+      answerState: { responses: { RESPONSE: [['C1', 'C4']] } },
     });
 
     await dragInto(responsePoolLabel$(), 'C1');
@@ -283,7 +287,7 @@ describe('Placing by drag', () => {
     await dragInto(secondSlotEmpty$({ number: 1 }), 'C5');
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toEqual([['C2', 'C5']]);
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual([['C2', 'C5']]);
     });
   });
 
@@ -370,10 +374,12 @@ describe('Placing by click', () => {
   it('swaps two responses when one filled slot is clicked then the other', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
       answerState: {
-        RESPONSE: [
-          ['C1', 'C4'],
-          ['C2', 'C5'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['C1', 'C4'],
+            ['C2', 'C5'],
+          ],
+        },
       },
     });
 
@@ -429,7 +435,7 @@ describe('Response variable', () => {
     await fireEvent.click(screen.getByLabelText(secondSlotEmpty$({ number: 1 })));
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toEqual([['C1', 'C4']]);
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual([['C1', 'C4']]);
     });
   });
 
@@ -440,7 +446,7 @@ describe('Response variable', () => {
     await fireEvent.click(screen.getByLabelText(firstSlotEmpty$({ number: 1 })));
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toEqual([]);
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual([]);
     });
   });
 
@@ -483,7 +489,7 @@ describe('Response variable', () => {
     }
 
     await waitFor(() => {
-      expect(checkAnswer().outcomes.SCORE).toBe(3);
+      expect(checkAnswer().answerState.outcomes.SCORE).toBe(3);
     });
   });
 
@@ -494,7 +500,7 @@ describe('Response variable', () => {
 
     await fireEvent.click(poolChip(container, 'France'));
 
-    expect(checkAnswer().answerState.RESPONSE).toBeNull();
+    expect(checkAnswer().answerState.responses.RESPONSE).toBeNull();
   });
 });
 
@@ -687,7 +693,7 @@ describe('Keyboard', () => {
     await fireEvent.blur(slotAt(container, 1));
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toHaveLength(1);
+      expect(checkAnswer().answerState.responses.RESPONSE).toHaveLength(1);
     });
   });
 

@@ -107,7 +107,7 @@ describe('Row capacity', () => {
 
   it('keeps an empty entry available while an unlimited source has room', () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
-      answerState: { RESPONSE: [['r2', 'h1']] },
+      answerState: { responses: { RESPONSE: [['r2', 'h1']] } },
     });
     // r2 is match-max="0", so it keeps offering another position
     expect(entriesOfRow(container, 'Endothermic')).toHaveLength(2);
@@ -128,10 +128,12 @@ describe('Restoring an answer', () => {
   it('fills rows from injected answerState', () => {
     renderAssessmentItem(items['match-example-1'].xml, {
       answerState: {
-        RESPONSE: [
-          ['C', 'R'],
-          ['P', 'T'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['C', 'R'],
+            ['P', 'T'],
+          ],
+        },
       },
     });
 
@@ -150,10 +152,12 @@ describe('Restoring an answer', () => {
   it('keeps a reused target available in the pool', () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
       answerState: {
-        RESPONSE: [
-          ['D', 'M'],
-          ['L', 'M'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['D', 'M'],
+            ['L', 'M'],
+          ],
+        },
       },
     });
 
@@ -166,10 +170,12 @@ describe('Restoring an answer', () => {
   it('marks a target spent once its match-max is used up', () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h1'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h1'],
+          ],
+        },
       },
     });
 
@@ -181,10 +187,12 @@ describe('Restoring an answer', () => {
   it('shows both targets of a row that holds more than one', () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r2', 'h1'],
-          ['r2', 'h3'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r2', 'h1'],
+            ['r2', 'h3'],
+          ],
+        },
       },
     });
 
@@ -201,7 +209,7 @@ describe('Restoring an answer', () => {
   it('re-renders when the answer state changes', async () => {
     const { setAnswerState } = renderAssessmentItem(items['match-example-1'].xml);
 
-    setAnswerState({ RESPONSE: [['C', 'R']] });
+    setAnswerState({ responses: { RESPONSE: [['C', 'R']] } });
 
     await waitFor(() => {
       expect(
@@ -293,10 +301,12 @@ describe('Placing by drag', () => {
     // if the origin's use is freed before the destination checks for room
     renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h1'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h1'],
+          ],
+        },
       },
     });
 
@@ -312,7 +322,7 @@ describe('Placing by drag', () => {
 
   it('takes the pairing out when a target is dragged back to the pool', async () => {
     renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     await dragInto(poolLabel(), 'R', rowFor('Capulet'));
@@ -322,7 +332,7 @@ describe('Placing by drag', () => {
 
   it('replaces the pairing when dropped onto a row with no room', async () => {
     renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     // Capulet is match-max="1": the drop has nowhere to be added, so rather
@@ -342,17 +352,19 @@ describe('Placing by drag', () => {
     await dragInto(rowFor('Prospero'), 'T', poolLabel());
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toEqual([['P', 'T']]);
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual([['P', 'T']]);
     });
   });
 
   it('leaves an exhausted target out of the pool region items', () => {
     renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h1'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h1'],
+          ],
+        },
       },
     });
 
@@ -408,7 +420,7 @@ describe('Placing by click', () => {
 
   it('highlights a filled field too, since a response can be replaced', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     await fireEvent.click(poolChip(container, 'The Tempest'));
@@ -419,7 +431,7 @@ describe('Placing by click', () => {
 
   it('does not highlight a field already holding that response', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
@@ -448,7 +460,7 @@ describe('Placing by click', () => {
 
   it('takes a pairing back out when its entry is clicked', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
@@ -459,10 +471,12 @@ describe('Placing by click', () => {
   it('ignores a response with no uses left', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h1'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h1'],
+          ],
+        },
       },
     });
 
@@ -491,7 +505,7 @@ describe('Response variable', () => {
     await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toEqual([['C', 'R']]);
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual([['C', 'R']]);
     });
   });
 
@@ -504,7 +518,7 @@ describe('Response variable', () => {
     await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toEqual([
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual([
         ['r2', 'h1'],
         ['r2', 'h3'],
       ]);
@@ -529,7 +543,7 @@ describe('Response variable', () => {
     // transposition would miss every map key and score 0, so this is the check
     // that the directed pairs come out the right way round.
     await waitFor(() => {
-      expect(checkAnswer().outcomes.SCORE).toBe(3);
+      expect(checkAnswer().answerState.outcomes.SCORE).toBe(3);
     });
   });
 
@@ -540,7 +554,7 @@ describe('Response variable', () => {
 
     await fireEvent.click(poolChip(container, 'The Tempest'));
 
-    expect(checkAnswer().answerState.RESPONSE).toBeNull();
+    expect(checkAnswer().answerState.responses.RESPONSE).toBeNull();
   });
 });
 
@@ -556,7 +570,7 @@ describe('Explaining a refusal', () => {
 
   it('explains that the pairing already exists', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
-      answerState: { RESPONSE: [['r2', 'h1']] },
+      answerState: { responses: { RESPONSE: [['r2', 'h1']] } },
     });
 
     await fireEvent.click(poolChip(container, 'Birds'));
@@ -570,10 +584,12 @@ describe('Explaining a refusal', () => {
   it('explains that the response has no matches left', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h1'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h1'],
+          ],
+        },
       },
     });
 
@@ -591,7 +607,7 @@ describe('Explaining a refusal', () => {
 
   it('drops the explanation once the learner places something', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
-      answerState: { RESPONSE: [['r2', 'h1']] },
+      answerState: { responses: { RESPONSE: [['r2', 'h1']] } },
     });
 
     await fireEvent.click(poolChip(container, 'Birds'));
@@ -608,16 +624,18 @@ describe('Explaining a refusal', () => {
 describe('Reaching max-associations', () => {
   // match-example-2 caps the question at three matches
   const atTheCap = {
-    RESPONSE: [
-      ['r1', 'h1'],
-      ['r2', 'h2'],
-      ['r3', 'h3'],
-    ],
+    responses: {
+      RESPONSE: [
+        ['r1', 'h1'],
+        ['r2', 'h2'],
+        ['r3', 'h3'],
+      ],
+    },
   };
 
   it('says nothing while there is still room', () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
-      answerState: { RESPONSE: [['r1', 'h1']] },
+      answerState: { responses: { RESPONSE: [['r1', 'h1']] } },
     });
     expect(noticeText(container)).toBe('');
   });
@@ -625,10 +643,12 @@ describe('Reaching max-associations', () => {
   it('warns as soon as the last match is made, before anything is refused', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h2'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h2'],
+          ],
+        },
       },
     });
     expect(noticeText(container)).toBe('');
@@ -699,10 +719,12 @@ describe('Keyboard', () => {
   it('offers only the targets still available for that row', () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
       answerState: {
-        RESPONSE: [
-          ['r1', 'h1'],
-          ['r2', 'h1'],
-        ],
+        responses: {
+          RESPONSE: [
+            ['r1', 'h1'],
+            ['r2', 'h1'],
+          ],
+        },
       },
     });
 
@@ -715,7 +737,7 @@ describe('Keyboard', () => {
 
   it("keeps an entry's own target among its options", () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     const options = optionsOf(entriesOfRow(container, 'Capulet')[0]);
@@ -738,7 +760,7 @@ describe('Keyboard', () => {
 
   it('leaves the add-another position alone when it is tabbed to', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
-      answerState: { RESPONSE: [['r2', 'h1']] },
+      answerState: { responses: { RESPONSE: [['r2', 'h1']] } },
     });
 
     // r2 is match-max="0", so its row offers a trailing empty position
@@ -787,7 +809,7 @@ describe('Keyboard', () => {
 
   it('starts the add-another position on the empty option', async () => {
     const { container } = renderAssessmentItem(items['match-example-2'].xml, {
-      answerState: { RESPONSE: [['r2', 'h1']] },
+      answerState: { responses: { RESPONSE: [['r2', 'h1']] } },
     });
 
     // r2 is match-max="0", so its row offers a trailing position that tabbing to
@@ -815,7 +837,7 @@ describe('Keyboard', () => {
 
   it('takes the pairing back out on Escape', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     await fireEvent.keyDown(entriesOfRow(container, 'Capulet')[0], { key: 'Escape' });
@@ -829,8 +851,8 @@ describe('Keyboard', () => {
     await fireEvent.focus(entriesOfRow(container, 'Capulet')[0]);
 
     await waitFor(() => {
-      expect(checkAnswer().answerState.RESPONSE).toHaveLength(1);
-      expect(checkAnswer().answerState.RESPONSE[0][0]).toBe('C');
+      expect(checkAnswer().answerState.responses.RESPONSE).toHaveLength(1);
+      expect(checkAnswer().answerState.responses.RESPONSE[0][0]).toBe('C');
     });
   });
 
@@ -867,7 +889,7 @@ describe('Review mode', () => {
   it('still shows the restored answer', () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml, {
       interactive: false,
-      answerState: { RESPONSE: [['C', 'R']] },
+      answerState: { responses: { RESPONSE: [['C', 'R']] } },
     });
 
     expect(within(container).getByLabelText(rowLabel$({ source: 'Capulet' }))).toHaveTextContent(

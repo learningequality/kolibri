@@ -261,7 +261,11 @@
 
       provide(
         'answerState',
-        computed(() => answerState.value || {}),
+        computed(() => {
+          const state = answerState.value || {};
+          // Hints taken before a first check on 0.20 alphas saved responses flat.
+          return 'responses' in state ? state : { ...state, responses: state };
+        }),
       );
       provide(
         'interactive',

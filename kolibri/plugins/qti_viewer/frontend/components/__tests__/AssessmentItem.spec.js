@@ -140,42 +140,40 @@ describe('AssessmentItem', () => {
       const result = checkAnswer();
 
       // Before any response is set, score should be 0 (default)
-      expect(result.answerState).toBeDefined();
-      expect(result).toHaveProperty('outcomes');
-      expect(result.outcomes.SCORE).toBe(0);
+      expect(result.answerState.outcomes.SCORE).toBe(0);
     });
 
     it('should score correct response as 1 with match_correct template', async () => {
       // Inject the correct answer via answerState
-      const answerState = { RESPONSE: 'choice_a' };
+      const answerState = { responses: { RESPONSE: 'choice_a' } };
       const { checkAnswer } = await renderAssessmentItem(MATCH_CORRECT_XML, { answerState });
       const result = checkAnswer();
-      expect(result.outcomes.SCORE).toBe(1);
+      expect(result.answerState.outcomes.SCORE).toBe(1);
       expect(result.correct).toBe(1);
     });
 
     it('should score incorrect response as 0 with match_correct template', async () => {
-      const answerState = { RESPONSE: 'choice_b' };
+      const answerState = { responses: { RESPONSE: 'choice_b' } };
       const { checkAnswer } = await renderAssessmentItem(MATCH_CORRECT_XML, { answerState });
       const result = checkAnswer();
-      expect(result.outcomes.SCORE).toBe(0);
+      expect(result.answerState.outcomes.SCORE).toBe(0);
       expect(result.correct).toBe(0);
     });
 
     it('should compute mapped scores with map_response template', async () => {
-      const answerState = { RESPONSE: ['choice_a', 'choice_b'] };
+      const answerState = { responses: { RESPONSE: ['choice_a', 'choice_b'] } };
       const { checkAnswer } = await renderAssessmentItem(MAP_RESPONSE_XML, { answerState });
       const result = checkAnswer();
       // choice_a=1, choice_b=2, total=3, lower bound=0
-      expect(result.outcomes.SCORE).toBe(3);
+      expect(result.answerState.outcomes.SCORE).toBe(3);
     });
 
     it('should apply lower bound with map_response template', async () => {
       // choice_d=-1 in the fixture; with lower-bound=0, the score clamps to 0.
-      const answerState = { RESPONSE: ['choice_d'] };
+      const answerState = { responses: { RESPONSE: ['choice_d'] } };
       const { checkAnswer } = await renderAssessmentItem(MAP_RESPONSE_XML, { answerState });
       const result = checkAnswer();
-      expect(result.outcomes.SCORE).toBe(0);
+      expect(result.answerState.outcomes.SCORE).toBe(0);
     });
   });
 
@@ -229,7 +227,7 @@ describe('AssessmentItem', () => {
           <qti-set-outcome-value identifier="SCORE">${op('map-response', { identifier: 'RESPONSE' })}</qti-set-outcome-value>
         </qti-response-processing>`,
       );
-      const answerState = { RESPONSE: ['a', 'b', 'c'] };
+      const answerState = { responses: { RESPONSE: ['a', 'b', 'c'] } };
       const { checkAnswer } = await renderAssessmentItem(xml, { answerState });
       expect(checkAnswer().correct).toBe(1);
     });
@@ -237,11 +235,11 @@ describe('AssessmentItem', () => {
 
   describe('answer state', () => {
     it('should include response values in answerState', async () => {
-      const answerState = { RESPONSE: 'choice_a' };
+      const answerState = { responses: { RESPONSE: 'choice_a' } };
       const { checkAnswer } = await renderAssessmentItem(MATCH_CORRECT_XML, { answerState });
 
       const result = checkAnswer();
-      expect(result.answerState.RESPONSE).toBe('choice_a');
+      expect(result.answerState.responses.RESPONSE).toBe('choice_a');
     });
 
     it('should include QTI_CONTEXT in answerState', async () => {
@@ -254,15 +252,19 @@ describe('AssessmentItem', () => {
 
     it('should restore empty string as a valid answer state value', async () => {
       const xml = minimalItemXml('string', '<qti-base-value base-type="float">1</qti-base-value>');
-      const { checkAnswer } = await renderAssessmentItem(xml, { answerState: { RESPONSE: '' } });
+      const { checkAnswer } = await renderAssessmentItem(xml, {
+        answerState: { responses: { RESPONSE: '' } },
+      });
       // Empty string is a valid string response and must not be reset to null.
-      expect(checkAnswer().answerState.RESPONSE).toBe('');
+      expect(checkAnswer().answerState.responses.RESPONSE).toBe('');
     });
 
     it('should restore falsy-but-valid answer state values like integer 0', async () => {
       const xml = minimalItemXml('integer', '<qti-variable identifier="RESPONSE" />');
-      const { checkAnswer } = await renderAssessmentItem(xml, { answerState: { RESPONSE: 0 } });
-      expect(checkAnswer().answerState.RESPONSE).toBe(0);
+      const { checkAnswer } = await renderAssessmentItem(xml, {
+        answerState: { responses: { RESPONSE: 0 } },
+      });
+      expect(checkAnswer().answerState.responses.RESPONSE).toBe(0);
     });
 
     it('should round-trip a schemaless record response (e.g. a custom interaction)', async () => {
@@ -283,9 +285,9 @@ describe('AssessmentItem', () => {
         </qti-assessment-item>`;
       const responseRecord = { correct: true, simpleAnswer: '42', answerState: { widgets: {} } };
       const { checkAnswer } = await renderAssessmentItem(xml, {
-        answerState: { RESPONSE: responseRecord },
+        answerState: { responses: { RESPONSE: responseRecord } },
       });
-      expect(checkAnswer().answerState.RESPONSE).toEqual(responseRecord);
+      expect(checkAnswer().answerState.responses.RESPONSE).toEqual(responseRecord);
     });
   });
 
@@ -304,11 +306,11 @@ describe('AssessmentItem', () => {
       };
 
       const { checkAnswer } = await renderAssessmentItem(itemXml, {
-        answerState: { RESPONSE: 'choice_a' },
+        answerState: { responses: { RESPONSE: 'choice_a' } },
         qtiPackage,
       });
       // Custom template scores 5 for correct answer, not 1 like match_correct
-      expect(checkAnswer().outcomes.SCORE).toBe(5);
+      expect(checkAnswer().answerState.outcomes.SCORE).toBe(5);
     });
   });
 });

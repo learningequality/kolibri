@@ -95,7 +95,7 @@ describe.each(variants)('$label text entry', variant => {
 
     await fireEvent.update(input, variant.typedValue);
     const result = checkAnswer();
-    expect(result.answerState[variant.responseIdentifier]).toEqual(variant.storedValue);
+    expect(result.answerState.responses[variant.responseIdentifier]).toEqual(variant.storedValue);
 
     setAnswerState({});
     await screen.findByRole('textbox');
@@ -108,7 +108,7 @@ describe.each(variants)('$label text entry', variant => {
 
   it('restores value from injected answerState on mount', () => {
     renderAssessmentItem(xml(), {
-      answerState: { [variant.responseIdentifier]: variant.storedValue },
+      answerState: { responses: { [variant.responseIdentifier]: variant.storedValue } },
     });
     expect(screen.getByRole('textbox')).toHaveValue(variant.typedValue);
   });
@@ -125,12 +125,15 @@ describe('Zero value handling (regression)', () => {
   const xml = () => items['amp-07-nextgen'].xml;
 
   it('displays 0 in the editable field rather than falling back to empty', () => {
-    renderAssessmentItem(xml(), { answerState: { RESPONSE: 0 } });
+    renderAssessmentItem(xml(), { answerState: { responses: { RESPONSE: 0 } } });
     expect(screen.getByRole('textbox')).toHaveValue('0');
   });
 
   it('displays 0 in report mode rather than the placeholder', () => {
-    renderAssessmentItem(xml(), { answerState: { RESPONSE: 0 }, interactive: false });
+    renderAssessmentItem(xml(), {
+      answerState: { responses: { RESPONSE: 0 } },
+      interactive: false,
+    });
     expect(screen.getByText('0', { selector: '.qti-text-entry-interaction-report' })).toBeVisible();
   });
 });
@@ -150,7 +153,10 @@ describe('Report mode placeholder (regression)', () => {
   });
 
   it('still displays a real response when one was given', () => {
-    renderAssessmentItem(xml(), { answerState: { RESPONSE: typedResponse }, interactive: false });
+    renderAssessmentItem(xml(), {
+      answerState: { responses: { RESPONSE: typedResponse } },
+      interactive: false,
+    });
     expect(
       screen.getByText(typedResponse, { selector: '.qti-text-entry-interaction-report' }),
     ).toBeVisible();
@@ -215,7 +221,7 @@ describe('Pattern mask', () => {
     const input = screen.getByRole('textbox');
     await fireEvent.update(input, '1234567');
     await fireEvent.blur(input);
-    expect(checkAnswer().answerState.RESPONSE).toBe('1234567');
+    expect(checkAnswer().answerState.responses.RESPONSE).toBe('1234567');
   });
 
   // An unparseable mask is an authoring error in the item; it must not break the question.
@@ -331,7 +337,7 @@ describe('Numeric keypad', () => {
     await fireEvent.click(screen.getByRole('button', { name: '3' }));
 
     expect(input).toHaveValue('-3');
-    expect(checkAnswer().answerState.RESPONSE).toEqual(-3);
+    expect(checkAnswer().answerState.responses.RESPONSE).toEqual(-3);
   });
 
   it('backspace removes the character before the caret', async () => {
