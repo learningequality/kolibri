@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils';
 import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 import DraggableUniverse from '../DraggableUniverse.vue';
 import DraggableRegion from '../DraggableRegion.vue';
+import DraggableItem from '../DraggableItem.vue';
+import DragSortWidget from '../DragSortWidget/index.vue';
 import { ITEM_CLASS } from '../classDefinitions';
 
 jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
@@ -157,13 +159,33 @@ describe('DraggableRegion', () => {
     });
 
     it('announces the moved item and its new position', async () => {
-      const { wrapper, options } = await mountRegion();
-      const provided = wrapper.vm._provided;
-      provided.registerSortItem(0, 'First', 1);
-      provided.registerSortItem(1, 'Second', 2);
-      provided.registerSortItem(2, 'Third', 3);
+      // each row's DragSortWidget registers its label with the region
+      const wrapper = mount({
+        components: { DraggableRegion, DraggableItem, DragSortWidget },
+        data() {
+          return { items: ['First', 'Second', 'Third'] };
+        },
+        template: `
+          <DraggableRegion :items="items">
+            <div>
+              <DraggableItem v-for="(label, index) in items" :key="label">
+                <div>
+                  <DragSortWidget
+                    :isFirst="index === 0"
+                    :isLast="index === items.length - 1"
+                    :itemLabel="label"
+                    :position="index + 1"
+                    :total="items.length"
+                  />
+                </div>
+              </DraggableItem>
+            </div>
+          </DraggableRegion>
+        `,
+      });
+      await wrapper.vm.$nextTick();
+      const { options } = mockInstances[mockInstances.length - 1];
       const from = wrapper.element;
-      [row('a'), row('b'), row('c')].forEach(r => from.appendChild(r));
 
       options.onEnd({
         item: from.children[0],
