@@ -80,6 +80,16 @@ def test_prune_with_pattern_only_touches_locale_qualifiers(tmp_path):
     ]
 
 
+def test_prune_with_pattern_removes_unmapped_crowdin_qualifier(tmp_path):
+    res_dir = str(tmp_path)
+    _make_dirs(res_dir, "values", "values-fr-rFR", "values-mos-rMOS")
+
+    removed = prune_locale_dirs(res_dir, {"fr-rFR"}, pattern=ANDROID_LOCALE_QUALIFIER)
+
+    assert removed == ["values-mos-rMOS"]
+    assert sorted(os.listdir(res_dir)) == ["values", "values-fr-rFR"]
+
+
 def test_prune_missing_directory_is_noop(tmp_path):
     assert prune_locale_dirs(os.path.join(str(tmp_path), "nope"), {"en"}) == []
 

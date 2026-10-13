@@ -27,8 +27,10 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # (values-night, values-v21, values-sw600dp) alone. `car` and `tv` are the UI-mode
 # qualifiers short enough to also be shaped like a language code (both are real ISO 639
 # codes), so they are denied outright: in a res/ directory they are never a locale.
+# A language missing from crowdin.yml's mapping arrives under Crowdin's own code, whose
+# region need not be the two letters Android accepts (`mos-rMOS`).
 ANDROID_LOCALE_QUALIFIER = re.compile(
-    r"^values-(?!(?:car|tv)$)(b\+[a-z]{2,3}(?:\+[A-Za-z0-9]+)*|[a-z]{2,3}(?:-r[A-Z]{2})?)$"
+    r"^values-(?!(?:car|tv)$)(b\+[a-z]{2,3}(?:\+[A-Za-z0-9]+)*|[a-z]{2,3}(?:-r[A-Za-z0-9]+)?)$"
 )
 
 # Non-hidden build output that recursive discovery would otherwise walk into: p4a
