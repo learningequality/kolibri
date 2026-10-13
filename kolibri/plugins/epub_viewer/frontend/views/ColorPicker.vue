@@ -84,13 +84,16 @@
       },
     },
   };
+
 </script>
 
 
 <style lang="scss" scoped>
+
   .picker-box {
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
 </style>
