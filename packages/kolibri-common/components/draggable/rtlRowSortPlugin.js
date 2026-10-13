@@ -17,36 +17,55 @@ function RtlRowSort() {
 
 RtlRowSort.pluginName = 'rtlRowSort';
 
-// The visible item next to `item` in the given direction, skipping the mirror that
-// follows the pointer and any hidden clone, as SortableJS does.
-function neighbourItem(item, { draggable }, mirror, forward) {
+// Whether `el` is a visible list item: not the mirror that follows the pointer, and
+// not a hidden clone, as SortableJS counts them.
+function isItem(el, { draggable }, mirror) {
+  return el !== mirror && el.style.display !== 'none' && el.matches(draggable);
+}
+
+// The item next to `item` in the given direction.
+function neighbourItem(item, options, mirror, forward) {
   let sibling = item;
   do {
     sibling = forward ? sibling.nextElementSibling : sibling.previousElementSibling;
-  } while (
-    sibling &&
-    (sibling === mirror || sibling.style.display === 'none' || !sibling.matches(draggable))
-  );
+  } while (sibling && !isItem(sibling, options, mirror));
   return sibling;
+}
+
+function lastItem(list, options, mirror) {
+  let item = list.lastElementChild;
+  while (item && !isItem(item, options, mirror)) {
+    item = item.previousElementSibling;
+  }
+  return item;
 }
 
 // Moves the dragged item beside the item under the pointer, if it isn't there
 // already. Returns whether it moved.
 function placeBesideTarget({ sortable, dragEl, ghostEl, target, originalEvent, onMove, changed }) {
   const list = sortable.el;
-  // over the list but not over another item: leave the item where it is
-  if (target.parentNode !== list) {
-    return false;
+  const { clientX, clientY } = originalEvent;
+  let anchor = target;
+  let after = true;
+  if (target.parentNode === list) {
+    const { left, width } = target.getBoundingClientRect();
+    // the end of an RTL row is to the left
+    after = clientX < left + width / 2;
+    if (neighbourItem(dragEl, sortable.options, ghostEl, !after) === target) {
+      return false;
+    }
+  } else {
+    anchor = lastItem(list, sortable.options, ghostEl);
+    const { left, top } = anchor.getBoundingClientRect();
+    if (anchor === dragEl || clientX >= left || clientY < top) {
+      return false;
+    }
   }
-  const { left, width } = target.getBoundingClientRect();
-  // the end of an RTL row is to the left
-  const after = originalEvent.clientX < left + width / 2;
-  const alreadyPlaced = neighbourItem(dragEl, sortable.options, ghostEl, !after) === target;
-  if (alreadyPlaced || onMove(target, after) === false) {
+  if (onMove(anchor, after) === false) {
     return false;
   }
   sortable.captureAnimationState();
-  list.insertBefore(dragEl, after ? target.nextSibling : target);
+  list.insertBefore(dragEl, after ? anchor.nextSibling : anchor);
   changed();
   return true;
 }

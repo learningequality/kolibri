@@ -12,6 +12,9 @@ jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
 // single row of fixed-size slots, in DOM order for LTR and reversed for RTL.
 const SLOT_WIDTH = 100;
 const SLOT_HEIGHT = 40;
+// one slot wider than its three items, so there is empty space after the last item,
+// as at the end of a wrapped row
+const ROW_WIDTH = 4 * SLOT_WIDTH;
 
 const RowList = {
   name: 'RowList',
@@ -64,20 +67,22 @@ function layOutRow(list, direction) {
   jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
     const slots = slotsOf(list);
     if (this === list) {
-      return { ...rectAt(0), right: slots.length * SLOT_WIDTH, width: slots.length * SLOT_WIDTH };
+      return { ...rectAt(0), right: ROW_WIDTH, width: ROW_WIDTH };
     }
     const index = slots.indexOf(this.closest(`.${ITEM_CLASS}`));
     if (index === -1) {
       return rectAt(-1000);
     }
-    const slot = direction === 'rtl' ? slots.length - 1 - index : index;
-    return rectAt(slot * SLOT_WIDTH);
+    // an RTL row starts at the right
+    return rectAt(direction === 'rtl' ? ROW_WIDTH - (index + 1) * SLOT_WIDTH : index * SLOT_WIDTH);
   });
+  const contains = (el, x, y) => {
+    const { left, right, top, bottom } = el.getBoundingClientRect();
+    return x >= left && x < right && y >= top && y < bottom;
+  };
   document.elementFromPoint = (x, y) =>
-    slotsOf(list).find(slot => {
-      const { left, right, top, bottom } = slot.getBoundingClientRect();
-      return x >= left && x < right && y >= top && y < bottom;
-    }) || document.body;
+    slotsOf(list).find(slot => contains(slot, x, y)) ||
+    (contains(list, x, y) ? list : document.body);
 }
 
 function centreOf(el) {
@@ -168,6 +173,14 @@ describe('DraggableRegion in a horizontal row', () => {
     it('moves the first item to the end', async () => {
       renderRow(direction);
       drag('a', 'c');
+      await Promise.resolve();
+      expect(renderedOrder()).toEqual(['b', 'c', 'a']);
+    });
+
+    it('moves an item to the end when dropped in the empty space after the last item', async () => {
+      renderRow(direction);
+      // one slot past the last item, toward the end of the row
+      dragTo('a', offsetFromCentre('c', direction === 'rtl' ? -SLOT_WIDTH : SLOT_WIDTH));
       await Promise.resolve();
       expect(renderedOrder()).toEqual(['b', 'c', 'a']);
     });
