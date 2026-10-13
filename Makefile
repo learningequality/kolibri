@@ -324,6 +324,11 @@ i18n-download-translations: i18n-extract-frontend
 		echo "Creating message files for $$module"; \
 		pnpm exec kolibri-i18n create-message-files --plugins $$module --ignore '**/node_modules/!(kolibri-common)/**','**/static/**' || exit 1; \
 	done
+	# prek exits non-zero when it fixes a file, so the second run confirms nothing is left.
+	@files=$$(git ls-files -mo --exclude-standard); \
+	if [ -n "$$files" ]; then \
+		uv run --group dev prek run --files $$files || uv run --group dev prek run --files $$files; \
+	fi
 
 i18n-download-source-fonts:
 	uv run --script build_tools/i18n/fonts.py download-source-fonts
