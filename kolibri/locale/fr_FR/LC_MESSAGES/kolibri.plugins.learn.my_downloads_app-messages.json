@@ -7,7 +7,6 @@
   "CommonLearnStrings.classesAndAssignmentsLabel": "Classes et devoirs",
   "CommonLearnStrings.completedPercentLabel": "Score : {score, number, integer}%",
   "CommonLearnStrings.copyrightHolder": "Titulaire des droits d'auteur",
-  "CommonLearnStrings.documentTitle": "{ contentTitle } - { channelTitle }",
   "CommonLearnStrings.dontShowThisAgainLabel": "Ne plus afficher ceci",
   "CommonLearnStrings.estimatedTime": "Temps estimé",
   "CommonLearnStrings.exploreLibraries": "Explorer les bibliothèques",

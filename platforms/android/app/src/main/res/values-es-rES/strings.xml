@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Tarea iniciada…</string>
+    <string name="notification_service_channel_title">Tareas importantes se están ejecutando</string>
+    <string name="notification_service_channel_content">Iniciado</string>
+    <string name="notification_service_channel_action">Ver el gestor de tareas</string>
+    <string name="notification_default_channel_title">Tareas</string>
+    <string name="notification_task_title">Tarea de Kolibri se está ejecutando</string>
+    <string name="notification_task_text">Procesando tarea en segundo plano…</string>
+    <string name="notification_download_complete_title">Descarga completa</string>
+    <string name="notification_download_failed_title">Error al descargar</string>
+    <string name="toast_download_started">Descargando \'%1$s\'…</string>
+    <string name="toast_download_complete">Guardado %1$s en descargas</string>
+    <string name="toast_download_failed">No se ha podido descargar %1$s</string>
+    <string name="os_user_name">Estudiante</string>
+</resources>

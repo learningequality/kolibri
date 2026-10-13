@@ -7,7 +7,6 @@
   "CommonLearnStrings.classesAndAssignmentsLabel": "수업 및 과제물",
   "CommonLearnStrings.completedPercentLabel": "점수: {score, number, integer}%",
   "CommonLearnStrings.copyrightHolder": "저작권 보유자",
-  "CommonLearnStrings.documentTitle": "{ contentTitle } - { channelTitle }",
   "CommonLearnStrings.dontShowThisAgainLabel": "다시 표시하지 않음",
   "CommonLearnStrings.estimatedTime": "예상 시간",
   "CommonLearnStrings.exploreLibraries": "라이브러리 검색하기",

@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-09 16:46-0700\n"
+"PO-Revision-Date: 2026-10-09 20:49\n"
+"Last-Translator: \n"
+"Language-Team: Portuguese, Mozambican\n"
+"Language: pt_MZ\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
+"X-Crowdin-Language: pt-mz\n"
+"X-Crowdin-File: /release/optional_plugins/kolibri_oidc_client_plugin.django.po\n"
+"X-Crowdin-File-ID: 5225\n"
+
+#: kolibri_plugin.py:20
+msgid "Sign in with OpenID Connect"
+msgstr ""
+

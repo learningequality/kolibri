@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Ẹ̀rọ",
-  "CommonDeviceStrings.emptyTasksMessage": "Ko si ise nibi",
-  "CommonDeviceStrings.newChannelLabel": "Tuntun",
-  "CommonDeviceStrings.newEnabledPluginsState": "Nígbà tí o ò bà tẹ àmì ojú ewé kan, yóò dí àìfojúrí fún àwọn aṣàmúlò mìíràn bí wọ́n bá tilẹ̀ ní ààyè láti wọlé sínú rẹ̀",
-  "CommonDeviceStrings.newResourceLabel": "Tuntun",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ayè tó wà lórí ohun-èlò kò pọ̀. E yonda àyè tàbí kí e yàn ohun èlò níwọ̀nba",
-  "CommonDeviceStrings.permissionsLabel": "Awọn igbanilaaye",
-  "CommonDeviceStrings.primaryStorageLabel": "Àwọn orísun ìgbàsílẹ̀ tuntun ni yóò jẹ́ àfikún sí ipo ibi ìpamọ́ àkọ́kọ́",
-  "CommonDeviceStrings.statusCanceled": "Mu kuro",
-  "CommonDeviceStrings.statusCanceling": "N fagilé e",
-  "CommonDeviceStrings.statusComplete": "O parí",
-  "CommonDeviceStrings.statusFailed": "Ti kùnà",
-  "CommonDeviceStrings.statusInProgress": "Ń tẹ̀síwájú",
-  "CommonDeviceStrings.statusInQueue": "N Iduro",
-  "CommonDeviceStrings.unlistedChannelLabel": "Awọn ọ̀nà tí kò sí lákọọ́lẹ̀"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Àwọn ìkànnì",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Ẹ̀rọ",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Àwọn ohun-èlò ",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Àlàyé",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Awọn igbanilaaye",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Àwọn ààtò",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Àwọn olùṣàmúlò"
 }

@@ -7,7 +7,6 @@
   "CommonLearnStrings.classesAndAssignmentsLabel": "Classes and assignments",
   "CommonLearnStrings.completedPercentLabel": "Score: {score, number, integer}%",
   "CommonLearnStrings.copyrightHolder": "Copyright holder",
-  "CommonLearnStrings.documentTitle": "{ contentTitle } - { channelTitle }",
   "CommonLearnStrings.dontShowThisAgainLabel": "Don't show this again",
   "CommonLearnStrings.estimatedTime": "Estimated time",
   "CommonLearnStrings.exploreLibraries": "Explore libraries",

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">작업 시작중..</string>
+    <string name="notification_service_channel_content">진행 중</string>
+    <string name="notification_service_channel_action">작업 관리자 보기</string>
+    <string name="notification_default_channel_title">작업</string>
+    <string name="notification_download_complete_title">다운로드 완료</string>
+    <string name="os_user_name">학생</string>
+</resources>

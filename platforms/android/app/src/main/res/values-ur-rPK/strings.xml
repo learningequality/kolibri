@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">کولیبری</string>
+    <string name="notification_channel_ticker">ٹاسک شروع ہو گیا…</string>
+    <string name="notification_service_channel_content">کام ترقی میں ہے</string>
+    <string name="notification_service_channel_action">ٹاسک مینیجر دیکھیں</string>
+    <string name="notification_default_channel_title">ٹاسک</string>
+    <string name="notification_download_complete_title">ڈاؤن لوڈ مکمل</string>
+    <string name="os_user_name">طالب</string>
+</resources>

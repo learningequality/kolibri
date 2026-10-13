@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Dispositivo",
-  "CommonDeviceStrings.emptyTasksMessage": "Non ci sono attività da visualizzare",
-  "CommonDeviceStrings.newChannelLabel": "Nuovo",
-  "CommonDeviceStrings.newEnabledPluginsState": "Quando deselezioni una pagina, questa diventerà invisibile agli utenti anche se dispongono dell'autorizzazione per accedervi.",
-  "CommonDeviceStrings.newResourceLabel": "Nuovo",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Spazio insufficiente disponibile sul dispositivo. Liberare spazio su disco o selezionare meno risorse",
-  "CommonDeviceStrings.permissionsLabel": "Autorizzazioni",
-  "CommonDeviceStrings.primaryStorageLabel": "Le risorse appena scaricate verranno aggiunte alla posizione di archiviazione principale",
-  "CommonDeviceStrings.statusCanceled": "Annullato",
-  "CommonDeviceStrings.statusCanceling": "Annullando",
-  "CommonDeviceStrings.statusComplete": "Completata",
-  "CommonDeviceStrings.statusFailed": "Non riuscito",
-  "CommonDeviceStrings.statusInProgress": "In corso",
-  "CommonDeviceStrings.statusInQueue": "Aspettando",
-  "CommonDeviceStrings.unlistedChannelLabel": "Canale privato"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Canali",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Dispositivo",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Strutture",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Informazioni",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Autorizzazioni",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Impostazioni",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Utenti"
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">कोलिब्री</string>
+    <string name="notification_channel_ticker">कार्य सुरु झाले…</string>
+    <string name="notification_service_channel_content">चालू आहे</string>
+    <string name="notification_service_channel_action">टास्क मॅनेजर पहा</string>
+    <string name="notification_default_channel_title">कार्ये</string>
+    <string name="notification_download_complete_title">डाउनलोड पूर्ण झाले</string>
+    <string name="os_user_name">विद्यार्थी</string>
+</resources>

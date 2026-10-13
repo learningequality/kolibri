@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">టాస్క్ ప్రారంభమైంది…</string>
+    <string name="notification_service_channel_content">పురోగతిలో ఉన్న</string>
+    <string name="notification_service_channel_action">టాస్క్ మేనేజర్‌ని వీక్షించు</string>
+    <string name="notification_default_channel_title">టాస్క్‌లు</string>
+    <string name="notification_download_complete_title">డౌన్‌లోడ్ పూర్తయింది</string>
+    <string name="os_user_name">నేర్చుకునేవాళ్లు</string>
+</resources>

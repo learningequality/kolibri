@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Ntchito iyi yayambika…</string>
+    <string name="notification_service_channel_content">Ali mkati</string>
+    <string name="notification_service_channel_action">Onani mndanda wa zomwe kompyuta yanu ikuchita</string>
+    <string name="notification_default_channel_title">Zochitika</string>
+    <string name="notification_download_complete_title">Yamaliza kupanga dawunilodi</string>
+    <string name="os_user_name">Wophunzira</string>
+</resources>
