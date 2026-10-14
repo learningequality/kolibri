@@ -441,11 +441,6 @@
     border-radius: 4px;
   }
 
-  .qti-text-entry-interaction:focus {
-    outline: 3px solid var(--tokens-focusOutline);
-    outline-offset: 4px;
-  }
-
   /* Sits beside the field rather than under it, so showing it cannot reflow the sentence. */
   .qti-text-entry-interaction-error {
     display: inline-flex;

@@ -4,6 +4,7 @@
     class="qti-simple-choice"
     role="option"
     tabindex="0"
+    data-focus="true"
     :aria-selected="String(selected)"
     :style="[extraStyles]"
     @click="handleClick"
@@ -86,11 +87,6 @@
 
     &::marker {
       content: '';
-    }
-
-    &:focus {
-      outline: 3px solid var(--tokens-focusOutline);
-      outline-offset: 4px;
     }
 
     &::before {

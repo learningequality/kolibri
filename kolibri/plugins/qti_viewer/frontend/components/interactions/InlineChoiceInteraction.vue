@@ -220,11 +220,6 @@
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease;
-
-    &:focus {
-      outline: 3px solid var(--tokens-focusOutline);
-      outline-offset: 4px;
-    }
   }
 
   .qti-inline-choice-answered {

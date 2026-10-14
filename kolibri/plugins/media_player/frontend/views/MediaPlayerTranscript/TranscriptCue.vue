@@ -164,11 +164,6 @@
       background-color: var(--palette-grey-v300);
     }
 
-    &:focus-visible {
-      outline: 3px solid var(--tokens-focusOutline);
-      outline-offset: 4px;
-    }
-
     .transcript-cue-time,
     .transcript-cue-text {
       display: inline-block;
