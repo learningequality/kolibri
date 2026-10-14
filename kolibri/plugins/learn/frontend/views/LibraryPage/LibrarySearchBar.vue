@@ -2,6 +2,7 @@
 
   <form
     class="library-search-bar"
+    role="search"
     @submit.prevent="handleSubmit"
   >
     <div
@@ -18,6 +19,7 @@
       <input
         :id="inputId"
         ref="searchInput"
+        data-skip-nav-target
         :value="keywordsInput"
         type="search"
         :class="['search-input', $computedClass(placeholderStyle)]"
@@ -136,6 +138,7 @@
         clearKeywords,
         selectFilterSuggestion,
         selectFilterCombination,
+        displayingSearchResults,
       } = injectBaseSearch();
       const { recentSearches, addSearch } = useRecentSearches(currentUserId);
       const { resumableContentNodes } = useLearnerResources();
@@ -223,6 +226,18 @@
       watch(announceableCount, count => {
         if (count > 0) {
           sendPoliteMessage(autocompleteResultsAvailable$({ count }));
+        }
+      });
+
+      // Keep user in search area after the last filter is cleared
+      // so they don't get lost. Only when focus was actually lost, so a
+      // pill that keeps its own focus isn't overridden.
+      watch(displayingSearchResults, (isSearching, wasSearching) => {
+        if (wasSearching && !isSearching && document.activeElement === document.body) {
+          const el = get(searchInput);
+          if (el) {
+            el.focus();
+          }
         }
       });
 

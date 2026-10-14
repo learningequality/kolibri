@@ -1,89 +1,98 @@
 <template>
 
-  <div class="filter-pills">
-    <KButton
-      v-for="(entry, index) in entries"
-      :key="`${entry.type}-${index}`"
-      :data-testid="`${entry.type}-pill`"
-      :text="entry.label"
-      appearance="flat-button"
-      class="pill"
-      :appearanceOverrides="pillOverridesFor(entry)"
-      :disabled="loading"
-      @click="toggleFilter({ key: entry.termKey, value: entry.value })"
-    >
-      <template
-        v-if="entry.icon"
-        #icon
+  <fieldset class="filters-fieldset">
+    <legend class="visuallyhidden">{{ filtersGroupLabel$() }}</legend>
+    <div class="filter-pills">
+      <label
+        v-for="entry in entries"
+        :key="entryId(entry)"
+        :data-testid="`${entry.type}-pill`"
+        class="pill"
+        :class="{ loading }"
+        :style="[
+          pillColorStyleFor(entry),
+          focusedEntryId === entryId(entry) && { ...$coreOutline, outlineOffset: 0 },
+        ]"
       >
+        <input
+          type="checkbox"
+          class="visuallyhidden"
+          :checked="isFilterActive(entry.termKey, entry.value)"
+          :aria-disabled="loading"
+          @click="guardClick"
+          @change="handleToggle(entry, $event)"
+          @focus="focusedEntryId = entryId(entry)"
+          @blur="handleBlur"
+        >
         <KIcon
+          v-if="entry.icon"
           :icon="entry.icon"
           :color="entry.type === 'activity' ? null : $themeTokens.primary"
           class="pill-icon"
         />
-      </template>
-      <template
-        v-if="iconAfterFor(entry)"
-        #iconAfter
-      >
+        <span
+          dir="auto"
+          class="pill-label"
+        >{{ entry.label }}</span>
         <KIcon
+          v-if="iconAfterFor(entry)"
           :icon="iconAfterFor(entry)"
           class="pill-icon-after"
         />
-      </template>
-    </KButton>
-    <span
-      v-if="hasAvailableLabels"
-      class="all-filters-group"
-    >
+      </label>
       <span
-        class="pill-divider"
-        :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
-      ></span>
-      <KButton
-        data-testid="all-filters-pill"
-        :text="allFilters$()"
-        appearance="flat-button"
-        class="pill"
-        :appearanceOverrides="pillOverridesFor({})"
-        :disabled="loading"
-        @click="$emit('openFilters')"
+        v-if="hasAvailableLabels"
+        class="all-filters-group"
       >
-        <template #icon>
-          <KIcon
-            icon="filter"
-            class="pill-icon"
-          />
-        </template>
-        <template #iconAfter>
-          <KIcon
-            :icon="isRtl ? 'chevronLeft' : 'chevronRight'"
-            class="pill-icon-after"
-          />
-        </template>
-      </KButton>
-    </span>
-    <KButton
-      v-if="hasActiveFilters"
-      data-testid="clear-all"
-      :text="clearAllAction$()"
-      appearance="flat-button"
-      icon="close"
-      class="clear-all"
-      :disabled="loading"
-      @click="clearSearch"
-    />
-  </div>
+        <span
+          class="pill-divider"
+          :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
+        ></span>
+        <KButton
+          data-testid="all-filters-pill"
+          :text="allFilters$()"
+          appearance="flat-button"
+          class="pill"
+          :appearanceOverrides="pillColorStyleFor({})"
+          :disabled="loading"
+          @click="$emit('openFilters')"
+        >
+          <template #icon>
+            <KIcon
+              icon="filter"
+              class="pill-icon"
+            />
+          </template>
+          <template #iconAfter>
+            <KIcon
+              :icon="isRtl ? 'chevronLeft' : 'chevronRight'"
+              class="pill-icon-after"
+            />
+          </template>
+        </KButton>
+      </span>
+      <KButton
+        v-if="hasActiveFilters"
+        data-testid="clear-all"
+        :text="clearAllAction$()"
+        appearance="flat-button"
+        icon="close"
+        class="clear-all"
+        :disabled="loading"
+        @click="clearSearch"
+      />
+    </div>
+  </fieldset>
 
 </template>
 
 
 <script>
 
-  import { computed } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { get } from '@vueuse/core';
   import { CategoriesLookup } from 'kolibri/constants';
-  import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { injectBaseSearch, searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import { getCategoryIcon } from 'kolibri-common/utils/categoryIcon';
@@ -95,10 +104,10 @@
       const {
         availableLearningActivities,
         availableLibraryCategories,
-        availableLanguages,
         appliedFilters,
         isFilterActive,
         isLabelAvailable,
+        labelForFilter,
         toggleFilter,
         clearSearch,
         searchLoading,
@@ -129,10 +138,10 @@
         ),
       );
 
-      // Decorate a {termKey, value} pair with the label and icon for its pill
       function entryFor(termKey, value) {
+        const label = labelForFilter(termKey, value);
         if (termKey === 'keywords') {
-          return { type: 'keyword', termKey, value, label: value, icon: null };
+          return { type: 'keyword', termKey, value, label, icon: null };
         }
         if (termKey === 'learning_activities') {
           const key = get(activityKeyByValue)[value];
@@ -140,7 +149,7 @@
             type: 'activity',
             termKey,
             value,
-            label: key ? coreString(key) : value,
+            label,
             icon: key ? getLearningActivityIcon(key) : null,
           };
         }
@@ -152,23 +161,14 @@
             type: 'category',
             termKey,
             value,
-            label: key ? coreString(key) : value,
+            label,
             icon: key ? getCategoryIcon(key) : null,
           };
         }
         if (termKey === 'languages') {
-          // Language values are codes (e.g. 'en'), which aren't in coreString's
-          // metadata lookup — resolve the human-readable name from the catalog.
-          const lang = (get(availableLanguages) || []).find(l => l.id === value);
-          return {
-            type: 'language',
-            termKey,
-            value,
-            label: lang ? lang.lang_name : value,
-            icon: null,
-          };
+          return { type: 'language', termKey, value, label, icon: null };
         }
-        return { type: termKey, termKey, value, label: coreString(value), icon: null };
+        return { type: termKey, termKey, value, label, icon: null };
       }
 
       // Applied filters first, then still-yieldable catalog refinements,
@@ -196,8 +196,56 @@
         return isFilterActive(entry.termKey, entry.value) ? 'close' : null;
       }
 
-      // Only theme-dependent styling lives here; layout is in the style block
-      function pillOverridesFor(entry) {
+      // don't let keyboard loose focus mid-search.
+      function guardClick(event) {
+        if (get(searchLoading)) {
+          event.preventDefault();
+        }
+      }
+
+      function entryId(entry) {
+        return `${entry.termKey}:${entry.value}`;
+      }
+
+      // Tracked by hand rather than with `:focus-within`, which is below the
+      // browser floor, to show the outline on the visually hidden checkbox's pill
+      const focusedEntryId = ref(null);
+
+      // Use click's default action so that the checkbox's state is
+      // accurately read out with the screenreader.
+      // Managing via js causes lags.
+      function handleToggle(entry, event) {
+        toggleFilter({ key: entry.termKey, value: entry.value });
+        toggledCheckbox = event.target;
+      }
+
+      // Entries are keyed by identity, so the same input survives the reorder
+      // that toggling causes, but moving it in the DOM drops its focus. The
+      // reorder lands only once the route updates, so reclaim focus after each
+      // re-render until the search settles, unless the user has moved on.
+      let toggledCheckbox = null;
+      watch(
+        [entries, searchLoading],
+        ([, loading]) => {
+          if (toggledCheckbox && document.activeElement === document.body) {
+            toggledCheckbox.focus();
+          }
+          if (!loading) {
+            toggledCheckbox = null;
+          }
+        },
+        { flush: 'post' },
+      );
+
+      function handleBlur(event) {
+        focusedEntryId.value = null;
+        // A blur with somewhere to go is the user moving on, not a reorder
+        if (event.relatedTarget) {
+          toggledCheckbox = null;
+        }
+      }
+
+      function pillColorStyleFor(entry) {
         if (isFilterActive(entry.termKey, entry.value)) {
           return {
             backgroundColor: 'var(--brand-primary-v100)',
@@ -215,19 +263,25 @@
         };
       }
 
-      const { allFilters$ } = searchAndFilterStrings;
+      const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
       const { clearAllAction$ } = coreStrings;
 
       return {
         entries,
         hasActiveFilters,
         hasAvailableLabels,
+        isFilterActive,
         iconAfterFor,
-        pillOverridesFor,
-        toggleFilter,
+        pillColorStyleFor,
+        entryId,
+        focusedEntryId,
+        guardClick,
+        handleToggle,
+        handleBlur,
         clearSearch,
         loading: searchLoading,
         allFilters$,
+        filtersGroupLabel$,
         clearAllAction$,
       };
     },
@@ -237,6 +291,15 @@
 
 
 <style lang="scss" scoped>
+
+  // Strip the fieldset's default border/padding/min-width. The div inside it is
+  // the flex container, since older browsers can't lay out a fieldset as flex.
+  .filters-fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
 
   .filter-pills {
     display: flex;
@@ -248,14 +311,38 @@
   .filter-pills .pill {
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
     height: auto;
     min-height: 0;
     padding: 8px;
+    overflow: hidden;
     font-size: 16px;
     line-height: 1;
     text-transform: none;
     white-space: nowrap;
+    user-select: none;
     border-radius: 24px;
+    transition: background-color 0.2s ease;
+  }
+
+  .pill-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .filter-pills .pill:hover:not(.loading) {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .filter-pills .pill:not(.loading) {
+    cursor: pointer;
+  }
+
+  .filter-pills .pill.loading {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
   }
 
   // Keep the divider attached to the All filters pill when the row wraps
@@ -280,12 +367,15 @@
   // the icon props — not the slots we use here — so add the gap ourselves.
   // `.icon-container` (the leading-icon wrapper) also carries `top: 4px` to
   // centre icons in the default 36px button; our slim pill needs it pulled back.
+  // Icons keep their size; a long label truncates instead
   .pill-icon {
     top: -2px;
+    flex-shrink: 0;
     margin-right: 8px;
   }
 
   .pill-icon-after {
+    flex-shrink: 0;
     margin-left: 8px;
   }
 

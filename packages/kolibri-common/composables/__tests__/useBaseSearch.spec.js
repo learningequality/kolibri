@@ -6,12 +6,22 @@ import { ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { useRoute, useRouter } from 'vue-router/composables'; // eslint-disable-line
 import Modalities from 'kolibri-constants/Modalities';
+import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 import useBaseSearch, { injectBaseSearch } from '../useBaseSearch';
+
+const mockSendPoliteMessage = jest.fn();
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('vue-router/composables', () => ({
   useRoute: jest.fn(),
   useRouter: jest.fn(),
+}));
+jest.mock('kolibri-design-system/lib/composables/useKLiveRegion', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    sendPoliteMessage: mockSendPoliteMessage,
+    sendAssertiveMessage: jest.fn(),
+  })),
 }));
 
 const name = 'not important';
@@ -30,7 +40,7 @@ function prep(query = {}, descendant = null, filters = null) {
 
 // injectBaseSearch's helpers are provide-only, so drive them from a child of
 // a component that called useBaseSearch, with a router that updates the route.
-function mountSearch() {
+function mountSearch(options = {}) {
   const mockRoute = Vue.observable({ query: {}, name });
   const mockRouter = {
     push: jest.fn(next => {
@@ -49,7 +59,7 @@ function mountSearch() {
   });
   const Parent = defineComponent({
     setup() {
-      useBaseSearch({});
+      useBaseSearch(options);
       return () => h(Child);
     },
   });
@@ -630,6 +640,96 @@ describe(`useBaseSearch`, () => {
       unmount();
       jest.advanceTimersByTime(300);
       expect(ContentNodeResource.list).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('screen reader announcements', () => {
+    const { filterToggledResultsCount$, filterToggledOverResultsCount$ } = searchAndFilterStrings;
+
+    beforeEach(() => {
+      mockSendPoliteMessage.mockClear();
+    });
+
+    it('announces the result count and the keyword itself', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({
+          results: [
+            { id: '1', content_id: 'a' },
+            { id: '2', content_id: 'b' },
+          ],
+          labels: {},
+        }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).toHaveBeenCalledWith(
+        filterToggledResultsCount$({ count: 2, filterLabels: 'math' }),
+      );
+    });
+
+    it('announces the result count and active filter labels', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], labels: {} }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
+
+      api.toggleFilter({ key: 'learning_activities', value: LearningActivities.WATCH });
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).toHaveBeenCalledWith(
+        filterToggledResultsCount$({ count: 1, filterLabels: 'Watch' }),
+      );
+    });
+
+    it('announces "over" the count when more results are available than were fetched', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], more: { cursor: 'next' }, labels: {} }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).toHaveBeenCalledWith(
+        filterToggledOverResultsCount$({ count: 1, filterLabels: 'math' }),
+      );
+    });
+
+    it('does not announce unless the caller opts in', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], labels: {} }),
+      );
+      const api = mountSearch().getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).not.toHaveBeenCalled();
+    });
+
+    it('does not announce anything once clearing back to no search at all', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], labels: {} }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+      mockSendPoliteMessage.mockClear();
+
+      api.clearSearch();
+      await nextTick();
+      await nextTick();
+
+      expect(mockSendPoliteMessage).not.toHaveBeenCalled();
     });
   });
 });
