@@ -25,13 +25,13 @@ export default function useLearningActivities(contentNode) {
   };
 
   const _LearningActivityToIconMap = {
-    [LearningActivities.CREATE]: 'createSolid',
-    [LearningActivities.LISTEN]: 'listenSolid',
-    [LearningActivities.REFLECT]: 'reflectSolid',
-    [LearningActivities.PRACTICE]: 'practiceSolid',
-    [LearningActivities.READ]: 'readSolid',
-    [LearningActivities.WATCH]: 'watchSolid',
-    [LearningActivities.EXPLORE]: 'interactSolid',
+    [LearningActivities.CREATE]: 'create',
+    [LearningActivities.LISTEN]: 'listen',
+    [LearningActivities.REFLECT]: 'reflect',
+    [LearningActivities.PRACTICE]: 'practice',
+    [LearningActivities.READ]: 'read',
+    [LearningActivities.WATCH]: 'watch',
+    [LearningActivities.EXPLORE]: 'interact',
   };
 
   /**
@@ -167,10 +167,15 @@ export default function useLearningActivities(contentNode) {
   /**
    * Look up the icon name for a learning activity constant.
    * @param {string} learningActivity - A learning activity constant.
-   * @returns {string} An icon name for the learning activity.
+   * @param {boolean} [shaded=false] - Return the shaded icon instead of the solid one.
+   * @returns {string|undefined} An icon name for the learning activity.
    */
-  function getLearningActivityIcon(learningActivity) {
-    return _LearningActivityToIconMap[learningActivity];
+  function getLearningActivityIcon(learningActivity, shaded = false) {
+    const baseName = _LearningActivityToIconMap[learningActivity];
+    if (!baseName) {
+      return undefined;
+    }
+    return `${baseName}${shaded ? 'Shaded' : 'Solid'}`;
   }
 
   return {
