@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils';
 import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 import DraggableUniverse from '../DraggableUniverse.vue';
 import DraggableRegion from '../DraggableRegion.vue';
+import DraggableItem from '../DraggableItem.vue';
+import DragSortWidget from '../DragSortWidget/index.vue';
 import { ITEM_CLASS } from '../classDefinitions';
 
 jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
@@ -11,11 +13,14 @@ jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
 // lifecycle callbacks (onStart / onEnd / group.put) against real jsdom nodes.
 let mockInstances;
 jest.mock('sortablejs', () =>
-  jest.fn().mockImplementation((el, options) => {
-    const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
-    mockInstances.push(instance);
-    return instance;
-  }),
+  Object.assign(
+    jest.fn().mockImplementation((el, options) => {
+      const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
+      mockInstances.push(instance);
+      return instance;
+    }),
+    { mount: jest.fn() },
+  ),
 );
 
 // A row element carrying the draggable marker class, so insertNodeAt has real
@@ -151,6 +156,64 @@ describe('DraggableRegion', () => {
       const emitted = wrapper.emitted('update:items');
       expect(emitted).toHaveLength(1);
       expect(emitted[0][0].map(i => i.id)).toEqual(['b', 'c', 'a']);
+    });
+
+    it('announces the moved item and its new position', async () => {
+      // each row's DragSortWidget registers its label with the region
+      const wrapper = mount({
+        components: { DraggableRegion, DraggableItem, DragSortWidget },
+        data() {
+          return { items: ['First', 'Second', 'Third'] };
+        },
+        template: `
+          <DraggableRegion :items="items">
+            <div>
+              <DraggableItem v-for="(label, index) in items" :key="label">
+                <div>
+                  <DragSortWidget
+                    :isFirst="index === 0"
+                    :isLast="index === items.length - 1"
+                    :itemLabel="label"
+                    :position="index + 1"
+                    :total="items.length"
+                  />
+                </div>
+              </DraggableItem>
+            </div>
+          </DraggableRegion>
+        `,
+      });
+      await wrapper.vm.$nextTick();
+      const { options } = mockInstances[mockInstances.length - 1];
+      const from = wrapper.element;
+
+      options.onEnd({
+        item: from.children[0],
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 2,
+      });
+
+      expect(sendPoliteMessage).toHaveBeenCalledWith('First moved to position 3 of 3');
+    });
+
+    it('does not announce a move when the item has no registered label', async () => {
+      const { wrapper, options } = await mountRegion();
+      const from = wrapper.element;
+      [row('a'), row('b'), row('c')].forEach(r => from.appendChild(r));
+
+      options.onEnd({
+        item: from.children[0],
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 2,
+      });
+
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
     });
 
     it('emits nothing for a no-op drag (same index)', async () => {
