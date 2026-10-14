@@ -10,7 +10,8 @@ from kolibri_app.login_tokens import login_tokens
 
 
 class KolibriApp(KolibriPluginBase):
-    pass
+    # The base class sets this to None, so mypy infers its type as None.
+    kolibri_option_defaults = "options_defaults"  # type: ignore[assignment]
 
 
 @register_hook

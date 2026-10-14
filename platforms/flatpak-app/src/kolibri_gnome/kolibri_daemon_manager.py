@@ -21,9 +21,6 @@ from .utils import GioInputStreamIO
 logger = logging.getLogger(__name__)
 
 
-APP_KEY_COOKIE_NAME = "app_key_cookie"
-AUTH_TOKEN_COOKIE_NAME = "app_auth_token_cookie"
-
 # Not None: a vanished daemon's status reads None, and must not be deduped.
 _UNKNOWN_STATUS = object()
 
@@ -47,7 +44,6 @@ class KolibriDaemonManager(GObject.GObject):
     is_started = GObject.Property(type=bool, default=False)
     has_error = GObject.Property(type=bool, default=False)
     base_url = GObject.Property(type=str, default=None)
-    app_key = GObject.Property(type=str, default=None)
     app_initialize_url = GObject.Property(type=str, default=None)
     is_device_provisioned = GObject.Property(type=bool, default=True)
 
@@ -89,7 +85,6 @@ class KolibriDaemonManager(GObject.GObject):
         self.props.is_started = False
         self.props.has_error = False
         self.props.base_url = None
-        self.props.app_key = None
         self.props.app_initialize_url = None
         self.props.is_device_provisioned = True
 
@@ -276,9 +271,6 @@ class KolibriDaemonManager(GObject.GObject):
     def __dbus_proxy_on_notify(
         self, dbus_proxy: KolibriDaemonDBus.MainProxy, param_spec: GObject.ParamSpec
     ):
-        if self.props.app_key != dbus_proxy.props.app_key:
-            self.props.app_key = dbus_proxy.props.app_key
-
         if self.props.app_initialize_url != dbus_proxy.props.app_initialize_url:
             self.props.app_initialize_url = dbus_proxy.props.app_initialize_url
 

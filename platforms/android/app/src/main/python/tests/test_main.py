@@ -2,6 +2,7 @@
 
 import socket
 from contextlib import contextmanager
+from unittest import mock
 
 import main
 
@@ -36,5 +37,15 @@ def test_resolve_server_port_falls_back_when_the_port_is_taken():
         assert main._resolve_server_port(port) == 0
 
 
-def test_resolve_server_port_leaves_zero_alone():
-    assert main._resolve_server_port(0) == 0
+def test_resolve_server_port_defers_to_options_when_there_is_no_port():
+    assert main._resolve_server_port(0) is None
+    assert main._resolve_server_port(None) is None
+
+
+def test_bus_with_no_port_ends_up_on_the_http_port_option():
+    with (
+        mock.patch.dict(conf.OPTIONS["Deployment"], {"HTTP_PORT": 4321}),
+        mock.patch.object(main.AndroidKolibriProcessBus, "_setup_plugins"),
+    ):
+        bus = main.AndroidKolibriProcessBus(port=main._resolve_server_port(0))
+    assert bus.port == 4321

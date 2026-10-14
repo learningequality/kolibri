@@ -14,8 +14,6 @@ settings_output = exec_statement(
     import json
     from django.conf import settings
     from kolibri.main import initialize
-    from kolibri.main import enable_plugin
-    enable_plugin("kolibri.plugins.app")
     initialize(skip_update=True)
     settings_output = {}
 

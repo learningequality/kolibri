@@ -58,9 +58,9 @@ class TestKolibriDaemonManager(unittest.TestCase):
         self.skeleton.props.status = "STOPPED"
         self.assertTrue(self._iterate_until(lambda: manager.props.has_error))
 
-        self.skeleton.props.app_key = "new-key"
+        self.skeleton.props.app_initialize_url = "/new-url"
 
-        self.assertTrue(self._iterate_until(lambda: manager.props.app_key))
+        self.assertTrue(self._iterate_until(lambda: manager.props.app_initialize_url))
         self.assertTrue(manager.props.has_error)
 
 

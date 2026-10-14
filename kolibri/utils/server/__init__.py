@@ -600,11 +600,6 @@ class ProcessControlPlugin(Monitor):
             if command == RESTART:
                 self.bus.log("Restarting server.")
                 self.thread.cancel()
-                if installation_types.WINDOWS in installation_type().lower():
-                    # On Windows, we need to restart the server with the same executable
-                    # magicbus gets messed up trying to find a python script to run
-                    sys.executable = sys.argv[0]
-                    sys.argv = sys.argv[1:]
                 self.bus.restart()
             elif command == STOP:
                 self.bus.log("Stopping server.")
@@ -708,11 +703,15 @@ class BaseKolibriProcessBus(ProcessBus):
 
     def __init__(
         self,
-        port=0,
-        zip_port=0,
+        port=None,
+        zip_port=None,
         pid_file=PID_FILE,
     ):
         self.pid_file = pid_file
+        if port is None:
+            port = conf.OPTIONS["Deployment"]["HTTP_PORT"]
+        if zip_port is None:
+            zip_port = conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]
         self.port = int(port)
         self.zip_port = int(zip_port)
 
@@ -1167,9 +1166,6 @@ def get_installer_version(installer_type):
     def get_deb_version():
         return get_debian_pkg_version("kolibri")
 
-    def get_apk_version():
-        return os.environ.get("KOLIBRI_APK_VERSION_NAME")
-
     installer_version = os.environ.get("KOLIBRI_INSTALLER_VERSION")
     if installer_version:
         return installer_version
@@ -1177,7 +1173,6 @@ def get_installer_version(installer_type):
     version_funcs = {
         installation_types.DEB: get_deb_version,
         installation_types.KOLIBRI_SERVER: get_deb_kolibriserver_version,
-        installation_types.APK: get_apk_version,
     }
 
     if installer_type in version_funcs:
@@ -1236,12 +1231,6 @@ def installation_type(cmd_line=None):  # noqa:C901
                 package = is_debian_package()
                 if package != "whl":
                     install_type = is_kolibri_server()
-            elif "\\Scripts\\kolibri" in launcher:
-                paths = sys.path
-                for path in paths:
-                    if "kolibri.exe" in path:
-                        install_type = installation_types.WINDOWS
-                        break
             elif "start" in cmd_line:
                 install_type = installation_types.WHL
 

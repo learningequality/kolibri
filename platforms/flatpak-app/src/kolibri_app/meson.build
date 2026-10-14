@@ -3,7 +3,7 @@ python_installation.install_sources(
         'globals.py',
         '__init__.py',
         'kolibri_plugin.py',
-        'kolibri_settings.py',
+        'options_defaults.py',
         'login_tokens.py',
         'utils.py',
     ],
@@ -38,8 +38,14 @@ configure_file(
 )
 
 configure_file(
-    input: 'kolibri_settings.py',
-    output: 'kolibri_settings.py',
+    input: 'options_defaults.py',
+    output: 'options_defaults.py',
+    copy: true
+)
+
+configure_file(
+    input: 'kolibri_plugin.py',
+    output: 'kolibri_plugin.py',
     copy: true
 )
 

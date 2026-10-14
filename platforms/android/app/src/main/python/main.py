@@ -59,12 +59,14 @@ def get_initialize_url(next_url=None):
 def _resolve_server_port(port):
     """Reuse the port the live page is on, when it is still bindable.
 
+    Returns None when there is no port to reuse, so the HTTP_PORT option applies.
+
     Binds rather than using port_is_available_on_host, which only probes for a
     listener: a port since handed to another app's outbound connection reads as
     free there, and cheroot then dies on EADDRINUSE.
     """
     if not port:
-        return 0
+        return None
     port = int(port)
     host = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
     # LISTEN_ADDRESS is validated as a dotted-quad, so the family is always AF_INET.
@@ -90,7 +92,7 @@ class AndroidKolibriProcessBus(BaseKolibriProcessBus):
     Server handles both local WebView and remote peer connections.
     """
 
-    def __init__(self, port=0):
+    def __init__(self, port=None):
         super().__init__(port=port)
         self._setup_plugins()
 
@@ -122,7 +124,8 @@ def start_server(port=0):
     Start the Kolibri HTTP server
     Called from Java KolibriServerService
 
-    port is a port to try to reuse (the live page's); 0 elects an ephemeral one.
+    port is a port to try to reuse (the live page's); 0 means there is none, and the
+    HTTP_PORT option decides.
 
     Runs HTTP server for both local WebView (via Service Worker)
     and remote peer connections. Blocks until server stops.

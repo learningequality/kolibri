@@ -18,7 +18,6 @@
       <arg direction="in" type="as" name="item_ids" />
       <arg direction="out" type="aa{sv}" name="metadata" />
     </method>
-    <property name="AppKey" type="s" access="read" />
     <property name="AppInitializeURL" type="s" access="read" />
     <property name="BaseURL" type="s" access="read" />
     <property name="ExtraURL" type="s" access="read" />

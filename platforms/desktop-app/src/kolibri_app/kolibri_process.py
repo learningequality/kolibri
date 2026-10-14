@@ -10,7 +10,6 @@ base process class, rather than having separate wrapper classes per platform.
 
 from kolibri.main import enable_plugin
 from kolibri.main import initialize
-from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.logger import logging
 
@@ -32,11 +31,6 @@ class KolibriProcess(KolibriProcessBus):
         enable_plugin("kolibri_app")
         initialize()
 
-        if port is None:
-            port = OPTIONS["Deployment"]["HTTP_PORT"]
-        if zip_port is None:
-            zip_port = OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]
-
         super().__init__(port=port, zip_port=zip_port)
 
-        logging.info(f"KolibriProcess initialized on port {port}")
+        logging.info(f"KolibriProcess initialized on port {self.port}")
