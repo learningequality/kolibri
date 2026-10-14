@@ -1,6 +1,7 @@
 import Vue from 'vue';
-import { render, screen } from '@testing-library/vue';
+import { render, screen, waitFor, within } from '@testing-library/vue';
 import DOMPurify from 'dompurify';
+import { CHTML } from 'mathjax-full/js/output/chtml';
 
 import kolibri from 'kolibri';
 import { createSafeHTML } from '../index';
@@ -9,6 +10,9 @@ jest.mock('kolibri', () => ({
   canHandleElement: jest.fn(),
   objectViewerMimetypes: jest.fn(() => []),
 }));
+
+// The MathJax fallback's font URL needs plugin URL data that tests lack.
+jest.mock('kolibri/urls');
 
 // Stub the ContentViewer so a handled object surfaces the file it received via
 // its `element` prop as `data-src`, letting tests assert what reaches the viewer.
@@ -606,6 +610,326 @@ describe('SafeHTML', () => {
       // Check that semantics tag is in the rendered output
       expect(container.innerHTML).toContain('semantics');
       expect(container.innerHTML).toContain('<mi');
+    });
+  });
+
+  describe('MathML rendering', () => {
+    const FIRST = 'a';
+    const SECOND = 'b';
+
+    // Named, so tests can find the rendered expression by role.
+    function mathOf(identifier, attrs = '') {
+      return `<math alttext="${identifier}"><mi ${attrs}>${identifier}</mi></math>`;
+    }
+
+    // Started later, so it renders after every earlier expression's run.
+    async function renderAfterEarlierRuns() {
+      render(createSafeHTML(), { props: { html: mathOf(SECOND) } });
+      const second = await screen.findByRole('img', { name: SECOND });
+      await waitFor(() => expect(second.querySelector('mjx-container')).not.toBeNull());
+    }
+
+    async function findMathJaxOutput() {
+      const wrapper = await screen.findByTestId('mathjax-output');
+      await waitFor(() => expect(wrapper.querySelector('mjx-container')).toBeInTheDocument());
+      return wrapper;
+    }
+
+    describe('when the browser cannot lay out MathML', () => {
+      // jsdom has no layout, so the probe measures a zero box, as Chromium < 109 does.
+
+      it('renders the expression with MathJax', async () => {
+        render(createSafeHTML(), { props: { html: '<math><mi>x</mi></math>' } });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper.querySelector('math.safe-html')).toBeNull();
+      });
+
+      it('leaves the Perseus viewer room to add its own MathJax styles', async () => {
+        render(createSafeHTML(), { props: { html: '<math><mi>x</mi></math>' } });
+        await findMathJaxOutput();
+        // Perseus's MathJax appends its sheet only when this id is absent.
+        expect(document.getElementById(CHTML.STYLESHEETID)).toBeNull();
+      });
+
+      it('renders an element with missing children without an error badge', async () => {
+        render(createSafeHTML(), {
+          props: { html: '<math><mfrac><mn>1</mn></mfrac></math>' },
+        });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper.querySelector('mjx-mfrac')).toBeInTheDocument();
+        expect(wrapper.querySelector('mjx-merror')).not.toBeInTheDocument();
+      });
+
+      it.each([
+        ['an mtd outside an mtr', '<mtd><mi>x</mi></mtd>'],
+        ['an mtr outside an mtable', '<mtr><mtd><mi>x</mi></mtd></mtr>'],
+        ['an mprescripts outside an mmultiscripts', '<mprescripts/><mi>x</mi>'],
+      ])('falls back to native math for %s', async (_, inner) => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: `<math>${inner}</math>` },
+        });
+        await renderAfterEarlierRuns();
+        expect(container.querySelector('math.safe-html')).not.toBeNull();
+        expect(container.querySelector('mjx-container')).toBeNull();
+      });
+
+      it('gives assistive technology the native math in place of the MathJax output', async () => {
+        render(createSafeHTML(), {
+          props: { html: '<math><mfrac><mn>1</mn><mi>x</mi></mfrac></math>' },
+        });
+        const wrapper = await findMathJaxOutput();
+        expect(within(wrapper).queryByRole('img')).not.toBeInTheDocument();
+        expect(
+          wrapper.querySelector('mjx-container').closest('[aria-hidden="true"]'),
+        ).not.toBeNull();
+        expect(
+          wrapper.querySelector('math.visuallyhidden:not([aria-hidden]) mfrac'),
+        ).not.toBeNull();
+      });
+
+      it.each(['alttext', 'aria-label'])(
+        'names the expression with its authored %s',
+        async attribute => {
+          const AUTHORED = 'una fracción';
+          render(createSafeHTML(), {
+            props: {
+              html: `<math ${attribute}="${AUTHORED}"><mfrac><mn>1</mn><mi>x</mi></mfrac></math>`,
+            },
+          });
+          expect(await screen.findByRole('img', { name: AUTHORED })).toBeInTheDocument();
+        },
+      );
+
+      it('names the expression with aria-label over alttext', async () => {
+        const ARIA_LABEL = 'aria';
+        render(createSafeHTML(), {
+          props: { html: `<math alttext="alt" aria-label="${ARIA_LABEL}"><mi>x</mi></math>` },
+        });
+        expect(await screen.findByRole('img', { name: ARIA_LABEL })).toBeInTheDocument();
+      });
+
+      it('keeps an authored aria-hidden on the MathJax output', async () => {
+        const HIDDEN = 'decor';
+        render(createSafeHTML(), {
+          props: { html: `<math aria-hidden="true" alttext="${HIDDEN}"><mi>x</mi></math>` },
+        });
+        await renderAfterEarlierRuns();
+        expect(screen.queryByRole('img', { name: HIDDEN })).not.toBeInTheDocument();
+        // Testing Library names no element that is itself aria-hidden.
+        const [hidden] = screen.getAllByTestId('mathjax-output');
+        expect(hidden).toHaveAttribute('aria-hidden', 'true');
+        expect(hidden).toHaveAttribute('role', 'img');
+        expect(hidden).toHaveAttribute('aria-label', HIDDEN);
+      });
+
+      it('keeps an authored aria-hidden when MathJax rejects the expression', async () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: '<math aria-hidden="true">2+2</math>' },
+        });
+        await renderAfterEarlierRuns();
+        expect(container.querySelector('mjx-container')).toBeNull();
+        expect(
+          container.querySelector('math.safe-html').closest('[aria-hidden="true"]'),
+        ).not.toBeNull();
+      });
+
+      it('drops alttext from elements other than math', () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: '<p alttext="p">p</p>' },
+        });
+        expect(container.querySelector('[alttext]')).toBeNull();
+      });
+
+      it('renders the new expression when html changes', async () => {
+        const { container, updateProps } = render(createSafeHTML(), {
+          props: { html: mathOf(FIRST) },
+        });
+        await waitFor(() => expect(container.querySelector('mjx-container')).not.toBeNull());
+        await updateProps({ html: mathOf(SECOND) });
+        expect(container.querySelector('mjx-container')).toBeNull();
+        expect(container.querySelector('math.safe-html')).not.toBeNull();
+        expect(await screen.findByRole('img', { name: SECOND })).toBeInTheDocument();
+        await waitFor(() => expect(container.querySelector('mjx-container')).not.toBeNull());
+        expect(screen.queryByRole('img', { name: FIRST })).not.toBeInTheDocument();
+      });
+
+      it('falls back to native math when MathJax rejects the new expression', async () => {
+        const { container, updateProps } = render(createSafeHTML(), {
+          props: { html: mathOf(FIRST) },
+        });
+        await screen.findByRole('img', { name: FIRST });
+        // MathJax has no node type for bare text in <math>.
+        await updateProps({ html: '<math>2+2</math>' });
+        await waitFor(() =>
+          expect(screen.queryByRole('img', { name: FIRST })).not.toBeInTheDocument(),
+        );
+        expect(container.querySelector('math.safe-html')).not.toBeNull();
+        expect(container.querySelector('mjx-container')).toBeNull();
+      });
+
+      it('exposes the native math while MathJax loads', async () => {
+        const { container } = render(createSafeHTML(), { props: { html: mathOf(FIRST) } });
+        await Vue.nextTick();
+        expect(container.querySelector('math.safe-html:not([aria-hidden])')).not.toBeNull();
+        expect(container.querySelector('mjx-container')).toBeNull();
+      });
+
+      it('exposes the native math when MathJax rejects the expression', async () => {
+        const { container } = render(createSafeHTML(), { props: { html: '<math>2+2</math>' } });
+        await renderAfterEarlierRuns();
+        expect(container.querySelector('math.safe-html:not([aria-hidden])')).not.toBeNull();
+      });
+
+      it('renders one expression per task', async () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: mathOf(FIRST) + mathOf(SECOND) },
+        });
+        await waitFor(() => expect(container.querySelectorAll('mjx-container')).toHaveLength(1));
+        await waitFor(() => expect(container.querySelectorAll('mjx-container')).toHaveLength(2));
+      });
+
+      it.each([
+        ['a link', 'href="first.html"', '[href]'],
+        ['an id', 'id="first"', '[id]'],
+        ['a tabindex', 'tabindex="0"', '[tabindex]'],
+      ])('leaves %s out of the MathJax output', async (_, attribute, selector) => {
+        render(createSafeHTML(), {
+          props: { html: `<math ${attribute}><mi ${attribute}>x</mi></math>` },
+        });
+        const wrapper = await findMathJaxOutput();
+        const output = wrapper.querySelector('mjx-container');
+        expect(output.matches(selector) || output.querySelector(selector)).toBeFalsy();
+      });
+
+      it('keeps no focus stop in the visually hidden native math', async () => {
+        render(createSafeHTML(), {
+          props: { html: '<math tabindex="0"><mrow tabindex="0"><mi>x</mi></mrow></math>' },
+        });
+        const wrapper = await findMathJaxOutput();
+        expect(
+          wrapper.querySelector('.visuallyhidden[tabindex], .visuallyhidden [tabindex]'),
+        ).toBeNull();
+      });
+
+      it('moves an authored tabindex on math onto the MathJax output', async () => {
+        render(createSafeHTML(), { props: { html: '<math tabindex="0"><mi>x</mi></math>' } });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper).toHaveAttribute('tabindex', '0');
+      });
+
+      it('keeps an authored tabindex on native math that MathJax rejects', async () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: '<math tabindex="0">2+2</math>' },
+        });
+        await renderAfterEarlierRuns();
+        expect(container.querySelector('math.safe-html[tabindex="0"]')).not.toBeNull();
+      });
+
+      it('keeps an id on the native math', async () => {
+        render(createSafeHTML(), { props: { html: '<math id="first"><mi>x</mi></math>' } });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper.querySelectorAll('#first')).toHaveLength(1);
+      });
+
+      it('leaves an empty expression unnamed and out of the image role', async () => {
+        render(createSafeHTML(), { props: { html: '<math></math>' } });
+        const wrapper = await findMathJaxOutput();
+        expect(within(wrapper).queryByRole('img')).not.toBeInTheDocument();
+      });
+
+      it('writes nothing once unmounted before MathJax loads', async () => {
+        const consoleError = jest.spyOn(console, 'error');
+        const { unmount } = render(createSafeHTML(), {
+          props: { html: '<math><mi>x</mi></math>' },
+        });
+        unmount();
+        await renderAfterEarlierRuns();
+        expect(consoleError).not.toHaveBeenCalled();
+        consoleError.mockRestore();
+      });
+
+      it('renders no style property that DOMPurify strips', async () => {
+        render(createSafeHTML(), {
+          props: { html: '<math><mi style="position: fixed; color: red">x</mi></math>' },
+        });
+        const wrapper = await findMathJaxOutput();
+        // The kept color shows MathJax carried the sanitised style through.
+        expect(wrapper.querySelector('[style*="color"]')).not.toBeNull();
+        expect(wrapper.querySelector('[style*="fixed"]')).toBeNull();
+      });
+
+      it('renders the content around a styled expression', async () => {
+        const BEFORE = 'before';
+        const AFTER = 'after';
+        render(createSafeHTML(), {
+          props: {
+            html: `<p>${BEFORE}</p><math style="color: red"><mi>x</mi></math><p>${AFTER}</p>`,
+          },
+        });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper.previousElementSibling).toHaveTextContent(BEFORE);
+        expect(wrapper.nextElementSibling).toHaveTextContent(AFTER);
+      });
+
+      describe('in a table', () => {
+        // jsdom lays nothing out, so both widths read 0 until stubbed.
+        const widths = { scrollWidth: 0, clientWidth: 0 };
+
+        beforeEach(() => {
+          jest
+            .spyOn(Element.prototype, 'scrollWidth', 'get')
+            .mockImplementation(() => widths.scrollWidth);
+          jest
+            .spyOn(Element.prototype, 'clientWidth', 'get')
+            .mockImplementation(() => widths.clientWidth);
+        });
+
+        afterEach(() => {
+          jest.restoreAllMocks();
+        });
+
+        it('takes a tab stop when the MathJax output overflows the table', async () => {
+          render(createSafeHTML(), {
+            props: { html: `<table><tr><td>${mathOf(FIRST)}</td></tr></table>` },
+          });
+          const container = screen.getByTestId('table-container');
+          expect(container).not.toHaveAttribute('tabindex');
+
+          // The native math fit; the MathJax output does not.
+          Object.assign(widths, { scrollWidth: 1200, clientWidth: 900 });
+          await findMathJaxOutput();
+          await waitFor(() => expect(container).toHaveAttribute('tabindex', '0'));
+        });
+      });
+    });
+
+    describe('when the browser lays out MathML', () => {
+      beforeEach(() => {
+        jest
+          .spyOn(Element.prototype, 'getBoundingClientRect')
+          .mockReturnValue({ width: 77, height: 23 });
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it('renders native math and no MathJax output', () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: '<math><mi>x</mi></math>' },
+        });
+        // jsdom's MathML elements aren't HTMLElements, which toBeInTheDocument requires.
+        expect(container.querySelector('math.safe-html')).not.toBeNull();
+        expect(screen.queryByTestId('mathjax-output')).not.toBeInTheDocument();
+      });
+
+      it('drops authored alttext from native math', () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: '<math alttext="x"><mi>x</mi></math>' },
+        });
+        expect(container.querySelector('math.safe-html')).not.toBeNull();
+        expect(container.querySelector('[alttext]')).toBeNull();
+      });
     });
   });
 

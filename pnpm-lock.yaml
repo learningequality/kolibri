@@ -1421,6 +1421,9 @@ importers:
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
+      mathjax-full:
+        specifier: 'catalog:'
+        version: 3.2.2
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4

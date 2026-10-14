@@ -7,6 +7,10 @@ import QTIViewer from '../QTIViewer.vue';
 
 jest.mock('kolibri/composables/useContentViewer');
 
+// MathML fixtures take SafeHTML's MathJax path in jsdom, which has no layout;
+// its font URL needs plugin URL data that tests lack.
+jest.mock('kolibri/urls');
+
 // Drive the integration tests through the shipped sandbox fixtures, the same way
 // the other QTI-focused integration tests do. `kolibri-hint-multi` carries three
 // `ext:kolibri-hint` cards (its second body holds MathML); `kolibri-hint-image`
