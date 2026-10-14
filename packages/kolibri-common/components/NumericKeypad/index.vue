@@ -142,7 +142,7 @@
   import { injectKeypad } from '../../composables/useKeypad';
   import useScrollContainer from '../../composables/useScrollContainer';
   import translator from '../../strings/numericKeypadStrings';
-  import { getLocalizedDigits } from '../../utils/numeralNormalization';
+  import { getLocaleNumberSymbols } from '../../utils/localeNumbers';
   import { fractionLayout, expressionLayout } from './keys';
 
   export default {
@@ -187,7 +187,7 @@
         }
       });
 
-      const localizedDigits = computed(() => getLocalizedDigits(props.lang && props.lang.id));
+      const symbols = computed(() => getLocaleNumberSymbols(props.lang?.id));
 
       const isExpression = computed(() => keypad.keypadConfig.value?.keypadType === 'EXPRESSION');
 
@@ -228,8 +228,8 @@
 
       const visibleKeys = computed(() => {
         const layout = isExpression.value
-          ? expressionLayout(localizedDigits.value, useTimes.value)
-          : fractionLayout(localizedDigits.value);
+          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel)
+          : fractionLayout(symbols.value);
         return excludeKeys.value.length
           ? layout.filter(k => !excludeKeys.value.includes(k.id))
           : layout;
@@ -271,6 +271,11 @@
       lang: {
         type: Object,
         default: null,
+      },
+      // What the host's DIVIDE key inserts, e.g. `:` in Perseus's colon languages
+      divideLabel: {
+        type: String,
+        default: '÷',
       },
     },
   };

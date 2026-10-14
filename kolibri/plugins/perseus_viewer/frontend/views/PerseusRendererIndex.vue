@@ -23,7 +23,10 @@
         </div>
       </div>
     </div>
-    <NumericKeypad :lang="lang" />
+    <NumericKeypad
+      :lang="lang"
+      :divideLabel="divideLabel"
+    />
   </div>
 
 </template>
@@ -51,7 +54,11 @@
   import { createElement as e } from 'react';
   import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
-  import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
+  import {
+    getDivideSymbol,
+    parseAndMigratePerseusItem,
+    isFailure,
+  } from '@khanacademy/perseus-core';
   import { scorePerseusItem, emptyWidgetsFunctional } from '@khanacademy/perseus-score';
   import { MathInputI18nContextProvider } from '@khanacademy/math-input';
   import { KeypadContext } from '@khanacademy/keypad-context';
@@ -324,7 +331,11 @@
       } = useContentViewer(context);
 
       const { keypadAPI, keypadContextValue } = useKeypad();
+      // Our keypad sends DIVIDE to math-input's field, which writes `:` in Perseus's
+      // `localesThatUseColon`.
+      const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
       return {
+        divideLabel,
         windowBreakpoint,
         defaultFile,
         contentDirection,
@@ -529,7 +540,7 @@
           children: itemRendererElement,
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
-          locale: this.lang,
+          locale: this.lang?.id,
           strings: translator,
           children: perseusStringsElement,
         });

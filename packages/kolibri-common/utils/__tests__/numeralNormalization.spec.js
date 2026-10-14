@@ -1,7 +1,6 @@
 import {
   normalizeNumerals,
   normalizeUserInput,
-  getLocalizedDigits,
   localizeNumerals,
   localizeUserInput,
 } from '../numeralNormalization';
@@ -85,6 +84,15 @@ describe('normalizeUserInput', () => {
     });
   });
 
+  it('converts the Arabic decimal separator the keypad inserts to a point', () => {
+    const input = {
+      'numeric-input 1': { currentValue: '۳٫۵' },
+    };
+    expect(normalizeUserInput(input)).toEqual({
+      'numeric-input 1': { currentValue: '3.5' },
+    });
+  });
+
   it('normalizes expression widget state (plain string)', () => {
     const input = {
       'expression 1': '٢x+٣',
@@ -147,35 +155,6 @@ describe('normalizeNumerals selectivity', () => {
 
   it('does not modify letters', () => {
     expect(normalizeNumerals('abc')).toBe('abc');
-  });
-});
-
-describe('getLocalizedDigits', () => {
-  it('returns null for English locale', () => {
-    expect(getLocalizedDigits('en')).toBeNull();
-  });
-
-  it('returns null for null/undefined locale', () => {
-    expect(getLocalizedDigits(null)).toBeNull();
-    expect(getLocalizedDigits(undefined)).toBeNull();
-  });
-
-  it('returns localized digits for Arabic locale', () => {
-    const digits = getLocalizedDigits('ar-EG');
-    // ar-EG uses Eastern Arabic numerals
-    if (digits) {
-      expect(digits).toHaveLength(10);
-      expect(digits[0]).toBe('٠');
-      expect(digits[1]).toBe('١');
-      expect(digits[9]).toBe('٩');
-    }
-  });
-
-  it('returns null for locales whose digits match ASCII', () => {
-    // French, German, Spanish all use the same digits as ASCII
-    expect(getLocalizedDigits('fr')).toBeNull();
-    expect(getLocalizedDigits('de')).toBeNull();
-    expect(getLocalizedDigits('es')).toBeNull();
   });
 });
 
