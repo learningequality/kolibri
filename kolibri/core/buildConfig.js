@@ -1,6 +1,25 @@
 // This is only used during build time, so OK to reference files outside of Kolibri src.
+const fs = require('node:fs');
 const path = require('node:path');
 const { kolibriName } = require('kolibri-build');
+
+const mathjaxFontsSource = path.join(
+  path.dirname(require.resolve('mathjax-full/package.json')),
+  'ts/output/chtml/fonts/tex-woff-v2',
+);
+const mathjaxFontsTarget = path.resolve(__dirname, 'static/assets/mathjax/fonts');
+
+// MathJax fetches fonts by bare filename from urls.static('assets/mathjax/fonts'),
+// so they are copied unhashed.
+class CopyMathJaxFontsPlugin {
+  apply() {
+    fs.mkdirSync(mathjaxFontsTarget, { recursive: true });
+    for (const file of fs.readdirSync(mathjaxFontsSource)) {
+      if (!file.endsWith('.woff')) continue;
+      fs.copyFileSync(path.join(mathjaxFontsSource, file), path.join(mathjaxFontsTarget, file));
+    }
+  }
+}
 
 module.exports = [
   {
@@ -12,6 +31,7 @@ module.exports = [
         libraryExport: 'default',
         libraryTarget: 'window',
       },
+      plugins: [new CopyMathJaxFontsPlugin()],
     },
   },
   // The polyfills and polyfill_loader bundles below load and run before

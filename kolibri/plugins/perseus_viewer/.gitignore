@@ -1,2 +1,2 @@
-# MathJax fonts are copied from the mathjax-full node_modules dep at build time
+# MathJax fonts copied here by builds before they moved to kolibri/core
 static/assets/mathjax/fonts/

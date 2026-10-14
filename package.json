@@ -97,7 +97,8 @@
       "vue-demi"
     ],
     "overrides": {
-      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0"
+      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0",
+      "@khanacademy/mathjax-renderer>mathjax-full": "catalog:"
     },
     "packageExtensions": {
       "@khanacademy/perseus@*": {
