@@ -32,6 +32,10 @@ def get_free_tcp_port():
     return port
 
 
+class ServerStartError(Exception):
+    pass
+
+
 class KolibriServer:
     def __init__(
         self,
@@ -54,8 +58,11 @@ class KolibriServer:
             self.env.update(env)
         self.db_path = os.path.join(self.env["KOLIBRI_HOME"], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
+        # get_free_tcp_port releases its port, so the kernel can hand it out again
+        zip_content_port = int(self.env["KOLIBRI_ZIP_CONTENT_PORT"])
         self.port = get_free_tcp_port()
-        self.baseurl = f"http://127.0.0.1:{self.port}/"
+        while self.port == zip_content_port:
+            self.port = get_free_tcp_port()
         self.enable_automatic_download = enable_automatic_download
         self._instance = None
         if seeded_kolibri_home is not None:
@@ -63,6 +70,10 @@ class KolibriServer:
             shutil.copytree(seeded_kolibri_home, self.env["KOLIBRI_HOME"])
         if autostart:
             self.start()
+
+    @property
+    def baseurl(self):
+        return f"http://127.0.0.1:{self.port}/"
 
     def start(self):
         self._instance = subprocess.Popen(
@@ -137,15 +148,20 @@ class KolibriServer:
         # At a 0.5s interval each of the suite's dozens of server starts waits a
         # quarter second on average after the server is already up.
         for _i in range(timeout * 10):
+            returncode = self._instance.poll()
+            if returncode is not None:
+                raise ServerStartError(
+                    f"Server exited with code {returncode} during startup"
+                )
             try:
                 resp = requests.get(self.baseurl + "api/public/info/", timeout=3)
-                if resp.status_code > 0:
+                if resp.ok:
                     return
             except RequestException:
                 pass
             time.sleep(0.1)
 
-        raise Exception(f"Server did not start within {timeout} seconds")
+        raise ServerStartError(f"Server did not start within {timeout} seconds")
 
     def kill(self):
         try:
