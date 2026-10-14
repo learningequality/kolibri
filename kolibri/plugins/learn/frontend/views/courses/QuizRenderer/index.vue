@@ -370,7 +370,9 @@
           const interaction = {
             answer: answer.answerState,
             simple_answer: answer.simpleAnswer || '',
-            correct: answer.correct,
+            // Survey questions have no right answer; mark them correct so
+            // coach reports don't flag them as difficult.
+            correct: this.isSurvey ? 1 : answer.correct,
             item: this.itemId,
             id: this.currentAttempt.id,
             time_spent:
