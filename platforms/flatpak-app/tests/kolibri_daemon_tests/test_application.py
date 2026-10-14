@@ -14,6 +14,8 @@ from kolibri_daemon.application import Application
 from kolibri_daemon.kolibri_search_handler import SearchHandler
 
 CALL_TIMEOUT_MS = 5000
+DBUS_RELEASE_NAME_REPLY_NON_EXISTENT = 2
+DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER = 1
 SHORT_INACTIVITY_TIMEOUT_MS = 100
 
 
@@ -53,6 +55,35 @@ class TestApplication(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.updated_marker = Path(tmp.name, ".updated")
+        self.addCleanup(self._assert_bus_name_released)
+
+    def _assert_bus_name_released(self):
+        # GApplication does not await ReleaseName, so this round trip makes the
+        # connection drop its NameLost before the next test's application
+        # subscribes. Releasing a leaked name keeps the next test from failing too.
+        (reply,) = self._call_bus(
+            Gio.bus_get_sync(Gio.BusType.SESSION, None),
+            "ReleaseName",
+            GLib.Variant("(s)", (DAEMON_APPLICATION_ID,)),
+        ).unpack()
+        self.assertEqual(
+            reply,
+            DBUS_RELEASE_NAME_REPLY_NON_EXISTENT,
+            f"{DAEMON_APPLICATION_ID} still owned after test",
+        )
+
+    def _call_bus(self, connection, method, parameters):
+        return connection.call_sync(
+            "org.freedesktop.DBus",
+            "/org/freedesktop/DBus",
+            "org.freedesktop.DBus",
+            method,
+            parameters,
+            None,
+            Gio.DBusCallFlags.NONE,
+            CALL_TIMEOUT_MS,
+            None,
+        )
 
     def _run_application(self, search_handler=None):
         application = Application(
@@ -88,24 +119,22 @@ class TestApplication(unittest.TestCase):
     def _own_bus_name_elsewhere(self):
         # GApplication counts a name its own connection already owns as primary.
         connection = self._private_connection()
-
-        def call_bus(method, parameters):
-            connection.call_sync(
-                "org.freedesktop.DBus",
-                "/org/freedesktop/DBus",
-                "org.freedesktop.DBus",
-                method,
-                parameters,
-                None,
-                Gio.DBusCallFlags.NONE,
-                CALL_TIMEOUT_MS,
-                None,
-            )
-
-        call_bus("RequestName", GLib.Variant("(su)", (DAEMON_APPLICATION_ID, 0)))
+        (reply,) = self._call_bus(
+            connection,
+            "RequestName",
+            GLib.Variant("(su)", (DAEMON_APPLICATION_ID, 0)),
+        ).unpack()
         # The bus drops a closed connection's names asynchronously.
         self.addCleanup(
-            call_bus, "ReleaseName", GLib.Variant("(s)", (DAEMON_APPLICATION_ID,))
+            self._call_bus,
+            connection,
+            "ReleaseName",
+            GLib.Variant("(s)", (DAEMON_APPLICATION_ID,)),
+        )
+        self.assertEqual(
+            reply,
+            DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER,
+            f"{DAEMON_APPLICATION_ID} already owned before test",
         )
 
     def _proxy(self, connection=None):
