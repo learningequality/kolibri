@@ -31,6 +31,7 @@ export function renderAssessmentItem(xml, options = {}) {
       })),
       answerState: computed(() => answerStateRef.value),
       interactive: computed(() => interactiveRef.value),
+      lang: ref(options.lang ? { id: options.lang } : null),
     },
   });
 
