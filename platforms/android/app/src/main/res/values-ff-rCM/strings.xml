@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Kuugal kompiita fuɗɗii...</string>
+    <string name="notification_service_channel_content">E luttiri ...</string>
+    <string name="notification_service_channel_action">Raarugo kakkilanoojum kuugal kompiita</string>
+    <string name="notification_default_channel_title">Kuuɗe kompiita</string>
+    <string name="notification_download_complete_title">Timmini ronndaago</string>
+    <string name="os_user_name">Pukaraajo</string>
+</resources>

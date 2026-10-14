@@ -1,7 +1,5 @@
 {
   "BookmarkItem.expand": "Espandi segnalibro",
   "Bookmarks.bookmarksSection": "Sezione segnalibri. Puoi passare dal documento pdf alla sezione dei segnalibri premendo Maiusc + Invio.",
-  "PdfPage.numPage": "Pagina {number} di {total}",
-  "PdfRendererIndex.enterFullscreen": "Entra a schermo intero",
-  "PdfRendererIndex.exitFullscreen": "Esci da schermo intero"
+  "PdfPage.numPage": "Pagina {number} di {total}"
 }

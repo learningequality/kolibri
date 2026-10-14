@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "دستگاه",
-  "CommonDeviceStrings.emptyTasksMessage": "هیچ تکلیف یا وظیفه‌ای برای نمایش وجود ندارد",
-  "CommonDeviceStrings.newChannelLabel": "جدید",
-  "CommonDeviceStrings.newEnabledPluginsState": "وقتی علامت صفحه را بردارید، برای کاربران غیرقابل‌مشاهده خواهد شد؛ حتی اگر مجوز دسترسی به آن را داشته باشند.",
-  "CommonDeviceStrings.newResourceLabel": "جدید",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "فضای کافی بر روی دستگاه شما وجود ندارد. فضای دیسک را خالی کنید یا منابع کمتری را انتخاب کنید",
-  "CommonDeviceStrings.permissionsLabel": "مجوزها و دسترسی‌ها",
-  "CommonDeviceStrings.primaryStorageLabel": "منابع جدیداً دانلودشده به محل ذخیره‌سازی اصلی اضافه خواهد شد",
-  "CommonDeviceStrings.statusCanceled": "لغو شده",
-  "CommonDeviceStrings.statusCanceling": "در حال لغو",
-  "CommonDeviceStrings.statusComplete": "به پایان رسید",
-  "CommonDeviceStrings.statusFailed": "ناموفق",
-  "CommonDeviceStrings.statusInProgress": "در حال انجام",
-  "CommonDeviceStrings.statusInQueue": "در حال انتظار",
-  "CommonDeviceStrings.unlistedChannelLabel": "کانال خارج از لیست"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "کانال‌ها",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "دستگاه",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "مراکز آموزشی",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "اطلاعات",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "مجوزها و دسترسی‌ها",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "تنظیمات",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "کاربران"
 }

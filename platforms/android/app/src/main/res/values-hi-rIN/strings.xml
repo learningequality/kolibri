@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">कार्य शुरू हो गया हैं</string>
+    <string name="notification_service_channel_content">जारी है</string>
+    <string name="notification_service_channel_action">टास्क मैनेजर देखें</string>
+    <string name="notification_default_channel_title">कार्य</string>
+    <string name="notification_download_complete_title">डाउनलोड पूरा हो गया</string>
+    <string name="os_user_name">शिक्षणार्थी/पाठक</string>
+</resources>

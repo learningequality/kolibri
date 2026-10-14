@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Kifaa",
-  "CommonDeviceStrings.emptyTasksMessage": "Hakuna kazi za kuonyeshwa",
-  "CommonDeviceStrings.newChannelLabel": "Mpya",
-  "CommonDeviceStrings.newEnabledPluginsState": "Unapoondoa uteuzi kwenye ukurasa, hautaonekana kwa watumiaji hata ikiwa wana ruhusa ya kuufikia.",
-  "CommonDeviceStrings.newResourceLabel": "Mpya",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Hakuna nafasi ya kutosha kwenye kifaa chako. Hifadhi nafasi ya diski au uchague nyenzo chache",
-  "CommonDeviceStrings.permissionsLabel": "Ruhusa",
-  "CommonDeviceStrings.primaryStorageLabel": "Nyenzo mpya zilizopakuliwa zitaongezwa kwenye eneo msingi la hifadhi",
-  "CommonDeviceStrings.statusCanceled": "Imeghairi",
-  "CommonDeviceStrings.statusCanceling": "Inaghairi",
-  "CommonDeviceStrings.statusComplete": "Imekamilika",
-  "CommonDeviceStrings.statusFailed": "Imeshindwa",
-  "CommonDeviceStrings.statusInProgress": "Inaendelea",
-  "CommonDeviceStrings.statusInQueue": "Inasubiri",
-  "CommonDeviceStrings.unlistedChannelLabel": "Kituo kisichoorodheshwa"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Vituo",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Kifaa",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Vituo vya mafunzo",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Maelezo",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Ruhusa",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Mipangilio",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Watumiaji"
 }

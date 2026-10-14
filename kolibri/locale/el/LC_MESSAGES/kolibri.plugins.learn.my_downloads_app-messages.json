@@ -7,7 +7,6 @@
   "CommonLearnStrings.classesAndAssignmentsLabel": "Τάξεις και ασκήσεις",
   "CommonLearnStrings.completedPercentLabel": "Βαθμολογία: {score, number, integer}%",
   "CommonLearnStrings.copyrightHolder": "Κάτοχος πνευματικών δικαιωμάτων",
-  "CommonLearnStrings.documentTitle": "{ contentTitle } - { channelTitle }",
   "CommonLearnStrings.dontShowThisAgainLabel": "Να μην εμφανιστεί ξανά",
   "CommonLearnStrings.estimatedTime": "Εκτιμώμενος χρόνος",
   "CommonLearnStrings.exploreLibraries": "Εξερεύνηση βιβλιοθηκών",

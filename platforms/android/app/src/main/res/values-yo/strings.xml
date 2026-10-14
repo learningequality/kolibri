@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">Ise ti beere…</string>
+    <string name="notification_service_channel_content">Ń tẹ̀síwájú</string>
+    <string name="notification_service_channel_action">Wo alákòóso iṣẹ́</string>
+    <string name="notification_default_channel_title">Isẹ́</string>
+    <string name="notification_download_complete_title">Ṣe igbasilẹ ní kíkún</string>
+    <string name="os_user_name">Akẹ́kọ̀ọ́</string>
+</resources>

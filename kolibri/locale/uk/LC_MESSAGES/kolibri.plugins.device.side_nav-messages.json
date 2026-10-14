@@ -1,17 +1,9 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "Пристрій",
-  "CommonDeviceStrings.emptyTasksMessage": "Немає завдань для відображення",
-  "CommonDeviceStrings.newChannelLabel": "Нове",
-  "CommonDeviceStrings.newEnabledPluginsState": "Після зняття позначки сторінка стає невидимою для користувачів, навіть якщо вони мають дозвіл заходити на неї.",
-  "CommonDeviceStrings.newResourceLabel": "Нове",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Недостатньо місця на вашому пристрої. Звільніть місце на диску або оберіть менше матеріалів",
-  "CommonDeviceStrings.permissionsLabel": "Дозволи",
-  "CommonDeviceStrings.primaryStorageLabel": "Нові завантажені матеріали будуть додані до основного сховища.",
-  "CommonDeviceStrings.statusCanceled": "Скасовано",
-  "CommonDeviceStrings.statusCanceling": "Скасування",
-  "CommonDeviceStrings.statusComplete": "Завершено",
-  "CommonDeviceStrings.statusFailed": "Не вдалося",
-  "CommonDeviceStrings.statusInProgress": "В процесі",
-  "CommonDeviceStrings.statusInQueue": "Очікування",
-  "CommonDeviceStrings.unlistedChannelLabel": "Канал не зі списку"
+  "DeviceManagementSideNavEntryStrings.channelsLabel": "Канали",
+  "DeviceManagementSideNavEntryStrings.deviceManagementTitle": "Пристрій",
+  "DeviceManagementSideNavEntryStrings.facilitiesLabel": "Заклади",
+  "DeviceManagementSideNavEntryStrings.infoLabel": "Інформація",
+  "DeviceManagementSideNavEntryStrings.permissionsLabel": "Дозволи",
+  "DeviceManagementSideNavEntryStrings.settingsLabel": "Налаштування",
+  "DeviceManagementSideNavEntryStrings.usersLabel": "Користувачі"
 }

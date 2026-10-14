@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-21 22:42+0000\n"
-"PO-Revision-Date: 2026-05-21 22:48\n"
+"POT-Creation-Date: 2026-10-09 20:35+0000\n"
+"PO-Revision-Date: 2026-10-09 20:49\n"
 "Last-Translator: \n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -27,273 +27,273 @@ msgid "No default facility exists. Make sure to set up a facility on the device 
 msgstr "crwdns393773:0crwdne393773:0"
 
 #: core/auth/constants/commands_errors.py:18
-#: core/auth/management/commands/bulkimportusers.py:100
+#: core/auth/management/commands/bulkimportusers.py:95
 msgid "Error trying to write csv file: {}"
 msgstr "crwdns393775:0crwdne393775:0"
 
-#: core/auth/constants/user_kinds.py:24
+#: core/auth/constants/user_kinds.py:26
 msgid "Admin"
 msgstr "crwdns407638:0crwdne407638:0"
 
-#: core/auth/constants/user_kinds.py:25
+#: core/auth/constants/user_kinds.py:27
 msgid "Super admin"
 msgstr "crwdns407640:0crwdne407640:0"
 
-#: core/auth/constants/user_kinds.py:26
+#: core/auth/constants/user_kinds.py:28
 msgid "Class coach"
 msgstr "crwdns407642:0crwdne407642:0"
 
-#: core/auth/constants/user_kinds.py:27
+#: core/auth/constants/user_kinds.py:29
 msgid "Facility coach"
 msgstr "crwdns407644:0crwdne407644:0"
 
-#: core/auth/constants/user_kinds.py:28
+#: core/auth/constants/user_kinds.py:30
 msgid "Learner"
 msgstr "crwdns407646:0crwdne407646:0"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:122
+#: core/auth/management/commands/bulkexportusers.py:41
+#: core/auth/management/commands/bulkexportusers.py:118
 msgid "Database ID ({})"
 msgstr "crwdns393777:0crwdne393777:0"
 
-#: core/auth/management/commands/bulkexportusers.py:46
-#: core/auth/management/commands/bulkexportusers.py:123
+#: core/auth/management/commands/bulkexportusers.py:42
+#: core/auth/management/commands/bulkexportusers.py:119
 msgid "Username ({})"
 msgstr "crwdns393779:0crwdne393779:0"
 
-#: core/auth/management/commands/bulkexportusers.py:47
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:43
+#: core/auth/management/commands/bulkexportusers.py:120
 msgid "Password ({})"
 msgstr "crwdns393781:0crwdne393781:0"
 
-#: core/auth/management/commands/bulkexportusers.py:48
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:44
+#: core/auth/management/commands/bulkexportusers.py:121
 msgid "Full name ({})"
 msgstr "crwdns393783:0crwdne393783:0"
 
-#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:49
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "crwdns393785:0crwdne393785:0"
 
-#: core/auth/management/commands/bulkexportusers.py:56
-#: core/auth/management/commands/bulkexportusers.py:133
+#: core/auth/management/commands/bulkexportusers.py:52
+#: core/auth/management/commands/bulkexportusers.py:129
 msgid "Identifier ({})"
 msgstr "crwdns393787:0crwdne393787:0"
 
-#: core/auth/management/commands/bulkexportusers.py:57
-#: core/auth/management/commands/bulkexportusers.py:134
+#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:130
 msgid "Birth year ({})"
 msgstr "crwdns393789:0crwdne393789:0"
 
-#: core/auth/management/commands/bulkexportusers.py:58
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:131
 msgid "Gender ({})"
 msgstr "crwdns393791:0crwdne393791:0"
 
-#: core/auth/management/commands/bulkexportusers.py:63
+#: core/auth/management/commands/bulkexportusers.py:59
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "crwdns393793:0crwdne393793:0"
 
-#: core/auth/management/commands/bulkexportusers.py:70
+#: core/auth/management/commands/bulkexportusers.py:66
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "crwdns393795:0crwdne393795:0"
 
-#: core/auth/management/commands/bulkexportusers.py:130
+#: core/auth/management/commands/bulkexportusers.py:126
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "crwdns393797:0crwdne393797:0"
 
-#: core/auth/management/commands/bulkexportusers.py:140
+#: core/auth/management/commands/bulkexportusers.py:136
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "crwdns393799:0crwdne393799:0"
 
-#: core/auth/management/commands/bulkexportusers.py:147
+#: core/auth/management/commands/bulkexportusers.py:143
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "crwdns393801:0crwdne393801:0"
 
-#: core/auth/management/commands/bulkimportusers.py:76
+#: core/auth/management/commands/bulkimportusers.py:71
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "crwdns393803:0crwdne393803:0"
 
-#: core/auth/management/commands/bulkimportusers.py:80
+#: core/auth/management/commands/bulkimportusers.py:75
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
 msgstr "crwdns393805:0crwdne393805:0"
 
-#: core/auth/management/commands/bulkimportusers.py:82
+#: core/auth/management/commands/bulkimportusers.py:77
 msgid "Value in column '{}' not valid"
 msgstr "crwdns393807:0crwdne393807:0"
 
-#: core/auth/management/commands/bulkimportusers.py:83
+#: core/auth/management/commands/bulkimportusers.py:78
 msgid "Username is duplicated"
 msgstr "crwdns393809:0crwdne393809:0"
 
-#: core/auth/management/commands/bulkimportusers.py:85
+#: core/auth/management/commands/bulkimportusers.py:80
 msgid "Username only can contain characters, numbers and underscores"
 msgstr "crwdns393811:0crwdne393811:0"
 
-#: core/auth/management/commands/bulkimportusers.py:89
+#: core/auth/management/commands/bulkimportusers.py:84
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
 msgstr "crwdns393813:0crwdne393813:0"
 
-#: core/auth/management/commands/bulkimportusers.py:93
+#: core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
 msgstr "crwdns393815:0crwdne393815:0"
 
-#: core/auth/management/commands/bulkimportusers.py:97
+#: core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr "crwdns393817:0crwdne393817:0"
 
-#: core/auth/management/commands/bulkimportusers.py:99
+#: core/auth/management/commands/bulkimportusers.py:94
 msgid "Error trying to read csv file: {}"
 msgstr "crwdns393819:0crwdne393819:0"
 
-#: core/auth/management/commands/bulkimportusers.py:102
+#: core/auth/management/commands/bulkimportusers.py:97
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr "crwdns393821:0crwdne393821:0"
 
-#: core/auth/management/commands/bulkimportusers.py:105
+#: core/auth/management/commands/bulkimportusers.py:100
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr "crwdns393823:0crwdne393823:0"
 
-#: core/auth/management/commands/bulkimportusers.py:107
+#: core/auth/management/commands/bulkimportusers.py:102
 msgid "Database ID is not valid"
 msgstr "crwdns393825:0crwdne393825:0"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:63
+#: core/auth/tasks.py:64
 msgid "Data syncing in progress"
 msgstr "crwdns393827:0crwdne393827:0"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:67
+#: core/auth/tasks.py:68
 msgid "Do not disconnect your device from the network."
 msgstr "crwdns393829:0crwdne393829:0"
 
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:67
+#: core/content/tasks.py:68
 msgid "Updating your library"
 msgstr "crwdns393831:0crwdne393831:0"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:70
+#: core/content/tasks.py:71
 msgid "Library updated"
 msgstr "crwdns393833:0crwdne393833:0"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:73
+#: core/content/tasks.py:74
 msgid "Library update failed"
 msgstr "crwdns393835:0crwdne393835:0"
 
-#: core/device/serializers.py:35
-msgid "Language is not supported by Kolibri"
-msgstr "crwdns393837:0crwdne393837:0"
-
 #. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
-#: core/device/task_notifications.py:11
+#: core/device/task_notifications.py:12
 msgid "Searching"
 msgstr "crwdns393839:0crwdne393839:0"
 
 #. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
-#: core/device/task_notifications.py:13
+#: core/device/task_notifications.py:14
 msgid "Looking for other Kolibri devices"
 msgstr "crwdns393841:0crwdne393841:0"
 
-#: core/logger/csv_export.py:131
+#: core/device/viewsets/device_settings.py:23
+msgid "Language is not supported by Kolibri"
+msgstr "crwdns393837:0crwdne393837:0"
+
+#: core/logger/csv_export.py:132
 msgid "Facility name"
 msgstr "crwdns393843:0crwdne393843:0"
 
-#: core/logger/csv_export.py:132
+#: core/logger/csv_export.py:133
 msgid "Username"
 msgstr "crwdns393845:0crwdne393845:0"
 
-#: core/logger/csv_export.py:135
+#: core/logger/csv_export.py:136
 msgctxt "CSV column header for the type of user"
 msgid "User type"
 msgstr "crwdns407648:0crwdne407648:0"
 
-#: core/logger/csv_export.py:137
+#: core/logger/csv_export.py:138
 msgid "Channel id"
 msgstr "crwdns393847:0crwdne393847:0"
 
-#: core/logger/csv_export.py:138
+#: core/logger/csv_export.py:139
 msgid "Channel name"
 msgstr "crwdns393849:0crwdne393849:0"
 
-#: core/logger/csv_export.py:139
+#: core/logger/csv_export.py:140
 msgid "Content id"
 msgstr "crwdns393851:0crwdne393851:0"
 
-#: core/logger/csv_export.py:140
+#: core/logger/csv_export.py:141
 msgid "Content title"
 msgstr "crwdns393853:0crwdne393853:0"
 
-#: core/logger/csv_export.py:145
+#: core/logger/csv_export.py:146
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
 msgstr "crwdns393855:0crwdne393855:0"
 
-#: core/logger/csv_export.py:152
+#: core/logger/csv_export.py:153
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
 msgstr "crwdns393857:0crwdne393857:0"
 
-#: core/logger/csv_export.py:159
+#: core/logger/csv_export.py:160
 msgctxt "CSV column header for the percentage of completion in the exported logs"
 msgid "Time of completion"
 msgstr "crwdns393859:0crwdne393859:0"
 
-#: core/logger/csv_export.py:166
+#: core/logger/csv_export.py:167
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
 msgstr "crwdns393861:0crwdne393861:0"
 
-#: core/logger/csv_export.py:169
+#: core/logger/csv_export.py:170
 msgid "Progress (0-1)"
 msgstr "crwdns393863:0crwdne393863:0"
 
-#: core/logger/csv_export.py:170
+#: core/logger/csv_export.py:171
 msgid "Content kind"
 msgstr "crwdns393865:0crwdne393865:0"
 
-#: core/logger/csv_export.py:326
-msgid "Folder level {i+1}"
-msgstr "crwdns424724:0{i+1}crwdne424724:0"
+#: core/logger/csv_export.py:325
+msgid "Folder level {i + 1}"
+msgstr "crwdns451275:0crwdne451275:0"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
-#: core/tasks/job.py:86
+#: core/tasks/job.py:103
 msgid "Complete"
 msgstr "crwdns393869:0crwdne393869:0"
 
 #. Translators: Message shown to indicate that a background process has failed.
-#: core/tasks/job.py:89
+#: core/tasks/job.py:106
 msgid "Failed"
 msgstr "crwdns393871:0crwdne393871:0"
 
 #. Translators: Message shown to indicate that a background process has been cancelled.
-#: core/tasks/job.py:92
+#: core/tasks/job.py:109
 msgid "Cancelled"
 msgstr "crwdns393873:0crwdne393873:0"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
-#: core/tasks/job.py:95
+#: core/tasks/job.py:112
 #, python-brace-format
 msgid "In progress - {percent}%"
 msgstr "crwdns393875:0{percent}crwdne393875:0"
 
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
-#: core/tasks/job.py:99
+#: core/tasks/job.py:116
 msgid "Waiting"
 msgstr "crwdns393877:0crwdne393877:0"
 
@@ -333,15 +333,15 @@ msgstr "crwdns393893:0crwdne393893:0"
 msgid "You can also try updating your current browser."
 msgstr "crwdns393895:0crwdne393895:0"
 
-#: core/templatetags/core_tags.py:69
+#: core/templatetags/core_tags.py:70
 msgid "Kolibri"
 msgstr "crwdns393897:0crwdne393897:0"
 
-#: core/views.py:180
+#: core/views.py:179
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "crwdns393899:0crwdne393899:0"
 
-#: plugins/coach/kolibri_plugin.py:25
+#: plugins/coach/kolibri_plugin.py:24
 msgid "Coach"
 msgstr "crwdns393901:0crwdne393901:0"
 
@@ -349,22 +349,22 @@ msgstr "crwdns393901:0crwdne393901:0"
 msgid "Facility"
 msgstr "crwdns393903:0crwdne393903:0"
 
-#: plugins/facility/views.py:149
+#: plugins/facility/views.py:148
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
 msgstr "crwdns393905:0crwdne393905:0"
 
-#: plugins/facility/views.py:156 plugins/facility/views.py:174
+#: plugins/facility/views.py:155 plugins/facility/views.py:173
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
 msgstr "crwdns393907:0crwdne393907:0"
 
-#: plugins/facility/views.py:167
+#: plugins/facility/views.py:166
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
 msgstr "crwdns393909:0crwdne393909:0"
 
-#: plugins/facility/views.py:185
+#: plugins/facility/views.py:184
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users"
 msgstr "crwdns393911:0crwdne393911:0"
@@ -386,11 +386,11 @@ msgid "User Profile"
 msgstr "crwdns393919:0crwdne393919:0"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:96
+#: plugins/user_profile/tasks.py:98
 msgid "Account transfer in progress"
 msgstr "crwdns393921:0crwdne393921:0"
 
-#: plugins/user_profile/tasks.py:99
+#: plugins/user_profile/tasks.py:101
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "crwdns393923:0{learner_name}crwdnd393923:0{facility_name}crwdne393923:0"

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ਕੋਲੀਬਰੀ</string>
+    <string name="notification_channel_ticker">ਕੰਮ ਸ਼ੁਰੂ ਹੋਇਆ...</string>
+    <string name="notification_service_channel_content">ਤਰੱਕੀ ਹੋ ਰਹੀ ਹੈ</string>
+    <string name="notification_service_channel_action">ਟਾਸਕ ਮੈਨੇਜਰ ਵੇਖੋ</string>
+    <string name="notification_default_channel_title">ਕਾਰਜ</string>
+    <string name="notification_download_complete_title">ਡਾਊਨਲੋਡ ਪੂਰਾ ਹੋਇਆ</string>
+    <string name="os_user_name">ਸਿੱਖਣ ਵਾਲੇ</string>
+</resources>

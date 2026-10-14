@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kolibri</string>
+    <string name="notification_channel_ticker">အလုပ်စတင်ခဲ့သည်</string>
+    <string name="notification_service_channel_content">လှုပ်ဆောင်နေသည်</string>
+    <string name="notification_service_channel_action">တာဝန်စီမံခန့်ခွဲသူကို ကြည့်မည်။</string>
+    <string name="notification_default_channel_title">အလုပ်တာဝန်များ</string>
+    <string name="notification_download_complete_title">ဒေါင်းလုဒ် ပြီးပါပြီ။</string>
+    <string name="os_user_name">သင်ယူသူ</string>
+</resources>

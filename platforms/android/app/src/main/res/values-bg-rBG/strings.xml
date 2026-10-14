@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Колибри</string>
+    <string name="notification_channel_ticker">Задачата започна…</string>
+    <string name="notification_service_channel_content">В изпълнение</string>
+    <string name="notification_service_channel_action">Виж диспечера на задачите</string>
+    <string name="notification_default_channel_title">Задачи</string>
+    <string name="notification_download_complete_title">Свалянето е завършено</string>
+    <string name="os_user_name">Ученик</string>
+</resources>
