@@ -29,7 +29,6 @@
       {{ mergeAccountUserInfo }}
     </p>
     <KTextbox
-      v-if="showPasswordTextbox"
       ref="passwordTextbox"
       v-model="formData.password"
       data-testid="passwordTextbox"
@@ -131,12 +130,8 @@
         },
       });
 
-      function showPasswordTextbox() {
-        return !get(state, 'value.targetFacility.learner_can_login_with_no_password', false);
-      }
-
       function focusOnInvalidField() {
-        if (showPasswordTextbox && isPasswordInvalid.value) {
+        if (isPasswordInvalid.value) {
           passwordTextbox.value.focus();
         }
       }
@@ -195,7 +190,6 @@
         fullName,
         mergeAccountUserInfo,
         mergeAccountUsingAdminAccount,
-        showPasswordTextbox,
         useAdminAccount,
         sendBack,
         handleContinue,
