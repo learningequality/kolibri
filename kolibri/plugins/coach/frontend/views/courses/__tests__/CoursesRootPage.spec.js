@@ -22,6 +22,7 @@ const {
   editRecipientsAction$,
   preTestRunningLabel$,
   unitInProgressLabel$,
+  unitNotStartedLabel$,
 } = coursesStrings;
 const { deleteAction$, notStartedLabel$, completedLabel$ } = coreStrings;
 const { entireClassLabel$ } = coachStrings;
@@ -297,42 +298,52 @@ describe('CoursesRootPage', () => {
       return renderComponent();
     }
 
-    it('shows "not started" label in status column when unit_phase is pre_test_pending', () => {
-      renderWithCourse({ unit_phase: UnitPhase.PRE_TEST_PENDING });
-      expect(screen.getByText(notStartedLabel$())).toBeInTheDocument();
+    const getCell = name => screen.getByRole('gridcell', { name });
+
+    it('shows the not-started status for unit 1 when unit_phase is pre_test_pending', () => {
+      renderWithCourse({ unit_phase: UnitPhase.PRE_TEST_PENDING, active_unit_number: 1 });
+      expect(getCell(notStartedLabel$())).toBeVisible();
     });
 
-    it('shows pre-test running label in status column when unit_phase is pre_test_active', () => {
+    // After a unit's post-test ends, the next unit is pre_test_pending too;
+    // it must not look like the course was never started.
+    it('shows the next unit number when pre_test_pending follows a completed unit', () => {
+      renderWithCourse({
+        unit_phase: UnitPhase.PRE_TEST_PENDING,
+        active_unit_number: 2,
+        active_unit_title: 'Unit Two',
+      });
+      expect(getCell(unitNotStartedLabel$({ num: 2 }))).toBeVisible();
+    });
+
+    it('shows the pre-test-running status when unit_phase is pre_test_active', () => {
       renderWithCourse({
         unit_phase: UnitPhase.PRE_TEST_ACTIVE,
         active_unit_number: 2,
         active_unit_title: 'Unit Two',
       });
-      expect(screen.getByText(preTestRunningLabel$({ num: 2 }))).toBeInTheDocument();
+      expect(getCell(preTestRunningLabel$({ num: 2 }))).toBeVisible();
     });
 
-    it('shows unit in progress label in status column when unit_phase is post_test_pending', () => {
+    it('shows the unit-in-progress status when unit_phase is post_test_pending', () => {
       renderWithCourse({
         unit_phase: UnitPhase.POST_TEST_PENDING,
         active_unit_number: 1,
         active_unit_title: 'Unit One',
       });
-      expect(screen.getByText(unitInProgressLabel$({ num: 1 }))).toBeInTheDocument();
+      expect(getCell(unitInProgressLabel$({ num: 1 }))).toBeVisible();
     });
 
-    it('shows completed label in status column when unit_phase is complete', () => {
+    it('shows the completed status when unit_phase is complete', () => {
       renderWithCourse({
         unit_phase: UnitPhase.COMPLETE,
         active_unit_number: null,
         active_unit_title: null,
       });
-      expect(screen.getByText(completedLabel$())).toBeInTheDocument();
+      expect(getCell(completedLabel$())).toBeVisible();
     });
 
-    it('shows dash in learner progress column when test_learner_progress is null', () => {
-      renderWithCourse({ test_learner_progress: null });
-      expect(screen.getByText('—')).toBeInTheDocument();
-    });
+    const queryTally = () => screen.queryByTestId('learner-progress-tally');
 
     // The API omits helpNeeded, which tests have no signal for; the ratio
     // denominator must not become NaN.
@@ -341,17 +352,19 @@ describe('CoursesRootPage', () => {
         unit_phase: UnitPhase.PRE_TEST_ACTIVE,
         test_learner_progress: { completed: 1, started: 2, notStarted: 3, total: 6 },
       });
-      expect(screen.queryByText('—')).not.toBeInTheDocument();
-      expect(
-        screen.getByText(
-          learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
-        ),
-      ).toBeInTheDocument();
+      expect(queryTally()).toHaveTextContent(
+        learnerProgressTranslators.completed.$tr('ratioShort', { count: 1, total: 6 }),
+      );
     });
 
-    it('shows entire class label in recipients column when course has group assignments', () => {
+    it('shows no learner progress when test_learner_progress is null', () => {
+      renderWithCourse({ unit_phase: UnitPhase.POST_TEST_PENDING, test_learner_progress: null });
+      expect(queryTally()).not.toBeInTheDocument();
+    });
+
+    it('shows the entire class as recipients when course has group assignments', () => {
       renderWithCourse({ assignments: ['group-1'], learner_ids: [] });
-      expect(screen.getByText(entireClassLabel$())).toBeInTheDocument();
+      expect(getCell(entireClassLabel$())).toBeVisible();
     });
   });
 });
