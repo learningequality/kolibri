@@ -134,6 +134,7 @@
                 appearance="basic-link"
                 :text="$tr('changePasswordPrompt')"
                 class="change-password"
+                data-testid="change-password"
                 @click="showPasswordModal = true"
               />
             </td>
@@ -331,7 +332,13 @@
         const learner_can_edit =
           this.facilityConfig.learner_can_edit_password &&
           !this.facilityConfig.learner_can_login_with_no_password;
-        return this.isSuperuser || this.isAdmin || this.isCoach || learner_can_edit;
+        return (
+          this.isSuperuser ||
+          this.isAdmin ||
+          this.isCoach ||
+          (this.userHasPermissions && this.facilityConfig.learner_can_login_with_no_password) ||
+          learner_can_edit
+        );
       },
     },
     async created() {

@@ -21,7 +21,6 @@ from rest_framework.exceptions import ValidationError as RestValidationError
 from rest_framework.response import Response
 
 from kolibri.core import error_constants
-from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -31,6 +30,7 @@ from kolibri.core.utils.token_generator import TokenGenerator
 
 from ..models import Facility
 from ..models import FacilityUser
+from .auth_views import can_set_unspecified_password
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,11 @@ class CreateSessionSerializer(serializers.Serializer):
         if app_auth_token:
             try:
                 user = FacilityUser.objects.get_or_create_os_user(app_auth_token)
-                if user is not None and user.username == username:
+                if (
+                    user is not None
+                    and user.username == username
+                    and user.can_sign_in_as_os_user
+                ):
                     return user
             except ValidationError as e:
                 logger.error(e)
@@ -172,16 +176,14 @@ class CreateSessionSerializer(serializers.Serializer):
                 username__exact=username, facility=facility
             ).first()
 
-        if (
-            unauthenticated_user is not None
-            and unauthenticated_user.password == NOT_SPECIFIED
-            and not hasattr(unauthenticated_user, "os_user")
+        if unauthenticated_user is not None and can_set_unspecified_password(
+            self.context.get("request"), unauthenticated_user
         ):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.
             # Alternatively, they may have been created as an OSUser for automatic login with an
-            # authentication token. If this is the case, then we do not allow for the password to be set.
+            # authentication token.
             raise RestValidationError(
                 detail={
                     "password": [
