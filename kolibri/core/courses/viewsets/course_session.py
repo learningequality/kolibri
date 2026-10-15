@@ -533,7 +533,7 @@ def _fetch_mastery_logs_batch(items, tests_by_session, learners_by_session):
     all_learner_ids = set()
     for item in items:
         test = tests_by_session.get(item["id"])
-        if not test:
+        if not test or test.closed:
             continue
         content_ids.add(
             get_synthetic_content_id(
@@ -578,11 +578,7 @@ def _compute_learner_progress(
 
     # Only a running test has progress to tally; between tests and after the
     # last one closes, a closed test's tally would misrepresent current activity.
-    if course_state["unit_phase"] in (
-        UnitPhase.PreTestPending,
-        UnitPhase.PostTestPending,
-        UnitPhase.Complete,
-    ):
+    if not test or test.closed:
         item["test_learner_progress"] = None
         return
 
