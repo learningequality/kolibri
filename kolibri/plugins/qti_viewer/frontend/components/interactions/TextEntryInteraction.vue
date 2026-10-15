@@ -6,11 +6,7 @@
         ref="inputEl"
         v-bind="inputAttrs"
         :value="rawValue"
-        :class="[
-          'qti-text-entry-interaction',
-          attrsClass,
-          $computedClass({ ':focus': coreOutline }),
-        ]"
+        :class="['qti-text-entry-interaction', attrsClass]"
         :aria-label="textEntryLabel$()"
         :aria-invalid="showPatternError ? 'true' : undefined"
         :aria-describedby="patternErrorId"
@@ -56,7 +52,7 @@
   import { computed, inject, nextTick, onBeforeUnmount, ref, unref, watch } from 'vue';
   import { compile } from 'xspattern';
   import logger from 'kolibri-logging';
-  import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { injectKeypad } from 'kolibri-common/composables/useKeypad';
   import { normalizeNumerals, localizeNumerals } from 'kolibri-common/utils/numeralNormalization';
@@ -403,7 +399,6 @@
         placeholder: typedProps.placeholderText,
         interactive,
         inputMode,
-        coreOutline: themeOutlineStyle(),
         inputAttrs,
         attrsClass,
         widthStyle,
