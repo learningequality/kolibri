@@ -6,11 +6,6 @@ from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import valid_app_key_on_request
 
 
-class NotProvisionedCanPost(BasePermission):
-    def has_permission(self, request, view):
-        return not device_provisioned() and request.method == "POST"
-
-
 class NotProvisionedHasPermission(BasePermission):
     def has_permission(self, request, view):
         if device_provisioned():
@@ -36,11 +31,6 @@ class IsSuperuser(DenyAll):
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)
-
-
-class IsNotAnonymous(DenyAll):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
 
 
 class FromAppContextPermission(BasePermission):

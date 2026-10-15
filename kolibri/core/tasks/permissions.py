@@ -148,11 +148,6 @@ class IsFacilityAdmin(BasePermission):
         return _user_is_admin_for_own_facility(user)
 
 
-class IsAdmin(PermissionsFromAny):
-    def __init__(self):
-        super().__init__(IsSuperAdmin(), IsFacilityAdmin())
-
-
 class HasSameFacilityAsJob(BasePermission):
     def user_can_run_job(self, user, job):
         return user.facility_id == job.facility_id
