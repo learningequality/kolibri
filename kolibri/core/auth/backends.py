@@ -153,13 +153,13 @@ class BasicUserAuthScope(FacilityAuthScope, UsernameAuthScope):
         Either the provided password matches the user, or the user is a learner and the facility
         configuration allows passwordless sign-in.
         """
-        if user.check_password(self.password):
-            return True
+        return user.check_password(self.password) or self.matches_without_password(user)
 
+    def matches_without_password(self, user):
         return (
             user.dataset.learner_can_login_with_no_password
             and not user.has_roles
-            and (not user.is_superuser or self.is_full_facility_import)
+            and (not user.can_manage_content or self.is_full_facility_import)
         )
 
 
@@ -185,6 +185,9 @@ class PicturePasswordAuthScope(FacilityAuthScope):
         Validates that the user is a learner and that the facility configuration allows picture
         password sign-in.
         """
+        return self.matches_without_password(user)
+
+    def matches_without_password(self, user):
         return (
             user.dataset.picture_password_settings is not None
             and not user.has_roles

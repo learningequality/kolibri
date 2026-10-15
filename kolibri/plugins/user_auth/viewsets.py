@@ -40,7 +40,11 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
             | Q(dataset__picture_password_settings__isnull=False),
             roles=None,
         ).filter(
-            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
+            Q(
+                devicepermissions__is_superuser=False,
+                devicepermissions__can_manage_content=False,
+            )
+            | Q(devicepermissions__isnull=True)
         )
 
     def list(self, request, *args, **kwargs):

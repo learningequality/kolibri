@@ -1,9 +1,11 @@
 from django.urls import reverse
 
+from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.device.models import DevicePermissions
 
 
 class FacilityUsernameViewSetTestCase(APITestCase):
@@ -55,6 +57,23 @@ class FacilityUsernameViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         # 25 users in setUp; requesting 100, clamped to 20 — must get exactly 20
         self.assertEqual(len(response.data["results"]), 20)
+
+    def test_excludes_privileged_users(self):
+        admin = FacilityUserFactory.create(facility=self.facility, username="admin")
+        self.facility.add_admin(admin)
+        create_superuser(self.facility, username="superuser")
+        content_manager = FacilityUserFactory.create(
+            facility=self.facility, username="content_manager"
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        response = self.client.get(
+            self.url(),
+            {"facility": self.facility.id, "max_results": 20},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        usernames = [item["username"] for item in response.data["results"]]
+        self.assertEqual(usernames, [user.username for user in self.users[:20]])
 
     def test_short_search_returns_400(self):
         for search in ("a", "te"):
