@@ -196,7 +196,8 @@ jobs:
           script: |
             # Caps are ~30x the observed normal (6s install, under 1s for the rest);
             # 3 attempts each still fit the job's cap after a 10 minute emulator boot.
-            platforms/android/scripts/adb-retry.sh 180 3 install -r platforms/android/dist/*.apk
+            # API 24's streamed install loses a byte over a pty and hangs.
+            platforms/android/scripts/adb-retry.sh 180 3 install -r --no-streaming platforms/android/dist/*.apk
             platforms/android/scripts/adb-retry.sh 60 3 shell am set-debug-app --persistent org.learningequality.Kolibri
             platforms/android/scripts/adb-retry.sh 120 3 wait-for-device
             timeout 300 sh -c 'until adb shell pm path org.learningequality.Kolibri >/dev/null 2>&1; do sleep 1; done'

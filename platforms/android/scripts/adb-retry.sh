@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-# Run an adb command under a per-attempt timeout, restarting the adb server
+# Run an adb command under a per-attempt timeout, waiting for the device
 # between attempts.
 #
 # Usage: adb-retry.sh TIMEOUT ATTEMPTS ADB_ARG [ADB_ARG ...]
 #
-# adb has no timeout of its own, so an emulator that drops to `device offline`
-# mid-command blocks the call until something else kills it — observed as a 29
-# minute `adb install` on CI's API 24 image that ended only when the job hit
-# its own cap. The emulator process usually survives the dropped connection,
-# so restarting the adb server and re-running recovers the run.
+# adb has no timeout of its own, so a command the device never answers blocks
+# until something else kills it — observed as a streamed `adb install` on CI's
+# API 24 image hanging with the device still connected, its package manager
+# waiting on a pty for a byte the host had already sent.
 set -euo pipefail
 
 if [ "$#" -lt 3 ]; then
@@ -20,7 +19,7 @@ attempt_timeout=$1
 attempts=$2
 shift 2
 
-# Cap on each step of the recovery itself, which can wedge the same way.
+# Cap on the wait between attempts, which can wedge the same way.
 RECOVERY_TIMEOUT=60
 
 # macOS has no timeout(1); coreutils installs it as gtimeout. Fail loudly
@@ -43,6 +42,5 @@ while true; do
     exit "$status"
   fi
   attempt=$((attempt + 1))
-  "$TIMEOUT" "$RECOVERY_TIMEOUT" adb kill-server || true
   "$TIMEOUT" "$RECOVERY_TIMEOUT" adb wait-for-device || true
 done
