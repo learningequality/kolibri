@@ -55,6 +55,7 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.device.constants import DEVICE_PERMISSIONS_FIELDS
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
@@ -809,7 +810,9 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         OSUser = apps.get_model("device", "OSUser")
         try:
             return (
-                OSUser.objects.select_related("user")
+                OSUser.objects.select_related(
+                    "user__dataset", "user__devicepermissions"
+                )
                 .get(os_username=os_user.os_user_id)
                 .user
             )
@@ -1012,6 +1015,13 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
             q = f"{relation_prefix}__{q}"
         return Q(**{q: True})
 
+    @classmethod
+    def get_is_privileged_q(cls):
+        q = Q(roles__isnull=False)
+        for field in DEVICE_PERMISSIONS_FIELDS:
+            q |= Q(**{f"devicepermissions__{field}": True})
+        return q
+
     def calculate_partition(self):
         return f"{self.dataset_id}:user-ro:{self.ID_PLACEHOLDER}"
 
@@ -1079,6 +1089,23 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         if self.dataset.extra_fields is not None:
             return self.dataset.extra_fields.get("on_my_own_setup", False)
         return False
+
+    @property
+    def can_sign_in_as_os_user(self):
+        if not hasattr(self, "os_user"):
+            return False
+        if (
+            get_device_setting("subset_of_users_device")
+            or self.full_facility_on_my_own_setup
+        ):
+            return True
+        return not self.is_privileged
+
+    @property
+    def is_privileged(self):
+        return self.roles.exists() or any(
+            self.get_permission(field) for field in DEVICE_PERMISSIONS_FIELDS
+        )
 
     @property
     def can_manage_content(self):
