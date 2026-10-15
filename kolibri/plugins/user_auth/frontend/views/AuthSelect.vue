@@ -40,10 +40,12 @@
   import { computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useAuthPageTitle from '../composables/useAuthPageTitle';
   import useAuthFlow from '../composables/useAuthFlow';
   import useAuthRouter from '../composables/useAuthRouter';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
+  import { pageTitleStrings } from './pageTitleStrings';
 
   export default {
     name: 'AuthSelect',
@@ -57,6 +59,11 @@
         signUpRoute: _signUpRoute,
       } = useAuthRouter(route);
       const { canSignUpWithAnyFacility, hasMultipleFacilities } = useAuthFlow();
+      useAuthPageTitle(() =>
+        canSignUpWithAnyFacility.value
+          ? pageTitleStrings.authSelectPageTitle$()
+          : pageTitleStrings.signInPageTitle$(),
+      );
 
       const signInRoute = computed(() => {
         return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : _signInRoute.value;

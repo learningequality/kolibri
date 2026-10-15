@@ -41,10 +41,12 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import { useRoute } from 'vue-router/composables';
+  import useAuthPageTitle from '../../composables/useAuthPageTitle';
   import { setUnspecifiedPassword } from '../../api';
   import AuthBase from '../AuthBase';
   import useAuthRouter from '../../composables/useAuthRouter';
   import AuthContextHeading from '../AuthContextHeading.vue';
+  import { pageTitleStrings } from '../pageTitleStrings';
 
   export default {
     name: 'NewPasswordPage',
@@ -58,6 +60,7 @@
       const { login } = useUser();
       const route = useRoute();
       const { nextParam, signInRoute } = useAuthRouter(route);
+      useAuthPageTitle(pageTitleStrings.newPasswordPageTitle$);
       return { login, nextParam, signInRoute };
     },
     props: {
