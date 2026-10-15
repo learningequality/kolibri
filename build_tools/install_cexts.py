@@ -100,6 +100,9 @@ def run_pip_install(
             "pip",
             "install",
             "-q",
+            # Skip the self-check's unprimed /simple/pip/ GET; its torn read
+            # only warns.
+            "--disable-pip-version-check",
             "-t",
             path,
             "--platform",
@@ -209,14 +212,27 @@ def run_installs(tasks, max_workers=DEFAULT_MAX_WORKERS):
     network-bound `pip install` into its own target directory, so a thread pool
     overlaps the downloads. A fatal (PyPI) failure aborts the build.
     """
+    # pip writes a cache entry's headers and body as separate files, so pips
+    # revalidating one stale index page together can pair new headers with the
+    # old body (IncompleteRead). One install per (package, index) refreshes
+    # each page before the rest read it.
+    primers = []
+    rest = []
+    seen = set()
+    for task in tasks:
+        key = (task["package_name"], task["index_url"])
+        (rest if key in seen else primers).append(task)
+        seen.add(key)
+
     errors = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(install_one, task) for task in tasks]
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                future.result()
-            except RuntimeError as e:
-                errors.append(str(e))
+        for batch in (primers, rest):
+            futures = [executor.submit(install_one, task) for task in batch]
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    future.result()
+                except RuntimeError as e:
+                    errors.append(str(e))
     if errors:
         sys.exit("\n" + "\n".join(errors) + "\n")
 

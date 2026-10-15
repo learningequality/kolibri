@@ -3,13 +3,15 @@ Unit tests for build_tools/install_cexts.py.
 
 The C-extension install step downloads a dozen-plus independent wheels with one
 `pip install` subprocess each. These tests pin the behaviour of the concurrent
-executor: every collected task is installed, a PyPI failure is fatal, and a
-Piwheels failure is tolerated (the site is flaky by design).
+executor: every collected task is installed, each index page is fetched by one
+install before others share it, a PyPI failure is fatal, and a Piwheels failure
+is tolerated (the site is flaky by design).
 """
 
 import importlib.util
 import os
 import threading
+import time
 
 import pytest
 
@@ -72,6 +74,39 @@ def test_run_installs_attempts_every_task(monkeypatch):
     assert sorted(called) == sorted(
         [(t["platform"], t["python_version"]) for t in tasks]
     )
+
+
+def test_run_installs_refreshes_each_index_page_before_sharing_it(monkeypatch):
+    tasks = [
+        _task(name="cffi", version="38"),
+        _task(name="cffi", version="39"),
+        _task(name="cffi", version="310"),
+        _task(name="cffi", index_url=install_cexts.PIWHEEL_DOWNLOAD, version="38"),
+        _task(name="cffi", index_url=install_cexts.PIWHEEL_DOWNLOAD, version="39"),
+        _task(name="cryptography", version="38"),
+        _task(name="cryptography", version="39"),
+    ]
+    events = []
+    lock = threading.Lock()
+
+    def fake_call(argv):
+        page = (argv[argv.index("-i") + 1], argv[-1])
+        with lock:
+            events.append(("start", page))
+        # Long enough for installs that run together to overlap.
+        time.sleep(0.05)
+        with lock:
+            events.append(("end", page))
+        return 0
+
+    monkeypatch.setattr(install_cexts.subprocess, "call", fake_call)
+
+    install_cexts.run_installs(tasks)
+
+    pages = {page for _, page in events}
+    assert len(pages) == 3
+    for page in pages:
+        assert [event for event, p in events if p == page][:2] == ["start", "end"]
 
 
 def test_run_installs_fatal_on_pypi_failure(monkeypatch):
