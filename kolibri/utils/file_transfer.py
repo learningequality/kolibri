@@ -497,7 +497,7 @@ def _md5_file(filepath, chunk_size):
     return md5.hexdigest()
 
 
-CONTENT_RANGE_RE = re.compile(r"bytes (\d+)-(\d+)/(\d+|\*)")
+_CONTENT_RANGE_RE = re.compile(r"bytes (\d+)-(\d+)/(\d+|\*)")
 
 
 def _content_range_satisfies(content_range, start, end, total_size):
@@ -509,7 +509,7 @@ def _content_range_satisfies(content_range, start, end, total_size):
     server does not disclose it (RFC 7233 section 4.2), so that is accepted as
     well, as long as the returned start/end match what was requested.
     """
-    match = CONTENT_RANGE_RE.fullmatch(content_range)
+    match = _CONTENT_RANGE_RE.fullmatch(content_range)
     if not match:
         return False
     range_start, range_end, range_total = match.groups()

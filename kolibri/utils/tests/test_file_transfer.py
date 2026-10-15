@@ -1253,6 +1253,41 @@ class TestTransferFileRetryAfterPartialStream(unittest.TestCase):
         with open(self.dest, "rb") as f:
             self.assertEqual(f.read(), self.content)
 
+    def test_retry_with_mismatched_range_and_unknown_total_length_resets(self):
+        # An unknown "*" total must not excuse a start/end that doesn't match
+        # what was requested: that still means the server ignored the Range
+        # header, so the download should reset and restart from byte 0.
+        session = MagicMock()
+
+        def _get(url, headers=None, **kwargs):
+            if session.get.call_count == 1:
+                return self._response(self._partial_stream())
+            self.assertIsNotNone(headers)
+            self.assertEqual(headers.get("Range"), "bytes=4096-")
+            res = MagicMock()
+            res.status_code = 206
+            res.headers = {
+                "content-length": str(len(self.content)),
+                "content-range": f"bytes 0-{len(self.content) - 1}/*",
+            }
+            res.iter_content.return_value = iter([self.content])
+            return res
+
+        session.get.side_effect = _get
+
+        with FileDownload(
+            "http://example.com/test_file",
+            self.dest,
+            hashlib.md5(self.content).hexdigest(),
+            session=session,
+            retry_wait=0,
+        ) as fd:
+            fd.run()
+
+        self.assertEqual(session.get.call_count, 2)
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
     def test_retry_compressed_does_not_send_range_and_restarts(self):
         session = MagicMock()
 
