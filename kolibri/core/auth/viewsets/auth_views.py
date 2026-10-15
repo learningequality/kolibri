@@ -14,14 +14,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from kolibri.core import error_constants
+from kolibri.core.auth.backends import BasicUserAuthScope
+from kolibri.core.auth.backends import PicturePasswordAuthScope
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.users import get_remote_users_info
+from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.permissions import NotProvisionedHasPermission
-from kolibri.core.device.utils import is_full_facility_import
+from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
+from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -123,16 +127,29 @@ class DeleteImportedUserView(views.APIView):
 
 
 def _can_sign_in_without_password(user):
-    dataset = user.dataset
-    facility_allows_it = dataset.learner_can_login_with_no_password or (
-        dataset.picture_password_settings is not None
-        and user.picture_password is not None
+    scopes = [BasicUserAuthScope(user.facility_id, user.username)]
+    if user.picture_password is not None:
+        scopes.append(PicturePasswordAuthScope(user.facility_id, user.picture_password))
+    return any(
+        scope.matches_without_password(scope.get_queryset().get(pk=user.pk))
+        for scope in scopes
     )
-    return (
-        facility_allows_it
-        and not user.roles.exists()
-        and (not user.is_superuser or not is_full_facility_import(user.dataset_id))
-    )
+
+
+def can_set_unspecified_password(request, user):
+    if user.password != NOT_SPECIFIED:
+        return False
+    if not hasattr(user, "os_user"):
+        return not _can_sign_in_without_password(user)
+    if not valid_app_key_on_request(request) or user.can_sign_in_as_os_user:
+        return False
+    try:
+        os_username, _ = GetOSUserHook.retrieve_os_user(
+            request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
+        )
+    except NotImplementedError:
+        return False
+    return os_username == user.os_user.os_username
 
 
 class SetNonSpecifiedPasswordView(views.APIView):
@@ -156,11 +173,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         except (ValueError, ObjectDoesNotExist) as e:
             raise Http404(error_message) from e
 
-        if (
-            user.password != NOT_SPECIFIED
-            or hasattr(user, "os_user")
-            or _can_sign_in_without_password(user)
-        ):
+        if not can_set_unspecified_password(request, user):
             raise Http404(error_message)
 
         user.set_password(password)

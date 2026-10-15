@@ -41,8 +41,6 @@ from kolibri.utils.options import update_options_file
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 
-device_permissions_fields = ["is_superuser", "can_manage_content"]
-
 
 class DevicePermissions(models.Model):
     """

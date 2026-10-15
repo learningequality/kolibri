@@ -26,6 +26,7 @@ from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.sync_operations import KolibriSyncOperations
 from kolibri.core.device.models import clear_device_settings_memo
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import provision_device as _provision_device
 
 from ..models import Classroom
@@ -57,6 +58,43 @@ def create_superuser(facility, username="superuser"):
     superuser.save()
     DevicePermissions.objects.create(user=superuser, is_superuser=True)
     return superuser
+
+
+def create_os_user(facility, os_username):
+    user = FacilityUser.objects.create_user(
+        os_username, password=DUMMY_PASSWORD, facility=facility
+    )
+    OSUser.objects.create(os_username=os_username, user=user)
+    return user
+
+
+def create_privileged_os_users(facility):
+    superuser = create_superuser(facility, username="os_superuser")
+    OSUser.objects.create(os_username=superuser.username, user=superuser)
+    admin = create_os_user(facility, "os_admin")
+    facility.add_admin(admin)
+    coach = create_os_user(facility, "os_coach")
+    facility.add_coach(coach)
+    class_coach = create_os_user(facility, "os_class_coach")
+    Classroom.objects.create(name="os_classroom", parent=facility).add_coach(
+        class_coach
+    )
+    content_manager = create_os_user(facility, "os_content_manager")
+    DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+    picture_content_manager = create_os_user(facility, "os_picture_content_manager")
+    picture_content_manager.picture_password = "1.2.3"
+    picture_content_manager.save()
+    DevicePermissions.objects.create(
+        user=picture_content_manager, can_manage_content=True
+    )
+    return [
+        superuser,
+        admin,
+        coach,
+        class_coach,
+        content_manager,
+        picture_content_manager,
+    ]
 
 
 class KolibriAPIClient(APIClient):
