@@ -738,9 +738,9 @@ class BaseKolibriProcessBus(ProcessBus):
         log_plugin = LogPlugin(self)
         log_plugin.subscribe()
 
-        signal_handler = SignalHandler(self)
+        self.signal_handler = SignalHandler(self)
 
-        signal_handler.subscribe()
+        self.signal_handler.subscribe()
 
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
