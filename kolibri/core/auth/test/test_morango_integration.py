@@ -10,11 +10,18 @@ through regular Django ORM calls, with `.using(<server_alias>)`.
 
 import datetime
 import os
+import shutil
+import threading
 import unittest
 import uuid
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
+from unittest import mock
 
 from django.core.management import call_command
+from django.db import connection
 from django.db import connections
+from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import timezone
@@ -58,7 +65,10 @@ from . import sync_scenarios
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
+from .sync_utils import _get_preseeded_home
+from .sync_utils import KolibriServer
 from .sync_utils import multiple_kolibri_servers
+from .sync_utils import ServerStartError
 
 
 class FacilityDatasetCertificateTestCase(TestCase):
@@ -195,6 +205,45 @@ class CrossDatasetSuperuserDeserializationTestCase(TransactionTestCase):
         self.assertIsNone(AttendanceSession.objects.get(id=session.id).created_by_id)
 
         self._assert_deserializes_cleanly(session.id)
+
+
+class _NotFoundHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_error(404)
+
+    def log_message(self, format, *args):
+        pass
+
+
+class KolibriServerTestCase(SimpleTestCase):
+    def test_main_port_differs_from_zip_content_port(self):
+        with mock.patch(
+            "kolibri.core.auth.test.sync_utils.get_free_tcp_port",
+            side_effect=[8001, 8001, 8002],
+        ):
+            server = KolibriServer(autostart=False)
+        self.addCleanup(shutil.rmtree, server.env["KOLIBRI_HOME"])
+        self.assertNotEqual(server.port, int(server.env["KOLIBRI_ZIP_CONTENT_PORT"]))
+
+    @unittest.skipIf(
+        not os.environ.get("INTEGRATION_TEST"),
+        "This test will only be run during integration testing.",
+    )
+    @unittest.skipIf(
+        connection.vendor != "sqlite", "The preseeded home is sqlite only."
+    )
+    def test_start_raises_when_main_server_cannot_bind(self):
+        server = KolibriServer(
+            autostart=False, seeded_kolibri_home=_get_preseeded_home({})
+        )
+        occupant = HTTPServer(("", 0), _NotFoundHandler)
+        self.addCleanup(occupant.server_close)
+        threading.Thread(target=occupant.serve_forever, daemon=True).start()
+        self.addCleanup(occupant.shutdown)
+        server.port = occupant.server_address[1]
+        self.addCleanup(server.kill)
+        with self.assertRaises(ServerStartError):
+            server.start()
 
 
 class MultipleServerTestCase(TestCase):
