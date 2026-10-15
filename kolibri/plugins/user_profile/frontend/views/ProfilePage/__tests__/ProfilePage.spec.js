@@ -78,6 +78,8 @@ async function renderProfile({
   userKind = UserKinds.LEARNER,
   picturePasswordSettings = null,
   picturePassword = null,
+  userHasPermissions = false,
+  passwordless = false,
 } = {}) {
   useUser.mockImplementation(() =>
     useUserMock({
@@ -85,6 +87,7 @@ async function renderProfile({
       isCoach: userKind === UserKinds.COACH,
       isAdmin: userKind === UserKinds.ADMIN || userKind === UserKinds.SUPERUSER,
       isSuperuser: userKind === UserKinds.SUPERUSER,
+      userHasPermissions,
     }),
   );
   useFacility.mockImplementation(() =>
@@ -92,6 +95,7 @@ async function renderProfile({
       facilityConfig: ref({
         picture_password_settings: picturePasswordSettings,
         learner_can_edit_password: false,
+        learner_can_login_with_no_password: passwordless,
       }),
     }),
   );
@@ -221,4 +225,25 @@ describe('rendered page', () => {
       expect(screen.getByText(changePasswordPrompt$())).toBeVisible();
     },
   );
+
+  it('shows the Change password button for a content manager in a passwordless facility', async () => {
+    await renderProfile({ userHasPermissions: true, passwordless: true });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.getByTestId('change-password')).toHaveTextContent(changePasswordPrompt$());
+  });
+
+  it('hides the Change password button for a content manager when learner_can_edit_password is false', async () => {
+    await renderProfile({ userHasPermissions: true });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.queryByTestId('change-password')).not.toBeInTheDocument();
+  });
+
+  it('hides the Change password button for a learner in a passwordless facility', async () => {
+    await renderProfile({ userKind: UserKinds.LEARNER, passwordless: true });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.queryByTestId('change-password')).not.toBeInTheDocument();
+  });
 });
