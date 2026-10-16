@@ -6,7 +6,7 @@ Start the Kolibri server first, then provision and seed:
 
 ```bash
 cd integration_testing/load_testing
-python loadtest.py --server http://localhost:8000 --username admin --password admin setup
+./loadtest.py --server http://localhost:8000 --username admin --password admin setup
 ```
 
 This creates a superuser (`admin`/`admin`), a "Load Test Facility" with a "Load Test Class" classroom, 10 learner accounts (`load_test_1` through `load_test_10`, password: `password`), imports the QA channel from Studio, and creates a lesson with diverse content types.
