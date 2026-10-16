@@ -132,7 +132,9 @@ describe('Single cardinality', () => {
 
     await fireEvent.click(choices[0]);
     const result = checkAnswer();
-    expect(result.answerState[singleFixture.responseIdentifier]).toBe(firstChoiceId(xml()));
+    expect(result.answerState.responses[singleFixture.responseIdentifier]).toBe(
+      firstChoiceId(xml()),
+    );
 
     setAnswerState({});
     await screen.findAllByRole('option');
@@ -145,7 +147,7 @@ describe('Single cardinality', () => {
 
   it('restores selection from injected answerState on mount', () => {
     renderAssessmentItem(xml(), {
-      answerState: { [singleFixture.responseIdentifier]: firstChoiceId(xml()) },
+      answerState: { responses: { [singleFixture.responseIdentifier]: firstChoiceId(xml()) } },
     });
     const selected = screen
       .getAllByRole('option')
@@ -155,7 +157,7 @@ describe('Single cardinality', () => {
 
   it('reacts to external setAnswerState changes', async () => {
     const { setAnswerState } = renderAssessmentItem(xml());
-    setAnswerState({ [singleFixture.responseIdentifier]: firstChoiceId(xml()) });
+    setAnswerState({ responses: { [singleFixture.responseIdentifier]: firstChoiceId(xml()) } });
     await screen.findAllByRole('option');
     const selected = screen
       .getAllByRole('option')
@@ -201,7 +203,7 @@ describe('Multi cardinality', () => {
   it('restores array-valued answerState on mount', () => {
     renderAssessmentItem(xml(), {
       answerState: {
-        [multiBoundedFixture.responseIdentifier]: [firstChoiceId(xml())],
+        responses: { [multiBoundedFixture.responseIdentifier]: [firstChoiceId(xml())] },
       },
     });
     const selected = screen

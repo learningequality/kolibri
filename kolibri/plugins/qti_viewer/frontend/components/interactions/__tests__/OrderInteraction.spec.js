@@ -83,7 +83,7 @@ describe('Reordering', () => {
   it('restores order from injected answerState on mount', () => {
     renderAssessmentItem(items['q15-order-example-2'].xml, {
       answerState: {
-        RESPONSE: ['DriverC', 'DriverA', 'DriverB'],
+        responses: { RESPONSE: ['DriverC', 'DriverA', 'DriverB'] },
       },
     });
 

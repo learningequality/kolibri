@@ -22,7 +22,9 @@
 <script>
 
   import { computed, inject, provide, ref, watch } from 'vue';
+  import clamp from 'lodash/clamp';
   import cloneDeep from 'lodash/cloneDeep';
+  import round from 'lodash/round';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import useKeypad from 'kolibri-common/composables/useKeypad';
@@ -62,15 +64,29 @@
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
 
+  function snapshot(variables) {
+    return Object.fromEntries(
+      Object.entries(variables).map(([id, variable]) => [id, cloneDeep(variable.value)]),
+    );
+  }
+
   /**
    * @typedef {object} CheckAnswerResult
+   * @property {number} correct
+   * `SCORE / MAXSCORE` clamped to [0, 1]; missing `SCORE` is 0,
+   * missing or non-positive `MAXSCORE` is 1.
+   * @property {AnswerState} answerState
+   * Persisted, then re-injected via the `answerState` prop on a later mount.
+   */
+
+  /**
+   * @typedef {object} AnswerState
    * @property {{[key: string]: QTIValue}} outcomes
-   * Snapshot of current outcome variable values keyed by identifier, e.g.
-   * `{ SCORE: 1 }`. Written by response processing during `checkAnswer`.
-   * @property {{[key: string]: QTIValue|object}} answerState
-   * Snapshot of response variable values plus a `QTI_CONTEXT` entry
-   * containing the active QTI context record. Shape suitable for persisting
-   * and re-injecting via the `answerState` prop on a later mount.
+   * Outcome values after response processing, e.g. `{ SCORE: 1 }`. Never restored.
+   * @property {{[key: string]: QTIValue}} responses
+   * Response variable values keyed by identifier; restored on mount.
+   * @property {object} QTI_CONTEXT
+   * The active QTI context record.
    */
 
   export default {
@@ -116,9 +132,10 @@
       useKeypad();
 
       function setFromAnswerState() {
+        const savedResponses = injectedAnswerState.value.responses ?? {};
         for (const [id, variable] of Object.entries(responses.value)) {
-          if (id in injectedAnswerState.value && injectedAnswerState.value[id] != null) {
-            variable.value = injectedAnswerState.value[id];
+          if (savedResponses[id] != null) {
+            variable.value = savedResponses[id];
           } else {
             variable.reset();
           }
@@ -129,23 +146,20 @@
         // Run response processing to compute outcome values (e.g., SCORE)
         processResponses();
 
-        const answerState = {};
-        for (const [id, variable] of Object.entries(responses.value)) {
-          answerState[id] = cloneDeep(variable.value);
-        }
-        // Eventually this will come more generally from processing context
-        // declarations, but for now QTI_CONTEXT is the only context we store.
-        answerState['QTI_CONTEXT'] = cloneDeep(QTI_CONTEXT.value);
-
-        // Extract outcome values for the caller
-        const outcomes = {};
-        for (const [id, variable] of Object.entries(qtiContext.outcomes.value)) {
-          outcomes[id] = variable.value;
-        }
+        const outcomes = snapshot(qtiContext.outcomes.value);
+        const score = outcomes.SCORE ?? 0;
+        const maxScore = outcomes.MAXSCORE > 0 ? outcomes.MAXSCORE : 1;
 
         return {
-          outcomes,
-          answerState,
+          // Rounding absorbs float error, e.g. mapped values 0.7 + 0.2 + 0.1.
+          correct: clamp(round(score / maxScore, 9), 0, 1),
+          answerState: {
+            outcomes,
+            responses: snapshot(responses.value),
+            // Eventually this will come more generally from processing context
+            // declarations, but for now QTI_CONTEXT is the only context we store.
+            QTI_CONTEXT: cloneDeep(QTI_CONTEXT.value),
+          },
         };
       });
 

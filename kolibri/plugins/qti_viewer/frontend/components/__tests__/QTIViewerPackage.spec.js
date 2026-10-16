@@ -97,7 +97,9 @@ describe('QTIViewer served a package zip', () => {
     render(Harness);
     await waitFor(() => expect(screen.getByText(CHOICE_TEXT)).toBeInTheDocument());
 
-    expect(checksAtStartTracking).toEqual([expect.objectContaining({ outcomes: { SCORE: 0 } })]);
+    expect(checksAtStartTracking).toEqual([
+      expect.objectContaining({ answerState: expect.objectContaining({ outcomes: { SCORE: 0 } }) }),
+    ]);
   });
 });
 

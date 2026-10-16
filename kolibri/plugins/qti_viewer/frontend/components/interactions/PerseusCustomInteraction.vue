@@ -19,7 +19,7 @@
       // so this seeds from the viewer's own answer state, not from the record
       // graded into below.
       const seedAnswerState = computed(
-        () => answerState.value[props.responseIdentifier]?.answerState || {},
+        () => answerState.value.responses?.[props.responseIdentifier]?.answerState || {},
       );
 
       let perseusViewer = null;

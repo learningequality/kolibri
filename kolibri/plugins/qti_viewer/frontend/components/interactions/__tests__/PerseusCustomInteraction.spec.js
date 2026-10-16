@@ -111,7 +111,9 @@ describe('PerseusCustomInteraction', () => {
       { dataPerseusPath: ITEM_PATH, responseIdentifier: 'RESPONSE' },
       {
         perseusItems: perseusItem(ITEM_PATH, '{"question":{"content":""}}'),
-        answerState: { RESPONSE: { correct: true, answerState: savedAnswerState } },
+        answerState: {
+          responses: { RESPONSE: { correct: true, answerState: savedAnswerState } },
+        },
         responses,
         checkAnswer: () => ({
           correct: false,

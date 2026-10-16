@@ -344,18 +344,17 @@
       updateAnswerStateValue(key, value) {
         this.userAnswerState = {
           ...this.userAnswerState,
-          [key]: parseAnswerStateInput(value),
+          responses: {
+            ...this.userAnswerState.responses,
+            [key]: parseAnswerStateInput(value),
+          },
         };
       },
       refreshOutcomes() {
         const result = this.viewer?.checkAnswer?.();
         if (!result) return;
-        this.outcomes = result.outcomes ?? {};
-        // Strip QTI_CONTEXT — it rides in on the answerState payload but
-        // isn't a response variable and shouldn't appear in the display.
-        const responses = { ...(result.answerState ?? {}) };
-        delete responses.QTI_CONTEXT;
-        this.currentAnswerState = responses;
+        this.outcomes = result.answerState?.outcomes ?? {};
+        this.currentAnswerState = result.answerState?.responses ?? {};
       },
       formatOutcome(value) {
         if (value === null || value === undefined) return 'null';
