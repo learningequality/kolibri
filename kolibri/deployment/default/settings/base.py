@@ -172,6 +172,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": get_sqlite_database_path("default"),
             "OPTIONS": {"timeout": 100},
+            "CONN_MAX_AGE": None,
         }
     }
 
@@ -180,6 +181,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": get_sqlite_database_path(additional_db),
             "OPTIONS": {"timeout": 100},
+            "CONN_MAX_AGE": None,
         }
 
         if additional_db == JOB_STORAGE:

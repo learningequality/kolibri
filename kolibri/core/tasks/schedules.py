@@ -97,7 +97,8 @@ class Cron(Schedule):
             return DAY
         return HOUR
 
-    def _next_occurrence(self, interval):
+    def next_occurrence(self):
+        interval = self._interval()
         now = local_now()
         candidate = now.replace(
             hour=self.hour if self.hour is not None else now.hour,
@@ -116,11 +117,9 @@ class Cron(Schedule):
         return candidate
 
     def apply(self, task):
-        interval = self._interval()
-        when = self._next_occurrence(interval)
         task.enqueue_at(
-            when,
-            interval=interval,
+            self.next_occurrence(),
+            interval=self._interval(),
             repeat=self.repeat,
             retry_interval=self.retry_interval,
             args=self.args,
