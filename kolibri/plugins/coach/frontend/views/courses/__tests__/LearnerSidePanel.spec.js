@@ -7,6 +7,7 @@ import LearnerSidePanel from '../LearnerSidePanel.vue';
 
 const {
   noProgressLabel$,
+  testNotSubmittedLabel$,
   hasntStartedUnitsLabel$,
   strugglingWithObjectivesPrefixLabel$,
   strugglingWithObjectivesSuffixLabel$,
@@ -29,7 +30,7 @@ const LEARNER = { id: 'user-1', name: 'Alice', username: 'alice', groups: [] };
 
 const UNIT_TITLE = 'Unit 3: Fractions (Post-test results)';
 
-function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
+function makePrefetchedData({ scores = {}, started = [], activeTestType = 'pre' } = {}) {
   return {
     activeTestType,
     activeTestStatus: 'closed',
@@ -39,10 +40,12 @@ function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
       pre_test: {
         status: activeTestType === 'pre' ? 'closed' : 'not_activated',
         scores: activeTestType === 'pre' ? scores : {},
+        started: activeTestType === 'pre' ? started : [],
       },
       post_test: {
         status: activeTestType === 'post' ? 'closed' : 'not_activated',
         scores: activeTestType === 'post' ? scores : {},
+        started: activeTestType === 'post' ? started : [],
       },
     },
   };
@@ -96,8 +99,8 @@ describe('LearnerSidePanel', () => {
     const EARLIER_UNIT_TITLE = 'Unit 1: Counting (Post-test results)';
     const EARLIER_LO = { id: 'lo-0', text: 'Earlier objective', num_questions: 2 };
 
-    function earlierUnitData(scores) {
-      const data = makePrefetchedData({ scores, activeTestType: 'post' });
+    function earlierUnitData(scores, started) {
+      const data = makePrefetchedData({ scores, started, activeTestType: 'post' });
       data.reportData.learning_objectives = [EARLIER_LO];
       return data;
     }
@@ -113,14 +116,14 @@ describe('LearnerSidePanel', () => {
       return document.getElementById(button.getAttribute('aria-controls'));
     }
 
-    async function renderUnits(earlierScores) {
+    async function renderUnits(earlierScores, earlierStarted) {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       return renderComponent({
         unitReports: [
           {
             id: 'unit-0',
             title: EARLIER_UNIT_TITLE,
-            prefetchedData: earlierUnitData(earlierScores),
+            prefetchedData: earlierUnitData(earlierScores, earlierStarted),
           },
           { id: 'unit-1', title: UNIT_TITLE, prefetchedData: makePrefetchedData({ scores }) },
         ],
@@ -161,10 +164,20 @@ describe('LearnerSidePanel', () => {
     });
 
     it('shows no progress in a unit the learner has no results for', async () => {
-      await renderUnits({});
+      await renderUnits({}, ['user-2']);
       await fireEvent.click(screen.getByRole('button', { name: EARLIER_UNIT_TITLE }));
       expect(unitSection(EARLIER_UNIT_TITLE)).toHaveTextContent(noProgressLabel$());
       expect(unitTable(EARLIER_UNIT_TITLE)).not.toBeInTheDocument();
+    });
+
+    it('shows units for a learner who has only started a test', async () => {
+      await renderComponent({ prefetchedData: makePrefetchedData({ started: [LEARNER.id] }) });
+      expect(
+        screen.queryByRole('heading', { level: 3, name: noProgressLabel$() }),
+      ).not.toBeInTheDocument();
+      const section = unitSection(UNIT_TITLE);
+      expect(section).toHaveTextContent(testNotSubmittedLabel$());
+      expect(section).not.toHaveTextContent(noProgressLabel$());
     });
   });
 

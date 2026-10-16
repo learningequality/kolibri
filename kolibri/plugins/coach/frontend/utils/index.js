@@ -55,8 +55,22 @@ export function overrideRoute(route, newRoute) {
  * learner has no results on the active test.
  */
 export function learnerTestScores(prefetchedData, learnerId) {
+  return activeTestReport(prefetchedData)?.scores?.[learnerId] || null;
+}
+
+/**
+ * Whether a learner has started but not submitted a unit's active test.
+ * @param {object} prefetchedData - A unit's report info: `{ activeTestType, reportData }`.
+ * @param {string} learnerId - The learner to look up.
+ * @returns {boolean}
+ */
+export function learnerStartedTest(prefetchedData, learnerId) {
+  return Boolean(activeTestReport(prefetchedData)?.started?.includes(learnerId));
+}
+
+function activeTestReport(prefetchedData) {
   const { activeTestType, reportData } = prefetchedData || {};
   if (!activeTestType) return null;
   const testKey = activeTestType === 'post' ? 'post_test' : 'pre_test';
-  return reportData?.[testKey]?.scores?.[learnerId] || null;
+  return reportData?.[testKey];
 }
