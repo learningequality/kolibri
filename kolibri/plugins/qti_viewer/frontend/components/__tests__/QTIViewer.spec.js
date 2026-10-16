@@ -122,3 +122,21 @@ describe('QTIViewer hints', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 });
+
+describe('QTIViewer item data', () => {
+  const FIRST_ITEM_CHOICE = 'Rubens Barrichello';
+  const SECOND_ITEM_CHOICE_ALT = 'Noon';
+
+  it('renders the choices of new item data with its interaction in the same place', async () => {
+    const viewer = useContentViewerMock({ itemData: items['q15-order-example-1'].xml });
+    useContentViewer.mockImplementation(() => viewer);
+    render(QTIViewer);
+    await nextTick();
+
+    viewer.itemData.value = items['image-order-interaction'].xml;
+    await nextTick();
+
+    expect(screen.getByAltText(SECOND_ITEM_CHOICE_ALT)).toBeInTheDocument();
+    expect(screen.queryByText(FIRST_ITEM_CHOICE)).not.toBeInTheDocument();
+  });
+});
