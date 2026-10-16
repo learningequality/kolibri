@@ -161,6 +161,10 @@ class UrlResolver {
     return this._getPluginData('__contentUrl');
   }
 
+  get __zipContentStorageUrl() {
+    return this._getPluginData('__zipContentStorageUrl');
+  }
+
   sandbox() {
     if (!this.__sandboxUrl) {
       throw new ReferenceError('Hashi Url is not defined');
@@ -211,6 +215,17 @@ class UrlResolver {
       throw new ReferenceError('Zipcontent Url is not defined');
     }
     return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
+  }
+  zipContentStorageUrl(fileId, extension) {
+    const filename = `${fileId}.${extension}`;
+    if (!this.__zipContentStorageUrl) {
+      throw new ReferenceError('Zipcontent storage Url is not defined');
+    }
+    return generateUrl(this.__zipContentStorageUrl, {
+      url: `${filename[0]}/${filename[1]}/${filename}`,
+      origin: this.__zipContentOrigin,
+      port: this.__zipContentPort,
+    });
   }
 }
 
