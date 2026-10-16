@@ -1065,6 +1065,7 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
     https://github.com/learningequality/kolibri/issues/3600
     """
 
+    databases = "__all__"
     name = CONTENT_SCHEMA_VERSION
     legacy_schema = None
     data_name = "longdescriptions"
@@ -1236,6 +1237,7 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
 
 @patch("kolibri.core.content.utils.channel_import.logger")
 class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
+    databases = "__all__"
     name = CONTENT_SCHEMA_VERSION
     legacy_schema = None
 
@@ -1372,6 +1374,7 @@ class UnversionedChecksumsBatchingTestCase(ContentImportTestBase):
     An unversioned channel with more unique checksums than fit in one batch.
     """
 
+    databases = "__all__"
     name = NO_VERSION
     legacy_schema = None
 
@@ -1403,6 +1406,7 @@ class BatchedRowImportTestCase(ContentImportTestBase):
     A channel larger than one batch, imported through the Python row path.
     """
 
+    databases = "__all__"
     name = CONTENT_SCHEMA_VERSION
     legacy_schema = None
 

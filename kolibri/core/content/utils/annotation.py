@@ -34,6 +34,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_db import content_db
 from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.tree import get_channel_node_depth
+from kolibri.core.content.utils.virtual_content_build import build_virtual_contentnodes
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.lock import db_lock
@@ -581,6 +582,7 @@ def update_content_metadata(
         admin_imported=admin_imported,
     )
     recurse_annotation_up_tree(channel_id)
+    build_virtual_contentnodes(channel_id)
     set_channel_metadata_fields(channel_id, public=public)
     ContentCacheKey.update_cache_key()
     # Do this call after refreshing the content cache key
