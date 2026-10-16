@@ -86,7 +86,7 @@
       },
     },
     mounted() {
-      if (pluginData.canCheckMeteredConnection) {
+      if (pluginData.canCheckMeteredConnection && this.isSuperuser) {
         this.loading = true;
 
         checkMeteredConnection().then(isMetered => {
