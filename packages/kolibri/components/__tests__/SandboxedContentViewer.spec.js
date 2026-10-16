@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import ScreenFull from 'screenfull';
-import { computed, defineComponent, nextTick, provide } from 'vue';
+import { computed, defineComponent, nextTick, provide, ref } from 'vue';
 import { viewerToolbarStrings } from 'kolibri/components/ViewerToolbar';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { ContentErrorConstants } from 'kolibri/constants';
@@ -103,7 +103,10 @@ const FILE = {
   thumbnail: false,
 };
 
-function renderViewer(component = SandboxedContentViewer, { listen = [] } = {}) {
+function renderViewer(
+  component = SandboxedContentViewer,
+  { listen = [], loading = ref(false) } = {},
+) {
   const listeners = {
     error: jest.fn(),
     startTracking: jest.fn(),
@@ -139,6 +142,7 @@ function renderViewer(component = SandboxedContentViewer, { listen = [] } = {}) 
           userFullName: computed(() => 'Test User'),
           progress: computed(() => 0.25),
           embedded: computed(() => false),
+          loading: computed(() => loading.value),
           setCustomExtractors: () => {},
           registerAssessmentApi: () => {},
         });
@@ -527,6 +531,51 @@ describe('SandboxedContentViewer', () => {
       await renderFile(laterPage);
 
       expect(screen.getByTestId('file-viewer')).toHaveAttribute('data-loaded-from', 'blob:main/1');
+    });
+
+    it("puts a file shown as a page in that page's session", async () => {
+      const { listeners } = renderFileViewer();
+      await nextTick();
+
+      await renderFile({ ...laterPage, isPage: true });
+
+      expect(screen.getByTestId('file-viewer')).toHaveAttribute('data-progress', '0.25');
+      expect(listeners.updateProgress).toHaveBeenCalledWith(0.5);
+      expect(listeners.addProgress).toHaveBeenCalledWith(0.5);
+      expect(listeners.updateContentState).toHaveBeenCalledWith({ page: 2 });
+      expect(listeners.finished).toHaveBeenCalledTimes(1);
+    });
+
+    it('waits for the host to finish loading before showing a file as a page', async () => {
+      const loading = ref(true);
+      const { listeners } = renderFileViewer({ loading });
+      await finishLoading();
+
+      await renderFile({ ...laterPage, isPage: true });
+
+      expect(screen.queryByTestId('file-viewer')).not.toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(listeners.updateContentState).not.toHaveBeenCalled();
+
+      loading.value = false;
+      await nextTick();
+
+      expect(screen.getByTestId('file-viewer')).toHaveAttribute('data-progress', '0.25');
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(listeners.updateContentState).toHaveBeenCalledWith({ page: 2 });
+    });
+
+    it("keeps a file shown over the content out of the content's session", async () => {
+      const { listeners } = renderFileViewer();
+      await nextTick();
+
+      await renderFile({ ...laterPage, isPage: false });
+
+      expect(screen.getByTestId('file-viewer')).toHaveAttribute('data-progress', '0');
+      expect(listeners.updateProgress).not.toHaveBeenCalled();
+      expect(listeners.addProgress).not.toHaveBeenCalled();
+      expect(listeners.updateContentState).not.toHaveBeenCalled();
+      expect(listeners.finished).not.toHaveBeenCalled();
     });
 
     it('shows an image directly', async () => {
