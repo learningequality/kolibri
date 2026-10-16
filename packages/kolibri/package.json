@@ -78,6 +78,7 @@
     "./utils/scriptLoader": "./utils/scriptLoader",
     "./utils/serverClock": "./utils/serverClock",
     "./utils/validators": "./utils/validators",
+    "./utils/virtualNodeId": "./utils/virtualNodeId",
     "./package.json": "./package.json"
   },
   "exposes": [
@@ -103,6 +104,7 @@
     "screenfull": "^5.2.0",
     "tippy.js": "^6.3.7",
     "ua-parser-js": "^1.0.41",
+    "uuid": "^14.0.2",
     "vue": "catalog:",
     "vue-intl": "3.1.0",
     "vue-meta": "catalog:",

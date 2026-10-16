@@ -17,6 +17,7 @@ from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.content.utils.paths import get_sandbox_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
+from kolibri.core.content.utils.paths import zip_content_path_prefix
 from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import NavigationHook
@@ -108,6 +109,9 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                     baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
                 ),
                 "__zipContentUrl": get_zip_content_base_path(),
+                "__zipContentStorageUrl": get_content_storage_url(
+                    baseurl=zip_content_path_prefix()
+                ),
                 "__sandboxUrl": get_sandbox_path(),
                 "__zipContentOrigin": zip_content_origin,
                 "__zipContentPort": zip_content_port,

@@ -1,6 +1,8 @@
 import SandboxedContentViewer from './internal/SandboxedContentViewer.vue';
 import setup from './internal/setup';
 
+export { renderableFileTypes } from '../../composables/internal/renderableFileTypes';
+
 /**
  * Factory function to create a SandboxedContentViewer with baked-in options.
  * @param {object} options - Configuration options

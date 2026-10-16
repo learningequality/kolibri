@@ -72,6 +72,7 @@ export default {
   'kolibri/utils/scriptLoader': require('kolibri/utils/scriptLoader'),
   'kolibri/utils/serverClock': require('kolibri/utils/serverClock'),
   'kolibri/utils/validators': require('kolibri/utils/validators'),
+  'kolibri/utils/virtualNodeId': require('kolibri/utils/virtualNodeId'),
   'kolibri-logging': require('kolibri-logging'),
   vue: require('vue'),
 };
