@@ -114,6 +114,27 @@ def _fetch_mastery_logs(learner_ids, content_id_map):
     return mastery_log_to_meta
 
 
+def _fetch_learners_with_logs(learner_ids, content_id_map):
+    """
+    Return {(unit_id, test_type): {learner_id_str, ...}} for every learner with
+    any MasteryLog on that test, submitted or not.
+    """
+    learners_by_test = defaultdict(set)
+    if not learner_ids:
+        return learners_by_test
+    for content_id, user_id in (
+        MasteryLog.objects.filter(
+            # Inlined for the same SQLite variable budget as _fetch_mastery_logs.
+            summarylog__content_id__inline_in=list(content_id_map),
+            summarylog__user_id__inline_in=learner_ids,
+        )
+        .values_list("summarylog__content_id", "summarylog__user_id")
+        .distinct()
+    ):
+        learners_by_test[content_id_map[content_id]].add(str(user_id))
+    return learners_by_test
+
+
 def _fetch_deduplicated_attempts(mastery_log_ids):
     """
     Fetch AttemptLogs for the given mastery log ids and deduplicate per
@@ -162,6 +183,41 @@ def _accumulate_scores(
             lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
 
 
+def _content_id_map(course_session_id, unit_ids):
+    """Map each unit test's synthetic content_id → (unit_id, test_type)."""
+    return {
+        get_synthetic_content_id(str(course_session_id), unit_id, test_type): (
+            unit_id,
+            test_type,
+        )
+        for unit_id in unit_ids
+        for test_type in _TEST_TYPES
+    }
+
+
+def _compute_started_learners(learner_ids, course_session_id, all_scores):
+    """
+    Learners with a MasteryLog on a test but no score in *all_scores*: started,
+    not submitted.
+
+    Returns {unit_id_str: {"pre": [learner_id_str, ...], "post": [...]}}, each
+    list sorted.
+    """
+    learners_by_test = _fetch_learners_with_logs(
+        learner_ids, _content_id_map(course_session_id, all_scores)
+    )
+    return {
+        unit_id: {
+            test_type: sorted(
+                learners_by_test.get((unit_id, test_type), set())
+                - scores[test_type].keys()
+            )
+            for test_type in _TEST_TYPES
+        }
+        for unit_id, scores in all_scores.items()
+    }
+
+
 def compute_all_test_scores(
     learner_ids, course_session_id, assessment_objectives_by_unit
 ):
@@ -195,15 +251,7 @@ def compute_all_test_scores(
     if not learner_ids:
         return results
 
-    content_id_map = {
-        get_synthetic_content_id(str(course_session_id), unit_id, test_type): (
-            unit_id,
-            test_type,
-        )
-        for unit_id in assessment_objectives_by_unit
-        for test_type in _TEST_TYPES
-    }
-
+    content_id_map = _content_id_map(course_session_id, assessment_objectives_by_unit)
     mastery_log_to_meta = _fetch_mastery_logs(learner_ids, content_id_map)
     if not mastery_log_to_meta:
         return results
@@ -324,10 +372,15 @@ class UnitReportViewSet(viewsets.ViewSet):
             },
         )
 
+        all_started = _compute_started_learners(
+            learner_ids, course_session_id, all_scores
+        )
+
         units = []
         for unit in selected:
             options = unit["options"]
             scores = all_scores[unit["id"]]
+            started = all_started[unit["id"]]
             status = statuses[unit["id"]]
             units.append(
                 {
@@ -339,10 +392,12 @@ class UnitReportViewSet(viewsets.ViewSet):
                     "pre_test": {
                         "status": status[TestType.Pre],
                         "scores": scores[TestType.Pre],
+                        "started": started[TestType.Pre],
                     },
                     "post_test": {
                         "status": status[TestType.Post],
                         "scores": scores[TestType.Post],
+                        "started": started[TestType.Post],
                     },
                 }
             )
