@@ -84,6 +84,7 @@
       v-if="sidePanelContent"
       ref="resourcePanel"
       alignment="right"
+      :ariaLabel="sidePanelContent.title"
       closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
