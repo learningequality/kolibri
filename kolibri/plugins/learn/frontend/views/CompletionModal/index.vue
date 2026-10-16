@@ -323,7 +323,7 @@
       const promises = [];
       if (this.lessonId) {
         promises.push(this.loadNextLessonContent());
-      } else if (this.canAccessUnassignedContent) {
+      } else if (this.canAccessUnassignedContent && !this.contentNode.virtual) {
         promises.push(this.loadNextContent());
       }
       if (this.canAccessUnassignedContent) {
@@ -390,9 +390,8 @@
       loadNextLessonContent() {
         return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           const index = lesson.resources.findIndex(c => c.contentnode_id === this.contentNodeId);
-          this.nextContentNode = lesson.resources[index + 1]
-            ? lesson.resources[index + 1].contentnode
-            : null;
+          const next = index === -1 ? null : lesson.resources[index + 1];
+          this.nextContentNode = next ? next.contentnode : null;
         });
       },
       emitCloseEvent() {

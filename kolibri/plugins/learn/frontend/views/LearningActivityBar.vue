@@ -355,6 +355,11 @@
         required: false,
         default: true,
       },
+      showResourceList: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
       /**
        * Shows the download button when truthy
        */
@@ -400,8 +405,9 @@
         return this.isDownloading;
       },
       allActions() {
-        const actions = [
-          {
+        const actions = [];
+        if (this.showResourceList) {
+          actions.push({
             id: 'view-resource-list',
             icon: 'resourceList',
             label: this.isLessonContext
@@ -409,8 +415,8 @@
               : this.$tr('viewTopicResources'),
             event: 'viewResourceList',
             dataTest: this.isLessonContext ? 'viewLessonPlanButton' : 'viewTopicResourcesButton',
-          },
-        ];
+          });
+        }
         if (this.showBookmark) {
           actions.push({
             id: 'bookmark',

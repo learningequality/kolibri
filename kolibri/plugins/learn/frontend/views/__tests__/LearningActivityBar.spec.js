@@ -140,6 +140,18 @@ describe('LearningActivityBar', () => {
       });
     });
 
+    describe('when the resource list is not shown', () => {
+      it("doesn't show 'View topic resources' button in the bar", () => {
+        const wrapper = makeWrapper({
+          propsData: {
+            showResourceList: false,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
+        expect(wrapper.find("[data-testid='bar_viewTopicResourcesButton']").exists()).toBeFalsy();
+      });
+    });
+
     describe('when a bookmark icon is not shown', () => {
       let wrapper;
 
