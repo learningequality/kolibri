@@ -10,6 +10,8 @@ jest.mock('alwan', () => ({
   },
 }));
 
+jest.mock('alwan/css', () => {});
+
 const { methods } = EpubRendererIndex;
 
 describe('updateProgress', () => {

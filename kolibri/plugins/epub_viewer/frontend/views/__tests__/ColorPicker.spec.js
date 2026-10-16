@@ -1,5 +1,8 @@
 import { render } from '@testing-library/vue';
+import { nextTick } from 'vue';
 import ColorPicker from '../ColorPicker';
+
+jest.mock('alwan/css', () => {});
 
 // alwan instantiates a canvas-backed color picker on mount, which jsdom does not
 // implement. Replace it with a stub that captures the 'change' callback so tests
@@ -11,6 +14,10 @@ jest.mock('alwan', () => ({
   default: class Alwan {
     constructor(el, options) {
       mockInitColor = options.color;
+      options.parent.innerHTML =
+        '<div class="alwan__selector" aria-label="Color picker">' +
+        '<svg aria-role="none"></svg>' +
+        '</div>';
     }
     on(event, callback) {
       if (event === 'change') {
@@ -35,5 +42,18 @@ describe('ColorPicker', () => {
     mockChangeCallback({ hex: '#123456', rgb: 'rgb(18, 52, 86)' });
 
     expect(emitted().change[0][0]).toBe('#123456');
+  });
+
+  it('patches alwan accessibility attributes', async () => {
+    const { container } = render(ColorPicker, {
+      props: { color: '#000000' },
+    });
+
+    await nextTick();
+
+    const picker = container.querySelector('[aria-label="Color picker"]');
+    expect(picker).toHaveAttribute('role', 'application');
+    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelectorAll('svg[aria-role]')).toHaveLength(0);
   });
 });

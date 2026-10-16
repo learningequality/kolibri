@@ -17,6 +17,8 @@ jest.mock('alwan', () => ({
   },
 }));
 
+jest.mock('alwan/css', () => {});
+
 const {
   decrease$,
   increase$,
