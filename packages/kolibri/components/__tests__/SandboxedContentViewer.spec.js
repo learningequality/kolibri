@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import ScreenFull from 'screenfull';
+import router from 'kolibri/router';
 import { computed, defineComponent, nextTick, provide } from 'vue';
 import { viewerToolbarStrings } from 'kolibri/components/ViewerToolbar';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { ContentErrorConstants } from 'kolibri/constants';
 import { CONTENT_VIEWER_CONTEXT_KEY } from '../internal/ContentViewer';
 import { createSandboxedContentViewer } from '../SandboxedContentViewer';
@@ -17,6 +19,7 @@ jest.mock('kolibri-sandbox', () =>
     this.initialize = jest.fn();
     this.updateData = jest.fn();
     this.destroy = jest.fn();
+    this.closeFile = jest.fn();
     this.getProgress = () => null;
     this.on = jest.fn(eventName => {
       if (!Object.values(this.events).includes(eventName)) {
@@ -29,6 +32,8 @@ jest.mock('kolibri-sandbox', () =>
 );
 
 jest.mock('kolibri/urls', () => ({ sandbox: () => '/sandbox/' }));
+
+jest.mock('kolibri/router', () => ({ back: jest.fn() }));
 
 jest.mock('screenfull', () => ({
   isEnabled: true,
@@ -45,6 +50,15 @@ jest.mock('kolibri', () => ({
   default: {
     getSandboxHandlerUrl: () => mockHandlerUrl,
     presetViewerComponent: () => ({ name: 'StubViewer', render: h => h('div') }),
+    canHandleElement: () => true,
+    objectViewerMimetypes: () => ['application/pdf'],
+    elementViewerComponent: () => ({
+      name: 'StubFileViewer',
+      mounted() {
+        this.$emit('updateProgress', 0.5);
+      },
+      render: h => h('div', { attrs: { 'data-testid': 'file-viewer' } }),
+    }),
   },
 }));
 
@@ -57,14 +71,17 @@ const FILE = {
   thumbnail: false,
 };
 
-function renderViewer(component = SandboxedContentViewer) {
+function renderViewer(component = SandboxedContentViewer, { routesPages = false } = {}) {
+  const onNowShowing = routesPages ? jest.fn() : undefined;
   const onError = jest.fn();
   const onStartTracking = jest.fn();
+  const onUpdateProgress = jest.fn();
   const rendered = render(
     defineComponent({
       components: { SandboxedContentViewer: component },
       setup() {
         provide(CONTENT_VIEWER_CONTEXT_KEY, {
+          contentNode: computed(() => null),
           files: computed(() => [FILE]),
           defaultFile: computed(() => FILE),
           defaultItemPreset: computed(() => 'html5_zip'),
@@ -86,12 +103,14 @@ function renderViewer(component = SandboxedContentViewer) {
           setCustomExtractors: () => {},
           registerAssessmentApi: () => {},
         });
-        return { onError, onStartTracking };
+        return { onError, onStartTracking, onUpdateProgress, onNowShowing };
       },
-      template: '<SandboxedContentViewer @error="onError" @startTracking="onStartTracking" />',
+      template: routesPages
+        ? '<SandboxedContentViewer @error="onError" @startTracking="onStartTracking" @updateProgress="onUpdateProgress" @nowShowing="onNowShowing" />'
+        : '<SandboxedContentViewer @error="onError" @startTracking="onStartTracking" @updateProgress="onUpdateProgress" />',
     }),
   );
-  return { ...rendered, onError, onStartTracking };
+  return { ...rendered, onError, onStartTracking, onUpdateProgress };
 }
 
 describe('SandboxedContentViewer', () => {
@@ -155,5 +174,213 @@ describe('SandboxedContentViewer', () => {
     await nextTick();
 
     expect(sandboxInstances[0].initialize.mock.calls[0][2]).toBe('/zipcontent/abc123/index.html');
+  });
+
+  describe('a file the content asks Kolibri to render', () => {
+    beforeEach(() => {
+      URL.createObjectURL = jest.fn(() => 'blob:main/0');
+      URL.revokeObjectURL = jest.fn();
+    });
+
+    function renderFileViewer(options) {
+      return renderViewer(createSandboxedContentViewer({ renderFiles: true }), options);
+    }
+
+    function renderFileHandler() {
+      const call = sandboxInstances[0].on.mock.calls.find(
+        ([name]) => name === sandboxInstances[0].events.RENDER_FILE,
+      );
+      return call && call[1];
+    }
+
+    async function renderFile(file) {
+      renderFileHandler()(file);
+      await nextTick();
+    }
+
+    async function finishLoading() {
+      const [, callback] = sandboxInstances[0].on.mock.calls.find(
+        ([name]) => name === sandboxInstances[0].events.LOADING,
+      );
+      callback(false);
+      await nextTick();
+    }
+
+    async function reportFileOverlay(open) {
+      const [, callback] = sandboxInstances[0].on.mock.calls.find(
+        ([name]) => name === sandboxInstances[0].events.FILE_OVERLAY,
+      );
+      callback(open);
+      await nextTick();
+      await nextTick();
+    }
+
+    it('offers a way back from a file the content shows itself, over the article', async () => {
+      renderFileViewer();
+      await nextTick();
+
+      await reportFileOverlay(true);
+      const back = screen.getByRole('button', { name: coreStrings.goBackAction$() });
+      expect(back).toHaveFocus();
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toBeVisible();
+
+      await userEvent.click(back);
+      await nextTick();
+
+      expect(sandboxInstances[0].closeFile).toHaveBeenCalledTimes(1);
+      expect(
+        screen.queryByRole('button', { name: coreStrings.goBackAction$() }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toHaveFocus();
+    });
+
+    it('drops the way back when the content closes its file itself', async () => {
+      renderFileViewer();
+      await nextTick();
+      await reportFileOverlay(true);
+
+      await reportFileOverlay(false);
+
+      expect(
+        screen.queryByRole('button', { name: coreStrings.goBackAction$() }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('offers no way back from a file shown as the first page, which has none before it', async () => {
+      renderFileViewer();
+      await nextTick();
+
+      await renderFile({ mimetype: 'application/pdf', data: new Uint8Array([1]) });
+      await finishLoading();
+
+      expect(
+        screen.queryByRole('button', { name: coreStrings.goBackAction$() }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('is not taken from content whose viewer does not render files', async () => {
+      renderViewer();
+      await nextTick();
+
+      expect(renderFileHandler()).toBeUndefined();
+    });
+
+    it('does not show an SVG, which could run script on the Kolibri origin', async () => {
+      renderFileViewer();
+      await nextTick();
+
+      const file = { mimetype: 'image/svg+xml', data: new Uint8Array([1]), name: 'Pic.svg' };
+      await renderFile(file);
+
+      expect(screen.queryByAltText(file.name)).not.toBeInTheDocument();
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toBeVisible();
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('shows it with a Kolibri viewer in place of the sandbox, and relays its progress', async () => {
+      const { onUpdateProgress } = renderFileViewer();
+      await nextTick();
+
+      await renderFile({ mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+      expect(screen.getByTestId('file-viewer')).toBeInTheDocument();
+      expect(
+        screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$()),
+      ).not.toBeVisible();
+      expect(onUpdateProgress).toHaveBeenCalledWith(0.5);
+    });
+
+    it('shows an image directly', async () => {
+      renderFileViewer();
+      await nextTick();
+
+      const file = { mimetype: 'image/png', data: new Uint8Array([1]), name: 'Pic.png' };
+      await renderFile(file);
+
+      expect(screen.getByAltText(file.name)).toHaveAttribute('src', 'blob:main/0');
+      expect(screen.queryByTestId('file-viewer')).not.toBeInTheDocument();
+    });
+
+    it('goes back from an image to the sandbox content', async () => {
+      renderFileViewer();
+      await nextTick();
+      const file = { mimetype: 'image/png', data: new Uint8Array([1]), name: 'Pic.png' };
+      await renderFile(file);
+
+      await userEvent.click(screen.getByRole('button', { name: coreStrings.goBackAction$() }));
+
+      expect(screen.queryByAltText(file.name)).not.toBeInTheDocument();
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toBeVisible();
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:main/0');
+    });
+
+    it('goes back from a file shown as a page to the page before it', async () => {
+      renderFileViewer({ routesPages: true });
+      await nextTick();
+      await finishLoading();
+      await renderFile({ mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+      await userEvent.click(screen.getByRole('button', { name: coreStrings.goBackAction$() }));
+
+      expect(router.back).toHaveBeenCalledTimes(1);
+    });
+
+    it('closes a file shown as a page when its host does not route pages, e.g. a preview', async () => {
+      renderFileViewer();
+      await nextTick();
+      await finishLoading();
+      await renderFile({ mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+      await userEvent.click(screen.getByRole('button', { name: coreStrings.goBackAction$() }));
+
+      expect(router.back).not.toHaveBeenCalled();
+      expect(sandboxInstances[0].closeFile).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('file-viewer')).not.toBeInTheDocument();
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toBeVisible();
+    });
+
+    it('moves focus to the back button when a file shown as a page opens', async () => {
+      renderFileViewer();
+      await nextTick();
+      await finishLoading();
+
+      await renderFile({ mimetype: 'application/pdf', data: new Uint8Array([1]) });
+      await nextTick();
+
+      expect(screen.getByRole('button', { name: coreStrings.goBackAction$() })).toHaveFocus();
+    });
+
+    it('moves focus to the back button when an image opens', async () => {
+      renderFileViewer();
+      await nextTick();
+
+      await renderFile({ mimetype: 'image/png', data: new Uint8Array([1]), name: 'Pic.png' });
+      await nextTick();
+
+      expect(screen.getByRole('button', { name: coreStrings.goBackAction$() })).toHaveFocus();
+    });
+
+    it('returns focus to the sandbox content when going back from an image', async () => {
+      renderFileViewer();
+      await nextTick();
+      await renderFile({ mimetype: 'image/png', data: new Uint8Array([1]), name: 'Pic.png' });
+
+      await userEvent.click(screen.getByRole('button', { name: coreStrings.goBackAction$() }));
+      await nextTick();
+
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toHaveFocus();
+    });
+
+    it('returns to the sandbox content, which kept running, when cleared', async () => {
+      renderFileViewer();
+      await nextTick();
+      await renderFile({ mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+      await renderFile(null);
+
+      expect(screen.queryByTestId('file-viewer')).not.toBeInTheDocument();
+      expect(screen.getByTitle(sandboxedContentViewerStrings.contentFrameTitle$())).toBeVisible();
+      expect(sandboxInstances).toHaveLength(1);
+    });
   });
 });

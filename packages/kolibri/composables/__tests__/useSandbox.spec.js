@@ -14,12 +14,15 @@ jest.mock('kolibri-sandbox', () =>
       LOADING: 'loading',
       ERROR: 'error',
       NAVIGATETO: 'navigateTo',
-      HANDLERREQUESTED: 'handlerrequested',
+      NOW_SHOWING: 'nowshowing',
+      RENDER_FILE: 'renderfile',
+      HANDLER_REQUESTED: 'handlerrequested',
     };
     this.progress = null;
     this.stateUpdateCallback = null;
     this.initialize = jest.fn();
     this.updateData = jest.fn();
+    this.navigate = jest.fn();
     this.destroy = jest.fn();
     this.getProgress = () => this.progress;
     this.on = jest.fn();
@@ -40,6 +43,8 @@ jest.mock('kolibri', () => ({
   default: {
     getSandboxHandlerUrl: preset => (preset === 'html5_zip' ? mockHandlerUrl : null),
     presetViewerComponent: () => ({ name: 'StubViewer', render: h => h('div') }),
+    canHandleElement: () => false,
+    objectViewerMimetypes: () => ['application/pdf'],
   },
 }));
 
@@ -63,11 +68,17 @@ function renderSandbox({
   lang = null,
   file = FILE,
   extraFields = {},
+  contentNode = null,
   sandboxOptions = {},
 } = {}) {
   const emitted = [];
   let api;
-  const session = { progress: ref(0), timeSpent: ref(timeSpent), lang: ref(lang) };
+  const session = {
+    progress: ref(0),
+    timeSpent: ref(timeSpent),
+    lang: ref(lang),
+    options: ref(options),
+  };
   const iframe = document.createElement('iframe');
 
   const Child = defineComponent({
@@ -85,6 +96,7 @@ function renderSandbox({
       components: { Child },
       setup() {
         provide(CONTENT_VIEWER_CONTEXT_KEY, {
+          contentNode: computed(() => contentNode),
           files: computed(() => (file ? [file] : [])),
           defaultFile: computed(() => file),
           defaultItemPreset: computed(() => 'html5_zip'),
@@ -94,7 +106,7 @@ function renderSandbox({
           showCorrectAnswer: computed(() => false),
           interactive: computed(() => true),
           lang: computed(() => session.lang.value),
-          options: computed(() => options),
+          options: computed(() => session.options.value),
           extraFields: computed(() => extraFields),
           userId: computed(() => 'user-id'),
           allowHints: computed(() => true),
@@ -279,14 +291,34 @@ describe('useSandbox', () => {
 
     it('builds the content url with urlBuilder when the viewer supplies one', () => {
       const urlBuilder = jest.fn(() => '/zipcontent/abc123/index.html');
+      const contentNode = { id: 'node-id' };
       const { init, sandbox } = renderSandbox({
         options: { entry: 'index.html' },
+        contentNode,
         sandboxOptions: { urlBuilder },
       });
       init();
 
-      expect(urlBuilder).toHaveBeenCalledWith(FILE, { options: { entry: 'index.html' } });
+      expect(urlBuilder).toHaveBeenCalledWith(FILE, {
+        options: { entry: 'index.html' },
+        contentNode,
+      });
       expect(sandbox().initialize.mock.calls[0][2]).toBe('/zipcontent/abc123/index.html');
+    });
+
+    it('retargets the sandbox when the content url changes', async () => {
+      const urlBuilder = (file, { options }) => `/zim#entry=${options.entry}`;
+      const { init, sandbox, session } = renderSandbox({
+        options: { entry: 'C/First' },
+        sandboxOptions: { urlBuilder },
+      });
+      init();
+
+      session.options.value = { entry: 'C/Second' };
+      await nextTick();
+
+      expect(sandbox().navigate).toHaveBeenCalledTimes(1);
+      expect(sandbox().navigate).toHaveBeenCalledWith('/zim#entry=C/Second');
     });
 
     it('starts tracking once the content is handed to the sandbox', () => {
@@ -346,6 +378,15 @@ describe('useSandbox', () => {
       expect(emitted).toContainEqual(['navigateTo', { nodeId: 'abc' }]);
     });
 
+    it('relays the entry the content reports it is now showing', () => {
+      const { init, emitted, sandbox } = renderSandbox();
+      init();
+
+      sandbox().on.mock.calls.find(([name]) => name === 'nowshowing')[1]('C/Page');
+
+      expect(emitted).toContainEqual(['nowShowing', 'C/Page']);
+    });
+
     it("answers the handler's requests with the viewer's onHandlerRequest, given the file", async () => {
       const onHandlerRequest = jest.fn(async ({ paths }) => ({ resolved: paths }));
       const { init, sandbox } = renderSandbox({ sandboxOptions: { onHandlerRequest } });
@@ -363,6 +404,56 @@ describe('useSandbox', () => {
       init();
 
       expect(sandbox().answer).not.toHaveBeenCalled();
+    });
+
+    describe('rendering a file for the content', () => {
+      let created;
+      beforeEach(() => {
+        created = 0;
+        URL.createObjectURL = jest.fn(() => `blob:main/${created++}`);
+        URL.revokeObjectURL = jest.fn();
+      });
+
+      const renderFile = (sandbox, file) =>
+        sandbox.on.mock.calls.find(([name]) => name === 'renderfile')[1](file);
+
+      it('holds the file on this origin for a viewer to render', () => {
+        const { init, api, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+
+        renderFile(sandbox(), { mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+        expect(api.renderedFile.value).toEqual({
+          url: 'blob:main/0',
+          mimetype: 'application/pdf',
+        });
+      });
+
+      it('frees the previous file when cleared or replaced', () => {
+        const { init, api, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+        const file = { mimetype: 'application/pdf', data: new Uint8Array([1]) };
+
+        renderFile(sandbox(), file);
+        renderFile(sandbox(), file);
+        renderFile(sandbox(), null);
+
+        expect(api.renderedFile.value).toBeNull();
+        expect(URL.revokeObjectURL.mock.calls.map(c => c[0])).toEqual([
+          'blob:main/0',
+          'blob:main/1',
+        ]);
+      });
+
+      it('frees the file on unmount', () => {
+        const { init, utils, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+        renderFile(sandbox(), { mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+        utils.unmount();
+
+        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:main/0');
+      });
     });
   });
 

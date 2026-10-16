@@ -3,6 +3,7 @@ import Sandbox from 'kolibri-sandbox';
 import urls from 'kolibri/urls';
 import { now } from 'kolibri/utils/serverClock';
 import useContentViewer from '../useContentViewer';
+import { isRenderableFileType } from '../../components/SandboxedContentViewer/internal/fileElement';
 
 const PROGRESS_POLLING_INTERVAL = 5000;
 
@@ -19,13 +20,19 @@ const DEFAULT_DURATION = 300;
  * @param {Function|null} [options.onHandlerRequest=null] - Answers the handler's
  * requestFromHost calls: called with the request and `{ file }`, returns the answer
  * or a promise of it
- * @returns {object} Loading state, the sandbox page URL, and the initializer
+ * @param {boolean} [options.renderFiles=false] - Render files the handler sends, of
+ * the types `isRenderableFileType` accepts, in place of the sandbox, and track files
+ * the handler shows over its content itself
+ * @returns {object} Loading state, the file to render natively and its dismissal, whether
+ * the handler shows a file over its content and its dismissal, the sandbox page URL, and
+ * the initializer
  */
 export default function useSandbox(
   { emit },
-  { pollProgress = false, urlBuilder = null, onHandlerRequest = null } = {},
+  { pollProgress = false, urlBuilder = null, onHandlerRequest = null, renderFiles = false } = {},
 ) {
   const {
+    contentNode,
     options: contentOptions,
     lang,
     defaultFile,
@@ -56,6 +63,16 @@ export default function useSandbox(
     return coreApp.getSandboxHandlerUrl(preset);
   });
 
+  const contentUrl = computed(() => {
+    const file = defaultFile.value;
+    if (!file) {
+      return null;
+    }
+    return urlBuilder
+      ? urlBuilder(file, { options: contentOptions.value, contentNode: contentNode.value })
+      : file.storage_url;
+  });
+
   /**
    * Report a failure to load the content. The spinner is ours, so clearing it is too -
    * nothing downstream of the error event unmounts the viewer.
@@ -66,10 +83,34 @@ export default function useSandbox(
     reportLoadingError(message);
   }
 
+  const renderedFile = ref(null);
+
+  function setRenderedFile(file) {
+    if (renderedFile.value) {
+      URL.revokeObjectURL(renderedFile.value.url);
+    }
+    renderedFile.value = file
+      ? {
+          url: URL.createObjectURL(new Blob([file.data], { type: file.mimetype })),
+          mimetype: file.mimetype,
+          name: file.name,
+        }
+      : null;
+  }
+
+  const fileOverlayOpen = ref(false);
+
+  function closeFileOverlay() {
+    fileOverlayOpen.value = false;
+    sandbox?.closeFile();
+  }
+
   function destroySandbox() {
     clearTimeout(progressPollTimeout);
     sandbox?.destroy();
     sandbox = null;
+    setRenderedFile(null);
+    fileOverlayOpen.value = false;
   }
 
   const userData = computed(() => ({
@@ -138,6 +179,19 @@ export default function useSandbox(
 
     sandbox.on(sandbox.events.NAVIGATETO, message => emit('navigateTo', message));
 
+    sandbox.on(sandbox.events.NOW_SHOWING, data => emit('nowShowing', data));
+
+    if (renderFiles) {
+      sandbox.on(sandbox.events.RENDER_FILE, file => {
+        if (!file || isRenderableFileType(file.mimetype)) {
+          setRenderedFile(file);
+        }
+      });
+      sandbox.on(sandbox.events.FILE_OVERLAY, open => {
+        fileOverlayOpen.value = open;
+      });
+    }
+
     if (onHandlerRequest) {
       sandbox.answer(sandbox.events.HANDLER_REQUESTED, request =>
         onHandlerRequest(request, { file }),
@@ -147,7 +201,7 @@ export default function useSandbox(
     sandbox.initialize(
       extraFields.value?.contentState || {},
       userData.value,
-      urlBuilder ? urlBuilder(file, { options: contentOptions.value }) : file.storage_url,
+      contentUrl.value,
       file.checksum,
       { handlerUrl: sandboxHandlerUrl.value },
     );
@@ -174,6 +228,12 @@ export default function useSandbox(
 
   watch(userData, () => sandbox?.updateData({ userData: userData.value }));
 
+  watch(contentUrl, (newUrl, oldUrl) => {
+    if (sandbox && newUrl && newUrl !== oldUrl) {
+      sandbox.navigate(newUrl);
+    }
+  });
+
   onBeforeUnmount(() => {
     if (tracking) {
       emit('stopTracking');
@@ -183,6 +243,10 @@ export default function useSandbox(
 
   return {
     loading,
+    renderedFile,
+    closeRenderedFile: () => setRenderedFile(null),
+    fileOverlayOpen,
+    closeFileOverlay,
     sandboxUrl: urls.sandbox(),
     initializeSandbox,
   };

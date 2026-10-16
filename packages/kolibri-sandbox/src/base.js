@@ -15,6 +15,7 @@ export const events = {
   SEARCHRESULTREQUESTED: 'searchresultrequested',
   DATARETURNED: 'datareturned',
   NAVIGATETO: 'navigateTo',
+  RETARGET: 'retarget',
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
@@ -23,8 +24,11 @@ export const events = {
   RANDOMCOLLECTIONREQUESTED: 'randomcollectionrequested',
   LOADING: 'loading',
   ERROR: 'error',
-  // Handler -> host: a request only the host can serve, answered on the message's port.
-  HANDLERREQUESTED: 'handlerrequested',
+  NOW_SHOWING: 'nowshowing',
+  RENDER_FILE: 'renderfile',
+  FILE_OVERLAY: 'fileoverlay',
+  CLOSE_FILE: 'closefile',
+  HANDLER_REQUESTED: 'handlerrequested',
   HANDLER_REGISTRATION: 'handlerregistration',
 };
 

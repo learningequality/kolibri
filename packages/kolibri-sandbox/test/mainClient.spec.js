@@ -149,6 +149,29 @@ describe('Sandbox mainClient', () => {
       );
     });
   });
+  describe('navigate method', () => {
+    it('sends a RETARGET message to the handler with the new start URL', () => {
+      sandbox.mediator.sendMessage = jest.fn();
+      sandbox.navigate('http://start.url/new');
+      expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+        nameSpace,
+        event: events.RETARGET,
+        data: 'http://start.url/new',
+      });
+    });
+  });
+
+  describe('closeFile method', () => {
+    it('sends a CLOSE_FILE message to the handler', () => {
+      sandbox.mediator.sendMessage = jest.fn();
+      sandbox.closeFile();
+      expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+        nameSpace,
+        event: events.CLOSE_FILE,
+      });
+    });
+  });
+
   describe('data getter', () => {
     it('should return a deep copy (not the same reference)', () => {
       sandbox.initialize({ myShim: { key: 'value' } }, {});
