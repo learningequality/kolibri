@@ -1144,6 +1144,15 @@ importers:
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
 
+  kolibri/plugins/zim_viewer:
+    dependencies:
+      fzstd:
+        specifier: ^0.1.1
+        version: 0.1.1
+      lru-cache:
+        specifier: ^11.5.3
+        version: 11.5.3
+
   packages/browserslist-config-kolibri: {}
 
   packages/eslint-plugin-kolibri:
@@ -6263,6 +6272,9 @@ packages:
 
   fuzzysearch@1.0.3:
     resolution: {integrity: sha512-s+kNWQuI3mo9OALw0HJ6YGmMbLqEufCh2nX/zzV5CrICQ/y4AwPxM+6TIiF9ItFCHXFCyM/BfCCmN57NTIJuPg==}
+
+  fzstd@0.1.1:
+    resolution: {integrity: sha512-dkuVSOKKwh3eas5VkJy1AW1vFpet8TA/fGmVA5krThl8YcOVE/8ZIoEA1+U1vEn5ckxxhLirSdY837azmbaNHA==}
 
   gauge@4.0.4:
     resolution: {integrity: sha512-f9m+BEN5jkg6a0fZjleidjN51VE1X+mPFQ2DJ0uv1V39oCLCbsGe6yjbBnp7eK7z/+GAon99a3nHuqbuuthyPg==}
@@ -15636,6 +15648,8 @@ snapshots:
   fuse.js@7.1.0: {}
 
   fuzzysearch@1.0.3: {}
+
+  fzstd@0.1.1: {}
 
   gauge@4.0.4:
     dependencies:
