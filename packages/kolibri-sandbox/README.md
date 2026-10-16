@@ -39,3 +39,17 @@ H5PHandler.register();
 The sandbox checks for a registration when the script's `load` event fires, so a handler registered later — from a promise callback, a `setTimeout`, or a dynamic `import()` — fails with `Handler script loaded but did not register`. A script that throws while evaluating still fires `load`, so "loaded, nothing registered" is the only failure signal the loader gets.
 
 A shim in the handler's own `shims` replaces the base shim (`SandboxHandler.baseShims`) with the same `shimName`.
+
+### Talking to the host
+
+Handler to host, through `SandboxHandler` methods. The content frame shares the handler's origin and can call these itself, so the host must validate what they carry before acting on it:
+
+- `requestFromHost(request)`: resolves with what the viewer's `onHandlerRequest` option answers; rejects if it throws or the viewer has none.
+- `reportShowing(page)`: the viewer emits `nowShowing` with `page`.
+- `renderFile(file)`: a viewer with the `renderFiles` option shows `{ data, mimetype, name, hasPrevious }` in place of the sandbox; `null` returns to the sandbox. Only raster images, audio and video a viewer plays, and PDF when a PDF viewer is enabled are shown; audio and video types need a plain subtype with no parameters (e.g. not `video/mp4; codecs=…`). Other types are ignored. `data` is a `Blob`, `ArrayBuffer` or `Uint8Array`; a `Blob` crosses without copying its bytes.
+- `setFileOverlay(open)`: the handler shows a file over its own content; a viewer with the `renderFiles` option offers a way back.
+
+Host to handler, by overriding `SandboxHandler` methods. The host calls them only once `init` has resolved. A throw or rejection is reported to the host as the viewer's `error`:
+
+- `retarget(startUrl)`: the viewer's content URL changed; show it without reloading. A change made while `init` ran arrives after it. The host keeps showing any file it rendered; send `renderFile(null)`, or the file the new URL shows.
+- `closeFile()`: the viewer dismissed the file the handler showed. For a non-image file under a host that listens to `goBack`, the viewer emits `goBack` instead of calling `closeFile`.

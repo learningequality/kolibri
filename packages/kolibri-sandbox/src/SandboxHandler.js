@@ -87,6 +87,25 @@ export default class SandboxHandler {
   }
 
   /**
+   * Show the content at a new start URL the host sends, without reloading the sandbox.
+   * The host keeps showing any file it rendered: send renderFile(null), or the file the new
+   * URL shows. Called only by the host, once init has resolved. A throw or rejection is
+   * reported to the host as the viewer's error. Override in subclass.
+   * @param {string} startUrl - URL to the new content entry point
+   */
+  // eslint-disable-next-line no-unused-vars
+  retarget(startUrl) {}
+
+  /**
+   * Close the file the handler is showing, at the host's request: one sent with
+   * renderFile or announced with setFileOverlay. For a non-image file under a host that
+   * listens to goBack, the viewer emits goBack instead of calling closeFile. Called only
+   * by the host, once init has resolved. A throw or rejection is reported to the host as
+   * the viewer's error. Override in subclass.
+   */
+  closeFile() {}
+
+  /**
    * Called by sandbox to initialize shims on the content window.
    *
    * Every shim is attempted, so one failure does not cost the content the others.
@@ -161,6 +180,40 @@ export default class SandboxHandler {
    */
   requestFromHost(request) {
     return this.mediator.request({ nameSpace, event: events.HANDLER_REQUESTED, data: request });
+  }
+
+  /**
+   * Tell the host which page the content now shows, relayed as the viewer's nowShowing event.
+   * @param {string} page - Identifies the page, in the handler's own terms
+   */
+  reportShowing(page) {
+    this.mediator.sendMessage({ nameSpace, event: events.NOW_SHOWING, data: page });
+  }
+
+  /**
+   * Ask a host that renders files (useSandbox's renderFiles) to show one in place of the
+   * sandbox, or to stop showing it.
+   * @param {object|null} file - The file, or null to return to the sandbox
+   * @param {Blob|ArrayBuffer|Uint8Array} file.data - The file's bytes. A Blob crosses to
+   * the host without its bytes being copied
+   * @param {string} file.mimetype - Its type. The host shows only raster images, audio and
+   * video a viewer plays, and PDF when a PDF viewer is enabled, and ignores any other type.
+   * Audio and video types need a plain subtype with no parameters, e.g. not
+   * `video/mp4; codecs=…`
+   * @param {string} [file.name] - An image's alt text; a generic label when absent
+   * @param {boolean} [file.hasPrevious] - Whether the host offers a way back from it
+   */
+  renderFile(file) {
+    this.mediator.sendMessage({ nameSpace, event: events.RENDER_FILE, data: file });
+  }
+
+  /**
+   * Tell the host whether the handler shows a file over its own content, so it offers a
+   * way back that calls closeFile.
+   * @param {boolean} open - Whether a file is showing
+   */
+  setFileOverlay(open) {
+    this.mediator.sendMessage({ nameSpace, event: events.FILE_OVERLAY, data: open });
   }
 
   /**

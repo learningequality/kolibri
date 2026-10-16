@@ -17,7 +17,7 @@ class Mediator {
    * @param {Window} remote - The window messages are sent to
    * @param {object} [options] - Which messages to accept
    * @param {Window} [options.source] - The only window whose messages are handled.
-   * Not for the sandbox side, which also hears the content frame it hosts.
+   * Leave unset for a mediator that must also hear the content frame the sandbox hosts.
    * When set, a ported message whose event has no registered callback gets an error reply,
    * so this mediator must handle every ported message from `source`.
    */

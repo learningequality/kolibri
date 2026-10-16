@@ -104,6 +104,23 @@ describe('Sandbox mainClient', () => {
         });
       });
     });
+    it('should send the latest retargeted start URL when iframe ready fires', () => {
+      sandbox.initialize({}, {}, 'http://start.url', 'testns');
+      sandbox.retarget('http://start.url/new');
+      sandbox.mediator.sendMessage = jest.fn();
+      return new Promise(resolve => {
+        sandbox.on(events.IFRAMEREADY, () => {
+          resolve();
+        });
+        fromIframe({ nameSpace, event: events.IFRAMEREADY, data: true });
+      }).then(() => {
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+          nameSpace,
+          event: events.MAINREADY,
+          data: expect.objectContaining({ startUrl: 'http://start.url/new' }),
+        });
+      });
+    });
     it('should call mediator sendMessage with the readycheck event', () => {
       const data = {};
       const userData = {};
@@ -149,6 +166,30 @@ describe('Sandbox mainClient', () => {
       );
     });
   });
+  describe('commands to the handler', () => {
+    let posted;
+    beforeEach(() => {
+      posted = jest.spyOn(window, 'postMessage').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      posted.mockRestore();
+    });
+
+    it('retarget posts RETARGET with the new start URL to the iframe', () => {
+      sandbox.retarget('http://start.url/new');
+
+      expect(posted).toHaveBeenCalledWith(
+        { nameSpace, event: events.RETARGET, data: 'http://start.url/new' },
+        '*',
+      );
+    });
+    it('closeFile posts CLOSE_FILE to the iframe', () => {
+      sandbox.closeFile();
+
+      expect(posted).toHaveBeenCalledWith({ nameSpace, event: events.CLOSE_FILE }, '*');
+    });
+  });
+
   describe('data getter', () => {
     it('should return a deep copy (not the same reference)', () => {
       sandbox.initialize({ myShim: { key: 'value' } }, {});
