@@ -16,6 +16,7 @@ class RedirectContentTestCase(TestCase):
 
     fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+    databases = "__all__"
 
     def _get_url(self, **kwargs):
         url = reverse("kolibri:core:contentpermalink")
