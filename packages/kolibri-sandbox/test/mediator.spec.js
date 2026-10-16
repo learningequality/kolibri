@@ -117,6 +117,37 @@ describe('Mediator', () => {
       expect(remote.postMessage).toHaveBeenCalledWith(message, '*');
       expect(posted).not.toHaveBeenCalled();
     });
+    describe('request method', () => {
+      const replyPort = () => remote.postMessage.mock.calls[0][2][0];
+
+      it('should post the request to the remote with a port to answer on', () => {
+        withRemote.request(message);
+        expect(remote.postMessage).toHaveBeenCalledWith(message, '*', [expect.any(MessagePort)]);
+        replyPort().close();
+      });
+      it('should resolve with the result answered on the port', async () => {
+        const reply = withRemote.request(message);
+        replyPort().postMessage({ result: { found: true } });
+        await expect(reply).resolves.toEqual({ found: true });
+      });
+      it('should reject with the error answered on the port', async () => {
+        const reply = withRemote.request(message);
+        replyPort().postMessage({ error: 'Resolver returned 500' });
+        await expect(reply).rejects.toThrow('Resolver returned 500');
+      });
+    });
+  });
+  describe('handling a message that carries a port', () => {
+    it('should hand the port to the callback with the data', () => {
+      const callback = jest.fn();
+      const { port1, port2 } = new MessageChannel();
+      mediator.registerMessageHandler({ event: 'e', nameSpace: 'n', callback });
+
+      mediator.handleMessage({ data: { event: 'e', nameSpace: 'n', data: 1 }, ports: [port2] });
+
+      expect(callback).toHaveBeenCalledWith(1, port2);
+      port1.close();
+    });
   });
   describe('registerMessageHandler method', () => {
     it('should add a callback to the array of callbacks for that nameSpace and event', () => {

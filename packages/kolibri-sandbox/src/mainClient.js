@@ -107,6 +107,14 @@ export default class MainClient {
     this.mediator.sendMessage({ nameSpace, event: events.USERDATAUPDATE, data: this._userData });
   }
 
+  navigate(startUrl) {
+    this.mediator.sendMessage({ nameSpace, event: events.RETARGET, data: startUrl });
+  }
+
+  closeFile() {
+    this.mediator.sendMessage({ nameSpace, event: events.CLOSE_FILE });
+  }
+
   getProgress() {
     return this._iframeProgress;
   }
@@ -121,6 +129,16 @@ export default class MainClient {
       throw ReferenceError(`${event} is not a valid event name for ${nameSpace}`);
     }
     this.mediator.registerMessageHandler({ nameSpace, event, callback });
+  }
+
+  answer(event, respond) {
+    this.on(event, async (data, port) => {
+      try {
+        port.postMessage({ result: await respond(data) });
+      } catch (e) {
+        port.postMessage({ error: e.message });
+      }
+    });
   }
 
   onStateUpdate(callback) {
