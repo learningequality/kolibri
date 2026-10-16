@@ -4,6 +4,7 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models.aggregates import Count
+from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import content_kinds
 from rest_framework import filters
@@ -19,8 +20,12 @@ from kolibri.core.logger.models import MasteryLog
 
 from .filters import NodeSelectionMixin
 from .filters import OptionalPagination
+from .filters import selected_node_ids
+from .filters import window_ids
 from .tree import TreeQueryMixin
 from .user import UserContentNodeFilter
+from .virtual import admitted_node_ids
+from .virtual import admitted_virtual_ids
 
 # Fetched from ContentSummaryLog, not from this viewset's ContentNode queryset,
 # so a serializer_class would describe the wrong model.
@@ -65,15 +70,18 @@ class ContentNodeProgressViewset(
             )
         )
 
-    def generate_response(self, request, queryset):
+    def generate_response(self, request, queryset, virtual_ids=()):
         if request.user.is_anonymous:
             return Response([])
         logs = list(
             ContentSummaryLog.objects.filter(
+                Q(
+                    content_id__in=queryset.exclude(
+                        kind=content_kinds.TOPIC
+                    ).values_list("content_id", flat=True)
+                )
+                | Q(instance_id__in=virtual_ids),
                 user=self.request.user,
-                content_id__in=queryset.exclude(kind=content_kinds.TOPIC).values_list(
-                    "content_id", flat=True
-                ),
             )
             .annotate(
                 num_question_answered=Subquery(
@@ -112,13 +120,36 @@ class ContentNodeProgressViewset(
         return Response(logs)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page_queryset = self.paginate_queryset(queryset)
-        if page_queryset is not None:
-            queryset = page_queryset
-        return self.generate_response(request, queryset)
+        queryset = self.filter_queryset(self.get_queryset(), narrow_to_selection=False)
+        node_ids = selected_node_ids(request)
+        if node_ids is None:
+            page_queryset = self.paginate_queryset(queryset)
+            if page_queryset is not None:
+                queryset = page_queryset
+            return self.generate_response(request, queryset)
+        page_ids = window_ids(
+            request,
+            admitted_node_ids(node_ids, queryset, self.admits_virtual_nodes()),
+        ).page_ids
+        real = queryset.filter_by_uuids(page_ids, validate=False)
+        real_ids = set(real.values_list("id", flat=True))
+        return self.generate_response(
+            request, real, [i for i in page_ids if i not in real_ids]
+        )
 
     @action(detail=True)
     def tree(self, request, pk=None):
-        queryset = self.get_tree_queryset(request, pk)
+        try:
+            queryset = self.get_tree_queryset(request, pk)
+        except Http404:
+            if not self.admits_virtual_nodes():
+                raise
+            virtual_ids = admitted_virtual_ids(
+                [pk], self.filter_queryset(self.get_queryset())
+            )
+            if not virtual_ids:
+                raise
+            return self.generate_response(
+                request, models.ContentNode.objects.none(), virtual_ids
+            )
         return self.generate_response(request, queryset)
