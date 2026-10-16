@@ -159,7 +159,7 @@ export default class ZimHandler extends SandboxHandler {
         this._reportShowing(canonicalPath);
       }
       const previous = isImage ? this._currentPath : this._articlePath;
-      this._renderFile({ ...file, hasPrevious: previous != null });
+      this._renderFile({ ...file, hasPrevious: previous != null, isPage: !isImage });
       return;
     }
     this._closeOverlay();

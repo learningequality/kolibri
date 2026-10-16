@@ -175,10 +175,12 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(log.channel_id, self.channel_id)
         self.assertEqual(log.extra_fields["context"]["node_id"], self.node.id)
         self.assertEqual(self.node.kind, log.kind)
+        self.assertEqual(log.instance_id, self.node.id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = ContentSummaryLog.objects.get()
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(log.instance_id, self.node.id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         result = response.json()
         self.assertEqual(result["progress"], 0)
@@ -186,6 +188,19 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(result["complete"], False)
         self.assertEqual(result["extra_fields"], {})
         self.assertEqual(result["context"]["node_id"], self.node.id)
+
+    def test_start_session_updates_summarylog_instance_id_to_latest_node(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self._make_request({})
+        second_node_id = uuid.uuid4().hex
+        self._make_request({"node_id": second_node_id})
+
+        summarylog = ContentSummaryLog.objects.get()
+        self.assertEqual(summarylog.instance_id, second_node_id)
 
     def test_start_session_logged_in_lesson_succeeds(self):
         self.client.login(

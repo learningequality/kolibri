@@ -27,11 +27,12 @@ const DEFAULT_DURATION = 300;
  * @param {boolean} [options.renderFiles=false] - Render files the handler sends, of
  * the types `isRenderableFileType` accepts, in place of the sandbox, and track files
  * the handler shows over its content itself. A file is sent as `{ data, mimetype, name,
- * hasPrevious }`, `hasPrevious` saying whether the handler has a page to go back to. The
- * content shares the handler's origin and can send any file itself
- * @returns {object} Loading state, the file to render natively, whether the handler shows a
- * file over its content, closeFile to dismiss either, the sandbox page URL, and the
- * initializer
+ * hasPrevious, isPage }`, `hasPrevious` saying whether the handler has a page to go back
+ * to, `isPage` that the file is the page the handler now shows, so its session is the
+ * page's. The content shares the handler's origin and can send any file itself
+ * @returns {object} Loading state, the file to render natively, the session props and
+ * listeners for a file that is a page, whether the handler shows a file over its content,
+ * closeFile to dismiss either, the sandbox page URL, and the initializer
  */
 export default function useSandbox(
   { emit },
@@ -52,9 +53,11 @@ export default function useSandbox(
     timeSpent,
     progress,
     extraFields,
+    loading: hostLoading,
   } = useContentViewer({ emit }, { defaultDuration: pollProgress ? DEFAULT_DURATION : null });
 
-  const loading = ref(true);
+  const sandboxLoading = ref(true);
+  const loading = computed(() => sandboxLoading.value || hostLoading.value);
   let sandbox = null;
   let stopRetargeting = null;
   let tracking = false;
@@ -86,7 +89,7 @@ export default function useSandbox(
    * @param {string} message - What failed
    */
   function reportLoadingFailure(message) {
-    loading.value = false;
+    sandboxLoading.value = false;
     reportLoadingError(message);
   }
 
@@ -100,12 +103,36 @@ export default function useSandbox(
           mimetype: file.mimetype,
           name: file.name,
           hasPrevious: Boolean(file.hasPrevious),
+          isPage: Boolean(file.isPage),
         }
       : null;
     if (previousUrl) {
       nextTick(() => URL.revokeObjectURL(previousUrl));
     }
   }
+
+  const renderedPageSession = computed(() =>
+    renderedFile.value?.isPage
+      ? {
+          progress: progress.value,
+          timeSpent: timeSpent.value,
+          extraFields: extraFields.value,
+          userId: userId.value,
+          userFullName: userFullName.value,
+        }
+      : {},
+  );
+
+  const renderedPageListeners = computed(() =>
+    renderedFile.value?.isPage
+      ? {
+          updateProgress: value => emit('updateProgress', value),
+          addProgress: value => emit('addProgress', value),
+          updateContentState: value => emit('updateContentState', value),
+          finished: () => emit('finished'),
+        }
+      : {},
+  );
 
   const fileOverlayOpen = ref(false);
 
@@ -182,11 +209,11 @@ export default function useSandbox(
     });
 
     sandbox.on(sandbox.events.LOADING, isLoading => {
-      loading.value = isLoading;
+      sandboxLoading.value = isLoading;
     });
 
     sandbox.on(sandbox.events.ERROR, err => {
-      loading.value = false;
+      sandboxLoading.value = false;
       reportError(err);
     });
 
@@ -271,7 +298,10 @@ export default function useSandbox(
 
   return {
     loading,
+    hostLoading,
     renderedFile,
+    renderedPageSession,
+    renderedPageListeners,
     fileOverlayOpen,
     closeFile,
     sandboxUrl: urls.sandbox(),

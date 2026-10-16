@@ -21,8 +21,17 @@ export const sandboxedContentViewerStrings = createTranslator('SandboxedContentV
 const { contentFrameTitle$, renderedImageLabel$ } = sandboxedContentViewerStrings;
 
 export default function sandboxedContentViewerSetup(props, context, options) {
-  const { loading, renderedFile, fileOverlayOpen, closeFile, sandboxUrl, initializeSandbox } =
-    useSandbox(context, options);
+  const {
+    loading,
+    hostLoading,
+    renderedFile,
+    renderedPageSession,
+    renderedPageListeners,
+    fileOverlayOpen,
+    closeFile,
+    sandboxUrl,
+    initializeSandbox,
+  } = useSandbox(context, options);
 
   const renderedImage = computed(
     () => Boolean(renderedFile.value) && isImage(renderedFile.value.mimetype),
@@ -118,6 +127,7 @@ export default function sandboxedContentViewerSetup(props, context, options) {
     renderedFileElement,
     isFullscreen,
     loading,
+    hostLoading,
     renderedFile,
     goBack,
     canGoBack,
@@ -127,6 +137,8 @@ export default function sandboxedContentViewerSetup(props, context, options) {
     renderedElement,
     renderedFileError,
     showRenderedFileError,
+    renderedPageSession,
+    renderedPageListeners,
     sandboxUrl,
     contentFrameTitle: contentFrameTitle$(),
     renderedImageLabel: renderedImageLabel$(),
