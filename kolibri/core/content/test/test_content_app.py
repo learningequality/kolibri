@@ -3,6 +3,9 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 """
 
 import datetime
+import hashlib
+import os
+import tempfile
 import time
 import unittest
 import uuid
@@ -14,9 +17,11 @@ from unittest import mock
 import pytz
 from django.conf import settings
 from django.core.cache import cache
+from django.db import connections
 from django.test import LiveServerTestCase
 from django.test import override_settings
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -35,8 +40,16 @@ from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models as content
 from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.utils.virtual_content_build import build_virtual_contentnodes
+from kolibri.core.content.utils.virtual_nodes import virtual_content_id
+from kolibri.core.content.utils.virtual_nodes import virtual_node_id
+from kolibri.core.content.viewsets.contentnode.base import ContentNodeSerializer
+from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
+from kolibri.core.content.viewsets.contentnode.base import resolve_content_nodes
 from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
+from kolibri.core.content.viewsets.contentnode.virtual import synthesize_content_node
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
@@ -49,6 +62,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.plugins.zim_viewer.test.fixtures import build_minimal_zim
 from kolibri.utils.tests.helpers import override_option
 from kolibri.utils.time_utils import local_now
 
@@ -3440,3 +3454,196 @@ class ShareFileViewTestCase(APITestCase):
                 format="json",
             )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+class SynthesizeContentNodeTestCase(TestCase):
+    def _partial(self, **overrides):
+        node = {
+            "id": "a" * 32,
+            "content_id": "a" * 32,
+            "channel_id": "b" * 32,
+            "parent": "c" * 32,
+            "title": "A Page",
+            "kind": "document",
+        }
+        node.update(overrides)
+        return node
+
+    def test_fills_defaults_for_omitted_fields(self):
+        node = synthesize_content_node(self._partial())
+        self.assertEqual(node["files"], [])
+        self.assertIsNone(node["thumbnail"])
+        self.assertEqual(node["tags"], [])
+        self.assertTrue(node["available"])
+        self.assertIsNone(node["lang"])
+
+    def test_has_the_fields_of_a_serialized_real_node(self):
+        real = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title="Real",
+            kind="document",
+            available=True,
+        )
+        serialized = ContentNodeViewset().serialize(
+            content.ContentNode.objects.filter(id=real.id)
+        )[0]
+        synthesized = synthesize_content_node(self._partial())
+        optional = set(ContentNodeSerializer.Meta.optional_fields)
+        self.assertEqual(set(synthesized) - optional, set(serialized) - optional)
+
+    def test_preserves_supplied_fields(self):
+        node = synthesize_content_node(self._partial(title="Kept"))
+        self.assertEqual(node["title"], "Kept")
+        self.assertEqual(node["parent"], "c" * 32)
+
+    def test_marks_non_topic_as_leaf(self):
+        self.assertTrue(
+            synthesize_content_node(self._partial(kind="document"))["is_leaf"]
+        )
+
+    def test_marks_topic_as_non_leaf(self):
+        self.assertFalse(
+            synthesize_content_node(self._partial(kind="topic"))["is_leaf"]
+        )
+
+    def test_returned_mutable_fields_are_isolated_between_calls(self):
+        first = synthesize_content_node(self._partial())
+        first["files"].append({"id": "x"})
+        first["tags"].append("t")
+        first["options"]["k"] = "v"
+        second = synthesize_content_node(self._partial())
+        self.assertEqual(second["files"], [])
+        self.assertEqual(second["tags"], [])
+        self.assertEqual(second["options"], {})
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class ResolveNodesTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        checksum = hashlib.md5(b"resolve-instance-nodes-test").hexdigest()
+        path = get_content_storage_file_path(f"{checksum}.zim")
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+        with open(path, "wb") as fh:
+            fh.write(build_minimal_zim())
+
+        self.channel_id = uuid.uuid4().hex
+        self.root = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.channel_id,
+            title="ZIM root",
+            kind="topic",
+            available=True,
+        )
+        content.ChannelMetadata.objects.create(
+            id=self.channel_id, name="ZIM channel", root=self.root
+        )
+        local_file = content.LocalFile.objects.create(
+            id=checksum, extension="zim", available=True, file_size=1
+        )
+        content.File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file,
+            contentnode=self.root,
+            preset="zim",
+        )
+        build_virtual_contentnodes(self.channel_id)
+        self.virtual_id = virtual_node_id(self.root.id, "C/Index")
+
+        self.real_node = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.channel_id,
+            parent=self.root,
+            title="Real leaf",
+            kind="document",
+            available=True,
+            categories="a.b,c.d",
+            ancestors=[{"id": self.root.id, "title": "ZIM root"}],
+        )
+
+        self.viewset = ContentNodeViewset()
+
+    def _resolve_counting_queries(self, instance_ids):
+        with CaptureQueriesContext(
+            connections["default"]
+        ) as default_ctx, CaptureQueriesContext(
+            connections["virtual_contentnode"]
+        ) as virtual_ctx:
+            result = self.viewset.resolve_nodes(
+                instance_ids, content.ContentNode.objects.filter(available=True)
+            )
+        query_count = len(default_ctx.captured_queries) + len(
+            virtual_ctx.captured_queries
+        )
+        return result, query_count
+
+    def test_resolves_real_and_virtual_ids_and_omits_unknown(self):
+        bogus_id = uuid.uuid4().hex
+        result, query_count = self._resolve_counting_queries(
+            [self.real_node.id, self.virtual_id, bogus_id]
+        )
+
+        self.assertEqual(set(result.keys()), {self.real_node.id, self.virtual_id})
+        self.assertEqual(query_count, 9)
+
+        real = result[self.real_node.id]
+        self.assertEqual(real["ancestors"], [{"id": self.root.id, "title": "ZIM root"}])
+        self.assertEqual(real["categories"], ["a.b", "c.d"])
+
+        virtual = result[self.virtual_id]
+        self.assertEqual(
+            virtual["content_id"],
+            virtual_content_id(self.root.content_id, "C/Index"),
+        )
+        self.assertEqual(virtual["kind"], "document")
+
+    def test_bounded_query_count_for_multiple_virtual_ids(self):
+        extra_ids = []
+        for i in range(5):
+            path = f"C/Extra{i}"
+            node_id = virtual_node_id(self.root.id, path)
+            content.VirtualContentNode.objects.create(
+                id=node_id,
+                root_id=self.root.id,
+                channel_id=self.channel_id,
+                title=f"Extra {i}",
+                kind="document",
+                options={"entry": path},
+            )
+            extra_ids.append(node_id)
+
+        result, query_count = self._resolve_counting_queries(extra_ids)
+
+        self.assertEqual(len(result), 5)
+        self.assertEqual(query_count, 6)
+
+    def test_resolve_content_nodes_with_fields_returns_only_those_fields(self):
+        result = resolve_content_nodes(
+            [self.real_node.id, self.virtual_id], fields=("title", "content_id")
+        )
+        self.assertEqual(
+            result,
+            {
+                self.real_node.id: {
+                    "id": self.real_node.id,
+                    "title": "Real leaf",
+                    "content_id": self.real_node.content_id,
+                },
+                self.virtual_id: {
+                    "id": self.virtual_id,
+                    "title": "Index",
+                    "content_id": virtual_content_id(self.root.content_id, "C/Index"),
+                },
+            },
+        )
+
+    def test_resolve_content_nodes_with_fields_reads_real_nodes_in_one_query(self):
+        with CaptureQueriesContext(connections["default"]) as ctx:
+            resolve_content_nodes([self.real_node.id], fields=("title",))
+        self.assertEqual(len(ctx.captured_queries), 1)

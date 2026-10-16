@@ -17,6 +17,7 @@ from kolibri.core.content import models
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
+from .filters import NodeSelectionMixin
 from .filters import OptionalPagination
 from .tree import TreeQueryMixin
 from .user import UserContentNodeFilter
@@ -32,7 +33,9 @@ _PROGRESS_VALUES = (
 )
 
 
-class ContentNodeProgressViewset(TreeQueryMixin, GenericViewSet, ListModelMixin):
+class ContentNodeProgressViewset(
+    NodeSelectionMixin, TreeQueryMixin, GenericViewSet, ListModelMixin
+):
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     ordering_fields: ClassVar[list] = ["last_interacted"]
     ordering = ("lft", "id")

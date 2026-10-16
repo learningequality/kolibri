@@ -1,9 +1,11 @@
 from django.db.models import OuterRef
+from django.db.models import Q
 from django.db.models import Subquery
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
@@ -16,6 +18,7 @@ from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 
 from .base import ContentNodeSerializer
 from .base import InternalContentNodeMixin
+from .virtual import admitted_virtual_ids
 
 
 class BookmarkFilter(FilterSet):
@@ -49,8 +52,22 @@ class BookmarkFilter(FilterSet):
                 ).values_list("available", flat=True)[:1]
             )
         )
-
-        return queryset.filter(available=value)
+        page_ids = list(
+            models.VirtualContentNode.objects.filter(
+                id__inline_in=list(queryset.values_list("contentnode_id", flat=True))
+            ).values_list("id", flat=True)
+        )
+        available_page_ids = admitted_virtual_ids(
+            page_ids, models.ContentNode.objects.filter(available=True)
+        )
+        if not value:
+            available_page_ids = set(available_page_ids)
+            page_ids = [i for i in page_ids if i not in available_page_ids]
+        else:
+            page_ids = available_page_ids
+        return queryset.filter(
+            Q(available=value) | Q(contentnode_id__inline_in=page_ids)
+        )
 
 
 class BookmarkSerializer(KolibriModelSerializer):
@@ -86,25 +103,25 @@ class ContentNodeBookmarksViewset(
     def get_queryset(self):
         return Bookmark.objects.all().order_by("-created")
 
-    def serialize(self, queryset):
-        self.bookmark_queryset = queryset
-        queryset = models.ContentNode.objects.filter(
-            id__in=queryset.values_list("contentnode_id", flat=True)
-        )
-        return super().serialize(queryset)
+    def list(self, request, *args, **kwargs):
+        bookmarks, paginated = self._get_list_queryset()
+        self._bookmark_of = {
+            bookmark["contentnode_id"]: bookmark
+            for bookmark in bookmarks.values("id", "contentnode_id", "created")
+        }
+        nodes = self.resolve_nodes(self._bookmark_of, models.ContentNode.objects.all())
+        results = []
+        for node_id, bookmark in self._bookmark_of.items():
+            node = nodes.get(node_id)
+            if node is not None:
+                node["bookmark"] = bookmark
+                results.append(node)
+        if paginated:
+            return self.get_paginated_response(results)
+        return Response(results)
 
     def consolidate(self, items, queryset):
         items = super().consolidate(items, queryset)
-        sorted_items = []
-        if items:
-            item_lookup = {item["id"]: item for item in items}
-
-            # now loop through ordered bookmark queryset to order nodes returned by same order
-            for bookmark in self.bookmark_queryset.values(
-                "id", "contentnode_id", "created"
-            ):
-                item = item_lookup.pop(bookmark["contentnode_id"], None)
-                if item:
-                    item["bookmark"] = bookmark
-                    sorted_items.append(item)
-        return sorted_items
+        for item in items:
+            item["bookmark"] = self._bookmark_of.get(item["id"])
+        return items
