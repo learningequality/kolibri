@@ -2,15 +2,19 @@ import SandboxHandler from 'kolibri-sandbox/SandboxHandler';
 import { events, nameSpace } from 'kolibri-sandbox/base';
 import { ZimReader } from './reader';
 import { EntryKinds, loadArticleIntoIframe } from './articleLoader';
+import { attachNavigationInterceptor, scrollToFragment } from './navigationInterceptor';
+import { attachLinkRewriter } from './linkRewriter';
 import ScrollProgressShim from './ScrollProgressShim';
 
 function parseStartUrl(startUrl) {
-  const fragment = startUrl.split('#')[1] || '';
+  const [permalinkUrl, fragment = ''] = startUrl.split('#');
   const params = new URLSearchParams(fragment);
   const native = params.get('native');
   return {
+    permalinkUrl,
     storageUrl: params.get('storage') || '',
     entry: params.get('entry') || '',
+    rootId: params.get('rootId') || null,
     nativeTypes: native ? native.split(',') : [],
   };
 }
@@ -27,9 +31,11 @@ export default class ZimHandler extends SandboxHandler {
   }
 
   async init(iframe, startUrl) {
-    const { storageUrl, entry, nativeTypes } = parseStartUrl(startUrl);
+    const { permalinkUrl, storageUrl, entry, rootId, nativeTypes } = parseStartUrl(startUrl);
     this._iframe = iframe;
+    this._rootId = rootId;
     this._nativeTypes = nativeTypes;
+    this._permalinkBase = permalinkUrl;
     this._reader = new ZimReader(storageUrl, {
       resolveBatch: paths => this.requestFromHost({ paths }),
     });
@@ -54,8 +60,8 @@ export default class ZimHandler extends SandboxHandler {
     this._navigate(target);
   }
 
-  _navigate(path) {
-    this._loadAndAttach(path).catch(error => {
+  _navigate(path, fragment) {
+    this._loadAndAttach(path, fragment).catch(error => {
       this.mediator.sendMessage({
         nameSpace,
         event: events.ERROR,
@@ -127,7 +133,7 @@ export default class ZimHandler extends SandboxHandler {
     this._showingFile = Boolean(file);
   }
 
-  async _loadAndAttach(path) {
+  async _loadAndAttach(path, fragment = '') {
     const generation = ++this._generation;
     const isCurrent = () => generation === this._generation;
     const result = await loadArticleIntoIframe(this._reader, path, this._iframe, {
@@ -158,6 +164,10 @@ export default class ZimHandler extends SandboxHandler {
     }
     this._closeOverlay();
     this._articlePath = null;
+    if (this._detachInterceptor) this._detachInterceptor();
+    this._detachInterceptor = null;
+    if (this._detachRewriter) this._detachRewriter();
+    this._detachRewriter = null;
     this.shims[ScrollProgressShim.shimName].track(null);
     const previousObjectUrls = this._objectUrls;
     this._objectUrls = objectUrls;
@@ -173,6 +183,19 @@ export default class ZimHandler extends SandboxHandler {
     });
     const newDoc = this._iframe.contentDocument;
     if (!isCurrent() || !newDoc) return;
+    this._detachInterceptor = attachNavigationInterceptor(
+      newDoc,
+      canonicalPath,
+      (newPath, newFragment) => this._navigate(newPath, newFragment),
+    );
+    if (this._rootId) {
+      this._detachRewriter = attachLinkRewriter(newDoc, canonicalPath, {
+        rootId: this._rootId,
+        permalinkBase: this._permalinkBase,
+        resolve: paths => this._reader.resolveBatch(paths),
+      });
+    }
+    scrollToFragment(newDoc, fragment);
     this.shims[ScrollProgressShim.shimName].track(newDoc);
   }
 }
