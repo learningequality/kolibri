@@ -55,8 +55,23 @@ export function overrideRoute(route, newRoute) {
  * learner has no results on the active test.
  */
 export function learnerTestScores(prefetchedData, learnerId) {
+  return activeTestReport(prefetchedData)?.scores?.[learnerId] || null;
+}
+
+export function learnerStartedTest(prefetchedData, learnerId) {
+  return Boolean(activeTestReport(prefetchedData)?.started?.includes(learnerId));
+}
+
+export function learnerStartedUnit(prefetchedData, learnerId) {
+  const { pre_test, post_test } = prefetchedData?.reportData || {};
+  return [pre_test, post_test].some(
+    test => test?.scores?.[learnerId] || test?.started?.includes(learnerId),
+  );
+}
+
+function activeTestReport(prefetchedData) {
   const { activeTestType, reportData } = prefetchedData || {};
   if (!activeTestType) return null;
   const testKey = activeTestType === 'post' ? 'post_test' : 'pre_test';
-  return reportData?.[testKey]?.scores?.[learnerId] || null;
+  return reportData?.[testKey];
 }
