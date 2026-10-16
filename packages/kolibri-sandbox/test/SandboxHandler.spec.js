@@ -249,4 +249,22 @@ describe('SandboxHandler', () => {
       });
     });
   });
+
+  describe('messages to the host', () => {
+    const file = { data: new Uint8Array([1]), mimetype: 'application/pdf', hasPrevious: true };
+
+    it.each([
+      ['reportShowing', ['A/Page'], events.NOW_SHOWING, 'A/Page'],
+      ['renderFile', [file], events.RENDER_FILE, file],
+      ['renderFile', [null], events.RENDER_FILE, null],
+      ['setFileOverlay', [true], events.FILE_OVERLAY, true],
+    ])('%s(%j) should post %s to the host', (method, args, event, data) => {
+      const host = { postMessage: jest.fn() };
+      const handler = new BaseShimsHandler({ mediator: createMediator(host) });
+
+      handler[method](...args);
+
+      expect(host.postMessage).toHaveBeenCalledWith({ nameSpace, event, data }, '*');
+    });
+  });
 });
