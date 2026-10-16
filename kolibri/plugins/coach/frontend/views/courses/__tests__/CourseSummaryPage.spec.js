@@ -25,6 +25,7 @@ const {
   learningObjectivesLabel$,
   unitTitleWithStatus$,
   preTestInProgress$,
+  preTestResults$,
   postTestResults$,
 } = coursesStrings;
 const { learnersLabel$ } = coreStrings;
@@ -419,6 +420,30 @@ describe('CourseSummaryPage', () => {
       expect(
         within(tabPanel).queryByRole('heading', { level: 2, name: activeLabel }),
       ).not.toBeInTheDocument();
+    });
+
+    it('titles the active unit results once its pre-test has ended', async () => {
+      const { findByTestId } = setup({
+        activeUnit: UNITS[0],
+        unitPhase: UnitPhase.POST_TEST_PENDING,
+        reports: [
+          unitFixture({
+            unit_contentnode_id: UNIT_A,
+            pre_test: { status: 'closed', scores: { [LEARNER_ID]: {} } },
+          }),
+          unitFixture({ unit_contentnode_id: UNIT_B }),
+          unitFixture({ unit_contentnode_id: UNIT_C }),
+        ],
+      });
+
+      await findByTestId('learner-side-panel');
+      const tabPanel = learnersTabPanel();
+      expect(
+        within(tabPanel).getByRole('heading', {
+          level: 2,
+          name: unitTitleWithStatus$({ title: 'Unit 1: A', status: preTestResults$() }),
+        }),
+      ).toBeInTheDocument();
     });
   });
 

@@ -24,8 +24,8 @@
         </div>
       </template>
 
-      <!-- Empty state: learner has not attempted the test -->
-      <template v-if="!hasAttempted">
+      <!-- Empty state: learner has not started any test -->
+      <template v-if="!hasStarted">
         <div class="empty-state">
           <div class="empty-heading-row">
             <KIcon
@@ -75,7 +75,7 @@
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
-  import { learnerTestScores } from '../../utils';
+  import { learnerStartedTest, learnerTestScores } from '../../utils';
   import LearnerUnitReport from './LearnerUnitReport.vue';
 
   export default {
@@ -90,9 +90,11 @@
     setup(props, { emit }) {
       const { learnerReportLabel$, noProgressLabel$, hasntStartedUnitsLabel$ } = coursesStrings;
 
-      const hasAttempted = computed(() =>
-        props.unitReports.some(({ prefetchedData }) =>
-          learnerTestScores(prefetchedData, props.learner.id),
+      const hasStarted = computed(() =>
+        props.unitReports.some(
+          ({ prefetchedData }) =>
+            learnerTestScores(prefetchedData, props.learner.id) ||
+            learnerStartedTest(prefetchedData, props.learner.id),
         ),
       );
 
@@ -104,7 +106,7 @@
         learnerReportLabel$,
         noProgressLabel$,
         hasntStartedUnitsLabel$,
-        hasAttempted,
+        hasStarted,
         closePanel,
       };
     },
