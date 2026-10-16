@@ -1,7 +1,14 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 
 import CompletionModal from '../CompletionModal';
+/* eslint-disable import-x/named */
+import useDeviceSettings, { useDeviceSettingsMock } from '../../composables/useDeviceSettings';
+import useLearnerResources, {
+  useLearnerResourcesMock,
+} from '../../composables/useLearnerResources';
+/* eslint-enable import-x/named */
 
 jest.mock('../../composables/useContentLink');
 jest.mock('../../composables/useDeviceSettings');
@@ -213,6 +220,80 @@ describe('CompletionModal', () => {
       expect(recommendedResources.at(0).element.tagName).toBe('A');
       expect(recommendedResources.at(1).text()).toContain('The second recommended resource');
       expect(recommendedResources.at(1).element.tagName).toBe('A');
+    });
+  });
+
+  describe('for a virtual page', () => {
+    const page = {
+      id: 'page',
+      virtual: true,
+      parent: 'zim',
+      ancestors: [{ id: 'channel' }, { id: 'zim' }],
+    };
+
+    beforeEach(() => {
+      useDeviceSettings.mockImplementation(() =>
+        useDeviceSettingsMock({ canAccessUnassignedContent: true }),
+      );
+      ContentNodeResource.fetchTree.mockResolvedValue({
+        id: 'channel',
+        children: { results: [{ id: 'zim' }] },
+      });
+      ContentNodeResource.fetchRecommendationsFor.mockResolvedValue([]);
+    });
+
+    afterEach(() => {
+      useDeviceSettings.mockImplementation(() => useDeviceSettingsMock());
+      useLearnerResources.mockImplementation(() => useLearnerResourcesMock());
+      jest.clearAllMocks();
+    });
+
+    it('finishes loading without walking the tree, and offers no next resource', async () => {
+      const wrapper = makeWrapper({ propsData: { contentNode: page, isUserLoggedIn: true } });
+      await global.flushPromises();
+
+      expect(ContentNodeResource.fetchTree).not.toHaveBeenCalled();
+      expect(wrapper.findComponent({ name: 'KCircularLoader' }).exists()).toBe(false);
+      expect(wrapper.text()).not.toContain('Keep going');
+    });
+
+    it('offers the next lesson resource when the page is itself a lesson resource', async () => {
+      useLearnerResources.mockImplementation(() =>
+        useLearnerResourcesMock({
+          fetchLesson: jest.fn().mockResolvedValue({
+            resources: [
+              { contentnode_id: 'page', contentnode: { id: 'page', title: 'The page' } },
+              { contentnode_id: 'other', contentnode: { id: 'other', title: 'Other' } },
+            ],
+          }),
+        }),
+      );
+      const wrapper = makeWrapper({
+        propsData: { contentNode: page, isUserLoggedIn: true, lessonId: 'lesson' },
+      });
+      await global.flushPromises();
+
+      expect(wrapper.text()).toContain('Keep going');
+      expect(wrapper.text()).toContain('Other');
+    });
+
+    it('offers no next lesson resource when the page is not in the lesson', async () => {
+      useLearnerResources.mockImplementation(() =>
+        useLearnerResourcesMock({
+          fetchLesson: jest.fn().mockResolvedValue({
+            resources: [
+              { contentnode_id: 'zim', contentnode: { id: 'zim', title: 'The ZIM' } },
+              { contentnode_id: 'other', contentnode: { id: 'other', title: 'Other' } },
+            ],
+          }),
+        }),
+      );
+      const wrapper = makeWrapper({
+        propsData: { contentNode: page, isUserLoggedIn: true, lessonId: 'lesson' },
+      });
+      await global.flushPromises();
+
+      expect(wrapper.text()).not.toContain('Keep going');
     });
   });
 });

@@ -130,7 +130,7 @@
     </div>
 
     <DownloadButton
-      v-if="canDownloadExternally"
+      v-if="canDownloadExternally && !content.virtual"
       :files="content.files"
       :nodeTitle="content.title"
       class="download-button"
@@ -203,6 +203,7 @@
       canShareFile() {
         return (
           this.isAppContext &&
+          !this.content.virtual &&
           this.content.kind !== ContentNodeKinds.EXERCISE &&
           pluginData.canShareFile
         );

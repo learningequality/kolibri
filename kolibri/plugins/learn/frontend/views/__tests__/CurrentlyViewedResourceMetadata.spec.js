@@ -5,7 +5,15 @@ import GradeLevels from 'kolibri-constants/labels/Levels';
 import ResourceTypes from 'kolibri-constants/labels/ResourceType';
 import Subjects from 'kolibri-constants/labels/Subjects';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
+// eslint-disable-next-line import-x/named
+import useUser, { useUserMock } from 'kolibri/composables/useUser';
 import CurrentlyViewedResourceMetadata from '../CurrentlyViewedResourceMetadata';
+
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri-plugin-data', () => ({
+  __esModule: true,
+  default: { canShareFile: true },
+}));
 
 const baseContentNode = {
   id: '2ea9bda8703241be89b5b9fd87f88815',
@@ -163,6 +171,28 @@ describe('CurrentlyViewedResourceMetadata', () => {
 
     it('does not show the download button when canDownloadExternally is not true', () => {
       expect(wrapper.find("[data-testid='download-button']").exists()).toBeFalsy();
+    });
+  });
+
+  describe('file distribution', () => {
+    beforeEach(() => {
+      useUser.mockImplementation(() => useUserMock({ isAppContext: true }));
+    });
+
+    afterEach(() => {
+      useUser.mockImplementation(() => useUserMock());
+    });
+
+    it('offers download and share for a real node', () => {
+      wrapper = makeWrapper();
+      expect(wrapper.find("[data-testid='download-button']").exists()).toBeTruthy();
+      expect(wrapper.find('.share-button').exists()).toBeTruthy();
+    });
+
+    it('offers neither download nor share for a virtual page', () => {
+      wrapper = makeWrapper({ virtual: true });
+      expect(wrapper.find("[data-testid='download-button']").exists()).toBeFalsy();
+      expect(wrapper.find('.share-button').exists()).toBeFalsy();
     });
   });
 });
