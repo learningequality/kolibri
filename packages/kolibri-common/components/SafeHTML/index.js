@@ -127,11 +127,13 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
   const purifier = DOMPurify();
   purifier.addHook('uponSanitizeAttribute', filterStyle);
   // A forbidden attribute survives only as a prop of the component rendering its
-  // tag. Enforced here rather than via FORBID_ATTR, which DOMPurify applies
-  // before any hook could exempt it.
+  // tag, or on MathML, where mspace and mpadded set spacing with it. Enforced here
+  // rather than via FORBID_ATTR, which DOMPurify applies before any hook could
+  // exempt it.
   purifier.addHook('uponSanitizeAttribute', (node, data) => {
     if (
       FORBID_ATTR.includes(data.attrName) &&
+      node.namespaceURI !== MATHML_NAMESPACE &&
       !tagProps[node.tagName.toLowerCase()]?.has(data.attrName)
     ) {
       data.keepAttr = false;

@@ -871,6 +871,14 @@ describe('SafeHTML', () => {
         expect(wrapper.nextElementSibling).toHaveTextContent(AFTER);
       });
 
+      it('renders the spacing an mspace sets', async () => {
+        render(createSafeHTML(), {
+          props: { html: '<math><mi>x</mi><mspace width="1em"/><mi>y</mi></math>' },
+        });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper.querySelector('mjx-mspace')).toHaveStyle({ width: '1em' });
+      });
+
       describe('in a table', () => {
         // jsdom lays nothing out, so both widths read 0 until stubbed.
         const widths = { scrollWidth: 0, clientWidth: 0 };
@@ -929,6 +937,16 @@ describe('SafeHTML', () => {
         });
         expect(container.querySelector('math.safe-html')).not.toBeNull();
         expect(container.querySelector('[alttext]')).toBeNull();
+      });
+
+      it.each([
+        ['mspace', '<mspace width="1em" height="2ex"/>'],
+        ['mpadded', '<mpadded width="+1em" height="+2ex"><mi>x</mi></mpadded>'],
+      ])('keeps width and height on an %s', (tag, inner) => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: `<math>${inner}</math>` },
+        });
+        expect(container.querySelector(`${tag}[width][height]`)).not.toBeNull();
       });
     });
   });
