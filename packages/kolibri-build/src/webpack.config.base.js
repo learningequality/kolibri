@@ -55,6 +55,12 @@ module.exports = ({
   ];
 
   const rules = [
+    {
+      test: /\.(js|mjs)$/,
+      enforce: 'pre',
+      exclude: /node_modules/,
+      loader: require.resolve('./composableIdLoader'),
+    },
     // Transpilation and code loading rules
     {
       test: /\.vue$/,
@@ -124,6 +130,7 @@ module.exports = ({
       version: `1.0.0-${hot ? 'hot' : 'nothot'}-${transpile ? 'transpiled' : 'source'}`,
       buildDependencies: {
         config: [__filename],
+        composableIds: [require.resolve('./composableIdLoader')],
       },
     },
     module: {

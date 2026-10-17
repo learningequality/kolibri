@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import useUser from 'kolibri/composables/useUser';
+import useFacilities from '../useFacilities';
 
 jest.mock('kolibri-common/apiResources/FacilityResource');
 jest.mock('kolibri/composables/useUser');
@@ -12,10 +13,6 @@ describe('useFacilities', () => {
   ];
 
   function createUseFacilities() {
-    let useFacilities;
-    jest.isolateModules(() => {
-      useFacilities = require('../useFacilities').default;
-    });
     return useFacilities();
   }
 
@@ -96,11 +93,7 @@ describe('useFacilities', () => {
 
       // First, add a facility to the cache
       FacilityResource.list.mockResolvedValue(mockFacilities);
-      let useFacilitiesModule;
-      jest.isolateModules(() => {
-        useFacilitiesModule = require('../useFacilities');
-      });
-      const { fetchFacilities, fetchFacility, facilities } = useFacilitiesModule.default();
+      const { fetchFacilities, fetchFacility, facilities } = createUseFacilities();
 
       await fetchFacilities();
       FacilityResource.retrieve.mockResolvedValue(updatedFacility);
