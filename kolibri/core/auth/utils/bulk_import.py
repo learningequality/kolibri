@@ -534,6 +534,23 @@ class BulkUserImportManager(JobProgressMixin):
             "value": value,
         }
 
+    def _duplicated_username_error(self, username, user_row, user_id=None):
+        if (
+            FacilityUser.all_objects.filter(
+                username__iexact=username, facility=self.default_facility
+            )
+            .exclude(id=user_id)
+            .exists()
+        ):
+            return self._row_error(
+                username,
+                user_row,
+                MESSAGES[DUPLICATED_USERNAME],
+                "USERNAME",
+                username,
+            )
+        return None
+
     def _existing_user(self, username, user_row, values):
         user_obj = FacilityUser.all_objects.get(
             id=values["uuid"], facility=self.default_facility
@@ -542,18 +559,9 @@ class BulkUserImportManager(JobProgressMixin):
         if user_obj.date_deleted is not None:
             user_obj.date_deleted = None
         if user_obj.username != username:
-            # check for duplicated username in the facility
-            existing_user = FacilityUser.all_objects.get(
-                username__iexact=username, facility=self.default_facility
+            return user_obj, self._duplicated_username_error(
+                username, user_row, user_obj.id
             )
-            if existing_user:
-                return user_obj, self._row_error(
-                    username,
-                    user_row,
-                    MESSAGES[DUPLICATED_USERNAME],
-                    "USERNAME",
-                    username,
-                )
         return user_obj, None
 
     def _new_user(self, username, user_row, values):
@@ -566,16 +574,9 @@ class BulkUserImportManager(JobProgressMixin):
                 "*",
             )
         # If UUID is not specified, check for a username clash
-        if FacilityUser.all_objects.filter(
-            username__iexact=username, facility=self.default_facility
-        ).exists():
-            return None, self._row_error(
-                username,
-                user_row,
-                MESSAGES[DUPLICATED_USERNAME],
-                "USERNAME",
-                username,
-            )
+        error = self._duplicated_username_error(username, user_row)
+        if error:
+            return None, error
         if not values["password"]:
             return None, self._row_error(
                 username, user_row, MESSAGES[REQUIRED_PASSWORD], "PASSWORD", "*"

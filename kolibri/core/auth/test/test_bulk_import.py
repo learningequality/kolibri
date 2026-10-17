@@ -680,3 +680,23 @@ class ImportTestCase(TestCase):
         self.assertIsNone(imported_user.date_deleted)
         self.assertEqual(imported_user.username, "testuser")
         self.assertTrue(imported_user.check_password("newpassword"))
+
+    def _import_rename(self, user, new_username):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [str(user.id), new_username, "*", "", "LEARNER", "", "", "", "", ""]
+        self.create_csv(csv_filename, [row])
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+        return FacilityUser.objects.get(id=user.id).username
+
+    def test_import_renames_user(self):
+        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        self.assertEqual(self._import_rename(user, "alice2"), "alice2")
+
+    def test_import_renames_user_case_only(self):
+        user = FacilityUser.objects.create(username="Alice", facility=self.facility)
+        self.assertEqual(self._import_rename(user, "alice"), "alice")
+
+    def test_import_rename_to_other_users_username_is_rejected(self):
+        FacilityUser.objects.create(username="bob", facility=self.facility)
+        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        self.assertEqual(self._import_rename(user, "BOB"), "alice")
