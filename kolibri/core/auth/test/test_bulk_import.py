@@ -9,9 +9,11 @@ from django.core.management import call_command
 from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
+from django.utils import translation
 
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.errors import BulkUserImportError
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.utils.csv import open_csv_for_reading
@@ -680,3 +682,72 @@ class ImportTestCase(TestCase):
         self.assertIsNone(imported_user.date_deleted)
         self.assertEqual(imported_user.username, "testuser")
         self.assertTrue(imported_user.check_password("newpassword"))
+
+    def _import_rename(self, user, new_username):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [str(user.id), new_username, "*", "", "LEARNER", "", "", "", "", ""]
+        self.create_csv(csv_filename, [row])
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+        return FacilityUser.objects.get(id=user.id).username
+
+    def test_import_renames_user(self):
+        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        self.assertEqual(self._import_rename(user, "alice2"), "alice2")
+
+    def test_import_renames_user_case_only(self):
+        user = FacilityUser.objects.create(username="Alice", facility=self.facility)
+        self.assertEqual(self._import_rename(user, "alice"), "alice")
+
+    def _create_users_with_password(self, *usernames):
+        return [
+            FacilityUser.objects.create(
+                username=username,
+                password=demographics.NOT_SPECIFIED,
+                facility=self.facility,
+            )
+            for username in usernames
+        ]
+
+    def _assert_duplicated_username_error(self, errorlines):
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "USERNAME")
+        self.assertEqual(error["message"], str(b.MESSAGES[b.DUPLICATED_USERNAME]))
+
+    def test_import_rename_to_other_users_username_is_rejected(self):
+        _, user = self._create_users_with_password("bob", "alice")
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [str(user.id), "BOB", "*", "", "LEARNER", "", "", "", "", ""]
+        self.create_csv(csv_filename, [row])
+        errorlines = StringIO()
+        b.BulkUserImportManager(
+            csv_filename, facility_id=self.facility.id, errorlines=errorlines
+        ).run()
+        self.assertEqual(FacilityUser.objects.get(id=user.id).username, "alice")
+        self.assertFalse(FacilityUser.objects.filter(username="BOB").exists())
+        self._assert_duplicated_username_error(errorlines)
+
+    def test_rejected_rename_keeps_class_memberships_and_roles(self):
+        _, user = self._create_users_with_password("bob", "alice")
+        enrolled = Classroom.objects.create(name="C", parent=self.facility)
+        coached = Classroom.objects.create(name="D", parent=self.facility)
+        enrolled.add_member(user)
+        coached.add_coach(user)
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [str(user.id), "bob", "*", "", "LEARNER", "", "", "", "C", ""]
+        self.create_csv(csv_filename, [row])
+        errorlines = StringIO()
+        b.BulkUserImportManager(
+            csv_filename, facility_id=self.facility.id, errorlines=errorlines
+        ).run()
+        self._assert_duplicated_username_error(errorlines)
+        self.assertTrue(enrolled.get_members().filter(id=user.id).exists())
+        self.assertTrue(coached.get_coaches().filter(id=user.id).exists())
+
+    def test_failed_import_restores_language(self):
+        manager = b.BulkUserImportManager(
+            "nonexistent.csv", facility_id=self.facility.id, locale="fr-fr"
+        )
+        with translation.override("en"):
+            with self.assertRaises(BulkUserImportError):
+                manager.run()
+            self.assertEqual(translation.get_language(), "en")
