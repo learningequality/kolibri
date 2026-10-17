@@ -11,6 +11,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@internationalized/number": "^3.6.8",
     "@m31coding/fuzzy-search": "^2.0.0",
     "date-fns": "^1.28.2",
     "dialog-polyfill": "^0.5.6",

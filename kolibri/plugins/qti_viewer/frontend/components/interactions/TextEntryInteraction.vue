@@ -39,6 +39,7 @@
       v-else
       :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
       :style="widthStyle"
+      data-testid="text-entry-report"
     >
       {{ reportDisplayValue }}
     </span>
@@ -55,7 +56,11 @@
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { injectKeypad } from 'kolibri-common/composables/useKeypad';
-  import { normalizeNumerals, localizeNumerals } from 'kolibri-common/utils/numeralNormalization';
+  import {
+    formatLocaleNumber,
+    getLocaleNumberSymbols,
+    readLocaleNumber,
+  } from 'kolibri-common/utils/localeNumbers';
   import useTypedProps from '../../composables/useTypedProps';
   import {
     NumberProp,
@@ -80,12 +85,6 @@
   const { textEntryLabel$ } = strings;
 
   // prevent keys that are not valid for the baseType from being added to the input field
-  const SIMPLE_KEY_CHARS = {
-    DECIMAL: '.',
-    PERCENT: '%',
-    PI: 'π',
-    FRAC: '⁄',
-  };
   const ALWAYS_EXCLUDED_KEYS = ['PERCENT', 'PI', 'FRAC'];
 
   const INPUT_WIDTH_CLASS = /(?:^|\s)qti-input-width-(\d+)(?=\s|$)/;
@@ -106,6 +105,7 @@
       const interactive = inject('interactive', true);
       const keypad = injectKeypad();
       const lang = inject('lang', ref(null));
+      const langId = computed(() => unref(lang)?.id ?? unref(lang));
 
       const getContextAttrs = () => {
         if (!context || !context.attrs) {
@@ -206,35 +206,74 @@
         return baseType.value === BASE_TYPE.INTEGER || baseType.value === BASE_TYPE.FLOAT;
       });
 
-      const rawValue = ref(
-        inputDeclaration.value?.value == null ? '' : String(inputDeclaration.value.value),
-      );
-      const lastCommittedRaw = ref(rawValue.value);
+      function display(committed) {
+        return isNumeric.value ? formatLocaleNumber(committed, langId.value) : committed;
+      }
+
+      const initialValue = inputDeclaration.value?.value;
+      const lastCommittedRaw = ref(initialValue == null ? '' : String(initialValue));
+      const rawValue = ref(display(lastCommittedRaw.value));
+
+      // A numeric response is stored as a number, whose String() may differ from what was
+      // committed (`1e-7` for `0.0000001`).
+      function isCommitted(v) {
+        const committed = lastCommittedRaw.value;
+        if (isNumeric.value && v !== '' && committed !== '') {
+          return Number(v) === Number(committed);
+        }
+        return v === committed;
+      }
 
       // To keep rawValue in sync with the underlying response variable
       watch(
         () => inputDeclaration.value?.value,
         newVal => {
           const v = newVal == null ? '' : String(newVal);
-          if (v !== lastCommittedRaw.value) {
-            rawValue.value = v;
+          if (!isCommitted(v)) {
+            rawValue.value = display(v);
             lastCommittedRaw.value = v;
           }
         },
       );
 
+      function readCandidate(newRaw) {
+        if (!isNumeric.value) {
+          return newRaw;
+        }
+        // The response variable reads '' as null.
+        if (!newRaw.trim()) {
+          return '';
+        }
+        return readLocaleNumber(newRaw, langId.value);
+      }
+
       function commit(newRaw) {
         if (!inputDeclaration.value) {
           return false;
         }
-        const candidate = isNumeric.value ? normalizeNumerals(newRaw) : newRaw;
+        const candidate = readCandidate(newRaw);
+        if (candidate === null) {
+          return false;
+        }
         try {
           inputDeclaration.value.value = candidate;
-          lastCommittedRaw.value = candidate;
+          // An integer response stores `1.5` as 1.
+          const stored = inputDeclaration.value.value;
+          lastCommittedRaw.value =
+            isNumeric.value && stored !== null && Number(stored) !== Number(candidate)
+              ? String(stored)
+              : candidate;
           return true;
         } catch (e) {
           return false;
         }
+      }
+
+      // The typed xsd:double, its digits kept (French `1,50` as `1.50`), when it reads as the same
+      // number as the response, so the field can leave them as typed; null otherwise.
+      function typedCommittedNumber() {
+        const typedNumber = readLocaleNumber(rawValue.value.replace(symbols.value.decimal, '.'));
+        return typedNumber !== null && isCommitted(typedNumber) ? typedNumber : null;
       }
 
       function onInput(event) {
@@ -243,13 +282,7 @@
       }
 
       // Report-mode display only
-      const reportDisplayValue = computed(() => {
-        if (!isNumeric.value) {
-          return lastCommittedRaw.value;
-        }
-        const langId = unref(lang)?.id ?? unref(lang);
-        return localizeNumerals(lastCommittedRaw.value, langId);
-      });
+      const reportDisplayValue = computed(() => display(lastCommittedRaw.value));
 
       const inputMode = computed(() => (isNumeric.value ? 'decimal' : undefined));
 
@@ -271,10 +304,14 @@
       // Per the QTI spec the mask flags an invalid response after entry — it never blocks
       // keystrokes, and never gates commit(). This is presentational only.
       const isPatternValid = computed(() => {
-        if (!patternMatcher.value || !rawValue.value) {
+        // Masks are written for xsd:doubles, so a numeric field is checked in the form it keeps.
+        const value = isNumeric.value
+          ? (typedCommittedNumber() ?? lastCommittedRaw.value)
+          : rawValue.value;
+        if (!patternMatcher.value || !value) {
           return true;
         }
-        return patternMatcher.value(rawValue.value);
+        return patternMatcher.value(value);
       });
 
       // Only surface the error once the learner has left the field
@@ -311,6 +348,16 @@
         });
       }
 
+      // The keypad labels its keys with the same symbols, and readLocaleNumber reads them back.
+      const symbols = computed(() => getLocaleNumberSymbols(langId.value));
+
+      function keyChar(keyId) {
+        if (keyId.startsWith('NUM_')) {
+          return symbols.value.digits[Number(keyId.slice(4))];
+        }
+        return keyId === 'DECIMAL' ? symbols.value.decimal : null;
+      }
+
       function handleKey(keyId) {
         const el = inputEl.value;
         if (!el) {
@@ -339,7 +386,8 @@
         } else if (keyId === 'UP' || keyId === 'DOWN') {
           return start;
         } else if (keyId === 'NEGATIVE') {
-          if (value.startsWith('-')) {
+          // formatLocaleNumber writes U+2212 in some languages (`sv`).
+          if (/^[-−]/.test(value)) {
             value = value.slice(1);
             caret = Math.max(0, start - 1);
           } else {
@@ -347,7 +395,7 @@
             caret = start + 1;
           }
         } else {
-          const char = keyId.startsWith('NUM_') ? keyId.slice(4) : SIMPLE_KEY_CHARS[keyId];
+          const char = keyChar(keyId);
           if (!char) {
             return start;
           }
@@ -376,9 +424,10 @@
 
       function onBlur() {
         touched.value = true;
-        if (!commit(rawValue.value)) {
-          // fallback
-          rawValue.value = lastCommittedRaw.value;
+        // Shows the learner how their entry was read, or restores the last one read, but leaves
+        // digits as typed when they read as the same number.
+        if (!commit(rawValue.value) || typedCommittedNumber() === null) {
+          rawValue.value = display(lastCommittedRaw.value);
         }
         if (keypad) {
           keypad.dismiss();

@@ -18,6 +18,7 @@ const {
   leftArrow$,
   rightArrow$,
   delete$,
+  decimal$,
 } = numericKeypadStrings;
 
 // Every QTI text-entry fixture: confirms it parses and renders the expected input count.
@@ -363,5 +364,232 @@ describe('Numeric keypad', () => {
     await fireEvent.click(screen.getByRole('button', { name: '9' }));
 
     expect(input).toHaveValue('192');
+  });
+});
+
+const ARABIC_INDIC_THREE = '٣';
+const ARABIC_INDIC_FIVE = '٥';
+const NARROW_NO_BREAK_SPACE = '\u202f';
+
+// Scores 1 when RESPONSE matches its correct response.
+function numericItemXml(correct, baseType = 'float') {
+  return `<qti-assessment-item>
+    <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="${baseType}">
+      <qti-correct-response><qti-value>${correct}</qti-value></qti-correct-response>
+    </qti-response-declaration>
+    <qti-outcome-declaration identifier="SCORE" cardinality="single" base-type="float">
+      <qti-default-value><qti-value>0</qti-value></qti-default-value>
+    </qti-outcome-declaration>
+    <qti-item-body><p><qti-text-entry-interaction response-identifier="RESPONSE"/></p></qti-item-body>
+    <qti-response-processing>
+      <qti-response-condition>
+        <qti-response-if>
+          <qti-match>
+            <qti-variable identifier="RESPONSE"/>
+            <qti-correct identifier="RESPONSE"/>
+          </qti-match>
+          <qti-set-outcome-value identifier="SCORE">
+            <qti-base-value base-type="float">1</qti-base-value>
+          </qti-set-outcome-value>
+        </qti-response-if>
+      </qti-response-condition>
+    </qti-response-processing>
+  </qti-assessment-item>`;
+}
+
+describe('Numbers in the content language', () => {
+  it.each([
+    ['fr', '1,5', '1.5'],
+    ['fr', '1.5', '1.5'],
+    ['fr', '1 234,5', '1234.5'],
+    ['fr', `1${NARROW_NO_BREAK_SPACE}234,5`, '1234.5'],
+    ['en', '1,234.5', '1234.5'],
+    ['en', '1,23', '123'],
+    ['hi', '12,34,567', '1234567'],
+    ['hi', '३०', '30'],
+    ['ar', '٣٠', '30'],
+    ['ar', '٣.٥', '3.5'],
+  ])('%s reads %s as %s', async (lang, typed, correct) => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml(correct), { lang });
+    await fireEvent.update(screen.getByRole('textbox'), typed);
+    expect(checkAnswer().outcomes.SCORE).toBe(1);
+  });
+
+  it.each([
+    ['fr', '1,5'],
+    ['en', '1.5'],
+    ['hi', '1.5'],
+  ])('%s keypad writes %s', async (lang, written) => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml('1.5'), { lang });
+    const input = screen.getByRole('textbox');
+    await fireEvent.focus(input);
+    await fireEvent.click(screen.getByRole('button', { name: '1' }));
+    await fireEvent.click(screen.getByRole('button', { name: decimal$() }));
+    await fireEvent.click(screen.getByRole('button', { name: '5' }));
+    expect(input).toHaveValue(written);
+    expect(checkAnswer().outcomes.SCORE).toBe(1);
+  });
+
+  it('reads keyboard digits beside the keypad decimal in Persian', async () => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml('3.5'), { lang: 'fa' });
+    const input = screen.getByRole('textbox');
+    await fireEvent.focus(input);
+    await fireEvent.update(input, '3');
+    await fireEvent.click(screen.getByRole('button', { name: decimal$() }));
+    await fireEvent.update(input, `${input.value}5`);
+    await fireEvent.blur(input);
+    expect(checkAnswer().outcomes.SCORE).toBe(1);
+  });
+
+  it.each([
+    ['en', '1.5', '1', '1'],
+    ['fr', '1,5', '1', '1'],
+  ])('%s integer field reads %s as %s', async (lang, typed, stored, shown) => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml(stored, 'integer'), { lang });
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, typed);
+    await fireEvent.blur(input);
+    expect(input).toHaveValue(shown);
+    expect(checkAnswer().outcomes.SCORE).toBe(1);
+  });
+
+  it.each([
+    ['en', '1.5'],
+    ['fr', '1,5'],
+  ])('%s integer field typed %s a key at a time shows what it stored', async (lang, typed) => {
+    renderAssessmentItem(numericItemXml('1', 'integer'), { lang });
+    const input = screen.getByRole('textbox');
+    for (let end = 1; end <= typed.length; end++) {
+      await fireEvent.update(input, typed.slice(0, end));
+    }
+    await fireEvent.blur(input);
+    expect(input).toHaveValue('1');
+  });
+
+  it.each([
+    ['ar', '٣٠'],
+    ['bn', '0.5'],
+    ['ar-EG', '1.5'],
+  ])('%s keeps %s as typed once the field is left', async (lang, typed) => {
+    renderAssessmentItem(numericItemXml('1'), { lang });
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, typed);
+    await fireEvent.blur(input);
+    expect(input).toHaveValue(typed);
+  });
+
+  it('reads keypad input in Arabic-Indic digits', async () => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml('3.5'), { lang: 'ar-EG' });
+    await fireEvent.focus(screen.getByRole('textbox'));
+    await fireEvent.click(screen.getByRole('button', { name: ARABIC_INDIC_THREE }));
+    await fireEvent.click(screen.getByRole('button', { name: decimal$() }));
+    await fireEvent.click(screen.getByRole('button', { name: ARABIC_INDIC_FIVE }));
+    expect(checkAnswer().outcomes.SCORE).toBe(1);
+  });
+
+  it.each([
+    ['fr', 1234.5, '1234,5'],
+    ['ar-EG', 30, '٣٠'],
+    ['en', 1234.5, '1234.5'],
+    ['hi', 1234.5, '1234.5'],
+  ])('%s shows %s as %s in report mode', (lang, stored, shown) => {
+    renderAssessmentItem(numericItemXml(stored), {
+      lang,
+      answerState: { RESPONSE: stored },
+      interactive: false,
+    });
+    expect(screen.getByTestId('text-entry-report')).toHaveTextContent(shown);
+  });
+
+  it('toggles a minus written as U+2212 off with the negative-sign key', async () => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml('3'), {
+      lang: 'sv',
+      answerState: { RESPONSE: -3 },
+    });
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue('−3');
+    await fireEvent.focus(input);
+    await fireEvent.click(screen.getByRole('button', { name: negative$() }));
+    expect(input).toHaveValue('3');
+    expect(checkAnswer().outcomes.SCORE).toBe(1);
+  });
+
+  it('keeps a restored value when the field is focused and left', async () => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml('1.5'), {
+      lang: 'de',
+      answerState: { RESPONSE: 1.5 },
+    });
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue('1,5');
+    await fireEvent.focus(input);
+    await fireEvent.blur(input);
+    expect(checkAnswer().answerState.RESPONSE).toBe(1.5);
+  });
+
+  it('clears the response when the field is cleared', async () => {
+    const { checkAnswer } = renderAssessmentItem(numericItemXml('1.5'), { lang: 'fr' });
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1,5');
+    await fireEvent.update(input, ' ');
+    await fireEvent.blur(input);
+    expect(checkAnswer().answerState.RESPONSE).toBeNull();
+  });
+
+  it('checks the pattern mask against the number, not its language form', async () => {
+    renderAssessmentItem(
+      numericItemXml('3.5').replace(
+        '<qti-text-entry-interaction ',
+        '<qti-text-entry-interaction pattern-mask="([0-9.\\-]{0,8})" ',
+      ),
+      { lang: 'fr' },
+    );
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '3,5');
+    await fireEvent.blur(input);
+    expect(input).not.toHaveAttribute('aria-invalid');
+  });
+
+  it.each([
+    ['[0-9]+\\.[0-9]{2}', '1.50', 'en'],
+    ['[0-9]+\\.[0-9]{2}', '1,50', 'fr'],
+    ['[0-9]{3}', '007', 'en'],
+  ])('checks the mask %s against %s (%s) as the field keeps it', async (mask, typed, lang) => {
+    renderAssessmentItem(
+      numericItemXml('1.5').replace(
+        '<qti-text-entry-interaction ',
+        `<qti-text-entry-interaction pattern-mask="${mask}" `,
+      ),
+      { lang },
+    );
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, typed);
+    await fireEvent.blur(input);
+    expect(input).toHaveValue(typed);
+    expect(input).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('shows how a typed number was read once the field is left', async () => {
+    renderAssessmentItem(numericItemXml('15'), { lang: 'de' });
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1.5');
+    await fireEvent.blur(input);
+    expect(input).toHaveValue('15');
+  });
+
+  it('keeps a small number as typed', async () => {
+    renderAssessmentItem(numericItemXml('0.0000001'), { lang: 'fr' });
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '0,0000001');
+    expect(input).toHaveValue('0,0000001');
+  });
+
+  it('leaves a partial entry in the field', async () => {
+    renderAssessmentItem(numericItemXml('1.5'), { lang: 'fr' });
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1');
+    await fireEvent.update(input, '1,');
+    expect(input).toHaveValue('1,');
+    await fireEvent.update(input, '-');
+    expect(input).toHaveValue('-');
   });
 });

@@ -82,7 +82,9 @@ function deepMapStrings(input, fn) {
  * @returns {object} The input with string values normalized
  */
 function normalizeUserInput(input) {
-  return deepMapStrings(input, normalizeNumerals);
+  // Perseus numeric-input reads only `.` and `,` as a decimal point, but math-input's field
+  // writes `٫` for our keypad's DECIMAL key in languages such as `fa`.
+  return deepMapStrings(input, s => normalizeNumerals(s).replace(/٫/g, '.'));
 }
 
 // Cache for getLocalizedDigits — keyed by locale string.
@@ -157,10 +159,4 @@ function localizeUserInput(input, locale) {
   return deepMapStrings(input, s => localizeNumerals(s, locale));
 }
 
-export {
-  normalizeNumerals,
-  normalizeUserInput,
-  getLocalizedDigits,
-  localizeNumerals,
-  localizeUserInput,
-};
+export { normalizeNumerals, normalizeUserInput, localizeNumerals, localizeUserInput };
