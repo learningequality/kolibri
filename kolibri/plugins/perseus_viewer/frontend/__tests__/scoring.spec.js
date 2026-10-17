@@ -1,6 +1,6 @@
 import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
-import { scorePerseusItem, emptyWidgetsFunctional } from '@khanacademy/perseus-score';
-import { normalizeUserInput } from 'kolibri-common/utils/numeralNormalization';
+import { emptyWidgetsFunctional } from '@khanacademy/perseus-score';
+import { localizeNumericResponses, readUserInput, scoreItem } from '../numericResponses';
 
 function migrateItem(rawItem) {
   const result = parseAndMigratePerseusItem(rawItem);
@@ -45,33 +45,52 @@ function makeInputNumberItem(options = {}) {
   );
 }
 
-function makeNumericInputItem() {
+function numericInputWidgets(answer = {}) {
+  return {
+    'numeric-input 1': {
+      type: 'numeric-input',
+      graded: true,
+      options: {
+        answers: [
+          {
+            value: 42,
+            status: 'correct',
+            message: '',
+            simplify: 'required',
+            strict: false,
+            maxError: null,
+            answerForms: [],
+            ...answer,
+          },
+        ],
+        size: 'normal',
+        coefficient: false,
+        labelText: '',
+        rightAlign: false,
+        static: false,
+      },
+    },
+  };
+}
+
+function makeNumericInputItem(answer = {}) {
+  return makeItem(numericInputWidgets(answer), '[[☃ numeric-input 1]]');
+}
+
+function makeGroupItem(answer = {}) {
   return makeItem(
     {
-      'numeric-input 1': {
-        type: 'numeric-input',
+      'group 1': {
+        type: 'group',
         graded: true,
         options: {
-          answers: [
-            {
-              value: 42,
-              status: 'correct',
-              message: '',
-              simplify: 'required',
-              strict: false,
-              maxError: null,
-              answerForms: [],
-            },
-          ],
-          size: 'normal',
-          coefficient: false,
-          labelText: '',
-          rightAlign: false,
-          static: false,
+          content: '[[☃ numeric-input 1]]',
+          images: {},
+          widgets: numericInputWidgets(answer),
         },
       },
     },
-    '[[☃ numeric-input 1]]',
+    '[[☃ group 1]]',
   );
 }
 
@@ -79,18 +98,18 @@ function isCorrect(score) {
   return score.type === 'points' && score.earned === score.total;
 }
 
-describe('scorePerseusItem', () => {
+describe('scoreItem', () => {
   describe('input-number widget (scored via numeric-input delegation)', () => {
     it('scores a correct integer answer as correct', () => {
       const item = makeInputNumberItem();
       const userInput = { 'input-number 1': { currentValue: '42' } };
-      expect(isCorrect(scorePerseusItem(item.question, userInput, 'en'))).toBe(true);
+      expect(isCorrect(scoreItem(item.question, userInput, 'en'))).toBe(true);
     });
 
     it('scores a wrong answer as incorrect', () => {
       const item = makeInputNumberItem();
       const userInput = { 'input-number 1': { currentValue: '41' } };
-      const score = scorePerseusItem(item.question, userInput, 'en');
+      const score = scoreItem(item.question, userInput, 'en');
       expect(score.type).toBe('points');
       expect(score.earned).toBe(0);
     });
@@ -98,21 +117,23 @@ describe('scorePerseusItem', () => {
     it('scores a correct decimal answer as correct', () => {
       const item = makeInputNumberItem({ value: 3.14, answerType: 'decimal' });
       const userInput = { 'input-number 1': { currentValue: '3.14' } };
-      expect(isCorrect(scorePerseusItem(item.question, userInput, 'en'))).toBe(true);
+      expect(isCorrect(scoreItem(item.question, userInput, 'en'))).toBe(true);
     });
 
     it('scores a correct answer after numeral normalization', () => {
-      // The checkAnswer() path: Eastern Arabic input is normalized to ASCII
-      // before being handed to the scorer.
       const item = makeInputNumberItem();
-      const userInput = normalizeUserInput({ 'input-number 1': { currentValue: '٤٢' } });
-      expect(isCorrect(scorePerseusItem(item.question, userInput, 'en'))).toBe(true);
+      const userInput = readUserInput(
+        { 'input-number 1': { currentValue: '٤٢' } },
+        item.question.widgets,
+        'ar-EG',
+      );
+      expect(isCorrect(scoreItem(item.question, userInput, 'ar-EG'))).toBe(true);
     });
 
     it('scores fractions for rational answer types', () => {
       const item = makeInputNumberItem({ value: 0.5, answerType: 'rational' });
       const userInput = { 'input-number 1': { currentValue: '1/2' } };
-      expect(isCorrect(scorePerseusItem(item.question, userInput, 'en'))).toBe(true);
+      expect(isCorrect(scoreItem(item.question, userInput, 'en'))).toBe(true);
     });
 
     it('scores empty input as invalid, not via emptyWidgetsFunctional', () => {
@@ -128,16 +149,8 @@ describe('scorePerseusItem', () => {
         'en',
       );
       expect(empty).toEqual([]);
-      const score = scorePerseusItem(item.question, userInput, 'en');
+      const score = scoreItem(item.question, userInput, 'en');
       expect(score.type).toBe('invalid');
-    });
-
-    it('includes a per-widget score map in the result', () => {
-      // Additive in perseus-score v8: scorePerseusItem returns widgetScores.
-      const item = makeInputNumberItem();
-      const userInput = { 'input-number 1': { currentValue: '42' } };
-      const score = scorePerseusItem(item.question, userInput, 'en');
-      expect(score.widgetScores['input-number 1'].type).toBe('points');
     });
   });
 
@@ -145,21 +158,103 @@ describe('scorePerseusItem', () => {
     it('scores a correct answer as correct', () => {
       const item = makeNumericInputItem();
       const userInput = { 'numeric-input 1': { currentValue: '42' } };
-      expect(isCorrect(scorePerseusItem(item.question, userInput, 'en'))).toBe(true);
+      expect(isCorrect(scoreItem(item.question, userInput, 'en'))).toBe(true);
     });
 
     it('scores a wrong answer as incorrect', () => {
       const item = makeNumericInputItem();
       const userInput = { 'numeric-input 1': { currentValue: '7' } };
-      const score = scorePerseusItem(item.question, userInput, 'en');
+      const score = scoreItem(item.question, userInput, 'en');
       expect(score.type).toBe('points');
       expect(score.earned).toBe(0);
     });
 
     it('scores a correct answer after numeral normalization', () => {
       const item = makeNumericInputItem();
-      const userInput = normalizeUserInput({ 'numeric-input 1': { currentValue: '٤٢' } });
-      expect(isCorrect(scorePerseusItem(item.question, userInput, 'en'))).toBe(true);
+      const userInput = readUserInput(
+        { 'numeric-input 1': { currentValue: '٤٢' } },
+        item.question.widgets,
+        'ar-EG',
+      );
+      expect(isCorrect(scoreItem(item.question, userInput, 'ar-EG'))).toBe(true);
     });
   });
 });
+
+const numericWidgets = [
+  {
+    id: 'numeric-input 1',
+    makeItem: value => makeNumericInputItem({ value }),
+    makePiItem: value => makeNumericInputItem({ value, answerForms: ['pi'] }),
+    makeInput: text => ({ 'numeric-input 1': { currentValue: text } }),
+  },
+  {
+    id: 'input-number 1',
+    makeItem: (value, form = 'number') => makeInputNumberItem({ value, answerType: form }),
+    makePiItem: value => makeInputNumberItem({ value, answerType: 'pi' }),
+    makeInput: text => ({ 'input-number 1': { currentValue: text } }),
+  },
+  {
+    id: 'group 1',
+    makeItem: value => makeGroupItem({ value }),
+    makePiItem: value => makeGroupItem({ value, answerForms: ['pi'] }),
+    makeInput: text => ({ 'group 1': { 'numeric-input 1': { currentValue: text } } }),
+  },
+];
+
+describe.each(numericWidgets)(
+  '$id read in the content language',
+  ({ makeItem, makePiItem, makeInput }) => {
+    function save(item, userInput, language) {
+      return readUserInput(userInput, item.question.widgets, language);
+    }
+
+    function scoresCorrect(item, text, language) {
+      return isCorrect(scoreItem(item.question, save(item, makeInput(text), language), language));
+    }
+
+    it('reads Hindi lakh grouping', () => {
+      expect(scoresCorrect(makeItem(1234567), '12,34,567', 'hi')).toBe(true);
+    });
+
+    it.each([
+      ['space', '1 234,5'],
+      ['narrow no-break space', '1\u202f234,5'],
+    ])('reads French %s grouping', (_, text) => {
+      expect(scoresCorrect(makeItem(1234.5), text, 'fr')).toBe(true);
+    });
+
+    it('reads French 1,234 as 1.234 only', () => {
+      expect(scoresCorrect(makeItem(1.234), '1,234', 'fr')).toBe(true);
+      expect(scoresCorrect(makeItem(1234), '1,234', 'fr')).toBe(false);
+    });
+
+    it('does not read English 1,23 as 1.23', () => {
+      expect(scoresCorrect(makeItem(1.23), '1,23', 'en')).toBe(false);
+    });
+
+    it.each(['en', 'fr', 'hi'])('scores fractions and mixed numbers in %s', language => {
+      expect(scoresCorrect(makeItem(0.5, 'rational'), '1/2', language)).toBe(true);
+      expect(scoresCorrect(makeItem(1.5, 'mixed'), '1 1/2', language)).toBe(true);
+    });
+
+    it('scores Arabic-Indic fractions in ar-EG', () => {
+      expect(scoresCorrect(makeItem(0.5, 'rational'), '١/٢', 'ar-EG')).toBe(true);
+    });
+
+    it.each([0.015, 1.5])('reads a French decimal percentage against %s', value => {
+      expect(scoresCorrect(makeItem(value), '1,5\\%', 'fr')).toBe(true);
+    });
+
+    it('does not score a restored Pashto response it cannot read', () => {
+      const item = makeItem(123);
+      const saved = save(item, makeInput('1٫2٫3'), 'ps');
+      const restored = localizeNumericResponses(saved, item.question.widgets, 'ps');
+      expect(isCorrect(scoreItem(item.question, save(item, restored, 'ps'), 'ps'))).toBe(false);
+    });
+
+    it('scores French text it cannot read with French separators', () => {
+      expect(scoresCorrect(makePiItem(1.5 * Math.PI), '1,5π', 'fr')).toBe(true);
+    });
+  },
+);

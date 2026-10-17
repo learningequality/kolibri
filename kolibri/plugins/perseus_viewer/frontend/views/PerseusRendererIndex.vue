@@ -59,15 +59,15 @@
     parseAndMigratePerseusItem,
     isFailure,
   } from '@khanacademy/perseus-core';
-  import { scorePerseusItem, emptyWidgetsFunctional } from '@khanacademy/perseus-score';
+  import { emptyWidgetsFunctional } from '@khanacademy/perseus-score';
   import { MathInputI18nContextProvider } from '@khanacademy/math-input';
   import { KeypadContext } from '@khanacademy/keypad-context';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
-  import { normalizeUserInput, localizeUserInput } from 'kolibri-common/utils/numeralNormalization';
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
   import { wrapPerseusMessages } from '../translationUtils';
+  import { localizeNumericResponses, readUserInput, scoreItem } from '../numericResponses';
   import perseusTranslator from '../translator';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
@@ -621,7 +621,11 @@
           return {};
         }
         // Normalize any non-Western numerals so saved state is always ASCII.
-        const userInput = normalizeUserInput(this.itemRenderer.getUserInput());
+        const userInput = readUserInput(
+          this.itemRenderer.getUserInput(),
+          this.item.question.widgets,
+          this.lang?.id,
+        );
         // To prevent propagation of our locally replaced blob URLs into answers,
         // we need to replace them with the original URLs.
         return restoreImageUrls(
@@ -649,11 +653,11 @@
         if (userInput) {
           // Restore image URLs from placeholders to blob URLs
           userInput = JSON.parse(replaceImageUrls(JSON.stringify(userInput), this.perseusFileUrl));
-          // Localize ASCII digits back to the content locale's numeral system
-          // so users see their saved answers in their native format.
-          // (Phase 1 normalized input to ASCII for scoring/storage.)
-          const locale = this.lang && this.lang.id;
-          userInput = localizeUserInput(userInput, locale);
+          userInput = localizeNumericResponses(
+            userInput,
+            this.item.question.widgets,
+            this.lang?.id,
+          );
           // Restore each widget's user input via the Renderer's handleUserInput callback
           const widgetIds = this.itemRenderer.getWidgetIds();
           for (const id of widgetIds) {
@@ -692,9 +696,9 @@
           // ${☣ LOCALPATH} space, and image-content answers (orderer, sorter, …)
           // only score correct when rubric and userInput share one URL space.
           const rubric = restoreImageUrls(this.item.question, this.perseusFileUrl);
-          // Use the content language for locale-sensitive scoring (e.g., decimal separators)
+          // Score responses readUserInput couldn't read (e.g., `1,5π`) in the content language
           const locale = this.lang?.id || 'en';
-          const score = scorePerseusItem(rubric, userInput, locale);
+          const score = scoreItem(rubric, userInput, locale);
           const emptyWidgets = emptyWidgetsFunctional(rubric.widgets, widgetIds, userInput, locale);
           const empty = emptyWidgets.length > 0;
           const correct = score.type === 'points' && score.earned === score.total;

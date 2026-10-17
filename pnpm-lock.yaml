@@ -724,7 +724,7 @@ importers:
         specifier: ^28.2.0
         version: 28.2.0(@khanacademy/wonder-stuff-core@3.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(underscore@1.13.8)
       '@khanacademy/perseus-score':
-        specifier: ^8.11.7
+        specifier: 8.11.7
         version: 8.11.7(@khanacademy/wonder-stuff-core@3.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(underscore@1.13.8)
       '@khanacademy/wonder-blocks-announcer':
         specifier: ^1.1.0
