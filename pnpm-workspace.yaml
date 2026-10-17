@@ -19,6 +19,7 @@ catalog:
   kolibri-constants: 0.2.16
   kolibri-design-system: 5.9.0
   lodash: ^4.17.23
+  mathjax-full: 3.2.2
   vue: 2.7.16
   vue-meta: ^2.4.0
   vue-router: ^3.6.5

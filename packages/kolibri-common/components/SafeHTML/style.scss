@@ -89,6 +89,7 @@ b.safe-html {
 
 // Table styles live in SafeHtmlTable, which renders them.
 // Image layout styles live in SafeHtmlImage, which renders them.
+// MathJax output styles live in SafeHtmlMath, which renders them.
 
 .embedded-content-viewer {
   max-width: 960px;

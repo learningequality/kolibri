@@ -570,6 +570,15 @@ export default [
     ],
   },
   {
+    title: 'Math',
+    items: [
+      {
+        identifier: 'mathml-rendering',
+        title: 'MathML Rendering',
+      },
+    ],
+  },
+  {
     title: 'Media',
     items: [
       {

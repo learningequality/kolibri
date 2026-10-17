@@ -21,7 +21,7 @@
 <script>
 
   import { onMounted, onUpdated, ref } from 'vue';
-  import { useEventListener, useResizeObserver } from '@vueuse/core';
+  import { useEventListener, useMutationObserver, useResizeObserver } from '@vueuse/core';
 
   export default {
     name: 'SafeHtmlTable',
@@ -45,6 +45,9 @@
       // that predate ResizeObserver.
       useResizeObserver(container, measure);
       useEventListener(window, 'resize', measure);
+      // A child component, such as SafeHtmlMath, can widen the table in its own
+      // re-render, which onUpdated here never sees.
+      useMutationObserver(container, measure, { childList: true, subtree: true });
 
       return { container, overflowing };
     },

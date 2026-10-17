@@ -2,50 +2,13 @@
  * This file defines additional webpack configuration for this plugin.
  * It will be bundled into the webpack configuration at build time.
  */
-var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 
-// mathjax-full is a transitive dependency of @khanacademy/mathjax-renderer
-// and lives as a sibling in pnpm's virtual store.
-var mathjaxRendererDir = path.dirname(
-  require.resolve('@khanacademy/mathjax-renderer/package.json'),
-);
 var mathjaxFontsSource = path.join(
-  mathjaxRendererDir,
-  '../../mathjax-full/ts/output/chtml/fonts/tex-woff-v2',
+  path.dirname(require.resolve('mathjax-full/package.json')),
+  'ts/output/chtml/fonts/tex-woff-v2',
 );
-var mathjaxFontsTarget = path.resolve(__dirname, 'static/assets/mathjax/fonts');
-
-// Copy MathJax fonts into the plugin's static assets directory before each
-// build. Django serves them at runtime via urls.static('assets/mathjax/fonts'),
-// and MathJaxRenderer fetches them by bare filename, so they must keep their
-// original names. The target directory is gitignored.
-function copyMathJaxFonts() {
-  fs.mkdirSync(mathjaxFontsTarget, { recursive: true });
-  for (const file of fs.readdirSync(mathjaxFontsSource)) {
-    if (!file.endsWith('.woff')) continue;
-    fs.copyFileSync(
-      path.join(mathjaxFontsSource, file),
-      path.join(mathjaxFontsTarget, file),
-    );
-  }
-}
-
-class CopyMathJaxFontsPlugin {
-  apply(compiler) {
-    const run = (_, cb) => {
-      try {
-        copyMathJaxFonts();
-        cb();
-      } catch (err) {
-        cb(err);
-      }
-    };
-    compiler.hooks.beforeRun.tapAsync('CopyMathJaxFontsPlugin', run);
-    compiler.hooks.watchRun.tapAsync('CopyMathJaxFontsPlugin', run);
-  }
-}
 
 module.exports = {
   bundle_id: 'main',
@@ -96,7 +59,6 @@ module.exports = {
       ],
     },
     plugins: [
-      new CopyMathJaxFontsPlugin(),
       new webpack.NormalModuleReplacementPlugin(
         /react\/jsx-runtime/,
         require.resolve('react/jsx-runtime'),

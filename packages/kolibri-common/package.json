@@ -23,6 +23,7 @@
     "kolibri-logging": "workspace:*",
     "lockr": "0.8.5",
     "lodash": "catalog:",
+    "mathjax-full": "catalog:",
     "qrcode": "^1.5.4",
     "sortablejs": "1.15.7",
     "uuid": "^14.0.2",

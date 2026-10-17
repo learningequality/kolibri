@@ -16,6 +16,7 @@
     "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
     "lodash": "catalog:",
+    "mathjax-full": "catalog:",
     "vue": "catalog:"
   }
 }

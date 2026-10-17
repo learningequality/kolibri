@@ -1,10 +1,12 @@
 import { computed, getCurrentInstance, h } from 'vue';
 import DOMPurify from 'dompurify';
 import kebabCase from 'lodash/kebabCase';
+import once from 'lodash/once';
 import kolibri from 'kolibri';
 import './style.scss';
 import SafeHtmlTable from './SafeHtmlTable.vue';
 import SafeHtmlImage from './SafeHtmlImage.vue';
+import SafeHtmlMath from './SafeHtmlMath.vue';
 
 const DEFAULT_ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
@@ -24,6 +26,9 @@ const ALLOWED_STYLE_PROPS = [
 ];
 const ADD_TAGS = ['object', 'semantics'];
 const ADD_ATTR = ['data'];
+const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
+const PROBE_WIDTH = 77;
+const PROBE_HEIGHT = 23;
 const HTMLComponents = {
   img: SafeHtmlImage,
   table: SafeHtmlTable,
@@ -92,6 +97,21 @@ function filterStyle(node, data) {
   }
 }
 
+// Whether the browser lays out MathML: an <mspace> of known size measures as
+// that size. Chromium < 109 parses MathML but lays it out as inline text,
+// giving it a zero box.
+function probeNativeMathML() {
+  const math = document.createElementNS(MATHML_NAMESPACE, 'math');
+  const mspace = document.createElementNS(MATHML_NAMESPACE, 'mspace');
+  mspace.setAttribute('width', `${PROBE_WIDTH}px`);
+  mspace.setAttribute('height', `${PROBE_HEIGHT}px`);
+  math.appendChild(mspace);
+  document.body.appendChild(math);
+  const { width, height } = mspace.getBoundingClientRect();
+  document.body.removeChild(math);
+  return Math.abs(width - PROBE_WIDTH) <= 1 && Math.abs(height - PROBE_HEIGHT) <= 1;
+}
+
 // Factory function to create SafeHTML with custom component support
 export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
   const validProps = Object.keys(customComponents).reduce((acc, tagName) => {
@@ -107,11 +127,13 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
   const purifier = DOMPurify();
   purifier.addHook('uponSanitizeAttribute', filterStyle);
   // A forbidden attribute survives only as a prop of the component rendering its
-  // tag. Enforced here rather than via FORBID_ATTR, which DOMPurify applies
-  // before any hook could exempt it.
+  // tag, or on MathML, where mspace and mpadded set spacing with it. Enforced here
+  // rather than via FORBID_ATTR, which DOMPurify applies before any hook could
+  // exempt it.
   purifier.addHook('uponSanitizeAttribute', (node, data) => {
     if (
       FORBID_ATTR.includes(data.attrName) &&
+      node.namespaceURI !== MATHML_NAMESPACE &&
       !tagProps[node.tagName.toLowerCase()]?.has(data.attrName)
     ) {
       data.keepAttr = false;
@@ -133,6 +155,33 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
     }
     return renderableObjectMimetypes.has(mimetype);
   }
+
+  // Probed on first use, as it forces a layout.
+  const rendersNativeMathML = once(probeNativeMathML);
+
+  // DOMPurify's MathML allowlist lacks `alttext`, the authored spoken form that
+  // names MathJax output.
+  purifier.addHook('uponSanitizeAttribute', (node, data) => {
+    if (
+      data.attrName === 'alttext' &&
+      node.nodeName.toLowerCase() === 'math' &&
+      !rendersNativeMathML()
+    ) {
+      data.forceKeepAttr = true;
+    }
+  });
+  // MathJax renders over these, visually hiding the native copy, where a focus
+  // stop would be invisible. SafeHtmlMath moves a tabindex on <math> itself.
+  purifier.addHook('uponSanitizeAttribute', (node, data) => {
+    if (
+      data.attrName === 'tabindex' &&
+      node.namespaceURI === MATHML_NAMESPACE &&
+      node.nodeName.toLowerCase() !== 'math' &&
+      !rendersNativeMathML()
+    ) {
+      data.keepAttr = false;
+    }
+  });
 
   return {
     name: 'SafeHTML',
@@ -205,6 +254,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
           const component =
             customComponents[tagName] ||
             HTMLComponents[tagName] ||
+            (tagName === 'math' && !rendersNativeMathML() ? SafeHtmlMath : null) ||
             (kolibri.canHandleElement(node) ? 'ContentViewer' : null);
 
           if (component) {
