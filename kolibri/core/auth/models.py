@@ -811,7 +811,9 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         from kolibri.core.device.models import OSUser  # noqa: PLC0415
 
         try:
-            os_user = OSUser.objects.get(os_username=os_username)
+            os_user = OSUser.objects.select_related(
+                "user__dataset", "user__devicepermissions"
+            ).get(os_username=os_username)
             return os_user.user
         except OSUser.DoesNotExist as e:
             user = None
@@ -1077,6 +1079,17 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         if self.dataset.extra_fields is not None:
             return self.dataset.extra_fields.get("on_my_own_setup", False)
         return False
+
+    @property
+    def can_sign_in_as_os_user(self):
+        if not hasattr(self, "os_user"):
+            return False
+        if (
+            get_device_setting("subset_of_users_device")
+            or self.full_facility_on_my_own_setup
+        ):
+            return True
+        return not (self.can_manage_content or self.roles.exists())
 
     @property
     def can_manage_content(self):
