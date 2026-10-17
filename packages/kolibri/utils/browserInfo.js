@@ -62,6 +62,7 @@ const browserVersion = (info.browser.version || '').split('.');
 /** @type {Browser} */
 export const browser = {
   name: info.browser.name,
+  version: info.browser.version,
   major: browserVersion[0],
   minor: browserVersion[1],
   patch: browserVersion[2],
@@ -71,9 +72,17 @@ const osVersion = (info.os.version || '').split('.');
 
 export const os = {
   name: info.os.name,
+  version: info.os.version,
   major: osVersion[0],
   minor: osVersion[1],
   patch: osVersion[2],
+};
+
+// Device info
+export const device = {
+  type: info.device.type || 'desktop',
+  model: info.device.model,
+  vendor: info.device.vendor,
 };
 
 // Check for presence of the touch event in DOM or multi-touch capabilities
