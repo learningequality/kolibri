@@ -375,7 +375,6 @@ class SoudExecuteSyncsTestCase(TestCase):
             )
 
 
-@mute_signals(post_save)
 class SoudExecuteSyncTestCase(TestCase):
     databases = "__all__"
 
@@ -384,34 +383,60 @@ class SoudExecuteSyncTestCase(TestCase):
         self.user_id = uuid.uuid4().hex
         self.instance_id = uuid.uuid4().hex
 
-        self.facility = Facility.objects.create(name="Test")
-        self.user = FacilityUser.objects.get_or_create(
-            id=self.user_id,
-            defaults={
-                "username": self.user_id,
-                "facility": self.facility,
-            },
-        )
-
-        self.network_location = StaticNetworkLocation.objects.create(
-            base_url="https://kolibrihappyurl.qqq/",
-            connection_status=ConnectionStatus.Okay,
-            application="kolibri",
-            instance_id=self.instance_id,
-        )
+        with mute_signals(post_save):
+            self.facility = Facility.objects.create(name="Test")
+            FacilityUser.objects.create(
+                id=self.user_id, username=self.user_id, facility=self.facility
+            )
+            self.network_location = StaticNetworkLocation.objects.create(
+                base_url="https://kolibrihappyurl.qqq/",
+                connection_status=ConnectionStatus.Okay,
+                application="kolibri",
+                instance_id=self.instance_id,
+            )
+            self.sync_queue = SyncQueue.objects.create(
+                user_id=self.user_id,
+                instance_id=self.instance_id,
+                status=SyncQueueStatus.Ready,
+                updated=time.time(),
+                keep_alive=0,
+            )
         self.context = Context(self.user_id, self.instance_id)
 
-        self.sync = mock.patch("kolibri.core.device.soud.call_command")
-        self.mock_sync = self.sync.start()
-        self.addCleanup(self.sync.stop)
+        sync_manager = mock.patch("kolibri.core.device.soud.SyncManager")
+        self.mock_sync_manager = sync_manager.start()
+        self.addCleanup(sync_manager.stop)
+        resume_manager = mock.patch("kolibri.core.device.soud.ResumeSyncManager")
+        self.mock_resume_manager = resume_manager.start()
+        self.addCleanup(resume_manager.stop)
 
-        self.sync_queue = SyncQueue.objects.create(
+        cleanup = mock.patch("kolibri.core.auth.tasks.queue_soud_sync_cleanup")
+        self.mock_cleanup = cleanup.start()
+        self.addCleanup(cleanup.stop)
+
+    def assertSyncCalled(self):
+        self.mock_sync_manager.assert_called_once_with(
+            facility_id=self.facility.id,
             user_id=self.user_id,
-            instance_id=self.instance_id,
-            status=SyncQueueStatus.Ready,
-            updated=time.time(),
-            keep_alive=0,
+            baseurl=self.network_location.base_url,
+            keep_alive=True,
+            noninteractive=True,
+            no_provision=True,
         )
+        self.mock_sync_manager.return_value.run.assert_called_once_with()
+        self.mock_resume_manager.assert_not_called()
+
+    def assertResumeCalled(self):
+        self.mock_resume_manager.assert_called_once_with(
+            self.sync_queue.sync_session_id,
+            user_id=self.user_id,
+            baseurl=self.network_location.base_url,
+            keep_alive=True,
+            noninteractive=True,
+            no_provision=True,
+        )
+        self.mock_resume_manager.return_value.run.assert_called_once_with()
+        self.mock_sync_manager.assert_not_called()
 
     def test_success(self):
         queue_updated = self.sync_queue.updated
@@ -421,18 +446,11 @@ class SoudExecuteSyncTestCase(TestCase):
             self.sync_queue.refresh_from_db()
             self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
 
-        self.mock_sync.side_effect = _side_effect
+        self.mock_sync_manager.return_value.run.side_effect = _side_effect
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "sync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-        )
+        self.assertSyncCalled()
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)
         self.assertGreaterEqual(self.sync_queue.updated, queue_updated)
@@ -448,19 +466,11 @@ class SoudExecuteSyncTestCase(TestCase):
             self.sync_queue.refresh_from_db()
             self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
 
-        self.mock_sync.side_effect = _side_effect
+        self.mock_resume_manager.return_value.run.side_effect = _side_effect
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "resumesync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-            id=self.sync_queue.sync_session_id,
-        )
+        self.assertResumeCalled()
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)
@@ -473,7 +483,8 @@ class SoudExecuteSyncTestCase(TestCase):
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_not_called()
+        self.mock_sync_manager.assert_not_called()
+        self.mock_resume_manager.assert_not_called()
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)
@@ -486,19 +497,22 @@ class SoudExecuteSyncTestCase(TestCase):
         self.sync_queue.sync_session_id = uuid.uuid4().hex
         self.sync_queue.save()
 
-        self.mock_sync.side_effect = MorangoResumeSyncError("Some error")
+        session_id = self.sync_queue.sync_session_id
+        self.mock_resume_manager.return_value.run.side_effect = MorangoResumeSyncError(
+            "Some error"
+        )
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "resumesync",
-            user=self.user_id,
-            facility=self.facility.id,
+        self.mock_resume_manager.assert_called_once_with(
+            session_id,
+            user_id=self.user_id,
             baseurl=self.network_location.base_url,
             keep_alive=True,
             noninteractive=True,
-            id=self.sync_queue.sync_session_id,
+            no_provision=True,
         )
+        self.mock_cleanup.assert_called_once_with(session_id)
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Ready)
@@ -510,18 +524,11 @@ class SoudExecuteSyncTestCase(TestCase):
     def test_failure(self):
         queue_updated = self.sync_queue.updated
 
-        self.mock_sync.side_effect = RuntimeError("Some error")
+        self.mock_sync_manager.return_value.run.side_effect = RuntimeError("Some error")
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "sync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-        )
+        self.assertSyncCalled()
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)

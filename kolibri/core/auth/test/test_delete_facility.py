@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -34,6 +35,21 @@ class DeleteFacilityCommandTestCase(TestCase):
         self.assertFalse(Facility.objects.filter(id=self.facility.id).exists())
         self.assertFalse(FacilityUser.objects.filter(username="user").exists())
         self.assertTrue(Facility.objects.filter(id=self.remaining_facility.id).exists())
+
+    def test_logs_facility_before_prompting(self):
+        found = f"Found facility {self.facility.id} <{self.facility.dataset_id}> for deletion"
+        logged_before_prompt = []
+
+        def decline(prompt):
+            logged_before_prompt.append(found in "\n".join(logs.output))
+            return "no"
+
+        with self.assertLogs("kolibri", level="INFO") as logs, patch(
+            "builtins.input", side_effect=decline
+        ), self.assertRaises(SystemExit):
+            call_command("deletefacility", facility=self.facility.id)
+        self.assertEqual(logged_before_prompt, [True])
+        self.assertTrue(Facility.objects.filter(id=self.facility.id).exists())
 
     def test_cleans_up_legacy_counters(self):
         self._delete_facility()
