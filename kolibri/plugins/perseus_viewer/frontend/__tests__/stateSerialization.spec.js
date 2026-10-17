@@ -1,5 +1,6 @@
 import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
 import { deriveUserInputFromSerializedState, init } from '@khanacademy/perseus';
+import { localizeNumericResponses } from '../numericResponses';
 import sorterItem from './fixtures/sorter-item.json';
 
 // deriveUserInputFromSerializedState reads the widget registry, which Perseus
@@ -65,6 +66,38 @@ describe('state serialization', () => {
         item.question.widgets,
       );
       expect(unwrappedResult['sorter 1'].options).toEqual(['1', '2', '3', '4', '5']);
+    });
+  });
+
+  describe('numeric responses restored in the content language', () => {
+    const widgets = { 'numeric-input 1': { type: 'numeric-input' } };
+
+    function restore(currentValue, language) {
+      const userInput = { 'numeric-input 1': { currentValue } };
+      return localizeNumericResponses(userInput, widgets, language)['numeric-input 1'].currentValue;
+    }
+
+    it.each([
+      ['fr', '1234.5', '1234,5'],
+      ['ar-EG', '3.5', '٣٫٥'],
+      ['ar-EG', '3e8', '3e8'],
+      ['ar-EG', '1/2', '١/٢'],
+      ['ps', '1.2.3', '۱٫۲٫۳'],
+      ['fr', '1,5', '1,5'],
+      ['fr', '1.5\\%', '1,5\\%'],
+      ['es', '1.234,5', '1.234,5'],
+      ['de', '12.345,67', '12.345,67'],
+      ['bn', '1,234', '১,২৩৪'],
+      ['ar-EG', '1,234', '1,234'],
+    ])('shows %s %j as %j', (language, stored, shown) => {
+      expect(restore(stored, language)).toBe(shown);
+    });
+
+    it('shows a numeric response inside a group', () => {
+      const groupWidgets = { 'group 1': { type: 'group', options: { widgets } } };
+      const userInput = { 'group 1': { 'numeric-input 1': { currentValue: '1234.5' } } };
+      const restored = localizeNumericResponses(userInput, groupWidgets, 'fr');
+      expect(restored['group 1']['numeric-input 1'].currentValue).toBe('1234,5');
     });
   });
 
