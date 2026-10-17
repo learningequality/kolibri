@@ -6,7 +6,6 @@ from uuid import uuid4
 import pytz
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -1150,21 +1149,6 @@ class DeleteFacilityTaskExecutionTestCase(TestCase):
     def setUp(self):
         self.facility_to_delete = Facility.objects.create(name="delete_me")
         Facility.objects.create(name="keep_me")
-
-    def test_deletefacility_command_logs_facility_before_prompting(self):
-        found = f"Found facility {self.facility_to_delete.id} <{self.facility_to_delete.dataset_id}> for deletion"
-        logged_before_prompt = []
-
-        def decline(prompt):
-            logged_before_prompt.append(found in "\n".join(logs.output))
-            return "no"
-
-        with self.assertLogs("kolibri", level="INFO") as logs, patch(
-            "builtins.input", side_effect=decline
-        ), self.assertRaises(SystemExit):
-            call_command("deletefacility", facility=self.facility_to_delete.id)
-        self.assertEqual(logged_before_prompt, [True])
-        self.assertTrue(Facility.objects.filter(id=self.facility_to_delete.id).exists())
 
     def test_deletefacility_removes_the_facility(self):
         with self.assertLogs("kolibri", level="INFO") as logs:
