@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db.models import Case
 from django.db.models import Count
 from django.db.models import F
@@ -15,6 +17,7 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
@@ -137,12 +140,22 @@ def _get_lesson_contentnode_id(node_id):
     )
 
 
-def get_course_lesson_dict(user, node_id, course_session_id):
+def get_course_lesson_dict(user, node_id, course_session_id, cache=None):
     """
     Build a lesson-like dict for course content so it can be passed to the
     shared check_and_created_* helpers.  The "lesson" is the parent ContentNode
     of node_id; its children are the resources.
     """
+    cache_key = (user.id, node_id, course_session_id)
+    if cache is not None and cache_key in cache:
+        return cache[cache_key]
+    lesson = _build_course_lesson_dict(user, node_id, course_session_id)
+    if cache is not None:
+        cache[cache_key] = lesson
+    return lesson
+
+
+def _build_course_lesson_dict(user, node_id, course_session_id):
     lesson_contentnode_id = _get_lesson_contentnode_id(node_id)
     if not lesson_contentnode_id:
         return None
@@ -404,14 +417,16 @@ def _get_coach_lesson_dict(lesson_id):
     )
 
 
-def _get_lesson_dict(lesson_id=None, course_session_id=None, user=None, node_id=None):
+def _get_lesson_dict(
+    lesson_id=None, course_session_id=None, user=None, node_id=None, cache=None
+):
     if course_session_id:
-        return get_course_lesson_dict(user, node_id, course_session_id)
+        return get_course_lesson_dict(user, node_id, course_session_id, cache=cache)
     return _get_coach_lesson_dict(lesson_id)
 
 
 def start_lesson_resource(
-    summarylog, contentnode_id, lesson_id=None, course_session_id=None
+    summarylog, contentnode_id, lesson_id=None, course_session_id=None, cache=None
 ):
     """
     Called to create resource started notifications (and lesson started notifications)
@@ -423,6 +438,7 @@ def start_lesson_resource(
         course_session_id=course_session_id,
         user=summarylog.user,
         node_id=contentnode_id,
+        cache=cache,
     )
     if lesson:
         notifications_started = check_and_created_started(
@@ -493,7 +509,12 @@ def _get_lesson_resource_completed_notifications(
 
 
 def finish_lesson_resource(
-    summarylog, contentnode_id, lesson_id=None, course_session_id=None
+    summarylog,
+    contentnode_id,
+    lesson_id=None,
+    course_session_id=None,
+    cache=None,
+    completion_timestamp=None,
 ):
     """
     Called to create resource completed notifications (and lesson completed notifications)
@@ -508,9 +529,12 @@ def finish_lesson_resource(
         course_session_id=course_session_id,
         user=summarylog.user,
         node_id=contentnode_id,
+        cache=cache,
     )
     if lesson:
-        completion_timestamp = _get_resource_completion_timestamp(summarylog)
+        completion_timestamp = (
+            completion_timestamp or _get_resource_completion_timestamp(summarylog)
+        )
         notifications = _get_lesson_resource_completed_notifications(
             summarylog, contentnode_id, lesson, completion_timestamp
         )
@@ -852,7 +876,9 @@ def create_examattemptslog(examlog, timestamp):
     created_quiz_notification(examlog, event_type, timestamp)
 
 
-def parse_attemptslog(attemptlog, contentnode_id=None, course_session_id=None):
+def parse_attemptslog(
+    attemptlog, contentnode_id=None, course_session_id=None, cache=None
+):
     """
     Method called by the AttemptLogSerializer everytime the
     attemptlog is updated.
@@ -868,6 +894,7 @@ def parse_attemptslog(attemptlog, contentnode_id=None, course_session_id=None):
             course_session_id=course_session_id,
             user=attemptlog.user,
             node_id=contentnode_id,
+            cache=cache,
         )
         lessons = [(lesson, contentnode_id)] if lesson else []
     else:
@@ -960,10 +987,28 @@ def _resolve_prepost_test_course_session_id(user, content_id, cache=None):
 
 
 def batch_process_attemptlogs(attemptlog_ids):
-    for attemptlog in AttemptLog.objects.filter(id__in=attemptlog_ids).exclude(
-        _IS_COACH_MONITORED_QUIZ
+    attemptlogs = AttemptLog.objects.filter(id__in=attemptlog_ids)
+    assigned_course_sessions = _get_assigned_course_sessions(
+        attemptlogs.values("user_id")
+    )
+    lesson_cache = {}
+    for attemptlog in attemptlogs.exclude(_IS_COACH_MONITORED_QUIZ).select_related(
+        "sessionlog", "user", "masterylog__summarylog"
     ):
         parse_attemptslog(attemptlog)
+        course_resource = _get_assigned_course_resource(
+            attemptlog.user_id,
+            attemptlog.sessionlog.extra_fields,
+            assigned_course_sessions,
+        )
+        if course_resource:
+            course_session_id, contentnode_id = course_resource
+            parse_attemptslog(
+                attemptlog,
+                contentnode_id,
+                course_session_id=course_session_id,
+                cache=lesson_cache,
+            )
 
 
 def batch_process_masterylogs_for_quizzes(masterylog_ids, attemptlog_ids):
@@ -1015,7 +1060,152 @@ def batch_process_examlogs(examlog_ids, examattemptlog_ids):
         parse_examlog(examlog, examlog.completion_timestamp)
 
 
+def _get_assigned_course_resource(
+    user_id, sessionlog_extra_fields, assigned_course_sessions
+):
+    """
+    Returns the (course_session_id, contentnode_id) the progress-tracking
+    request recorded in the session log context, or None outside a course
+    resource assigned to the user (pre/post test contexts carry no node_id).
+    """
+    context = sessionlog_extra_fields.get("context", {})
+    if (
+        "node_id" in context
+        and (
+            user_id,
+            context.get("course_session_id"),
+        )
+        in assigned_course_sessions
+    ):
+        return context["course_session_id"], context["node_id"]
+    return None
+
+
+def _get_assigned_course_sessions(user_ids):
+    """
+    Returns the (user_id, course_session_id) pairs assigned to the users'
+    collections. Ignores `is_active`, as `_check_course_session_permissions` does.
+    """
+    return set(
+        CourseSessionAssignment.objects.filter(
+            collection__membership__user_id__in=user_ids,
+        ).values_list("collection__membership__user_id", "course_session_id")
+    )
+
+
+def _get_course_sessionlogs_by_user_content(summarylogs):
+    assigned_course_sessions = _get_assigned_course_sessions(
+        summarylogs.values("user_id")
+    )
+    course_sessionlogs = defaultdict(list)
+    if not assigned_course_sessions:
+        return course_sessionlogs
+    sessionlogs = ContentSessionLog.objects.filter(
+        user_id__in=summarylogs.values("user_id"),
+        content_id__in=summarylogs.values("content_id"),
+    )
+    course_contextlogs = sessionlogs.filter(extra_fields__contains="course_session_id")
+    course_resources = {}
+    for sessionlog_id, user_id, extra_fields in course_contextlogs.values_list(
+        "id", "user_id", "extra_fields"
+    ).iterator():
+        course_resource = _get_assigned_course_resource(
+            user_id, extra_fields, assigned_course_sessions
+        )
+        if course_resource:
+            course_resources[sessionlog_id] = course_resource
+    if not course_resources:
+        return course_sessionlogs
+    # Learn sends progress as deltas, so the summary log first reaches full
+    # progress in the session where the running sum of session progress does.
+    # Learn only repeats mastered content, so no reset precedes that session.
+    # Progress is stored to three decimals, so round the sum to match.
+    running_progress = defaultdict(float)
+    for (
+        sessionlog_id,
+        user_id,
+        content_id,
+        start_timestamp,
+        end_timestamp,
+        progress,
+    ) in (
+        sessionlogs.filter(
+            user_id__in=course_contextlogs.values("user_id"),
+            content_id__in=course_contextlogs.values("content_id"),
+        )
+        .order_by("start_timestamp")
+        .values_list(
+            "id",
+            "user_id",
+            "content_id",
+            "start_timestamp",
+            "end_timestamp",
+            "progress",
+        )
+        .iterator()
+    ):
+        key = (user_id, content_id)
+        previous_progress = running_progress[key]
+        running_progress[key] = round(previous_progress + progress, 3)
+        if sessionlog_id in course_resources:
+            course_sessionlogs[key].append(
+                (
+                    course_resources[sessionlog_id],
+                    start_timestamp,
+                    end_timestamp,
+                    progress,
+                    previous_progress < 1 <= running_progress[key],
+                )
+            )
+    return course_sessionlogs
+
+
 def batch_process_summarylogs(summarylog_ids):
-    for summarylog in ContentSummaryLog.objects.filter(id__in=summarylog_ids):
+    summarylogs = ContentSummaryLog.objects.filter(
+        id__in=summarylog_ids
+    ).select_related("user")
+    course_sessionlogs = _get_course_sessionlogs_by_user_content(summarylogs)
+    lesson_cache = {}
+    for summarylog in summarylogs:
         create_summarylog(summarylog)
         parse_summarylog(summarylog)
+        # Match the full device: Started fires for the session that created the
+        # summary log, Completed for the session that completed it.
+        completion_timestamp = summarylog.completion_timestamp
+        for (
+            (course_session_id, contentnode_id),
+            start,
+            end,
+            progress,
+            first_completion,
+        ) in course_sessionlogs[(summarylog.user_id, summarylog.content_id)]:
+            if (
+                summarylog.kind != content_kinds.EXERCISE
+                and start == summarylog.start_timestamp
+            ):
+                start_lesson_resource(
+                    summarylog,
+                    contentnode_id,
+                    course_session_id=course_session_id,
+                    cache=lesson_cache,
+                )
+            # A session that added no progress didn't complete it, even if a
+            # session elsewhere did within its window. A repeat resets progress
+            # and a later completion overwrites the summary log's, so the first
+            # completion can precede it; session logs don't record its moment,
+            # so it is stamped no later than its session's end.
+            if (
+                completion_timestamp
+                and progress > 0
+                and start <= completion_timestamp
+                and (completion_timestamp <= end or first_completion)
+            ):
+                finish_lesson_resource(
+                    summarylog,
+                    contentnode_id,
+                    course_session_id=course_session_id,
+                    cache=lesson_cache,
+                    completion_timestamp=min(
+                        _get_resource_completion_timestamp(summarylog), end
+                    ),
+                )

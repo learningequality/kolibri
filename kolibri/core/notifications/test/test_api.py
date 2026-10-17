@@ -1,17 +1,22 @@
+import sqlite3
 import uuid
 from datetime import timedelta
 from unittest.mock import patch
 
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
+from le_utils.constants import modalities
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.auth.test.test_utils import AttemptLogFactory
 from kolibri.core.auth.test.test_utils import MasteryLogFactory
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
@@ -23,6 +28,7 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
@@ -2441,3 +2447,523 @@ class CourseSessionRegressionTestCase(APITestCase):
         assert not lesson_notifications.filter(
             course_session_id=self.course_session.id
         ).exists()
+
+
+class CourseSessionSyncNotificationsTestCase(APITestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        get_assignments.cache_clear()
+        _get_coach_lesson_dict.cache_clear()
+        # Progress tracking queues notification calls to run after the request
+        # has saved its logs; hold them so each request can run them after.
+        self.queued_notifications = []
+        save_queue = patch(
+            "kolibri.core.logger.viewsets.progress_tracking.wrap_to_save_queue",
+            lambda fn, *args, **kwargs: self.queued_notifications.append(
+                lambda: fn(*args, **kwargs)
+            ),
+        )
+        save_queue.start()
+        self.addCleanup(save_queue.stop)
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
+
+        cls.channel_id = uuid.uuid4().hex
+        cls.course_node = cls._create_node(modality=modalities.COURSE)
+        cls.unit_node = cls._create_node(
+            parent=cls.course_node, modality=modalities.UNIT
+        )
+        cls.lesson_node = cls._create_node(
+            parent=cls.unit_node, modality=modalities.LESSON
+        )
+        cls.resource_node = cls._create_node(
+            parent=cls.lesson_node, kind=content_kinds.DOCUMENT
+        )
+        cls.exercise_node = cls._create_node(
+            parent=cls.lesson_node, kind=content_kinds.EXERCISE
+        )
+
+        cls.course_session = cls._create_course_session(cls.classroom)
+
+    @classmethod
+    def _create_node(cls, parent=None, kind=content_kinds.TOPIC, modality=None):
+        return ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            parent=parent,
+            available=True,
+            title="Node",
+            kind=kind,
+            modality=modality,
+        )
+
+    @classmethod
+    def _create_course_session(cls, classroom):
+        course_session = CourseSession.objects.create(
+            title="Course Session",
+            course=cls.course_node.id,
+            collection=classroom,
+            created_by=cls.superuser,
+            is_active=True,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=course_session,
+            collection=classroom,
+            assigned_by=cls.superuser,
+        )
+        return course_session
+
+    def _create_sessionlog(
+        self, node, start_timestamp=None, user=None, progress=0, **context
+    ):
+        start_timestamp = start_timestamp or local_now()
+        return ContentSessionLogFactory.create(
+            user=user or self.user1,
+            content_id=node.content_id,
+            channel_id=self.channel_id,
+            kind=node.kind,
+            progress=progress,
+            start_timestamp=start_timestamp,
+            end_timestamp=start_timestamp + timedelta(minutes=10),
+            extra_fields={"context": {"node_id": node.id, **context}},
+        )
+
+    def _create_course_sessionlog(self, node, course_session=None, **kwargs):
+        return self._create_sessionlog(
+            node,
+            course_session_id=(course_session or self.course_session).id,
+            **kwargs,
+        )
+
+    def _create_course_summarylog(
+        self, node, complete=False, course_session=None, user=None
+    ):
+        # The full device stamps the summary log's start with the creating
+        # session's start, and its completion with the completing session's end.
+        sessionlog = self._create_course_sessionlog(
+            node, course_session, user=user, progress=1.0 if complete else 0.5
+        )
+        return self._create_summarylog(
+            node,
+            user=user,
+            start_timestamp=sessionlog.start_timestamp,
+            completion_timestamp=sessionlog.end_timestamp if complete else None,
+        )
+
+    def _create_summarylog(
+        self,
+        node,
+        start_timestamp=None,
+        completion_timestamp=None,
+        user=None,
+    ):
+        return ContentSummaryLogFactory.create(
+            user=user or self.user1,
+            content_id=node.content_id,
+            channel_id=self.channel_id,
+            kind=node.kind,
+            progress=1.0 if completion_timestamp else 0.5,
+            start_timestamp=start_timestamp or local_now(),
+            completion_timestamp=completion_timestamp,
+        )
+
+    def _create_classic_lesson(self, node):
+        lesson = Lesson.objects.create(
+            title="Coach Lesson",
+            is_active=True,
+            created_by=self.superuser,
+            collection=self.classroom,
+            resources=[
+                {
+                    "contentnode_id": node.id,
+                    "content_id": node.content_id,
+                    "channel_id": self.channel_id,
+                },
+            ],
+        )
+        LessonAssignment.objects.create(
+            lesson=lesson, assigned_by=self.superuser, collection=self.classroom
+        )
+        return lesson
+
+    def _create_failing_course_attemptlog(self):
+        now = local_now()
+        return AttemptLogFactory.create(
+            masterylog=MasteryLogFactory.create(
+                user=self.user1, summarylog=self._create_summarylog(self.exercise_node)
+            ),
+            sessionlog=self._create_course_sessionlog(self.exercise_node),
+            user=self.user1,
+            item="item",
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=10),
+            interaction_history=[{"type": "answer", "correct": 0}]
+            * NEEDS_HELP_NOTIFICATION_THRESHOLD,
+        )
+
+    def _course_rows(self, event):
+        return set(
+            LearnerProgressNotification.objects.filter(
+                course_session_id__isnull=False, notification_event=event
+            ).values_list(
+                "notification_object",
+                "course_session_id",
+                "lesson_id",
+                "contentnode_id",
+            )
+        )
+
+    def _track_course_progress(self, node, *updates, repeat=False):
+        return self._track_progress(
+            node, *updates, repeat=repeat, course_session_id=self.course_session.id
+        )
+
+    def _track_progress(self, node, *updates, repeat=False, **context):
+        data = {
+            "node_id": node.id,
+            "content_id": node.content_id,
+            "channel_id": self.channel_id,
+            "kind": node.kind,
+            "repeat": repeat,
+            **context,
+        }
+        if node.kind == content_kinds.EXERCISE:
+            data["mastery_model"] = {"type": "m_of_n", "m": 5, "n": 5}
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"), data, format="json"
+        )
+        self._run_queued_notifications()
+        for update in updates:
+            self._update_progress(response.data["session_id"], update)
+        return response.data["session_id"]
+
+    def _update_progress(self, session_id, update):
+        self.client.put(
+            reverse("kolibri:core:trackprogress-detail", kwargs={"pk": session_id}),
+            update,
+            format="json",
+        )
+        self._run_queued_notifications()
+
+    def _run_queued_notifications(self):
+        while self.queued_notifications:
+            self.queued_notifications.pop(0)()
+
+    def _failed_attempt(self, item):
+        return {
+            "interactions": [
+                {
+                    "item": item,
+                    "correct": 0,
+                    "answer": {"response": "wrong"},
+                    "time_spent": 5,
+                }
+            ]
+        }
+
+    def _all_rows(self):
+        return list(
+            LearnerProgressNotification.objects.order_by(
+                "notification_object",
+                "notification_event",
+                "lesson_id",
+                "contentnode_id",
+                "course_session_id",
+                "timestamp",
+            ).values_list(
+                "notification_object",
+                "notification_event",
+                "lesson_id",
+                "contentnode_id",
+                "course_session_id",
+                "classroom_id",
+                "assignment_collections",
+                "timestamp",
+                "reason",
+            )
+        )
+
+    def _assert_sync_recreates_full_device_rows(self):
+        full_device_rows = self._all_rows()
+        LearnerProgressNotification.objects.all().delete()
+        get_assignments.cache_clear()
+        _get_coach_lesson_dict.cache_clear()
+
+        batch_process_summarylogs(
+            ContentSummaryLog.objects.values_list("id", flat=True)
+        )
+        batch_process_attemptlogs(AttemptLog.objects.values_list("id", flat=True))
+
+        assert self._all_rows() == full_device_rows
+
+    def test_sync_recreates_full_device_rows_for_completed_course_lesson(self):
+        self._track_course_progress(self.resource_node, {"progress": 1.0})
+        self._track_course_progress(
+            self.exercise_node, self._failed_attempt("item"), {"progress": 1.0}
+        )
+        assert self._course_rows(NotificationEventType.Completed) == {
+            (
+                NotificationObjectType.Resource,
+                self.course_session.id,
+                self.lesson_node.id,
+                self.resource_node.id,
+            ),
+            (
+                NotificationObjectType.Resource,
+                self.course_session.id,
+                self.lesson_node.id,
+                self.exercise_node.id,
+            ),
+            (
+                NotificationObjectType.Lesson,
+                self.course_session.id,
+                self.lesson_node.id,
+                None,
+            ),
+        }
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_rows_for_course_exercise_needing_help(self):
+        self._track_course_progress(
+            self.exercise_node,
+            *(
+                self._failed_attempt(f"item{i}")
+                for i in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+            ),
+        )
+        assert self._course_rows(NotificationEventType.Help)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_rows_after_repeat_outside_course(self):
+        lesson = self._create_classic_lesson(self.exercise_node)
+        self._track_course_progress(self.resource_node, {"progress": 1.0})
+        self._track_progress(self.resource_node, {"progress": 1.0}, repeat=True)
+        self._track_course_progress(self.exercise_node, {"progress": 1.0})
+        self._track_progress(
+            self.exercise_node, {"progress": 1.0}, repeat=True, lesson_id=lesson.id
+        )
+        assert len(self._course_rows(NotificationEventType.Completed)) == 3
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_rows_after_repeat_in_course(self):
+        self._track_course_progress(self.resource_node, {"progress": 1.0})
+        self._track_course_progress(self.resource_node, {"progress": 1.0}, repeat=True)
+        assert len(self._course_rows(NotificationEventType.Completed)) == 1
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_rows_for_course_review_after_library(self):
+        self._track_progress(self.resource_node, {"progress": 1.0})
+        self._track_course_progress(
+            self.resource_node, {"time_spent_delta": 5, "progress_delta": 1.0}
+        )
+        assert not self._course_rows(NotificationEventType.Completed)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_rows_for_library_completion_during_course(
+        self,
+    ):
+        session_id = self._track_course_progress(self.resource_node)
+        self._track_progress(self.resource_node, {"progress": 1.0})
+        self._update_progress(session_id, {"time_spent_delta": 5})
+        assert not self._course_rows(NotificationEventType.Completed)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_rows_for_course_completion_over_three_sessions(
+        self,
+    ):
+        self._track_course_progress(self.resource_node, {"progress_delta": 0.7})
+        self._track_course_progress(self.resource_node, {"progress_delta": 0.2})
+        self._track_course_progress(self.resource_node, {"progress_delta": 0.1})
+        self._track_progress(self.resource_node, {"progress": 1.0}, repeat=True)
+        assert self._course_rows(NotificationEventType.Completed)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_started_exercise_creates_no_started_rows(self):
+        summarylog = self._create_course_summarylog(self.exercise_node)
+
+        batch_process_summarylogs([summarylog.id])
+
+        assert not LearnerProgressNotification.objects.filter(
+            notification_event=NotificationEventType.Started
+        ).exists()
+
+    def test_resource_in_classic_lesson_and_course_creates_rows_for_each(self):
+        lesson = self._create_classic_lesson(self.resource_node)
+        summarylog = self._create_course_summarylog(self.resource_node, complete=True)
+
+        batch_process_summarylogs([summarylog.id])
+        batch_process_summarylogs([summarylog.id])
+
+        rows = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Resource
+        )
+        assert sorted(
+            rows.values_list("lesson_id", "course_session_id", "notification_event")
+        ) == sorted(
+            [
+                (lesson.id, None, NotificationEventType.Started),
+                (lesson.id, None, NotificationEventType.Completed),
+                (
+                    self.lesson_node.id,
+                    self.course_session.id,
+                    NotificationEventType.Started,
+                ),
+                (
+                    self.lesson_node.id,
+                    self.course_session.id,
+                    NotificationEventType.Completed,
+                ),
+            ]
+        )
+
+    def test_resource_opened_outside_course_creates_no_course_rows(self):
+        self._create_sessionlog(self.resource_node)
+        summarylog = self._create_summarylog(
+            self.resource_node, completion_timestamp=local_now()
+        )
+
+        batch_process_summarylogs([summarylog.id])
+
+        assert not LearnerProgressNotification.objects.exists()
+
+    def test_resource_opened_in_one_of_two_course_sessions_creates_rows_for_it(self):
+        other_classroom = ClassroomFactory.create(parent=self.facility)
+        other_classroom.add_member(self.user1)
+        other_session = self._create_course_session(other_classroom)
+        summarylog = self._create_course_summarylog(
+            self.resource_node, course_session=other_session
+        )
+
+        batch_process_summarylogs([summarylog.id])
+
+        assert set(
+            LearnerProgressNotification.objects.filter(
+                notification_object=NotificationObjectType.Resource
+            ).values_list("course_session_id", "classroom_id")
+        ) == {(other_session.id, other_classroom.id)}
+
+    def test_exercise_in_classic_lesson_and_course_creates_help_rows_for_each(self):
+        lesson = self._create_classic_lesson(self.exercise_node)
+        attemptlog = self._create_failing_course_attemptlog()
+
+        batch_process_attemptlogs([attemptlog.id])
+        batch_process_attemptlogs([attemptlog.id])
+
+        assert sorted(
+            LearnerProgressNotification.objects.filter(
+                notification_event=NotificationEventType.Help
+            ).values_list("lesson_id", "course_session_id")
+        ) == sorted([(lesson.id, None), (self.lesson_node.id, self.course_session.id)])
+
+    def test_unassigned_course_session_creates_no_course_rows(self):
+        summarylog = self._create_course_summarylog(self.resource_node, complete=True)
+        attemptlog = self._create_failing_course_attemptlog()
+        CourseSessionAssignment.objects.filter(
+            course_session=self.course_session
+        ).delete()
+
+        batch_process_summarylogs([summarylog.id])
+        batch_process_attemptlogs([attemptlog.id])
+
+        assert not LearnerProgressNotification.objects.exists()
+
+    def test_course_session_deactivated_before_sync_creates_course_rows(self):
+        summarylog = self._create_course_summarylog(self.resource_node, complete=True)
+        attemptlog = self._create_failing_course_attemptlog()
+        CourseSession.objects.filter(id=self.course_session.id).update(is_active=False)
+
+        batch_process_summarylogs([summarylog.id])
+        batch_process_attemptlogs([attemptlog.id])
+
+        assert self._course_rows(NotificationEventType.Completed)
+        assert self._course_rows(NotificationEventType.Help)
+
+    def test_resource_completed_outside_course_creates_no_course_completed_rows(
+        self,
+    ):
+        sessionlog = self._create_course_sessionlog(self.resource_node)
+        library_sessionlog = self._create_sessionlog(
+            self.resource_node,
+            start_timestamp=sessionlog.end_timestamp + timedelta(minutes=1),
+            progress=1.0,
+        )
+        summarylog = self._create_summarylog(
+            self.resource_node,
+            start_timestamp=sessionlog.start_timestamp,
+            completion_timestamp=library_sessionlog.end_timestamp,
+        )
+
+        batch_process_summarylogs([summarylog.id])
+
+        assert self._course_rows(NotificationEventType.Started)
+        assert not self._course_rows(NotificationEventType.Completed)
+
+    def test_resource_started_outside_course_creates_no_course_started_rows(self):
+        library_sessionlog = self._create_sessionlog(self.resource_node)
+        sessionlog = self._create_course_sessionlog(
+            self.resource_node,
+            start_timestamp=library_sessionlog.end_timestamp + timedelta(minutes=1),
+            progress=1.0,
+        )
+        summarylog = self._create_summarylog(
+            self.resource_node,
+            start_timestamp=library_sessionlog.start_timestamp,
+            completion_timestamp=sessionlog.end_timestamp,
+        )
+
+        batch_process_summarylogs([summarylog.id])
+
+        assert not self._course_rows(NotificationEventType.Started)
+        assert self._course_rows(NotificationEventType.Completed)
+
+    def test_summarylogs_beyond_sqlite_variable_limit_create_course_rows(self):
+        if connection.vendor != "sqlite" or not hasattr(
+            connection.connection, "setlimit"
+        ):
+            self.skipTest("Needs sqlite3.Connection.setlimit (Python 3.11+)")
+        learners = [
+            FacilityUserFactory.create(facility=self.facility) for _ in range(20)
+        ]
+        for learner in learners:
+            self.classroom.add_member(learner)
+            self._create_course_summarylog(self.resource_node, user=learner)
+        old_limit = connection.connection.setlimit(
+            sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 10
+        )
+        self.addCleanup(
+            connection.connection.setlimit,
+            sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER,
+            old_limit,
+        )
+
+        batch_process_summarylogs(
+            ContentSummaryLog.objects.values_list("id", flat=True)
+        )
+
+        assert set(
+            LearnerProgressNotification.objects.filter(
+                course_session_id=self.course_session.id,
+                notification_object=NotificationObjectType.Resource,
+            ).values_list("user_id", flat=True)
+        ) == {learner.id for learner in learners}
