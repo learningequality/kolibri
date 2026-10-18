@@ -671,6 +671,12 @@
         { immediate: true },
       );
 
+      watch(unitPhase, (phase, oldPhase) => {
+        if (phase && oldPhase) {
+          fetchAllUnitReports();
+        }
+      });
+
       useCourseNotificationPolling(store, courseSessionId, fetchAllUnitReports);
 
       const activeUnitReport = computed(() => unitReportInfo.value[activeUnit.value?.id] || null);
@@ -746,14 +752,6 @@
           label: learningObjectivesLabel$(),
         },
       ]);
-
-      // Re-fetch when switching to the Learning Objectives tab so that
-      // test state changes made on the Units tab are reflected immediately.
-      watch(activeTabId, newTab => {
-        if (newTab === TABS.OBJECTIVES) {
-          fetchAllUnitReports();
-        }
-      });
 
       // Phase-based status messages
       const unitStatusMessages = computed(() => {

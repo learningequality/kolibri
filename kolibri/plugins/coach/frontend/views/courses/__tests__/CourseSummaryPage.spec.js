@@ -326,21 +326,29 @@ describe('CourseSummaryPage', () => {
     ];
     const closedPostTest = { status: 'closed', scores: { [LEARNER_ID]: {} } };
 
-    function setup({ activeUnit, reports, unitPhase = null }) {
+    function mockReports(reports) {
       UnitReportResource.fetchReports.mockResolvedValue({
         course_title: 'Course',
         learners: [{ id: LEARNER_ID, groupIds: [] }],
         units: reports,
       });
+    }
+
+    function setup({ activeUnit, reports, unitPhase = null }) {
+      mockReports(reports);
+      const unitPhaseRef = ref(unitPhase);
       useCourseSession.mockImplementation(() =>
         useCourseSessionMock({
           courseSession: ref(MOCK_COURSE_SESSION),
           units: ref(UNITS),
           activeUnit: ref(activeUnit),
-          unitPhase: ref(unitPhase),
+          unitPhase: unitPhaseRef,
         }),
       );
-      return renderPage('COURSE_SUMMARY_LEARNER', { learnerId: LEARNER_ID });
+      return {
+        ...renderPage('COURSE_SUMMARY_LEARNER', { learnerId: LEARNER_ID }),
+        unitPhase: unitPhaseRef,
+      };
     }
 
     function learnersTabPanel() {
@@ -422,24 +430,29 @@ describe('CourseSummaryPage', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('titles the active unit results once its pre-test has ended', async () => {
-      const { findByTestId } = setup({
+    it('retitles the active unit results when the coach ends its pre-test', async () => {
+      const otherUnits = [UNIT_B, UNIT_C].map(id => unitFixture({ unit_contentnode_id: id }));
+      const { findByRole, unitPhase } = setup({
         activeUnit: UNITS[0],
-        unitPhase: UnitPhase.POST_TEST_PENDING,
+        unitPhase: UnitPhase.PRE_TEST_ACTIVE,
         reports: [
-          unitFixture({
-            unit_contentnode_id: UNIT_A,
-            pre_test: { status: 'closed', scores: { [LEARNER_ID]: {} } },
-          }),
-          unitFixture({ unit_contentnode_id: UNIT_B }),
-          unitFixture({ unit_contentnode_id: UNIT_C }),
+          unitFixture({ unit_contentnode_id: UNIT_A, pre_test: { status: 'open', scores: {} } }),
+          ...otherUnits,
         ],
       });
+      await global.flushPromises();
 
-      await findByTestId('learner-side-panel');
-      const tabPanel = learnersTabPanel();
+      mockReports([
+        unitFixture({
+          unit_contentnode_id: UNIT_A,
+          pre_test: { status: 'closed', scores: { [LEARNER_ID]: {} } },
+        }),
+        ...otherUnits,
+      ]);
+      unitPhase.value = UnitPhase.POST_TEST_PENDING;
+
       expect(
-        within(tabPanel).getByRole('heading', {
+        await findByRole('heading', {
           level: 2,
           name: unitTitleWithStatus$({ title: 'Unit 1: A', status: preTestResults$() }),
         }),
@@ -458,14 +471,18 @@ describe('CourseSummaryPage', () => {
         learners: [],
         units: [unitFixture(), unitFixture({ unit_contentnode_id: UNIT_B, unit_number: 2 })],
       });
+      const unitPhase = ref(null);
       useCourseSession.mockImplementation(() =>
         useCourseSessionMock({
           courseSession: ref(MOCK_COURSE_SESSION),
           units: ref([{ id: UNIT_A }, { id: UNIT_B }]),
+          unitPhase,
         }),
       );
 
       renderPage('COURSE_SUMMARY_UNITS');
+      await global.flushPromises();
+      unitPhase.value = UnitPhase.PRE_TEST_ACTIVE;
       await global.flushPromises();
 
       expect(UnitReportResource.fetchReports).toHaveBeenCalledTimes(1);
