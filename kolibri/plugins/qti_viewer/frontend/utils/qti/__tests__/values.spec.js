@@ -270,6 +270,24 @@ describe('QTI Value Coercion', () => {
     });
   });
 
+  describe('coerceValueWithBaseType - NULL', () => {
+    it('should keep the string NULL as a string value', () => {
+      expect(coerceValueWithBaseType('NULL', 'string')).toBe('NULL');
+    });
+
+    it('should return null for null and undefined', () => {
+      expect(coerceValueWithBaseType(null, 'string')).toBe(null);
+      expect(coerceValueWithBaseType(undefined, 'string')).toBe(null);
+      expect(coerceValueWithBaseType(null, 'integer')).toBe(null);
+      expect(coerceValueWithBaseType(undefined, 'integer')).toBe(null);
+    });
+
+    it('should keep the empty string for string but not for integer', () => {
+      expect(coerceValueWithBaseType('', 'string')).toBe('');
+      expect(coerceValueWithBaseType('', 'integer')).toBe(null);
+    });
+  });
+
   describe('coerceValueWithBaseType - integer radix', () => {
     it('should parse integers with explicit radix 10 to avoid octal interpretation', () => {
       // parseInt without radix could interpret leading-zero strings as octal

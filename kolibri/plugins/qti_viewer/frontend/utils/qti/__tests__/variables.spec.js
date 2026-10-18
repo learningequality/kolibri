@@ -326,7 +326,7 @@ describe('Value coercion methods', () => {
 
     expect(declaration.coerceValue(null)).toBe(null);
     expect(declaration.coerceValue(undefined)).toBe(null);
-    expect(declaration.coerceValue('NULL')).toBe(null);
+    expect(declaration.coerceValue('NULL')).toBe('NULL');
     // Empty string is a valid value for string types, not NULL
     expect(declaration.coerceValue('')).toBe('');
   });

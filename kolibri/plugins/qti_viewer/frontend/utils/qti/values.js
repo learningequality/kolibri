@@ -184,8 +184,7 @@ export function coerceValueWithBaseType(value, baseType) {
   // Empty containers and empty strings are treated as NULL in QTI per
   // qti-is-null
   //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpIsNull
-  // We also accept the string 'NULL' as null.
-  if (value === null || value === undefined || value === 'NULL') {
+  if (value === null || value === undefined) {
     return null;
   }
   // Empty string is a valid value for string-like types (a candidate can
