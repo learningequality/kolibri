@@ -3,7 +3,8 @@
   <component
     :is="contentNodeRoute ? 'KRouterLink' : 'div'"
     :to="contentNodeRoute"
-    :class="['resource-item', $computedClass({ ':focus': $coreOutline })]"
+    class="resource-item"
+    :data-focus="contentNodeRoute ? 'true' : undefined"
   >
     <ResourceLabel
       v-if="size === 'small'"

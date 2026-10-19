@@ -134,11 +134,8 @@
                     data-testid="pre-test-button-item"
                     class="unit-item-button"
                     :class="
-                      testAvailable(unit.id, TestType.PRE)
-                        ? $computedClass(activeUnitItemStyle)
-                        : $computedClass(lockedUnitItemStyle)
+                      testAvailable(unit.id, TestType.PRE) ? 'unit-item-active' : 'unit-item-locked'
                     "
-                    style="background-color: unset"
                     :aria-label="preTestLabel$()"
                     :disabled="!testAvailable(unit.id, TestType.PRE)"
                     @click.stop="openCourseContentUnitTest(unit.id, TestType.PRE)"
@@ -177,11 +174,8 @@
                   <button
                     class="unit-item-button"
                     :class="
-                      lessonAvailable(unit.id, lesson.id)
-                        ? $computedClass(activeUnitItemStyle)
-                        : $computedClass(lockedUnitItemStyle)
+                      lessonAvailable(unit.id, lesson.id) ? 'unit-item-active' : 'unit-item-locked'
                     "
-                    style="background-color: unset"
                     :aria-label="lesson.title"
                     :data-lesson-status="lessonStatusMap[lesson.id]"
                     :disabled="!lessonAvailable(unit.id, lesson.id)"
@@ -224,10 +218,9 @@
                     class="unit-item-button"
                     :class="
                       testAvailable(unit.id, TestType.POST)
-                        ? $computedClass(activeUnitItemStyle)
-                        : $computedClass(lockedUnitItemStyle)
+                        ? 'unit-item-active'
+                        : 'unit-item-locked'
                     "
-                    style="background-color: unset"
                     data-testid="post-test-button-item"
                     :aria-label="postTestLabel$()"
                     :disabled="!testAvailable(unit.id, TestType.POST)"
@@ -384,41 +377,7 @@
       );
       const units = computed(() => (course.value ? getCourseUnits(course.value.course_id) : []));
 
-      const activeUnitItemStyle = computed(() => {
-        return {
-          cursor: 'pointer',
-          ':focus': {
-            backgroundColor: $themePalette.blue.v_100,
-            borderLeft: `3px solid`,
-            borderLeftColor: $themePalette.blue.v_500,
-            color: $themePalette.blue.v_500,
-            outline: 'unset',
-          },
-          ':focus .unit-icons': {
-            fill: $themePalette.blue.v_500,
-          },
-          ':focus-within': {
-            color: $themePalette.blue.v_500,
-          },
-          ':hover': {
-            backgroundColor: $themePalette.blue.v_100,
-            color: $themePalette.blue.v_500,
-          },
-          ':hover .unit-icons': {
-            fill: $themePalette.blue.v_500,
-          },
-        };
-      });
-
       const lockedColor = computed(() => $themePalette.grey.v_700);
-
-      const lockedUnitItemStyle = computed(() => {
-        return {
-          color: 'var(--palette-grey-v700)',
-          backgroundColor: 'unset',
-          outline: 'unset',
-        };
-      });
 
       async function loadCourse() {
         try {
@@ -589,8 +548,6 @@
         windowIsLarge,
         goBack,
         lockedColor,
-        lockedUnitItemStyle,
-        activeUnitItemStyle,
 
         // Methods & functions
         testAvailable,
@@ -676,7 +633,9 @@
     width: 100%;
     padding: 12px;
     user-select: text;
+    background-color: unset;
     border: 0;
+    outline: unset;
     outline-offset: 0;
 
     .unit-content {
@@ -684,6 +643,40 @@
       gap: 4px;
       align-items: center;
       justify-content: space-between;
+    }
+
+    &.unit-item-locked {
+      color: var(--palette-grey-v700);
+      background-color: unset;
+      outline: unset;
+    }
+
+    &.unit-item-active {
+      cursor: pointer;
+
+      &:focus {
+        color: var(--palette-blue-v500);
+        background-color: var(--palette-blue-v100);
+        border-left: 3px solid var(--palette-blue-v500);
+        outline: unset;
+
+        .unit-icons {
+          fill: var(--palette-blue-v500);
+        }
+      }
+
+      &:focus-within {
+        color: var(--palette-blue-v500);
+      }
+
+      &:hover {
+        color: var(--palette-blue-v500);
+        background-color: var(--palette-blue-v100);
+
+        .unit-icons {
+          fill: var(--palette-blue-v500);
+        }
+      }
     }
   }
 
