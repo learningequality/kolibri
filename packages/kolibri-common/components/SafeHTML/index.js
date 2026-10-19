@@ -159,14 +159,10 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
   // Probed on first use, as it forces a layout.
   const rendersNativeMathML = once(probeNativeMathML);
 
-  // DOMPurify's MathML allowlist lacks `alttext`, the authored spoken form that
-  // names MathJax output.
+  // DOMPurify's MathML allowlist lacks `alttext`, the authored spoken form of
+  // the expression.
   purifier.addHook('uponSanitizeAttribute', (node, data) => {
-    if (
-      data.attrName === 'alttext' &&
-      node.nodeName.toLowerCase() === 'math' &&
-      !rendersNativeMathML()
-    ) {
+    if (data.attrName === 'alttext' && node.nodeName.toLowerCase() === 'math') {
       data.forceKeepAttr = true;
     }
   });
