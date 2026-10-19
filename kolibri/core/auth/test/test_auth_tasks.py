@@ -1,9 +1,12 @@
 import datetime
+import os
 from unittest.mock import Mock
 from unittest.mock import patch
 from uuid import uuid4
 
 import pytz
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
@@ -26,6 +29,7 @@ from kolibri.core.auth.tasks import CleanUpSyncsValidator
 from kolibri.core.auth.tasks import DataPortalSyncJobValidator
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+from kolibri.core.auth.tasks import ImportUsersFromCSVValidator
 from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
@@ -494,6 +498,36 @@ class FacilityTaskHelperTestCase(TestCase):
                 "bytes_received": 0,
             },
         )
+
+    def test_importusersfromcsv_validator_rejects_csvfilename_outside_temp(self):
+        target = default_storage.save("log_export/users.csv", ContentFile(b""))
+        self.addCleanup(default_storage.delete, target)
+        for csvfilename in (f"../{target}", "..", "."):
+            with self.subTest(csvfilename=csvfilename):
+                validator = ImportUsersFromCSVValidator(
+                    data={
+                        "type": "kolibri.core.auth.tasks.importusersfromcsv",
+                        "facility": self.facility.id,
+                        "locale": "en",
+                        "csvfilename": csvfilename,
+                    }
+                )
+                self.assertFalse(validator.is_valid())
+                self.assertIn("csvfilename", validator.errors)
+
+    def test_importusersfromcsv_validator_reads_csvfilename_from_temp(self):
+        filepath = default_storage.save("temp/users.csv", ContentFile(b""))
+        self.addCleanup(default_storage.delete, filepath)
+        validator = ImportUsersFromCSVValidator(
+            data={
+                "type": "kolibri.core.auth.tasks.importusersfromcsv",
+                "facility": self.facility.id,
+                "locale": "en",
+                "csvfilename": os.path.basename(filepath),
+            }
+        )
+        validator.is_valid(raise_exception=True)
+        self.assertEqual(validator.validated_data["args"], [filepath])
 
     def test_dataportalsync_validator_sets_deterministic_job_id(self):
         facility = Facility.objects.create(name="v-fac")
