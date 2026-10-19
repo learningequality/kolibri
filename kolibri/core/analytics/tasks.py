@@ -13,6 +13,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
+from kolibri.core.tasks.schedules import Cron
 from kolibri.core.tasks.schedules import EnqueueIn
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
@@ -89,24 +90,9 @@ def schedule_ping(
 
 LOCAL_NOTIFICATION_JOB_ID = "local-notifications"
 COOLDOWN_DAYS = 90
-DEFAULT_CADENCE_DAYS = 1
 
 
-def _run_local_notification_generation():
-    # Plain-function body so tests can drive the body without invoking the
-    # registered-task wrapper. The reschedule is in a finally block so the
-    # task stays scheduled even if the trigger evaluator raises.
-    next_run = timedelta(days=DEFAULT_CADENCE_DAYS)
-    try:
-        if create_impact_stories_notification_if_needed():
-            next_run = timedelta(days=COOLDOWN_DAYS)
-    finally:
-        _generate_local_notifications.enqueue_in(next_run)
-
-
-@register_task(
-    job_id=LOCAL_NOTIFICATION_JOB_ID,
-    schedule=EnqueueIn(timedelta(days=DEFAULT_CADENCE_DAYS)),
-)
+@register_task(job_id=LOCAL_NOTIFICATION_JOB_ID, schedule=Cron(hour=12))
 def _generate_local_notifications():
-    _run_local_notification_generation()
+    if create_impact_stories_notification_if_needed():
+        get_current_job().retry_in(timedelta(days=COOLDOWN_DAYS))

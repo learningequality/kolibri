@@ -30,8 +30,7 @@ class PingbackNotificationDismissed(models.Model):
 class LocalNotification(models.Model):
     """
     A notification generated locally by a trigger evaluator, e.g. the impact-stories
-    prompt. Hard-deleted on dismiss; cooldown is enforced by the generator task
-    rescheduling itself, not by retaining dismissed rows.
+    prompt. Hard-deleted on dismiss.
     """
 
     key = models.CharField(max_length=50, unique=True)

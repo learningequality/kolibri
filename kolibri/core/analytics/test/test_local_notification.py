@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest import mock
 
 from django.test import TestCase
+from django.test import TransactionTestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -12,14 +13,29 @@ from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
+from kolibri.core.tasks.worker import execute_job
 from kolibri.utils.time_utils import local_now
 
 from ..local_notifications import create_impact_stories_notification_if_needed
 from ..local_notifications import IMPACT_STORIES_KEY
 from ..models import LocalNotification
-from ..tasks import _run_local_notification_generation
+from ..tasks import _generate_local_notifications
 from ..tasks import COOLDOWN_DAYS
-from ..tasks import DEFAULT_CADENCE_DAYS
+from ..tasks import LOCAL_NOTIFICATION_JOB_ID
+
+
+def _create_sessions(user, count, days_ago=0):
+    now = local_now()
+    for _ in range(count):
+        ContentSessionLog.objects.create(
+            user=user,
+            content_id="00000000000000000000000000000000",
+            channel_id="00000000000000000000000000000000",
+            start_timestamp=now - timedelta(days=days_ago),
+            kind="video",
+        )
 
 
 class LocalNotificationAPITestCase(APITestCase):
@@ -106,21 +122,10 @@ class ImpactStoriesTriggerTests(TestCase):
         cls.facility = FacilityFactory.create()
         cls.user = FacilityUserFactory.create(facility=cls.facility)
 
-    def _create_sessions(self, count, days_ago=0):
-        now = local_now()
-        for _ in range(count):
-            ContentSessionLog.objects.create(
-                user=self.user,
-                content_id="00000000000000000000000000000000",
-                channel_id="00000000000000000000000000000000",
-                start_timestamp=now - timedelta(days=days_ago),
-                kind="video",
-            )
-
     @mock.patch("kolibri.core.analytics.local_notifications.ACTIVITY_THRESHOLD", 5)
     @mock.patch("kolibri.core.analytics.local_notifications.ROLLING_WINDOW_DAYS", 90)
     def test_creates_row_when_conditions_met(self):
-        self._create_sessions(10, days_ago=10)
+        _create_sessions(self.user, 10, days_ago=10)
         created = create_impact_stories_notification_if_needed()
         self.assertTrue(created)
         self.assertTrue(
@@ -130,7 +135,7 @@ class ImpactStoriesTriggerTests(TestCase):
     @mock.patch("kolibri.core.analytics.local_notifications.ACTIVITY_THRESHOLD", 5)
     def test_skips_when_row_already_exists(self):
         LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
-        self._create_sessions(10)
+        _create_sessions(self.user, 10)
         created = create_impact_stories_notification_if_needed()
         self.assertFalse(created)
         self.assertEqual(
@@ -141,7 +146,7 @@ class ImpactStoriesTriggerTests(TestCase):
     def test_skips_when_facility_is_kdp_registered(self):
         self.facility.dataset.registered = True
         self.facility.dataset.save()
-        self._create_sessions(10)
+        _create_sessions(self.user, 10)
         created = create_impact_stories_notification_if_needed()
         self.assertFalse(created)
         self.assertFalse(
@@ -150,7 +155,7 @@ class ImpactStoriesTriggerTests(TestCase):
 
     @mock.patch("kolibri.core.analytics.local_notifications.ACTIVITY_THRESHOLD", 100)
     def test_skips_when_activity_below_threshold(self):
-        self._create_sessions(10)
+        _create_sessions(self.user, 10)
         created = create_impact_stories_notification_if_needed()
         self.assertFalse(created)
         self.assertFalse(
@@ -160,7 +165,7 @@ class ImpactStoriesTriggerTests(TestCase):
     @mock.patch("kolibri.core.analytics.local_notifications.ACTIVITY_THRESHOLD", 5)
     @mock.patch("kolibri.core.analytics.local_notifications.ROLLING_WINDOW_DAYS", 30)
     def test_skips_when_activity_outside_rolling_window(self):
-        self._create_sessions(10, days_ago=60)
+        _create_sessions(self.user, 10, days_ago=60)
         created = create_impact_stories_notification_if_needed()
         self.assertFalse(created)
         self.assertFalse(
@@ -168,23 +173,43 @@ class ImpactStoriesTriggerTests(TestCase):
         )
 
 
-class LocalNotificationTaskTests(TestCase):
-    @mock.patch("kolibri.core.analytics.tasks._generate_local_notifications.enqueue_in")
-    @mock.patch(
-        "kolibri.core.analytics.tasks.create_impact_stories_notification_if_needed",
-        return_value=True,
-    )
-    def test_reschedules_for_cooldown_when_row_created(self, mock_create, mock_enqueue):
-        _run_local_notification_generation()
-        mock_enqueue.assert_called_once_with(timedelta(days=COOLDOWN_DAYS))
+class LocalNotificationTaskTests(TransactionTestCase):
+    databases = "__all__"
 
-    @mock.patch("kolibri.core.analytics.tasks._generate_local_notifications.enqueue_in")
+    def setUp(self):
+        job_storage.clear(force=True)
+        _generate_local_notifications.schedule.apply(_generate_local_notifications)
+
+    def _assert_next_run_in(self, delta):
+        orm_job = job_storage.get_orm_job(LOCAL_NOTIFICATION_JOB_ID)
+        self.assertEqual(orm_job.state, State.QUEUED)
+        self.assertIsNone(orm_job.repeat)
+        self.assertEqual(orm_job.interval, timedelta(days=1).total_seconds())
+        self.assertAlmostEqual(
+            orm_job.scheduled_time,
+            local_now() + delta,
+            delta=timedelta(minutes=1),
+        )
+
+    def test_next_run_is_one_day_later_when_no_notification_created(self):
+        execute_job(LOCAL_NOTIFICATION_JOB_ID)
+        self._assert_next_run_in(timedelta(days=1))
+
     @mock.patch(
         "kolibri.core.analytics.tasks.create_impact_stories_notification_if_needed",
-        return_value=False,
+        side_effect=Exception,
     )
-    def test_reschedules_for_default_cadence_when_no_row_created(
-        self, mock_create, mock_enqueue
-    ):
-        _run_local_notification_generation()
-        mock_enqueue.assert_called_once_with(timedelta(days=DEFAULT_CADENCE_DAYS))
+    def test_next_run_is_one_day_later_when_evaluator_raises(self, _):
+        execute_job(LOCAL_NOTIFICATION_JOB_ID)
+        self._assert_next_run_in(timedelta(days=1))
+
+    @mock.patch("kolibri.core.analytics.local_notifications.ACTIVITY_THRESHOLD", 5)
+    def test_next_run_is_after_cooldown_when_notification_created(self):
+        _create_sessions(
+            FacilityUserFactory.create(facility=FacilityFactory.create()), 10
+        )
+        execute_job(LOCAL_NOTIFICATION_JOB_ID)
+        self.assertTrue(
+            LocalNotification.objects.filter(key=IMPACT_STORIES_KEY).exists()
+        )
+        self._assert_next_run_in(timedelta(days=COOLDOWN_DAYS))
