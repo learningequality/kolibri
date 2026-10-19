@@ -22,9 +22,8 @@ const singleNdRegex = /\p{Nd}/u;
 /**
  * Replace any non-Western digit character with its ASCII equivalent.
  *
- * Unicode guarantees that decimal digits 0-9 are contiguous in every
- * script. We find the block's "zero" by walking backwards (at most 9
- * steps), then subtract to get the digit value.
+ * Unicode encodes each set of decimal digits as a contiguous 0-9 range;
+ * adjacent sets form longer \p{Nd} runs (U+1D7CE-U+1D7FF is five sets).
  * @param {string} str - String that may contain non-Western digits
  * @returns {string} The string with non-Western digits converted to ASCII
  */
@@ -34,13 +33,11 @@ function normalizeNumerals(str) {
   }
   return str.replace(nonWesternDigitRegex, char => {
     const code = char.codePointAt(0);
-    // Walk backwards to find the first character in this digit block
-    // (i.e., the script's "zero"). At most 9 steps.
     let base = code;
     while (base > 0 && singleNdRegex.test(String.fromCodePoint(base - 1))) {
       base--;
     }
-    return String(code - base);
+    return String((code - base) % 10);
   });
 }
 
