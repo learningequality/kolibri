@@ -13,7 +13,7 @@
       const output = ref(null);
       const rendered = ref(false);
       const label = computed(
-        () => props.node.getAttribute('aria-label') || props.node.getAttribute('alttext'),
+        () => props.node.getAttribute('aria-label') || props.node.getAttribute('alttext')?.trim(),
       );
 
       watch(() => props.node, renderNode, { immediate: true });

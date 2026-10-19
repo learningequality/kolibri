@@ -834,7 +834,13 @@ describe('SafeHTML', () => {
       it('leaves an empty expression unnamed and out of the image role', async () => {
         render(createSafeHTML(), { props: { html: '<math></math>' } });
         const wrapper = await findMathJaxOutput();
-        expect(within(wrapper).queryByRole('img')).not.toBeInTheDocument();
+        expect(wrapper).not.toHaveAttribute('role');
+      });
+
+      it('leaves an expression with a blank alttext out of the image role', async () => {
+        render(createSafeHTML(), { props: { html: '<math alttext=" "><mi>x</mi></math>' } });
+        const wrapper = await findMathJaxOutput();
+        expect(wrapper).not.toHaveAttribute('role');
       });
 
       it('writes nothing once unmounted before MathJax loads', async () => {
@@ -931,12 +937,11 @@ describe('SafeHTML', () => {
         expect(screen.queryByTestId('mathjax-output')).not.toBeInTheDocument();
       });
 
-      it('drops authored alttext from native math', () => {
+      it('keeps authored alttext on native math', () => {
         const { container } = render(createSafeHTML(), {
           props: { html: '<math alttext="x"><mi>x</mi></math>' },
         });
-        expect(container.querySelector('math.safe-html')).not.toBeNull();
-        expect(container.querySelector('[alttext]')).toBeNull();
+        expect(container.querySelector('math.safe-html[alttext="x"]')).not.toBeNull();
       });
 
       it.each([
