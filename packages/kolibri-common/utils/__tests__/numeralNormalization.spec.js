@@ -34,6 +34,18 @@ describe('normalizeNumerals', () => {
     expect(normalizeNumerals('០១២៣៤៥៦៧៨៩')).toBe('0123456789');
   });
 
+  it('converts every Mathematical Alphanumeric digit to ASCII', () => {
+    const run = String.fromCodePoint(...Array.from({ length: 50 }, (_, i) => 0x1d7ce + i));
+    expect(normalizeNumerals(run)).toBe('0123456789'.repeat(5));
+    expect(normalizeNumerals('𝟙')).toBe('1');
+    expect(normalizeNumerals('𝟣')).toBe('1');
+  });
+
+  it('converts Myanmar Pao and Eastern Pwo Karen digits to ASCII', () => {
+    const run = String.fromCodePoint(...Array.from({ length: 20 }, (_, i) => 0x116d0 + i));
+    expect(normalizeNumerals(run)).toBe('0123456789'.repeat(2));
+  });
+
   it('leaves ASCII digits unchanged', () => {
     expect(normalizeNumerals('0123456789')).toBe('0123456789');
   });
