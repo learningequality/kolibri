@@ -233,7 +233,7 @@ export class QTIVariable {
     // For string-like base types we preserve the empty string here and
     // defer the NULL decision to coerceValueWithBaseType per-element; for
     // containers, each element is coerced individually.
-    if (values === null || values === undefined || values === 'NULL') {
+    if (values === null || values === undefined) {
       return null;
     }
 

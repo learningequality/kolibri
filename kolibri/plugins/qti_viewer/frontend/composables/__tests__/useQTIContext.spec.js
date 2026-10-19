@@ -76,10 +76,10 @@ async function setupDeclarations(xmlString, options) {
 
 // Build a minimal item that delegates response processing to `templateUri`
 // and uses `correctValue` as the correct RESPONSE. SCORE defaults to 0.
-function templatedItemXml(templateUri, correctValue = 'A') {
+function templatedItemXml(templateUri, correctValue = 'A', baseType = 'identifier') {
   return itemXml(
     [
-      responseDecl('RESPONSE', 'identifier', 'single', correctResponse(correctValue)),
+      responseDecl('RESPONSE', baseType, 'single', correctResponse(correctValue)),
       outcomeDecl('SCORE', 'float', 'single', defaultValue(0)),
     ],
     `<qti-response-processing template="${templateUri}" />`,
@@ -211,6 +211,16 @@ describe('useQTIContext', () => {
       ctx.responses.value.RESPONSE.value = ['choice_a', 'choice_b', 'choice_c', 'choice_d'];
       ctx.processResponses();
       expect(ctx.outcomes.value.SCORE.value).toBe(6);
+    });
+
+    it('scores a string response of NULL against a correct response of NULL', async () => {
+      const ctx = await setupDeclarations(
+        templatedItemXml(MATCH_CORRECT_TEMPLATE_URI, 'NULL', 'string'),
+      );
+
+      ctx.responses.value.RESPONSE.value = 'NULL';
+      ctx.processResponses();
+      expect(ctx.outcomes.value.SCORE.value).toBe(1);
     });
   });
 
