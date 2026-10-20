@@ -123,7 +123,7 @@ describe('Selecting an option', () => {
   it('stores the selected identifier in the response, readable via checkAnswer', async () => {
     const { checkAnswer } = renderAssessmentItem(xml());
     await selectOption(0, 'Y');
-    expect(checkAnswer().answerState.RESPONSE).toBe('Y');
+    expect(checkAnswer().answerState.responses.RESPONSE).toBe('Y');
   });
 });
 
@@ -175,7 +175,7 @@ describe('Content direction', () => {
   it('marks the report-mode text with dir="auto"', () => {
     const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml, {
       interactive: false,
-      answerState: { RESPONSE: 'Y' },
+      answerState: { responses: { RESPONSE: 'Y' } },
     });
     expect(container.querySelector('.qti-inline-choice-report')).toHaveAttribute('dir', 'auto');
   });
@@ -185,13 +185,13 @@ describe('Answer state', () => {
   const xml = () => items['q12-inline-choice-interaction'].xml;
 
   it('restores the selected choice from injected answerState on mount', () => {
-    renderAssessmentItem(xml(), { answerState: { RESPONSE: 'Y' } });
+    renderAssessmentItem(xml(), { answerState: { responses: { RESPONSE: 'Y' } } });
     expect(screen.getByRole('button')).toHaveTextContent('York');
   });
 
   it('reacts to external setAnswerState changes', async () => {
     const { setAnswerState } = renderAssessmentItem(xml());
-    setAnswerState({ RESPONSE: 'L' });
+    setAnswerState({ responses: { RESPONSE: 'L' } });
     await waitFor(() => expect(screen.getByRole('button')).toHaveTextContent('Lancaster'));
   });
 
@@ -219,7 +219,7 @@ describe('Non-interactive (report) mode', () => {
   it('renders the selected answer as static text without a dropdown trigger', () => {
     const { container } = renderAssessmentItem(xml(), {
       interactive: false,
-      answerState: { RESPONSE: 'Y' },
+      answerState: { responses: { RESPONSE: 'Y' } },
     });
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(container.querySelector('.qti-inline-choice-report')).toHaveTextContent('York');

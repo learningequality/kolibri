@@ -82,7 +82,9 @@ async function renderWrapper(checkAnswerResult) {
   });
 
   expect(container.querySelector('[data-testid="content-viewer"]')).toBeTruthy();
-  await waitFor(() => expect(checkAnswerFn().answerState.RESPONSE?.correct).not.toBeUndefined());
+  await waitFor(() =>
+    expect(checkAnswerFn().answerState.responses.RESPONSE?.correct).not.toBeUndefined(),
+  );
   await nextTick();
 
   return { checkAnswer: () => checkAnswerFn() };
@@ -104,8 +106,9 @@ describe('Perseus-in-QTI grading', () => {
 
       const result = checkAnswer();
 
-      expect(result.answerState.RESPONSE.correct).toBe(correct);
-      expect(result.outcomes.SCORE).toBe(score);
+      expect(result.answerState.responses.RESPONSE.correct).toBe(correct);
+      expect(result.answerState.outcomes.SCORE).toBe(score);
+      expect(result.correct).toBe(score);
     },
   );
 });
