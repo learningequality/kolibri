@@ -3,13 +3,13 @@
   <div class="selected-language">
     <KIconButton
       icon="language"
-      aria-hidden="true"
-      tabindex="-1"
+      :ariaLabel="changeLanguageLabel"
       class="globe px-8"
       @click="$emit('click')"
     />
     <span
       class="no-shrink px-8"
+      aria-hidden="true"
       :title="selectedLanguage.english_name"
     >
       {{ selectedLanguage.lang_name }}
@@ -27,6 +27,20 @@
       selectedLanguage: {
         type: Object,
         required: true,
+      },
+    },
+    computed: {
+      changeLanguageLabel() {
+        return this.$tr('changeLanguageButtonLabel', {
+          language: this.selectedLanguage.lang_name,
+        });
+      },
+    },
+    $trs: {
+      changeLanguageButtonLabel: {
+        message: 'Change language, currently {language}',
+        context:
+          'Accessible label for the control that opens the language switcher, stating the currently selected interface language.',
       },
     },
   };
