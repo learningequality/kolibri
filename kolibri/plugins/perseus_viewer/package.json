@@ -13,7 +13,7 @@
     "@khanacademy/mathjax-renderer": "^3.0.0",
     "@khanacademy/perseus": "78.2.0",
     "@khanacademy/perseus-core": "^28.2.0",
-    "@khanacademy/perseus-score": "^8.11.7",
+    "@khanacademy/perseus-score": "8.11.7",
     "@khanacademy/wonder-blocks-announcer": "^1.1.0",
     "@khanacademy/wonder-blocks-banner": "^5.1.5",
     "@khanacademy/wonder-blocks-button": "^11.7.2",
