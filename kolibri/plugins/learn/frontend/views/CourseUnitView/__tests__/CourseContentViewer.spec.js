@@ -17,8 +17,6 @@ const ContentViewerStub = {
   props: ['contentNode'],
 };
 
-// Mirrors the real QuizRenderer's `sidePanelFooter` slot so the UpNextNavigationFooter
-// it's given renders, which is all these tests exercise.
 const QuizRendererStub = {
   name: 'QuizRenderer',
   template: '<div data-testid="quiz-renderer"><slot name="sidePanelFooter" /></div>',

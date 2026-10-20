@@ -10,7 +10,6 @@
           icon="back"
           data-testid="course-back-button"
           :tooltip="goBackAction$()"
-          :ariaLabel="goBackAction$()"
           @click="goBack"
         />
         <h1>
