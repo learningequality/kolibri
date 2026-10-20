@@ -16,11 +16,13 @@
       <KIconButton
         v-if="nextEnabled"
         icon="forward"
+        :ariaLabel="ariaLabel"
         @click="$emit('next')"
       />
       <KIconButton
         v-else
         icon="permissions"
+        :ariaLabel="ariaLabel"
         disabled
       />
     </div>
@@ -30,6 +32,11 @@
 
 
 <script>
+
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
+
+  const { footerNavigationAccessibleLabel$, footerNavigationUnavailableAccessibleLabel$ } =
+    coursesStrings;
 
   export default {
     name: 'UpNextNavigationFooter',
@@ -45,6 +52,17 @@
       nextEnabled: {
         type: Boolean,
         default: false,
+      },
+    },
+    computed: {
+      ariaLabel() {
+        if (this.nextEnabled) {
+          return footerNavigationAccessibleLabel$({
+            label: this.label,
+            title: this.nextNode.title,
+          });
+        }
+        return footerNavigationUnavailableAccessibleLabel$({ title: this.nextNode.title });
       },
     },
   };

@@ -9,6 +9,8 @@
         <KIconButton
           icon="back"
           data-testid="course-back-button"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack"
         />
         <h1>
@@ -106,6 +108,7 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
   import { computed, nextTick, ref, toRef, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import Modalities from 'kolibri-constants/Modalities';
   import useFetch from 'kolibri/composables/useFetch';
   import { injectPreviousRoute } from 'kolibri-common/composables/usePreviousRoute';
@@ -857,6 +860,8 @@
         unitCompletedDescription$,
       } = coursesStrings;
 
+      const { goBackAction$ } = coreStrings;
+
       const unitNumberLabel = computed(() => {
         if (loading.value) {
           return '';
@@ -1015,6 +1020,7 @@
         goBack,
 
         upNextLabel$,
+        goBackAction$,
       };
     },
     props: {
