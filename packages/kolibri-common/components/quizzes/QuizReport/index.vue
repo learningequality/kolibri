@@ -64,12 +64,11 @@
     </template>
 
     <template
-      v-if="!loading"
+      v-if="pastTries.length > 1"
       #subheader
     >
       <KSelect
-        v-if="pastTries.length > 1"
-        :value="pastTriesOptions[tryIndex]"
+        :value="pastTriesOptions[tryIndex] || {}"
         :label="$tr('attemptDropdownLabel')"
         :options="pastTriesOptions"
         :style="{ background: 'var(--palette-grey-v200)' }"
@@ -78,7 +77,7 @@
         @change="navigateToTry"
       />
       <CurrentTryOverview
-        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
+        v-if="!loading && currentTry && currentTry.attemptlogs.length"
         :userId="userId"
         :currentTry="currentTry"
         :totalQuestions="questions.length"
@@ -501,7 +500,7 @@
         }
       },
       navigateToTry(tryOption) {
-        if (tryOption.value !== this.tryIndex) {
+        if (isFinite(tryOption.value) && tryOption.value !== this.tryIndex) {
           this.navigateTo(tryOption.value, 0, 0);
           this.$refs.multiPaneLayout.scrollMainToTop();
           this.showCorrectAnswer = false;
@@ -523,13 +522,21 @@
         if (!isFinite(this.tryIndex)) {
           return;
         }
+        const tryIndex = this.tryIndex;
         this.loading = true;
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
+            if (tryIndex !== this.tryIndex) {
+              return;
+            }
             this.currentTry = currentTry;
             this.loading = false;
           })
           .catch(err => {
+            if (tryIndex !== this.tryIndex) {
+              return;
+            }
+            this.currentTry = null;
             if (err.response && err.response.status_code === 404) {
               this.$emit('noCompleteTries');
             }
