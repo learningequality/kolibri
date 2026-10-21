@@ -372,11 +372,15 @@ class KolibriTaskBarIcon:
             wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item
         )
 
+        if self.app.server_manager.uses_service:
+            restart_item = menu.Append(wx.ID_ANY, _("Restart Kolibri service"))
+            self.frame.Bind(wx.EVT_MENU, self.on_restart_service, restart_item)
+
         menu.AppendSeparator()
 
-        # 4. Exit
-        exit_item = menu.Append(wx.ID_EXIT, _("Exit"))
-        self.frame.Bind(wx.EVT_MENU, self.on_exit, exit_item)
+        # 4. Close
+        close_item = menu.Append(wx.ID_EXIT, _("Close"))
+        self.frame.Bind(wx.EVT_MENU, self.on_close, close_item)
 
         return menu
 
@@ -427,22 +431,21 @@ class KolibriTaskBarIcon:
                 _("Failed to change the Kolibri App startup setting"),
             )
 
+    def _run_elevated(self, args):
+        if not getattr(sys, "frozen", False):
+            args = f"-m kolibri_app {args}"
+        return ctypes.windll.shell32.ShellExecuteW(
+            None, "runas", sys.executable, args, None, 1
+        )
+
     def on_toggle_service_startup(self, event):
         """Handle toggling the service start type with a UAC prompt."""
         is_auto_start_enabled = event.IsChecked()
         new_state = "auto" if is_auto_start_enabled else "disabled"
 
         try:
-            exe_path = sys.executable
-            if getattr(sys, "frozen", False):
-                params = f"--configure-service {new_state}"
-                exe_to_run = exe_path
-            else:
-                params = f"-m kolibri_app --configure-service {new_state}"
-                exe_to_run = exe_path
-
-            shell_execute_result = ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", exe_to_run, params, None, 1
+            shell_execute_result = self._run_elevated(
+                f"--configure-service {new_state}"
             )
 
             if shell_execute_result <= 32:
@@ -451,7 +454,7 @@ class KolibriTaskBarIcon:
                 )
                 self.run_on_start_item.Check(not is_auto_start_enabled)
                 wx.MessageBox(
-                    _("Administrator rights are required to change this setting."),
+                    _("Administrator permissions are required to change this setting."),
                     _("Error"),
                     wx.OK | wx.ICON_ERROR,
                 )
@@ -501,18 +504,35 @@ class KolibriTaskBarIcon:
                 _("Failed to update the service startup setting."),
             )
 
-    def on_exit(self, event):
+    def on_restart_service(self, event):
+        answer = wx.MessageBox(
+            _(
+                "Anyone using Kolibri on this server right now will temporarily be unable to use it."
+            ),
+            _("Restart Kolibri service"),
+            wx.OK | wx.CANCEL | wx.ICON_WARNING,
+        )
+        if answer != wx.OK:
+            return
+
+        shell_execute_result = self._run_elevated("--restart-service")
+        if shell_execute_result <= 32:
+            logging.error(
+                f"Failed to elevate for service restart. Code: {shell_execute_result}"
+            )
+            wx.MessageBox(
+                _("Administrator permissions are required to change this setting."),
+                _("Error"),
+                wx.OK | wx.ICON_ERROR,
+            )
+
+    def on_close(self, event):
         """
-        Handles the exit menu item.
+        Handles the close menu item.
         - When running with background service: Does not stop the service
         - When running local server: Stops the local server
         """
-        server_manager = self.app.server_manager
-
-        if (
-            hasattr(server_manager, "_server_mode")
-            and server_manager._server_mode == "service"
-        ):
+        if self.app.server_manager.uses_service:
             # Running with service - don't stop the service, just exit the UI
             logging.info("Exiting tray icon (service will continue running)")
             # Don't call app.shutdown() to avoid stopping the service

@@ -2,6 +2,7 @@ import sys
 
 import pywintypes
 import win32service
+import win32serviceutil
 
 from kolibri_app.constants import RUN_AS_SERVER
 from kolibri_app.constants import SERVICE_NAME
@@ -73,6 +74,16 @@ def run_service_command(new_state):
         return e.winerror
 
 
+def restart_service():
+    logging.info(f"Restarting service '{SERVICE_NAME}'.")
+    try:
+        win32serviceutil.RestartService(SERVICE_NAME)
+        return 0
+    except pywintypes.error as e:
+        logging.error(f"Failed to restart the service. Win32 Error: {e}")
+        return e.winerror
+
+
 def handle_windows_commands():
     # This block handles command-line actions that don't launch the full app.
     # It is intended to be run with elevated privileges.
@@ -86,6 +97,9 @@ def handle_windows_commands():
         logging.info(f"Running elevated command to configure service: {new_state}")
         exit_code = run_service_command(new_state)
         sys.exit(exit_code)
+
+    if len(sys.argv) > 1 and sys.argv[1] == "--restart-service":
+        sys.exit(restart_service())
 
     # This block is the entry point for the server subprocess
     if RUN_AS_SERVER:
