@@ -112,8 +112,18 @@
           name="bar-actions"
           data-onboarding-id="contentPageTopBar"
         >
+          <KButton
+            v-if="bookmarkBarAction"
+            :key="bookmarkBarAction.id"
+            :data-testid="`bar_${bookmarkBarAction.dataTest}`"
+            appearance="basic-link"
+            :text="bookmarkBarAction.label"
+            :disabled="bookmarkBarAction.disabled"
+            class="bar-actions-item"
+            @click="onActionClick(bookmarkBarAction.event)"
+          />
           <KIconButton
-            v-for="action in barActions"
+            v-for="action in otherBarActions"
             :key="action.id"
             :data-testid="`bar_${action.dataTest}`"
             :icon="action.icon"
@@ -477,6 +487,12 @@
       },
       barActions() {
         return this.allActions.slice(0, this.numBarActions);
+      },
+      bookmarkBarAction() {
+        return this.barActions.find(action => action.id === 'bookmark');
+      },
+      otherBarActions() {
+        return this.barActions.filter(action => action.id !== 'bookmark');
       },
       menuActions() {
         return this.allActions.slice(this.numBarActions);

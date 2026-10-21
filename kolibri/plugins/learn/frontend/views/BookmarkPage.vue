@@ -8,29 +8,44 @@
       <h1>
         {{ $tr('bookmarksHeader') }}
       </h1>
-      <p v-if="!bookmarks.length && !loading">
-        {{ $tr('noBookmarks') }}
-      </p>
-
-      <CardList
-        v-for="contentNode in bookmarks"
-        v-else
-        :key="contentNode.id"
-        :contentNode="contentNode"
-        class="card-grid-item"
-        :isMobile="windowIsSmall"
-        :to="genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)"
-        :createdDate="contentNode.bookmark ? contentNode.bookmark.created : null"
+      <div
+        v-if="!bookmarks.length && !loading"
+        class="empty-state"
+        role="status"
       >
-        <template #footer>
-          <HybridLearningFooter
-            :contentNode="contentNode"
-            :bookmarked="true"
-            @toggleInfoPanel="toggleInfoPanel(contentNode)"
-            @removeFromBookmarks="removeFromBookmarks(contentNode.bookmark)"
-          />
-        </template>
-      </CardList>
+        <KIcon
+          icon="bookmarkEmpty"
+          class="empty-state-icon"
+          :color="$themeTokens.textDisabled"
+        />
+        <h2>{{ $tr('noBookmarksTitle') }}</h2>
+        <p>{{ $tr('noBookmarks') }}</p>
+      </div>
+
+      <div
+        v-else-if="bookmarks.length"
+        class="bookmark-grid"
+        :class="{ 'bookmark-grid-mobile': windowIsSmall }"
+      >
+        <CardList
+          v-for="contentNode in bookmarks"
+          :key="contentNode.id"
+          :contentNode="contentNode"
+          class="card-grid-item"
+          :isMobile="windowIsSmall"
+          :to="genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)"
+          :createdDate="contentNode.bookmark ? contentNode.bookmark.created : null"
+        >
+          <template #footer>
+            <HybridLearningFooter
+              :contentNode="contentNode"
+              :bookmarked="true"
+              @toggleInfoPanel="toggleInfoPanel(contentNode)"
+              @removeFromBookmarks="removeFromBookmarks(contentNode.bookmark)"
+            />
+          </template>
+        </CardList>
+      </div>
 
       <KButton
         v-if="more && !loading"
@@ -191,8 +206,13 @@
           'Notification indicating that a resource has been removed from the Bookmarks page.',
       },
       noBookmarks: {
-        message: 'You have no bookmarked resources',
-        context: "Status message in the 'Bookmarks' page when user did not bookmark any resources.",
+        message: 'Explore learning resources and select Save to bookmarks to add them here.',
+        context:
+          "Instructions shown on the 'Bookmarks' page when the learner has not saved any resources.",
+      },
+      noBookmarksTitle: {
+        message: 'Your bookmarks will appear here',
+        context: "Heading shown on the 'Bookmarks' page when the learner has no saved resources.",
       },
     },
   };
@@ -205,6 +225,46 @@
   .fix-pos {
     position: fixed;
     z-index: 4;
+  }
+
+  .bookmark-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .bookmark-grid-mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bookmark-grid .card-grid-item {
+    margin-top: 0;
+  }
+
+  .empty-state {
+    max-width: 560px;
+    padding: 32px 24px;
+    margin: 32px auto;
+    text-align: center;
+    color: var(--tokens-text);
+    background-color: var(--tokens-surface);
+    border-radius: 8px;
+  }
+
+  .empty-state-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .empty-state h2 {
+    margin: 12px 0 8px;
+    font-size: 20px;
+  }
+
+  .empty-state p {
+    margin: 0;
+    color: var(--tokens-textDisabled);
   }
 
   .side-panel-chips {
