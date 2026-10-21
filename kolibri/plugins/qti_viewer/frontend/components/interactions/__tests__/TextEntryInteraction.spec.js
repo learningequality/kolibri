@@ -418,7 +418,7 @@ describe('Numbers in the content language', () => {
   ])('%s reads %s as %s', async (lang, typed, correct) => {
     const { checkAnswer } = renderAssessmentItem(numericItemXml(correct), { lang });
     await fireEvent.update(screen.getByRole('textbox'), typed);
-    expect(checkAnswer().outcomes.SCORE).toBe(1);
+    expect(checkAnswer().answerState.outcomes.SCORE).toBe(1);
   });
 
   it.each([
@@ -433,7 +433,7 @@ describe('Numbers in the content language', () => {
     await fireEvent.click(screen.getByRole('button', { name: decimal$() }));
     await fireEvent.click(screen.getByRole('button', { name: '5' }));
     expect(input).toHaveValue(written);
-    expect(checkAnswer().outcomes.SCORE).toBe(1);
+    expect(checkAnswer().answerState.outcomes.SCORE).toBe(1);
   });
 
   it('reads keyboard digits beside the keypad decimal in Persian', async () => {
@@ -444,7 +444,7 @@ describe('Numbers in the content language', () => {
     await fireEvent.click(screen.getByRole('button', { name: decimal$() }));
     await fireEvent.update(input, `${input.value}5`);
     await fireEvent.blur(input);
-    expect(checkAnswer().outcomes.SCORE).toBe(1);
+    expect(checkAnswer().answerState.outcomes.SCORE).toBe(1);
   });
 
   it.each([
@@ -456,7 +456,7 @@ describe('Numbers in the content language', () => {
     await fireEvent.update(input, typed);
     await fireEvent.blur(input);
     expect(input).toHaveValue(shown);
-    expect(checkAnswer().outcomes.SCORE).toBe(1);
+    expect(checkAnswer().answerState.outcomes.SCORE).toBe(1);
   });
 
   it.each([
@@ -490,7 +490,7 @@ describe('Numbers in the content language', () => {
     await fireEvent.click(screen.getByRole('button', { name: ARABIC_INDIC_THREE }));
     await fireEvent.click(screen.getByRole('button', { name: decimal$() }));
     await fireEvent.click(screen.getByRole('button', { name: ARABIC_INDIC_FIVE }));
-    expect(checkAnswer().outcomes.SCORE).toBe(1);
+    expect(checkAnswer().answerState.outcomes.SCORE).toBe(1);
   });
 
   it.each([
@@ -501,7 +501,7 @@ describe('Numbers in the content language', () => {
   ])('%s shows %s as %s in report mode', (lang, stored, shown) => {
     renderAssessmentItem(numericItemXml(stored), {
       lang,
-      answerState: { RESPONSE: stored },
+      answerState: { responses: { RESPONSE: stored } },
       interactive: false,
     });
     expect(screen.getByTestId('text-entry-report')).toHaveTextContent(shown);
@@ -510,26 +510,26 @@ describe('Numbers in the content language', () => {
   it('toggles a minus written as U+2212 off with the negative-sign key', async () => {
     const { checkAnswer } = renderAssessmentItem(numericItemXml('3'), {
       lang: 'sv',
-      answerState: { RESPONSE: -3 },
+      answerState: { responses: { RESPONSE: -3 } },
     });
     const input = screen.getByRole('textbox');
     expect(input).toHaveValue('−3');
     await fireEvent.focus(input);
     await fireEvent.click(screen.getByRole('button', { name: negative$() }));
     expect(input).toHaveValue('3');
-    expect(checkAnswer().outcomes.SCORE).toBe(1);
+    expect(checkAnswer().answerState.outcomes.SCORE).toBe(1);
   });
 
   it('keeps a restored value when the field is focused and left', async () => {
     const { checkAnswer } = renderAssessmentItem(numericItemXml('1.5'), {
       lang: 'de',
-      answerState: { RESPONSE: 1.5 },
+      answerState: { responses: { RESPONSE: 1.5 } },
     });
     const input = screen.getByRole('textbox');
     expect(input).toHaveValue('1,5');
     await fireEvent.focus(input);
     await fireEvent.blur(input);
-    expect(checkAnswer().answerState.RESPONSE).toBe(1.5);
+    expect(checkAnswer().answerState.responses.RESPONSE).toBe(1.5);
   });
 
   it('clears the response when the field is cleared', async () => {
@@ -538,7 +538,7 @@ describe('Numbers in the content language', () => {
     await fireEvent.update(input, '1,5');
     await fireEvent.update(input, ' ');
     await fireEvent.blur(input);
-    expect(checkAnswer().answerState.RESPONSE).toBeNull();
+    expect(checkAnswer().answerState.responses.RESPONSE).toBeNull();
   });
 
   it('checks the pattern mask against the number, not its language form', async () => {
