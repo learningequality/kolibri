@@ -114,9 +114,8 @@ class KolibriInstance:
 
     @property
     def base_url(self):
-        return "http://{ip}:{port}/{prefix}".format(
-            ip=self.ip, port=self.port, prefix=self.prefix.lstrip("/")
-        )
+        port_suffix = "" if self.port == 80 else f":{self.port}"
+        return f"http://{self.ip}{port_suffix}/{self.prefix.lstrip('/')}"
 
     @property
     def is_broadcasting(self):
