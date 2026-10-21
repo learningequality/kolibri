@@ -64,11 +64,10 @@
     </template>
 
     <template
-      v-if="!loading"
+      v-if="pastTries.length > 1"
       #subheader
     >
       <KSelect
-        v-if="pastTries.length > 1"
         :value="pastTriesOptions[tryIndex]"
         :label="$tr('attemptDropdownLabel')"
         :options="pastTriesOptions"
@@ -78,7 +77,7 @@
         @change="navigateToTry"
       />
       <CurrentTryOverview
-        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
+        v-if="!loading && currentTry && currentTry.attemptlogs.length"
         :userId="userId"
         :currentTry="currentTry"
         :totalQuestions="questions.length"
@@ -523,13 +522,20 @@
         if (!isFinite(this.tryIndex)) {
           return;
         }
+        const tryIndex = this.tryIndex;
         this.loading = true;
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
+            if (tryIndex !== this.tryIndex) {
+              return;
+            }
             this.currentTry = currentTry;
             this.loading = false;
           })
           .catch(err => {
+            if (tryIndex !== this.tryIndex) {
+              return;
+            }
             if (err.response && err.response.status_code === 404) {
               this.$emit('noCompleteTries');
             }
