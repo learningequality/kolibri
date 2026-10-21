@@ -1114,11 +1114,18 @@ def update_options_file(section, key, value, ini_filename="options.ini"):
         raise ValueError(f"Unable to set {key} in {ini_filename}: {error}")
 
     # write the settings file back to disk
-    conf.write()
+    raw_conf = ConfigObj(conf.filename)
+    raw_section = raw_conf.setdefault(section, {})
+    for alias in (
+        option_spec.get(section, {}).get(key, {}).get("deprecated_aliases", ())
+    ):
+        raw_section.pop(alias, None)
+    raw_section[key] = value
+    raw_conf.write()
 
     logger.warning(
         "Options file %s has been updated; server restart is required before change will take effect.",
-        conf.filename,
+        raw_conf.filename,
     )
 
 
