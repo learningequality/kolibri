@@ -18,7 +18,7 @@ function perseusItem(path, content) {
 function makeViewerStub(capture, checkAnswer) {
   return {
     name: 'ContentViewer',
-    props: ['itemData', 'interactive', 'answerState', 'preset'],
+    props: ['itemData', 'interactive', 'answerState', 'preset', 'showCorrectAnswer'],
     created() {
       capture.viewer = this;
       capture.itemData = this.itemData;
@@ -41,11 +41,15 @@ function makeViewerStub(capture, checkAnswer) {
   };
 }
 
-function renderInteraction(props, { perseusItems, responses, answerState, checkAnswer } = {}) {
+function renderInteraction(
+  props,
+  { perseusItems, responses, answerState, checkAnswer, showCorrectAnswer } = {},
+) {
   const capture = {};
   const result = render(PerseusCustomInteraction, {
     props,
     provide: {
+      showCorrectAnswer: showCorrectAnswer ?? ref(false),
       perseusItems: computed(() => perseusItems || {}),
       answerState: computed(() => answerState || {}),
       responses: computed(() => responses || {}),
@@ -101,6 +105,22 @@ describe('PerseusCustomInteraction', () => {
     });
 
     expect(capture.itemData.perseusItemString).toContain('two');
+  });
+
+  it('shows the correct answer in the renderer while the viewer asks for it', async () => {
+    const showCorrectAnswer = ref(true);
+
+    const { capture } = renderInteraction(
+      { dataPerseusPath: ITEM_PATH, responseIdentifier: 'RESPONSE' },
+      { perseusItems: perseusItem(ITEM_PATH, '{"question":{"content":""}}'), showCorrectAnswer },
+    );
+
+    expect(capture.viewer.showCorrectAnswer).toBe(true);
+
+    showCorrectAnswer.value = false;
+    await nextTick();
+
+    expect(capture.viewer.showCorrectAnswer).toBe(false);
   });
 
   it('seeds the renderer from the answer state the viewer was given, not its own grades', async () => {
