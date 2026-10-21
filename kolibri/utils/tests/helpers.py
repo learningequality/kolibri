@@ -1,12 +1,16 @@
 import os
 import sys
+from contextlib import contextmanager
 from importlib import reload
+from types import SimpleNamespace
+from unittest import mock
 
 from django.conf import settings
 from django.test.utils import TestContextDecorator
 from django.urls import clear_url_caches
 
 from kolibri.utils import conf
+from kolibri.utils import server
 from kolibri.utils.options import option_spec
 
 
@@ -53,3 +57,43 @@ class override_option(TestContextDecorator):
                 del os.environ[envvar]
             else:
                 os.environ[envvar] = value
+
+
+@contextmanager
+def running_pid_file(port):
+    with open(server.PID_FILE, "w") as f:
+        f.write(f"{os.getpid()}\n{port}\n\n{server.STATUS_RUNNING}\n")
+    try:
+        with mock.patch.object(
+            server.requests, "get", return_value=mock.Mock(status_code=200)
+        ):
+            yield
+    finally:
+        os.remove(server.PID_FILE)
+
+
+def fake_port_binds(monkeypatch):
+    """
+    :returns: a namespace whose ``bound`` lists every bound address and whose
+        ``errors`` maps a port to the errno its bind raises.
+    """
+    recorded = SimpleNamespace(bound=[], errors={})
+
+    class FakeSocket:
+        def __init__(self, family, type_):
+            pass
+
+        def setsockopt(self, *args):
+            pass
+
+        def bind(self, address):
+            recorded.bound.append(address)
+            error = recorded.errors.get(address[1])
+            if error:
+                raise OSError(error, os.strerror(error))
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(socket, "socket", FakeSocket)
+    return recorded
