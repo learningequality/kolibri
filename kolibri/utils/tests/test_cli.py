@@ -2,9 +2,11 @@
 Tests for `kolibri.utils.cli` module.
 """
 
+import errno
 import logging
 import os
 import tempfile
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -15,6 +17,10 @@ from kolibri.utils import cli
 from kolibri.utils import conf
 from kolibri.utils import options
 from kolibri.utils import server
+from kolibri.utils.main import version_file
+from kolibri.utils.tests.helpers import fake_port_binds
+from kolibri.utils.tests.helpers import pinned_http_port
+from kolibri.utils.tests.helpers import running_pid_file
 
 logger = logging.getLogger(__name__)
 
@@ -308,3 +314,105 @@ def test_plugin_create_invalid_mode_errors(scaffold_mock, tmp_path):
         )
     assert excinfo.value.code != 0
     assert not scaffold_mock.called
+
+
+@pytest.fixture
+def options_ini(monkeypatch):
+    monkeypatch.delenv("KOLIBRI_HTTP_PORT", raising=False)
+    monkeypatch.delenv("KOLIBRI_LISTEN_PORT", raising=False)
+    binds = fake_port_binds(monkeypatch)
+    path = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+    original = None
+    if os.path.exists(path):
+        with open(path) as f:
+            original = f.read()
+    with open(path, "w") as f:
+        f.write("\n")
+    yield SimpleNamespace(path=path, binds=binds)
+    if original is None:
+        os.remove(path)
+    else:
+        with open(path, "w") as f:
+            f.write(original)
+
+
+def _run_setup(*args):
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["configure", "setup", "--skip-update", *args], prog_name="kolibri")
+    return excinfo.value.code
+
+
+@pytest.fixture
+def data_version():
+    path = version_file()
+    original = None
+    if os.path.exists(path):
+        with open(path) as f:
+            original = f.read()
+        os.remove(path)
+
+    def write(version):
+        with open(path, "w") as f:
+            f.write(version)
+
+    yield write
+    if original is None:
+        if os.path.exists(path):
+            os.remove(path)
+    else:
+        write(original)
+
+
+def test_configure_setup_fresh_pins_port_80(options_ini, data_version, monkeypatch):
+    initialize = cli.initialize
+
+    def initialize_and_record_version(**kwargs):
+        initialize(**kwargs)
+        data_version(kolibri.__version__)
+
+    monkeypatch.setattr(cli, "initialize", initialize_and_record_version)
+    assert _run_setup() == 0
+    assert pinned_http_port(options_ini.path) == "80"
+
+
+def test_configure_setup_upgrade_does_not_elect(options_ini, data_version):
+    data_version(kolibri.__version__)
+    assert _run_setup() == 0
+    assert options_ini.binds.bound == []
+    assert pinned_http_port(options_ini.path) is None
+
+
+def test_configure_setup_upgrade_preferred_port_pins_it(options_ini, data_version):
+    data_version(kolibri.__version__)
+    assert _run_setup("--preferred-port", "8000") == 0
+    assert pinned_http_port(options_ini.path) == "8000"
+
+
+def test_configure_setup_preferred_port_overwrites_pinned_port(
+    options_ini, data_version
+):
+    data_version(kolibri.__version__)
+    with open(options_ini.path, "w") as f:
+        f.write("[Deployment]\nHTTP_PORT = 8080\n")
+    assert _run_setup("--preferred-port", "80") == 0
+    assert pinned_http_port(options_ini.path) == "80"
+
+
+def test_configure_setup_preferred_port_keeps_port_kolibri_serves_on(
+    options_ini, data_version
+):
+    data_version(kolibri.__version__)
+    with open(options_ini.path, "w") as f:
+        f.write("[Deployment]\nHTTP_PORT = 8080\n")
+    options_ini.binds.errors[80] = errno.EADDRINUSE
+    with running_pid_file(80):
+        assert _run_setup("--preferred-port", "80") == 0
+    assert pinned_http_port(options_ini.path) == "80"
+
+
+def test_configure_setup_fresh_keeps_pinned_port(options_ini, data_version):
+    with open(options_ini.path, "w") as f:
+        f.write("[Deployment]\nHTTP_PORT = 9000\n")
+    assert _run_setup() == 0
+    assert options_ini.binds.bound == []
+    assert pinned_http_port(options_ini.path) == "9000"
