@@ -448,7 +448,12 @@ class KolibriView(object):
         dlg.Destroy()
 
     def on_open_in_browser(self, event):
-        webbrowser.open(self.get_url())
+        url = self.get_url()
+        # The loading screen is about:blank, which no browser is registered for.
+        if not url.startswith("http"):
+            url = self.app.kolibri_url
+        if url:
+            webbrowser.open(url)
 
     def on_open_kolibri_home(self, event):
         _open_in_file_manager(os.environ["KOLIBRI_HOME"])

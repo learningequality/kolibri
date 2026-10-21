@@ -51,9 +51,6 @@ class KolibriApp(wx.App):
 
         self.SetAppName(APP_NAME)
 
-        if WINDOWS:
-            self.task_bar_icon = KolibriTaskBarIcon(self)
-
         instance_name = f"{APP_NAME}_{wx.GetUserId()}"
         self._checker = wx.SingleInstanceChecker(instance_name)
 
@@ -67,14 +64,11 @@ class KolibriApp(wx.App):
                     logging.info("Sent show UI message to existing instance")
                 else:
                     logging.error("Could not find existing instance window")
-
-                # Clean up our taskbar icon if we created one
-                if hasattr(self, "task_bar_icon"):
-                    self.task_bar_icon.Destroy()
             return False  # Exit this instance
 
         # We are the first/only instance
         if WINDOWS:
+            self.task_bar_icon = KolibriTaskBarIcon(self)
             # Create a hidden window to receive messages
             self.create_hidden_window()
 
@@ -115,7 +109,7 @@ class KolibriApp(wx.App):
         # This allows new instances to signal the existing instance to show UI
         def wndproc(hwnd, msg, wparam, lparam):
             if msg == WM_SHOW_KOLIBRI_UI:
-                wx.CallAfter(self.show_or_create_ui)
+                wx.CallAfter(self.on_relaunch)
                 return 0
             return win32gui.DefWindowProc(hwnd, msg, wparam, lparam)
 
@@ -123,6 +117,12 @@ class KolibriApp(wx.App):
         win32gui.SetWindowLong(
             self.hidden_window.GetHandle(), win32con.GWL_WNDPROC, wndproc
         )
+
+    def on_relaunch(self):
+        """Handle the user launching the app again while it is running."""
+        # Relaunching is how the user gets a lost tray icon back.
+        self.task_bar_icon.restore_icon()
+        self.show_or_create_ui()
 
     def show_or_create_ui(self):
         """Show existing UI window or create a new one."""

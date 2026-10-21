@@ -1,50 +1,16 @@
 import ctypes
-import importlib
 import sys
 import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-
-class _Win32Error(Exception):
-    def __init__(self, winerror):
-        super().__init__(winerror)
-        self.winerror = winerror
-
-
-_pywintypes = MagicMock()
-_pywintypes.error = _Win32Error
-_win32service = MagicMock()
-_win32serviceutil = MagicMock()
-
-_windows_modules = {
-    "pywintypes": _pywintypes,
-    "win32service": _win32service,
-    "win32serviceutil": _win32serviceutil,
-    "ntsecuritycon": MagicMock(),
-    "win32api": MagicMock(),
-    "win32con": MagicMock(),
-    "win32file": MagicMock(),
-    "win32gui": MagicMock(),
-    "win32job": MagicMock(),
-    "win32pipe": MagicMock(),
-    "winerror": MagicMock(),
-    "kolibri_app.windows_registry": MagicMock(),
-    "kolibri_app.server_process_windows": MagicMock(),
-}
-sys.modules.update(_windows_modules)
-try:
-    with patch.object(ctypes, "windll", MagicMock(), create=True):
-        server_manager_windows = importlib.import_module(
-            "kolibri_app.server_manager_windows"
-        )
-        taskbar_icon = importlib.import_module("kolibri_app.windows.taskbar_icon")
-        windows_utils = importlib.import_module("kolibri_app.windows_utils")
-finally:
-    for _name in _windows_modules:
-        del sys.modules[_name]
-
-wx = sys.modules["wx"]
+from windows_stubs import server_manager_windows
+from windows_stubs import taskbar_icon
+from windows_stubs import Win32Error as _Win32Error
+from windows_stubs import win32service as _win32service
+from windows_stubs import win32serviceutil as _win32serviceutil
+from windows_stubs import windows_utils
+from windows_stubs import wx
 
 
 class TestRestartServiceCommand(unittest.TestCase):

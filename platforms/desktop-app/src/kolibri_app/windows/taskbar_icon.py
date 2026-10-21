@@ -74,6 +74,9 @@ NIM_DELETE = 0x02
 NIIF_USER = 0x04
 NIIF_LARGE_ICON = 0x20
 
+# ChangeWindowMessageFilterEx action
+MSGFLT_ALLOW = 1
+
 
 class _NOTIFYICONDATAW(ctypes.Structure):
     _fields_ = [
@@ -181,6 +184,14 @@ class KolibriTaskBarIcon:
             self.hwnd, win32con.GWL_WNDPROC, self._wndproc
         )
 
+        # Explorer broadcasts this when it (re)creates the taskbar, which drops
+        # every notification icon; wx.adv.TaskBarIcon used to handle it for us.
+        self._taskbar_created_msg = win32gui.RegisterWindowMessage("TaskbarCreated")
+        # Let a non-elevated Explorer reach an elevated tray process.
+        ctypes.windll.user32.ChangeWindowMessageFilterEx(
+            self.hwnd, self._taskbar_created_msg, MSGFLT_ALLOW, None
+        )
+
         self._load_icons()
         self._add_icon()
 
@@ -223,17 +234,27 @@ class KolibriTaskBarIcon:
         except (OSError, pywintypes.error) as e:
             logging.error(f"Error loading tray icons: {e}")
 
-    def _add_icon(self):
-        """Register the tray icon with the shell."""
+    def _icon_nid(self):
         nid = _new_nid(self.hwnd)
         nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP
         nid.uCallbackMessage = WM_TRAY_CALLBACK
         nid.hIcon = self._tray_hicon or 0
         nid.szTip = APP_NAME
-        if _shell_notify_icon(NIM_ADD, ctypes.byref(nid)):
+        return nid
+
+    def _add_icon(self):
+        """Register the tray icon with the shell."""
+        if _shell_notify_icon(NIM_ADD, ctypes.byref(self._icon_nid())):
             self._added = True
         else:
             logging.error("Shell_NotifyIcon NIM_ADD failed for the tray icon.")
+
+    def restore_icon(self):
+        """Add the tray icon back if the shell no longer has it."""
+        if _shell_notify_icon(NIM_MODIFY, ctypes.byref(self._icon_nid())):
+            return
+        logging.warning("The tray icon is missing, adding it again.")
+        self._add_icon()
 
     def _remove_icon(self):
         """Remove the tray icon from the shell."""
@@ -251,7 +272,13 @@ class KolibriTaskBarIcon:
             elif lparam == win32con.WM_RBUTTONUP:
                 self._show_menu()
             return 0
+        if msg == self._taskbar_created_msg:
+            logging.info("Explorer recreated the taskbar.")
+            self.restore_icon()
+            return 0
         if msg == win32con.WM_DESTROY:
+            # Destroy() unhooks this proc first, so this is never a clean exit.
+            logging.warning("The tray window was destroyed, removing the tray icon.")
             self._remove_icon()
         return win32gui.CallWindowProc(self._old_wndproc, hwnd, msg, wparam, lparam)
 
@@ -274,6 +301,7 @@ class KolibriTaskBarIcon:
             timeout: How long to show the notification (in seconds)
         """
         try:
+            self.restore_icon()
             nid = _new_nid(self.hwnd)
             nid.uFlags = NIF_INFO
             # szInfo/szInfoTitle are fixed WCHAR buffers (256/64); an over-long
@@ -395,13 +423,7 @@ class KolibriTaskBarIcon:
             return
 
         if is_webview2_installed():
-            # WebView2 is available, show/create the main window
-            main_window = self.app.view
-            if main_window:
-                self._show_window(main_window)
-            else:
-                # Create new window
-                self.app.create_kolibri_window()
+            self.app.show_or_create_ui()
         else:
             # WebView2 not available, open in default browser
             webbrowser.open(self.app.kolibri_url)
