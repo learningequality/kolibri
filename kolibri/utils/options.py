@@ -653,6 +653,15 @@ base_option_spec = {
             "deprecated_envvars": ("KOLIBRI_LISTEN_PORT",),
             "description": "Sets the port that Kolibri will serve on. This can be further overridden by command line arguments.",
         },
+        "ADVERTISED_HTTP_PORT": {
+            "type": "port",
+            "default": 0,
+            "description": """
+                Sets the port that Kolibri advertises in its URLs and network discovery broadcasts.
+                When running behind a proxy, set the value to the port that the proxy serves Kolibri on.
+                When 0, Kolibri advertises the port that it is serving on.
+            """,
+        },
         "RUN_MODE": {
             "type": "string",
             "description": "Used to flag non-user Kolibri instances",

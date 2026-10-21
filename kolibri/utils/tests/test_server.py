@@ -153,6 +153,18 @@ class TestZeroConfPlugin:
 
         zeroconf_plugin.STOP()
 
+    @pytest.mark.django_db(databases="__all__", transaction=True)
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
+    )
+    def test_broadcasts_advertised_port(self, mock_backend):
+        zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 8080)
+        with mock.patch.dict(OPTIONS["Deployment"], {"ADVERTISED_HTTP_PORT": 9000}):
+            zeroconf_plugin.SERVING(8080)
+            zeroconf_plugin.RUN()
+        (instance,), _kwargs = mock_backend.call_args
+        assert instance.port == 9000
+
     @mock.patch(
         "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
     )
@@ -207,6 +219,40 @@ class GetUrlsTestCase(TestCase):
         self.assertIn("http://10.0.0.5:1234/", urls)
         self.assertIn("http://kolibri.local:1234/", urls)
         self.assertIn("http://tonyslaptop.local:1234/", urls)
+
+    @mock.patch.object(server, "get_local_hostnames")
+    @mock.patch.object(server, "_get_local_ips")
+    def test_get_urls__port_80_omitted(self, mock_ips, mock_hostnames):
+        mock_ips.return_value = ["10.0.0.5"]
+        mock_hostnames.return_value = ["kolibri.local"]
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}):
+            _status, urls = server.get_urls(listen_port=80)
+        self.assertEqual(["http://10.0.0.5/", "http://kolibri.local/"], urls)
+
+    @mock.patch.object(server, "get_status", return_value=(None, None, 8080))
+    @mock.patch.object(server, "get_local_hostnames")
+    @mock.patch.object(server, "_get_local_ips")
+    def test_get_urls__advertised_port(self, mock_ips, mock_hostnames, _mock_status):
+        mock_ips.return_value = ["10.0.0.5"]
+        mock_hostnames.return_value = []
+        with mock.patch.dict(
+            OPTIONS["Deployment"],
+            {"LISTEN_ADDRESS": "0.0.0.0", "ADVERTISED_HTTP_PORT": 80},
+        ):
+            _status, urls = server.get_urls()
+        self.assertEqual(["http://10.0.0.5/"], urls)
+
+    @mock.patch.object(server, "get_local_hostnames")
+    @mock.patch.object(server, "_get_local_ips")
+    def test_get_urls__listen_port_uses_advertised_port(self, mock_ips, mock_hostnames):
+        mock_ips.return_value = ["10.0.0.5"]
+        mock_hostnames.return_value = []
+        with mock.patch.dict(
+            OPTIONS["Deployment"],
+            {"LISTEN_ADDRESS": "0.0.0.0", "ADVERTISED_HTTP_PORT": 80},
+        ):
+            _status, urls = server.get_urls(listen_port=8080)
+        self.assertEqual(["http://10.0.0.5/"], urls)
 
     @mock.patch.object(server, "get_local_hostnames")
     def test_get_urls__no_local_hostnames(self, mock_hostnames):
