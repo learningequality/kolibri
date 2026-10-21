@@ -1,22 +1,24 @@
 import logger from 'kolibri-logging';
+import { defaultBrandColors } from 'kolibri-design-system/lib/styles/colorsDefault';
 import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 import isObject from 'lodash/isObject';
 
 const logging = logger.getLogger(__filename);
 
-function _brandColorScaleValidator(value) {
-  if (!isObject(value)) {
-    logging.error(`Expected object but got '${value}'`);
-    return false;
-  }
-  const COLOR_NAMES = ['v_100', 'v_200', 'v_300', 'v_400', 'v_500', 'v_600'];
-  for (const colorName of COLOR_NAMES) {
-    if (!value[colorName]) {
-      logging.error(`${colorName} '${name}' not defined by theme`);
+function _brandColorScaleValidator(family) {
+  return function (value) {
+    if (!isObject(value)) {
+      logging.error(`Expected object but got '${value}'`);
       return false;
     }
-  }
-  return true;
+    for (const shade of Object.keys(defaultBrandColors[family])) {
+      if (!value[shade]) {
+        logging.error(`${family}.${shade} not defined by theme`);
+        return false;
+      }
+    }
+    return true;
+  };
 }
 
 const _imageSpec = {
@@ -69,12 +71,12 @@ export default {
       primary: {
         type: Object,
         required: true,
-        validator: _brandColorScaleValidator,
+        validator: _brandColorScaleValidator('primary'),
       },
       secondary: {
         type: Object,
         required: true,
-        validator: _brandColorScaleValidator,
+        validator: _brandColorScaleValidator('secondary'),
       },
     },
   },
