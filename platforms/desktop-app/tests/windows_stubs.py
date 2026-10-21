@@ -63,6 +63,7 @@ try:
         )
         taskbar_icon = importlib.import_module("kolibri_app.windows.taskbar_icon")
         windows_utils = importlib.import_module("kolibri_app.windows_utils")
+        stop_window = importlib.import_module("kolibri_app.windows.stop_window")
         application = importlib.import_module("kolibri_app.application")
 finally:
     for _name in _windows_modules:

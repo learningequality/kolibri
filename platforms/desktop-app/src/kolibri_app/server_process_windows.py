@@ -43,6 +43,7 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
+from kolibri_app.windows.stop_window import StopWindowPlugin
 from kolibri_app.windows_users import pipe_client_user_info
 
 # Named pipe for IPC between UI process and server subprocess
@@ -299,3 +300,5 @@ class WindowsKolibriProcess(KolibriProcess):
 
         self.ipc_plugin = WindowsIpcPlugin(self)
         self.ipc_plugin.subscribe()
+
+        StopWindowPlugin(self).subscribe()

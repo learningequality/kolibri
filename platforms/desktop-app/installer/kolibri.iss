@@ -441,6 +441,9 @@ begin
     Log('Applying common service configuration...');
     ExecChecked(NssmPath, 'set "{#ServiceName}" ObjectName "NT AUTHORITY\LocalService"', '', 'Set Service User to LocalService');
     ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
+    // NSSM posts WM_CLOSE to the server's hidden stop window, then terminates it
+    // after this many ms. The 1500 ms default is too short for a graceful stop.
+    ExecChecked(NssmPath, 'set "{#ServiceName}" AppStopMethodWindow 30000', '', 'Set Service Graceful Stop Timeout');
     ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Service');
     ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
 
