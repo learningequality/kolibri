@@ -1,9 +1,12 @@
 import os
+import socket
 import sys
 from contextlib import contextmanager
 from importlib import reload
+from types import SimpleNamespace
 from unittest import mock
 
+from configobj import ConfigObj
 from django.conf import settings
 from django.test.utils import TestContextDecorator
 from django.urls import clear_url_caches
@@ -70,3 +73,20 @@ def running_pid_file(port):
     finally:
         os.remove(server.PID_FILE)
 
+
+def fake_port_binds(monkeypatch):
+    recorded = SimpleNamespace(bound=[], errors={})
+
+    class FakeSocket(socket.socket):
+        def bind(self, address):
+            recorded.bound.append(address)
+            error = recorded.errors.get(address[1])
+            if error:
+                raise OSError(error, os.strerror(error))
+
+    monkeypatch.setattr(socket, "socket", FakeSocket)
+    return recorded
+
+
+def pinned_http_port(ini_path):
+    return ConfigObj(ini_path).get("Deployment", {}).get("HTTP_PORT")
