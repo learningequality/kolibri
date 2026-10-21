@@ -378,9 +378,9 @@ const ARABIC_INDIC_FIVE = '٥';
 const NARROW_NO_BREAK_SPACE = '\u202f';
 
 // Scores 1 when RESPONSE matches its correct response.
-function numericItemXml(correct, baseType = 'float') {
+function numericItemXml(correct, baseType = 'float', cardinality = 'single') {
   return `<qti-assessment-item>
-    <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="${baseType}">
+    <qti-response-declaration identifier="RESPONSE" cardinality="${cardinality}" base-type="${baseType}">
       <qti-correct-response><qti-value>${correct}</qti-value></qti-correct-response>
     </qti-response-declaration>
     <qti-outcome-declaration identifier="SCORE" cardinality="single" base-type="float">
@@ -505,6 +505,15 @@ describe('Numbers in the content language', () => {
       interactive: false,
     });
     expect(screen.getByTestId('text-entry-report')).toHaveTextContent(shown);
+  });
+
+  it('shows the first value of a multiple response in report mode', () => {
+    renderAssessmentItem(numericItemXml('1.5', 'float', 'multiple'), {
+      lang: 'fr',
+      answerState: { responses: { RESPONSE: [1.5, 2] } },
+      interactive: false,
+    });
+    expect(screen.getByTestId('text-entry-report')).toHaveTextContent(/^1,5$/);
   });
 
   it('toggles a minus written as U+2212 off with the negative-sign key', async () => {
