@@ -26,6 +26,7 @@ import sys
 import webbrowser
 from ctypes import wintypes
 from importlib.resources import files
+from threading import Thread
 
 import pywintypes
 import win32api
@@ -77,6 +78,11 @@ NIIF_LARGE_ICON = 0x20
 # ChangeWindowMessageFilterEx action
 MSGFLT_ALLOW = 1
 
+# SHELLEXECUTEINFOW.fMask: return the started process in hProcess
+SEE_MASK_NOCLOSEPROCESS = 0x40
+
+INFINITE = 0xFFFFFFFF
+
 
 class _NOTIFYICONDATAW(ctypes.Structure):
     _fields_ = [
@@ -99,6 +105,62 @@ class _NOTIFYICONDATAW(ctypes.Structure):
         ("guidItem", ctypes.c_byte * 16),
         ("hBalloonIcon", wintypes.HICON),
     ]
+
+
+class _SHELLEXECUTEINFOW(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", wintypes.DWORD),
+        ("fMask", wintypes.ULONG),
+        ("hwnd", wintypes.HWND),
+        ("lpVerb", wintypes.LPCWSTR),
+        ("lpFile", wintypes.LPCWSTR),
+        ("lpParameters", wintypes.LPCWSTR),
+        ("lpDirectory", wintypes.LPCWSTR),
+        ("nShow", ctypes.c_int),
+        ("hInstApp", wintypes.HINSTANCE),
+        ("lpIDList", ctypes.c_void_p),
+        ("lpClass", wintypes.LPCWSTR),
+        ("hkeyClass", wintypes.HKEY),
+        ("dwHotKey", wintypes.DWORD),
+        ("hIconOrMonitor", wintypes.HANDLE),
+        ("hProcess", wintypes.HANDLE),
+    ]
+
+
+def _run_elevated(args):
+    """Start this app as administrator with `args`.
+
+    Returns the process handle, which the caller must close, or None if the
+    process did not start, e.g. because the user declined the UAC prompt.
+    """
+    if not getattr(sys, "frozen", False):
+        args = f"-m kolibri_app {args}"
+    info = _SHELLEXECUTEINFOW()
+    info.cbSize = ctypes.sizeof(_SHELLEXECUTEINFOW)
+    info.fMask = SEE_MASK_NOCLOSEPROCESS
+    info.lpVerb = "runas"
+    info.lpFile = sys.executable
+    info.lpParameters = args
+    info.nShow = win32con.SW_SHOWNORMAL
+    if not ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(info)):
+        logging.error(
+            f"Failed to start elevated command. Error: {win32api.GetLastError()}"
+        )
+        return None
+    return wintypes.HANDLE(info.hProcess)
+
+
+def _wait_for_exit_code(process):
+    """Block until `process` exits, close its handle and return its exit code."""
+    kernel32 = ctypes.windll.kernel32
+    try:
+        kernel32.WaitForSingleObject(process, INFINITE)
+        exit_code = wintypes.DWORD()
+        if not kernel32.GetExitCodeProcess(process, ctypes.byref(exit_code)):
+            return None
+        return exit_code.value
+    finally:
+        kernel32.CloseHandle(process)
 
 
 _shell_notify_icon = ctypes.windll.shell32.Shell_NotifyIconW
@@ -453,27 +515,15 @@ class KolibriTaskBarIcon:
                 _("Failed to change the Kolibri App startup setting"),
             )
 
-    def _run_elevated(self, args):
-        if not getattr(sys, "frozen", False):
-            args = f"-m kolibri_app {args}"
-        return ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, args, None, 1
-        )
-
     def on_toggle_service_startup(self, event):
         """Handle toggling the service start type with a UAC prompt."""
         is_auto_start_enabled = event.IsChecked()
         new_state = "auto" if is_auto_start_enabled else "disabled"
 
         try:
-            shell_execute_result = self._run_elevated(
-                f"--configure-service {new_state}"
-            )
+            process = _run_elevated(f"--configure-service {new_state}")
 
-            if shell_execute_result <= 32:
-                logging.error(
-                    f"Failed to elevate for service configuration. Code: {shell_execute_result}"
-                )
+            if process is None:
                 self.run_on_start_item.Check(not is_auto_start_enabled)
                 wx.MessageBox(
                     _("Administrator permissions are required to change this setting."),
@@ -481,6 +531,9 @@ class KolibriTaskBarIcon:
                     wx.OK | wx.ICON_ERROR,
                 )
                 return
+
+            # The start type is verified by polling, not by the exit code.
+            ctypes.windll.kernel32.CloseHandle(process)
 
             # Schedule verification and tray icon configuration
             wx.CallLater(
@@ -537,13 +590,24 @@ class KolibriTaskBarIcon:
         if answer != wx.OK:
             return
 
-        shell_execute_result = self._run_elevated("--restart-service")
-        if shell_execute_result <= 32:
-            logging.error(
-                f"Failed to elevate for service restart. Code: {shell_execute_result}"
-            )
+        process = _run_elevated("--restart-service")
+        if process is None:
             wx.MessageBox(
                 _("Administrator permissions are required to change this setting."),
+                _("Error"),
+                wx.OK | wx.ICON_ERROR,
+            )
+            return
+        # The restart waits for a graceful stop, so don't block the UI on it.
+        Thread(target=self._wait_for_restart, args=(process,), daemon=True).start()
+
+    def _wait_for_restart(self, process):
+        exit_code = _wait_for_exit_code(process)
+        if exit_code != 0:
+            logging.error(f"The service restart failed. Exit code: {exit_code}")
+            wx.CallAfter(
+                wx.MessageBox,
+                _("The Kolibri service could not be restarted."),
                 _("Error"),
                 wx.OK | wx.ICON_ERROR,
             )

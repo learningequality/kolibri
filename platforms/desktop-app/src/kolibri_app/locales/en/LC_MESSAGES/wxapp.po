@@ -3,11 +3,12 @@
 # This file is distributed under the same license as the kolibri-app package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 11:04-0700\n"
+"POT-Creation-Date: 2026-10-21 13:14-0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Learning Equality <dev@learningequality.org>\n"
@@ -44,7 +45,7 @@ msgid "© %(year)s Learning Equality"
 msgstr "© %(year)s Learning Equality"
 
 #: src/kolibri_app/about_dialog.py:64
-#: src/kolibri_app/windows/taskbar_icon.py:382
+#: src/kolibri_app/windows/taskbar_icon.py:472
 msgid "Close"
 msgstr "Close"
 
@@ -128,23 +129,23 @@ msgstr "Help"
 msgid "Save file"
 msgstr "Save file"
 
-#: src/kolibri_app/windows/taskbar_icon.py:301
+#: src/kolibri_app/windows/taskbar_icon.py:391
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: src/kolibri_app/windows/taskbar_icon.py:301
+#: src/kolibri_app/windows/taskbar_icon.py:391
 msgid "Kolibri is starting... Please wait."
 msgstr "Kolibri is starting... Please wait."
 
-#: src/kolibri_app/windows/taskbar_icon.py:308
+#: src/kolibri_app/windows/taskbar_icon.py:398
 msgid "Kolibri is running"
 msgstr "Kolibri is running"
 
-#: src/kolibri_app/windows/taskbar_icon.py:309
+#: src/kolibri_app/windows/taskbar_icon.py:399
 msgid "Kolibri is ready"
 msgstr "Kolibri is ready"
 
-#: src/kolibri_app/windows/taskbar_icon.py:316
+#: src/kolibri_app/windows/taskbar_icon.py:406
 #, python-brace-format
 msgid ""
 "Kolibri failed to start.\n"
@@ -153,101 +154,106 @@ msgstr ""
 "Kolibri failed to start.\n"
 "Check logs at: {}"
 
-#: src/kolibri_app/windows/taskbar_icon.py:318
+#: src/kolibri_app/windows/taskbar_icon.py:408
 msgid "Kolibri is experiencing an error"
 msgstr "Kolibri is experiencing an error"
 
-#: src/kolibri_app/windows/taskbar_icon.py:346
+#: src/kolibri_app/windows/taskbar_icon.py:436
 msgid "Open Kolibri App"
 msgstr "Open Kolibri App"
 
-#: src/kolibri_app/windows/taskbar_icon.py:354
+#: src/kolibri_app/windows/taskbar_icon.py:444
 msgid "Open Kolibri App after sign in"
 msgstr "Open Kolibri App after sign in"
 
-#: src/kolibri_app/windows/taskbar_icon.py:361
+#: src/kolibri_app/windows/taskbar_icon.py:451
 msgid "Run Kolibri service on Windows startup"
 msgstr "Run Kolibri service on Windows startup"
 
-#: src/kolibri_app/windows/taskbar_icon.py:369
+#: src/kolibri_app/windows/taskbar_icon.py:459
 msgid "Run Kolibri service on Windows startup (Unavailable)"
 msgstr "Run Kolibri service on Windows startup (Unavailable)"
 
-#: src/kolibri_app/windows/taskbar_icon.py:376
-#: src/kolibri_app/windows/taskbar_icon.py:512
+#: src/kolibri_app/windows/taskbar_icon.py:466
+#: src/kolibri_app/windows/taskbar_icon.py:587
 msgid "Restart Kolibri service"
 msgstr "Restart Kolibri service"
 
-#: src/kolibri_app/windows/taskbar_icon.py:391
+#: src/kolibri_app/windows/taskbar_icon.py:481
 msgid "Kolibri service is not ready yet"
 msgstr "Kolibri service is not ready yet"
 
-#: src/kolibri_app/windows/taskbar_icon.py:392
+#: src/kolibri_app/windows/taskbar_icon.py:482
 msgid "Info"
 msgstr "Info"
 
 #. i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
-#: src/kolibri_app/windows/taskbar_icon.py:415
-#: src/kolibri_app/windows/taskbar_icon.py:487
+#: src/kolibri_app/windows/taskbar_icon.py:499
+#: src/kolibri_app/windows/taskbar_icon.py:562
 msgid "enabled"
 msgstr "enabled"
 
 #. i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
-#: src/kolibri_app/windows/taskbar_icon.py:418
-#: src/kolibri_app/windows/taskbar_icon.py:487
+#: src/kolibri_app/windows/taskbar_icon.py:502
+#: src/kolibri_app/windows/taskbar_icon.py:562
 msgid "disabled"
 msgstr "disabled"
 
-#: src/kolibri_app/windows/taskbar_icon.py:421
+#: src/kolibri_app/windows/taskbar_icon.py:505
 msgid "Kolibri App Setting Updated"
 msgstr "Kolibri App Setting Updated"
 
-#: src/kolibri_app/windows/taskbar_icon.py:422
+#: src/kolibri_app/windows/taskbar_icon.py:506
 #, python-brace-format
 msgid "Opening Kolibri App after sign in has been {}"
 msgstr "Opening Kolibri App after sign in has been {}"
 
-#: src/kolibri_app/windows/taskbar_icon.py:430
+#: src/kolibri_app/windows/taskbar_icon.py:514
 msgid "Kolibri App Setting Error"
 msgstr "Kolibri App Setting Error"
 
-#: src/kolibri_app/windows/taskbar_icon.py:431
+#: src/kolibri_app/windows/taskbar_icon.py:515
 msgid "Failed to change the Kolibri App startup setting"
 msgstr "Failed to change the Kolibri App startup setting"
 
-#: src/kolibri_app/windows/taskbar_icon.py:457
-#: src/kolibri_app/windows/taskbar_icon.py:524
+#: src/kolibri_app/windows/taskbar_icon.py:529
+#: src/kolibri_app/windows/taskbar_icon.py:596
 msgid "Administrator permissions are required to change this setting."
 msgstr "Administrator permissions are required to change this setting."
 
-#: src/kolibri_app/windows/taskbar_icon.py:458
-#: src/kolibri_app/windows/taskbar_icon.py:475
-#: src/kolibri_app/windows/taskbar_icon.py:525
+#: src/kolibri_app/windows/taskbar_icon.py:530
+#: src/kolibri_app/windows/taskbar_icon.py:550
+#: src/kolibri_app/windows/taskbar_icon.py:597
+#: src/kolibri_app/windows/taskbar_icon.py:611
 msgid "Error"
 msgstr "Error"
 
-#: src/kolibri_app/windows/taskbar_icon.py:474
+#: src/kolibri_app/windows/taskbar_icon.py:549
 #, python-brace-format
 msgid "An error occurred while changing the service setting: {}"
 msgstr "An error occurred while changing the service setting: {}"
 
-#: src/kolibri_app/windows/taskbar_icon.py:489
+#: src/kolibri_app/windows/taskbar_icon.py:564
 msgid "Kolibri Service Updated"
 msgstr "Kolibri Service Updated"
 
-#: src/kolibri_app/windows/taskbar_icon.py:490
+#: src/kolibri_app/windows/taskbar_icon.py:565
 #, python-brace-format
 msgid "Automatic startup has been {}."
 msgstr "Automatic startup has been {}."
 
-#: src/kolibri_app/windows/taskbar_icon.py:503
+#: src/kolibri_app/windows/taskbar_icon.py:578
 msgid "Kolibri Service Error"
 msgstr "Kolibri Service Error"
 
-#: src/kolibri_app/windows/taskbar_icon.py:504
+#: src/kolibri_app/windows/taskbar_icon.py:579
 msgid "Failed to update the service startup setting."
 msgstr "Failed to update the service startup setting."
 
-#: src/kolibri_app/windows/taskbar_icon.py:510
+#: src/kolibri_app/windows/taskbar_icon.py:585
 msgid "Anyone using Kolibri on this server right now will temporarily be unable to use it."
 msgstr "Anyone using Kolibri on this server right now will temporarily be unable to use it."
+
+#: src/kolibri_app/windows/taskbar_icon.py:610
+msgid "The Kolibri service could not be restarted."
+msgstr "The Kolibri service could not be restarted."
