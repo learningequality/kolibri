@@ -10,6 +10,7 @@ import tempfile
 from unittest import mock
 
 import pytest
+from configobj import ConfigObj
 
 from kolibri.utils import options
 
@@ -330,6 +331,94 @@ def test_option_writing():
         OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
+
+
+@pytest.mark.parametrize(
+    "ini_content,expected",
+    [
+        ("\n", {"HTTP_PORT": "8080"}),
+        (
+            "[Deployment]\nLISTEN_ADDRESS = 10.0.0.5\n",
+            {"LISTEN_ADDRESS": "10.0.0.5", "HTTP_PORT": "8080"},
+        ),
+    ],
+)
+def test_option_writing_ignores_envvar_overrides(ini_content, expected):
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "w") as f:
+        f.write(ini_content)
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"],
+            "KOLIBRI_LISTEN_ADDRESS": "127.0.0.1",
+        },
+        clear=True,
+    ):
+        options.update_options_file(
+            "Deployment", "HTTP_PORT", 8080, ini_filename=tmp_ini_path
+        )
+
+    assert ConfigObj(tmp_ini_path)["Deployment"] == expected
+
+
+def test_option_writing_replaces_deprecated_alias():
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Cache]\nCACHE_REDIS_MIN_DB = 3\n")
+
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        options.update_options_file(
+            "Cache", "CACHE_REDIS_DB", 5, ini_filename=tmp_ini_path
+        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+
+    assert ConfigObj(tmp_ini_path)["Cache"] == {"CACHE_REDIS_DB": "5"}
+    assert OPTIONS["Cache"]["CACHE_REDIS_DB"] == 5
+
+
+def test_option_writing_tolerates_invalid_value_overridden_by_envvar():
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "w") as f:
+        f.write("[Deployment]\nHTTP_PORT = notaport\n")
+
+    with mock.patch.dict(
+        os.environ,
+        {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"], "KOLIBRI_HTTP_PORT": "8080"},
+        clear=True,
+    ):
+        options.update_options_file(
+            "Deployment", "LISTEN_ADDRESS", "10.0.0.5", ini_filename=tmp_ini_path
+        )
+
+    assert ConfigObj(tmp_ini_path)["Deployment"] == {
+        "HTTP_PORT": "notaport",
+        "LISTEN_ADDRESS": "10.0.0.5",
+    }
+
+
+def test_option_writing_keeps_unknown_options():
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "w") as f:
+        f.write(
+            "[Deployment]\nURL_PATH_PREFIX = /\nMISSPELT = 1\n\n"
+            "[OpenSearch]\nHOST = search.local\n"
+        )
+
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        options.update_options_file(
+            "Deployment", "HTTP_PORT", 8000, ini_filename=tmp_ini_path
+        )
+
+    assert ConfigObj(tmp_ini_path) == {
+        "Deployment": {"URL_PATH_PREFIX": "/", "MISSPELT": "1", "HTTP_PORT": "8000"},
+        "OpenSearch": {"HOST": "search.local"},
+    }
 
 
 def test_path_expansion():
