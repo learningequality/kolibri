@@ -1,11 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
-import { createTranslator } from 'kolibri/utils/i18n';
-import SelectedLanguage from '../SelectedLanguage';
+import SelectedLanguage, { selectedLanguageStrings } from '../SelectedLanguage';
 
-const { changeLanguageButtonLabel$ } = createTranslator(
-  SelectedLanguage.name,
-  SelectedLanguage.$trs,
-);
+const { changeLanguageButtonLabel$ } = selectedLanguageStrings;
 
 const selectedLanguage = {
   id: 'en',
@@ -25,7 +21,6 @@ describe('SelectedLanguage', () => {
       name: changeLanguageButtonLabel$({ language: 'English' }),
     });
 
-    expect(control).toBeInTheDocument();
     expect(control).not.toHaveAttribute('aria-hidden');
     expect(control).not.toHaveAttribute('tabindex', '-1');
   });
@@ -38,6 +33,6 @@ describe('SelectedLanguage', () => {
     });
     await fireEvent.click(control);
 
-    expect(emitted().click).toBeTruthy();
+    expect(emitted().click).toHaveLength(1);
   });
 });

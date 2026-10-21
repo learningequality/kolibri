@@ -21,26 +21,30 @@
 
 <script>
 
+  import { computed } from 'vue';
+  import { createTranslator } from 'kolibri/utils/i18n';
+
+  export const selectedLanguageStrings = createTranslator('SelectedLanguage', {
+    changeLanguageButtonLabel: {
+      message: 'Change language, currently {language}',
+      context:
+        'Accessible label for the control that opens the language switcher, stating the currently selected interface language.',
+    },
+  });
+
   export default {
     name: 'SelectedLanguage',
+    setup(props) {
+      const { changeLanguageButtonLabel$ } = selectedLanguageStrings;
+      const changeLanguageLabel = computed(() =>
+        changeLanguageButtonLabel$({ language: props.selectedLanguage.lang_name }),
+      );
+      return { changeLanguageLabel };
+    },
     props: {
       selectedLanguage: {
         type: Object,
         required: true,
-      },
-    },
-    computed: {
-      changeLanguageLabel() {
-        return this.$tr('changeLanguageButtonLabel', {
-          language: this.selectedLanguage.lang_name,
-        });
-      },
-    },
-    $trs: {
-      changeLanguageButtonLabel: {
-        message: 'Change language, currently {language}',
-        context:
-          'Accessible label for the control that opens the language switcher, stating the currently selected interface language.',
       },
     },
   };
