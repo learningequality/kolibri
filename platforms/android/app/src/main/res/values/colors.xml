@@ -2,4 +2,5 @@
 <resources>
     <color name="brand_primary">#4368F5</color>
     <color name="brand_secondary">#FFCB00</color>
+    <color name="server_chip_stroke">#757575</color>
 </resources>

@@ -27,6 +27,8 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -34,10 +36,17 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Lifecycle;
 import com.chaquo.python.Python;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
+import org.learningequality.Kolibri.discovery.DiscoveredServer;
+import org.learningequality.Kolibri.discovery.ServerDiscovery;
 import org.learningequality.Kolibri.util.FileChooserUtils;
 import org.learningequality.Kolibri.util.PickedFiles;
 
@@ -61,6 +70,12 @@ public class WebViewActivity extends AppCompatActivity {
   private KolibriJavascriptBridge bridge;
   private FrameLayout fullscreenContainer;
   private View splashContainer;
+  private Chip serverChip;
+  private ServerSheet serverSheet;
+  @Nullable private ServerSheet launchSheet;
+  private boolean discovering;
+  private boolean routeWhenFound;
+  @Nullable private Runnable pendingLaunchRoute;
   private boolean shouldClearHistory;
 
   /**
@@ -70,9 +85,35 @@ public class WebViewActivity extends AppCompatActivity {
   private String pendingRestoreLocation;
 
   private boolean mainFrameLoadFailed;
+  private DiscoveredServer currentServer;
   private ValueCallback<Uri[]> pendingFilePickerCallback;
   private ActivityResultLauncher<String[]> filePickerLauncher;
   private final ExecutorService fileExecutor = Executors.newCachedThreadPool();
+
+  private final ServerSheet.Listener serverSheetListener =
+      new ServerSheet.Listener() {
+        @Override
+        public void onLocal() {
+          if (currentServer != null
+              || !ServerSelection.LOCAL.equals(ServerSelection.get(WebViewActivity.this))) {
+            showLocal();
+          } else if (mainFrameLoadFailed) {
+            reloadLocal();
+          }
+        }
+
+        @Override
+        public void onRemote(DiscoveredServer server) {
+          if (mainFrameLoadFailed || !server.equals(currentServer)) {
+            showRemote(server);
+          }
+        }
+
+        @Override
+        public void onSearch() {
+          discoverServers();
+        }
+      };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -84,19 +125,33 @@ public class WebViewActivity extends AppCompatActivity {
     requestLegacyStoragePermission();
     setupSplash();
     setupWebView();
+    setupServerChip();
     setupBackNavigation();
     loadKolibri();
+    if (ServerSelection.LOCAL.equals(ServerSelection.get(this))) {
+      discoverServers();
+    } else {
+      discoverAtLaunch();
+    }
   }
 
   @Override
   protected void onStart() {
     super.onStart();
-    // Restart the server service if Android stopped it while the app was idle
-    startService(new Intent(this, KolibriServerService.class));
+    if (pendingLaunchRoute != null) {
+      Runnable launchRoute = pendingLaunchRoute;
+      pendingLaunchRoute = null;
+      launchRoute.run();
+    }
+    if (ServerSelection.LOCAL.equals(ServerSelection.get(this))) {
+      // Restart the server service if Android stopped it while the app was idle
+      startService(new Intent(this, KolibriServerService.class));
+    }
     // LiveData does not re-deliver an unchanged value on returning to STARTED, so nothing else
     // would thaw a page whose server never went away.
-    if (Boolean.TRUE.equals(
-        KolibriServerViewModel.getInstance().getServerReadyLiveData().getValue())) {
+    if (currentServer != null
+        || Boolean.TRUE.equals(
+            KolibriServerViewModel.getInstance().getServerReadyLiveData().getValue())) {
       resumeWebView();
     }
   }
@@ -105,6 +160,7 @@ public class WebViewActivity extends AppCompatActivity {
   protected void onStop() {
     super.onStop();
     pauseWebView();
+    CookieManager.getInstance().flush();
   }
 
   /**
@@ -244,10 +300,10 @@ public class WebViewActivity extends AppCompatActivity {
     settings.setDomStorageEnabled(true);
     settings.setJavaScriptEnabled(true);
 
-    // Local HTTP server only — no mixed content needed
+    // Kolibri servers are plain HTTP — no mixed content needed
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
-    // No file:// or content:// access needed — Kolibri loads via http://127.0.0.1
+    // No file:// or content:// access needed — Kolibri loads via http://
     settings.setAllowFileAccess(false);
     settings.setAllowContentAccess(false);
 
@@ -273,8 +329,7 @@ public class WebViewActivity extends AppCompatActivity {
           @Override
           public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
-            String host = uri.getHost();
-            if (LOOPBACK_IP.equals(host) || LOCALHOST.equals(host)) {
+            if (loadsInApp(uri.getHost())) {
               return false;
             }
             try {
@@ -313,8 +368,8 @@ public class WebViewActivity extends AppCompatActivity {
               view.clearHistory();
               shouldClearHistory = false;
             }
-            // Hide splash when a real localhost page finishes loading
-            if (url != null && !url.startsWith("data:")) {
+            // Hide splash when a real Kolibri page finishes loading
+            if (url != null && loadsInApp(Uri.parse(url).getHost())) {
               hideSplash();
             }
             String restoreUrl = WebViewLocation.restoreUrlFor(url, pendingRestoreLocation);
@@ -432,10 +487,6 @@ public class WebViewActivity extends AppCompatActivity {
   private void loadKolibri() {
     Log.d(TAG, "Loading Kolibri");
 
-    // Start server service
-    Intent serverIntent = new Intent(this, KolibriServerService.class);
-    startService(serverIntent);
-
     // Observe server readiness from singleton
     // Note: Using getInstance() not ViewModelProvider to ensure we observe
     // the same instance that Python updates via setServerReady()
@@ -447,7 +498,7 @@ public class WebViewActivity extends AppCompatActivity {
             this,
             ready -> {
               // A foregrounded page is left running; only onStop freezes it.
-              if (!ready) {
+              if (!ready || currentServer != null) {
                 return;
               }
               // Resume before loading — loadUrl on a paused WebView is not reliable.
@@ -484,7 +535,7 @@ public class WebViewActivity extends AppCompatActivity {
    */
   @VisibleForTesting
   void loadIfOriginChanged(String url, String restoreLocation) {
-    if (webView == null) {
+    if (webView == null || currentServer != null) {
       return;
     }
     if (!mainFrameLoadFailed && WebViewLocation.isSameOrigin(webView.getUrl(), url)) {
@@ -497,16 +548,181 @@ public class WebViewActivity extends AppCompatActivity {
     webView.loadUrl(url);
   }
 
+  void showRemote(DiscoveredServer server) {
+    ServerSelection.selectRemote(this, server);
+    currentServer = server;
+    shouldClearHistory = true;
+    pendingRestoreLocation = null;
+    stopService(new Intent(this, KolibriServerService.class));
+    resumeWebView();
+    webView.loadUrl(server.getBaseUrl());
+    updateServerChip();
+  }
+
+  void showLocal() {
+    ServerSelection.selectLocal(this);
+    if (currentServer != null) {
+      showSplash();
+      webView.loadUrl("about:blank");
+    }
+    currentServer = null;
+    shouldClearHistory = true;
+    pendingRestoreLocation = null;
+    startService(new Intent(this, KolibriServerService.class));
+    updateServerChip();
+  }
+
+  private void reloadLocal() {
+    startService(new Intent(this, KolibriServerService.class));
+    if (Boolean.TRUE.equals(
+        KolibriServerViewModel.getInstance().getServerReadyLiveData().getValue())) {
+      loadInitializeUrl();
+    }
+  }
+
+  /** The remote server the WebView shows, or {@code null} when it shows this device's. */
+  @VisibleForTesting
+  DiscoveredServer currentServer() {
+    return currentServer;
+  }
+
+  private boolean loadsInApp(String host) {
+    return LOOPBACK_IP.equals(host)
+        || LOCALHOST.equals(host)
+        || (currentServer != null && currentServer.getIp().equals(host));
+  }
+
+  private void setupServerChip() {
+    serverChip = findViewById(R.id.server_chip);
+    serverChip.setOnClickListener(v -> openServerSheet());
+    updateServerChip();
+    serverSheet = new ServerSheet(this, R.string.server_local, true, serverSheetListener);
+  }
+
+  private void updateServerChip() {
+    String name =
+        currentServer == null ? getString(R.string.server_local) : currentServer.getDeviceName();
+    serverChip.setText(name);
+    serverChip.setContentDescription(getString(R.string.server_chip_description, name));
+  }
+
+  private void openServerSheet() {
+    discoverServers();
+    serverSheet.show(ServerSelection.get(this));
+  }
+
+  private void discoverServers() {
+    serverSheet.setSearching();
+    if (launchSheet != null) {
+      launchSheet.setSearching();
+    }
+    if (discovering) {
+      return;
+    }
+    discovering = true;
+    String awaitedInstanceId = routeWhenFound ? ServerSelection.get(this) : null;
+    ServerDiscovery.getInstance(this)
+        .discover(awaitedInstanceId, found -> runOnUiThread(() -> onServersDiscovered(found)));
+  }
+
+  private void onServersDiscovered(@Nullable List<DiscoveredServer> found) {
+    if (isDestroyed()) {
+      return;
+    }
+    discovering = false;
+    serverSheet.showFound(found);
+    if (launchSheet != null) {
+      launchSheet.showFound(found);
+    }
+    if (routeWhenFound) {
+      routeWhenFound = false;
+      Runnable launchRoute = () -> routeLaunch(found);
+      if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+        launchRoute.run();
+      } else {
+        pendingLaunchRoute = launchRoute;
+      }
+    }
+  }
+
+  private void routeLaunch(@Nullable List<DiscoveredServer> found) {
+    if (found == null && ServerSelection.get(this) == null) {
+      showSearchFailed();
+    } else {
+      route(found == null ? Collections.emptyList() : found);
+    }
+  }
+
+  private void discoverAtLaunch() {
+    routeWhenFound = true;
+    discoverServers();
+  }
+
+  private void route(List<DiscoveredServer> found) {
+    LaunchRoute route = LaunchRoute.of(ServerSelection.get(this), found);
+    switch (route.getKind()) {
+      case LOCAL:
+        showLocal();
+        break;
+      case REMOTE:
+        showRemote(route.getServer());
+        break;
+      case PICK:
+        showLaunchSheet(R.string.start_my_own_kolibri, route.getServers());
+        break;
+      case UNREACHABLE:
+        showUnreachable(found);
+        break;
+    }
+  }
+
+  private void showLaunchSheet(@StringRes int localLabel, List<DiscoveredServer> servers) {
+    launchSheet = new ServerSheet(this, localLabel, false, serverSheetListener);
+    launchSheet.setServers(servers);
+    launchSheet.show(null);
+  }
+
+  private void showUnreachable(List<DiscoveredServer> found) {
+    new MaterialAlertDialogBuilder(this)
+        .setMessage(getString(R.string.server_unreachable, ServerSelection.getRemoteName(this)))
+        .setCancelable(false)
+        .setPositiveButton(R.string.server_unreachable_try_again, (d, w) -> discoverAtLaunch())
+        .setNeutralButton(
+            R.string.server_unreachable_choose_another,
+            (d, w) -> showLaunchSheet(R.string.server_local, found))
+        .setNegativeButton(R.string.server_unreachable_use_local, (d, w) -> showLocal())
+        .show();
+  }
+
+  private void showSearchFailed() {
+    new MaterialAlertDialogBuilder(this)
+        .setMessage(R.string.server_search_failed)
+        .setCancelable(false)
+        .setPositiveButton(R.string.server_unreachable_try_again, (d, w) -> discoverAtLaunch())
+        .setNegativeButton(R.string.start_my_own_kolibri, (d, w) -> showLocal())
+        .show();
+  }
+
+  private void showSplash() {
+    splashContainer.setVisibility(View.VISIBLE);
+    serverChip.setVisibility(View.GONE);
+  }
+
   /** Hide the splash screen */
   private void hideSplash() {
     if (splashContainer != null && splashContainer.getVisibility() == View.VISIBLE) {
       splashContainer.setVisibility(View.GONE);
     }
+    serverChip.setVisibility(View.VISIBLE);
   }
 
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    serverSheet.dismiss();
+    if (launchSheet != null) {
+      launchSheet.dismiss();
+    }
 
     // Destroy WebView
     if (webView != null) {
