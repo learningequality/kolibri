@@ -37,7 +37,11 @@ from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
+from kolibri.core.device.models import DeviceAppKey
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser
+from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
+from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
@@ -53,6 +57,9 @@ from ..constants import role_kinds
 from ..constants.facility_presets import mappings
 from ..models import Facility
 from ..viewsets.membership import _prepare_for_bulk_create
+from .helpers import clear_process_cache
+from .helpers import create_os_user
+from .helpers import create_privileged_os_users
 from .helpers import create_superuser
 from .helpers import disable_picture_password
 from .helpers import DUMMY_PASSWORD
@@ -1929,6 +1936,12 @@ class FacilitySearchUsernameTestCase(APITestCase):
         )
         cls.facility.add_admin(admin)
         create_superuser(cls.facility, username="learner_superuser")
+        cls.content_manager = FacilityUserFactory.create(
+            facility=cls.facility, username="content_manager"
+        )
+        DevicePermissions.objects.create(
+            user=cls.content_manager, can_manage_content=True
+        )
 
         # Duplicate username in a second facility, so only the facility filter
         # can keep it out of the results.
@@ -1954,6 +1967,14 @@ class FacilitySearchUsernameTestCase(APITestCase):
         response = self._search(facility=self.facility.id, search="learner_2")
         self.assertEqual(
             response.data, [{"id": self.learner_2.id, "username": "learner_2"}]
+        )
+
+    def test_passwordless_facility_finds_content_manager(self):
+        disable_picture_password(self.facility, passwordless=True)
+        response = self._search(facility=self.facility.id, search="content_manager")
+        self.assertEqual(
+            response.data,
+            [{"id": self.content_manager.id, "username": "content_manager"}],
         )
 
     def test_password_facility_exact_match_returns_null_id(self):
@@ -2205,6 +2226,148 @@ class LoginLogoutTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
+
+    def test_not_specified_password_picture_learner(self):
+        enable_picture_password(self.facility)
+        dataset = self.facility.dataset
+        dataset.learner_can_login_with_no_password = False
+        dataset.save()
+        self.user.password = demographics.NOT_SPECIFIED
+        self.user.picture_password = "1.2.3"
+        self.user.save()
+        data = {"username": self.user.username, "facility": self.facility.id}
+
+        response = self.client.post(
+            reverse("kolibri:core:session-list"), data=data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
+
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={**data, "password": DUMMY_PASSWORD},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.data[0]["id"], error_constants.INVALID_CREDENTIALS)
+
+
+class OSUserSessionTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+
+    def _post_from_app(self, os_username, url_name, data):
+        self.client.logout()
+        if os_username is not None:
+            self.client.cookies[APP_KEY_COOKIE_NAME] = DeviceAppKey.get_app_key()
+            self.client.cookies[APP_AUTH_TOKEN_COOKIE_NAME] = "test"
+        with patch(
+            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
+            return_value=(os_username, False),
+        ):
+            return self.client.post(reverse(url_name), data=data, format="json")
+
+    def _sign_in_as_os_user(self, user, **data):
+        return self._post_from_app(
+            user.os_user.os_username,
+            "kolibri:core:session-list",
+            {"username": user.username, "facility": self.facility.id, **data},
+        )
+
+    def _set_password(self, user, os_username):
+        return self._post_from_app(
+            os_username,
+            "kolibri:core:setnonspecifiedpassword",
+            {
+                "username": user.username,
+                "password": "newpassword",
+                "facility": self.facility.id,
+            },
+        )
+
+    def _assert_signs_in(self, user, **data):
+        response = self._sign_in_as_os_user(user, **data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], user.id)
+
+    def test_privileged_os_user_needs_password_on_full_facility_device(self):
+        for user in create_privileged_os_users(self.facility):
+            with self.subTest(username=user.username):
+                response = self._sign_in_as_os_user(user)
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(
+                    response.data[0]["id"], error_constants.MISSING_PASSWORD
+                )
+                self._assert_signs_in(user, password=DUMMY_PASSWORD)
+
+    def _assert_privileged_os_users_set_unspecified_password(self):
+        for user in create_privileged_os_users(self.facility):
+            with self.subTest(username=user.username):
+                user.password = demographics.NOT_SPECIFIED
+                user.save()
+                response = self._sign_in_as_os_user(user)
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(
+                    response.data[0]["id"], error_constants.PASSWORD_NOT_SPECIFIED
+                )
+                response = self._set_password(user, user.os_user.os_username)
+                self.assertEqual(response.status_code, 200)
+                self._assert_signs_in(user, password="newpassword")
+
+    def test_privileged_os_user_sets_unspecified_password_on_full_facility_device(
+        self,
+    ):
+        self._assert_privileged_os_users_set_unspecified_password()
+
+    def test_privileged_os_user_sets_unspecified_password_in_picture_password_facility(
+        self,
+    ):
+        enable_picture_password(self.facility)
+        self._assert_privileged_os_users_set_unspecified_password()
+
+    def test_privileged_os_user_sets_password_only_from_own_app_session(self):
+        superuser = create_privileged_os_users(self.facility)[0]
+        superuser.password = demographics.NOT_SPECIFIED
+        superuser.save()
+        for os_username in (None, "another_os_account"):
+            with self.subTest(os_username=os_username):
+                if os_username is not None:
+                    response = self._post_from_app(
+                        os_username,
+                        "kolibri:core:session-list",
+                        {"username": superuser.username, "facility": self.facility.id},
+                    )
+                    self.assertEqual(
+                        response.data[0]["id"], error_constants.MISSING_PASSWORD
+                    )
+                response = self._set_password(superuser, os_username)
+                self.assertEqual(response.status_code, 404)
+                superuser.refresh_from_db()
+                self.assertEqual(superuser.password, demographics.NOT_SPECIFIED)
+
+    def test_os_learner_signs_in_without_password_on_full_facility_device(self):
+        learner = create_os_user(self.facility, "os_learner")
+        self._assert_signs_in(learner)
+
+    def _assert_privileged_os_users_sign_in_without_password(self):
+        for user in create_privileged_os_users(self.facility):
+            with self.subTest(username=user.username):
+                self._assert_signs_in(user)
+
+    def test_privileged_os_user_signs_in_without_password_on_my_own_device(self):
+        self.facility.on_my_own_setup = True
+        self._assert_privileged_os_users_sign_in_without_password()
+
+    def test_privileged_os_user_signs_in_without_password_on_learner_only_device(
+        self,
+    ):
+        set_device_settings(subset_of_users_device=True)
+        self.addCleanup(clear_process_cache)
+        self._assert_privileged_os_users_sign_in_without_password()
 
 
 class PicturePasswordLoginTestCase(APITestCase):
@@ -3758,6 +3921,29 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password("newpassword"))
+
+    def test_set_non_specified_password_content_manager_in_no_password_facility(
+        self,
+    ):
+        disable_picture_password(self.facility, passwordless=True)
+        DevicePermissions.objects.create(user=self.user, can_manage_content=True)
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("newpassword"))
+
+    def test_set_non_specified_password_content_manager_with_picture_password(self):
+        self._enable_picture_password()
+        self.user.picture_password = "1.2.3"
+        self.user.save()
+        DevicePermissions.objects.create(user=self.user, can_manage_content=True)
+
+        response = self._post_new_password()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self._assert_password_unchanged()
 
 
 class DeleteImportedUserTestCase(APITransactionTestCase):
