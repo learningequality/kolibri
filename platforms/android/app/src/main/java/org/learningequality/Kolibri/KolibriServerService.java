@@ -10,6 +10,9 @@ import androidx.annotation.Nullable;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Background service that starts the Kolibri HTTP server
@@ -21,7 +24,10 @@ public class KolibriServerService extends Service {
   private static final String TAG = "KolibriServerService";
   private static final String MULTICAST_LOCK_TAG = "kolibri-mdns";
 
+  private static final ExecutorService SERVER_LIFECYCLE = Executors.newSingleThreadExecutor();
+
   private Thread serverThread;
+  @Nullable private AtomicBoolean serverStopRequested;
   private CompletableFuture<Void> envInitFuture;
   @Nullable private WifiManager.MulticastLock multicastLock;
 
@@ -44,7 +50,7 @@ public class KolibriServerService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     // Runs on every startService() call; startHttpServer() is a no-op if already running
-    startHttpServer();
+    SERVER_LIFECYCLE.execute(this::startHttpServer);
     return START_NOT_STICKY;
   }
 
@@ -68,12 +74,14 @@ public class KolibriServerService extends Service {
     multicastLock = null;
   }
 
-  private synchronized void startHttpServer() {
+  private void startHttpServer() {
     if (serverThread != null && serverThread.isAlive()) {
       Log.w(TAG, "Server already running");
       return;
     }
 
+    AtomicBoolean stopRequested = new AtomicBoolean();
+    serverStopRequested = stopRequested;
     serverThread =
         new Thread(
             () -> {
@@ -87,7 +95,8 @@ public class KolibriServerService extends Service {
 
                 // Same process as the activity, so the live page's port is readable here.
                 // Blocks until the server stops.
-                mainModule.callAttr("start_server", WebViewLocation.getLastPort());
+                mainModule.callAttr(
+                    "start_server", WebViewLocation.getLastPort(), stopRequested);
 
                 Log.i(TAG, "Kolibri HTTP server stopped");
               } catch (Exception e) {
@@ -101,13 +110,19 @@ public class KolibriServerService extends Service {
   }
 
   @Override
-  public synchronized void onDestroy() {
+  public void onDestroy() {
     super.onDestroy();
     Log.d(TAG, "KolibriServerService onDestroy");
 
     releaseMulticastLock();
     KolibriServerViewModel.getInstance().resetServerState();
+    SERVER_LIFECYCLE.execute(this::stopHttpServer);
+  }
 
+  private void stopHttpServer() {
+    if (serverStopRequested != null) {
+      serverStopRequested.set(true);
+    }
     // Call Python to stop the server gracefully
     try {
       Python py = Python.getInstance();
