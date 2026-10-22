@@ -54,11 +54,7 @@
   import { createElement as e } from 'react';
   import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
-  import {
-    getDivideSymbol,
-    parseAndMigratePerseusItem,
-    isFailure,
-  } from '@khanacademy/perseus-core';
+  import { getDivideSymbol, isFailure } from '@khanacademy/perseus-core';
   import { emptyWidgetsFunctional } from '@khanacademy/perseus-score';
   import { MathInputI18nContextProvider } from '@khanacademy/math-input';
   import { KeypadContext } from '@khanacademy/keypad-context';
@@ -66,6 +62,8 @@
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
+  import { migrateItem } from '../itemMigration';
+  import molecule from '../widgets/molecule';
   import { wrapPerseusMessages } from '../translationUtils';
   import { localizeNumericResponses, readUserInput } from '../numericResponses';
   import { scoreItem } from '../scoring';
@@ -447,6 +445,8 @@
         Log: logging,
       });
       perseus.init();
+      // init() maps molecule-renderer to the deprecated standin.
+      perseus.Widgets.registerWidget(molecule.name, molecule);
       // Try to load the appropriate directional CSS for the particular content
       this.$options.contentModule.loadDirectionalCSS(this.contentDirection).then(() => {
         if (this.defaultFile) {
@@ -796,13 +796,11 @@
         }
       },
       setItemData(itemData) {
-        const result = parseAndMigratePerseusItem(itemData);
+        const result = migrateItem(itemData);
         if (isFailure(result)) {
           logging.warn('Failed to migrate Perseus item data', result.detail);
-          // Fall through with original data as graceful degradation
-        } else {
-          itemData = result.value;
         }
+        itemData = result.value;
         if (this.validateItemData(itemData)) {
           this.item = itemData;
           // Don't store blank state for another item.
