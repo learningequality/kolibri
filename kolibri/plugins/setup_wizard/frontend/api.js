@@ -18,11 +18,6 @@ export const SetupWizardResource = new Resource({
     });
     return response.data;
   },
-
-  async osuser() {
-    const response = await this.request({ action: 'osuser' });
-    return response.data;
-  },
 });
 
 export const FacilityImportResource = new Resource({

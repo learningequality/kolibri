@@ -14,10 +14,7 @@ from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.permissions import FromAppContextPermission
-from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -71,22 +68,6 @@ class SetupWizardResource(ViewSet):
                 upstream = None
             errors = sanitize_remote_list(_PublicSignupErrorSerializer, upstream)
         return Response({"status": r.status_code, "errors": errors})
-
-    @decorators.action(
-        methods=["get"],
-        detail=False,
-        permission_classes=(HasPermissionDuringSetup, FromAppContextPermission),
-    )
-    def osuser(self, request):
-        try:
-            os_user = GetOSUserHook.retrieve_os_user(
-                request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
-            )
-        except NotImplementedError as e:
-            raise NotFound() from e
-        if not os_user:
-            raise NotFound()
-        return Response({"name": os_user.account_name})
 
 
 @method_decorator(csrf_protect, name="dispatch")
