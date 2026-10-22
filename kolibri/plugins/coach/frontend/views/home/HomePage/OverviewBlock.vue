@@ -5,7 +5,7 @@
       <KGridItem
         :layout12="{ span: 6, alignment: 'left' }"
         :layout8="{ span: 4, alignment: 'left' }"
-        :layout4="{ span: 2, alignment: 'left' }"
+        :layout4="{ span: 4, alignment: 'left' }"
       >
         <p>
           <BackLink
@@ -23,19 +23,26 @@
       <KGridItem
         :layout12="{ span: 6, alignment: 'right' }"
         :layout8="{ span: 4, alignment: 'right' }"
-        :layout4="{ span: 2, alignment: 'right' }"
+        :layout4="{ span: 4, alignment: 'left' }"
       >
-        <KRouterLink
-          v-if="picture_password_settings && learnerNames.length"
-          :text="viewPasswordsAction$()"
-          appearance="raised-button"
-          :to="{
-            name: PageNames.LEARNER_PASSWORDS,
-            params: { classId },
-            query: { last: LastPages.HOME_PAGE },
-          }"
-          class="view-passwords-link"
-        />
+        <KButtonGroup class="overview-actions">
+          <KRouterLink
+            v-if="picture_password_settings && learnerNames.length"
+            :text="viewPasswordsAction$()"
+            appearance="raised-button"
+            :to="{
+              name: PageNames.LEARNER_PASSWORDS,
+              params: { classId },
+              query: { last: LastPages.HOME_PAGE },
+            }"
+          />
+          <KButton
+            :text="connectDevicesTitle$()"
+            appearance="raised-button"
+            class="connect-devices-button"
+            @click="showConnectDevices = true"
+          />
+        </KButtonGroup>
       </KGridItem>
     </KGrid>
 
@@ -77,6 +84,10 @@
         </template>
       </HeaderTableRow>
     </HeaderTable>
+    <ConnectDevicesModal
+      v-if="showConnectDevices"
+      @cancel="showConnectDevices = false"
+    />
   </KPageContainer>
 
 </template>
@@ -89,6 +100,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { connectDevicesStrings } from 'kolibri-common/strings/connectDevicesStrings';
+  import ConnectDevicesModal from 'kolibri-common/components/ConnectDevices/ConnectDevicesModal';
   import { ref } from 'vue';
   import { ClassesPageNames } from '../../../../../learn/frontend/constants';
   import commonCoach from '../../common';
@@ -98,14 +111,21 @@
 
   export default {
     name: 'OverviewBlock',
+    components: {
+      ConnectDevicesModal,
+    },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
       const { viewPasswordsAction$ } = picturePasswordStrings;
+      const { title$: connectDevicesTitle$ } = connectDevicesStrings;
       const userList = ref([]);
+      const showConnectDevices = ref(false);
       return {
         userIsMultiFacilityAdmin,
         viewPasswordsAction$,
+        connectDevicesTitle$,
+        showConnectDevices,
         userList,
         PageNames,
         LastPages,
@@ -186,8 +206,12 @@
     margin-left: 24px;
   }
 
-  .view-passwords-link {
-    margin-top: 16px;
+  .overview-actions {
+    margin: 16px -8px 0;
+  }
+
+  .connect-devices-button {
+    vertical-align: top;
   }
 
 </style>
