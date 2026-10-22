@@ -117,6 +117,22 @@ function fillInputNumberDefaults(widgetInfo) {
   }
 }
 
+// Perseus embeds these programs from Khan Academy routes resolved against Kolibri's origin.
+const KHAN_ACADEMY_PROGRAMS = ['cs-program', 'python-program'];
+
+// Perseus treats a video location or iframe url that is not an http(s) URL as a Khan Academy
+// slug or program ID, and embeds it from Khan Academy.
+function isKhanAcademyEmbed({ type, options }) {
+  const target = type === 'video' ? options?.location : type === 'iframe' ? options?.url : null;
+  return Boolean(target) && !/^https?:\/\//.test(target);
+}
+
+function retireKhanAcademyEmbed(widgetInfo) {
+  if (KHAN_ACADEMY_PROGRAMS.includes(widgetInfo.type) || isKhanAcademyEmbed(widgetInfo)) {
+    return { ...widgetInfo, type: 'deprecated-standin', options: {} };
+  }
+}
+
 function prepareWidget(widgetInfo) {
   return migrateDecimalTicks(widgetInfo) || fillInputNumberDefaults(widgetInfo);
 }

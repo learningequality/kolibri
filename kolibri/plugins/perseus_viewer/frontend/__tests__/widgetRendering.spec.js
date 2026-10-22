@@ -436,7 +436,6 @@ const LEGACY_ITEMS = {
     height: '400',
     allowFullScreen: false,
   },
-  'python-program': { programID: '123', height: 400 },
   interaction: {
     graph: {
       editableSettings: [],
@@ -521,13 +520,13 @@ describe('legacy widget items', () => {
     expect(labels).toEqual(expect.arrayContaining(['0', '0.2', '0.4', '0.6', '0.8', '1']));
   });
 
-  it('marks a transformer widget as no longer available', async () => {
-    await mountRenderer(itemData('transformer', {}));
-
-    expect(screen.queryByText(DEPRECATED_STANDIN)).toBeInTheDocument();
-  });
-
   it.each([
+    ['transformer', {}],
+    [
+      'cs-program',
+      { programID: '123', settings: [], showEditor: false, showButtons: false, height: 400 },
+    ],
+    ['python-program', { programID: '123', height: 400 }],
     ['video', { location: 'some-video-slug' }],
     ['iframe', { ...LEGACY_ITEMS.iframe, url: '123' }],
   ])('marks a %s widget as no longer available', async (type, options) => {
