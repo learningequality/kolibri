@@ -351,12 +351,9 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
-default_language = i18n.get_system_default_language()
-
-LANGUAGE_CODE = (
-    default_language
-    if default_language in conf.OPTIONS["Deployment"]["LANGUAGES"]
-    else conf.OPTIONS["Deployment"]["LANGUAGES"][0]
+LANGUAGE_CODE = i18n.get_default_language(
+    conf.OPTIONS["Deployment"]["DEFAULT_LANGUAGE"],
+    conf.OPTIONS["Deployment"]["LANGUAGES"],
 )
 
 try:
