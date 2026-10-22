@@ -653,6 +653,15 @@ base_option_spec = {
             "deprecated_envvars": ("KOLIBRI_LISTEN_PORT",),
             "description": "Sets the port that Kolibri will serve on. This can be further overridden by command line arguments.",
         },
+        "ADVERTISED_HTTP_PORT": {
+            "type": "port",
+            "default": 0,
+            "description": """
+                Sets the port that Kolibri advertises in its URLs and network discovery broadcasts.
+                When running behind a proxy, set the value to the port that the proxy serves Kolibri on.
+                When 0, Kolibri advertises the port that it is serving on.
+            """,
+        },
         "RUN_MODE": {
             "type": "string",
             "description": "Used to flag non-user Kolibri instances",
@@ -1114,11 +1123,18 @@ def update_options_file(section, key, value, ini_filename="options.ini"):
         raise ValueError(f"Unable to set {key} in {ini_filename}: {error}")
 
     # write the settings file back to disk
-    conf.write()
+    raw_conf = ConfigObj(conf.filename)
+    raw_section = raw_conf.setdefault(section, {})
+    for alias in (
+        option_spec.get(section, {}).get(key, {}).get("deprecated_aliases", ())
+    ):
+        raw_section.pop(alias, None)
+    raw_section[key] = value
+    raw_conf.write()
 
     logger.warning(
         "Options file %s has been updated; server restart is required before change will take effect.",
-        conf.filename,
+        raw_conf.filename,
     )
 
 
