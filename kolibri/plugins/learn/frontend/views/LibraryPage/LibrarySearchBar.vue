@@ -124,7 +124,7 @@
     components: {
       SearchAutocompleteDropdown,
     },
-    setup() {
+    setup(props, { expose }) {
       const route = useRoute();
       const router = useRouter();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
@@ -404,6 +404,12 @@
       function handleHoverFilter(filter) {
         set(hoveredFilter, filter);
       }
+
+      // Public: lets the page return focus here when another control goes away
+      function focus() {
+        get(searchInput).focus();
+      }
+      expose({ focus });
 
       function handleClear() {
         clearKeywords();

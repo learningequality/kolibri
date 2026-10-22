@@ -363,6 +363,57 @@ describe('HorizontalFilterPills', () => {
       });
       expect(screen.queryByRole('button', { name: allFilters$() })).not.toBeInTheDocument();
     });
+
+    it('emits focusLost when clicked, since clearing removes the button', async () => {
+      const { emitted } = renderComponent({
+        appliedFilters: () => [{ key: 'keywords', value: KEYWORD_FILTER }],
+      });
+      await fireEvent.click(screen.getByRole('button', { name: clearAllAction$() }));
+      expect(emitted().focusLost).toBeTruthy();
+    });
+  });
+
+  describe('when the toggled pill is removed', () => {
+    it('emits focusLost after unchecking the keyword pill removes it', async () => {
+      const applied = ref([
+        { key: 'keywords', value: KEYWORD_FILTER },
+        { key: 'learning_activities', value: mockActivities.EXPLORE },
+      ]);
+      const { emitted } = renderComponent({
+        appliedFilters: () => applied.value,
+        isFilterActive: (key, value) => applied.value.some(f => f.key === key && f.value === value),
+        toggleFilter: ({ key, value }) => {
+          applied.value = applied.value.filter(f => !(f.key === key && f.value === value));
+        },
+      });
+
+      const checkbox = screen.getByRole('checkbox', { name: KEYWORD_FILTER });
+      checkbox.focus();
+      await fireEvent.click(checkbox);
+      await nextTick();
+
+      expect(screen.queryByRole('checkbox', { name: KEYWORD_FILTER })).not.toBeInTheDocument();
+      expect(emitted().focusLost).toBeTruthy();
+    });
+
+    it('does not emit focusLost when the toggled pill survives', async () => {
+      const applied = ref([]);
+      const { emitted } = renderComponent({
+        appliedFilters: () => applied.value,
+        isFilterActive: (key, value) => applied.value.some(f => f.key === key && f.value === value),
+        toggleFilter: ({ key, value }) => {
+          applied.value = [{ key, value }];
+        },
+      });
+
+      const checkbox = screen.getByRole('checkbox', { name: listen$() });
+      checkbox.focus();
+      await fireEvent.click(checkbox);
+      await nextTick();
+
+      expect(checkbox).toHaveFocus();
+      expect(emitted().focusLost).toBeFalsy();
+    });
   });
 
   describe('clear all', () => {

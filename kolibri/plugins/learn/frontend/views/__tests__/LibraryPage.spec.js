@@ -114,6 +114,21 @@ describe('LibraryPage', () => {
     });
   });
 
+  describe('focus', () => {
+    it('moves focus to the search bar when the filter pills lose it', async () => {
+      const focus = jest.fn();
+      const wrapper = await makeWrapper({
+        options: {
+          stubs: {
+            LibrarySearchBar: { template: '<div />', methods: { focus } },
+          },
+        },
+      });
+      wrapper.findComponent({ name: 'HorizontalFilterPills' }).vm.$emit('focusLost');
+      expect(focus).toHaveBeenCalled();
+    });
+  });
+
   describe('search bar', () => {
     it('is visible when channels are available', async () => {
       const wrapper = await makeWrapper();

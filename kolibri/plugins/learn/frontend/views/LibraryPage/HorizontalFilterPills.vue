@@ -79,7 +79,7 @@
         icon="close"
         class="clear-all"
         :disabled="loading"
-        @click="clearSearch"
+        @click="handleClearAll"
       />
     </div>
   </fieldset>
@@ -100,7 +100,7 @@
 
   export default {
     name: 'HorizontalFilterPills',
-    setup() {
+    setup(props, { emit }) {
       const {
         availableLearningActivities,
         availableLibraryCategories,
@@ -222,7 +222,13 @@
         [entries, searchLoading],
         ([, loading]) => {
           if (toggledCheckbox && document.activeElement === document.body) {
-            toggledCheckbox.focus();
+            if (toggledCheckbox.isConnected) {
+              toggledCheckbox.focus();
+            } else {
+              // The pill itself went away (e.g. an unchecked keyword)
+              toggledCheckbox = null;
+              emit('focusLost');
+            }
           }
           if (!loading) {
             toggledCheckbox = null;
@@ -237,6 +243,12 @@
         if (event.relatedTarget) {
           toggledCheckbox = null;
         }
+      }
+
+      // Clearing removes this button, so let the parent move focus first
+      function handleClearAll() {
+        clearSearch();
+        emit('focusLost');
       }
 
       function pillColorStyleFor(entry) {
@@ -272,7 +284,7 @@
         guardClick,
         handleToggle,
         handleBlur,
-        clearSearch,
+        handleClearAll,
         loading: searchLoading,
         allFilters$,
         filtersGroupLabel$,

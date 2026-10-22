@@ -40,6 +40,7 @@
         >
           <LibrarySearchBar
             v-if="!isLocalLibraryEmpty || deviceId"
+            ref="searchBar"
             data-testid="library-search-bar"
           />
 
@@ -47,6 +48,7 @@
             v-if="!rootNodesLoading && (!isLocalLibraryEmpty || deviceId)"
             data-testid="horizontal-filter-pills"
             @openFilters="showFilterModal = true"
+            @focusLost="focusSearchBar"
           />
         </div>
 
@@ -549,6 +551,11 @@
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
+      },
+      focusSearchBar() {
+        if (this.$refs.searchBar) {
+          this.$refs.searchBar.focus();
+        }
       },
       injecttr(...args) {
         return this.$tr(...args);
