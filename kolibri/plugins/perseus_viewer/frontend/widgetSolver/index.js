@@ -1,3 +1,4 @@
+import { isWidgetScoreable } from '@khanacademy/perseus-score';
 import categorizer from './categorizer';
 import dropdown from './dropdown';
 import expression from './expression';
@@ -20,6 +21,7 @@ const widgetSolvers = {
   dropdown,
   expression,
   grapher,
+  group: rubric => solveWidgets(rubric.widgets),
   'input-number': inputNumber,
   'interactive-graph': interactiveGraph,
   'label-image': labelImage,
@@ -34,9 +36,19 @@ const widgetSolvers = {
   table,
 };
 
-export default (type, rubric) => {
+function widgetSolver(type, rubric) {
   if (!widgetSolvers[type]) {
     throw new ReferenceError(`No solver available for widget type: ${type}`);
   }
   return widgetSolvers[type](rubric);
-};
+}
+
+function solveWidgets(widgets) {
+  return Object.fromEntries(
+    Object.entries(widgets)
+      .filter(([, widget]) => isWidgetScoreable(widget))
+      .map(([id, widget]) => [id, widgetSolver(widget.type, widget.options)]),
+  );
+}
+
+export default widgetSolver;

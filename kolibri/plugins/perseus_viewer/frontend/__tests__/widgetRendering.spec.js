@@ -227,6 +227,26 @@ describe('show correct answer', () => {
     expect(answerUnavailable).toHaveBeenCalledTimes(1);
   });
 
+  it('selects the correct choice of a dropdown inside a group', async () => {
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemData('group', {
+        ...DROPDOWN_CONTENT,
+        content: `${DROPDOWN_CONTENT.content} [[☃ image 1]]`,
+        widgets: {
+          ...DROPDOWN_CONTENT.widgets,
+          'image 1': { type: 'image', options: LEGACY_ITEMS.image },
+        },
+      }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(screen.getByRole('combobox')).toHaveTextContent('Banana');
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
+
   it('writes a decimal answer with the content language decimal separator', async () => {
     await mountRenderer(
       itemData('input-number', {
