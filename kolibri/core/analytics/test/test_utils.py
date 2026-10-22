@@ -5,6 +5,7 @@ import hashlib
 import os
 import random
 import uuid
+from unittest import mock
 
 import pytz
 from django.test import TestCase
@@ -18,6 +19,7 @@ from kolibri.core.analytics.utils import calculate_list_stats
 from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
+from kolibri.core.analytics.utils import ping_once
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
@@ -453,4 +455,52 @@ class CreateUpdateNotificationsTestCase(TestCase):
         # messages from other source should not be modified
         self.assertFalse(
             PingbackNotification.objects.filter(source=PINGBACK, active=False).exists()
+        )
+
+
+@mock.patch("kolibri.core.analytics.utils.create_and_update_notifications")
+@mock.patch("kolibri.core.analytics.utils.perform_statistics", return_value={})
+@mock.patch("kolibri.core.analytics.utils.perform_ping")
+class PingOnceHookDispatchTestCase(TestCase):
+    def setUp(self):
+        patcher = mock.patch("kolibri.core.analytics.utils.PingbackHook")
+        self.mock_hook_class = patcher.start()
+        self.addCleanup(patcher.stop)
+        self.hook = mock.MagicMock()
+        self.mock_hook_class.registered_hooks = [self.hook]
+
+    def test_dispatches_pingback_hooks_on_successful_pingback(
+        self, mock_perform_ping, mock_perform_statistics, mock_notifications
+    ):
+        mock_perform_ping.return_value = {"id": "test-pingback-id"}
+
+        ping_once("2026-06-05T00:00:00", server="http://testserver")
+
+        self.hook.pingback.assert_called_once_with(
+            "http://testserver", "test-pingback-id"
+        )
+
+    def test_does_not_dispatch_hooks_without_pingback_id(
+        self, mock_perform_ping, mock_perform_statistics, mock_notifications
+    ):
+        mock_perform_ping.return_value = {}
+
+        ping_once("2026-06-05T00:00:00", server="http://testserver")
+
+        self.hook.pingback.assert_not_called()
+
+    def test_hook_errors_do_not_break_the_ping(
+        self, mock_perform_ping, mock_perform_statistics, mock_notifications
+    ):
+        # A failing hook must not make an already-successful ping look
+        # failed (and so retried), nor starve other registered hooks.
+        mock_perform_ping.return_value = {"id": "test-pingback-id"}
+        failing_hook = mock.MagicMock()
+        failing_hook.pingback.side_effect = Exception("hook failure")
+        self.mock_hook_class.registered_hooks = [failing_hook, self.hook]
+
+        ping_once("2026-06-05T00:00:00", server="http://testserver")
+
+        self.hook.pingback.assert_called_once_with(
+            "http://testserver", "test-pingback-id"
         )

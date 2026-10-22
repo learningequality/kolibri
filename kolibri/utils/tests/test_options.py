@@ -11,6 +11,9 @@ from unittest import mock
 
 import pytest
 
+from kolibri.deployment.default.sqlite_db_names import (
+    get_additional_sqlite_database_names,
+)
 from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
@@ -162,6 +165,32 @@ def test_improper_settings_display_errors_and_exit(caplog):
         with pytest.raises(SystemExit):
             options.read_options_file(ini_filename=tmp_ini_path)
         assert 'value "maybe" is unacceptable' in caplog.messages[-2]
+
+
+@pytest.mark.parametrize(
+    "rate", ["100", "100/fortnight", "fast/min", "100/min/x", "1/m/"]
+)
+def test_invalid_throttle_rate_exits(rate, caplog):
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "w") as f:
+        f.write(f"[ErrorReports]\nSUBMISSION_RATE = {rate}")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+        assert f'value "{rate}" is unacceptable' in caplog.messages[-2]
+
+
+def test_valid_throttle_rate_is_read():
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "w") as f:
+        f.write("[ErrorReports]\nSUBMISSION_RATE = 30/min")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+        assert OPTIONS["ErrorReports"]["SUBMISSION_RATE"] == "30/min"
 
 
 def test_validator_args_enforce_bounds(monkeypatch, caplog):
@@ -381,3 +410,8 @@ def test_lazy_function_import():
         pass
 
     assert "kolibri.utils.tests.do_not_import" in sys.modules
+
+
+def test_fd_per_thread_counts_every_sqlite_database():
+    databases = 1 + len(get_additional_sqlite_database_names())
+    assert 5 + databases + options.CACHE_SHARDS <= options.FD_PER_THREAD
