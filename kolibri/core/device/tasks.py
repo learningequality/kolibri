@@ -66,10 +66,8 @@ class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
     is_soud = serializers.BooleanField(default=True)
 
     def validate(self, data):
-        if (
-            GetOSUserHook.is_registered
-            and self.context.get("request") is not None
-            and valid_app_key_on_request(self.context["request"])
+        if self.context.get("request") is not None and valid_app_key_on_request(
+            self.context["request"]
         ):
             data["auth_token"] = self.context["request"].COOKIES.get(
                 APP_AUTH_TOKEN_COOKIE_NAME
