@@ -679,6 +679,15 @@ base_option_spec = {
                 The default will include all the languages Kolibri supports.
             """,
         },
+        "DEFAULT_LANGUAGE": {
+            "type": "option",
+            "options": ("", *KOLIBRI_LANGUAGE_INFO),
+            "default": "",
+            "description": """
+                Kolibri's default language; before provisioning it outranks the browser's language.
+                Blank: the browser's language, then the operating system's.
+            """,
+        },
         "ZIP_CONTENT_ORIGIN": {
             "type": "origin_or_port",
             "default": "",

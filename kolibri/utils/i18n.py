@@ -89,3 +89,14 @@ def get_system_default_language():
 
     # If all else fails we fall back to "en"
     return "en"
+
+
+def get_default_language(default_language, languages):
+    return next(
+        (
+            language
+            for language in (default_language, get_system_default_language())
+            if language in languages
+        ),
+        languages[0],
+    )
