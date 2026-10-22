@@ -1,0 +1,183 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:33:28 +0000
+Subject: [PATCH 04/11] Load a book given as blob URLs
+
+Kolibri passes the book htm as a blob: URL, which has no folder to find meta.json and .distribution in, so it passes their URLs as the metaJsonUrl and distributionUrl parameters.
+---
+ src/bloom-player-controls.tsx  |  8 ++++++++
+ src/bloom-player-core.test.tsx | 26 ++++++++++++++++++++++++++
+ src/bloom-player-core.tsx      |  7 ++++++-
+ src/bookLoader.test.ts         |  9 +++++++++
+ src/bookLoader.ts              | 15 +++++++++++++--
+ 5 files changed, 62 insertions(+), 3 deletions(-)
+
+diff --git a/src/bloom-player-controls.tsx b/src/bloom-player-controls.tsx
+index cc3e170..5e692cb 100644
+--- a/src/bloom-player-controls.tsx
++++ b/src/bloom-player-controls.tsx
+@@ -53,6 +53,8 @@ export interface BloomPlayerProps extends React.HTMLProps<HTMLDivElement> {
+     // e.g. if title is C#, url should be http://localhost:8089/bloom/C:/PathToTemp/PlaceForStagingBook/C%23
+     // (Not "[...]/C#" nor "[...]%2FC%2523", and most certainly not with any XML (entity) encoding)
+     url: string;
++    metaJsonUrl?: string;
++    distributionUrl?: string;
+     initiallyShowAppBar: boolean;
+     allowToggleAppBar: boolean;
+     showBackButton: boolean;
+@@ -977,6 +979,8 @@ export const BloomPlayerControls: React.FunctionComponent<BloomPlayerProps> = (
+                 // We believe/hope we can do this a better way (without LegacyRef) once BloomPlayerCore is a function component.
+                 ref={coreRef as LegacyRef<BloomPlayerCore>}
+                 url={props.url}
++                metaJsonUrl={props.metaJsonUrl}
++                distributionUrl={props.distributionUrl}
+                 landscape={windowLandscape}
+                 paused={paused}
+                 preferredUiLanguages={preferredUiLanguages}
+@@ -1138,6 +1142,10 @@ export function InitBloomPlayerControls() {
+         <ThemeProvider theme={theme}>
+             <BloomPlayerControls
+                 url={getQueryStringParamAndUnencode("url")}
++                metaJsonUrl={getQueryStringParamAndUnencode("metaJsonUrl")}
++                distributionUrl={getQueryStringParamAndUnencode(
++                    "distributionUrl",
++                )}
+                 allowToggleAppBar={getBooleanUrlParam(
+                     "allowToggleAppBar",
+                     false,
+diff --git a/src/bloom-player-core.test.tsx b/src/bloom-player-core.test.tsx
+index 7cabdec..0639961 100644
+--- a/src/bloom-player-core.test.tsx
++++ b/src/bloom-player-core.test.tsx
+@@ -140,6 +140,32 @@ describe("BloomPlayerCore loading", () => {
+         await waitForStartupToComplete(container);
+     });
+ 
++    it("loads a book whose files are separate blob urls", async () => {
++        const htmUrl = "blob:http://localhost:1234/book-htm-uuid";
++        const metaJsonUrl = "blob:http://localhost:1234/meta-json-uuid";
++        const distributionUrl = "blob:http://localhost:1234/distribution-uuid";
++        const html = makeTestBookHtml();
++        const metaData = makeTestBookMetaData();
++        serveTestBook(mockedGet, html, metaData, {
++            [htmUrl]: html,
++            [metaJsonUrl]: metaData,
++            [distributionUrl]: "",
++        });
++        const { container } = render(
++            <BloomPlayerCore
++                {...defaultProps()}
++                url={htmUrl}
++                metaJsonUrl={metaJsonUrl}
++                distributionUrl={distributionUrl}
++            />,
++        );
++        await waitFor(() => {
++            expect(container.textContent).toContain("First page text");
++        }, kAfterStartupTimeout);
++        expect(mockedGet).toHaveBeenCalledWith(distributionUrl);
++        await waitForStartupToComplete(container);
++    });
++
+     it("shows the load-failed UI when the book cannot be fetched", async () => {
+         // serveTestBook not called: everything, including the .htm, 404s
+         serveTestBook(mockedGet, undefined as unknown as string);
+diff --git a/src/bloom-player-core.tsx b/src/bloom-player-core.tsx
+index 33ae894..1eafe5d 100644
+--- a/src/bloom-player-core.tsx
++++ b/src/bloom-player-core.tsx
+@@ -122,6 +122,8 @@ interface IProps {
+     // e.g. any special chars in the path or book title should be appropriately encoded
+     // e.g. if title is C#, url should be http://localhost:8089/bloom/C:/PathToTemp/PlaceForStagingBook/C%23
+     url: string;
++    metaJsonUrl?: string;
++    distributionUrl?: string;
+     landscape: boolean; // whether viewing as landscape or portrait
+     // ``paused`` allows the parent to control pausing of audio. We expect we may supply
+     // a click/touch event callback if needed to support pause-on-touch.
+@@ -682,7 +684,10 @@ export class BloomPlayerCore extends React.Component<IProps, IPlayerState> {
+                 this.urlPrefix = urlPrefix;
+                 this.music.urlPrefix = urlPrefix;
+                 setPlayerUrlPrefix(urlPrefix);
+-                loadBook(urlOfBookHtmlFile, urlPrefix)
++                loadBook(urlOfBookHtmlFile, urlPrefix, {
++                    metaJsonUrl: this.props.metaJsonUrl,
++                    distributionUrl: this.props.distributionUrl,
++                })
+                     .then((loadedBook) => {
+                         const { bookHtmlElement } = loadedBook;
+                         this.metaDataObject = loadedBook.metaDataObject;
+diff --git a/src/bookLoader.test.ts b/src/bookLoader.test.ts
+index db40151..2b9d423 100644
+--- a/src/bookLoader.test.ts
++++ b/src/bookLoader.test.ts
+@@ -33,6 +33,15 @@ describe("computeBookUrlParts", () => {
+             urlPrefix: "http://x.org/stuff",
+         });
+     });
++
++    it("uses a blob url as the book htm", () => {
++        const blobUrl =
++            "blob:http://x.org/0b5e5c5a-3f43-4a0c-9d0e-4d8e3a1b2c3d";
++        expect(computeBookUrlParts(blobUrl)).toEqual({
++            urlOfBookHtmlFile: blobUrl,
++            urlPrefix: blobUrl,
++        });
++    });
+ });
+ 
+ describe("fullUrl", () => {
+diff --git a/src/bookLoader.ts b/src/bookLoader.ts
+index 26151d7..7728d8d 100644
+--- a/src/bookLoader.ts
++++ b/src/bookLoader.ts
+@@ -28,6 +28,9 @@ export interface IBookUrlParts {
+ // book folders, so it doesn't seem worth complicating the code
+ // to look for the other as well.
+ export function computeBookUrlParts(sourceUrl: string): IBookUrlParts {
++    if (sourceUrl.startsWith("blob:")) {
++        return { urlOfBookHtmlFile: sourceUrl, urlPrefix: sourceUrl };
++    }
+     const slashIndex = sourceUrl.lastIndexOf("/");
+     const encodedSlashIndex = sourceUrl.lastIndexOf("%2f");
+     let filename: string;
+@@ -56,6 +59,11 @@ export function fullUrl(url: string | null, urlPrefix: string): string {
+     return urlPrefix + "/" + url;
+ }
+ 
++export interface IBookFileUrls {
++    metaJsonUrl?: string;
++    distributionUrl?: string;
++}
++
+ export interface ILoadedBook {
+     bookHtmlElement: HTMLHtmlElement;
+     metaDataObject: any;
+@@ -68,6 +76,7 @@ export interface ILoadedBook {
+ export async function loadBook(
+     urlOfBookHtmlFile: string,
+     urlPrefix: string,
++    { metaJsonUrl, distributionUrl }: IBookFileUrls = {},
+ ): Promise<ILoadedBook> {
+     // Note: this does not currently seem to work when using the storybook fileserver.
+     // I hypothesize that it automatically filters files starting with a period,
+@@ -75,7 +84,7 @@ export async function loadBook(
+     // away again) contains a .distribution file. I just tested using a book locally
+     // published through the Bloom Editor server.
+     const distributionPromise = axios
+-        .get(fullUrl(".distribution", urlPrefix))
++        .get(distributionUrl ?? fullUrl(".distribution", urlPrefix))
+         .then(
+             (result) => {
+                 return result;
+@@ -89,7 +98,9 @@ export async function loadBook(
+             },
+         );
+     const htmlPromise = axios.get(urlOfBookHtmlFile);
+-    const metadataPromise = axios.get(fullUrl("meta.json", urlPrefix));
++    const metadataPromise = axios.get(
++        metaJsonUrl ?? fullUrl("meta.json", urlPrefix),
++    );
+     const [htmlResult, metadataResult, distributionResult] = await Promise.all([
+         htmlPromise,
+         metadataPromise,
