@@ -54,10 +54,18 @@ describe('BloomShim', () => {
     expect(lastStateUpdate()).toEqual({ shim: 'BloomPlayer', state: {}, progress: 0.4 });
   });
 
-  it('should count audio, non-audio and video pages together', async () => {
-    await pagesRead({ audioPages: 1, nonAudioPages: 2, videoPages: 2 });
+  it('should count audio and non-audio pages together', async () => {
+    await pagesRead({ audioPages: 1, nonAudioPages: 2 });
 
-    expect(lastStateUpdate().progress).toEqual(0.5);
+    expect(lastStateUpdate().progress).toEqual(0.3);
+  });
+
+  // Bloom Player's nonAudioPages already includes the pages videoPages counts
+  // (src/bookInteraction.ts).
+  it('should not count video pages twice', async () => {
+    await pagesRead({ nonAudioPages: 4, videoPages: 4 });
+
+    expect(lastStateUpdate().progress).toEqual(0.4);
   });
 
   it('should hold back from complete until the last page has been read', async () => {
