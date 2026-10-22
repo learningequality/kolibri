@@ -178,6 +178,32 @@ def _create_attempt(
     return mastery_log
 
 
+def _start_attempt(learner, course_session_id, unit_id, test_type):
+    """The progress-tracking start path sets end_timestamp=start_timestamp."""
+    synthetic_cid = get_synthetic_content_id(
+        str(course_session_id), str(unit_id), test_type
+    )
+    now = timezone.now()
+    summary_log, _ = ContentSummaryLog.objects.get_or_create(
+        user=learner,
+        content_id=synthetic_cid,
+        defaults={
+            "channel_id": uuid.uuid4().hex,
+            "start_timestamp": now,
+            "kind": content_kinds.EXERCISE,
+        },
+    )
+    return MasteryLog.objects.create(
+        user=learner,
+        summarylog=summary_log,
+        mastery_criterion={"type": "quiz"},
+        start_timestamp=now,
+        end_timestamp=now,
+        mastery_level=-2,
+        complete=False,
+    )
+
+
 class ComputeTestScoresTests(TestCase):
     """compute_all_test_scores aggregation logic without HTTP layer."""
 
@@ -203,9 +229,10 @@ class ComputeTestScoresTests(TestCase):
         self.unit_id = uuid.uuid4().hex
 
     def _scores(self, learner_ids, objectives_by_unit):
-        return compute_all_test_scores(
+        scores, _ = compute_all_test_scores(
             learner_ids, self.course_session_id, objectives_by_unit
         )
+        return scores
 
     def test_no_learners_returns_empty(self):
         result = self._scores([], {self.unit_id: ASSESSMENT_OBJECTIVES})[self.unit_id]
@@ -1130,6 +1157,68 @@ class UnitReportScoringTests(UnitReportAPIBase):
         # ITEM_A4 maps to both LO1 and LO2 — both should get credit
         self.assertEqual(pre_scores[lid].get(LO1_ID, 0), 1)
         self.assertEqual(pre_scores[lid].get(LO2_ID, 0), 1)
+
+
+class UnitReportStartedTests(UnitReportAPIBase):
+    def setUp(self):
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
+
+    def _post_test(self):
+        return self.client.get(self._get_url()).data["units"][0]["post_test"]
+
+    def test_in_progress_learner_started_and_unscored(self):
+        _start_attempt(self.learner1, self.course_session.id, self.unit_node.id, "post")
+        post_test = self._post_test()
+        self.assertEqual(post_test["started"], [str(self.learner1.id)])
+        self.assertNotIn(str(self.learner1.id), post_test["scores"])
+
+    def test_retake_after_submission_is_scored_not_started(self):
+        _create_attempt(
+            self.learner1,
+            self.course_session.id,
+            self.unit_node.id,
+            "post",
+            items_correct=[ITEM_A1],
+        )
+        _start_attempt(self.learner1, self.course_session.id, self.unit_node.id, "post")
+        post_test = self._post_test()
+        self.assertEqual(post_test["started"], [])
+        self.assertIn(str(self.learner1.id), post_test["scores"])
+
+    def test_started_is_per_test_type(self):
+        _start_attempt(self.learner1, self.course_session.id, self.unit_node.id, "pre")
+        unit = self.client.get(self._get_url()).data["units"][0]
+        self.assertEqual(unit["pre_test"]["started"], [str(self.learner1.id)])
+        self.assertEqual(unit["post_test"]["started"], [])
+
+    def test_blank_submission_through_logger_api_is_scored(self):
+        self.client.login(username=self.learner1.username, password=DUMMY_PASSWORD)
+        session = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": self.unit_node.id,
+                "test_type": "post",
+                "course_session_id": self.course_session.id,
+            },
+            format="json",
+        ).json()
+        self.client.put(
+            reverse(
+                "kolibri:core:trackprogress-detail",
+                kwargs={"pk": session["session_id"]},
+            ),
+            # What PrePostTestRenderer sends when submitting with no answers.
+            data={"progress_delta": 1},
+            format="json",
+        )
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
+        post_test = self._post_test()
+        self.assertEqual(post_test["scores"], {str(self.learner1.id): {}})
+        self.assertEqual(post_test["started"], [])
 
 
 class UnitReportLearnerGroupTests(UnitReportAPIBase):

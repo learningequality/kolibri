@@ -671,6 +671,12 @@
         { immediate: true },
       );
 
+      watch(unitPhase, (phase, oldPhase) => {
+        if (phase && oldPhase) {
+          fetchAllUnitReports();
+        }
+      });
+
       useCourseNotificationPolling(store, courseSessionId, fetchAllUnitReports);
 
       const activeUnitReport = computed(() => unitReportInfo.value[activeUnit.value?.id] || null);
@@ -746,14 +752,6 @@
           label: learningObjectivesLabel$(),
         },
       ]);
-
-      // Re-fetch when switching to the Learning Objectives tab so that
-      // test state changes made on the Units tab are reflected immediately.
-      watch(activeTabId, newTab => {
-        if (newTab === TABS.OBJECTIVES) {
-          fetchAllUnitReports();
-        }
-      });
 
       // Phase-based status messages
       const unitStatusMessages = computed(() => {
@@ -923,10 +921,11 @@
         })),
       );
 
-      // The active unit block already names the unit when it is the one shown
       const showLearnersReportUnitTitle = computed(
         () =>
-          Boolean(learnersReportUnit.value) && learnersReportUnit.value.id !== activeUnit.value?.id,
+          Boolean(learnersReportUnit.value) &&
+          (learnersReportUnit.value.id !== activeUnit.value?.id ||
+            learnersReportData.value?.activeTestStatus === 'closed'),
       );
 
       // Derived from route params — supports deep-linking to a learner panel
@@ -1143,6 +1142,7 @@
   }
 
   .learners-report-unit-title {
+    padding: 0 24px;
     margin: 16px 0;
     font-size: 16px;
     font-weight: bold;

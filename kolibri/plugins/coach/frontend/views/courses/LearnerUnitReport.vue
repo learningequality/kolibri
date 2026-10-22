@@ -5,7 +5,7 @@
       v-if="!hasAttempted"
       :style="{ color: 'var(--tokens-annotation)' }"
     >
-      {{ noProgressLabel$() }}
+      {{ hasUnsubmittedTest ? testNotSubmittedLabel$() : noProgressLabel$() }}
     </p>
 
     <template v-else>
@@ -130,13 +130,14 @@
   import uniqueId from 'lodash/uniqueId';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { MasteryThreshold } from '../../constants/courseConstants';
-  import { learnerTestScores } from '../../utils';
+  import { learnerStartedTest, learnerTestScores } from '../../utils';
 
   export default {
     name: 'LearnerUnitReport',
     setup(props) {
       const {
         noProgressLabel$,
+        testNotSubmittedLabel$,
         strugglingWithObjectivesPrefixLabel$,
         strugglingWithObjectivesSuffixLabel$,
         onTrackWithObjectivesPrefixLabel$,
@@ -161,6 +162,8 @@
       const learnerScores = computed(() => learnerTestScores(data.value, props.learner.id));
 
       const hasAttempted = computed(() => learnerScores.value !== null);
+
+      const hasUnsubmittedTest = computed(() => learnerStartedTest(data.value, props.learner.id));
 
       const loData = computed(() => {
         return learningObjectives.value.map(lo => {
@@ -188,6 +191,7 @@
         unitTitleId,
         headingId,
         noProgressLabel$,
+        testNotSubmittedLabel$,
         strugglingWithObjectivesPrefixLabel$,
         strugglingWithObjectivesSuffixLabel$,
         onTrackWithObjectivesPrefixLabel$,
@@ -199,6 +203,7 @@
         questionsCorrectLabel$,
         ofNQuestionsLabel$,
         hasAttempted,
+        hasUnsubmittedTest,
         loTotalCount,
         strugglingCount,
         sortedLOs,
