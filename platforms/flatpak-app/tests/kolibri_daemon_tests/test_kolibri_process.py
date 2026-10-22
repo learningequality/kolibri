@@ -8,6 +8,8 @@ from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri_daemon.kolibri_process import KolibriDaemonProcess
 
+ifaddr = server.ifaddr
+
 
 class _RecordingApplication:
     def __init__(self, autostart=True):
@@ -128,3 +130,23 @@ class TestKolibriDaemonProcess(unittest.TestCase):
             bus.publish("ZIP_SERVING", 8765)
 
         self.assertEqual(application.state.extra_url, "http://127.0.0.1:8765/")
+
+    def test_serving_publishes_urls_on_the_listen_address(self):
+        lan = ifaddr.Adapter("eth0", "eth0", [ifaddr.IP("192.168.1.20", 24, "eth0")])
+        for listen_address, host in (
+            ("0.0.0.0", "127.0.0.1"),
+            ("192.0.2.7", "192.0.2.7"),
+        ):
+            with self.subTest(listen_address=listen_address):
+                application, bus, _ = self._make_bus()
+                with (
+                    mock.patch.dict(
+                        OPTIONS["Deployment"], {"LISTEN_ADDRESS": listen_address}
+                    ),
+                    mock.patch.object(ifaddr, "get_adapters", return_value=[lan]),
+                ):
+                    bus.publish("SERVING", 8080)
+                    bus.publish("ZIP_SERVING", 8081)
+
+                self.assertEqual(application.state.base_url, f"http://{host}:8080/")
+                self.assertEqual(application.state.extra_url, f"http://{host}:8081/")
