@@ -52,6 +52,12 @@ if [ "$INSTALLER_LANGUAGE" != "es-419" ]; then
     echo "ERROR: Registry Language is '$INSTALLER_LANGUAGE' (expected es-419)"
     exit 1
 fi
+APP_PACKAGE_DIR="$INSTALL_DIR/_internal/kolibri_app"
+if [ ! -f "$APP_PACKAGE_DIR/locales/es_419/LC_MESSAGES/wxapp.mo" ]; then
+    echo "ERROR: es_419 wxapp.mo not found under $APP_PACKAGE_DIR/locales"
+    ls -R "$APP_PACKAGE_DIR" || true
+    exit 1
+fi
 echo "✓ Installation files verified"
 
 # 3. Wait for Kolibri service to be running (installer starts it automatically)
