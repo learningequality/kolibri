@@ -21,9 +21,9 @@ function makeItem(widgets, content) {
 }
 
 // KA content in Kolibri channels predominantly uses the legacy input-number
-// widget. As of perseus-score v8.3+, input-number is scored by converting its
-// options and delegating to the numeric-input scorer, so these tests guard
-// the scoring path our checkAnswer() actually exercises.
+// widget. perseus-core 39 migrates its options to the numeric-input shape at
+// parse, and perseus-score 8.12.26 scores input-number with the numeric-input
+// scorer, so these tests guard the scoring path our checkAnswer() actually exercises.
 function makeInputNumberItem(options = {}) {
   return makeItem(
     {
