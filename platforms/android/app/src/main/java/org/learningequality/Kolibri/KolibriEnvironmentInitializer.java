@@ -61,13 +61,7 @@ public class KolibriEnvironmentInitializer {
       PyObject environ = osModule.get("environ");
 
       // KOLIBRI_HOME - where Kolibri stores its data
-      File externalFilesDir = context.getExternalFilesDir(null);
-      if (externalFilesDir == null) {
-        // Fallback to internal storage if external storage is unavailable
-        externalFilesDir = context.getFilesDir();
-        Log.w(TAG, "External storage unavailable, using internal storage");
-      }
-      File kolibriHome = new File(externalFilesDir, "KOLIBRI_DATA");
+      File kolibriHome = kolibriHome(context);
       if (!kolibriHome.exists()) {
         if (!kolibriHome.mkdirs()) {
           throw new RuntimeException("Failed to create KOLIBRI_HOME directory");
@@ -116,6 +110,16 @@ public class KolibriEnvironmentInitializer {
       Log.e(TAG, "Error setting Python environment variables", e);
       throw new RuntimeException("Failed to set Python environment variables", e);
     }
+  }
+
+  static File kolibriHome(Context context) {
+    File externalFilesDir = context.getExternalFilesDir(null);
+    if (externalFilesDir == null) {
+      // Fallback to internal storage if external storage is unavailable
+      externalFilesDir = context.getFilesDir();
+      Log.w(TAG, "External storage unavailable, using internal storage");
+    }
+    return new File(externalFilesDir, "KOLIBRI_DATA");
   }
 
   private static boolean isValidAndroidId(String androidId) {
