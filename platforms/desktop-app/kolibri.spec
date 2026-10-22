@@ -26,7 +26,7 @@ name = "Kolibri-{}".format(kolibri_version)
 dist_name = "Kolibri"
 
 locale_datas = [
-    (mo_file, os.path.sep.join(os.path.dirname(mo_file).split(os.path.sep)[1:]))
+    (mo_file, os.path.relpath(os.path.dirname(mo_file), 'src'))
     for mo_file in glob('src/kolibri_app/locales/**/LC_MESSAGES/*.mo')
 ]
 
