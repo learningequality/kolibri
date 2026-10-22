@@ -4,6 +4,7 @@ import expression from './expression';
 import grapher from './grapher';
 import inputNumber from './inputNumber';
 import interactiveGraph from './interactiveGraph';
+import labelImage from './labelImage';
 import matcher from './matcher';
 import matrix from './matrix';
 import numberLine from './numberLine';
@@ -21,6 +22,7 @@ const widgetSolvers = {
   grapher,
   'input-number': inputNumber,
   'interactive-graph': interactiveGraph,
+  'label-image': labelImage,
   matcher,
   matrix,
   'number-line': numberLine,

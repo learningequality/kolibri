@@ -8,6 +8,7 @@ import {
   generateGroupWidget,
   generateInputNumberWidget,
   generateInteractiveGraphWidget,
+  generateLabelImageOptions,
   generateLabelImageWidget,
   generateMatcherWidget,
   generateMatrixWidget,
@@ -526,6 +527,31 @@ describe('legacy widget items', () => {
     await mountRenderer(itemData('transformer', {}));
 
     expect(screen.queryByText(DEPRECATED_STANDIN)).toBeInTheDocument();
+  });
+
+  it('selects the correct choices for every label-image marker', async () => {
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemDataWithGeneratedWidget(
+        generateLabelImageWidget({
+          options: generateLabelImageOptions({
+            choices: ['Nucleus', 'Membrane'],
+            imageUrl: 'https://example.com/cell.png',
+            imageWidth: 100,
+            imageHeight: 100,
+            markers: [
+              { answers: ['Nucleus'], label: 'Centre', x: 50, y: 50 },
+              { answers: ['Membrane'], label: 'Edge', x: 90, y: 90 },
+            ],
+          }),
+        }),
+      ),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(instance().checkAnswer().correct).toBe(true);
   });
 
   it('shows the correct choice of a dropdown next to a molecule', async () => {

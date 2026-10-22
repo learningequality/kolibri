@@ -1,4 +1,8 @@
-import { generateNumberLineOptions } from '@khanacademy/perseus-core';
+import {
+  generateLabelImageOptions,
+  generateLabelImageWidget,
+  generateNumberLineOptions,
+} from '@khanacademy/perseus-core';
 import { scoreItem } from '../scoring';
 import makeItem from '../testUtils/makeItem';
 import widgetSolver from '../widgetSolver';
@@ -167,6 +171,22 @@ describe('widgetSolver', () => {
       generateNumberLineOptions({ tickStep: null, ...options }),
     );
     expect(userInput.numDivisions).toBe(numDivisions);
+  });
+
+  it('answers a label-image with the correct choices for every marker', () => {
+    const item = makeItem({
+      'label-image 1': generateLabelImageWidget({
+        options: generateLabelImageOptions({
+          choices: ['Nucleus', 'Membrane', 'Wall'],
+          markers: [
+            { answers: ['Nucleus'], label: 'Centre', x: 10, y: 10 },
+            { answers: ['Membrane', 'Wall'], label: 'Edge', x: 90, y: 90 },
+          ],
+        }),
+      }),
+    });
+    const userInput = solve(item.question.widgets, 'label-image 1');
+    expect(scoresCorrect(item, { 'label-image 1': userInput })).toBe(true);
   });
 
   it('throws for a numeric-input whose correct answer has no value', () => {
