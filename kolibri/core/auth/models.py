@@ -55,7 +55,6 @@ from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.hooks import GetOSUserHook
-from kolibri.core.device.hooks import os_account_name
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_full_facility_import
@@ -801,24 +800,25 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         Returns a FacilityUser object for the current OS user.
         If the user does not exist in the database, it is created.
         """
-        try:
-            os_username, is_superuser = GetOSUserHook.retrieve_os_user(auth_token)
-        except NotImplementedError:
+        os_user = GetOSUserHook.retrieve_os_user(auth_token)
+        if not os_user:
             return None
-        if not os_username:
-            return None
+        return self.get_or_create_for_os_user(os_user, facility=facility)
+
+    def get_or_create_for_os_user(self, os_user, facility=None):
         # Cycle: device.models imports this module.
         from kolibri.core.device.models import OSUser  # noqa: PLC0415
 
         try:
-            os_user = OSUser.objects.get(os_username=os_username)
-            return os_user.user
+            return OSUser.objects.get(os_username=os_user.os_user_id).user
         except OSUser.DoesNotExist as e:
             user = None
-            method = self.create_superuser if is_superuser else self.create_user
-            account_name = os_account_name(os_username)
+            method = self.create_superuser if os_user.is_superuser else self.create_user
+            full_name = (os_user.full_name or os_user.account_name)[
+                : self.model._meta.get_field("full_name").max_length
+            ]
             for i in range(10):
-                username = "{}{}".format("_" * i, account_name)
+                username = "{}{}".format("_" * i, os_user.account_name)
                 try:
                     validate_username(username)
                 except ValidationError:
@@ -831,15 +831,15 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
                             username,
                             password=NOT_SPECIFIED,
                             facility=facility,
-                            full_name=account_name,
+                            full_name=full_name,
                         )
-                        OSUser.objects.create(os_username=os_username, user=user)
+                        OSUser.objects.create(os_username=os_user.os_user_id, user=user)
                     break
                 except ValidationError:
                     pass
             if not user:
                 raise ValidationError(
-                    f"Error creating FacilityUser for OS user: {os_username}"
+                    f"Error creating FacilityUser for OS user: {os_user.os_user_id}"
                 ) from e
             return user
 
