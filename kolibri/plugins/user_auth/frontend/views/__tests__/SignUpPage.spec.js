@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
-import { nextTick, ref, computed } from 'vue';
+import { nextTick, ref } from 'vue';
 import client from 'kolibri/client';
 import {
   OptionsForSignIn,
@@ -9,18 +9,19 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { DemographicConstants } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { createTranslator } from 'kolibri/utils/i18n';
-import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { AuthFlowStore } from '../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import SignUpPage from '../SignUpPage';
 import UserAuthLayout from '../UserAuthLayout';
 import { ComponentMap } from '../../constants';
 import { pageTitleStrings } from '../pageTitleStrings';
 
-jest.mock('../../composables/useAuthFlow');
 jest.mock('../../composables/useAuthRouter');
 jest.mock('kolibri/client');
 jest.mock('kolibri/utils/redirectBrowser');
 jest.mock('kolibri/urls');
+
+AuthFlowStore.stub();
 
 const { DEFERRED } = DemographicConstants;
 const { finishAction$ } = coreStrings;
@@ -53,29 +54,27 @@ async function proceedToSignupSubmit(container) {
   await fireEvent.click(screen.getByRole('button', { name: finishAction$() }));
 }
 
-const selectedFacility = ref({
+const selectedFacility = {
   id: 1,
   name: 'Facility 1',
   dataset: {
     learner_can_login_with_no_password: true,
   },
-});
-const signInOptions = ref([OptionsForSignIn.USERNAME_PASSWORD]);
+};
 
 function renderComponent({
   step = 1,
   _signInOptions = [OptionsForSignIn.USERNAME_PASSWORD],
   inLayout = false,
 } = {}) {
-  signInOptions.value = _signInOptions;
-  useAuthFlow.mockReturnValue(
-    useAuthFlowMock({
-      selectedFacility,
-      signInOptions,
-      facilityId: computed(() => selectedFacility.value?.id || null),
-      canSignUpWithFacility: computed(() => true),
-    }),
-  );
+  AuthFlowStore.mock({
+    selectedFacility,
+    signInOptions: _signInOptions,
+    facilityId: selectedFacility.id,
+    canSignUpWithFacility: true,
+    signInMethod: OptionsForSignIn.USERNAME_PASSWORD,
+    canSignUp: false,
+  });
   useAuthRouter.mockReturnValue(
     useAuthRouterMock({
       defaultRoute: ref({ name: ComponentMap.USERNAME_SIGN_IN, params: {}, query: {} }),
@@ -145,11 +144,14 @@ describe('multiFacility signUpPage component', () => {
     renderComponent();
     expect(screen.getByTestId('facilityLabel')).toHaveTextContent('Facility 1');
     const FACILITY_2_NAME = 'Facility 2';
-    selectedFacility.value = {
-      id: 2,
-      name: FACILITY_2_NAME,
-      dataset: { learner_can_login_with_no_password: true },
-    };
+    AuthFlowStore.mock({
+      selectedFacility: {
+        id: 2,
+        name: FACILITY_2_NAME,
+        dataset: { learner_can_login_with_no_password: true },
+      },
+      facilityId: 2,
+    });
     expect(await screen.findByText(FACILITY_2_NAME)).toBeInTheDocument();
   });
 });
@@ -224,7 +226,7 @@ describe('signup submission', () => {
         expect.objectContaining({
           method: 'POST',
           data: {
-            facility: selectedFacility.value.id,
+            facility: selectedFacility.id,
             ...SIGNUP_INPUT,
             gender: DEFERRED,
             birth_year: DEFERRED,

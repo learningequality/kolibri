@@ -15,14 +15,12 @@ import useOnMyOwnSetup, {
   // eslint-disable-next-line import-x/named
   useOnMyOwnSetupMock,
 } from '../../../composables/useOnMyOwnSetup';
-import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 
 jest.mock('../../../composables/useOnMyOwnSetup');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/urls');
-jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
 
 const { fullNameLabel$, profileLabel$ } = coreStrings;
@@ -38,11 +36,6 @@ router.getRoute = () => {};
 
 function makeWrapper() {
   const store = makeStore();
-  useFacilities.mockImplementation(() =>
-    useFacilitiesMock({
-      facilityConfig: { learner_can_edit_password: true },
-    }),
-  );
   return mount(ProfilePage, {
     store,
     localVue,
@@ -111,7 +104,6 @@ describe('rendered page', () => {
     jest.clearAllMocks();
     useOnMyOwnSetup.mockImplementation(() => useOnMyOwnSetupMock({ onMyOwnSetup: false }));
     useKResponsiveWindow.mockImplementation(() => ({ windowIsSmall: false }));
-    useFacilities.mockImplementation(() => useFacilitiesMock({ facilities: ref([]) }));
   });
 
   it('titles the tab User Profile, with Profile as the only h1', async () => {

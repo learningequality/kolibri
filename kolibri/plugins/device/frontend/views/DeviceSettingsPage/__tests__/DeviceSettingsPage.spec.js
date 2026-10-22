@@ -4,10 +4,6 @@ import { Store } from 'vuex';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import DeviceSettingsPage, { pageTitleStrings } from '../index.vue';
-import usePlugins, {
-  // eslint-disable-next-line import-x/named
-  usePluginsMock,
-} from '../../../composables/usePlugins';
 
 import * as api from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
@@ -24,7 +20,9 @@ const {
   unlistedChannels$,
 } = createTranslator(DeviceSettingsPage.name, DeviceSettingsPage.$trs);
 
-jest.mock('../../../composables/usePlugins');
+jest.mock('kolibri-common/apiResources/PluginsResource', () => ({
+  list: jest.fn(() => Promise.resolve([])),
+}));
 jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
@@ -268,7 +266,6 @@ describe('DeviceSettingsPage', () => {
       const newData = { ...DeviceSettingsData };
       newData.allowLearnerUnassignedResourceAccess = true;
       api.getDeviceSettings.mockResolvedValue(newData);
-      usePlugins.mockImplementation(() => usePluginsMock());
     });
 
     it('landing page is Learn page', async () => {
