@@ -115,9 +115,13 @@ def get_assigned_sequences(facility):
     """
     Return the set of picture_password values already assigned to
     learners in the facility. Coaches and admins are excluded.
+
+    Soft-deleted learners are included: they keep their picture_password until
+    they are hard-deleted, so it still occupies the (dataset, picture_password)
+    unique constraint and is not free to hand out.
     """
     return set(
-        FacilityUser.objects.filter(
+        FacilityUser.all_objects.filter(
             facility=facility,
             roles__isnull=True,
             picture_password__isnull=False,

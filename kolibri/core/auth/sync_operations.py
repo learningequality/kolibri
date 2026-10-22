@@ -392,8 +392,11 @@ class PicturePasswordCollisionOperation(ReceiverDeserializeOperation):
         if not conflicting_passwords:
             return transfer_statuses.COMPLETED
 
+        # all_objects: a soft-deleted learner still holds its picture_password
+        # against the unique constraint, so it has to be reassigned too for the
+        # incoming record to deserialize.
         local_users = list(
-            FacilityUser.objects.filter(
+            FacilityUser.all_objects.filter(
                 dataset_id=dataset_id,
                 picture_password__in=conflicting_passwords,
             )

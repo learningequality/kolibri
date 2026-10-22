@@ -3,6 +3,7 @@ import uuid
 from unittest import mock
 
 from django.test import TestCase
+from django.utils.timezone import now
 from morango.constants import transfer_statuses
 from morango.errors import MorangoSkipOperation
 from morango.models import DeletedModels
@@ -59,6 +60,8 @@ def _make_broken_store(
 
 
 class PicturePasswordCollisionOperationTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.operation = PicturePasswordCollisionOperation()
         self.facility = Facility.objects.create(name="Test Facility")
@@ -213,6 +216,43 @@ class PicturePasswordCollisionOperationTestCase(TestCase):
         self.assertIsNone(broken_store.deserialization_exception)
 
         # _deserialize_from_store called for retry
+        mock_deserialize.assert_called_once()
+
+    @mock.patch(
+        "kolibri.core.auth.sync_operations._deserialize_from_store",
+    )
+    @mock.patch(
+        "kolibri.core.auth.sync_operations.ReceiverDeserializeOperation.handle",
+        return_value=transfer_statuses.COMPLETED,
+    )
+    @mock.patch(
+        "kolibri.core.auth.sync_operations.get_dataset_id",
+    )
+    def test_soft_deleted_local_user_reassigned(
+        self, mock_get_dataset_id, mock_super, mock_deserialize
+    ):
+        # A soft-deleted learner still holds the sequence against the unique
+        # constraint, so the incoming record cannot deserialize until it is
+        # reassigned, even though the default manager hides the row.
+        mock_get_dataset_id.return_value = self.dataset_id
+        local_user = FacilityUser.objects.create(
+            username="local_learner",
+            facility=self.facility,
+            picture_password=COLLISION_PASSWORD,
+        )
+        local_user.date_deleted = now()
+        local_user.save()
+        broken_store_id = _make_broken_store(self.dataset_id, self.transfer_session_id)
+
+        result = self.operation.handle(self.context)
+
+        self.assertEqual(transfer_statuses.COMPLETED, result)
+        local_user = FacilityUser.all_objects.get(pk=local_user.pk)
+        self.assertNotEqual(COLLISION_PASSWORD, local_user.picture_password)
+
+        broken_store = Store.objects.get(id=broken_store_id)
+        self.assertIsNone(broken_store.deserialization_error)
+        self.assertIsNone(broken_store.deserialization_exception)
         mock_deserialize.assert_called_once()
 
     @mock.patch(

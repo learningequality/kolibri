@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
+from django.utils.timezone import now
 from morango.sync.utils import mute_signals
 
 from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
@@ -64,6 +65,8 @@ class GetAllValidSequencesTestCase(TestCase):
 
 
 class GetAssignedSequencesTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create(name="Picture LoginTest Facility")
@@ -115,6 +118,21 @@ class GetAssignedSequencesTestCase(TestCase):
         )
         assigned = get_assigned_sequences(self.facility)
         self.assertNotIn("10.11.12", assigned)
+
+    def test_includes_soft_deleted_learners(self):
+        # A soft-deleted learner keeps its picture_password for 30 days, so the
+        # (dataset, picture_password) constraint still holds the sequence even
+        # though the default manager hides the row.
+        learner = FacilityUser.objects.create(
+            username="soft_deleted",
+            facility=self.facility,
+            picture_password="1.2.3",
+        )
+        learner.date_deleted = now()
+        learner.save()
+
+        assigned = get_assigned_sequences(self.facility)
+        self.assertIn("1.2.3", assigned)
 
 
 class AssignPicturePasswordTestCase(TestCase):
