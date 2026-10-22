@@ -2,12 +2,18 @@ import sys
 
 import pywintypes
 import win32service
+import win32serviceutil
+import winerror
 
 from kolibri_app.constants import RUN_AS_SERVER
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
 from kolibri_app.server_process_windows import WindowsKolibriProcess
 from kolibri_app.windows_registry import update_tray_icon_startup
+
+# NSSM waits AppStopMethodWindow (30s, set by the installer) for a graceful stop,
+# then terminates the server; leave room for both.
+SERVICE_STOP_TIMEOUT_SECONDS = 60
 
 start_type_map = {
     "auto": win32service.SERVICE_AUTO_START,
@@ -73,6 +79,26 @@ def run_service_command(new_state):
         return e.winerror
 
 
+def restart_service():
+    logging.info(f"Restarting service '{SERVICE_NAME}'.")
+    try:
+        try:
+            win32serviceutil.StopService(SERVICE_NAME)
+        except pywintypes.error as e:
+            if e.winerror != winerror.ERROR_SERVICE_NOT_ACTIVE:
+                raise
+        # StopService returns while the service is still stopping, and
+        # RestartService gives up after 30s without reporting failure.
+        win32serviceutil.WaitForServiceStatus(
+            SERVICE_NAME, win32service.SERVICE_STOPPED, SERVICE_STOP_TIMEOUT_SECONDS
+        )
+        win32serviceutil.StartService(SERVICE_NAME)
+        return 0
+    except pywintypes.error as e:
+        logging.error(f"Failed to restart the service. Win32 Error: {e}")
+        return e.winerror
+
+
 def handle_windows_commands():
     # This block handles command-line actions that don't launch the full app.
     # It is intended to be run with elevated privileges.
@@ -86,6 +112,9 @@ def handle_windows_commands():
         logging.info(f"Running elevated command to configure service: {new_state}")
         exit_code = run_service_command(new_state)
         sys.exit(exit_code)
+
+    if len(sys.argv) > 1 and sys.argv[1] == "--restart-service":
+        sys.exit(restart_service())
 
     # This block is the entry point for the server subprocess
     if RUN_AS_SERVER:
