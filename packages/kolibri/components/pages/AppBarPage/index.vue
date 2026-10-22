@@ -35,11 +35,13 @@
 
     <div
       id="main"
+      ref="main"
       class="main-wrapper"
       :style="[wrapperStyles]"
     >
       <h1
         v-if="pageHeading && !hasVisibleHeading"
+        ref="hiddenHeading"
         class="visuallyhidden"
       >
         {{ pageHeading }}
@@ -69,7 +71,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
-  import { pageHeading } from 'kolibri/composables/usePageTitle';
+  import { usePageHeading } from 'kolibri/composables/usePageTitle';
   import { ref, getCurrentInstance } from 'vue';
   import { useSwipe } from '@vueuse/core';
   import ScrollingHeader from '../ScrollingHeader';
@@ -89,6 +91,8 @@
       const isRtl = ref(instance?.proxy.isRtl);
       const swipeZone = ref(null);
       const navShown = ref(false);
+      const main = ref(null);
+      const hiddenHeading = ref(null);
 
       useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
@@ -107,7 +111,9 @@
         isAppContext,
         swipeZone,
         navShown,
-        pageHeading,
+        main,
+        hiddenHeading,
+        pageHeading: usePageHeading(main, hiddenHeading),
       };
     },
     props: {
