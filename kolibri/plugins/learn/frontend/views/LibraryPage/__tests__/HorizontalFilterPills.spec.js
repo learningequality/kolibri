@@ -19,13 +19,6 @@ const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
 
 const KEYWORD_FILTER = 'hummingbirds';
 
-// Language names come from catalog data, not the translation layer, so they are
-// referenced via this fixture rather than a coreStrings key.
-const LANGUAGES = [
-  { id: 'en', lang_name: 'English' },
-  { id: 'es', lang_name: 'Español' },
-];
-
 const mockActivities = {
   CREATE: 'UXADWcXZ',
   EXPLORE: '#j8L0eq3',
@@ -54,10 +47,6 @@ function defaultLabelForFilter(key, value) {
   if (key === 'categories') {
     const categoryKey = CategoriesLookup[value];
     return categoryKey ? coreString(categoryKey) : value;
-  }
-  if (key === 'languages') {
-    const lang = LANGUAGES.find(l => l.id === value);
-    return lang ? lang.lang_name : value;
   }
   return coreString(value);
 }
@@ -325,19 +314,6 @@ describe('HorizontalFilterPills', () => {
       expect(screen.getByTestId('grade_levels-pill')).toBeInTheDocument();
       expect(screen.getByRole('checkbox', { name: basicSkills$() })).toBeChecked();
     });
-
-    it('labels an applied language with its name, not the raw code', () => {
-      // Language values are codes that coreString cannot resolve; the pill must
-      // show the human-readable name from the languages catalog instead.
-      const language = LANGUAGES[1];
-      renderComponent({
-        appliedFilters: () => [{ key: 'languages', value: language.id }],
-        isFilterActive: (key, value) => key === 'languages' && value === language.id,
-      });
-      expect(screen.getByTestId('language-pill')).toBeInTheDocument();
-      expect(screen.getByRole('checkbox', { name: language.lang_name })).toBeChecked();
-      expect(screen.queryByText(language.id)).not.toBeInTheDocument();
-    });
   });
 
   describe('all filters pill', () => {
@@ -362,6 +338,28 @@ describe('HorizontalFilterPills', () => {
         searchableLabels: ref({ learning_activities: [], categories: [], languages: [] }),
       });
       expect(screen.queryByRole('button', { name: allFilters$() })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('clear all', () => {
+    it('is not rendered when no filters are applied', () => {
+      renderComponent();
+      expect(screen.queryByRole('button', { name: clearAllAction$() })).not.toBeInTheDocument();
+    });
+
+    it('is rendered when a filter is applied', () => {
+      renderComponent({
+        appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
+      });
+      expect(screen.getByRole('button', { name: clearAllAction$() })).toBeInTheDocument();
+    });
+
+    it('clears the whole search when clicked', async () => {
+      const { clearSearch } = renderComponent({
+        appliedFilters: () => [{ key: 'keywords', value: 'hummingbirds' }],
+      });
+      await fireEvent.click(screen.getByRole('button', { name: clearAllAction$() }));
+      expect(clearSearch).toHaveBeenCalled();
     });
 
     it('emits focusLost when clicked, since clearing removes the button', async () => {
@@ -413,28 +411,6 @@ describe('HorizontalFilterPills', () => {
 
       expect(checkbox).toHaveFocus();
       expect(emitted().focusLost).toBeFalsy();
-    });
-  });
-
-  describe('clear all', () => {
-    it('is not rendered when no filters are applied', () => {
-      renderComponent();
-      expect(screen.queryByRole('button', { name: clearAllAction$() })).not.toBeInTheDocument();
-    });
-
-    it('is rendered when a filter is applied', () => {
-      renderComponent({
-        appliedFilters: () => [{ key: 'learning_activities', value: 'UXADWcXZ' }],
-      });
-      expect(screen.getByRole('button', { name: clearAllAction$() })).toBeInTheDocument();
-    });
-
-    it('clears the whole search when clicked', async () => {
-      const { clearSearch } = renderComponent({
-        appliedFilters: () => [{ key: 'keywords', value: 'hummingbirds' }],
-      });
-      await fireEvent.click(screen.getByRole('button', { name: clearAllAction$() }));
-      expect(clearSearch).toHaveBeenCalled();
     });
   });
 });

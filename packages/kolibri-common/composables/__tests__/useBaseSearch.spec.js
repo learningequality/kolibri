@@ -2,7 +2,8 @@ import { get, set } from '@vueuse/core';
 import Vue, { nextTick, ref, defineComponent, h } from 'vue';
 import { render } from '@testing-library/vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import { ContentNodeKinds, LearningActivities } from 'kolibri/constants';
+import { Categories, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { useRoute, useRouter } from 'vue-router/composables'; // eslint-disable-line
 import Modalities from 'kolibri-constants/Modalities';
@@ -640,6 +641,45 @@ describe(`useBaseSearch`, () => {
       unmount();
       jest.advanceTimersByTime(300);
       expect(ContentNodeResource.list).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('labelForFilter', () => {
+    const { basicSkills$, mathematics$, watch$ } = coreStrings;
+
+    it('returns a keyword as typed', () => {
+      const api = mountSearch().getApi();
+      expect(api.labelForFilter('keywords', 'hummingbirds')).toBe('hummingbirds');
+    });
+
+    it('translates a learning activity', () => {
+      const api = mountSearch().getApi();
+      expect(api.labelForFilter('learning_activities', LearningActivities.WATCH)).toBe(watch$());
+    });
+
+    it('translates a nested subcategory, not its raw path', () => {
+      const api = mountSearch().getApi();
+      expect(api.labelForFilter('categories', Categories.MATHEMATICS)).toBe(mathematics$());
+    });
+
+    it('translates a grade level', () => {
+      const api = mountSearch().getApi();
+      expect(api.labelForFilter('grade_levels', 'basic_skills')).toBe(basicSkills$());
+    });
+
+    it('names a language from the label catalog, not its code', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ labels: { languages: [{ id: 'es', lang_name: 'Español' }] } }),
+      );
+      const api = mountSearch().getApi();
+      await nextTick();
+      await nextTick();
+      expect(api.labelForFilter('languages', 'es')).toBe('Español');
+    });
+
+    it('falls back to the code for a language missing from the catalog', () => {
+      const api = mountSearch().getApi();
+      expect(api.labelForFilter('languages', 'xx')).toBe('xx');
     });
   });
 
