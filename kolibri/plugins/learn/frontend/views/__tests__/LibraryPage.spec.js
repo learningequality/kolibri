@@ -106,11 +106,13 @@ describe('LibraryPage', () => {
     );
   });
   describe('skip navigation', () => {
-    it("names the main landmark to match the page's own heading", async () => {
+    it("names the main landmark by the page's own heading", async () => {
       const wrapper = await makeWrapper();
-      expect(wrapper.find('main.main-grid').attributes('aria-label')).toBe(
-        coreString('yourLibrary'),
-      );
+      const main = wrapper.find('main.main-grid');
+      const heading = wrapper.find(`#${main.attributes('aria-labelledby')}`);
+      expect(heading.element.tagName).toBe('H1');
+      expect(heading.text()).toBe(coreString('yourLibrary'));
+      expect(main.attributes('aria-label')).toBeUndefined();
     });
   });
 

@@ -23,7 +23,7 @@
     >
       <main
         class="main-grid"
-        :aria-label="displayingSearchResults ? null : channelsLabel"
+        :aria-labelledby="displayingSearchResults ? null : 'library-channels-heading'"
       >
         <!--
           The search bar precedes the h1 in the DOM. Manually overriding
@@ -70,27 +70,20 @@
         >
           <div>
             <h1
-              v-if="!isLocalLibraryEmpty"
+              v-if="!isLocalLibraryEmpty || hasNetworkLibraries"
+              id="library-channels-heading"
               class="channels-label"
             >
               {{ channelsLabel }}
             </h1>
-            <div
-              v-else-if="
-                isLocalLibraryEmpty && isNetworkLibraryAvailable && !isLoadingNetworkLibraries
-              "
+            <p
+              v-if="isLocalLibraryEmpty && hasNetworkLibraries"
+              data-testid="nothing-in-lib-label"
+              class="nothing-in-lib-label"
             >
-              <h1 class="channels-label">
-                {{ channelsLabel }}
-              </h1>
-              <p
-                data-testid="nothing-in-lib-label"
-                class="nothing-in-lib-label"
-              >
-                {{ coreString('nothingInLibraryLearner') }}
-              </p>
-            </div>
-            <NoResourcePage v-else />
+              {{ coreString('nothingInLibraryLearner') }}
+            </p>
+            <NoResourcePage v-else-if="isLocalLibraryEmpty" />
           </div>
 
           <ChannelCardGroupGrid
@@ -452,6 +445,9 @@
       };
     },
     computed: {
+      hasNetworkLibraries() {
+        return this.isNetworkLibraryAvailable && !this.isLoadingNetworkLibraries;
+      },
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
