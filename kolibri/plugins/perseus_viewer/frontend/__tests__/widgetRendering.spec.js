@@ -139,6 +139,213 @@ function dropdownOptions(choices, correct) {
   };
 }
 
+const TWO_DROPDOWNS = itemDataWithWidgets({
+  'dropdown 1': { type: 'dropdown', options: dropdownOptions(['Apple', 'Banana'], 'Banana') },
+  'dropdown 2': { type: 'dropdown', options: dropdownOptions(['Carrot', 'Leek'], 'Carrot') },
+});
+
+describe('restored answers', () => {
+  it('selects the saved choice in every dropdown', async () => {
+    await mountRenderer(TWO_DROPDOWNS, {
+      answerState: {
+        userInput: { 'dropdown 1': { value: 1 }, 'dropdown 2': { value: 2 } },
+        hintsVisible: 0,
+      },
+    });
+
+    const [first, second] = screen.getAllByRole('combobox');
+    expect(first).toHaveTextContent('Apple');
+    expect(second).toHaveTextContent('Leek');
+  });
+});
+
+describe('show correct answer', () => {
+  it('selects the correct choice in every dropdown', async () => {
+    await mountRenderer(TWO_DROPDOWNS, { showCorrectAnswer: true });
+
+    const [first, second] = screen.getAllByRole('combobox');
+    expect(first).toHaveTextContent('Banana');
+    expect(second).toHaveTextContent('Carrot');
+  });
+
+  it('shows the correct answer alongside a widget that is not scored', async () => {
+    const answerUnavailable = jest.fn();
+    await mountRenderer(
+      itemDataWithWidgets({
+        'dropdown 1': { type: 'dropdown', options: dropdownOptions(['Apple', 'Banana'], 'Banana') },
+        'definition 1': {
+          type: 'definition',
+          options: { togglePrompt: 'ethanol', definition: 'An alcohol' },
+        },
+      }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(screen.getByRole('combobox')).toHaveTextContent('Banana');
+  });
+
+  it('reports that the answer is unavailable when a widget has no solver', async () => {
+    const answerUnavailable = jest.fn();
+    await mountRenderer(
+      itemDataWithWidgets({
+        'dropdown 1': { type: 'dropdown', options: dropdownOptions(['Apple', 'Banana'], 'Banana') },
+        'free-response 1': generateFreeResponseWidget(),
+      }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).toHaveBeenCalledTimes(1);
+  });
+
+  const DROPDOWN_CONTENT = {
+    content: '[[☃ dropdown 1]]',
+    images: {},
+    widgets: {
+      'dropdown 1': {
+        type: 'dropdown',
+        graded: true,
+        options: dropdownOptions(['Apple', 'Banana'], 'Banana'),
+      },
+    },
+  };
+
+  it.each([
+    ['graded-group', { ...DROPDOWN_CONTENT, title: 'Part 1' }],
+    ['graded-group-set', { gradedGroups: [{ ...DROPDOWN_CONTENT, title: 'Part 1' }] }],
+  ])('reports that the answer is unavailable for a %s', async (type, options) => {
+    const answerUnavailable = jest.fn();
+    await mountRenderer(
+      itemData(type, options),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).toHaveBeenCalledTimes(1);
+  });
+
+  it('writes a decimal answer with the content language decimal separator', async () => {
+    await mountRenderer(
+      itemData('input-number', {
+        value: 0.4,
+        answerType: 'decimal',
+        simplify: 'required',
+        size: 'normal',
+      }),
+      { showCorrectAnswer: true, lang: { id: 'fr-fr' } },
+    );
+
+    expect(screen.getByRole('textbox', { hidden: true })).toHaveTextContent('0,4');
+  });
+
+  it('fills a table without reporting the answer as unavailable', async () => {
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemData('table', {
+        headers: ['a'],
+        rows: 2,
+        columns: 1,
+        answers: [['1'], ['2']],
+      }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
+
+  it('answers a legacy input-number in an item with a widget that fails to parse', async () => {
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemDataWithWidgets({
+        'input-number 1': {
+          type: 'input-number',
+          options: { value: 0.5, simplify: 'required', size: 'normal', answerType: 'number' },
+        },
+        'measurer 1': generateMeasurerWidget(),
+      }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { hidden: true })).toHaveTextContent('1/2');
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
+
+  it.each([
+    ['no size', { value: 5, simplify: 'required', answerType: 'number' }],
+    ['a boolean simplify', { value: 5, simplify: true, size: 'normal', answerType: 'number' }],
+    ['no simplify', { value: 5, size: 'normal', answerType: 'number' }],
+    ['an unknown answerType', { value: 5, simplify: 'required', size: 'normal', answerType: 'x' }],
+    ['a string inexact', { value: 5, simplify: 'required', size: 'normal', inexact: 'false' }],
+    ['a numeric rightAlign', { value: 5, simplify: 'required', size: 'normal', rightAlign: 0 }],
+    [
+      'null optional fields',
+      {
+        value: 5,
+        simplify: 'required',
+        size: 'normal',
+        answerType: null,
+        maxError: null,
+        inexact: null,
+        rightAlign: null,
+      },
+    ],
+  ])('answers a legacy input-number with %s', async (_, options) => {
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemData('input-number', options),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { hidden: true })).toHaveTextContent('5');
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
+
+  const LEGACY_INPUT_NUMBER = {
+    type: 'input-number',
+    graded: true,
+    version: { major: 0, minor: 0 },
+    options: { value: 0.5, simplify: 'required', size: 'normal', answerType: 'number' },
+  };
+
+  it.each([
+    ['a null graded', { graded: null }],
+    ['a null alignment', { alignment: null }],
+    ['a null static', { static: null }],
+    ['a version with no minor', { version: { major: 0 } }],
+    ['a boolean maxError', { options: { ...LEGACY_INPUT_NUMBER.options, maxError: true } }],
+  ])('answers a legacy input-number with %s', async (_, fields) => {
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemDataWithGeneratedWidget({ ...LEGACY_INPUT_NUMBER, ...fields }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { hidden: true })).toHaveTextContent('1/2');
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
+
+  it('accepts a restored answer to a legacy input-number with no size', async () => {
+    const { instance } = await mountRenderer(
+      itemData('input-number', { value: 5, simplify: 'required', answerType: 'number' }),
+      {
+        answerState: { userInput: { 'input-number 1': { currentValue: '5' } }, hintsVisible: 0 },
+      },
+    );
+
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
+});
+
 const RADIO_OPTIONS = {
   choices: [
     { content: 'Ethanol', correct: true },
@@ -319,5 +526,20 @@ describe('legacy widget items', () => {
     await mountRenderer(itemData('transformer', {}));
 
     expect(screen.queryByText(DEPRECATED_STANDIN)).toBeInTheDocument();
+  });
+
+  it('shows the correct choice of a dropdown next to a molecule', async () => {
+    await mountRenderer(
+      itemDataWithWidgets({
+        'molecule-renderer 1': { type: 'molecule-renderer', options: MOLECULE_OPTIONS },
+        'dropdown 1': {
+          type: 'dropdown',
+          options: dropdownOptions(['Methanol', 'Ethanol'], 'Ethanol'),
+        },
+      }),
+      { showCorrectAnswer: true },
+    );
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('Ethanol');
   });
 });
