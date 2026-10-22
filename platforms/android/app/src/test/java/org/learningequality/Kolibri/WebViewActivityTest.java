@@ -2,28 +2,56 @@ package org.learningequality.Kolibri;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.app.Application;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
+import android.print.PageRange;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.appcompat.app.AlertDialog;
+import java.util.Arrays;
+import java.util.Map;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.learningequality.Kolibri.discovery.DiscoveredServer;
+import org.learningequality.Kolibri.discovery.DiscoveredServers;
+import org.learningequality.Kolibri.discovery.FakeServerDiscovery;
+import org.learningequality.Kolibri.discovery.ServerDiscovery;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
+import org.robolectric.shadows.ShadowDialog;
+import org.robolectric.shadows.ShadowToast;
 import org.robolectric.shadows.ShadowWebView;
 
 /**
@@ -40,7 +68,7 @@ public class WebViewActivityTest {
   /** PAGE_PATH's page as the server serves it: {@code next} carries only the path. */
   private static final String FACILITY_PATH = "/en/facility/";
 
-  private static final String FACILITY_URL = ORIGIN + FACILITY_PATH;
+  static final String FACILITY_URL = ORIGIN + FACILITY_PATH;
   private static final String AUTH_PATH = "/en/auth/#/signin";
   private static final String AUTH_URL = ORIGIN + AUTH_PATH;
   private static final String DEVICE_PATH = "/en/device/";
@@ -51,20 +79,36 @@ public class WebViewActivityTest {
   private static final String NEW_ORIGIN_INITIALIZE_URL =
       "http://127.0.0.1:45791/api/device/initialize/abc?auth_token=t";
 
+  private static final DiscoveredServer LIBRARY =
+      DiscoveredServers.server("abc", "Library", "192.168.1.20");
+  private static final String LIBRARY_ORIGIN = "http://192.168.1.20:" + DiscoveredServers.PORT;
+  private static final DiscoveredServer LAB =
+      DiscoveredServers.server("def", "Lab", "192.168.1.30");
+  private static final DiscoveredServer OFFICE =
+      DiscoveredServers.server("ghi", "Office", "192.168.1.40");
+
+  private static final String DOWNLOAD_NAME = "report.csv";
+  private static final String BLOB_DATA = "YSxiLGM=";
+
+  private static final int[] DIALOG_BUTTONS = {
+    DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_NEUTRAL
+  };
+
+  private FakeServerDiscovery discovery;
   private ActivityController<WebViewActivity> controller;
   private WebView webView;
   private FreezeTrackingWebView shadowWebView;
 
   @Before
   public void setUp() {
-    controller = Robolectric.buildActivity(WebViewActivity.class).setup();
-    webView = controller.get().findViewById(R.id.webview);
-    shadowWebView = (FreezeTrackingWebView) shadowOf(webView);
+    ServerSelection.selectLocal(application());
+    launch();
   }
 
   @After
   public void tearDown() {
     controller.close();
+    ServerDiscovery.setInstanceForTesting(null);
     // The singleton is shared across test methods in a Robolectric sandbox, and it posts its
     // value, so the reset only lands once the main looper runs.
     KolibriServerViewModel.getInstance().resetServerState();
@@ -176,6 +220,750 @@ public class WebViewActivityTest {
     assertEquals(FACILITY_PATH, WebViewLocation.getLastPath(controller.get()));
   }
 
+  @Test
+  public void aRemoteServerLoadsAtItsBaseUrlWithNoToken() {
+    Map<String, String> txt = DiscoveredServers.kolibriTxt("abc", "Library");
+    txt.put("prefix", "\"/kolibri/\"");
+    DiscoveredServer prefixed =
+        DiscoveredServer.fromTxt(txt, "192.168.1.20", DiscoveredServers.PORT);
+
+    controller.get().showRemote(prefixed);
+
+    assertEquals(LIBRARY_ORIGIN + "/kolibri/", shadowWebView.getLastLoadedUrl());
+  }
+
+  @Test
+  public void showingARemoteServerStopsTheLocalOne() {
+    controller.get().showRemote(LIBRARY);
+
+    assertServerService(shadowOf(application()).getNextStoppedService());
+  }
+
+  @Test
+  public void aRemoteChoiceIsRemembered() {
+    controller.get().showRemote(LIBRARY);
+
+    assertEquals(LIBRARY, controller.get().currentServer());
+    assertEquals("abc", ServerSelection.get(application()));
+  }
+
+  @Test
+  public void aRemoteSelectionStartsNoLocalServerOnReturning() {
+    controller.get().showRemote(LIBRARY);
+    controller.stop();
+    shadowOf(application()).clearStartedServices();
+
+    controller.start();
+
+    assertNull(shadowOf(application()).getNextStartedService());
+  }
+
+  @Test
+  public void aLocalSelectionRestartsTheServerOnReturning() {
+    ServerSelection.selectLocal(application());
+    controller.stop();
+    shadowOf(application()).clearStartedServices();
+
+    controller.start();
+
+    assertServerService(shadowOf(application()).getNextStartedService());
+  }
+
+  @Test
+  public void aRemotePageIsThawedOnReturning() {
+    controller.get().showRemote(LIBRARY);
+    reachAPage(LIBRARY_ORIGIN + FACILITY_PATH);
+
+    controller.stop().start();
+
+    assertRunning();
+  }
+
+  @Test
+  public void theSelectedServerStaysInAppOnAnyOfItsPorts() {
+    controller.get().showRemote(LIBRARY);
+
+    assertTrue(staysInApp(LIBRARY_ORIGIN + FACILITY_PATH));
+    assertTrue(staysInApp("http://192.168.1.20:8081/zipcontent/a.zip/index.html"));
+  }
+
+  @Test
+  public void loopbackStaysInAppWhileRemote() {
+    controller.get().showRemote(LIBRARY);
+
+    assertTrue(staysInApp(PAGE_URL));
+  }
+
+  @Test
+  public void anUnselectedHostOpensInTheBrowserWhileRemote() {
+    controller.get().showRemote(LIBRARY);
+
+    assertOpensInTheBrowser(LAB.getBaseUrl());
+    assertOpensInTheBrowser("https://learningequality.org/");
+  }
+
+  @Test
+  public void switchingBackToLocalStartsTheServer() {
+    controller.get().showRemote(LIBRARY);
+    shadowOf(application()).clearStartedServices();
+
+    controller.get().showLocal();
+
+    assertServerService(shadowOf(application()).getNextStartedService());
+    assertNull(controller.get().currentServer());
+    assertEquals(ServerSelection.LOCAL, ServerSelection.get(application()));
+  }
+
+  @Test
+  public void switchingBackToLocalSendsTheOldRemoteToTheBrowser() {
+    controller.get().showRemote(LIBRARY);
+
+    controller.get().showLocal();
+
+    assertOpensInTheBrowser(LIBRARY.getBaseUrl());
+  }
+
+  @Test
+  public void switchingBackToLocalCoversTheRemotePageUntilTheLocalOneLoads() {
+    controller.get().showRemote(LIBRARY);
+    reachAPage(LIBRARY_ORIGIN + FACILITY_PATH);
+
+    controller.get().showLocal();
+    reachAPage(LIBRARY_ORIGIN + PAGE_PATH);
+
+    assertCovered();
+
+    reachAPage(PAGE_URL);
+
+    assertUncovered();
+  }
+
+  @Test
+  public void switchingBackToLocalUnloadsTheRemotePage() {
+    controller.get().showRemote(LIBRARY);
+    reachAPage(LIBRARY_ORIGIN + FACILITY_PATH);
+
+    controller.get().showLocal();
+
+    assertEquals("about:blank", shadowWebView.getLastLoadedUrl());
+
+    controller.get().loadIfOriginChanged(SAME_ORIGIN_INITIALIZE_URL, PAGE_PATH);
+
+    assertEquals(SAME_ORIGIN_INITIALIZE_URL, shadowWebView.getLastLoadedUrl());
+  }
+
+  @Test
+  public void choosingLocalWhileAlreadyLocalLeavesThePageUncovered() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    controller.get().showLocal();
+
+    assertUncovered();
+  }
+
+  @Test
+  public void theServerChipSitsBelowThePageRatherThanOverIt() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+    discovery.nearby(LIBRARY);
+    View root = controller.get().findViewById(R.id.root_container);
+    root.measure(
+        View.MeasureSpec.makeMeasureSpec(360, View.MeasureSpec.EXACTLY),
+        View.MeasureSpec.makeMeasureSpec(640, View.MeasureSpec.EXACTLY));
+    root.layout(0, 0, 360, 640);
+    View chip = controller.get().findViewById(R.id.server_chip);
+
+    assertTrue("chip is laid out", chip.getHeight() > 0);
+    assertTrue(
+        "chip is below the page",
+        topInWindow(chip) >= topInWindow(webView) + webView.getHeight());
+  }
+
+  @Test
+  public void aLocalLoadLandingAfterSwitchingToARemoteIsDropped() {
+    controller.get().showRemote(LIBRARY);
+
+    controller.get().loadIfOriginChanged(SAME_ORIGIN_INITIALIZE_URL, PAGE_PATH);
+
+    assertEquals(LIBRARY.getBaseUrl(), shadowWebView.getLastLoadedUrl());
+  }
+
+  @Test
+  public void remoteNavigationsLeaveTheSavedLocalPathAlone() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    controller.get().showRemote(LIBRARY);
+    reachAPage(LIBRARY_ORIGIN + FACILITY_PATH);
+    webView.getWebViewClient().doUpdateVisitedHistory(webView, LIBRARY_ORIGIN + PAGE_PATH, false);
+
+    assertEquals(PAGE_PATH, WebViewLocation.getLastPath(controller.get()));
+  }
+
+  @Test
+  public void aPendingLocalRestoreIsNotPutOnARemotePage() {
+    serverComesUp();
+    controller.get().loadIfOriginChanged(SAME_ORIGIN_INITIALIZE_URL, PAGE_PATH);
+
+    controller.get().showRemote(LIBRARY);
+    reachAPage(LIBRARY_ORIGIN + FACILITY_PATH);
+
+    assertNull(injectedRestore());
+  }
+
+  @Test
+  public void aFirstRunWithSeveralServersNearbyOffersThemAndThisDevice() {
+    relaunchWithNothingChosen();
+
+    discovery.answer(LIBRARY, LAB);
+
+    Dialog picker = ServerSheetTest.sheet();
+    assertTrue(picker.isShowing());
+    assertFalse(shadowOf(picker).isCancelable());
+    assertEquals(
+        Arrays.asList(application().getString(R.string.start_my_own_kolibri), "Library", "Lab"),
+        ServerSheetTest.rowNames());
+    assertNull(shadowWebView.getLastLoadedUrl());
+    assertNull(shadowOf(application()).getNextStartedService());
+  }
+
+  @Test
+  public void aFirstRunPickerCannotBeDraggedDown() {
+    relaunchWithNothingChosen();
+
+    discovery.answer(LIBRARY, LAB);
+
+    assertFalse(ServerSheetTest.sheetBehavior().isDraggable());
+  }
+
+  @Test
+  public void aFirstRunPickerFollowsServersTurningUpAndLeaving() {
+    relaunchWithNothingChosen();
+    discovery.answer(LIBRARY, LAB);
+
+    discovery.nearby(LIBRARY, OFFICE);
+
+    assertEquals(
+        Arrays.asList(application().getString(R.string.start_my_own_kolibri), "Library", "Office"),
+        ServerSheetTest.rowNames());
+  }
+
+  @Test
+  public void aFirstRunWithOneServerNearbyOpensIt() {
+    relaunchWithNothingChosen();
+
+    discovery.answer(LIBRARY);
+
+    assertEquals(LIBRARY.getBaseUrl(), shadowWebView.getLastLoadedUrl());
+    assertEquals("abc", ServerSelection.get(application()));
+    assertNull(ShadowDialog.getLatestDialog());
+  }
+
+  @Test
+  public void aFirstRunWithNoServerNearbyStartsItsOwn() {
+    relaunchWithNothingChosen();
+    assertNull(shadowOf(application()).getNextStartedService());
+
+    discovery.answer();
+
+    assertServerService(shadowOf(application()).getNextStartedService());
+    assertEquals(ServerSelection.LOCAL, ServerSelection.get(application()));
+  }
+
+  @Test
+  public void aLocalSelectionStartsTheServerWithoutWaitingForDiscovery() {
+    assertServerService(shadowOf(application()).getNextStartedService());
+    assertEquals(0, discovery.calls());
+  }
+
+  @Test
+  public void nearbyServersAreWatchedForOnlyWhileTheAppIsInTheForeground() {
+    assertTrue(discovery.watching());
+
+    controller.stop();
+
+    assertFalse(discovery.watching());
+
+    controller.start();
+
+    assertTrue(discovery.watching());
+  }
+
+  @Test
+  public void aRemotePagePrintsOnlyOnceTheUserAllowsIt() {
+    showLibraryPage();
+
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+
+    TextView message = unreachableDialog().findViewById(android.R.id.message);
+    assertEquals(
+        application().getString(R.string.remote_print_confirm, "Library"),
+        message.getText().toString());
+    assertEquals(0, shadowWebView.printAdapters);
+
+    clickDialogButton(R.string.remote_print_allow);
+
+    assertEquals(1, shadowWebView.printAdapters);
+  }
+
+  @Test
+  public void aPageFromThisDevicesServerPrintsWithoutAsking() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+
+    assertNull(ShadowDialog.getLatestDialog());
+    assertEquals(1, shadowWebView.printAdapters);
+  }
+
+  @Test
+  public void aRemotePageAsksAgainOnlyOnceTheUserHasAnswered() {
+    showLibraryPage();
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+    Dialog asked = ShadowDialog.getLatestDialog();
+
+    bridge().print();
+    startBlobDownload(LIBRARY_ORIGIN);
+    shadowOf(Looper.getMainLooper()).idle();
+    assertSame(asked, ShadowDialog.getLatestDialog());
+
+    clickDialogButton(android.R.string.cancel);
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+    assertNotSame(asked, ShadowDialog.getLatestDialog());
+  }
+
+  @Test
+  public void aRemotePagesQuestionGoesWhenTheUserLeavesThatServer() {
+    showLibraryPage();
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+    Dialog asked = ShadowDialog.getLatestDialog();
+
+    controller.get().showRemote(LAB);
+
+    assertFalse(asked.isShowing());
+  }
+
+  @Test
+  public void aRemoteDownloadStartsOnlyOnceTheUserAllowsIt() {
+    showLibraryPage();
+
+    startBlobDownload(LIBRARY_ORIGIN);
+
+    TextView message = unreachableDialog().findViewById(android.R.id.message);
+    assertEquals(
+        application().getString(R.string.remote_download_confirm, DOWNLOAD_NAME, "Library"),
+        message.getText().toString());
+    assertEquals(0, ShadowToast.shownToastCount());
+    assertNull(blobFetch());
+
+    clickDialogButton(R.string.remote_download_allow);
+
+    assertNotNull(blobFetch());
+    assertEquals(
+        application().getString(R.string.toast_download_started, DOWNLOAD_NAME),
+        ShadowToast.getTextOfLatestToast());
+  }
+
+  @Test
+  public void aDownloadFromThisDevicesServerStartsWithoutAsking() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    startBlobDownload(ORIGIN);
+
+    assertNull(ShadowDialog.getLatestDialog());
+    assertNotNull(blobFetch());
+  }
+
+  @Test
+  public void aRemotePageCannotSaveAFileTheUserDidNotAllow() {
+    showLibraryPage();
+
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+    bridge().notifyBlobDownloadFailed(DOWNLOAD_NAME);
+
+    assertEquals(0, ShadowToast.shownToastCount());
+  }
+
+  @Test
+  public void aRemotePageSavesTheOneFileTheUserAllowed() {
+    showLibraryPage();
+    allowLibraryDownload();
+    int toasts = ShadowToast.shownToastCount();
+
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+
+    assertEquals(toasts + 1, ShadowToast.shownToastCount());
+
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+
+    assertEquals(toasts + 1, ShadowToast.shownToastCount());
+  }
+
+  @Test
+  public void aRemotePageSavesEachOfTwoDownloadsTheUserAllowed() {
+    showLibraryPage();
+    allowLibraryDownload();
+    allowLibraryDownload();
+    int toasts = ShadowToast.shownToastCount();
+
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+
+    assertEquals(toasts + 2, ShadowToast.shownToastCount());
+  }
+
+  @Test
+  public void aRemotePageBeingLeftForThisDeviceCannotSaveAFile() {
+    showLibraryPage();
+    allowLibraryDownload();
+    int toasts = ShadowToast.shownToastCount();
+
+    controller.get().showLocal();
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+
+    assertEquals(toasts, ShadowToast.shownToastCount());
+  }
+
+  @Test
+  public void aRemotePagesQuestionGoesWhenTheUserLeavesForThisDevice() {
+    showLibraryPage();
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+    Dialog asked = ShadowDialog.getLatestDialog();
+
+    controller.get().showLocal();
+
+    assertFalse(asked.isShowing());
+  }
+
+  @Test
+  public void aRemotePageBeingLeftForAnotherCannotAskToPrint() {
+    showLibraryPage();
+
+    controller.get().showRemote(LAB);
+    bridge().print();
+    shadowOf(Looper.getMainLooper()).idle();
+
+    assertNull(ShadowDialog.getLatestDialog());
+  }
+
+  @Test
+  public void aPrintAskedForJustBeforeTheServerChangesIsNotAsked() throws InterruptedException {
+    showLibraryPage();
+    Thread javaBridge = new Thread(() -> bridge().print());
+    javaBridge.start();
+    javaBridge.join();
+
+    controller.get().showRemote(LAB);
+    shadowOf(Looper.getMainLooper()).idle();
+
+    assertNull(ShadowDialog.getLatestDialog());
+  }
+
+  @Test
+  public void aDownloadTheUserAllowedCannotBeSavedByTheNextServersPage() {
+    showLibraryPage();
+    allowLibraryDownload();
+    int toasts = ShadowToast.shownToastCount();
+
+    controller.get().showRemote(LAB);
+    reachAPage(LAB.getBaseUrl());
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+
+    assertEquals(toasts, ShadowToast.shownToastCount());
+  }
+
+  @Test
+  public void thisDevicesServerSavesFilesWithoutAsking() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    bridge().saveBlob(BLOB_DATA, DOWNLOAD_NAME, "text/csv");
+
+    assertEquals(1, ShadowToast.shownToastCount());
+  }
+
+  @Test
+  public void aLaunchSearchForARememberedServerEndsOnceItIsFound() {
+    relaunchWithRemoteChosen(LIBRARY);
+
+    assertEquals("abc", discovery.awaitedInstanceId());
+  }
+
+  @Test
+  public void aSearchFromTheSheetWaitsForEveryServer() {
+    relaunchWithRemoteChosen(LIBRARY);
+    discovery.answer(LIBRARY);
+
+    controller.get().findViewById(R.id.server_chip).performClick();
+
+    assertEquals(2, discovery.calls());
+    assertNull(discovery.awaitedInstanceId());
+  }
+
+  @Test
+  public void aRememberedServerFoundAtANewAddressLoadsThere() {
+    relaunchWithRemoteChosen(LIBRARY);
+
+    discovery.answer(DiscoveredServers.server("abc", "Library", "192.168.1.99"));
+
+    assertEquals(
+        "http://192.168.1.99:" + DiscoveredServers.PORT + "/", shadowWebView.getLastLoadedUrl());
+  }
+
+  @Test
+  public void aLaunchSearchEndingWhileTheAppIsAwayLoadsTheServerOnReturning() {
+    relaunchWithRemoteChosen(LIBRARY);
+    controller.stop();
+
+    discovery.answer(LIBRARY);
+
+    assertNull(shadowWebView.getLastLoadedUrl());
+    assertFrozen();
+
+    controller.start();
+
+    assertEquals(LIBRARY.getBaseUrl(), shadowWebView.getLastLoadedUrl());
+    assertRunning();
+  }
+
+  @Test
+  public void aFirstRunWhoseSearchCouldNotRunChoosesNothing() {
+    relaunchWithNothingChosen();
+
+    discovery.fail();
+
+    AlertDialog dialog = unreachableDialog();
+    assertTrue(dialog.isShowing());
+    assertFalse(shadowOf(dialog).isCancelable());
+    TextView message = dialog.findViewById(android.R.id.message);
+    assertEquals(
+        application().getString(R.string.server_search_failed), message.getText().toString());
+    assertNull(ServerSelection.get(application()));
+    assertNull(shadowOf(application()).getNextStartedService());
+  }
+
+  @Test
+  public void tryingAgainAfterAFirstRunSearchCouldNotRunOpensTheServerFound() {
+    relaunchWithNothingChosen();
+    discovery.fail();
+
+    clickDialogButton(R.string.server_unreachable_try_again);
+    assertEquals(2, discovery.calls());
+    discovery.answer(LIBRARY);
+
+    assertEquals(LIBRARY.getBaseUrl(), shadowWebView.getLastLoadedUrl());
+  }
+
+  @Test
+  public void startingItsOwnAfterAFirstRunSearchCouldNotRunStartsTheServer() {
+    relaunchWithNothingChosen();
+    discovery.fail();
+
+    clickDialogButton(R.string.start_my_own_kolibri);
+
+    assertServerService(shadowOf(application()).getNextStartedService());
+    assertEquals(ServerSelection.LOCAL, ServerSelection.get(application()));
+  }
+
+  @Test
+  public void aRememberedServerWhoseSearchCouldNotRunIsUnreachable() {
+    relaunchWithRemoteChosen(LIBRARY);
+
+    discovery.fail();
+
+    TextView message = unreachableDialog().findViewById(android.R.id.message);
+    assertEquals(
+        application().getString(R.string.server_unreachable, "Library"),
+        message.getText().toString());
+    assertEquals("abc", ServerSelection.get(application()));
+  }
+
+  @Test
+  public void aMissingRememberedServerIsNamedInTheDialog() {
+    relaunchWithRemoteChosen(LIBRARY);
+
+    discovery.answer(LAB);
+
+    AlertDialog dialog = unreachableDialog();
+    assertTrue(dialog.isShowing());
+    assertFalse(shadowOf(dialog).isCancelable());
+    TextView message = dialog.findViewById(android.R.id.message);
+    assertEquals(
+        application().getString(R.string.server_unreachable, "Library"),
+        message.getText().toString());
+    assertNull(shadowWebView.getLastLoadedUrl());
+    assertNull(shadowOf(application()).getNextStartedService());
+  }
+
+  @Test
+  public void tryingAgainForAMissingServerSearchesAgainAndLoadsItOnceFound() {
+    relaunchWithRemoteChosen(LIBRARY);
+    discovery.answer(LAB);
+
+    clickDialogButton(R.string.server_unreachable_try_again);
+    assertEquals(2, discovery.calls());
+    discovery.answer(LIBRARY);
+
+    assertEquals(LIBRARY.getBaseUrl(), shadowWebView.getLastLoadedUrl());
+  }
+
+  @Test
+  public void choosingAnotherServerForAMissingOneListsWhatWasFound() {
+    relaunchWithRemoteChosen(LIBRARY);
+    discovery.answer(LAB);
+
+    clickDialogButton(R.string.server_unreachable_choose_another);
+
+    assertTrue(ServerSheetTest.sheet().isShowing());
+    assertEquals(
+        Arrays.asList(application().getString(R.string.server_local), "Lab"),
+        ServerSheetTest.rowNames());
+  }
+
+  @Test
+  public void choosingAnotherServerForAMissingOneListsServersFoundSince() {
+    relaunchWithRemoteChosen(LIBRARY);
+    discovery.answer(LAB);
+    discovery.nearby(LAB, OFFICE);
+
+    clickDialogButton(R.string.server_unreachable_choose_another);
+
+    assertEquals(
+        Arrays.asList(application().getString(R.string.server_local), "Lab", "Office"),
+        ServerSheetTest.rowNames());
+  }
+
+  @Test
+  public void usingThisDeviceForAMissingServerSwitchesToIt() {
+    relaunchWithRemoteChosen(LIBRARY);
+    discovery.answer();
+
+    clickDialogButton(R.string.server_unreachable_use_local);
+
+    assertServerService(shadowOf(application()).getNextStartedService());
+    assertEquals(ServerSelection.LOCAL, ServerSelection.get(application()));
+  }
+
+  @Test
+  public void aLaunchSearchEndingAfterTheActivityIsGoneDoesNothing() {
+    relaunchWithNothingChosen();
+    controller.close();
+
+    discovery.answer(LIBRARY);
+
+    assertNull(ServerSelection.get(application()));
+  }
+
+  private static Application application() {
+    return RuntimeEnvironment.getApplication();
+  }
+
+  private void launch() {
+    discovery = new FakeServerDiscovery();
+    ServerDiscovery.setInstanceForTesting(discovery);
+    controller = Robolectric.buildActivity(WebViewActivity.class).setup();
+    webView = controller.get().findViewById(R.id.webview);
+    shadowWebView = (FreezeTrackingWebView) shadowOf(webView);
+  }
+
+  private void relaunchWithNothingChosen() {
+    relaunchAfter(
+        () ->
+            application()
+                .getSharedPreferences("kolibri_server", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit());
+  }
+
+  private void relaunchWithRemoteChosen(DiscoveredServer server) {
+    relaunchAfter(() -> ServerSelection.selectRemote(application(), server));
+  }
+
+  private void relaunchAfter(Runnable choose) {
+    controller.close();
+    choose.run();
+    shadowOf(application()).clearStartedServices();
+    launch();
+  }
+
+  private KolibriJavascriptBridge bridge() {
+    return (KolibriJavascriptBridge) shadowWebView.getJavascriptInterface("Kolibri");
+  }
+
+  private void showLibraryPage() {
+    controller.get().showRemote(LIBRARY);
+    reachAPage(LIBRARY_ORIGIN + FACILITY_PATH);
+  }
+
+  private void allowLibraryDownload() {
+    startBlobDownload(LIBRARY_ORIGIN);
+    clickDialogButton(R.string.remote_download_allow);
+  }
+
+  private void startBlobDownload(String origin) {
+    shadowWebView
+        .getDownloadListener()
+        .onDownloadStart(
+            "blob:" + origin + "/0b5c1a52",
+            "Mozilla/5.0",
+            "attachment; filename=" + DOWNLOAD_NAME,
+            "text/csv",
+            3);
+    shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  /** The script fetching a blob download, or {@code null} when none was injected. */
+  private String blobFetch() {
+    String script = shadowWebView.getLastEvaluatedJavascript();
+    return script != null && script.startsWith("fetch(") ? script : null;
+  }
+
+  private static AlertDialog unreachableDialog() {
+    return (AlertDialog) ShadowDialog.getLatestDialog();
+  }
+
+  private static void clickDialogButton(int label) {
+    AlertDialog dialog = unreachableDialog();
+    String text = application().getString(label);
+    for (int which : DIALOG_BUTTONS) {
+      Button button = dialog.getButton(which);
+      if (button != null && text.contentEquals(button.getText())) {
+        ServerSheetTest.click(button);
+        return;
+      }
+    }
+    throw new AssertionError("No button labelled " + text);
+  }
+
+  static void assertServerService(Intent intent) {
+    assertNotNull(intent);
+    assertEquals(KolibriServerService.class.getName(), intent.getComponent().getClassName());
+  }
+
+  private boolean staysInApp(String url) {
+    WebResourceRequest request = mock(WebResourceRequest.class);
+    when(request.getUrl()).thenReturn(Uri.parse(url));
+    return !webView.getWebViewClient().shouldOverrideUrlLoading(webView, request);
+  }
+
+  private void assertOpensInTheBrowser(String url) {
+    assertFalse(staysInApp(url));
+    Intent intent = shadowOf(controller.get()).getNextStartedActivity();
+    assertNotNull(intent);
+    assertEquals(Intent.ACTION_VIEW, intent.getAction());
+    assertEquals(Uri.parse(url), intent.getData());
+  }
+
   /** The restore the last finished load injected, or {@code null} when it injected none. */
   private String injectedRestore() {
     String script = shadowWebView.getLastEvaluatedJavascript();
@@ -186,6 +974,22 @@ public class WebViewActivityTest {
   private static String restoreScript(String url) {
     String quoted = JSONObject.quote(url);
     return RESTORE_GUARD + quoted + ") location.replace(" + quoted + ");";
+  }
+
+  private void assertCovered() {
+    assertEquals(
+        View.VISIBLE, controller.get().findViewById(R.id.splash_container).getVisibility());
+    assertEquals(View.GONE, controller.get().findViewById(R.id.server_strip).getVisibility());
+  }
+
+  private void assertUncovered() {
+    assertEquals(View.GONE, controller.get().findViewById(R.id.splash_container).getVisibility());
+  }
+
+  private static int topInWindow(View view) {
+    int[] location = new int[2];
+    view.getLocationInWindow(location);
+    return location[1];
   }
 
   private void assertFrozen() {
@@ -222,21 +1026,30 @@ public class WebViewActivityTest {
 
   /** A committed document, as the WebViewClient sees it — what makes the page worth keeping. */
   private void reachAPage(String url) {
+    reachAPage(webView, url);
+  }
+
+  static void reachAPage(WebView webView, String url) {
     webView.loadUrl(url);
     WebViewClient client = webView.getWebViewClient();
     client.onPageStarted(webView, url, null);
+    client.doUpdateVisitedHistory(webView, url, false);
     client.onPageFinished(webView, url);
   }
 
   /** onPageFinished still fires after a failed main-frame load, for the error page. */
   private void reachAFailedPage() {
-    webView.loadUrl(PAGE_URL);
+    reachAFailedPage(webView, PAGE_URL);
+  }
+
+  static void reachAFailedPage(WebView webView, String url) {
+    webView.loadUrl(url);
     WebResourceRequest request = mock(WebResourceRequest.class);
     when(request.isForMainFrame()).thenReturn(true);
     WebViewClient client = webView.getWebViewClient();
-    client.onPageStarted(webView, PAGE_URL, null);
+    client.onPageStarted(webView, url, null);
     client.onReceivedError(webView, request, mock(WebResourceError.class));
-    client.onPageFinished(webView, PAGE_URL);
+    client.onPageFinished(webView, url);
   }
 
   /**
@@ -247,6 +1060,7 @@ public class WebViewActivityTest {
   public static class FreezeTrackingWebView extends ShadowWebView {
     boolean paused;
     boolean timersPaused;
+    int printAdapters;
 
     @Implementation
     @Override
@@ -270,6 +1084,27 @@ public class WebViewActivityTest {
     @Implementation
     protected void resumeTimers() {
       timersPaused = false;
+    }
+
+    @Implementation
+    public PrintDocumentAdapter createPrintDocumentAdapter(String documentName) {
+      printAdapters++;
+      return new PrintDocumentAdapter() {
+        @Override
+        public void onLayout(
+            PrintAttributes oldAttributes,
+            PrintAttributes newAttributes,
+            CancellationSignal cancellationSignal,
+            LayoutResultCallback callback,
+            Bundle extras) {}
+
+        @Override
+        public void onWrite(
+            PageRange[] pages,
+            ParcelFileDescriptor destination,
+            CancellationSignal cancellationSignal,
+            WriteResultCallback callback) {}
+      };
     }
   }
 }

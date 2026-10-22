@@ -1,6 +1,7 @@
 package org.learningequality.Kolibri;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -19,8 +20,11 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Toast;
 import androidx.annotation.Keep;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.core.content.FileProvider;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,6 +33,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import org.learningequality.Kolibri.notification.NotificationRef;
 import org.learningequality.Kolibri.notification.Notifier;
 
@@ -40,9 +47,61 @@ public class KolibriJavascriptBridge implements Notifier {
   private final WebView webView;
   private volatile PendingDownloadName pendingDownloadName;
 
+  /** {@code null} while no page from this device's server or the shown remote one is committed. */
+  @Nullable private ShownPage shownPage;
+
+  private final Map<String, Integer> blobAllowances = new HashMap<>();
+
   public KolibriJavascriptBridge(Activity activity, WebView webView) {
     this.activity = activity;
     this.webView = webView;
+  }
+
+  private static final class ShownPage {
+    /** {@code null} for this device's own server. */
+    @Nullable final String remoteServerName;
+    @Nullable Dialog confirming;
+
+    ShownPage(@Nullable String remoteServerName) {
+      this.remoteServerName = remoteServerName;
+    }
+
+    void leave() {
+      if (confirming != null) {
+        confirming.dismiss();
+      }
+    }
+  }
+
+  void trustLocalPage() {
+    trust(null);
+  }
+
+  void trustRemotePage(String deviceName) {
+    trust(deviceName);
+  }
+
+  void distrustPage() {
+    show(null);
+  }
+
+  private synchronized void trust(@Nullable String remoteServerName) {
+    if (shownPage == null || !Objects.equals(shownPage.remoteServerName, remoteServerName)) {
+      show(new ShownPage(remoteServerName));
+    }
+  }
+
+  private synchronized void show(@Nullable ShownPage page) {
+    if (shownPage != null) {
+      shownPage.leave();
+    }
+    shownPage = page;
+    blobAllowances.clear();
+  }
+
+  @Nullable
+  private synchronized ShownPage shownPage() {
+    return shownPage;
   }
 
   private static final class PendingDownloadName {
@@ -84,19 +143,90 @@ public class KolibriJavascriptBridge implements Notifier {
   @JavascriptInterface
   @Keep
   public void print() {
+    ShownPage asking = shownPage();
+    if (asking == null) {
+      Log.w(TAG, "Ignoring a print from a page no server was shown for");
+      return;
+    }
     activity.runOnUiThread(
         () -> {
-          PrintManager printManager =
-              (PrintManager) activity.getSystemService(Context.PRINT_SERVICE);
-          if (printManager == null) {
-            Log.w(TAG, "PrintManager unavailable");
-            return;
+          if (asking.remoteServerName == null) {
+            whileShown(asking, this::printPage);
+          } else {
+            confirm(
+                asking,
+                activity.getString(R.string.remote_print_confirm, asking.remoteServerName),
+                R.string.remote_print_allow,
+                this::printPage);
           }
-          String title = webView.getTitle();
-          String jobName = title != null ? title : "Kolibri";
-          PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(jobName);
-          printManager.print(jobName, adapter, null);
         });
+  }
+
+  private void printPage() {
+    PrintManager printManager = (PrintManager) activity.getSystemService(Context.PRINT_SERVICE);
+    if (printManager == null) {
+      Log.w(TAG, "PrintManager unavailable");
+      return;
+    }
+    String title = webView.getTitle();
+    String jobName = title != null ? title : "Kolibri";
+    PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(jobName);
+    printManager.print(jobName, adapter, null);
+  }
+
+  void whenDownloadAllowed(String filename, Runnable start) {
+    ShownPage asking = shownPage();
+    if (asking == null) {
+      Log.w(TAG, "Ignoring a download from a page no server was shown for: " + filename);
+    } else if (asking.remoteServerName == null) {
+      start.run();
+    } else {
+      confirm(
+          asking,
+          activity.getString(R.string.remote_download_confirm, filename, asking.remoteServerName),
+          R.string.remote_download_allow,
+          start);
+    }
+  }
+
+  synchronized void allowBlob(String filename) {
+    if (shownPage != null && shownPage.remoteServerName != null) {
+      blobAllowances.merge(filename, 1, Integer::sum);
+    }
+  }
+
+  private synchronized boolean takeBlobAllowance(String filename) {
+    if (shownPage != null && shownPage.remoteServerName == null) {
+      return true;
+    }
+    if (!blobAllowances.containsKey(filename)) {
+      Log.w(TAG, "Ignoring a download the user did not allow: " + filename);
+      return false;
+    }
+    blobAllowances.computeIfPresent(filename, (name, allowed) -> allowed > 1 ? allowed - 1 : null);
+    return true;
+  }
+
+  private void confirm(ShownPage asking, String message, @StringRes int allow, Runnable action) {
+    if (activity.isFinishing()
+        || activity.isDestroyed()
+        || asking.confirming != null
+        || shownPage() != asking) {
+      return;
+    }
+    asking.confirming =
+        new MaterialAlertDialogBuilder(activity)
+            .setMessage(message)
+            .setPositiveButton(allow, (dialog, which) -> whileShown(asking, action))
+            .setNegativeButton(android.R.string.cancel, null)
+            .setOnDismissListener(dialog -> asking.confirming = null)
+            .show();
+  }
+
+  private void whileShown(ShownPage asking, Runnable action) {
+    if (shownPage() == asking) {
+      action.run();
+    }
   }
 
   /**
@@ -106,6 +236,9 @@ public class KolibriJavascriptBridge implements Notifier {
   @JavascriptInterface
   @Keep
   public void saveBlob(String base64Data, String filename, String mimeType) {
+    if (!takeBlobAllowance(filename)) {
+      return;
+    }
     byte[] bytes;
     try {
       bytes = Base64.decode(base64Data, Base64.DEFAULT);
@@ -125,6 +258,9 @@ public class KolibriJavascriptBridge implements Notifier {
   @JavascriptInterface
   @Keep
   public void notifyBlobDownloadFailed(String filename) {
+    if (!takeBlobAllowance(filename)) {
+      return;
+    }
     notifyDownloadFailed(filename);
   }
 
