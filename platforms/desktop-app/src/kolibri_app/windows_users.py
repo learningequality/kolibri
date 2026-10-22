@@ -1,14 +1,20 @@
-import typing
-
+import pywintypes
 import win32api
+import win32net
 import win32security
 
+from kolibri.core.device.login_tokens import OSUserInfo
+
 _ADMINISTRATORS_SID = win32security.ConvertStringSidToSid("S-1-5-32-544")
+_USER_INFO_10 = 10
 
 
-class UserInfo(typing.NamedTuple):
-    user_name: str
-    is_admin: bool
+def _full_name(account, domain):
+    try:
+        server = win32net.NetGetAnyDCName(None, domain) if domain else None
+        return win32net.NetUserGetInfo(server, account, _USER_INFO_10)["full_name"]
+    except pywintypes.error:
+        return ""
 
 
 def pipe_client_user_info(pipe):
@@ -33,11 +39,12 @@ def pipe_client_user_info(pipe):
             client_token, win32security.TokenGroups
         )
         # A local account's domain is the computer name, which a rename changes.
-        if domain.casefold() != win32api.GetComputerName().casefold():
-            account = f"{domain}\\{account}"
-        return UserInfo(
+        is_local = domain.casefold() == win32api.GetComputerName().casefold()
+        return OSUserInfo(
+            account if is_local else f"{domain}\\{account}",
             account,
-            is_admin=any(sid == _ADMINISTRATORS_SID for sid, _attributes in groups),
+            _full_name(account, None if is_local else domain),
+            is_superuser=any(sid == _ADMINISTRATORS_SID for sid, _attributes in groups),
         )
     finally:
         client_token.Close()

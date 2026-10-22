@@ -1,4 +1,3 @@
-import sys
 from abc import abstractmethod
 
 from kolibri.plugins.hooks import define_hook
@@ -28,24 +27,17 @@ class SetupHook(KolibriHook):
 class GetOSUserHook(KolibriHook):
     @abstractmethod
     def get_os_user(self, auth_token):
-        pass
+        """
+        :rtype: kolibri.core.device.login_tokens.OSUserInfo or None, when the
+            token does not identify an OS user
+        """
 
     @classmethod
     def retrieve_os_user(cls, auth_token):
-        try:
-            hook = next(cls.registered_hooks)
-        except StopIteration as e:
-            raise NotImplementedError(
-                "Getting the OS user is not supported on this platform"
-            ) from e
-        return hook.get_os_user(auth_token)
-
-
-def os_account_name(os_username):
-    if sys.platform == "win32":
-        # Windows domain accounts are qualified as DOMAIN\account
-        return os_username.rsplit("\\", 1)[-1]
-    return os_username
+        os_user = cls.registered_hook.get_os_user(auth_token)
+        if os_user and os_user.os_user_id and os_user.account_name:
+            return os_user
+        return None
 
 
 @define_hook(only_one_registered=True)

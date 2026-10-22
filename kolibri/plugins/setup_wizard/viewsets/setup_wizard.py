@@ -15,7 +15,6 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.hooks import GetOSUserHook
-from kolibri.core.device.hooks import os_account_name
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.permissions import FromAppContextPermission
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
@@ -80,14 +79,14 @@ class SetupWizardResource(ViewSet):
     )
     def osuser(self, request):
         try:
-            os_username, _ = GetOSUserHook.retrieve_os_user(
+            os_user = GetOSUserHook.retrieve_os_user(
                 request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
             )
         except NotImplementedError as e:
             raise NotFound() from e
-        if not os_username:
+        if not os_user:
             raise NotFound()
-        return Response({"name": os_account_name(os_username)})
+        return Response({"name": os_user.account_name})
 
 
 @method_decorator(csrf_protect, name="dispatch")
