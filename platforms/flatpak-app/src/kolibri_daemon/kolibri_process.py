@@ -9,7 +9,7 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.device.utils import device_provisioned
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri.dist.magicbus.plugins.tasks import Monitor
-from kolibri.utils.server import get_urls
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
@@ -18,6 +18,12 @@ from .application import KolibriState
 from .application import KolibriStatus
 
 logger = logging.getLogger(__name__)
+
+
+def _local_url(port: int) -> str:
+    address = OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    host = "127.0.0.1" if address == "0.0.0.0" else address
+    return f"http://{host}:{port}/"
 
 
 class KolibriDaemonProcess(KolibriProcessBus):
@@ -119,12 +125,10 @@ class _DBusPlugin(SimplePlugin):
         self.__update_state(status=KolibriStatus.STARTING)
 
     def SERVING(self, port: int):
-        _, base_urls = get_urls(listen_port=port)
-        self.__update_state(base_url=base_urls[0], status=KolibriStatus.STARTED)
+        self.__update_state(base_url=_local_url(port), status=KolibriStatus.STARTED)
 
     def ZIP_SERVING(self, zip_port: int):
-        _, zip_urls = get_urls(listen_port=zip_port)
-        self.__update_state(extra_url=zip_urls[0])
+        self.__update_state(extra_url=_local_url(zip_port))
 
     def __on_start_error(self, error_class, error, traceback):
         self.__update_state(status=KolibriStatus.ERROR)
