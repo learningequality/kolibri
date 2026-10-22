@@ -19,7 +19,7 @@ describe('BloomShim', () => {
     mediator.destroy();
   });
 
-  // The shape the vendored Bloom Player fork posts to window.parent.
+  // The shape the patched player posts to window.parent.
   async function pagesRead(overrides = {}) {
     window.postMessage(
       {
