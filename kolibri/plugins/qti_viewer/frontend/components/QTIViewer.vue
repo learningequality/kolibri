@@ -41,6 +41,7 @@
         itemData,
         itemId,
         answerState,
+        showCorrectAnswer,
         userId,
         interactive,
         lang,
@@ -270,6 +271,10 @@
       provide(
         'interactive',
         computed(() => interactive.value),
+      );
+      provide(
+        'showCorrectAnswer',
+        computed(() => showCorrectAnswer.value),
       );
 
       provide('qtiPackage', qtiPackage);
