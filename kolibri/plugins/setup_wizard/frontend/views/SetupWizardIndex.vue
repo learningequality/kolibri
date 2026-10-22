@@ -25,7 +25,6 @@
 
   import { interpret } from 'xstate';
   import { mapState } from 'vuex';
-  import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import usePageTitle from 'kolibri/composables/usePageTitle';
@@ -117,7 +116,7 @@
         // Or set the app context state on the machine and proceed to the first state
         this.service.send({
           type: 'CONTINUE',
-          value: this.isAppContext && pluginData.canGetOSUser,
+          value: this.isAppContext,
         });
       }
 
