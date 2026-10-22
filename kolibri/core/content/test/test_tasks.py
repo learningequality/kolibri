@@ -1,10 +1,12 @@
 import json
 import uuid
+from datetime import timedelta
 from unittest import mock
 
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.urls import reverse
+from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 from rest_framework.test import APIClient
@@ -584,4 +586,48 @@ class AutomaticDownloadTestCase(TestCase):
         )
         req.save()
         enqueue_automatic_resource_import_if_needed(instance_id=req.source_instance_id)
+        mock_task.enqueue_if_not_active.assert_called_once()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__backed_off_req(self, mock_task):
+        ContentDownloadRequest(
+            reason=ContentRequestReason.SyncInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Failed,
+            retry_after=timezone.now() + timedelta(hours=1),
+        ).save()
+        enqueue_automatic_resource_import_if_needed()
+        mock_task.enqueue_if_not_active.assert_not_called()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__instance_id__backed_off_req(self, mock_task):
+        req = ContentDownloadRequest(
+            reason=ContentRequestReason.SyncInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            source_instance_id=uuid.uuid4().hex,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Failed,
+            retry_after=timezone.now() + timedelta(hours=1),
+        )
+        req.save()
+        enqueue_automatic_resource_import_if_needed(instance_id=req.source_instance_id)
+        mock_task.enqueue_if_not_active.assert_not_called()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__due_failed_req(self, mock_task):
+        ContentDownloadRequest(
+            reason=ContentRequestReason.SyncInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Failed,
+            retry_after=timezone.now() - timedelta(seconds=1),
+        ).save()
+        enqueue_automatic_resource_import_if_needed()
         mock_task.enqueue_if_not_active.assert_called_once()

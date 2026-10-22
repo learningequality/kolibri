@@ -4,8 +4,11 @@ from contextlib import contextmanager
 from datetime import timedelta
 from functools import partial
 from unittest import mock
+from urllib.parse import urlparse
 
 import pytest
+import requests
+from django.db import connection
 from django.test import LiveServerTestCase
 from django.test import TestCase
 from django.test import TransactionTestCase
@@ -13,12 +16,16 @@ from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from morango.models.core import SyncSession
+from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
+from requests.exceptions import ReadTimeout
 from rest_framework.test import APIClient
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import VERSION_6
+from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
@@ -64,6 +71,24 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
 _module = "kolibri.core.content.utils.content_request."
+
+_NOW = timezone.now()
+
+# SQLite builds before 3.32 cap a statement at 999 bound variables.
+_SQLITE_LEGACY_MAX_VARIABLES = 999
+
+
+@contextmanager
+def _record_max_bound_variables():
+    counts = [0]
+
+    def record(execute, sql, params, many, context):
+        if not many:
+            counts.append(len(params or ()))
+        return execute(sql, params, many, context)
+
+    with connection.execute_wrapper(record):
+        yield counts
 
 
 def _facility(dataset_id=None):
@@ -199,7 +224,6 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.mock_import_metadata = import_metadata_patcher.start()
         self.addCleanup(import_metadata_patcher.stop)
 
-        self.mock_import_metadata_return_value = False
         self.mock_import_metadata_calls = []
         self.mock_import_failed_contentnode_ids = []
         self.mock_import_metadata.side_effect = self._mock_import_metadata
@@ -249,7 +273,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
                     channel_id=uuid.uuid4().hex,
                     content_id=uuid.uuid4().hex,
                 )
-        return self.mock_import_metadata_return_value
+        return not set(contentnode_ids) & set(self.mock_import_failed_contentnode_ids)
 
     def test_only_preferred(self):
         request1, peer1 = self._create_request_and_peer(
@@ -282,7 +306,6 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.mock_sync_devices.__iter__.return_value = [
             (peer1, self.mock_client),
         ]
-        self.mock_import_metadata_return_value = True
 
         process_metadata_import(self.downloads_needing_metadata_import)
         self.mock_count.assert_not_called()
@@ -300,7 +323,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.mock_sync_devices.__iter__.return_value = [
             (peer1, self.mock_client),
         ]
-        self.mock_import_metadata_return_value = False
+        self.mock_import_failed_contentnode_ids = [request2.contentnode_id]
 
         process_metadata_import(self.downloads_needing_metadata_import)
         self.mock_count.assert_called()
@@ -322,7 +345,6 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.mock_sync_devices.__iter__.return_value = [
             (peer2, self.mock_client),
         ]
-        self.mock_import_metadata_return_value = True
 
         process_metadata_import(self.downloads_needing_metadata_import)
         self.assertEqual(
@@ -352,7 +374,6 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.mock_sync_devices.__iter__.return_value = [
             (peer3, self.mock_client),
         ]
-        self.mock_import_metadata_return_value = False
 
         process_metadata_import(self.downloads_needing_metadata_import)
         for mock_call in self.mock_import_metadata_calls:
@@ -371,6 +392,18 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.assertEqual(
             self.mock_import_metadata_calls[4][1], [request2.contentnode_id]
         )  # peer3
+
+    def test_no_peers__does_not_back_off(self):
+        request = self._create_request(source_instance_id=uuid.uuid4().hex)
+
+        self.mock_preferred_devices.__iter__.return_value = []
+        self.mock_sync_devices.__iter__.return_value = []
+
+        process_metadata_import(self.downloads_needing_metadata_import)
+
+        request.refresh_from_db()
+        self.assertEqual(request.failure_count, 0)
+        self.assertIsNone(request.retry_after)
 
 
 class BaseQuerysetTestCase(BaseTestCase):
@@ -472,6 +505,25 @@ class IncompleteDownloadsQuerysetTestCase(BaseIncompleteDownloadsQuerysetTestCas
         self.assertEqual(
             qs.count(),
             2,
+        )
+
+    @mock.patch(_module + "get_device_setting", return_value=True)
+    def test_retry_after__future(self, mock_get_device_setting):
+        self.admin_request.retry_after = timezone.now() + timedelta(hours=1)
+        self.admin_request.save()
+        qs = incomplete_downloads_queryset()
+        self.assertCountEqual(
+            qs.values_list("id", flat=True), [self.learner_request.id]
+        )
+
+    @mock.patch(_module + "get_device_setting", return_value=True)
+    def test_retry_after__past(self, mock_get_device_setting):
+        self.admin_request.retry_after = timezone.now() - timedelta(seconds=1)
+        self.admin_request.save()
+        qs = incomplete_downloads_queryset()
+        self.assertCountEqual(
+            qs.values_list("id", flat=True),
+            [self.admin_request.id, self.learner_request.id],
         )
 
     @mock.patch(_module + "get_device_setting", return_value=True)
@@ -651,6 +703,20 @@ class PreferredDevicesTestCase(BaseTestCase):
         peer_ids = {location.id for location in instance}
         self.assertEqual(len(peer_ids), 2)
         self.assertEqual(peer_ids, {network_location1.id, network_location2.id})
+
+    def test_sync_peers__null_server_instance_id(self):
+        SyncSession.objects.create(
+            id=uuid.uuid4().hex,
+            connection_kind="network",
+            connection_path="https://le.fyi",
+            profile=uuid.uuid4().hex,
+            last_activity_timestamp=timezone.now(),
+            client_instance_id=uuid.uuid4().hex,
+            server_instance_id=None,
+        )
+        (_sync_session, network_location) = self._create_sync_and_network_location()
+        instance = PreferredDevices.build_from_sync_sessions()
+        self.assertEqual([location.id for location in instance], [network_location.id])
 
     def test_sync_peers__with_version_filter(self):
         (_sync_session2, _network_location2) = self._create_sync_and_network_location(
@@ -1157,6 +1223,150 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         self.request.refresh_from_db()
         self.assertEqual(self.request.status, ContentRequestStatus.Completed)
 
+    def _peer_with_content_not_found(self):
+        peer = NetworkLocation.objects.create(
+            base_url="http://192.168.101.101:8080/",
+            connection_status=ConnectionStatus.Okay,
+        )
+        lookup_response = mock.MagicMock()
+        lookup_response.json.return_value = [
+            {"id": self.node.channel_id, "public": True, "version": 1}
+        ]
+        not_found = mock.MagicMock(status_code=404)
+        not_found.raise_for_status.side_effect = HTTPError(response=not_found)
+
+        def request(method, url, **_):
+            return not_found if method == "POST" else lookup_response
+
+        return peer, mock.patch("requests.Session.request", side_effect=request)
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_all_fail__backs_off(self, _mock_now):
+        peer, serve = self._peer_with_content_not_found()
+        self.mock_sync_peers.__iter__.return_value = [peer]
+        for previous_failures, interval in [
+            (0, timedelta(hours=1)),
+            (1, timedelta(hours=2)),
+            (7, timedelta(hours=128)),
+            (8, timedelta(days=7)),
+            (1000, timedelta(days=7)),
+        ]:
+            with self.subTest(previous_failures=previous_failures), serve:
+                self.request.failure_count = previous_failures
+                self.request.save()
+                process_download_request(self.request)
+                self.request.refresh_from_db()
+                self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+                self.assertEqual(self.request.failure_count, previous_failures + 1)
+                self.assertEqual(self.request.retry_after, _NOW + interval)
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_unexpected_error__backs_off(self, _mock_now):
+        self.node.delete()
+        process_download_request(self.request)
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+        self.assertEqual(self.request.failure_count, 1)
+        self.assertEqual(self.request.retry_after, _NOW + timedelta(hours=1))
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_source_peer_unreachable__fallback_fails__backs_off(self, _mock_now):
+        self.request.source_instance_id = self._create_network_location(
+            connection_status=ConnectionStatus.ConnectionFailure
+        ).instance_id
+        self.request.save()
+        self.mock_preferred_peers.__iter__.return_value = []
+        peer, serve = self._peer_with_content_not_found()
+        self.mock_sync_peers.__iter__.return_value = [peer]
+        with serve:
+            process_download_request(self.request)
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+        self.assertEqual(self.request.failure_count, 1)
+        self.assertEqual(self.request.retry_after, _NOW + timedelta(hours=1))
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_insufficient_storage__does_not_back_off(self, mock_import_manager):
+        mock_import_manager.return_value.run.side_effect = (
+            InsufficientStorageSpaceError("Not enough space")
+        )
+        self.assertFalse(process_download_request(self.request))
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+        self.assertEqual(self.request.failure_count, 0)
+        self.assertIsNone(self.request.retry_after)
+
+    @mock.patch(_module + "_process_download")
+    def test_no_peers__does_not_back_off(self, mock_process):
+        self.mock_sync_peers.__iter__.return_value = []
+        process_download_request(self.request)
+        mock_process.assert_not_called()
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+        self.assertEqual(self.request.failure_count, 0)
+        self.assertIsNone(self.request.retry_after)
+
+    def test_peers_unreachable__does_not_back_off(self):
+        peer = NetworkLocation.objects.create(
+            base_url="http://192.168.101.101:8080/",
+            connection_status=ConnectionStatus.Okay,
+        )
+        self.mock_sync_peers.__iter__.return_value = [peer]
+        lookup_response = mock.MagicMock()
+        lookup_response.json.return_value = [
+            {"id": self.node.channel_id, "public": True, "version": 1}
+        ]
+        for last_accessed_ago, failing_method, error in [
+            (timedelta(minutes=1), "GET", ConnectionError()),
+            (timedelta(minutes=1), "GET", ReadTimeout()),
+            (timedelta(0), "GET", ConnectionError()),
+            (timedelta(0), "GET", ReadTimeout()),
+            (timedelta(0), "POST", ConnectionError()),
+            (timedelta(0), "POST", ReadTimeout()),
+        ]:
+
+            def request(method, url, error=error, failing_method=failing_method, **_):
+                if method == failing_method:
+                    raise error
+                return lookup_response
+
+            NetworkLocation.objects.filter(pk=peer.pk).update(
+                last_accessed=timezone.now() - last_accessed_ago
+            )
+            with self.subTest(
+                last_accessed_ago=last_accessed_ago, method=failing_method, error=error
+            ), mock.patch("requests.Session.request", side_effect=request):
+                process_download_request(self.request)
+                self.request.refresh_from_db()
+                self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+                self.assertEqual(self.request.failure_count, 0)
+                self.assertIsNone(self.request.retry_after)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_success__resets_backoff(self, mock_import_manager):
+        mock_import_manager.return_value.run.return_value = [None, 1]
+        mock_import_manager.return_value.exception = None
+        self.request.failure_count = 3
+        self.request.retry_after = timezone.now() - timedelta(seconds=1)
+        self.request.save()
+        process_download_request(self.request)
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Completed)
+        self.assertEqual(self.request.failure_count, 0)
+        self.assertIsNone(self.request.retry_after)
+
+    def test_already_available__resets_backoff(self):
+        self.node.available = True
+        self.node.save()
+        self.request.failure_count = 3
+        self.request.retry_after = timezone.now() - timedelta(seconds=1)
+        self.request.save()
+        process_download_request(self.request)
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Completed)
+        self.assertEqual(self.request.failure_count, 0)
+        self.assertIsNone(self.request.retry_after)
+
     @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
     def test_download__exception(self, mock_import_manager):
         mock_import_manager.return_value.run.side_effect = Exception("test")
@@ -1195,6 +1405,43 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         )
         mock_import_manager.return_value.run.assert_called_once()
         self.assertTrue(result)
+
+
+class ProcessDownloadRequestPeersTestCase(BaseQuerysetTestCase):
+    def test_source_peer_also_sync_peer__asked_once(self):
+        node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="test",
+            available=False,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        _, source_peer = self._create_sync_and_network_location(
+            sync_overrides={"connection_path": "http://10.0.0.1:8080/"}
+        )
+        _, other_peer = self._create_sync_and_network_location(
+            sync_overrides={"connection_path": "http://10.0.0.2:8080/"}
+        )
+        request = ContentDownloadRequest.build_for_user(self.learner)
+        request.contentnode_id = node.id
+        request.source_instance_id = source_peer.instance_id
+        request.save()
+        requested_urls = []
+
+        def serve(method, url, **_):
+            requested_urls.append(url)
+            return _not_found(url)
+
+        with mock.patch("requests.Session.request", side_effect=serve):
+            process_download_request(request)
+
+        for peer in (source_peer, other_peer):
+            channel_lookups = [
+                url
+                for url in requested_urls
+                if url.startswith(peer.base_url) and "/channels/lookup/" in url
+            ]
+            self.assertEqual(len(channel_lookups), 1)
 
 
 class ProcessUserDownloadsForRemovalTestCase(BaseQuerysetTestCase):
@@ -2029,6 +2276,278 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         self.assertEqual(completed.count(), 3)
 
 
+def _http_response(url, status_code=200, json_data=None):
+    response = requests.Response()
+    response.url = url
+    response.status_code = status_code
+    response._content = json.dumps(json_data).encode()
+    response.raw = mock.MagicMock()
+    return response
+
+
+def _not_found(url):
+    return _http_response(url, status_code=404)
+
+
+def _times_out(url):
+    raise ReadTimeout()
+
+
+def _kolibri_peer(serve_metadata):
+    def serve(url):
+        if urlparse(url).path.rstrip("/").endswith("/api/public/info"):
+            return _http_response(url, json_data={"application": "kolibri"})
+        return serve_metadata(url)
+
+    return serve
+
+
+_serve_not_found = _kolibri_peer(_not_found)
+
+
+def _unreachable(url):
+    raise ConnectionError()
+
+
+@mock.patch(_module + "get_device_setting", return_value=True)
+class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
+    def setUp(self):
+        super().setUp()
+        self.peer_servers = {}
+        self.requested_urls = []
+        request_patcher = mock.patch(
+            "requests.Session.request", side_effect=self._request
+        )
+        request_patcher.start()
+        self.addCleanup(request_patcher.stop)
+        self.peer = self._create_peer(sync_peer=True)
+
+    def _request(self, method, url, **_):
+        self.requested_urls.append(url)
+        return self.peer_servers[urlparse(url).netloc](url)
+
+    def _create_peer(self, serve=_serve_not_found, sync_peer=False):
+        base_url = f"http://10.0.0.{len(self.peer_servers) + 1}:8080/"
+        if sync_peer:
+            _, peer = self._create_sync_and_network_location(
+                sync_overrides={"connection_path": base_url}
+            )
+        else:
+            peer = self._create_network_location(base_url=base_url)
+        self.peer_servers[urlparse(base_url).netloc] = serve
+        return peer
+
+    def _metadata_request_count(self, peer):
+        return sum(
+            1
+            for url in self.requested_urls
+            if url.startswith(peer.base_url) and "/importmetadata/" in url
+        )
+
+    def _create_download(
+        self, contentnode_id=None, channel_version=None, source_instance_id=None
+    ):
+        download = ContentDownloadRequest.build_for_user(self.admin)
+        download.contentnode_id = contentnode_id or uuid.uuid4().hex
+        download.channel_version = channel_version
+        download.source_instance_id = source_instance_id
+        download.save()
+        return download
+
+    def _create_channel_root(self):
+        channel_id = uuid.uuid4().hex
+        root = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="pre-existing",
+            kind="topic",
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        ChannelMetadata.objects.create(
+            id=channel_id, name="test channel", root=root, version=1
+        )
+        return root
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_source_peer_not_found__fallback_peer_asked(self, *_mocks):
+        source_peer = self._create_peer()
+        download = self._create_download(source_instance_id=source_peer.instance_id)
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 1)
+        download.refresh_from_db()
+        self.assertEqual(download.failure_count, 1)
+        self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+
+    def test_source_peers_also_sync_peers__each_node_requested_once_per_peer(
+        self, *_mocks
+    ):
+        other_peer = self._create_peer(sync_peer=True)
+        self._create_download(source_instance_id=self.peer.instance_id)
+        self._create_download(source_instance_id=other_peer.instance_id)
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 2)
+        self.assertEqual(self._metadata_request_count(other_peer), 2)
+
+    def test_newer_channel_version__first_fallback_not_found__second_fallback_asked(
+        self, *_mocks
+    ):
+        second_fallback_peer = self._create_peer(sync_peer=True)
+        self._create_download(
+            contentnode_id=self._create_channel_root().id,
+            channel_version=2,
+            source_instance_id=uuid.uuid4().hex,
+        )
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 1)
+        self.assertEqual(self._metadata_request_count(second_fallback_peer), 1)
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_source_peer_unreachable__fallback_not_found__backed_off(self, *_mocks):
+        source_peer = self._create_peer(serve=_unreachable)
+        download = self._create_download(source_instance_id=source_peer.instance_id)
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 1)
+        download.refresh_from_db()
+        self.assertEqual(download.failure_count, 1)
+        self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_server_error_on_one_node__every_node_backed_off(self, *_mocks):
+        downloads = [self._create_download() for _ in range(3)]
+
+        def serve_metadata(url):
+            if downloads[1].contentnode_id in url:
+                return _http_response(url, status_code=500)
+            return _not_found(url)
+
+        self.peer_servers[urlparse(self.peer.base_url).netloc] = _kolibri_peer(
+            serve_metadata
+        )
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 3)
+        for download in downloads:
+            download.refresh_from_db()
+            self.assertEqual(download.failure_count, 1)
+            self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_source_peer_times_out__fallback_not_found__backed_off(self, *_mocks):
+        source_peer = self._create_peer(serve=_kolibri_peer(_times_out))
+        download = self._create_download(source_instance_id=source_peer.instance_id)
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 1)
+        download.refresh_from_db()
+        self.assertEqual(download.failure_count, 1)
+        self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+
+    def test_only_peer_times_out__not_backed_off(self, *_mocks):
+        self.peer_servers[urlparse(self.peer.base_url).netloc] = _kolibri_peer(
+            _times_out
+        )
+        download = self._create_download(source_instance_id=self.peer.instance_id)
+
+        process_content_requests()
+
+        download.refresh_from_db()
+        self.assertEqual(download.failure_count, 0)
+        self.assertIsNone(download.retry_after)
+
+    def test_failed_with_different_failure_counts__each_incremented_once(self, *_mocks):
+        downloads = [self._create_download(), self._create_download()]
+        ContentDownloadRequest.objects.filter(id=downloads[1].id).update(
+            failure_count=1
+        )
+
+        process_content_requests()
+
+        for download, failure_count in zip(downloads, [1, 2]):
+            download.refresh_from_db()
+            self.assertEqual(download.failure_count, failure_count)
+
+    def test_missing_node__not_requested_again_until_due(self, *_mocks):
+        download = self._create_download()
+
+        process_content_requests()
+        self.requested_urls.clear()
+        process_content_requests()
+        self.assertEqual(self._metadata_request_count(self.peer), 0)
+
+        ContentDownloadRequest.objects.filter(id=download.id).update(
+            retry_after=timezone.now() - timedelta(seconds=1)
+        )
+        process_content_requests()
+        self.assertEqual(self._metadata_request_count(self.peer), 1)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_newer_channel_version_with_existing_node__not_backed_off(
+        self, mock_import_manager, *_mocks
+    ):
+        mock_import_manager.return_value.run.return_value = [None, 1]
+        mock_import_manager.return_value.exception = None
+        download = self._create_download(
+            contentnode_id=self._create_channel_root().id, channel_version=2
+        )
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(self.peer), 1)
+        download.refresh_from_db()
+        self.assertEqual(download.failure_count, 0)
+        self.assertIsNone(download.retry_after)
+
+    @mock.patch(_module + "import_channel_from_data", return_value=(True, False))
+    def test_source_peer_returns_older_channel_version__fallback_peers_not_asked(
+        self, *_mocks
+    ):
+        root = self._create_channel_root()
+
+        def serve_older_channel(url):
+            return _http_response(
+                url,
+                json_data={
+                    ChannelMetadata._meta.db_table: [
+                        {"id": root.channel_id, "version": 1}
+                    ]
+                },
+            )
+
+        source_peer = self._create_peer(serve=_kolibri_peer(serve_older_channel))
+        self._create_download(
+            contentnode_id=root.id,
+            channel_version=2,
+            source_instance_id=source_peer.instance_id,
+        )
+
+        process_content_requests()
+
+        self.assertEqual(self._metadata_request_count(source_peer), 1)
+        self.assertEqual(self._metadata_request_count(self.peer), 0)
+
+    def test_many_not_found__no_statement_over_legacy_variable_limit(self, *_mocks):
+        for _ in range(_SQLITE_LEGACY_MAX_VARIABLES + 200):
+            self._create_download()
+
+        with _record_max_bound_variables() as counts:
+            process_content_requests()
+
+        self.assertLessEqual(max(counts), _SQLITE_LEGACY_MAX_VARIABLES)
+        self.assertFalse(
+            ContentDownloadRequest.objects.filter(failure_count=0).exists()
+        )
+
+
 class CreateContentRemovalRequestsTestCase(BaseQuerysetTestCase):
     """
     Tests for create_content_removal_requests().
@@ -2513,6 +3032,19 @@ class TestImportMetadataChannelUpgrade:
         assert ContentNode.objects.filter(id=self.leaf_2).exists()
         assert not ContentNode.objects.filter(id=self.folder_3).exists()
 
+    def test_missing_node_backed_off__imported_node_not_backed_off(self):
+        imported = self._create_download(self.leaf_1)
+        missing = self._create_download(uuid.uuid4().hex)
+
+        process_content_requests()
+
+        imported.refresh_from_db()
+        missing.refresh_from_db()
+        assert imported.failure_count == 0
+        assert imported.retry_after is None
+        assert missing.failure_count == 1
+        assert missing.retry_after is not None
+
     def test_two_downloads_on_different_process_requests(self):
         self._create_download(self.leaf_1)
         process_content_requests()
@@ -2592,6 +3124,23 @@ class TestImportMetadataChannelUpgrade:
             ChannelMetadata.objects.get(id=self.channel_id).version
             == self.channel_version
         )
+
+    def test_channel_upgrade_requeue_resets_backoff(self, import_metadata_responses):
+        backed_off = self._create_download(self.leaf_1)
+        process_content_requests()
+        ContentDownloadRequest.objects.filter(id=backed_off.id).update(
+            status=ContentRequestStatus.Failed,
+            failure_count=3,
+            retry_after=timezone.now() + timedelta(days=1),
+        )
+
+        self._upgrade_channel_version_on_server()
+        self._create_download(self.leaf_2)
+        process_content_requests()
+
+        backed_off.refresh_from_db()
+        assert backed_off.failure_count == 0
+        assert backed_off.retry_after is None
 
     def test_lower_channel_version_does_not_overwrite_higher_version(
         self, import_metadata_responses
