@@ -158,11 +158,6 @@ describe('CourseWelcomePage', () => {
       return 0;
     });
     global.cancelAnimationFrame = jest.fn();
-    global.ResizeObserver = class ResizeObserver {
-      observe() {}
-      disconnect() {}
-      unobserve() {}
-    };
   });
 
   afterEach(() => {

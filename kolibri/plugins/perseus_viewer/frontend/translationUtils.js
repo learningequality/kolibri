@@ -16,7 +16,7 @@ function _getTranslatedStringOrFunction(translatorObject, key) {
     // Do a very simple test for whether this includes any ICU message formatting placeholders
     // If it does, return a function that will call the translation function with the options
     // If it doesn't, just return the translated string
-    if (/{/.test(defaultMessage)) {
+    if (/{/.test(defaultMessage.message ?? defaultMessage)) {
       return options => {
         return revertPiText(translatorObject[`${key}$`](options));
       };
