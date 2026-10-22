@@ -2,12 +2,35 @@
 
 Renders BloomPub books inside the Kolibri sandbox.
 
-## Vendored Bloom Player
+## Bloom Player build
 
-`static/bloom/` is built from [learningequality/bloom-player](https://github.com/learningequality/bloom-player), a fork of [BloomBooks/bloom-player](https://github.com/BloomBooks/bloom-player), using the fork's `patched` default branch.
+`static/bloom/` is built from [BloomBooks/bloom-player](https://github.com/BloomBooks/bloom-player) at the commit pinned in `bloom_build/.bloom-player-commit-sha`, with Kolibri's modifications applied from `bloom_build/patches/`.
 
-To regenerate, clone the fork, run `pnpm run build` within it, and copy everything from its `dist` into `static/bloom/`. Previously existing hash-named files can be deleted.
+To rebuild, run on the Node version in upstream's `package.json` `volta.node` at the pinned commit; the build fails naming it otherwise. Kolibri's own `volta` pin is older, so override it:
 
-Then check `static/bloom/bloomplayer.htm` still carries the `window.parent.sandbox.initializeIframe(window)` script in its `<head>`, re-adding it if the copy overwrote it. `test/test_vendored_player.py` fails if it is missing. It is the only path by which the sandbox installs its shims on the player window, and losing it fails silently: books still render and page reads still flow over postMessage, but storage writes go to the sandbox origin instead of the learner's content state.
+```bash
+volta run --node <upstream volta.node> pnpm --filter kolibri-bloompub-viewer-plugin run build-bloom
+```
 
-There is no pinned upstream ref and no automated update path. Replacing this with a reproducible build from upstream is tracked in [#15039](https://github.com/learningequality/kolibri/issues/15039).
+The build has two stages:
+
+1. `bloom_build/buildBloomPlayerVendor.js` fetches the pinned commit into a temporary git repo and applies each patch with `git apply`. It then runs upstream's tests and `build:standalone` with upstream's pinned pnpm, and copies the built JS and CSS to `bloom_build/vendor/`.
+2. `bloom_build/webpack.config.bloom.js` transpiles that build to Kolibri's browser targets and writes it to `static/bloom/`. The host page comes from `bloom_build/bloomplayer.htm`, not upstream's.
+
+Rebuilding the same pin gives byte-identical output.
+
+`bloomplayer.htm` must keep the `window.parent.sandbox.initializeIframe(window)` script in its `<head>`; `test/test_vendored_player.py` fails without it. Losing it fails silently: books still render, but storage writes go to the sandbox origin instead of the learner's content state.
+
+When upstream publishes a release newer than the pin, the `build-bloom-player` job in `.github/workflows/dependency_updates.yml` rebuilds at its commit with no write token, and `update-bloom-player` opens a PR with the bumped pin and that build. A patch that no longer applies fails the build job.
+
+### Refreshing the patches
+
+Each patch is one Kolibri modification. When one stops applying:
+
+```bash
+git clone https://github.com/BloomBooks/bloom-player && cd bloom-player
+git checkout <new pinned sha>
+git am -3 /path/to/bloom_build/patches/*.patch  # resolve conflicts, then git am --continue
+rm /path/to/bloom_build/patches/*.patch
+git format-patch --zero-commit --no-signature <new pinned sha>..HEAD -o /path/to/bloom_build/patches/
+```

@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:51:18 +0000
+Subject: [PATCH 09/11] Make the page-turn buttons more opaque
+
+Kolibri's fork used this value, so learners can see the buttons.
+---
+ src/bloom-player-ui.less | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/bloom-player-ui.less b/src/bloom-player-ui.less
+index e36f1cf..bd6c13d 100644
+--- a/src/bloom-player-ui.less
++++ b/src/bloom-player-ui.less
+@@ -115,7 +115,7 @@ We just make them follow the main content normally. */
+         // This makes the grey buttons, which are all you can see when not hovering,
+         // quite faint, allowing all the page content to be seen through them,
+         // when not hovered over; yet there is some hint of something to click.
+-        opacity: 0.4;
++        opacity: 0.85;
+         // the actual background-url is set in blocks not shared by next/prev
+         background-repeat: no-repeat;
+         background-size: 4mm;
