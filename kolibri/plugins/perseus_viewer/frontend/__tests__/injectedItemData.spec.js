@@ -1,27 +1,11 @@
-import { render, screen, within } from '@testing-library/vue';
-// eslint-disable-next-line import-x/named
-import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
+import { screen, within } from '@testing-library/vue';
 import { init } from '@khanacademy/perseus';
 import perseusFixtures from '../../../qti_viewer/frontend/components/__fixtures__/perseus';
-import PerseusRendererIndex from '../views/PerseusRendererIndex';
+import mountRenderer from '../testUtils/mountRenderer';
 
 jest.mock('kolibri/composables/useContentViewer');
 
-// PerseusRendererIndex imports Tex.js, which calls urls.static() at module load;
-// that needs plugin URL data, absent in tests without a rendered Django template.
-jest.mock('kolibri-plugin-data', () => ({
-  __esModule: true,
-  default: {
-    urls: {
-      __staticUrl: '/static/',
-      __zipContentUrl: '/zipcontent/',
-      __zipContentOrigin: 'http://localhost',
-      __zipContentPort: '8000',
-      prefix: '/',
-      urls: {},
-    },
-  },
-}));
+jest.mock('kolibri/urls');
 
 // Perseus reads its widget registry when it migrates or renders an item, and
 // only init() populates it (mirrors stateSerialization.spec.js:8).
@@ -74,30 +58,6 @@ function embellishedItemData({
   sourceId,
 }) {
   return { perseusItemString: JSON.stringify(perseusItem(imageRef)), packageFiles, sourceId };
-}
-
-async function mountRenderer(itemData) {
-  let instance = null;
-  let registeredApi = null;
-  useContentViewer.mockImplementation(() => ({
-    ...useContentViewerMock({ itemData, interactive: true }),
-    registerAssessmentApi: api => {
-      registeredApi = api;
-    },
-  }));
-  // Supplied by the plugin's content module, which mounting directly bypasses.
-  PerseusRendererIndex.contentModule = { loadDirectionalCSS: () => Promise.resolve() };
-  const Harness = {
-    components: { PerseusRendererIndex },
-    mounted() {
-      instance = this.$refs.renderer;
-    },
-    template: `<PerseusRendererIndex ref="renderer" />`,
-  };
-  const utils = render(Harness);
-  await global.flushPromises();
-  await global.flushPromises();
-  return { instance: () => instance, api: () => registeredApi, ...utils };
 }
 
 describe('PerseusRendererIndex embellished itemData', () => {
