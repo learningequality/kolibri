@@ -74,6 +74,21 @@ watch([innermostParts, showsErrorTitle, metaInfoComponents], ([parts, isError, m
   document.title = formatDocumentTitle(isError ? [errorPageTitle$()] : parts);
 });
 
+export function focusPageHeading() {
+  if (!registrations.value.length) {
+    return;
+  }
+  const heading =
+    document.querySelector('#main h1, [role="main"] h1') ?? document.querySelector('h1');
+  if (!heading) {
+    return;
+  }
+  if (!heading.hasAttribute('tabindex')) {
+    heading.setAttribute('tabindex', '-1');
+  }
+  heading.focus();
+}
+
 /**
  * Registers the calling route component's title for the browser tab and the page's hidden <h1>.
  * The innermost mounted registration wins; it is removed when its component unmounts.

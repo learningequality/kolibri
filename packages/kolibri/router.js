@@ -1,6 +1,7 @@
-import VueRouter, { isNavigationFailure } from 'vue-router';
-import { shallowReactive } from 'vue';
+import VueRouter, { START_LOCATION, isNavigationFailure } from 'vue-router';
+import { nextTick, shallowReactive } from 'vue';
 import logger from 'kolibri-logging';
+import { focusPageHeading } from 'kolibri/composables/usePageTitle';
 
 const logging = logger.getLogger(__filename);
 
@@ -9,6 +10,115 @@ function resolveNavigationFailure(error) {
     return error;
   }
   throw error;
+}
+
+// vue-router 3 gives each route only its own record's meta, so a panel's child routes are
+// found through `matched`.
+function panelIndex(route) {
+  return route.matched.findIndex(record => record.meta.panel);
+}
+
+function closesPanel(to, from) {
+  const index = panelIndex(from);
+  return index > 0 && to.matched[index - 1] === from.matched[index - 1];
+}
+
+function staysOnKeepFocusRoute(to, from) {
+  const index = to.matched.findIndex(record => record.meta.keepFocus);
+  if (index === -1 || to.matched.length !== from.matched.length) {
+    return false;
+  }
+  const record = to.matched[index];
+  const fromRecord = from.matched[index];
+  return (
+    fromRecord.meta.keepFocus &&
+    (fromRecord === record || (record.parent && fromRecord.parent === record.parent))
+  );
+}
+
+let pendingReplacePath = null;
+function replacesOwnRoute(to, from) {
+  return (
+    to.fullPath === pendingReplacePath &&
+    to.matched.length === from.matched.length &&
+    to.matched.every(
+      (record, i) => record.components.default === from.matched[i].components.default,
+    )
+  );
+}
+
+let stopAwaitingHeading = () => {};
+function focusPageHeadingOnceRendered(focused) {
+  stopAwaitingHeading();
+  const focusUnmoved = () => [focused, document.body].includes(document.activeElement);
+  focusPageHeading();
+  if (!focusUnmoved()) {
+    return;
+  }
+  const observer = new MutationObserver(() => {
+    if (focusUnmoved()) {
+      focusPageHeading();
+    }
+    if (!focusUnmoved()) {
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  stopAwaitingHeading = () => observer.disconnect();
+}
+
+let userHasActed = false;
+let handlingInput = false;
+function listenForInput() {
+  // Screen readers in browse mode activate links with a bare `click`.
+  for (const type of ['keydown', 'pointerdown', 'click']) {
+    document.addEventListener(
+      type,
+      () => {
+        userHasActed = true;
+        stopAwaitingHeading();
+        if (!handlingInput) {
+          handlingInput = true;
+          setTimeout(() => {
+            handlingInput = false;
+          });
+        }
+      },
+      { capture: true },
+    );
+  }
+}
+
+function moveFocusToPage(to, from) {
+  const replaced = replacesOwnRoute(to, from);
+  pendingReplacePath = null;
+  if (replaced) {
+    return;
+  }
+  stopAwaitingHeading();
+  if (from === START_LOCATION || !userHasActed || to.path === from.path || panelIndex(to) !== -1) {
+    return;
+  }
+  if (closesPanel(to, from)) {
+    // Runs after kolibri-common SidePanelModal's return-focus timeout.
+    nextTick(() =>
+      setTimeout(() => {
+        if (document.activeElement === document.body) {
+          focusPageHeading();
+        }
+      }),
+    );
+    return;
+  }
+  if (staysOnKeepFocusRoute(to, from)) {
+    return;
+  }
+  const focused = document.activeElement;
+  nextTick(() => {
+    if (document.activeElement === focused || document.activeElement === document.body) {
+      focusPageHeadingOnceRendered(focused);
+    }
+  });
 }
 
 /**
@@ -64,11 +174,28 @@ class Router {
       this._vueRouter = new VueRouter(options);
       for (const method of ['push', 'replace']) {
         const navigate = this._vueRouter[method].bind(this._vueRouter);
-        this._vueRouter[method] = (...args) => navigate(...args)?.catch(resolveNavigationFailure);
+        this._vueRouter[method] = (location, ...args) => {
+          pendingReplacePath =
+            method === 'replace' && !handlingInput
+              ? this._vueRouter.resolve(location).route.fullPath
+              : null;
+          return navigate(location, ...args)?.catch(resolveNavigationFailure);
+        };
       }
+      listenForInput();
+      this._vueRouter.afterEach(moveFocusToPage);
     }
   }
 
+  /**
+   * After each page change the router focuses the page's <h1>, unless the routes' matched
+   * records set these `meta` flags:
+   * - `panel`: a side panel or modal route; opening and closing it leaves focus to the panel.
+   * - `keepFocus`: a param change on the same route, or a switch to a sibling route that also
+   *   sets it, keeps focus on in-page controls such as tabs.
+   * @param {Array<object>} routes - vue-router route configs.
+   * @returns {VueRouter} The underlying vue-router instance.
+   */
   initRoutes(routes) {
     this.initRouter();
 

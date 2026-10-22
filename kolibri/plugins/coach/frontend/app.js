@@ -11,6 +11,7 @@ import useFacility from 'kolibri-common/composables/useFacility';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from './constants';
 import routes from './routes';
+import { staysOnPage } from './routes/utils';
 import store from './store';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
@@ -118,11 +119,7 @@ class CoachToolsModule extends KolibriApp {
         HomeActivityPage.name,
       ];
 
-      // If we're navigating to the same page for a quiz summary page, don't set loading
-      if (
-        !skipLoading.includes(to.name) &&
-        !(to.params.quizId && from.params.quizId && to.name === from.name)
-      ) {
+      if (!skipLoading.includes(to.name) && !staysOnPage(to, from)) {
         pageLoading.value = true;
       }
       const promises = [];
