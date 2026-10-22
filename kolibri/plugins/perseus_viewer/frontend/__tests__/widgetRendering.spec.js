@@ -415,6 +415,13 @@ const LEGACY_ITEMS = {
     allowFullScreen: false,
   },
   'python-program': { programID: '123', height: 400 },
+  'cs-program': {
+    programID: '123',
+    settings: [],
+    showEditor: false,
+    showButtons: false,
+    height: 400,
+  },
   interaction: {
     graph: {
       editableSettings: [],

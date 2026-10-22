@@ -445,6 +445,7 @@
         // dependencies in v75 by the Protractor and Grapher widgets (for their
         // own bundled assets), so it must stay defined or those widgets throw.
         staticUrl: url => url,
+        InitialRequestUrl: window.location,
         // Pass our logging object to capture Log messages from Perseus
         Log: logging,
       });
