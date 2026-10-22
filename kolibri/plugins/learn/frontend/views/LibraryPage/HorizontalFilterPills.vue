@@ -8,11 +8,8 @@
         :key="entryId(entry)"
         :data-testid="`${entry.type}-pill`"
         class="pill"
-        :class="{ loading }"
-        :style="[
-          pillColorStyleFor(entry),
-          focusedEntryId === entryId(entry) && { ...$coreOutline, outlineOffset: 0 },
-        ]"
+        :class="{ loading, active: isFilterActive(entry.termKey, entry.value) }"
+        :style="focusedEntryId === entryId(entry) && { ...$coreOutline, outlineOffset: 0 }"
       >
         <input
           type="checkbox"
@@ -44,16 +41,12 @@
         v-if="hasAvailableLabels"
         class="all-filters-group"
       >
-        <span
-          class="pill-divider"
-          :style="{ backgroundColor: 'var(--palette-grey-v300)' }"
-        ></span>
+        <span class="pill-divider"></span>
         <KButton
           data-testid="all-filters-pill"
           :text="allFilters$()"
           appearance="flat-button"
           class="pill"
-          :appearanceOverrides="pillColorStyleFor({})"
           :disabled="loading"
           @click="$emit('openFilters')"
         >
@@ -251,24 +244,6 @@
         emit('focusLost');
       }
 
-      function pillColorStyleFor(entry) {
-        if (isFilterActive(entry.termKey, entry.value)) {
-          return {
-            backgroundColor: 'var(--brand-primary-v100)',
-            border: '1px solid var(--tokens-primary)',
-            // primaryDark for WCAG AA contrast on the v_100 background
-            color: 'var(--tokens-primaryDark)',
-            fontWeight: 'bold',
-          };
-        }
-        return {
-          backgroundColor: 'var(--tokens-surface)',
-          border: '1px solid var(--palette-grey-v300)',
-          color: 'var(--tokens-text)',
-          fontWeight: 'normal',
-        };
-      }
-
       const { allFilters$, filtersGroupLabel$ } = searchAndFilterStrings;
       const { clearAllAction$ } = coreStrings;
 
@@ -278,7 +253,6 @@
         hasAvailableLabels,
         isFilterActive,
         iconAfterFor,
-        pillColorStyleFor,
         entryId,
         focusedEntryId,
         guardClick,
@@ -323,12 +297,24 @@
     padding: 8px;
     overflow: hidden;
     font-size: 16px;
+    font-weight: normal;
     line-height: 1;
+    color: var(--tokens-text);
     text-transform: none;
     white-space: nowrap;
     user-select: none;
+    background-color: var(--tokens-surface);
+    border: 1px solid var(--palette-grey-v300);
     border-radius: 24px;
     transition: background-color 0.2s ease;
+  }
+
+  .filter-pills .pill.active {
+    font-weight: bold;
+    // primaryDark for WCAG AA contrast on the v100 background
+    color: var(--tokens-primaryDark);
+    background-color: var(--brand-primary-v100);
+    border-color: var(--tokens-primary);
   }
 
   .pill-label {
@@ -337,8 +323,13 @@
     text-overflow: ellipsis;
   }
 
-  .filter-pills .pill:hover:not(.loading) {
-    background-color: rgba(0, 0, 0, 0.1);
+  .filter-pills .pill:hover:not(.loading, :disabled) {
+    background-color: var(--palette-grey-v100);
+  }
+
+  // Lighter, not darker, so primaryDark text keeps its AA contrast
+  .filter-pills .pill.active:hover:not(.loading) {
+    background-color: var(--brand-primary-v50);
   }
 
   .filter-pills .pill:not(.loading) {
@@ -362,6 +353,7 @@
     align-self: center;
     width: 1px;
     height: 24px;
+    background-color: var(--palette-grey-v300);
   }
 
   .clear-all {
