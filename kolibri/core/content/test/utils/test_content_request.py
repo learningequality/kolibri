@@ -21,6 +21,7 @@ from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from rest_framework.test import APIClient
 
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
@@ -63,12 +64,16 @@ from kolibri.core.content.utils.content_request import (
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.viewsets.import_metadata import ImportMetadataViewset
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.device.models import DeviceStatus
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.lessons.models import Lesson
 
 _module = "kolibri.core.content.utils.content_request."
 
@@ -2545,6 +2550,207 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
         self.assertLessEqual(max(counts), _SQLITE_LEGACY_MAX_VARIABLES)
         self.assertFalse(
             ContentDownloadRequest.objects.filter(failure_count=0).exists()
+        )
+
+
+@mock.patch("kolibri.core.content.signals.get_device_setting", return_value=False)
+@mock.patch(_module + "LearnerDeviceStatus")
+class DeleteUnassignedFailedDownloadsTestCase(BaseQuerysetTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.classroom = Classroom.objects.create(name="c", parent=cls.facility)
+        cls.classroom.add_member(cls.learner)
+
+    def setUp(self):
+        super().setUp()
+        self.lesson_node_id = uuid.uuid4().hex
+        self.lesson = Lesson.objects.create(
+            title="lesson",
+            collection=self.classroom,
+            created_by=self.admin,
+            is_active=True,
+            resources=[
+                {
+                    "contentnode_id": self.lesson_node_id,
+                    "content_id": uuid.uuid4().hex,
+                    "channel_id": uuid.uuid4().hex,
+                }
+            ],
+        )
+        channel_id = uuid.uuid4().hex
+        self.course_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="course",
+            kind="course",
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        self.course_descendant = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="unit",
+            kind="topic",
+            parent=self.course_node,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        self.course_channel = ChannelMetadata.objects.create(
+            id=channel_id, name="course channel", root=self.course_node, version=2
+        )
+        self.course_session = CourseSession.objects.create(
+            title="course session",
+            collection=self.classroom,
+            created_by=self.admin,
+            is_active=True,
+            course=self.course_node.id,
+            channel_version=2,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=self.course_session,
+            collection=self.classroom,
+            assigned_by=self.admin,
+        )
+
+    def _create_failed_download(
+        self,
+        source,
+        contentnode_id,
+        channel_version=None,
+        failure_count=1,
+        reason=ContentRequestReason.SyncInitiated,
+    ):
+        return ContentDownloadRequest.objects.create(
+            source_model=source.morango_model_name,
+            source_id=source.id,
+            facility=self.facility,
+            reason=reason,
+            status=ContentRequestStatus.Failed,
+            contentnode_id=contentnode_id,
+            channel_version=channel_version,
+            failure_count=failure_count,
+            retry_after=timezone.now() + timedelta(hours=1),
+        )
+
+    def _assert_deleted(self, download):
+        process_content_requests()
+        self.assertFalse(ContentDownloadRequest.objects.filter(id=download.id).exists())
+
+    def _assert_kept(self, download):
+        process_content_requests()
+        self.assertTrue(ContentDownloadRequest.objects.filter(id=download.id).exists())
+
+    def test_node_dropped_from_active_lesson__deleted(self, *_mocks):
+        self._assert_deleted(
+            self._create_failed_download(self.lesson, uuid.uuid4().hex)
+        )
+
+    def test_channel_version_moved_past__deleted(self, *_mocks):
+        self._assert_deleted(
+            self._create_failed_download(
+                self.course_session, self.course_node.id, channel_version=1
+            )
+        )
+
+    def test_course_descendant_gone_locally__deleted(self, *_mocks):
+        self._assert_deleted(
+            self._create_failed_download(self.course_session, uuid.uuid4().hex)
+        )
+
+    def test_course_descendant_with_course_below_assigned_version__kept(self, *_mocks):
+        self.course_channel.version = 1
+        self.course_channel.save()
+        self._assert_kept(
+            self._create_failed_download(self.course_session, uuid.uuid4().hex)
+        )
+
+    def test_course_descendant_with_course_not_local__kept(self, *_mocks):
+        download = self._create_failed_download(self.course_session, uuid.uuid4().hex)
+        ContentNode.objects.filter(channel_id=self.course_node.channel_id).delete()
+        self._assert_kept(download)
+
+    def test_inactive_lesson__deleted(self, *_mocks):
+        download = self._create_failed_download(self.lesson, self.lesson_node_id)
+        self.lesson.is_active = False
+        self.lesson.save()
+        self._assert_deleted(download)
+
+    def test_deleted_lesson__deleted(self, *_mocks):
+        download = self._create_failed_download(self.lesson, self.lesson_node_id)
+        Lesson.objects.filter(id=self.lesson.id).delete()
+        self._assert_deleted(download)
+
+    def test_still_assigned__kept(self, *_mocks):
+        self._assert_kept(
+            self._create_failed_download(self.lesson, self.lesson_node_id)
+        )
+
+    def test_course_node_at_current_channel_version__kept(self, *_mocks):
+        self._assert_kept(
+            self._create_failed_download(
+                self.course_session, self.course_node.id, channel_version=2
+            )
+        )
+
+    def test_course_descendant_under_assigned_course__kept(self, *_mocks):
+        self._assert_kept(
+            self._create_failed_download(self.course_session, self.course_descendant.id)
+        )
+
+    def test_user_initiated__kept(self, *_mocks):
+        self._assert_kept(
+            self._create_failed_download(
+                self.admin,
+                uuid.uuid4().hex,
+                reason=ContentRequestReason.UserInitiated,
+            )
+        )
+
+    def test_never_failed__kept(self, *_mocks):
+        self._assert_kept(
+            self._create_failed_download(self.lesson, uuid.uuid4().hex, failure_count=0)
+        )
+
+    @mock.patch(_module + "get_free_space_for_downloads", return_value=0)
+    def test_insufficient_storage__deleted(self, _mock_free_space, mock_status, _):
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            contentnode=ContentNode.objects.create(
+                id=self.lesson_node_id,
+                title="lesson resource",
+                kind="video",
+                channel_id=uuid.uuid4().hex,
+                content_id=uuid.uuid4().hex,
+            ),
+            local_file=LocalFile.objects.create(
+                id=uuid.uuid4().hex, file_size=1000, extension="mp4"
+            ),
+        )
+        ContentDownloadRequest.objects.create(
+            source_model=self.lesson.morango_model_name,
+            source_id=self.lesson.id,
+            facility=self.facility,
+            reason=ContentRequestReason.SyncInitiated,
+            contentnode_id=self.lesson_node_id,
+        )
+        self._assert_deleted(
+            self._create_failed_download(self.lesson, uuid.uuid4().hex)
+        )
+        mock_status.save_statuses.assert_called_once_with(
+            DeviceStatus.InsufficientStorage
+        )
+
+    def test_many_unassigned__all_deleted_under_legacy_variable_limit(self, *_mocks):
+        for _ in range(_SQLITE_LEGACY_MAX_VARIABLES + 200):
+            self._create_failed_download(self.course_session, uuid.uuid4().hex)
+
+        with _record_max_bound_variables() as counts:
+            process_content_requests()
+
+        self.assertLessEqual(max(counts), _SQLITE_LEGACY_MAX_VARIABLES)
+        self.assertFalse(
+            ContentDownloadRequest.objects.filter(
+                source_id=self.course_session.id
+            ).exists()
         )
 
 
