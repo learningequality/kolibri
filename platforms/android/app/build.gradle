@@ -152,12 +152,10 @@ if (extractedKolibriDir.exists() && extractedKolibriDir.isDirectory()) {
 }
 
 // Make sure Kolibri is extracted before Python requirements are generated
-afterEvaluate {
-	tasks.matching { task ->
-		task.name.contains('PythonRequirements') ||
-				task.name.contains('extractPythonBuildPackages')
-	}.all { task ->
-		task.dependsOn streamlineKolibriTar
+tasks.configureEach { task ->
+	if (task.name.contains('PythonRequirements') ||
+			task.name.contains('extractPythonBuildPackages')) {
+		task.dependsOn tasks.named('streamlineKolibriTar')
 	}
 }
 
