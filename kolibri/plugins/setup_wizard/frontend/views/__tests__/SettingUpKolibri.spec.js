@@ -9,10 +9,6 @@ import SettingUpKolibri from '../onboarding-forms/SettingUpKolibri';
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 jest.mock('kolibri/composables/useUser');
-jest.mock('kolibri-plugin-data', () => ({
-  __esModule: true,
-  default: { canGetOSUser: true },
-}));
 
 const { onMyOwnDeviceName$, onMyOwnFacilityName$ } = createTranslator(
   SettingUpKolibri.name,

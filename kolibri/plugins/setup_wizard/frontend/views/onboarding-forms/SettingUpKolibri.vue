@@ -41,7 +41,6 @@
   import { useSessionStorage } from '@vueuse/core';
   import useUser from 'kolibri/composables/useUser';
   import { error as coreError, handleApiError, clearError } from 'kolibri/utils/appError';
-  import pluginData from 'kolibri-plugin-data';
   import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
@@ -123,7 +122,7 @@
       userBasedOnOs() {
         // On my own setup with OS user means that the user will be created
         // at login time, based on the OS user.
-        return this.isOnMyOwnSetup && this.isAppContext && pluginData.canGetOSUser;
+        return this.isOnMyOwnSetup && this.isAppContext;
       },
       learnerCanEditPassword() {
         // Note that we don't ask this question of a user during onboarding -- however,

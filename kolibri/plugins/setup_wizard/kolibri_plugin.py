@@ -1,4 +1,3 @@
-from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
@@ -23,12 +22,6 @@ class SetupWizardPlugin(KolibriPluginBase):
 @register_hook
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
-
-    @property
-    def plugin_data(self):
-        return {
-            "canGetOSUser": GetOSUserHook.is_registered,
-        }
 
 
 @register_hook

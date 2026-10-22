@@ -5,11 +5,6 @@ import SetupWizardIndex from '../SetupWizardIndex';
 import routes from '../../routes';
 import { pageTitleStrings } from '../pageTitleStrings';
 
-jest.mock('kolibri-plugin-data', () => ({
-  __esModule: true,
-  default: { canGetOSUser: false },
-}));
-
 const { setupWizardPageTitle$ } = pageTitleStrings;
 
 // Loading keeps the step's router-view out of the render. Starting off '/' keeps created()'s
