@@ -8,6 +8,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.utils.time_utils import local_now
@@ -686,6 +687,27 @@ class FacilityUserTestCase(TestCase):
         self.assertEqual(FacilityUser.objects.first(), user)
 
         self.assertEqual(FacilityUser.all_objects.count(), 2)
+
+    def test_os_user_keeps_its_facility_user_through_delete_and_restore(self):
+        facility = Facility.objects.create(name="My Facility")
+        os_user = OSUserInfo("jane", "jane", "", False)
+        user = FacilityUser.objects.get_or_create_for_os_user(
+            os_user, facility=facility
+        )
+        FacilityUser.objects.filter(id=user.id).update(date_deleted=local_now())
+
+        self.assertEqual(
+            FacilityUser.objects.get_or_create_for_os_user(os_user, facility=facility),
+            user,
+        )
+
+        FacilityUser.all_objects.filter(id=user.id).update(date_deleted=None)
+
+        self.assertEqual(
+            FacilityUser.objects.get_or_create_for_os_user(os_user, facility=facility),
+            user,
+        )
+        self.assertEqual(FacilityUser.all_objects.count(), 1)
 
     def test_able_to_create_user_with_same_username_at_orm_level(self):
         self.facility = Facility.objects.create()

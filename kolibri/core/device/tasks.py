@@ -181,9 +181,9 @@ def provisiondevice(**data):  # noqa C901
                 # If we have an auth token, we need to create an OSUser for the superuser
                 # so that we can associate the user with the OSUser
                 try:
-                    os_username, _ = GetOSUserHook.retrieve_os_user(auth_token)
+                    os_user = GetOSUserHook.retrieve_os_user(auth_token)
                     OSUser.objects.update_or_create(
-                        os_username=os_username, defaults={"user": superuser}
+                        os_username=os_user.os_user_id, defaults={"user": superuser}
                     )
                 except NotImplementedError as e:
                     raise ParseError(
