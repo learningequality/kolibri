@@ -473,6 +473,27 @@ def _is_summary_log_incompleted(summarylog):
     return summarylog.progress < 1.0 and not summarylog.completion_timestamp
 
 
+def _cached(cache, key, compute):
+    if cache is None:
+        return compute()
+    if key not in cache:
+        cache[key] = compute()
+    return cache[key]
+
+
+def _was_summary_log_incompleted_at(summarylog, timestamp, cache=None):
+    if not summarylog.completion_timestamp:
+        return summarylog.progress < 1.0
+    if timestamp > summarylog.completion_timestamp:
+        return False
+    completion_timestamp = _cached(
+        cache,
+        ("resource_completion_timestamp", summarylog.id),
+        lambda: _get_resource_completion_timestamp(summarylog),
+    )
+    return timestamp <= completion_timestamp
+
+
 def _get_lesson_resource_completed_notifications(
     summarylog, contentnode_id, lesson, completion_timestamp
 ):
@@ -541,12 +562,26 @@ def finish_lesson_resource(
         save_notifications(notifications)
 
 
-def _get_user_needs_help(attemptlog):
-    attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
+def _get_user_needs_help(attemptlog, cache=None):
+    if not _was_summary_log_incompleted_at(
+        attemptlog.masterylog.summarylog, attemptlog.end_timestamp, cache
+    ):
+        return False
+
+    attempts = _cached(
+        cache,
+        ("attempts", attemptlog.masterylog_id),
+        lambda: list(
+            AttemptLog.objects.filter(
+                masterylog_id=attemptlog.masterylog_id
+            ).values_list("end_timestamp", "interaction_history")
+        ),
+    )
     failed_interactions = [
         interaction
-        for attempt in attempts
-        for interaction in attempt.interaction_history
+        for end_timestamp, interaction_history in attempts
+        if end_timestamp <= attemptlog.end_timestamp
+        for interaction in interaction_history
         if interaction.get("correct", 0) == 0
     ]
 
@@ -906,10 +941,7 @@ def parse_attemptslog(
     if not lessons:
         return
 
-    summarylog = attemptlog.masterylog.summarylog
-    needs_help = _is_summary_log_incompleted(summarylog) and _get_user_needs_help(
-        attemptlog
-    )
+    needs_help = _get_user_needs_help(attemptlog, cache)
     notifications = []
     for lesson, contentnode_id in lessons:
         if needs_help:
@@ -991,11 +1023,13 @@ def batch_process_attemptlogs(attemptlog_ids):
     assigned_course_sessions = _get_assigned_course_sessions(
         attemptlogs.values("user_id")
     )
-    lesson_cache = {}
-    for attemptlog in attemptlogs.exclude(_IS_COACH_MONITORED_QUIZ).select_related(
-        "sessionlog", "user", "masterylog__summarylog"
+    cache = {}
+    for attemptlog in (
+        attemptlogs.exclude(_IS_COACH_MONITORED_QUIZ)
+        .select_related("sessionlog", "user", "masterylog__summarylog")
+        .order_by("end_timestamp")
     ):
-        parse_attemptslog(attemptlog)
+        parse_attemptslog(attemptlog, cache=cache)
         course_resource = _get_assigned_course_resource(
             attemptlog.user_id,
             attemptlog.sessionlog.extra_fields,
@@ -1007,7 +1041,7 @@ def batch_process_attemptlogs(attemptlog_ids):
                 attemptlog,
                 contentnode_id,
                 course_session_id=course_session_id,
-                cache=lesson_cache,
+                cache=cache,
             )
 
 

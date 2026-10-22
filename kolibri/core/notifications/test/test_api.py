@@ -976,6 +976,38 @@ class NotificationsAPITestCase(APITestCase):
         # Keeps the timestamp of the first failed attempt
         assert notification.timestamp == attemptlog1.end_timestamp
 
+    def test_batch_process_attemptlogs_needs_help_timestamp_is_failed_attempt_when_correct_attempt_has_lower_id(
+        self,
+    ):
+        attemptlog1 = self._create_mock_attemptlog()
+        attemptlog1.interaction_history = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
+        attemptlog1.save()
+
+        attemptlog2 = self._create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
+        )
+        attemptlog2.interaction_history = [{"type": "answer", "correct": 1}]
+        attemptlog2.end_timestamp = attemptlog1.end_timestamp + timedelta(seconds=10)
+        attemptlog2.save()
+        AttemptLog.objects.filter(id=attemptlog1.id).update(id="f" * 32)
+        AttemptLog.objects.filter(id=attemptlog2.id).update(id="0" * 32)
+        attemptlog1.id = "f" * 32
+
+        batch_process_attemptlogs(["0" * 32, "f" * 32])
+
+        notification = LearnerProgressNotification.objects.get(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=attemptlog1.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+        )
+        assert notification.timestamp == attemptlog1.end_timestamp
+
     def test_parse_attemptslog_no_needs_help_when_exercise_already_completed(self):
         # Mark the exercise as completed before any attempts
         self.summarylog1.progress = 1.0
@@ -2663,28 +2695,36 @@ class CourseSessionSyncNotificationsTestCase(APITestCase):
         while self.queued_notifications:
             self.queued_notifications.pop(0)()
 
-    def _failed_attempt(self, item):
+    def _attempt(self, item, correct):
         return {
             "interactions": [
                 {
                     "item": item,
-                    "correct": 0,
-                    "answer": {"response": "wrong"},
+                    "correct": correct,
+                    "answer": {"response": "right" if correct else "wrong"},
                     "time_spent": 5,
                 }
             ]
         }
 
-    def _all_rows(self):
+    def _failed_attempt(self, item):
+        return self._attempt(item, 0)
+
+    def _correct_attempt(self, item):
+        return self._attempt(item, 1)
+
+    def _all_rows(self, **filters):
         return list(
-            LearnerProgressNotification.objects.order_by(
+            LearnerProgressNotification.objects.filter(**filters)
+            .order_by(
                 "notification_object",
                 "notification_event",
                 "lesson_id",
                 "contentnode_id",
                 "course_session_id",
                 "timestamp",
-            ).values_list(
+            )
+            .values_list(
                 "notification_object",
                 "notification_event",
                 "lesson_id",
@@ -2697,18 +2737,23 @@ class CourseSessionSyncNotificationsTestCase(APITestCase):
             )
         )
 
-    def _assert_sync_recreates_full_device_rows(self):
-        full_device_rows = self._all_rows()
+    def _assert_sync_recreates_full_device_rows(self, **filters):
+        full_device_rows = self._all_rows(**filters)
         LearnerProgressNotification.objects.all().delete()
         get_assignments.cache_clear()
         _get_coach_lesson_dict.cache_clear()
 
+        self._sync()
+        assert self._all_rows(**filters) == full_device_rows
+
+        self._sync()
+        assert self._all_rows(**filters) == full_device_rows
+
+    def _sync(self):
         batch_process_summarylogs(
             ContentSummaryLog.objects.values_list("id", flat=True)
         )
         batch_process_attemptlogs(AttemptLog.objects.values_list("id", flat=True))
-
-        assert self._all_rows() == full_device_rows
 
     def test_sync_recreates_full_device_rows_for_completed_course_lesson(self):
         self._track_course_progress(self.resource_node, {"progress": 1.0})
@@ -2747,6 +2792,116 @@ class CourseSessionSyncNotificationsTestCase(APITestCase):
             ),
         )
         assert self._course_rows(NotificationEventType.Help)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def _fail_then_complete(self, node, failures, **context):
+        return self._track_progress(
+            node,
+            *(self._failed_attempt(f"item{i}") for i in range(failures)),
+            {**self._correct_attempt("last"), "progress": 1.0},
+            **context,
+        )
+
+    def test_sync_recreates_full_device_help_row_for_course_exercise_completed_after_failing(
+        self,
+    ):
+        self._fail_then_complete(
+            self.exercise_node,
+            NEEDS_HELP_NOTIFICATION_THRESHOLD,
+            course_session_id=self.course_session.id,
+        )
+        assert self._course_rows(NotificationEventType.Help)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_recreates_full_device_help_row_for_classic_lesson_exercise_completed_after_failing(
+        self,
+    ):
+        lesson = self._create_classic_lesson(self.exercise_node)
+        self._fail_then_complete(
+            self.exercise_node, NEEDS_HELP_NOTIFICATION_THRESHOLD, lesson_id=lesson.id
+        )
+        assert LearnerProgressNotification.objects.filter(
+            lesson_id=lesson.id, notification_event=NotificationEventType.Help
+        ).exists()
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_help_row_for_failures_outside_lesson_is_stamped_at_lesson_attempt(self):
+        lesson = self._create_classic_lesson(self.exercise_node)
+        self._track_progress(
+            self.exercise_node,
+            *(
+                self._failed_attempt(f"item{i}")
+                for i in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+            ),
+        )
+        self._track_progress(
+            self.exercise_node, self._correct_attempt("last"), lesson_id=lesson.id
+        )
+        help_notification = LearnerProgressNotification.objects.get(
+            lesson_id=lesson.id, notification_event=NotificationEventType.Help
+        )
+        lesson_attempt = AttemptLog.objects.get(item="last")
+        assert help_notification.timestamp == lesson_attempt.end_timestamp
+
+    def test_help_timestamp_moves_to_completion_when_completing_answer_replaces_failure(
+        self,
+    ):
+        lesson = self._create_classic_lesson(self.exercise_node)
+        session_id = self._track_progress(
+            self.exercise_node,
+            *(
+                self._failed_attempt(f"item{i}")
+                for i in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+            ),
+            lesson_id=lesson.id,
+        )
+        completing_answer = self._correct_attempt(
+            f"item{NEEDS_HELP_NOTIFICATION_THRESHOLD - 1}"
+        )
+        completing_answer["interactions"][0]["replace"] = True
+        self._update_progress(session_id, {**completing_answer, "progress": 1.0})
+        help_notification = LearnerProgressNotification.objects.get(
+            lesson_id=lesson.id, notification_event=NotificationEventType.Help
+        )
+        assert (
+            help_notification.timestamp
+            == ContentSummaryLog.objects.get().completion_timestamp
+        )
+
+        self._assert_sync_recreates_full_device_rows(
+            notification_event=NotificationEventType.Help
+        )
+
+    def test_sync_creates_no_help_row_for_failures_after_completion(self):
+        session_id = self._fail_then_complete(
+            self.exercise_node,
+            NEEDS_HELP_NOTIFICATION_THRESHOLD - 1,
+            course_session_id=self.course_session.id,
+        )
+        self._update_progress(session_id, self._failed_attempt("after"))
+        assert not self._course_rows(NotificationEventType.Help)
+
+        self._assert_sync_recreates_full_device_rows()
+
+    def test_sync_creates_no_help_row_for_failures_in_repeat_after_completion(self):
+        lesson = self._create_classic_lesson(self.exercise_node)
+        self._fail_then_complete(self.exercise_node, 0, lesson_id=lesson.id)
+        self._track_progress(
+            self.exercise_node,
+            *(
+                self._failed_attempt(f"item{i}")
+                for i in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+            ),
+            {**self._correct_attempt("last"), "progress": 1.0},
+            repeat=True,
+            lesson_id=lesson.id,
+        )
+        assert not LearnerProgressNotification.objects.filter(
+            notification_event=NotificationEventType.Help
+        ).exists()
 
         self._assert_sync_recreates_full_device_rows()
 
