@@ -1,0 +1,145 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:31:06 +0000
+Subject: [PATCH 03/12] Pass URLs that carry a scheme through fullUrl
+
+Kolibri serves book files as blob: URLs, and files over 500 KB as absolute http(s) URLs; prefixing either with the book folder makes an unfetchable URL.
+---
+ src/bookLoader.test.ts  | 14 +++++++++++++
+ src/bookLoader.ts       |  6 ++++--
+ src/shared/urlScheme.ts |  4 ++++
+ src/stylesheets.test.ts | 46 +++++++++++++++++++++++++++++++++++++++++
+ src/stylesheets.ts      |  3 ++-
+ 5 files changed, 70 insertions(+), 3 deletions(-)
+ create mode 100644 src/shared/urlScheme.ts
+ create mode 100644 src/stylesheets.test.ts
+
+diff --git a/src/bookLoader.test.ts b/src/bookLoader.test.ts
+index 2a71fec..db40151 100644
+--- a/src/bookLoader.test.ts
++++ b/src/bookLoader.test.ts
+@@ -41,6 +41,20 @@ describe("fullUrl", () => {
+             "http://x.org/book/meta.json",
+         );
+     });
++
++    it.each([
++        "blob:http://x.org/0b5e5c5a-3f43-4a0c-9d0e-4d8e3a1b2c3d",
++        "http://x.org/content/zipcontent/abc.bloompub/video/v.mp4",
++        "data:image/png;base64,iVBORw0KGgo=",
++    ])("returns %s unchanged", (url) => {
++        expect(fullUrl(url, "blob:http://x.org/book")).toBe(url);
++    });
++
++    it("prepends the book folder to a relative name containing a colon", () => {
++        expect(fullUrl("images/a:b.png", "http://x.org/book")).toBe(
++            "http://x.org/book/images/a:b.png",
++        );
++    });
+ });
+ 
+ describe("getBodyAttributes", () => {
+diff --git a/src/bookLoader.ts b/src/bookLoader.ts
+index 0448b57..26151d7 100644
+--- a/src/bookLoader.ts
++++ b/src/bookLoader.ts
+@@ -1,4 +1,5 @@
+ import axios from "axios";
++import { hasUrlScheme } from "./shared/urlScheme";
+ 
+ // The book-fetching part of loading a book: figuring out the actual .htm url
+ // and folder prefix from the url we were given, downloading the book's html,
+@@ -49,8 +50,9 @@ export function computeBookUrlParts(sourceUrl: string): IBookUrlParts {
+ }
+ 
+ export function fullUrl(url: string | null, urlPrefix: string): string {
+-    // Enhance: possibly we should only do this if we somehow determine it is a relative URL?
+-    // But the things we apply it to always are, in bloom books.
++    if (url && hasUrlScheme(url)) {
++        return url;
++    }
+     return urlPrefix + "/" + url;
+ }
+ 
+diff --git a/src/shared/urlScheme.ts b/src/shared/urlScheme.ts
+new file mode 100644
+index 0000000..67340db
+--- /dev/null
++++ b/src/shared/urlScheme.ts
+@@ -0,0 +1,4 @@
++// RFC 3986 section 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
++export function hasUrlScheme(url: string): boolean {
++    return /^[a-z][a-z\d+.-]*:/i.test(url);
++}
+diff --git a/src/stylesheets.test.ts b/src/stylesheets.test.ts
+new file mode 100644
+index 0000000..fae98d4
+--- /dev/null
++++ b/src/stylesheets.test.ts
+@@ -0,0 +1,46 @@
++import axios from "axios";
++import { BookInfo } from "./bookInfo";
++import { assembleStyleSheets } from "./stylesheets";
++
++vi.mock("axios", () => ({
++    default: {
++        get: vi.fn(() => Promise.resolve({ data: "", config: { url: "" } })),
++        all: (promises: Array<Promise<unknown>>) => Promise.all(promises),
++    },
++}));
++
++const mockedGet = vi.mocked(axios.get);
++
++function bookLinkingTo(href: string): HTMLHtmlElement {
++    return new DOMParser().parseFromString(
++        `<html><head><link rel="stylesheet" type="text/css" href="${href}"></head><body></body></html>`,
++        "text/html",
++    ).documentElement as HTMLHtmlElement;
++}
++
++describe("assembleStyleSheets", () => {
++    beforeEach(() => mockedGet.mockClear());
++
++    it("fetches a relative href from the book folder", async () => {
++        await assembleStyleSheets(
++            bookLinkingTo("basePage.css"),
++            "http://x.org/book",
++            new BookInfo(),
++            () => null,
++        );
++        expect(mockedGet).toHaveBeenCalledWith(
++            "http://x.org/book/basePage.css",
++        );
++    });
++
++    it("fetches an href that carries a scheme unchanged", async () => {
++        const href = "blob:http://x.org/0b5e5c5a-3f43-4a0c-9d0e-4d8e3a1b2c3d";
++        await assembleStyleSheets(
++            bookLinkingTo(href),
++            "blob:http://x.org/book",
++            new BookInfo(),
++            () => null,
++        );
++        expect(mockedGet).toHaveBeenCalledWith(href);
++    });
++});
+diff --git a/src/stylesheets.ts b/src/stylesheets.ts
+index 782275e..c77233d 100644
+--- a/src/stylesheets.ts
++++ b/src/stylesheets.ts
+@@ -1,5 +1,6 @@
+ import axios, { AxiosPromise } from "axios";
+ import { BookInfo } from "./bookInfo";
++import { fullUrl } from "./bookLoader";
+ 
+ // Assemble all the style rules from all the stylesheets the book contains or references.
+ // When the async completes, the result will be set as our state.styles with setState().
+@@ -24,7 +25,7 @@ export async function assembleStyleSheets(
+     for (let i = 0; i < linkElts.snapshotLength; i++) {
+         const link = linkElts.snapshotItem(i) as HTMLElement;
+         const href = link.getAttribute("href");
+-        const fullHref = urlPrefix + "/" + href;
++        const fullHref = fullUrl(href, urlPrefix);
+         if (fullHref.endsWith("/fonts.css")) {
+             makeFontStylesheet(fullHref);
+         } else {

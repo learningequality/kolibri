@@ -1,0 +1,140 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:34:33 +0000
+Subject: [PATCH 05/12] Fetch legacy quiz questions from the questionsJsonUrl
+ parameter
+
+A blob: book URL has no folder to find questions.json in, so Kolibri passes its URL.
+---
+ .../LegacyQuizHandler.test.ts                 | 43 +++++++++++++++++++
+ .../legacyQuizHandling/LegacyQuizHandler.ts   |  8 +++-
+ src/bloom-player-controls.tsx                 |  5 +++
+ src/bloom-player-core.tsx                     |  2 +
+ 4 files changed, 56 insertions(+), 2 deletions(-)
+ create mode 100644 src/activities/legacyQuizHandling/LegacyQuizHandler.test.ts
+
+diff --git a/src/activities/legacyQuizHandling/LegacyQuizHandler.test.ts b/src/activities/legacyQuizHandling/LegacyQuizHandler.test.ts
+new file mode 100644
+index 0000000..fd60d20
+--- /dev/null
++++ b/src/activities/legacyQuizHandling/LegacyQuizHandler.test.ts
+@@ -0,0 +1,43 @@
++import axios from "axios";
++import { LegacyQuestionHandler } from "./LegacyQuizHandler";
++
++vi.mock("axios", () => ({
++    default: { get: vi.fn(() => Promise.resolve({ data: "[]" })) },
++}));
++
++const mockedGet = vi.mocked(axios.get);
++
++function generateQuizPages(handler: LegacyQuestionHandler): Promise<void> {
++    const body = new DOMParser().parseFromString(
++        `<html><body><div class="bloom-backMatter"></div></body></html>`,
++        "text/html",
++    ).body;
++    return new Promise((finished) =>
++        handler.generateQuizPagesFromLegacyJSON(
++            "http://x.org/book",
++            body,
++            "",
++            finished,
++        ),
++    );
++}
++
++describe("LegacyQuestionHandler", () => {
++    beforeEach(() => mockedGet.mockClear());
++
++    it("fetches questions.json from the book folder", async () => {
++        await generateQuizPages(new LegacyQuestionHandler(""));
++        expect(mockedGet).toHaveBeenCalledWith(
++            "http://x.org/book/questions.json",
++        );
++    });
++
++    it("fetches the given questionsJsonUrl", async () => {
++        const questionsJsonUrl =
++            "blob:http://x.org/0b5e5c5a-3f43-4a0c-9d0e-4d8e3a1b2c3d";
++        await generateQuizPages(
++            new LegacyQuestionHandler("", questionsJsonUrl),
++        );
++        expect(mockedGet).toHaveBeenCalledWith(questionsJsonUrl);
++    });
++});
+diff --git a/src/activities/legacyQuizHandling/LegacyQuizHandler.ts b/src/activities/legacyQuizHandling/LegacyQuizHandler.ts
+index 1aa4feb..6947a3f 100644
+--- a/src/activities/legacyQuizHandling/LegacyQuizHandler.ts
++++ b/src/activities/legacyQuizHandling/LegacyQuizHandler.ts
+@@ -5,7 +5,10 @@ import { OldQuestionsConverter } from "./old-questions";
+ // "questions.json" was the trigger to make pages at the end.
+ 
+ export class LegacyQuestionHandler {
+-    public constructor(locationOfDistFolder: string) {
++    public constructor(
++        locationOfDistFolder: string,
++        private questionsJsonUrl?: string,
++    ) {
+         this.locationOfDistFolder = locationOfDistFolder;
+     }
+     private needQuizCss = false;
+@@ -29,7 +32,8 @@ export class LegacyQuestionHandler {
+         pageClass,
+         finished: () => void,
+     ) {
+-        const urlOfQuestionsFile = urlPrefix + "/questions.json";
++        const urlOfQuestionsFile =
++            this.questionsJsonUrl ?? urlPrefix + "/questions.json";
+         axios
+             .get(urlOfQuestionsFile)
+             .then((qfResult) => {
+diff --git a/src/bloom-player-controls.tsx b/src/bloom-player-controls.tsx
+index 5e692cb..c33eacc 100644
+--- a/src/bloom-player-controls.tsx
++++ b/src/bloom-player-controls.tsx
+@@ -55,6 +55,7 @@ export interface BloomPlayerProps extends React.HTMLProps<HTMLDivElement> {
+     url: string;
+     metaJsonUrl?: string;
+     distributionUrl?: string;
++    questionsJsonUrl?: string;
+     initiallyShowAppBar: boolean;
+     allowToggleAppBar: boolean;
+     showBackButton: boolean;
+@@ -981,6 +982,7 @@ export const BloomPlayerControls: React.FunctionComponent<BloomPlayerProps> = (
+                 url={props.url}
+                 metaJsonUrl={props.metaJsonUrl}
+                 distributionUrl={props.distributionUrl}
++                questionsJsonUrl={props.questionsJsonUrl}
+                 landscape={windowLandscape}
+                 paused={paused}
+                 preferredUiLanguages={preferredUiLanguages}
+@@ -1146,6 +1148,9 @@ export function InitBloomPlayerControls() {
+                 distributionUrl={getQueryStringParamAndUnencode(
+                     "distributionUrl",
+                 )}
++                questionsJsonUrl={getQueryStringParamAndUnencode(
++                    "questionsJsonUrl",
++                )}
+                 allowToggleAppBar={getBooleanUrlParam(
+                     "allowToggleAppBar",
+                     false,
+diff --git a/src/bloom-player-core.tsx b/src/bloom-player-core.tsx
+index 1eafe5d..01c3e2b 100644
+--- a/src/bloom-player-core.tsx
++++ b/src/bloom-player-core.tsx
+@@ -124,6 +124,7 @@ interface IProps {
+     url: string;
+     metaJsonUrl?: string;
+     distributionUrl?: string;
++    questionsJsonUrl?: string;
+     landscape: boolean; // whether viewing as landscape or portrait
+     // ``paused`` allows the parent to control pausing of audio. We expect we may supply
+     // a click/touch event callback if needed to support pause-on-touch.
+@@ -344,6 +345,7 @@ export class BloomPlayerCore extends React.Component<IProps, IPlayerState> {
+         this.state.bookUrl = parsedUrl.href;
+         this.legacyQuestionHandler = new LegacyQuestionHandler(
+             props.locationOfDistFolder,
++            props.questionsJsonUrl,
+         );
+     }
+ 

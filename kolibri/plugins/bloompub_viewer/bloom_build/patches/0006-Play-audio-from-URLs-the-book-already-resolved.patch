@@ -1,0 +1,240 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:44:32 +0000
+Subject: [PATCH 06/12] Play audio from URLs the book already resolved
+
+Kolibri rewrites data-audio-src, data-backgroundaudio and the activity sound attributes to blob: or zipcontent URLs, so prefixing them with the book folder makes an unfetchable URL.
+---
+ src/music.test.ts                      | 35 ++++++++++++++++++++++++++
+ src/music.ts                           |  8 +++---
+ src/shared/dragActivityRuntime.test.ts | 19 +++++++++++++-
+ src/shared/dragActivityRuntime.ts      |  5 ++--
+ src/shared/narration.test.ts           |  8 ++++++
+ src/shared/narration.ts                | 19 +++++++-------
+ src/shared/urlScheme.ts                |  9 +++++++
+ 7 files changed, 88 insertions(+), 15 deletions(-)
+ create mode 100644 src/music.test.ts
+
+diff --git a/src/music.test.ts b/src/music.test.ts
+new file mode 100644
+index 0000000..49ddd69
+--- /dev/null
++++ b/src/music.test.ts
+@@ -0,0 +1,35 @@
++import { afterEach, describe, expect, test, vi } from "vitest";
++import { Music } from "./music";
++
++vi.mock("./videoRecordingSupport", () => ({
++    logSound: vi.fn(),
++    logSoundPaused: vi.fn(),
++    logSoundRepeat: vi.fn(),
++}));
++
++function playPageWithMusic(src: string): HTMLAudioElement {
++    document.body.innerHTML = `<div id="p1" class="bloom-page" data-backgroundaudio="${src}"></div>`;
++    const music = new Music();
++    music.urlPrefix = "https://host/book";
++    music.processAllMusicForBook(document.getElementsByClassName("bloom-page"));
++    music.HandlePageVisible(document.getElementById("p1")!);
++    return document.getElementById("music-player") as HTMLAudioElement;
++}
++
++describe("Music", () => {
++    afterEach(() => {
++        document.body.innerHTML = "";
++    });
++
++    test("plays a file name from the book's audio folder", () => {
++        expect(playPageWithMusic("tune.mp3").getAttribute("src")).toMatch(
++            /^https:\/\/host\/book\/audio\/tune\.mp3\?nocache=\d+$/,
++        );
++    });
++
++    test("plays a blob URL as given", () => {
++        expect(
++            playPageWithMusic("blob:https://host/3f2c").getAttribute("src"),
++        ).toBe("blob:https://host/3f2c");
++    });
++});
+diff --git a/src/music.ts b/src/music.ts
+index 7fd8f53..45e99d6 100644
+--- a/src/music.ts
++++ b/src/music.ts
+@@ -5,6 +5,7 @@ import {
+     logSoundRepeat,
+ } from "./videoRecordingSupport";
+ import { PlaybackMode, currentPlaybackMode } from "./shared/narration";
++import { addQuery, audioFolderUrl } from "./shared/urlScheme";
+ 
+ interface ISelection {
+     id: number;
+@@ -155,8 +156,9 @@ export class Music {
+         // so it will cache the previous content of the file or
+         // remember if no such file previously existed. So we add a bogus query string
+         // based on the current time so that it asks the server for the file again.
+-        const url = this.currentMusicUrl(
+-            music + "?nocache=" + new Date().getTime(),
++        const url = addQuery(
++            this.currentMusicUrl(music),
++            "nocache=" + new Date().getTime(),
+         );
+         const player = this.getPlayer();
+         player.setAttribute("src", music ? url : "");
+@@ -185,7 +187,7 @@ export class Music {
+     private musicLogIndex = -1;
+ 
+     private currentMusicUrl(filename: string): string {
+-        return this.urlPrefix + "/audio/" + filename;
++        return audioFolderUrl(this.urlPrefix, filename);
+     }
+ 
+     private playEnded() {
+diff --git a/src/shared/dragActivityRuntime.test.ts b/src/shared/dragActivityRuntime.test.ts
+index c9924d8..a29abd7 100644
+--- a/src/shared/dragActivityRuntime.test.ts
++++ b/src/shared/dragActivityRuntime.test.ts
+@@ -15,7 +15,11 @@ vi.mock("./narration", () => ({
+     urlPrefix: () => "",
+ }));
+ 
+-import { performCheck, performTryAgain } from "./dragActivityRuntime";
++import {
++    performCheck,
++    performTryAgain,
++    preloadSoundsForActivity,
++} from "./dragActivityRuntime";
+ 
+ describe("dragActivityRuntime correct/wrong media sequencing", () => {
+     const createdAudioElements: HTMLAudioElement[] = [];
+@@ -120,3 +124,16 @@ describe("dragActivityRuntime correct/wrong media sequencing", () => {
+         expect(createdAudioElements.length).toBe(0);
+     });
+ });
++
++describe("preloadSoundsForActivity", () => {
++    test("loads a sound that is already a URL as given", () => {
++        const page = document.createElement("div");
++        page.setAttribute("data-correct-sound", "blob:https://host/3f2c");
++
++        preloadSoundsForActivity(page);
++
++        expect(page.querySelector("audio")?.getAttribute("src")).toBe(
++            "blob:https://host/3f2c",
++        );
++    });
++});
+diff --git a/src/shared/dragActivityRuntime.ts b/src/shared/dragActivityRuntime.ts
+index 680035c..871ada5 100644
+--- a/src/shared/dragActivityRuntime.ts
++++ b/src/shared/dragActivityRuntime.ts
+@@ -22,6 +22,7 @@ import {
+     stopPlayAllVideoPlayback,
+     urlPrefix,
+ } from "./narration";
++import { audioFolderUrl } from "./urlScheme";
+ 
+ // Probably not the most logical place to define this constant, but this file needs it,
+ // and if we define it here we don't have to share another file with bloom editor.
+@@ -924,7 +925,7 @@ export function preloadSoundsForActivity(page: HTMLElement): void {
+         }
+         if (!soundFile) return;
+ 
+-        const url = (addPrefix ? urlPrefix() + "/audio/" : "") + soundFile;
++        const url = addPrefix ? audioFolderUrl(urlPrefix(), soundFile) : soundFile;
+         // Avoid duplicate preloads (e.g. if prepareActivity is called more than once)
+         const already = Array.from(
+             page.querySelectorAll<HTMLAudioElement>(`audio[${kPreloadSoundAttr}]`),
+@@ -1020,7 +1021,7 @@ function playSound(
+     addPrefix = true,
+     then?: () => void,
+ ) {
+-    const url = (addPrefix ? urlPrefix() + "/audio/" : "") + soundFile;
++    const url = addPrefix ? audioFolderUrl(urlPrefix(), soundFile) : soundFile;
+ 
+     // Reuse a preloaded element if one was prepared by preloadSoundsForActivity.
+     // This avoids re-downloading the file and removes the delay before playback starts.
+diff --git a/src/shared/narration.test.ts b/src/shared/narration.test.ts
+index 4b2c4b6..2aeab2d 100644
+--- a/src/shared/narration.test.ts
++++ b/src/shared/narration.test.ts
+@@ -83,4 +83,12 @@ describe("currentAudioUrl", () => {
+         setCurrentPage(pageA);
+         expect(currentAudioUrl("missing")).toMatch(/\/audio\/missing\.mp3$/);
+     });
++
++    test("returns a data-audio-src that is already a URL unchanged", () => {
++        document.body.innerHTML =
++            '<span id="s1" class="audio-sentence" data-audio-src="blob:https://host/3f2c"></span>';
++        expect(currentAudioUrl("s1", document.getElementById("s1"))).toBe(
++            "blob:https://host/3f2c",
++        );
++    });
+ });
+diff --git a/src/shared/narration.ts b/src/shared/narration.ts
+index 000fff7..d2ff32f 100644
+--- a/src/shared/narration.ts
++++ b/src/shared/narration.ts
+@@ -18,6 +18,7 @@
+ // and video
+ 
+ import LiteEvent from "./event";
++import { addQuery, audioFolderUrl } from "./urlScheme";
+ // Note: trying to avoid other imports, as part of the process of moving this code to a module
+ // that can be shared with BloomDesktop.
+ 
+@@ -1036,11 +1037,10 @@ function preloadAudioForElement(element: Element): void {
+     const id = audioElement.id;
+     if (preloadedAudioId === id) return; // already preloading this one
+ 
+-    const url =
+-        currentAudioUrl(id, audioElement) +
+-        "?nocache=" +
+-        new Date().getTime() +
+-        "&optional=true";
++    const url = addQuery(
++        currentAudioUrl(id, audioElement),
++        "nocache=" + new Date().getTime() + "&optional=true",
++    );
+     preloadedAudioId = id;
+     preloadedAudioSrc = url;
+ 
+@@ -1080,7 +1080,10 @@ function updatePlayerStatus() {
+         // tool and haven't recorded anything yet). So we just try to play it and see what happens.
+         // The optional param tells Bloom not to report an error if the file isn't found, and is ignored in
+         // other contexts.
+-        src = url + "?nocache=" + new Date().getTime() + "&optional=true";
++        src = addQuery(
++            url,
++            "nocache=" + new Date().getTime() + "&optional=true",
++        );
+     }
+     player.setAttribute("src", src);
+ }
+@@ -1102,9 +1105,7 @@ export function currentAudioUrl(id: string, element?: Element | null): string {
+         element ??
+         currentPlayPage?.querySelector(`[id="${id}"]`) ??
+         document.getElementById(id);
+-    const result =
+-        urlPrefix() + "/audio/" + getNarrationFileName(id, audioElement);
+-    return result;
++    return audioFolderUrl(urlPrefix(), getNarrationFileName(id, audioElement));
+ }
+ 
+ function getPlayer(): HTMLMediaElement {
+diff --git a/src/shared/urlScheme.ts b/src/shared/urlScheme.ts
+index 67340db..98527ce 100644
+--- a/src/shared/urlScheme.ts
++++ b/src/shared/urlScheme.ts
+@@ -2,3 +2,12 @@
+ export function hasUrlScheme(url: string): boolean {
+     return /^[a-z][a-z\d+.-]*:/i.test(url);
+ }
++
++export function audioFolderUrl(urlPrefix: string, fileName: string): string {
++    return hasUrlScheme(fileName) ? fileName : urlPrefix + "/audio/" + fileName;
++}
++
++// The File API looks a blob: URL up including its query, so a query makes the lookup fail.
++export function addQuery(url: string, query: string): string {
++    return url.startsWith("blob:") ? url : url + "?" + query;
++}

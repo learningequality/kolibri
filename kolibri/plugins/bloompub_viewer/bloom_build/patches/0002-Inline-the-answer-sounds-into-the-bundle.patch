@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:19:16 +0000
+Subject: [PATCH 02/12] Inline the answer sounds into the bundle
+
+Kolibri rebundles dist's JS with webpack, which does not emit files
+referenced only by string, and serves the player from /static/bloom/
+rather than the server root.
+---
+ vite.config.ts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/vite.config.ts b/vite.config.ts
+index 2d5fe3e..4ff3f8d 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -49,6 +49,8 @@ export default defineConfig(({ command, mode }) => {
+         build: {
+             outDir: "dist",
+             copyPublicDir: false, // Disables the copying of public/ directory during build
++            assetsInlineLimit: (filePath) =>
++                filePath.endsWith(".mp3") || undefined,
+             rollupOptions: {
+                 input: {
+                     bloomPlayer: "./src/bloom-player-root.ts",

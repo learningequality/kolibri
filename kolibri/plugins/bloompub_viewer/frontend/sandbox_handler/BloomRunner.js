@@ -5,54 +5,67 @@ const domParser = new DOMParser();
 
 const domSerializer = new XMLSerializer();
 
-const audioSentenceSelector = '.audio-sentence';
+// Attributes whose value Bloom Player looks up in the book's audio folder.
+const audioFileAttributes = [
+  'data-backgroundaudio',
+  'data-sound',
+  'data-correct-sound',
+  'data-wrong-sound',
+];
 
-const backgroundAudioSelector = '[data-backgroundaudio]';
+function getAudioReferences(dom) {
+  const references = [];
+  for (const element of dom.querySelectorAll('.audio-sentence')) {
+    const fileName = element.getAttribute('data-audio-src') || `${element.id}.mp3`;
+    references.push({ element, attribute: 'data-audio-src', path: `audio/${fileName}` });
+  }
+  for (const attribute of audioFileAttributes) {
+    for (const element of dom.querySelectorAll(`[${attribute}]`)) {
+      const fileName = element.getAttribute(attribute);
+      if (fileName) {
+        references.push({ element, attribute, path: `audio/${fileName}` });
+      }
+    }
+  }
+  return references;
+}
+
+function parse(fileContents, mimeType) {
+  return domParser.parseFromString(fileContents.trim(), mimeType);
+}
 
 function getAudioFiles(fileContents, mimeType) {
-  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const audioSentenceElements = dom.querySelectorAll(audioSentenceSelector);
-  const audioSentencePaths = Array.from(audioSentenceElements).map(element => {
-    const value = element.getAttribute('id');
-    // By convention all audio files are in a folder called "audio"
-    // and have a .mp3 extension.
-    return `audio/${value}.mp3`;
-  });
-  const backgroundAudioElements = dom.querySelectorAll(backgroundAudioSelector);
-  const backgroundAudioPaths = Array.from(backgroundAudioElements).map(element => {
-    const value = element.getAttribute('data-backgroundaudio');
-    // These files already have their extension, so we don't need to add it.
-    return `audio/${value}`;
-  });
-  return audioSentencePaths.concat(backgroundAudioPaths);
+  return getAudioReferences(parse(fileContents, mimeType)).map(({ path }) => path);
 }
 
-function _setDehydratedUrlAttribute(element, attributeName, url) {
-  // We have seen cases where the audio file simply isn't in the archive, so we need to check
-  // if the URL is null before setting it.
-  if (!url) {
-    return;
+function replaceAudioFiles(dom, packageFiles) {
+  for (const { element, attribute, path } of getAudioReferences(dom)) {
+    if (packageFiles[path]) {
+      element.setAttribute(attribute, packageFiles[path]);
+    }
   }
-  // We cannot set the fully qualified URL as the attribute here, as it breaks subsequent
-  // attempts to use the id as a DOM selector by Bloom player.
-  // The URL is rehydrated inside Bloom player, thanks to our code modifications there.
-  element.setAttribute(attributeName, `_${url.split('/').at(-1)}`);
 }
 
-function replaceAudioFiles(fileContents, packageFiles, mimeType) {
-  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const audioSentenceElements = dom.querySelectorAll(audioSentenceSelector);
-  for (const element of audioSentenceElements) {
-    const id = element.getAttribute('id');
-    const url = packageFiles[`audio/${id}.mp3`];
-    _setDehydratedUrlAttribute(element, 'id', url);
+// Read by bloom_build/patches/0011 (`linkedFileName` in upstream's
+// src/stylesheets.ts), which matches appearance.css, fonts.css and
+// defaultLangStyles.css by file name.
+function keepOriginalHrefs(dom, packageFiles) {
+  const originalPaths = {};
+  for (const [path, url] of Object.entries(packageFiles)) {
+    originalPaths[url] = path;
   }
-  const backgroundAudioElements = dom.querySelectorAll(backgroundAudioSelector);
-  for (const element of backgroundAudioElements) {
-    const id = element.getAttribute('data-backgroundaudio');
-    const url = packageFiles[`audio/${id}`];
-    _setDehydratedUrlAttribute(element, 'data-backgroundaudio', url);
+  for (const link of dom.querySelectorAll('link[href]')) {
+    const originalPath = originalPaths[link.getAttribute('href')];
+    if (originalPath) {
+      link.setAttribute('data-original-href', originalPath);
+    }
   }
+}
+
+function replaceBloomPaths(fileContents, packageFiles, mimeType) {
+  const dom = parse(fileContents, mimeType);
+  replaceAudioFiles(dom, packageFiles);
+  keepOriginalHrefs(dom, packageFiles);
   if (mimeType === 'text/html') {
     // Remove the namespace attribute from the root element
     // as serializeToString adds it by default and without this
@@ -70,7 +83,7 @@ class BloomDOMMapper extends DOMMapper {
 
   replacePaths(packageFiles) {
     const newFileContents = super.replacePaths(packageFiles);
-    return replaceAudioFiles(newFileContents, packageFiles, this.file.mimeType);
+    return replaceBloomPaths(newFileContents, packageFiles, this.file.mimeType);
   }
 }
 

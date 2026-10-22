@@ -38,6 +38,8 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - 'python_packages/**'
+              - 'kolibri/plugins/bloompub_viewer/static/bloom/**'
+              - 'kolibri/plugins/bloompub_viewer/bloom_build/**'
   unit_test_stage1:
     name: Python unit tests (Python 3.10)
     needs: pre_job
