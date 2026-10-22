@@ -335,6 +335,7 @@
       // Our keypad sends DIVIDE to math-input's field, which writes `:` in Perseus's
       // `localesThatUseColon`.
       const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
+      const locale = computed(() => lang.value?.id || 'en');
       return {
         divideLabel,
         windowBreakpoint,
@@ -348,6 +349,7 @@
         showCorrectAnswer,
         interactive,
         lang,
+        locale,
         registerAssessmentApi,
       };
     },
@@ -536,12 +538,12 @@
           keypadElement: this.interactive ? this.keypadAPI : null,
         });
         const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
-          locale: this.lang,
+          locale: this.locale,
           strings: translator,
           children: itemRendererElement,
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
-          locale: this.lang?.id,
+          locale: this.locale,
           strings: translator,
           children: perseusStringsElement,
         });
@@ -697,9 +699,13 @@
           // ${☣ LOCALPATH} space, and image-content answers (orderer, sorter, …)
           // only score correct when rubric and userInput share one URL space.
           const rubric = restoreImageUrls(this.item.question, this.perseusFileUrl);
-          const locale = this.lang?.id || 'en';
-          const score = scoreItem(rubric, userInput, locale);
-          const emptyWidgets = emptyWidgetsFunctional(rubric.widgets, widgetIds, userInput, locale);
+          const score = scoreItem(rubric, userInput, this.locale);
+          const emptyWidgets = emptyWidgetsFunctional(
+            rubric.widgets,
+            widgetIds,
+            userInput,
+            this.locale,
+          );
           const empty = emptyWidgets.length > 0;
           const correct = score.type === 'points' && score.earned === score.total;
           const message = score.message || null;
