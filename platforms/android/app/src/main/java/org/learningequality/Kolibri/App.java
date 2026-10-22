@@ -42,9 +42,12 @@ public class App extends Application implements Configuration.Provider {
     // Initialize Kolibri environment (env vars, migrations) on a background thread to avoid ANR.
     // Only run database migrations in the main process to avoid concurrent migration races
     // on the shared SQLite database from multiple processes.
-    boolean skipMigrations = !isMainProcess();
+    boolean mainProcess = isMainProcess();
+    if (mainProcess) {
+      ServerSelection.adoptExistingInstall(this);
+    }
     KolibriEnvironmentManager.getInstance()
-        .initializeAsync(new KolibriEnvironmentInitializer(this, skipMigrations));
+        .initializeAsync(new KolibriEnvironmentInitializer(this, !mainProcess));
   }
 
   @NonNull
