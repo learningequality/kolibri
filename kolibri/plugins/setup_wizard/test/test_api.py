@@ -10,6 +10,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_dummy_facility_data
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.device.models import DeviceAppKey
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
@@ -240,9 +241,10 @@ class OSUserTestCase(APITestCase):
         )
 
     def test_returns_windows_account_name_without_domain(self, hook):
-        hook.retrieve_os_user.return_value = ("DESKTOP\\Jane Doe", False)
-        with patch("sys.platform", "win32"):
-            response = self._get()
+        hook.retrieve_os_user.return_value = OSUserInfo(
+            "DESKTOP\\Jane Doe", "Jane Doe", "", False
+        )
+        response = self._get()
         hook.retrieve_os_user.assert_called_once_with("token")
         self.assertEqual(response.data, {"name": "Jane Doe"})
 
@@ -251,7 +253,7 @@ class OSUserTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_not_found_for_unknown_token(self, hook):
-        hook.retrieve_os_user.return_value = (None, False)
+        hook.retrieve_os_user.return_value = None
         response = self._get()
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

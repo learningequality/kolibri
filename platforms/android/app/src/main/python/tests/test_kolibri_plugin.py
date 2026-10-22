@@ -1,11 +1,14 @@
 from unittest import mock
 
+from android_app_plugin.kolibri_plugin import AndroidGetOSUserHook
 from android_app_plugin.kolibri_plugin import AndroidJobHook
 
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 
 TASK_PATH = "android_app_plugin.kolibri_plugin.Task"
+AUTH_UTILS_PATH = "auth.AuthUtils"
 
 
 def _make_orm_job():
@@ -44,3 +47,20 @@ def test_schedule_still_reenqueues():
     with mock.patch(TASK_PATH) as Task:
         hook.schedule(_make_job(), _make_orm_job())
     assert Task.enqueueOnce.called
+
+
+def test_get_os_user_for_valid_token_is_localized_superuser():
+    with mock.patch(AUTH_UTILS_PATH) as AuthUtils:
+        AuthUtils.validateAuthToken.side_effect = lambda token: token == "valid"
+        AuthUtils.getLocalizedUsername.return_value = "Tablet owner"
+        os_user = AndroidGetOSUserHook().get_os_user("valid")
+    assert os_user == OSUserInfo(
+        "Tablet owner", "Tablet owner", "Tablet owner", True
+    )
+
+
+def test_get_os_user_for_invalid_token_is_none():
+    with mock.patch(AUTH_UTILS_PATH) as AuthUtils:
+        AuthUtils.validateAuthToken.side_effect = lambda token: token == "valid"
+        AuthUtils.getLocalizedUsername.return_value = "Tablet owner"
+        assert AndroidGetOSUserHook().get_os_user("invalid") is None
