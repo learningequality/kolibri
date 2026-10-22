@@ -1,10 +1,12 @@
 import unittest
+from unittest import mock
 from urllib.parse import parse_qs
 from urllib.parse import urlsplit
 
 from kolibri_gnome.kolibri_context import KolibriChannelContext
 from kolibri_gnome.kolibri_context import KolibriContext
 from kolibri_gnome.kolibri_context import LEARN_PATH_PREFIX
+from kolibri_gnome.kolibri_daemon_manager import KolibriDaemonManager
 
 
 class KolibriContextTestCase(unittest.TestCase):
@@ -117,6 +119,39 @@ class TestKolibriChannelContext(KolibriContextTestCase):
                 urlsplit("kolibri:?search=addition+and+subtraction")
             ),
             f"{LEARN_PATH_PREFIX}topics/t/{self.CHANNEL_ID}/search?keywords=addition+and+subtraction",
+        )
+
+    def _should_open_restoring(
+        self, restore_location, url="http://127.0.0.1:46655/en/learn/"
+    ):
+        with (
+            mock.patch.object(
+                KolibriDaemonManager, "is_url_in_scope", return_value=True
+            ),
+            mock.patch.object(
+                KolibriDaemonManager,
+                "kolibri_api_get",
+                return_value={"channel_id": "other"},
+            ),
+        ):
+            return self.kolibri_context.should_open_url(url, restore_location)
+
+    def test_opens_the_page_a_channel_restore_lands_on(self):
+        self.assertTrue(
+            self._should_open_restoring(f"/en/learn/#/topics/t/{self.CHANNEL_ID}")
+        )
+
+    def test_does_not_open_the_page_an_off_channel_restore_lands_on(self):
+        self.assertFalse(
+            self._should_open_restoring(f"/en/learn/#/topics/t/{self.TOPIC_ID}")
+        )
+
+    def test_does_not_open_an_off_channel_page_the_restored_path_shows(self):
+        self.assertFalse(
+            self._should_open_restoring(
+                f"/en/learn/#/topics/t/{self.CHANNEL_ID}",
+                "http://127.0.0.1:46655/en/learn/#/home",
+            )
         )
 
 

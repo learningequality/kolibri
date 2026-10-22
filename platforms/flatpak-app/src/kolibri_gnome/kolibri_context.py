@@ -26,6 +26,7 @@ from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import bubble_signal
 from .utils import get_localized_file
 from .utils import PropertyWatcher
+from .webview_location import restore_url_for
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +96,11 @@ class BaseKolibriContext(GObject.GObject):
     def is_url_in_scope(self, url: str) -> bool:
         raise NotImplementedError()
 
-    def should_open_url(self, url: str) -> bool:
+    def should_open_url(
+        self, url: str, restore_location: typing.Optional[str] = None
+    ) -> bool:
+        if not urlsplit(url).fragment:
+            url = restore_url_for(url, restore_location) or url
         return (
             url == self.default_url
             or urlsplit(url).scheme
