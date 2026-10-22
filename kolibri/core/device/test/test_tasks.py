@@ -12,6 +12,7 @@ from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.device.models import DeviceAppKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
@@ -190,7 +191,9 @@ class DeviceProvisionTestCase(TestCase):
             "kolibri.core.auth.models.GetOSUserHook"
         ) as mock_hook2:
             mock_hook1.is_registered = mock_hook2.is_registered = True
-            mock_hook2.retrieve_os_user.return_value = ("test_os_user", True)
+            mock_hook2.retrieve_os_user.return_value = OSUserInfo(
+                "test_os_user", "test_os_user", "", True
+            )
             initialize_url = app_initialize_url(auth_token="test")
             self.client.get(initialize_url)
             data = self._default_provision_data()

@@ -1,14 +1,33 @@
-import typing
-
+import pywintypes
 import win32api
+import win32net
 import win32security
+from django.apps import apps
+from django.db import connection
+
+from kolibri.core.device.login_tokens import OSUserInfo
 
 _ADMINISTRATORS_SID = win32security.ConvertStringSidToSid("S-1-5-32-544")
+_USER_INFO_10 = 10
 
 
-class UserInfo(typing.NamedTuple):
-    user_name: str
-    is_admin: bool
+def _full_name(account, domain):
+    try:
+        server = win32net.NetGetAnyDCName(None, domain) if domain else None
+        return win32net.NetUserGetInfo(server, account, _USER_INFO_10)["full_name"]
+    except pywintypes.error:
+        return ""
+
+
+def _has_kolibri_account(os_user_id):
+    try:
+        return (
+            apps.get_model("device", "OSUser")
+            .objects.filter(os_username=os_user_id)
+            .exists()
+        )
+    finally:
+        connection.close()
 
 
 def pipe_client_user_info(pipe):
@@ -33,11 +52,15 @@ def pipe_client_user_info(pipe):
             client_token, win32security.TokenGroups
         )
         # A local account's domain is the computer name, which a rename changes.
-        if domain.casefold() != win32api.GetComputerName().casefold():
-            account = f"{domain}\\{account}"
-        return UserInfo(
+        is_local = domain.casefold() == win32api.GetComputerName().casefold()
+        os_user_id = account if is_local else f"{domain}\\{account}"
+        return OSUserInfo(
+            os_user_id,
             account,
-            is_admin=any(sid == _ADMINISTRATORS_SID for sid, _attributes in groups),
+            ""
+            if _has_kolibri_account(os_user_id)
+            else _full_name(account, None if is_local else domain),
+            is_superuser=any(sid == _ADMINISTRATORS_SID for sid, _attributes in groups),
         )
     finally:
         client_token.Close()
