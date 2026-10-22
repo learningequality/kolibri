@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:48:58 +0000
+Subject: [PATCH 07/12] Post host messages as objects in the Kolibri sandbox
+ namespace
+
+Kolibri's sandbox mediator only receives objects whose nameSpace is
+BloomPlayer and reads the payload from data.
+---
+ src/analyticsChannels.test.ts | 14 +++++++++-----
+ src/externalContext.ts        |  9 ++++++++-
+ 2 files changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/src/analyticsChannels.test.ts b/src/analyticsChannels.test.ts
+index 5c7ab5b..2e816a5 100644
+--- a/src/analyticsChannels.test.ts
++++ b/src/analyticsChannels.test.ts
+@@ -99,9 +99,9 @@ describe("analytics event routing (reportAnalytics)", () => {
+         );
+         // In jsdom, window.parent is window itself, so we can observe the
+         // postMessage a real iframe host (BloomLibrary) would receive.
+-        const received: string[] = [];
++        const received: unknown[] = [];
+         const listener = (event: MessageEvent) => {
+-            received.push(String(event.data));
++            received.push(event.data);
+         };
+         window.addEventListener("message", listener);
+         try {
+@@ -109,9 +109,13 @@ describe("analytics event routing (reportAnalytics)", () => {
+             await vi.waitFor(() => {
+                 expect(received.length).toBeGreaterThan(0);
+             });
+-            const message = JSON.parse(received[0]);
+-            expect(message.messageType).toBe("sendAnalytics");
+-            expect(message.event).toBe("comprehension");
++            expect(received[0]).toEqual({
++                nameSpace: "BloomPlayer",
++                messageType: "sendAnalytics",
++                event: "comprehension",
++                params: { percentRight: 100 },
++                data: { percentRight: 100 },
++            });
+         } finally {
+             window.removeEventListener("message", listener);
+         }
+diff --git a/src/externalContext.ts b/src/externalContext.ts
+index 995d70c..bd7154f 100644
+--- a/src/externalContext.ts
++++ b/src/externalContext.ts
+@@ -43,7 +43,14 @@ export function sendMessageToHost(messageObj: WithMessageType) {
+     // receives the message.
+     // This is probably not used now, but if we ever did, it now sends a messageType as well.
+     if (window.parent) {
+-        window.parent.postMessage(message, "*"); // any window may receive
++        window.parent.postMessage(
++            {
++                ...messageObj,
++                nameSpace: "BloomPlayer",
++                data: messageObj.params,
++            },
++            "*",
++        ); // any window may receive
+     }
+ }
+ 

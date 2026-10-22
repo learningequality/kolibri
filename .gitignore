@@ -112,6 +112,8 @@ kolibri/core/content/contentschema/migrations/*
 !kolibri/plugins/bloompub_viewer/static/bloom/
 # H5P PHP library unpacked by build-h5p; only its build output is checked in
 kolibri/plugins/h5p_viewer/h5p_build/vendor/
+# Bloom Player build output copied in by build-bloom; only the rebundled player is checked in
+kolibri/plugins/bloompub_viewer/bloom_build/vendor/
 
 # virtual environment
 venv/

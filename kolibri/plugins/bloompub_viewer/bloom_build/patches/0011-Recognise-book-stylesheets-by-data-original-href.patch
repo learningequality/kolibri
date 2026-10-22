@@ -1,0 +1,189 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 06:05:31 +0000
+Subject: [PATCH 11/12] Recognise book stylesheets by data-original-href
+
+Kolibri rewrites each link's href to a blob: URL and keeps the book's href in data-original-href, so appearance.css, fonts.css and defaultLangStyles.css no longer match by URL suffix.
+---
+ src/stylesheets.test.ts | 73 ++++++++++++++++++++++++++++++++++++++---
+ src/stylesheets.ts      | 29 +++++++++++-----
+ 2 files changed, 89 insertions(+), 13 deletions(-)
+
+diff --git a/src/stylesheets.test.ts b/src/stylesheets.test.ts
+index fae98d4..d806525 100644
+--- a/src/stylesheets.test.ts
++++ b/src/stylesheets.test.ts
+@@ -11,9 +11,14 @@ vi.mock("axios", () => ({
+ 
+ const mockedGet = vi.mocked(axios.get);
+ 
+-function bookLinkingTo(href: string): HTMLHtmlElement {
++const blobHref = "blob:http://x.org/0b5e5c5a-3f43-4a0c-9d0e-4d8e3a1b2c3d";
++
++function bookLinkingTo(href: string, originalHref?: string): HTMLHtmlElement {
++    const original = originalHref
++        ? ` data-original-href="${originalHref}"`
++        : "";
+     return new DOMParser().parseFromString(
+-        `<html><head><link rel="stylesheet" type="text/css" href="${href}"></head><body></body></html>`,
++        `<html><head><link rel="stylesheet" type="text/css" href="${href}"${original}></head><body></body></html>`,
+         "text/html",
+     ).documentElement as HTMLHtmlElement;
+ }
+@@ -34,13 +39,71 @@ describe("assembleStyleSheets", () => {
+     });
+ 
+     it("fetches an href that carries a scheme unchanged", async () => {
+-        const href = "blob:http://x.org/0b5e5c5a-3f43-4a0c-9d0e-4d8e3a1b2c3d";
+         await assembleStyleSheets(
+-            bookLinkingTo(href),
++            bookLinkingTo(blobHref),
+             "blob:http://x.org/book",
+             new BookInfo(),
+             () => null,
+         );
+-        expect(mockedGet).toHaveBeenCalledWith(href);
++        expect(mockedGet).toHaveBeenCalledWith(blobHref);
++    });
++
++    it("recognises appearance.css by its data-original-href", async () => {
++        const bookInfo = new BookInfo();
++        await assembleStyleSheets(
++            bookLinkingTo(blobHref, "appearance.css"),
++            "blob:http://x.org/book",
++            bookInfo,
++            () => null,
++        );
++        expect(bookInfo.hasAppearanceSystem).toBe(true);
++    });
++
++    it("recognises appearance.css by its href", async () => {
++        const bookInfo = new BookInfo();
++        await assembleStyleSheets(
++            bookLinkingTo("appearance.css"),
++            "http://x.org/book",
++            bookInfo,
++            () => null,
++        );
++        expect(bookInfo.hasAppearanceSystem).toBe(true);
++    });
++
++    it("reads the languages from defaultLangStyles.css by its data-original-href", async () => {
++        const bookInfo = new BookInfo();
++        const setLanguage2And3 = vi.spyOn(bookInfo, "setLanguage2And3");
++        mockedGet.mockResolvedValueOnce({
++            data: "[lang='fr']{}",
++            config: { url: blobHref },
++        });
++        await assembleStyleSheets(
++            bookLinkingTo(blobHref, "defaultLangStyles.css"),
++            "blob:http://x.org/book",
++            bookInfo,
++            () => null,
++        );
++        expect(setLanguage2And3).toHaveBeenCalledWith("[lang='fr']{}");
++    });
++
++    it("loads fonts.css by its data-original-href, leaving font URLs that carry a scheme unchanged", async () => {
++        const fontsCss =
++            "@font-face{src:url('blob:http://x.org/5d0c4a7e-andika');}";
++        mockedGet.mockResolvedValueOnce({
++            data: fontsCss,
++            config: { url: blobHref },
++        });
++        await assembleStyleSheets(
++            bookLinkingTo(blobHref, "fonts.css"),
++            "blob:http://x.org/book",
++            new BookInfo(),
++            () => null,
++        );
++        await vi.waitFor(() =>
++            expect(
++                document.getElementById("fontCssStyleSheet")?.innerText,
++            ).toBe(fontsCss),
++        );
++        expect(mockedGet).toHaveBeenCalledTimes(1);
+     });
+ });
+diff --git a/src/stylesheets.ts b/src/stylesheets.ts
+index c77233d..d00d883 100644
+--- a/src/stylesheets.ts
++++ b/src/stylesheets.ts
+@@ -1,6 +1,7 @@
+ import axios, { AxiosPromise } from "axios";
+ import { BookInfo } from "./bookInfo";
+ import { fullUrl } from "./bookLoader";
++import { hasUrlScheme } from "./shared/urlScheme";
+ 
+ // Assemble all the style rules from all the stylesheets the book contains or references.
+ // When the async completes, the result will be set as our state.styles with setState().
+@@ -22,15 +23,18 @@ export async function assembleStyleSheets(
+         null,
+     );
+     const promises: Array<AxiosPromise<any>> = [];
++    const fileNames: string[] = [];
+     for (let i = 0; i < linkElts.snapshotLength; i++) {
+         const link = linkElts.snapshotItem(i) as HTMLElement;
+         const href = link.getAttribute("href");
+         const fullHref = fullUrl(href, urlPrefix);
+-        if (fullHref.endsWith("/fonts.css")) {
++        const fileName = linkedFileName(link);
++        if (fileName === "fonts.css") {
+             makeFontStylesheet(fullHref);
+         } else {
+             promises.push(axios.get(fullHref));
+-            if (fullHref.endsWith("/appearance.css")) {
++            fileNames.push(fileName);
++            if (fileName === "appearance.css") {
+                 bookInfo.hasAppearanceSystem = true;
+             }
+         }
+@@ -66,7 +70,7 @@ export async function assembleStyleSheets(
+         }
+ 
+         // then add the stylesheet contents we just retrieved
+-        results.forEach((result) => {
++        results.forEach((result, index) => {
+             if (result && result.data) {
+                 console.log(
+                     "Loaded stylesheet: " + JSON.stringify(result.config),
+@@ -80,10 +84,8 @@ export async function assembleStyleSheets(
+                 // settingsCollectionStyles.css was replaced with defaultLangStyles.css.
+                 // We have to check for both for older books.
+                 if (
+-                    result.config!.url!.endsWith("/defaultLangStyles.css") ||
+-                    result.config!.url!.endsWith(
+-                        "/settingsCollectionStyles.css",
+-                    )
++                    fileNames[index] === "defaultLangStyles.css" ||
++                    fileNames[index] === "settingsCollectionStyles.css"
+                 ) {
+                     bookInfo.setLanguage2And3(result.data);
+                 }
+@@ -100,6 +102,14 @@ export async function assembleStyleSheets(
+     }
+ }
+ 
++// A host that rewrites a link's href, such as Kolibri to a blob: URL, keeps the
++// book's own href in data-original-href.
++function linkedFileName(link: HTMLElement): string {
++    const href =
++        link.getAttribute("data-original-href") ?? link.getAttribute("href")!;
++    return href.split("/").pop()!;
++}
++
+ // Make a <style> element in the head of the document containing an adjusted version
+ // of the "fonts.css" file shipped with the book, if any.
+ // This file typically contains @font-face declarations, which don't work when embedded
+@@ -136,7 +146,10 @@ function makeFontStylesheet(href: string): void {
+             // single quotes, and double quotes. Note that we also have to
+             // handle possible parentheses in the file name.
+             /src:url\(['"]?(.*\.[^\)'"]*)['"]?\)/g,
+-            "src:url('" + prefix + "/$1')",
++            (_match: string, url: string) =>
++                "src:url('" +
++                (hasUrlScheme(url) ? url : prefix + "/" + url) +
++                "')",
+         );
+     });
+     // no catch clause...if there's no fonts.css, we should never get a 'then' and

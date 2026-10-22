@@ -1,0 +1,77 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 05:36:56 +0000
+Subject: [PATCH 10/12] Hide the empty back button from assistive technology
+
+With nothing to go back to, the button has no icon and no name, so screen
+readers announced an unnamed dimmed button. It stays in the DOM for the
+tests that wait for it to be disabled.
+---
+ src/controlBar.test.tsx | 42 +++++++++++++++++++++++++++++++++++++++++
+ src/controlBar.tsx      |  4 ++++
+ 2 files changed, 46 insertions(+)
+ create mode 100644 src/controlBar.test.tsx
+
+diff --git a/src/controlBar.test.tsx b/src/controlBar.test.tsx
+new file mode 100644
+index 0000000..c2cab91
+--- /dev/null
++++ b/src/controlBar.test.tsx
+@@ -0,0 +1,42 @@
++import * as React from "react";
++import { render, screen } from "@testing-library/react";
++import { BackButtonState, ControlBar } from "./controlBar";
++
++function renderControlBar(backButtonState: BackButtonState) {
++    render(
++        <ControlBar
++            visible={true}
++            paused={false}
++            showPlayPause={true}
++            playLabel="Play"
++            preferredLanguages={["en"]}
++            canShowFullScreen={false}
++            getBackButtonState={() => backButtonState}
++            bookLanguages={[]}
++            activeLanguageCode="en"
++            onLanguageChanged={() => {}}
++            bookHasImageDescriptions={false}
++            readImageDescriptions={false}
++            onReadImageDescriptionToggled={() => {}}
++            nowReadingImageDescription={false}
++        />,
++    );
++}
++
++describe("ControlBar back button", () => {
++    it("is not exposed to assistive technology when there is nothing to go back to", () => {
++        renderControlBar(BackButtonState.showNothing);
++
++        expect(
++            screen.queryAllByRole("button", { name: (name) => name === "" }),
++        ).toEqual([]);
++    });
++
++    it("is exposed with its name when it can go back", () => {
++        renderControlBar(BackButtonState.showArrow);
++
++        expect(
++            screen.getByRole("button", { name: /back/i }).dataset.testid,
++        ).toBe("history-back-button");
++    });
++});
+diff --git a/src/controlBar.tsx b/src/controlBar.tsx
+index 0be3a29..9d9514d 100644
+--- a/src/controlBar.tsx
++++ b/src/controlBar.tsx
+@@ -266,6 +266,10 @@ export const ControlBar: React.FunctionComponent<IControlBarProps> = (
+                                 props.getBackButtonState() ===
+                                 BackButtonState.showNothing
+                             }
++                            aria-hidden={
++                                props.getBackButtonState() ===
++                                BackButtonState.showNothing
++                            }
+                         >
+                             {props.getBackButtonState() ===
+                             BackButtonState.showArrow ? (
