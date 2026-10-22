@@ -680,6 +680,14 @@ describe('Reaching max-associations', () => {
 
     await waitFor(() => expect(noticeText(container)).toBe(''));
   });
+
+  it('says nothing at the cap when the item is not interactive', () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: atTheCap,
+      interactive: false,
+    });
+    expect(noticeText(container)).toBe('');
+  });
 });
 
 describe('Keyboard', () => {
