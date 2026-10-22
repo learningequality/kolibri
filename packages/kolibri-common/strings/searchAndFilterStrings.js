@@ -78,10 +78,10 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context:
       "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video'), replacing the browser's default announcement of the next checkbox with the updated result count and the filters now applied. 'filterLabels' is a list of the active filter labels, e.g. '14 results for School, Video'.",
   },
-  filterToggledOverResultsCount: {
-    message: 'Over {count, number} results for {filterLabels}',
+  filterToggledMoreThanResultsCount: {
+    message: 'More than {count, number} results for {filterLabels}',
     context:
-      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video') when there are more matching results than were loaded. 'filterLabels' is a list of the active filter labels, e.g. 'Over 25 results for School, Video'.",
+      "Screen-reader-only announcement read after a learner checks or unchecks a filter pill (e.g. 'School', 'Video') when there are more matching results than were loaded. Worded to match the visible 'More than 25 results' heading. 'filterLabels' is a list of the active filter labels, e.g. 'More than 25 results for School, Video'.",
   },
   autocompleteResultsAvailable: {
     message:

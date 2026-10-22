@@ -605,7 +605,7 @@ export default function useBaseSearch({
   );
 
   const { sendPoliteMessage } = useKLiveRegion();
-  const { filterToggledResultsCount$, filterToggledOverResultsCount$ } = searchAndFilterStrings;
+  const { filterToggledResultsCount$, filterToggledMoreThanResultsCount$ } = searchAndFilterStrings;
 
   // announce search results explicitly on every change, for callers that opt in
   watch(searchLoading, (loading, wasLoading) => {
@@ -617,7 +617,7 @@ export default function useBaseSearch({
       const filterLabels = formatList(
         appliedFilters().map(({ key, value }) => labelForFilter(key, value)),
       );
-      const announce = get(more) ? filterToggledOverResultsCount$ : filterToggledResultsCount$;
+      const announce = get(more) ? filterToggledMoreThanResultsCount$ : filterToggledResultsCount$;
       sendPoliteMessage(announce({ count: get(results).length, filterLabels }));
     }
   });

@@ -3,7 +3,7 @@ import Vue, { nextTick, ref, defineComponent, h } from 'vue';
 import { render } from '@testing-library/vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { Categories, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { useRoute, useRouter } from 'vue-router/composables'; // eslint-disable-line
 import Modalities from 'kolibri-constants/Modalities';
@@ -684,7 +684,8 @@ describe(`useBaseSearch`, () => {
   });
 
   describe('screen reader announcements', () => {
-    const { filterToggledResultsCount$, filterToggledOverResultsCount$ } = searchAndFilterStrings;
+    const { filterToggledResultsCount$, filterToggledMoreThanResultsCount$ } =
+      searchAndFilterStrings;
 
     beforeEach(() => {
       mockSendPoliteMessage.mockClear();
@@ -726,7 +727,7 @@ describe(`useBaseSearch`, () => {
       );
     });
 
-    it('announces "over" the count when more results are available than were fetched', async () => {
+    it('announces "more than" the count when more results are available than were fetched', async () => {
       ContentNodeResource.list.mockReturnValue(
         Promise.resolve({ results: [{ id: '1' }], more: { cursor: 'next' }, labels: {} }),
       );
@@ -737,8 +738,23 @@ describe(`useBaseSearch`, () => {
       await nextTick();
 
       expect(mockSendPoliteMessage).toHaveBeenCalledWith(
-        filterToggledOverResultsCount$({ count: 1, filterLabels: 'math' }),
+        filterToggledMoreThanResultsCount$({ count: 1, filterLabels: 'math' }),
       );
+    });
+
+    it('words an uncounted total the same way as the visible results heading', async () => {
+      ContentNodeResource.list.mockReturnValue(
+        Promise.resolve({ results: [{ id: '1' }], more: { cursor: 'next' }, labels: {} }),
+      );
+      const api = mountSearch({ announceResults: true }).getApi();
+
+      api.setKeywords('math');
+      await nextTick();
+      await nextTick();
+
+      // SearchResultsGrid shows uncountedAdditionalResults when `more` is set
+      const [[announcement]] = mockSendPoliteMessage.mock.calls;
+      expect(announcement).toContain(coreString('uncountedAdditionalResults', { num: 1 }));
     });
 
     it('does not announce unless the caller opts in', async () => {
