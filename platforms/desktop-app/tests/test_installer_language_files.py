@@ -1,3 +1,4 @@
+import configparser
 import re
 from pathlib import Path
 
@@ -8,7 +9,10 @@ from update_from_inno import TRANSLATED_MESSAGES
 from update_from_inno import vendored_files
 from update_from_inno import write_english_messages
 from write_language_files import messages_files
+from write_language_files import write_lang_options
 from write_language_files import write_languages
+
+from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 
 TRANSLATIONS_DIR = Path(__file__).parent.parent / "installer" / "translations"
 INNO_DIR = TRANSLATIONS_DIR / "inno"
@@ -148,3 +152,25 @@ def test_english_is_the_first_language_entry(locale_dir, tmp_path):
     ]
     assert entries[0].startswith('Name: "en";')
     assert len(entries) == len(LANG_DEFINITIONS)
+
+
+def test_every_installer_language_records_its_kolibri_code(locale_dir, tmp_path):
+    translations_dir = tmp_path / "translations"
+    translations_dir.mkdir()
+    write_languages(translations_dir / "languages.iss", locale_dir)
+    write_lang_options(translations_dir / "langoptions")
+    entries = re.findall(
+        r'^Name: "([^"]+)"; MessagesFile: "([^"]+)"$',
+        (translations_dir / "languages.iss").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    recorded = {}
+    for name, files in entries:
+        last_file = files.split(",")[-1]
+        config = configparser.ConfigParser(interpolation=None)
+        config.optionxform = str
+        config.read(tmp_path / last_file.replace("\\", "/"), encoding="utf-8")
+        recorded[name] = config["CustomMessages"]["LanguageCode"]
+    assert recorded == {name: name.replace("_", "-") for name, _ in entries}
+    assert set(recorded.values()) == set(LANG_DEFINITIONS)
+    assert set(LANG_DEFINITIONS) <= KOLIBRI_SUPPORTED_LANGUAGES
