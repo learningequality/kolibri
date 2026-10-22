@@ -25,6 +25,7 @@ jobs:
     # Map a step output to a job output
     outputs:
       python: ${{ steps.filter.outputs.python }}
+      android: ${{ steps.filter.outputs.android }}
     steps:
       # paths-filter needs a checkout to diff push events
       - uses: actions/checkout@v7.0.1
@@ -38,6 +39,8 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - 'python_packages/**'
+            android:
+              - 'platforms/android/**'
   unit_test_stage1:
     name: Python unit tests (Python 3.10)
     needs: pre_job
@@ -435,7 +438,7 @@ jobs:
   android_jvm_tests:
     name: Android JVM unit tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ (needs.pre_job.outputs.python == 'true' || needs.pre_job.outputs.android == 'true') && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
