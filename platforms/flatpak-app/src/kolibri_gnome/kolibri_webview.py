@@ -8,6 +8,8 @@ from gi.repository import WebKit
 
 from .kolibri_context import KolibriContext
 from .utils import PropertyWatcher
+from .webview_location import restore_script
+from .webview_location import restore_url_for
 
 MOUSE_BUTTON_BACK = 8
 MOUSE_BUTTON_FORWARD = 9
@@ -24,9 +26,12 @@ class KolibriWebView(WebKit.WebView):
     __context: KolibriContext
 
     __deferred_load_kolibri_url: typing.Optional[str] = None
+    __restore_location: typing.Optional[str] = None
+    __restore_script: typing.Optional[WebKit.UserScript] = None
 
     __gsignals__: typing.ClassVar[dict] = {
         "kolibri-load-finished": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "kolibri-location-changed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(self, context: KolibriContext, *args, **kwargs):
@@ -56,19 +61,12 @@ class KolibriWebView(WebKit.WebView):
         self.connect("notify::uri", self.__on_notify_uri)
         self.connect("load-changed", self.__on_load_changed)
 
-    def load_kolibri_url(self, kolibri_url: str):
-        if not self.__context.get_session_status_is_ready():
-            self.__deferred_load_kolibri_url = kolibri_url
-            return
-
-        http_url = self.__context.get_absolute_url(kolibri_url)
-
-        if not http_url:
-            self.__deferred_load_kolibri_url = kolibri_url
-            return
-
-        self.load_uri(http_url)
-        self.__deferred_load_kolibri_url = None
+    def load_kolibri_url(
+        self, kolibri_url: str, restore_location: typing.Optional[str] = None
+    ):
+        self.__deferred_load_kolibri_url = kolibri_url
+        self.__restore_location = restore_location
+        self.__continue_load_kolibri_url()
 
     def __on_back_button_pressed(
         self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
@@ -85,8 +83,29 @@ class KolibriWebView(WebKit.WebView):
         return True
 
     def __continue_load_kolibri_url(self):
-        if self.__deferred_load_kolibri_url:
-            self.load_kolibri_url(self.__deferred_load_kolibri_url)
+        if not self.__deferred_load_kolibri_url:
+            return
+
+        if not self.__context.get_session_status_is_ready():
+            return
+
+        http_url = self.__context.get_absolute_url(self.__deferred_load_kolibri_url)
+
+        if not http_url:
+            return
+
+        if self.__restore_location:
+            self.__restore_script = WebKit.UserScript.new(
+                restore_script(http_url, self.__restore_location),
+                WebKit.UserContentInjectedFrames.TOP_FRAME,
+                WebKit.UserScriptInjectionTime.START,
+                None,
+                None,
+            )
+            self.get_user_content_manager().add_script(self.__restore_script)
+
+        self.load_uri(http_url)
+        self.__deferred_load_kolibri_url = None
 
     def __on_decide_policy(
         self,
@@ -97,7 +116,7 @@ class KolibriWebView(WebKit.WebView):
         if decision_type == WebKit.PolicyDecisionType.NAVIGATION_ACTION:
             action = decision.get_navigation_action()
             target_url = action.get_request().get_uri()
-            if not self.__context.should_open_url(target_url):
+            if not self.__should_open_url(target_url):
                 redirect_url = self.__context.open_external_url(target_url)
                 if redirect_url:
                     self.load_kolibri_url(redirect_url)
@@ -116,7 +135,9 @@ class KolibriWebView(WebKit.WebView):
         if not target_url:
             return
 
-        if self.__context.should_open_url(target_url):
+        if self.__should_open_url(target_url):
+            if self.__context.is_url_for_kolibri_app(target_url):
+                self.emit("kolibri-location-changed", target_url)
             return
 
         # It would be nice if we could remove the not allowed items from the
@@ -134,9 +155,21 @@ class KolibriWebView(WebKit.WebView):
         if redirect_url:
             self.load_kolibri_url(redirect_url)
 
+    def __should_open_url(self, url: str) -> bool:
+        return self.__context.should_open_url(
+            restore_url_for(url, self.__restore_location) or url
+        )
+
     def __on_load_changed(self, webview: WebKit.WebView, load_event: WebKit.LoadEvent):
         if load_event == WebKit.LoadEvent.FINISHED:
+            self.__finish_restore()
             self.emit("kolibri-load-finished")
+
+    def __finish_restore(self):
+        self.__restore_location = None
+        if self.__restore_script:
+            self.get_user_content_manager().remove_script(self.__restore_script)
+            self.__restore_script = None
 
     def __get_allowed_back_item(self, webview: WebKit.WebView):
         for back_item in webview.get_back_forward_list().get_back_list():
@@ -299,8 +332,10 @@ class KolibriWebViewStack(Gtk.Stack):
         self.is_main_visible = True
         self.set_visible_child(self.__main_webview)
 
-    def load_kolibri_url(self, kolibri_url: str):
-        self.__main_webview.load_kolibri_url(kolibri_url)
+    def load_kolibri_url(
+        self, kolibri_url: str, restore_location: typing.Optional[str] = None
+    ):
+        self.__main_webview.load_kolibri_url(kolibri_url, restore_location)
 
     def go_back(self):
         self.__main_webview.go_back()
