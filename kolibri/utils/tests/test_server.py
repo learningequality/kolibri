@@ -88,9 +88,18 @@ class TestServerServices:
         services_plugin.START()
 
         # Do we initialize workers when services start?
-        initialize_workers.assert_called_once()
+        initialize_workers.assert_called_once_with(standalone_workers=False)
 
         mock_network_discovery_backend.assert_not_called()
+
+    @mock.patch("kolibri.core.tasks.main.initialize_workers")
+    def test_standalone_workers_flag_passed_through(self, initialize_workers):
+        services_plugin = server.ServicesPlugin(
+            mock.MagicMock(name="bus"), standalone_workers=True
+        )
+        services_plugin.START()
+
+        initialize_workers.assert_called_once_with(standalone_workers=True)
 
     def test_services_shutdown_on_stop(self):
         # Initialize and ready services plugin for testing
@@ -124,6 +133,25 @@ class TestProcessHookWiring:
 
         hook.MagicBusPluginClass.assert_called_once_with(bus)
         plugin.subscribe.assert_called_once_with()
+
+
+class TestServicesPluginWiring:
+    @pytest.mark.parametrize(
+        "bus_class,standalone_workers",
+        [
+            ("KolibriServicesProcessBus", True),
+            ("KolibriProcessBus", False),
+        ],
+    )
+    @mock.patch("kolibri.utils.server.ServicesPlugin")
+    def test_bus_subscribes_one_services_plugin(
+        self, services_plugin, tmp_path, bus_class, standalone_workers
+    ):
+        bus = getattr(server, bus_class)(pid_file=str(tmp_path / "pid"))
+
+        services_plugin.assert_called_once_with(
+            bus, standalone_workers=standalone_workers
+        )
 
 
 class TestZeroConfPlugin:
