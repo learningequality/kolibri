@@ -249,9 +249,14 @@ class KolibriWindow(Adw.ApplicationWindow):
         application.set_accels_for_action("win.show-web-inspector", ["F12"])
         application.set_accels_for_action("win.close", ["<Control>w"])
 
-    def load_kolibri_url(self, url: str, present=False):
+    def load_kolibri_url(
+        self,
+        url: str,
+        present=False,
+        restore_location: typing.Optional[str] = None,
+    ):
         self.__present_on_main_webview_ready = present
-        self.__webview_stack.load_kolibri_url(url)
+        self.__webview_stack.load_kolibri_url(url, restore_location)
 
     def get_main_webview(self):
         return self.__webview_stack.get_main_webview()
