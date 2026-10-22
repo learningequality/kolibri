@@ -3,6 +3,7 @@ from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
+from .viewsets.connection_urls import ConnectionUrlsViewSet
 from .viewsets.device_info import DeviceInfoView
 from .viewsets.device_permissions import DevicePermissionsViewSet
 from .viewsets.device_restart import DeviceRestartView
@@ -21,6 +22,7 @@ router.register(
 )
 router.register(r"usersyncstatus", UserSyncStatusViewSet, basename="usersyncstatus")
 router.register(r"driveinfo", DriveInfoViewSet, basename="driveinfo")
+router.register(r"connectionurls", ConnectionUrlsViewSet, basename="connectionurls")
 
 
 urlpatterns = [
