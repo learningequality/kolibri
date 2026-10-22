@@ -53,6 +53,19 @@
           </tr>
         </table>
 
+        <KButton
+          v-if="windowIsSmall"
+          ref="connectDevicesButton"
+          :text="connectDevicesTitle$()"
+          appearance="raised-button"
+          @click="showConnectDevicesModal = true"
+        />
+        <ConnectDevices
+          v-else
+          ref="connectDevices"
+          tabindex="-1"
+        />
+
         <h2 class="advanced-heading">{{ $tr('advanced') }}</h2>
         <p>{{ $tr('advancedDescription') }}</p>
         <div>
@@ -74,6 +87,10 @@
           @submit="handleSubmitDeviceName"
           @cancel="showDeviceNameModal = false"
         />
+        <ConnectDevicesModal
+          v-if="showConnectDevicesModal"
+          @cancel="showConnectDevicesModal = false"
+        />
       </div>
     </KPageContainer>
   </DeviceAppBarPage>
@@ -83,6 +100,7 @@
 
 <script>
 
+  import { nextTick, ref, watch } from 'vue';
   import { mapState } from 'vuex';
   import { createTranslator } from 'kolibri/utils/i18n';
   import TechnicalTextBlock from 'kolibri/components/error/TechnicalTextBlock';
@@ -91,6 +109,9 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import ConnectDevices from 'kolibri-common/components/ConnectDevices';
+  import ConnectDevicesModal from 'kolibri-common/components/ConnectDevices/ConnectDevicesModal';
+  import { connectDevicesStrings } from 'kolibri-common/strings/connectDevicesStrings';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';
@@ -105,6 +126,8 @@
   export default {
     name: 'DeviceInfoPage',
     components: {
+      ConnectDevices,
+      ConnectDevicesModal,
       DeviceAppBarPage,
       DeviceNameModal,
       TechnicalTextBlock,
@@ -114,8 +137,23 @@
       const { windowIsSmall } = useKResponsiveWindow();
       const { createSnackbar } = useSnackbar();
       usePageTitle(pageTitleStrings.header$, { hasVisibleHeading: true });
+      const showConnectDevicesModal = ref(false);
+      const connectDevices = ref(null);
+      const connectDevicesButton = ref(null);
+      watch(windowIsSmall, isSmall => {
+        if (!isSmall && showConnectDevicesModal.value) {
+          showConnectDevicesModal.value = false;
+          nextTick(() => connectDevices.value.$el.focus());
+        } else if (isSmall && connectDevices.value?.$el.contains(document.activeElement)) {
+          nextTick(() => connectDevicesButton.value.$el.focus());
+        }
+      });
       return {
         windowIsSmall,
+        showConnectDevicesModal,
+        connectDevices,
+        connectDevicesButton,
+        connectDevicesTitle$: connectDevicesStrings.title$,
         createSnackbar,
         pageLoading,
         pageTitleStrings,
