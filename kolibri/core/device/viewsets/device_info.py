@@ -7,10 +7,11 @@ from rest_framework.response import Response
 
 import kolibri
 from kolibri.core.device.permissions import UserHasAnyDevicePermissions
+from kolibri.core.device.utils import get_server_urls
+from kolibri.core.device.utils import is_loopback_url
 from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
 from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
-from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
@@ -28,19 +29,8 @@ class DeviceInfoView(views.APIView):
         }
 
         if request.user.is_superuser:
-            _status, urls = get_urls()
-            if not urls:
-                # Will not return anything when running the debug server, so at least return the current URL
-                urls = [
-                    request.build_absolute_uri(OPTIONS["Deployment"]["URL_PATH_PREFIX"])
-                ]
-
-            filtered_urls = [
-                url for url in urls if "127.0.0.1" not in url and "localhost" not in url
-            ]
-
-            if filtered_urls:
-                urls = filtered_urls
+            urls = get_server_urls(request)
+            urls = [url for url in urls if not is_loopback_url(url)] or urls
 
             db_engine = settings.DATABASES["default"]["ENGINE"]
 
