@@ -2,7 +2,6 @@ import { Presets } from 'kolibri/constants';
 
 import { getImportLodUsersDefinition } from 'kolibri-common/machines/importLodUsersMachine';
 import { get } from '@vueuse/core';
-import pluginData from 'kolibri-plugin-data';
 import useUser from 'kolibri/composables/useUser';
 
 /**
@@ -25,8 +24,7 @@ import useUser from 'kolibri/composables/useUser';
  * OR
  * Know that we will need to directly copy and paste them into the visualizer
  *
- * For now, this means copying the imports from `../constants` and writing an
- * object in place of `pluginData`.
+ * For now, this means copying the imports from `../constants`.
  */
 
 /**
@@ -48,9 +46,6 @@ import useUser from 'kolibri/composables/useUser';
 /* eslint-disable-next-line */
 import { assign, createMachine } from 'xstate';
 import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
-
-// NOTE: Uncomment the following object if you're using the visualizer
-// const pluginData = { canGetOsUser: true };
 
 const { isAppContext } = useUser();
 
@@ -438,7 +433,7 @@ export const wizardMachine = createMachine(
       isGroupSetup: context => {
         return context.onMyOwnOrGroup === UsePresets.GROUP;
       },
-      canGetOsUser: () => get(isAppContext) && pluginData.canGetOSUser,
+      canGetOsUser: () => get(isAppContext),
       isNewFacility: context => {
         return context.facilityNewOrImport === FacilityTypePresets.NEW;
       },
