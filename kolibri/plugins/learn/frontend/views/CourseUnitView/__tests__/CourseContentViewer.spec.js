@@ -1,13 +1,20 @@
 import { render, screen } from '@testing-library/vue';
 import Modalities from 'kolibri-constants/Modalities';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import CourseContentViewer from '../CourseContentViewer.vue';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../useCourseContentProgressTracking');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
 
 const { nextResourceLabel$, previousResourceLabel$, footerNavigationAccessibleLabel$ } =
   coursesStrings;
+
+const NEXT_ITEM_TITLE = 'Next item';
+const PREVIOUS_ITEM_TITLE = 'Previous item';
 
 // Mirrors the real ContentViewer's prop contract (a single `contentNode` object) so
 // this stub fails the same way the real component would if the wrong props are passed.
@@ -15,11 +22,6 @@ const ContentViewerStub = {
   name: 'ContentViewer',
   template: '<div data-testid="content-viewer">{{ contentNode && contentNode.title }}</div>',
   props: ['contentNode'],
-};
-
-const QuizRendererStub = {
-  name: 'QuizRenderer',
-  template: '<div data-testid="quiz-renderer"><slot name="sidePanelFooter" /></div>',
 };
 
 describe('CourseContentViewer', () => {
@@ -50,31 +52,38 @@ describe('CourseContentViewer', () => {
       assessmentmetadata: { assessment_item_ids: ['item-1'], randomize: false },
     };
 
-    function renderWithFooter(props) {
-      return render(CourseContentViewer, {
-        props: { contentNode: surveyContentNode, ...props },
-        // eslint-disable-next-line kolibri/tests-no-stubs
-        stubs: { QuizRenderer: QuizRendererStub },
-      });
-    }
-
-    it('names the footer button "Next resource: <title>" when a next resource is available', () => {
-      renderWithFooter({ nextResource: { title: 'Next item' } });
-
-      expect(screen.getByRole('button')).toHaveAccessibleName(
-        footerNavigationAccessibleLabel$({ label: nextResourceLabel$(), title: 'Next item' }),
+    beforeEach(() => {
+      urls.__echoUrls();
+      const currentTry = { attemptlogs: [], complete: true, end_timestamp: new Date() };
+      client.mockImplementation(({ url }) =>
+        Promise.resolve({ data: url.includes('diff') ? currentTry : [currentTry] }),
       );
     });
 
-    it('names the footer button "Previous resource: <title>" when there is no next resource', () => {
-      renderWithFooter({ previousResource: { title: 'Previous item' } });
+    function renderWithFooter(props) {
+      return render(CourseContentViewer, {
+        props: { contentNode: surveyContentNode, ...props },
+      });
+    }
 
-      expect(screen.getByRole('button')).toHaveAccessibleName(
-        footerNavigationAccessibleLabel$({
-          label: previousResourceLabel$(),
-          title: 'Previous item',
-        }),
-      );
+    it('names the footer button "Next resource: <title>" when a next resource is available', async () => {
+      renderWithFooter({ nextResource: { title: NEXT_ITEM_TITLE } });
+
+      const expectedName = footerNavigationAccessibleLabel$({
+        label: nextResourceLabel$(),
+        title: NEXT_ITEM_TITLE,
+      });
+      expect(await screen.findByRole('button', { name: expectedName })).toBeInTheDocument();
+    });
+
+    it('names the footer button "Previous resource: <title>" when there is no next resource', async () => {
+      renderWithFooter({ previousResource: { title: PREVIOUS_ITEM_TITLE } });
+
+      const expectedName = footerNavigationAccessibleLabel$({
+        label: previousResourceLabel$(),
+        title: PREVIOUS_ITEM_TITLE,
+      });
+      expect(await screen.findByRole('button', { name: expectedName })).toBeInTheDocument();
     });
   });
 });
