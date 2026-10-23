@@ -9,7 +9,6 @@ from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
 from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
 from kolibri.core.content.utils.content_request import process_metadata_import
-from kolibri.core.content.utils.content_request import retry_downloads_from_source
 from kolibri.core.content.utils.content_request import StorageCalculator
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.settings import automatic_download_enabled
@@ -99,7 +98,6 @@ class NetworkDiscoveryForAutomaticResourceImportHook(NetworkLocationDiscoveryHoo
         """
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
-        retry_downloads_from_source(network_location.instance_id)
         if (
             not get_device_setting("subset_of_users_device")
             and not network_location.subset_of_users_device

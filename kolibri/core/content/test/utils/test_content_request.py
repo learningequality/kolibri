@@ -1233,6 +1233,7 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         peer = NetworkLocation.objects.create(
             base_url="http://192.168.101.101:8080/",
             connection_status=ConnectionStatus.Okay,
+            instance_id=uuid.uuid4().hex,
         )
         lookup_response = mock.MagicMock()
         lookup_response.json.return_value = [
@@ -1275,8 +1276,7 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         self.assertEqual(self.request.failure_count, 1)
         self.assertEqual(self.request.retry_after, _NOW + timedelta(hours=1))
 
-    @mock.patch(_module + "local_now", return_value=_NOW)
-    def test_source_peer_unreachable__fallback_fails__backs_off(self, _mock_now):
+    def test_source_peer_unreachable__fallback_fails__does_not_back_off(self):
         self.request.source_instance_id = self._create_network_location(
             connection_status=ConnectionStatus.ConnectionFailure
         ).instance_id
@@ -1284,6 +1284,20 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         self.mock_preferred_peers.__iter__.return_value = []
         peer, serve = self._peer_with_content_not_found()
         self.mock_sync_peers.__iter__.return_value = [peer]
+        with serve:
+            process_download_request(self.request)
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+        self.assertEqual(self.request.failure_count, 0)
+        self.assertIsNone(self.request.retry_after)
+
+    @mock.patch(_module + "local_now", return_value=_NOW)
+    def test_source_peer_fails__backs_off(self, _mock_now):
+        peer, serve = self._peer_with_content_not_found()
+        self.request.source_instance_id = peer.instance_id
+        self.request.save()
+        self.mock_preferred_peers.__iter__.return_value = [peer]
+        self.mock_sync_peers.__iter__.return_value = []
         with serve:
             process_download_request(self.request)
         self.request.refresh_from_db()
@@ -2445,8 +2459,7 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
         self.assertEqual(self._metadata_request_count(self.peer), 1)
         self.assertEqual(self._metadata_request_count(second_fallback_peer), 1)
 
-    @mock.patch(_module + "local_now", return_value=_NOW)
-    def test_source_peer_unreachable__fallback_not_found__backed_off(self, *_mocks):
+    def test_source_peer_unreachable__fallback_not_found__not_backed_off(self, *_mocks):
         source_peer = self._create_peer(serve=_unreachable)
         download = self._create_download(source_instance_id=source_peer.instance_id)
 
@@ -2454,8 +2467,8 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
 
         self.assertEqual(self._metadata_request_count(self.peer), 1)
         download.refresh_from_db()
-        self.assertEqual(download.failure_count, 1)
-        self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+        self.assertEqual(download.failure_count, 0)
+        self.assertIsNone(download.retry_after)
 
     @mock.patch(_module + "local_now", return_value=_NOW)
     def test_server_error_on_one_node__every_node_backed_off(self, *_mocks):
@@ -2498,8 +2511,7 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
                     self.assertEqual(download.failure_count, 0)
                     self.assertIsNone(download.retry_after)
 
-    @mock.patch(_module + "local_now", return_value=_NOW)
-    def test_source_peer_times_out__fallback_not_found__backed_off(self, *_mocks):
+    def test_source_peer_times_out__fallback_not_found__not_backed_off(self, *_mocks):
         source_peer = self._create_peer(serve=_kolibri_peer(_times_out))
         download = self._create_download(source_instance_id=source_peer.instance_id)
 
@@ -2507,8 +2519,8 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
 
         self.assertEqual(self._metadata_request_count(self.peer), 1)
         download.refresh_from_db()
-        self.assertEqual(download.failure_count, 1)
-        self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+        self.assertEqual(download.failure_count, 0)
+        self.assertIsNone(download.retry_after)
 
     def test_body_dropped__not_backed_off(self, *_mocks):
         def drops_body(url):

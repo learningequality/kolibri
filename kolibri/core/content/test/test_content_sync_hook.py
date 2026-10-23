@@ -69,43 +69,18 @@ class NetworkDiscoveryForAutomaticResourceImportHookTestCase(TestCase):
             base_url="http://peer.local:8080/", instance_id=uuid.uuid4().hex
         )
 
-    def _create_backed_off_download(self, source_instance_id):
-        return ContentDownloadRequest.objects.create(
+    def test_on_connect__source_peer_downloads_stay_backed_off(self, mock_task, _):
+        download = ContentDownloadRequest.objects.create(
             reason=ContentRequestReason.SyncInitiated,
             source_model="test",
             source_id=uuid.uuid4().hex,
             facility_id=self.facility.id,
-            source_instance_id=source_instance_id,
+            source_instance_id=self.peer.instance_id,
             contentnode_id=uuid.uuid4().hex,
             status=ContentRequestStatus.Failed,
             failure_count=3,
             retry_after=timezone.now() + timedelta(hours=4),
         )
-
-    def test_on_connect__retries_backed_off_downloads_from_peer(self, mock_task, _):
-        download = self._create_backed_off_download(self.peer.instance_id)
-
-        NetworkDiscoveryForAutomaticResourceImportHook().on_connect(self.peer)
-
-        mock_task.enqueue_if_not_active.assert_called_once()
-        download.refresh_from_db()
-        self.assertIsNone(download.retry_after)
-        self.assertEqual(download.failure_count, 3)
-
-    def test_on_connect__learner_only_device__retries_backed_off_downloads_from_peer(
-        self, mock_task, mock_get_device_setting
-    ):
-        mock_get_device_setting.return_value = True
-        download = self._create_backed_off_download(self.peer.instance_id)
-
-        NetworkDiscoveryForAutomaticResourceImportHook().on_connect(self.peer)
-
-        mock_task.enqueue_if_not_active.assert_not_called()
-        download.refresh_from_db()
-        self.assertIsNone(download.retry_after)
-
-    def test_on_connect__other_peers_downloads_stay_backed_off(self, mock_task, _):
-        download = self._create_backed_off_download(uuid.uuid4().hex)
 
         NetworkDiscoveryForAutomaticResourceImportHook().on_connect(self.peer)
 
