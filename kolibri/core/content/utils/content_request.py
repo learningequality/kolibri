@@ -788,14 +788,6 @@ def _record_failure(download_request):
     download_request.retry_after = _retry_after(download_request.failure_count)
 
 
-def _source_answered(download_request, answered_instance_ids):
-    if download_request.source_instance_id:
-        return (
-            _uuid_to_hex(download_request.source_instance_id) in answered_instance_ids
-        )
-    return bool(answered_instance_ids)
-
-
 def _record_failures(downloads):
     failure_counts = (
         downloads.order_by("-failure_count")
@@ -1066,37 +1058,20 @@ def _import_metadata(client, downloads_needing_metadata_import):
     return total_count == processed_count
 
 
-class _MetadataImportAnswers:
-    def __init__(self):
-        self._download_ids = set()
-        self._instance_ids = set()
-
-    def import_from(self, peer, client, downloads):
-        """
-        :return: Whether all metadata was imported successfully
-        """
-        requested_ids = list(downloads.values_list("id", flat=True))
-        try:
-            is_complete = _import_metadata(client, downloads)
-        except NetworkClientError as e:
-            if not _peer_unreachable(e):
-                raise
-            logger.warning("Peer %s unreachable during metadata import", peer.id)
-            return False
-        if requested_ids:
-            self._download_ids.update(requested_ids)
-            self._instance_ids.add(_uuid_to_hex(peer.instance_id))
-        return is_complete
-
-    def record_failures(self, downloads):
-        _record_failures(
-            downloads.filter(
-                Q(source_instance_id__isnull=True)
-                | Q(source_instance_id__in=self._instance_ids),
-                has_metadata=False,
-                id__inline_in=self._download_ids,
-            )
-        )
+def _import_metadata_from_peer(peer, client, downloads):
+    """
+    :return: Whether all metadata was imported successfully, and the ids of ``downloads``
+        the peer answered for
+    """
+    requested_ids = list(downloads.values_list("id", flat=True))
+    try:
+        is_complete = _import_metadata(client, downloads)
+    except NetworkClientError as e:
+        if not _peer_unreachable(e):
+            raise
+        logger.warning("Peer %s unreachable during metadata import", peer.id)
+        return False, []
+    return is_complete, requested_ids
 
 
 def process_metadata_import(downloads_needing_metadata_import):
@@ -1120,17 +1095,18 @@ def process_metadata_import(downloads_needing_metadata_import):
         preferred_instance_ids, version_filter=version_filter
     )
 
-    answers = _MetadataImportAnswers()
+    answered_ids = set()
     # first, try to import metadata from the preferred peers, filtering the requests
     # by the matching instance_id
     for peer, client in preferred_peers:
-        answers.import_from(
+        _, peer_answered_ids = _import_metadata_from_peer(
             peer,
             client,
             downloads_needing_metadata_import.filter(
                 source_instance_id=_uuid_to_hex(peer.instance_id),
             ),
         )
+        answered_ids.update(peer_answered_ids)
 
     # if all downloads that need (re-)importing have been satisfied, stop early.
     if not downloads_needing_metadata_import.exists():
@@ -1142,13 +1118,14 @@ def process_metadata_import(downloads_needing_metadata_import):
         version_filter=version_filter, exclude_instance_ids=preferred_instance_ids
     )
     for peer, client in chain(preferred_peers, fallback_peers):
-        is_complete = answers.import_from(
+        is_complete, peer_answered_ids = _import_metadata_from_peer(
             peer,
             client,
             downloads_needing_metadata_import.exclude(
                 source_instance_id=_uuid_to_hex(peer.instance_id)
             ),
         )
+        answered_ids.update(peer_answered_ids)
         # if we've completed the import, then we can stop
         if (
             is_complete
@@ -1165,7 +1142,11 @@ def process_metadata_import(downloads_needing_metadata_import):
             unprocessed_count,
         )
 
-    answers.record_failures(downloads_needing_metadata_import)
+    _record_failures(
+        downloads_needing_metadata_import.filter(
+            has_metadata=False, id__inline_in=answered_ids
+        )
+    )
 
 
 def incomplete_removals_queryset():
@@ -1294,7 +1275,7 @@ def process_download_request(download_request):
     download_request.status = ContentRequestStatus.InProgress
     download_request.save()
 
-    answered_instance_ids = set()
+    any_peer_answered = False
     try:
         # by this point we should have a ContentNode
         node = ContentNode.objects.get(pk=download_request.contentnode_id)
@@ -1322,7 +1303,7 @@ def process_download_request(download_request):
             except _PeerUnreachable:
                 logger.warning("Peer %s unreachable during content import", peer.id)
                 continue
-            answered_instance_ids.add(peer.instance_id)
+            any_peer_answered = True
             if imported:
                 # if we successfully imported, break out of the loop
                 break
@@ -1336,9 +1317,7 @@ def process_download_request(download_request):
     except (NoPeerAvailable, InsufficientStorageSpaceError) as e:
         logger.warning("Content import failed: %s", e)
         download_request.status = ContentRequestStatus.Failed
-        if isinstance(e, NoPeerAvailable) and _source_answered(
-            download_request, answered_instance_ids
-        ):
+        if any_peer_answered and isinstance(e, NoPeerAvailable):
             _record_failure(download_request)
         download_request.save()
         return False
