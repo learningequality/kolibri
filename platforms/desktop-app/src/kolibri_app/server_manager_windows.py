@@ -53,8 +53,8 @@ PIPE_RETRY_DELAY = 2
 
 def is_service_running(service_name):
     """
-    Check if a Windows service is running or starting.
-    Returns True if the service is running or starting, False otherwise.
+    Check if a Windows service is running, starting or stopping.
+    Returns True if the service process may still be alive, False otherwise.
     """
     scm_handle = None
     service_handle = None
@@ -70,6 +70,7 @@ def is_service_running(service_name):
         return status[1] in (
             win32service.SERVICE_RUNNING,
             win32service.SERVICE_START_PENDING,
+            win32service.SERVICE_STOP_PENDING,
         )
 
     except pywintypes.error as e:
@@ -105,6 +106,10 @@ class WindowsServerManager:
         self._server_mode = None  # Can be 'service' or 'local'
         self._pipe_retry_count = 0
         self._quiet_retries = False
+
+    @property
+    def uses_service(self):
+        return self._server_mode == "service"
 
     def start(self):
         if self._server_mode:
