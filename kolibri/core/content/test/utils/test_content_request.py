@@ -1347,6 +1347,38 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
                 self.assertEqual(self.request.failure_count, 0)
                 self.assertIsNone(self.request.retry_after)
 
+    def test_peer_answers_unavailable__does_not_back_off(self):
+        peer = NetworkLocation.objects.create(
+            base_url="http://192.168.101.101:8080/",
+            connection_status=ConnectionStatus.Okay,
+            last_accessed=timezone.now(),
+        )
+        self.mock_sync_peers.__iter__.return_value = [peer]
+        for status_code in (502, 503, 504):
+
+            def request(method, url, status_code=status_code, **_):
+                return _http_response(url, status_code=status_code)
+
+            with self.subTest(status_code=status_code), mock.patch(
+                "requests.Session.request", side_effect=request
+            ):
+                process_download_request(self.request)
+                self.request.refresh_from_db()
+                self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+                self.assertEqual(self.request.failure_count, 0)
+                self.assertIsNone(self.request.retry_after)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_file_transfer_unavailable__does_not_back_off(self, mock_import_manager):
+        mock_import_manager.return_value.run.side_effect = requests.HTTPError(
+            response=_http_response("", status_code=503)
+        )
+        process_download_request(self.request)
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+        self.assertEqual(self.request.failure_count, 0)
+        self.assertIsNone(self.request.retry_after)
+
     @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
     def test_success__resets_backoff(self, mock_import_manager):
         mock_import_manager.return_value.run.return_value = [None, 1]
@@ -2444,6 +2476,26 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
             download.refresh_from_db()
             self.assertEqual(download.failure_count, 1)
             self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+
+    def test_only_peer_unavailable__asked_once__not_backed_off(self, *_mocks):
+        for status_code in (502, 503, 504):
+            with self.subTest(status_code=status_code):
+                ContentDownloadRequest.objects.all().delete()
+                self.requested_urls.clear()
+                self.peer_servers[urlparse(self.peer.base_url).netloc] = _kolibri_peer(
+                    lambda url, status_code=status_code: _http_response(
+                        url, status_code=status_code
+                    )
+                )
+                downloads = [self._create_download() for _ in range(3)]
+
+                process_content_requests()
+
+                self.assertEqual(self._metadata_request_count(self.peer), 1)
+                for download in downloads:
+                    download.refresh_from_db()
+                    self.assertEqual(download.failure_count, 0)
+                    self.assertIsNone(download.retry_after)
 
     @mock.patch(_module + "local_now", return_value=_NOW)
     def test_source_peer_times_out__fallback_not_found__backed_off(self, *_mocks):

@@ -51,6 +51,7 @@ from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -60,6 +61,8 @@ from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
 from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
+from kolibri.utils.file_transfer import retry_import
+from kolibri.utils.file_transfer import RETRY_STATUS_CODE
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -765,6 +768,19 @@ _PEER_UNREACHABLE_ERRORS = (
 )
 
 
+class _PeerUnreachable(Exception):
+    pass
+
+
+def _peer_unreachable(error):
+    if isinstance(error, NetworkLocationResponseFailure):
+        return (
+            error.response is not None
+            and error.response.status_code in RETRY_STATUS_CODE
+        )
+    return isinstance(error, _PEER_UNREACHABLE_ERRORS) or retry_import(error)
+
+
 def _retry_after(failure_count):
     return local_now() + _RETRY_BACKOFF_BASE * min(
         2 ** (failure_count - 1), _RETRY_BACKOFF_MAX // _RETRY_BACKOFF_BASE
@@ -897,6 +913,15 @@ def _get_import_metadata(client, download, schema_version=CONTENT_SCHEMA_VERSION
     return _merge_import_metadata(metadata_list) or None, params.get("schema_version")
 
 
+def _get_import_metadata_unless_unavailable(client, download, schema_version):
+    try:
+        return _get_import_metadata(client, download, schema_version=schema_version)
+    except NetworkLocationResponseFailure as e:
+        if _peer_unreachable(e):
+            raise
+        return None, schema_version
+
+
 def _get_downloads_for_potential_removed_contentnodes(import_metadata):
     channel_metadata = import_metadata.get(ChannelMetadata._meta.db_table, [{}])[0]
     channel_id = channel_metadata.get("id", None)
@@ -950,12 +975,9 @@ def _import_metadata(client, downloads_needing_metadata_import):
     while downloads_to_process:
         download = downloads_to_process.popleft()
 
-        try:
-            import_metadata, schema_version = _get_import_metadata(
-                client, download, schema_version=schema_version
-            )
-        except NetworkLocationResponseFailure:
-            import_metadata = None
+        import_metadata, schema_version = _get_import_metadata_unless_unavailable(
+            client, download, schema_version
+        )
 
         # if the request 404'd, then we wouldn't have this data
         if import_metadata:
@@ -1040,19 +1062,20 @@ def _import_metadata(client, downloads_needing_metadata_import):
     return total_count == processed_count
 
 
-def _import_metadata_from_peer(peer, client, downloads, answered_ids):
+def _import_metadata_from_peer(peer, client, downloads):
     """
-    :param answered_ids: set that the ids of ``downloads`` are added to once the peer answers
-    :return: A boolean indicating whether all metadata was imported successfully
+    :return: Whether all metadata was imported successfully, and the ids of ``downloads``
+        the peer answered for
     """
     requested_ids = list(downloads.values_list("id", flat=True))
     try:
         is_complete = _import_metadata(client, downloads)
-    except _PEER_UNREACHABLE_ERRORS:
+    except NetworkClientError as e:
+        if not _peer_unreachable(e):
+            raise
         logger.warning("Peer %s unreachable during metadata import", peer.id)
-        return False
-    answered_ids.update(requested_ids)
-    return is_complete
+        return False, []
+    return is_complete, requested_ids
 
 
 def process_metadata_import(downloads_needing_metadata_import):
@@ -1080,14 +1103,14 @@ def process_metadata_import(downloads_needing_metadata_import):
     # first, try to import metadata from the preferred peers, filtering the requests
     # by the matching instance_id
     for peer, client in preferred_peers:
-        _import_metadata_from_peer(
+        _, peer_answered_ids = _import_metadata_from_peer(
             peer,
             client,
             downloads_needing_metadata_import.filter(
                 source_instance_id=_uuid_to_hex(peer.instance_id),
             ),
-            answered_ids,
         )
+        answered_ids.update(peer_answered_ids)
 
     # if all downloads that need (re-)importing have been satisfied, stop early.
     if not downloads_needing_metadata_import.exists():
@@ -1099,14 +1122,14 @@ def process_metadata_import(downloads_needing_metadata_import):
         version_filter=version_filter, exclude_instance_ids=preferred_instance_ids
     )
     for peer, client in chain(preferred_peers, fallback_peers):
-        is_complete = _import_metadata_from_peer(
+        is_complete, peer_answered_ids = _import_metadata_from_peer(
             peer,
             client,
             downloads_needing_metadata_import.exclude(
                 source_instance_id=_uuid_to_hex(peer.instance_id)
             ),
-            answered_ids,
         )
+        answered_ids.update(peer_answered_ids)
         # if we've completed the import, then we can stop
         if (
             is_complete
@@ -1281,7 +1304,7 @@ def process_download_request(download_request):
         for peer in chain(*peer_sets):
             try:
                 imported = _process_download(download_request, node.channel_id, peer)
-            except _PEER_UNREACHABLE_ERRORS:
+            except _PeerUnreachable:
                 logger.warning("Peer %s unreachable during content import", peer.id)
                 continue
             any_peer_answered = True
@@ -1349,14 +1372,16 @@ def _process_download(download_request, channel_id, peer):
             return False
         # without an exception, and non-zero count, we can assume the import was successful
         return True
-    except (InsufficientStorageSpaceError, *_PEER_UNREACHABLE_ERRORS):
+    except InsufficientStorageSpaceError:
         raise
     except LocationError as e:
-        if isinstance(e.__cause__, _PEER_UNREACHABLE_ERRORS):
-            raise e.__cause__ from e
+        if _peer_unreachable(e.__cause__):
+            raise _PeerUnreachable from e
         # content not found on peer, try the next one
         return False
     except Exception as e:
+        if _peer_unreachable(e):
+            raise _PeerUnreachable from e
         # some other error occurred, log it and try the next peer
         logger.exception(e)
         return False
