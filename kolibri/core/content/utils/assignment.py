@@ -176,6 +176,16 @@ class ContentAssignmentManager:
                 yield assignment
 
     @classmethod
+    def find_source_downloadable_assignments(cls, source_model, source_id):
+        for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
+            if manager.model.morango_model_name == source_model:
+                model_qs = manager._matching_filters(
+                    manager.model.objects.filter(pk=source_id)
+                )
+                return list(manager._get_assignments(model_qs))
+        return []
+
+    @classmethod
     def _get_cached_model_instance(cls, manager, source_id):
         cache_key = f"CONTENT_ASSIGNMENT_INSTANCE_{manager.model.morango_model_name}_{source_id}"
         if cache_key not in process_cache:
