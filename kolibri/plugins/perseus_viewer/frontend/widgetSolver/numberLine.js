@@ -1,26 +1,29 @@
 import { Fraction } from 'fractional';
 
-export default (widget, rubric) => {
+function divisionsShowing(rubric) {
+  const [rangeMin, rangeMax] = rubric.range;
+  const [minDivisions, maxDivisions] = rubric.divisionRange;
+  const numDivisions = rubric.numDivisions || 10;
+  const ticksToCorrectX = ((rubric.correctX - rangeMin) * numDivisions) / (rangeMax - rangeMin);
+  if (Math.abs(ticksToCorrectX - Math.round(ticksToCorrectX)) < 1e-9) {
+    return numDivisions;
+  }
+  const denominator = new Fraction(rubric.correctX - rangeMin, rangeMax - rangeMin).denominator;
+  return Math.min(Math.max(1, Math.ceil(minDivisions / denominator)) * denominator, maxDivisions);
+}
+
+export default rubric => {
   const userInput = {
-    rel: rubric.isInequality ? rubric.rel || 'ge' : 'eq',
+    rel: rubric.correctRel || 'eq',
     isInequality: rubric.isInequality || false,
-    numLinePosition: rubric.correctX || rubric.range[0],
+    numLinePosition: rubric.range[0],
     numDivisions: rubric.numDivisions || 10,
   };
 
-  if (rubric.correctX) {
-    const correctX = rubric.correctX;
-    const rangeMin = rubric.range[0];
-    const rangeMax = rubric.range[1];
-
-    const numDivisions = new Fraction(correctX - rangeMin, rangeMax - rangeMin).denominator;
-    userInput.numLinePosition = correctX;
-    userInput.numDivisions = Math.min(numDivisions, widget.props.divisionRange[1]);
+  if (rubric.correctX != null) {
+    userInput.numLinePosition = rubric.correctX;
+    userInput.numDivisions = divisionsShowing(rubric);
   }
 
-  if (rubric.rel) {
-    userInput.rel = rubric.rel;
-  }
-
-  widget.props.handleUserInput(userInput);
+  return userInput;
 };

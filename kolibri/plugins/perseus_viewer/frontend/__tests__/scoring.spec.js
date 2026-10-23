@@ -1,49 +1,29 @@
-import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
 import { emptyWidgetsFunctional } from '@khanacademy/perseus-score';
 import { localizeNumericResponses, readUserInput } from '../numericResponses';
 import { scoreItem } from '../scoring';
-
-function migrateItem(rawItem) {
-  const result = parseAndMigratePerseusItem(rawItem);
-  if (isFailure(result)) {
-    throw new Error('Failed to migrate item: ' + result.detail.message);
-  }
-  return result.value;
-}
-
-function makeItem(widgets, content) {
-  return migrateItem({
-    question: { content, images: {}, widgets },
-    answerArea: {},
-    hints: [],
-    itemDataVersion: { major: 0, minor: 1 },
-  });
-}
+import makeItem from '../testUtils/makeItem';
 
 // KA content in Kolibri channels predominantly uses the legacy input-number
-// widget. As of perseus-score v8.3+, input-number is scored by converting its
-// options and delegating to the numeric-input scorer, so these tests guard
-// the scoring path our checkAnswer() actually exercises.
+// widget. perseus-core 39 migrates its options to the numeric-input shape at
+// parse, and perseus-score 8.12.26 scores input-number with the numeric-input
+// scorer, so these tests guard the scoring path our checkAnswer() actually exercises.
 function makeInputNumberItem(options = {}) {
-  return makeItem(
-    {
-      'input-number 1': {
-        type: 'input-number',
-        graded: true,
-        options: {
-          value: 42,
-          simplify: 'required',
-          size: 'normal',
-          inexact: false,
-          maxError: 0.1,
-          answerType: 'number',
-          rightAlign: false,
-          ...options,
-        },
+  return makeItem({
+    'input-number 1': {
+      type: 'input-number',
+      graded: true,
+      options: {
+        value: 42,
+        simplify: 'required',
+        size: 'normal',
+        inexact: false,
+        maxError: 0.1,
+        answerType: 'number',
+        rightAlign: false,
+        ...options,
       },
     },
-    '[[☃ input-number 1]]',
-  );
+  });
 }
 
 function numericInputWidgets(answer = {}) {
@@ -75,24 +55,21 @@ function numericInputWidgets(answer = {}) {
 }
 
 function makeNumericInputItem(answer = {}) {
-  return makeItem(numericInputWidgets(answer), '[[☃ numeric-input 1]]');
+  return makeItem(numericInputWidgets(answer));
 }
 
 function makeGroupItem(answer = {}) {
-  return makeItem(
-    {
-      'group 1': {
-        type: 'group',
-        graded: true,
-        options: {
-          content: '[[☃ numeric-input 1]]',
-          images: {},
-          widgets: numericInputWidgets(answer),
-        },
+  return makeItem({
+    'group 1': {
+      type: 'group',
+      graded: true,
+      options: {
+        content: '[[☃ numeric-input 1]]',
+        images: {},
+        widgets: numericInputWidgets(answer),
       },
     },
-    '[[☃ group 1]]',
-  );
+  });
 }
 
 function isCorrect(score) {

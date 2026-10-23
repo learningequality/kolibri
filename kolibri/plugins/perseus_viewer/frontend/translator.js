@@ -59,16 +59,17 @@ export default createTranslator('PerseusInternalMessages', {
   INVALID_MESSAGE_PREFIX: "We couldn't grade your answer.",
   DEFAULT_INVALID_MESSAGE_1: 'It looks like you left something blank or ',
   DEFAULT_INVALID_MESSAGE_2: 'entered in an invalid answer.',
-  integerExample: 'an integer, like $6$',
-  properExample: 'a *proper* fraction, like $1/2$ or $6/10$',
-  simplifiedProperExample: 'a *simplified proper* fraction, like $3/5$',
-  improperExample: 'an *improper* fraction, like $10/7$ or $14/8$',
-  simplifiedImproperExample: 'a *simplified improper* fraction, like $7/4$',
-  mixedExample: 'a mixed number, like $1\\\\\\\\ 3/4$',
-  decimalExample: 'an *exact* decimal, like $0.75$',
-  percentExample: 'a percent, like $12.34\\\\\\\\%$',
-  piExample: 'a multiple of pi, like $12$ pi or $2/3$ pi',
+  integerExample: 'an integer (like $-3$ or $45$)',
+  properExample: 'a proper fraction (like $1/3$ or $12/13$)',
+  simplifiedProperExample: 'a simplified proper fraction (like $1/2$ or $3/4$)',
+  improperExample: 'an improper fraction (like $3/2$ or $17/15$)',
+  simplifiedImproperExample: 'a simplified improper fraction (like $5/4$ or $9/8$)',
+  mixedExample: 'a mixed number (like $1\\\\\\\\ 3/4$ or $2\\\\\\\\ 5/6$)',
+  decimalExample: 'an exact decimal (like $-0.85$ or $3.14$)',
+  percentExample: 'a percent (like $6\\\\\\\\%$ or $12.34\\\\\\\\%$)',
+  piExample: 'a multiple of pi (like $2/3$ pi or $5$ pi)',
   yourAnswer: '**Your answer should be** ',
+  yourAnswerCanBe: '**Your answer can be** ',
   yourAnswerLabel: 'Your answer:',
   addPoints: 'Click to add points',
   addVertices: 'Click to add vertices',
@@ -166,6 +167,9 @@ export default createTranslator('PerseusInternalMessages', {
   },
   simulationLoadFail: 'Sorry, this simulation cannot load.',
   simulationLocaleWarning: "Sorry, this simulation isn't available in your language.",
+  openInNewTab: 'Open simulation in a new tab',
+  fullscreen: 'Fullscreen',
+  exitFullscreen: 'Exit fullscreen',
   selectAnAnswer: 'Select an answer',
   addPoint: 'Add Point',
   removePoint: 'Remove Point',
@@ -186,20 +190,20 @@ export default createTranslator('PerseusInternalMessages', {
   },
   srGraphInstructions: {
     message:
-      'Use the Tab key to move through the interactive elements in the graph. When an interactive element has focus, use Control + Shift + Arrows to move it.',
+      'Enable Forms or Focus mode and use the Tab key to move through the interactive elements in the graph. When an interactive element has focus, use Arrow keys to move it.',
     context:
       'Screen reader-only instructions for using the keyboard to move through the interactive elements in the interactive graph widget.',
   },
   srUnlimitedGraphInstructions: {
     message:
-      'Press Shift + Enter to interact with the graph. Use the Tab key to move through the interactive elements in the graph and access the graph Action Bar. When an interactive element has focus, use Control + Shift + Arrows to move it or use the Delete key to remove it from the graph. Use the buttons in the Action Bar to add or adjust elements within the graph.',
+      'Press Shift + Enter to interact with the graph. Enable Forms or Focus mode and use the Tab key to move through the interactive elements in the graph and access the graph Action Bar. When an interactive element has focus, use Arrow keys to move it or use the Delete key to remove it from the graph. Use the buttons in the Action Bar to add or adjust elements within the graph.',
     context:
       "Screen reader-only instructions for using the keyboard to move through the 'unlimited' (addable/deletable by the user) interactive elements in the interactive graph widget.",
   },
   srPointAtCoordinates: {
-    message: 'Point { num } at { x } comma { y }.',
+    message: 'Point { pointLabel } at { x } comma { y }.',
     context:
-      "Aria label for an interactive Point element in the interactive graph widget, including the count for its order in the points (e.g. 'Point 1 at 0 comma 0'). Coordinate (x, y) is written out as 'x comma y'.",
+      "Aria label for an interactive Point element in the interactive graph widget. %(pointLabel)s is the author-provided custom label for the point (e.g. 'A'), or the count for its order in the points (e.g. 'Point 1 at 0 comma 0'). Coordinate (x, y) is written out as 'x comma y'.",
   },
   srCircleGraph: {
     message: 'A circle on a coordinate plane.',
@@ -219,6 +223,16 @@ export default createTranslator('PerseusInternalMessages', {
     message: 'Left radius endpoint at { radiusPointX } comma { radiusPointY }.',
     context:
       "Aria label for the interactive Point element that represents the radius endpoint when it's on the left side of the Circle in the interactive graph widget.",
+  },
+  srCircleRadiusPointRightWithLabel: {
+    message: 'Right radius endpoint { pointLabel } at { radiusPointX } comma { radiusPointY }.',
+    context:
+      "Aria label for the interactive Point element that represents the radius endpoint when it's on the right side of the Circle in the interactive graph widget, including the author's custom point label.",
+  },
+  srCircleRadiusPointLeftWithLabel: {
+    message: 'Left radius endpoint { pointLabel } at { radiusPointX } comma { radiusPointY }.',
+    context:
+      "Aria label for the interactive Point element that represents the radius endpoint when it's on the left side of the Circle in the interactive graph widget, including the author's custom point label.",
   },
   srCircleRadius: {
     message: 'Circle radius is { radius }.',
@@ -290,19 +304,19 @@ export default createTranslator('PerseusInternalMessages', {
       'Aria label for the interactive segment that allows the user to move the whole Line in the interactive graph widget.',
   },
   srAngleStartingSide: {
-    message: 'Point 3, starting side at { x } comma { y }.',
+    message: 'Point { pointLabel }, starting side at { x } comma { y }.',
     context:
-      "Aria label for interactive Point 3 of the Angle in the interactive graph widget, explaining it's on the starting side of the Angle.",
+      'Aria label for the interactive Point on the starting side of the Angle in the interactive graph widget.',
   },
   srAngleEndingSide: {
-    message: 'Point 2, ending side at { x } comma { y }.',
+    message: 'Point { pointLabel }, ending side at { x } comma { y }.',
     context:
-      "Aria label for interactive Point 2 of the Angle in the interactive graph widget, explaining it's on the ending side of the Angle.",
+      'Aria label for the interactive Point on the ending side of the Angle in the interactive graph widget.',
   },
   srAngleVertexWithAngleMeasure: {
-    message: 'Point 1, vertex at { x } comma { y }. Angle { angleMeasure } degrees.',
+    message: 'Point { pointLabel }, vertex at { x } comma { y }. Angle { angleMeasure } degrees.',
     context:
-      "Aria label for interactive Point 1 of the Angle in the interactive graph widget, explaining it's the vertex of the Angle.",
+      'Aria label for the interactive Point at the vertex of the Angle in the interactive graph widget.',
   },
   srAngleGraphAriaLabel: {
     message: 'An angle on a coordinate plane.',
@@ -349,14 +363,14 @@ export default createTranslator('PerseusInternalMessages', {
       'Screen reader description for the length of a Line Segment in the interactive graph widget.',
   },
   srSingleSegmentGraphEndpointAriaLabel: {
-    message: 'Endpoint { endpointNumber } at { x } comma { y }.',
+    message: 'Endpoint { pointLabel } at { x } comma { y }.',
     context:
       'Screen reader description for the endpoint of a Line Segment in the interactive graph widget when there is only one segment.',
   },
   srMultipleSegmentGraphEndpointAriaLabel: {
-    message: 'Endpoint { endpointNumber } on segment { indexOfSegment } at { x } comma { y }.',
+    message: 'Endpoint { pointLabel } on segment { indexOfSegment } at { x } comma { y }.',
     context:
-      "Screen reader description for the endpoint of a Line Segment in the interactive graph widget when there are multiple segments. Includes the count for the segment's order (e.g. 'Segment 1', 'Segment 2', etc.)",
+      "Screen reader description for the endpoint of a Line Segment in the interactive graph widget when there are multiple segments. Includes the count for the segment's order (e.g. 'Segment 1', 'Segment 2', etc.).",
   },
   srSegmentGrabHandle: {
     message: 'Segment from { point1X } comma { point1Y } to { point2X } comma { point2Y }.',
@@ -375,7 +389,7 @@ export default createTranslator('PerseusInternalMessages', {
       'Screen reader description for the points of a line in the Linear System in the interactive graph widget.',
   },
   srLinearSystemPoint: {
-    message: 'Point { pointSequence } on line { lineNumber } at { x } comma { y }.',
+    message: 'Point { pointLabel } on line { lineNumber } at { x } comma { y }.',
     context:
       'Screen reader description for a point on a line in the Linear System in the interactive graph widget.',
   },
@@ -416,10 +430,20 @@ export default createTranslator('PerseusInternalMessages', {
     context:
       'Aria label for the initial point of a Ray (the point at which the ray starts) in the interactive graph widget.',
   },
+  srRayEndpointWithLabel: {
+    message: 'Endpoint { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the initial point of a Ray (the point at which the ray starts) in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
   srRayTerminalPoint: {
     message: 'Through point at { x } comma { y }.',
     context:
       'Aria label for the point that determines the direction of the Ray in the interactive graph widget. The ray passes through this point.',
+  },
+  srRayTerminalPointWithLabel: {
+    message: 'Through point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the point that determines the direction of the Ray in the interactive graph widget. The ray passes through this point. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
   },
   srVectorGraph: {
     message: 'A vector on a coordinate plane.',
@@ -427,17 +451,24 @@ export default createTranslator('PerseusInternalMessages', {
       'Screen reader description for the container containing a Vector in the interactive graph widget.',
   },
   srVectorPoints: {
-    message: 'The tail is at { tailX } comma { tailY } and the tip is at { tipX } comma { tipY }.',
+    message:
+      'The tail is at { tailX } comma { tailY } and the head is at { headX } comma { headY }.',
     context:
-      'Screen reader description for the tail and tip of a vector in the interactive graph widget.',
+      'Screen reader description for the tail and head of a vector in the interactive graph widget.',
   },
-  srVectorTipPoint: {
-    message: 'Tip point at { x } comma { y }.',
+  srVectorHeadPoint: {
+    message: 'Vector head at { x } comma { y }.',
     context:
-      'Aria label for the tip point of a Vector (the point with the arrowhead) in the interactive graph widget.',
+      'Aria label for the head point of a Vector (the point with the arrowhead) in the interactive graph widget.',
+  },
+  srVectorMagnitudeDirection: {
+    message:
+      'The vector has a magnitude of { magnitude } and a direction of { direction } degrees.',
+    context:
+      "Screen reader description of a vector's magnitude (length) and direction (angle in degrees, measured counterclockwise from the positive x-axis) in the interactive graph widget.",
   },
   srVectorGrabHandle: {
-    message: 'Vector from { tailX } comma { tailY } to { tipX } comma { tipY }.',
+    message: 'Vector from { tailX } comma { tailY } to { headX } comma { headY }.',
     context:
       'Aria label for the interactive segment that allows the user to move the whole Vector in the interactive graph widget.',
   },
@@ -492,17 +523,17 @@ export default createTranslator('PerseusInternalMessages', {
       'Screen reader description for the Y-intercept of the Quadratic function in the interactive graph widget.',
   },
   srQuadraticPointOrigin: {
-    message: 'Point { pointNumber } on parabola at the origin.',
+    message: 'Point { pointLabel } on parabola at the origin.',
     context:
       'Aria label for an interactive Point on the Quadratic function in the interactive graph widget when the Point is at the origin.',
   },
   srQuadraticPointAxis: {
-    message: 'Point { pointNumber } on parabola at { x } comma { y }.',
+    message: 'Point { pointLabel } on parabola at { x } comma { y }.',
     context:
       'Aria label for an interactive Point on the Quadratic function in the interactive graph widget when the Point is on the X-axis or Y-axis.',
   },
   srQuadraticPointQuadrant: {
-    message: 'Point { pointNumber } on parabola in quadrant { quadrant } at { x } comma { y }.',
+    message: 'Point { pointLabel } on parabola in quadrant { quadrant } at { x } comma { y }.',
     context:
       'Aria label for an interactive Point on the Quadratic function in the interactive graph widget when the Point is in a specific quadrant.',
   },
@@ -578,20 +609,40 @@ export default createTranslator('PerseusInternalMessages', {
     context:
       'Aria label for the Point defining the midline intersection of the Sinusoid function in the interactive graph widget.',
   },
+  srSinusoidRootPointWithLabel: {
+    message: 'Midline intersection point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the Point defining the midline intersection of the Sinusoid function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
   srSinusoidMaxPoint: {
     message: 'Maximum point at { x } comma { y }.',
     context:
       'Aria label for the Point defining the maximum of the Sinusoid function in the interactive graph widget.',
+  },
+  srSinusoidMaxPointWithLabel: {
+    message: 'Maximum point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the Point defining the maximum of the Sinusoid function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
   },
   srSinusoidMinPoint: {
     message: 'Minimum point at { x } comma { y }.',
     context:
       'Aria label for the Point defining the minimum of the Sinusoid function in the interactive graph widget.',
   },
+  srSinusoidMinPointWithLabel: {
+    message: 'Minimum point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the Point defining the minimum of the Sinusoid function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
   srSinusoidFlatPoint: {
     message: 'Line through point at { x } comma { y }.',
     context:
       'Aria label for the Point defining the amplitude of the Sinusoid function in the interactive graph widget when the amplitude is 0.',
+  },
+  srSinusoidFlatPointWithLabel: {
+    message: 'Line through point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the Point defining the amplitude of the Sinusoid function in the interactive graph widget when the amplitude is 0. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
   },
   srSinusoidDescription: {
     message:
@@ -609,67 +660,133 @@ export default createTranslator('PerseusInternalMessages', {
     context:
       'Aria label for the container containing an Exponential function in the interactive graph widget.',
   },
-  srExponentialPoint1: {
-    message: 'Point 1 at { x } comma { y }.',
-    context:
-      'Aria label for the first Point on the Exponential function in the interactive graph widget.',
+  srExponentialPoint: {
+    message: 'Point { pointLabel } on an exponential curve at { x } comma { y }.',
+    context: 'Aria label for a Point on the Exponential function in the interactive graph widget.',
   },
-  srExponentialPoint2: {
-    message: 'Point 2 at { x } comma { y }.',
-    context:
-      'Aria label for the second Point on the Exponential function in the interactive graph widget.',
-  },
-  srExponentialDescription: {
+  srExponentialDescriptionRightNeg: {
     message:
-      'The graph shows an exponential curve passing through point { point1X } comma { point1Y } and point { point2X } comma { point2Y } with a horizontal asymptote at y equals { asymptoteY }.',
+      'The curve passes through { point1X } comma { point1Y } and { point2X } comma { point2Y } as the curve approaches y equals { asymptoteY } from the right and extends to negative infinity.',
     context:
-      'Screen reader description of the Exponential function in the interactive graph widget.',
+      'Screen reader description of the Exponential function in the interactive graph widget. Variant for a curve whose flat tail hugs the asymptote on the right and trails off toward negative infinity.',
+  },
+  srExponentialDescriptionLeftPos: {
+    message:
+      'The curve passes through { point1X } comma { point1Y } and { point2X } comma { point2Y } as the curve approaches y equals { asymptoteY } from the left and extends to positive infinity.',
+    context:
+      'Screen reader description of the Exponential function in the interactive graph widget. Variant for a curve whose flat tail hugs the asymptote on the left and trails off toward positive infinity.',
+  },
+  srExponentialAboveAsymptote: {
+    message: 'The curve lies above the asymptote.',
+    context:
+      'Screen reader description noting that the Exponential curve lies entirely above its horizontal asymptote.',
+  },
+  srExponentialBelowAsymptote: {
+    message: 'The curve lies below the asymptote.',
+    context:
+      'Screen reader description noting that the Exponential curve lies entirely below its horizontal asymptote.',
+  },
+  srExponentialNoCurve: {
+    message:
+      'No exponential curve can be drawn through { point1X } comma { point1Y } and { point2X } comma { point2Y } with a horizontal asymptote at y equals { asymptoteY }. Move both points to the same side of the asymptote to draw the curve.',
+    context:
+      'Screen reader description of the Exponential function in the interactive graph widget, used when the two points are positioned so that no exponential curve can be drawn (for example, the asymptote falls between them) and nothing is plotted.',
+  },
+  srExponentialIntercepts: {
+    message:
+      'The x-intercept is at { xIntercept } comma 0. The y-intercept is at 0 comma { yIntercept }.',
+    context:
+      'Screen reader description of the x- and y-intercepts of the Exponential function in the interactive graph widget.',
+  },
+  srExponentialYIntercept: {
+    message: 'The y-intercept is at 0 comma { yIntercept }.',
+    context:
+      'Screen reader description of the y-intercept of the Exponential function in the interactive graph widget, used when the curve has no x-intercept.',
   },
   srExponentialInteractiveElements: {
     message:
-      'Exponential graph with point 1 at { point1X } comma { point1Y }, point 2 at { point2X } comma { point2Y }, and horizontal asymptote at y equals { asymptoteY }.',
+      'Exponential graph with points at { point1X } comma { point1Y }, { point2X } comma { point2Y }, and a horizontal asymptote at y equals { asymptoteY }.',
     context:
       'Screen reader description of all the elements available to interact with within the Exponential function in the interactive graph widget.',
   },
   srExponentialAsymptote: {
-    message: 'Horizontal asymptote at y equals { asymptoteY }. Use up and down arrow keys to move.',
+    message: 'Horizontal asymptote at y equals { asymptoteY }',
     context:
       'Aria label for the draggable horizontal asymptote line in the Exponential function in the interactive graph widget.',
   },
   srLogarithmGraph: {
-    message: 'A logarithm function on a coordinate plane.',
+    message: 'A logarithmic curve on a coordinate plane.',
     context:
       'Aria label for the container containing a Logarithm function in the interactive graph widget.',
   },
-  srLogarithmPoint1: {
-    message: 'Point 1 at { x } comma { y }.',
-    context:
-      'Aria label for the first Point on the Logarithm function in the interactive graph widget.',
+  srLogarithmPoint: {
+    message: 'Point { pointLabel } on a logarithmic curve at { x } comma { y }.',
+    context: 'Aria label for a Point on the Logarithm function in the interactive graph widget.',
   },
-  srLogarithmPoint2: {
-    message: 'Point 2 at { x } comma { y }.',
-    context:
-      'Aria label for the second Point on the Logarithm function in the interactive graph widget.',
-  },
-  srLogarithmDescription: {
+  srLogarithmDescriptionRightNeg: {
     message:
-      'The graph shows a logarithm curve passing through point { point1X } comma { point1Y } and point { point2X } comma { point2Y } with a vertical asymptote at x equals { asymptoteX }.',
-    context: 'Screen reader description of the Logarithm function in the interactive graph widget.',
+      'The curve passes through { point1X } comma { point1Y } and { point2X } comma { point2Y } as the curve approaches x equals { asymptoteX } from the right and extends to negative infinity.',
+    context:
+      'Screen reader description of the Logarithm function in the interactive graph widget. Variant for a curve to the right of the asymptote that trails off toward negative infinity near it.',
+  },
+  srLogarithmDescriptionRightPos: {
+    message:
+      'The curve passes through { point1X } comma { point1Y } and { point2X } comma { point2Y } as the curve approaches x equals { asymptoteX } from the right and extends to positive infinity.',
+    context:
+      'Screen reader description of the Logarithm function in the interactive graph widget. Variant for a curve to the right of the asymptote that trails off toward positive infinity near it.',
+  },
+  srLogarithmDescriptionLeftNeg: {
+    message:
+      'The curve passes through { point1X } comma { point1Y } and { point2X } comma { point2Y } as the curve approaches x equals { asymptoteX } from the left and extends to negative infinity.',
+    context:
+      'Screen reader description of the Logarithm function in the interactive graph widget. Variant for a curve to the left of the asymptote that trails off toward negative infinity near it.',
+  },
+  srLogarithmDescriptionLeftPos: {
+    message:
+      'The curve passes through { point1X } comma { point1Y } and { point2X } comma { point2Y } as the curve approaches x equals { asymptoteX } from the left and extends to positive infinity.',
+    context:
+      'Screen reader description of the Logarithm function in the interactive graph widget. Variant for a curve to the left of the asymptote that trails off toward positive infinity near it.',
+  },
+  srLogarithmToRightOfAsymptote: {
+    message: 'The curve is to the right of the asymptote.',
+    context:
+      'Screen reader description noting that the Logarithm curve lies to the right of its vertical asymptote.',
+  },
+  srLogarithmToLeftOfAsymptote: {
+    message: 'The curve is to the left of the asymptote.',
+    context:
+      'Screen reader description noting that the Logarithm curve lies to the left of its vertical asymptote.',
+  },
+  srLogarithmNoCurve: {
+    message:
+      'No curve can be drawn through { point1X } comma { point1Y } and { point2X } comma { point2Y } with a vertical asymptote at x equals { asymptoteX }. Move both points to the same side of the asymptote to draw the curve.',
+    context:
+      'Screen reader description of the Logarithm function in the interactive graph widget, used when the two points are positioned so that no logarithm curve can be drawn (for example, the asymptote falls between them) and nothing is plotted.',
+  },
+  srLogarithmIntercepts: {
+    message:
+      'The x-intercept is at { xIntercept } comma 0. The y-intercept is at 0 comma { yIntercept }.',
+    context:
+      'Screen reader description of the x- and y-intercepts of the Logarithm function in the interactive graph widget.',
+  },
+  srLogarithmXIntercept: {
+    message: 'The x-intercept is at { xIntercept } comma 0.',
+    context:
+      'Screen reader description of the x-intercept of the Logarithm function in the interactive graph widget, used when the curve has no y-intercept.',
   },
   srLogarithmInteractiveElements: {
     message:
-      'Logarithm graph with point 1 at { point1X } comma { point1Y }, point 2 at { point2X } comma { point2Y }, and vertical asymptote at x equals { asymptoteX }.',
+      'Logarithmic graph with points at { point1X } comma { point1Y }, { point2X } comma { point2Y }, and a vertical asymptote at x equals { asymptoteX }.',
     context:
       'Screen reader description of all the elements available to interact with within the Logarithm function in the interactive graph widget.',
   },
   srLogarithmAsymptote: {
-    message:
-      'Vertical asymptote at x equals { asymptoteX }. Use left and right arrow keys to move.',
+    message: 'Vertical asymptote at x equals { asymptoteX }',
     context:
       'Aria label for the draggable vertical asymptote line in the Logarithm function in the interactive graph widget.',
   },
   srAbsoluteValueGraph: {
-    message: 'An absolute value function on a coordinate plane.',
+    message: 'An absolute value on a coordinate plane.',
     context:
       'Aria label for the container containing an Absolute Value function in the interactive graph widget.',
   },
@@ -678,25 +795,69 @@ export default createTranslator('PerseusInternalMessages', {
     context:
       'Aria label for the Point defining the vertex of the Absolute Value function in the interactive graph widget.',
   },
-  srAbsoluteValueSecondPoint: {
+  srAbsoluteValueVertexPointWithLabel: {
+    message: 'Vertex point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the Point defining the vertex of the Absolute Value function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
+  srAbsoluteValueArmPoint: {
     message: 'Point on arm at { x } comma { y }.',
     context:
       'Aria label for the second Point defining the slope of the Absolute Value function in the interactive graph widget.',
   },
-  srAbsoluteValueDescription: {
-    message:
-      'The graph shows an absolute value function with vertex at { x } comma { y } and slope { slope }.',
+  srAbsoluteValueArmPointWithLabel: {
+    message: 'Point { pointLabel } on arm at { x } comma { y }.',
     context:
-      'Screen reader description of the Absolute Value function in the interactive graph widget.',
+      "Aria label for the second Point defining the slope of the Absolute Value function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
+  srAbsoluteValueSlope: {
+    message: 'The slope is { slope }.',
+    context:
+      'Screen reader description of the slope of the arms of the Absolute Value function in the interactive graph widget. Read alongside the point on the arm.',
+  },
+  srAbsoluteValueOpensUp: {
+    message: 'The graph opens upward.',
+    context:
+      'Screen reader description noting that the Absolute Value graph opens upward (positive slope).',
+  },
+  srAbsoluteValueOpensDown: {
+    message: 'The graph opens downward.',
+    context:
+      'Screen reader description noting that the Absolute Value graph opens downward (negative slope).',
+  },
+  srAbsoluteValueVertex: {
+    message: 'Vertex is at { x } comma { y }.',
+    context:
+      'Screen reader description of the vertex location of the Absolute Value function in the interactive graph widget.',
+  },
+  srAbsoluteValueVertexOrigin: {
+    message: 'Vertex is at the origin.',
+    context:
+      'Screen reader description of the vertex of the Absolute Value function when it sits exactly at the origin (0, 0).',
+  },
+  srAbsoluteValueTwoXIntercepts: {
+    message: 'The X-intercepts are at { intercept1 } comma 0 and { intercept2 } comma 0.',
+    context:
+      'Screen reader description of the two x-intercepts of the Absolute Value function in the interactive graph widget.',
+  },
+  srAbsoluteValueOneXIntercept: {
+    message: 'The X-intercept is at { intercept } comma 0.',
+    context:
+      'Screen reader description of the single x-intercept of the Absolute Value function in the interactive graph widget, used when the vertex sits on the x-axis.',
+  },
+  srAbsoluteValueYIntercept: {
+    message: 'The Y-intercept is at 0 comma { intercept }.',
+    context:
+      'Screen reader description of the y-intercept of the Absolute Value function in the interactive graph widget.',
   },
   srAbsoluteValueInteractiveElements: {
     message:
-      'Absolute value graph with vertex point at { point1X } comma { point1Y } and arm point at { point2X } comma { point2Y }.',
+      'Absolute value graph with vertex point at { point1X } comma { point1Y }, arm point at { point2X } comma { point2Y } and slope of { slope }.',
     context:
       'Screen reader description of all the elements available to interact with within the Absolute Value function in the interactive graph widget.',
   },
   srTangentGraph: {
-    message: 'A tangent function on a coordinate plane.',
+    message: 'A tangent curve on a coordinate plane.',
     context:
       'Aria label for the container containing a Tangent function in the interactive graph widget.',
   },
@@ -705,15 +866,42 @@ export default createTranslator('PerseusInternalMessages', {
     context:
       'Aria label for the Point defining the inflection point of the Tangent function in the interactive graph widget.',
   },
-  srTangentSecondPoint: {
+  srTangentInflectionPointWithLabel: {
+    message: 'Inflection point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the Point defining the inflection point of the Tangent function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
+  srTangentControlPoint: {
     message: 'Control point at { x } comma { y }.',
     context:
       'Aria label for the second control point of the Tangent function in the interactive graph widget.',
   },
-  srTangentDescription: {
+  srTangentControlPointWithLabel: {
+    message: 'Control point { pointLabel } at { x } comma { y }.',
+    context:
+      "Aria label for the second control point of the Tangent function in the interactive graph widget. %(pointLabel)s is an author-provided custom label for the point (e.g. 'A').",
+  },
+  srTangentDescriptionPoints: {
     message:
-      'The graph shows a tangent function with an inflection point at { inflectionX } comma { inflectionY }.',
-    context: 'Screen reader description of the Tangent function in the interactive graph widget.',
+      'The curve passes through an inflection point at { inflectionX } comma { inflectionY } and a control point at { controlX } comma { controlY }.',
+    context:
+      'Screen reader description of the Tangent function in the interactive graph widget, naming the inflection point and the control point the curve passes through.',
+  },
+  srTangentIncreasing: {
+    message: 'The curve increases through the inflection point, repeating every { period } units.',
+    context:
+      'Screen reader description of the Tangent function in the interactive graph widget. Variant for a curve that increases through the inflection point. The period is how often the curve repeats, in graph units.',
+  },
+  srTangentDecreasing: {
+    message: 'The curve decreases through the inflection point, repeating every { period } units.',
+    context:
+      'Screen reader description of the Tangent function in the interactive graph widget. Variant for a curve that decreases through the inflection point. The period is how often the curve repeats, in graph units.',
+  },
+  srTangentAsymptotes: {
+    message:
+      'The nearest vertical asymptotes are at x equals { leftAsymptote } and x equals { rightAsymptote }.',
+    context:
+      'Screen reader description of the two nearest vertical asymptotes of the Tangent function in the interactive graph widget, one on either side of the inflection point.',
   },
   srTangentInteractiveElements: {
     message:
@@ -729,6 +917,7 @@ export default createTranslator('PerseusInternalMessages', {
   imageResetZoomAriaLabel: 'Close image.',
   gifPlayButtonLabel: 'Play Animation',
   gifPauseButtonLabel: 'Pause Animation',
+  definitionIdentifier: 'Definition of: { word }',
   fingerTap: 'Tap with one or two fingers to open keyboard',
   before: 'before { obj }',
   after: 'after { obj }',
@@ -812,6 +1001,10 @@ export default createTranslator('PerseusInternalMessages', {
   customExponent: {
     message: 'Custom exponent',
     context: 'A label for a button that will allow the user to input a custom exponent.',
+  },
+  subscript: {
+    message: 'Subscript',
+    context: 'A label for a button that will allow the user to input a subscript.',
   },
   square: {
     message: 'Square',

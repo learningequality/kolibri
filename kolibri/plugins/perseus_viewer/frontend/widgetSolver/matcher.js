@@ -1,6 +1,4 @@
-export default (widget, rubric) => {
-  widget.props.handleUserInput({
-    left: rubric.left,
-    right: rubric.right,
-  });
-};
+export default rubric => ({
+  left: rubric.left,
+  right: rubric.right,
+});

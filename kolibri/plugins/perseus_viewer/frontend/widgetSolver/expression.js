@@ -1,5 +1,5 @@
-export default (widget, rubric) => {
+export default rubric => {
   const correct = rubric.answerForms.find(answer => answer.considered === 'correct');
   // Expression user input is a plain string
-  widget.props.handleUserInput(correct.value);
+  return correct.value;
 };
