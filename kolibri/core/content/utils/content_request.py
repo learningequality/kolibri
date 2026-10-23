@@ -62,7 +62,6 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
 from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
 from kolibri.utils.file_transfer import retry_import
-from kolibri.utils.file_transfer import RETRY_STATUS_CODE
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -774,10 +773,7 @@ class _PeerUnreachable(Exception):
 
 def _peer_unreachable(error):
     if isinstance(error, NetworkLocationResponseFailure):
-        return (
-            error.response is not None
-            and error.response.status_code in RETRY_STATUS_CODE
-        )
+        return retry_import(error.__cause__)
     return isinstance(error, _PEER_UNREACHABLE_ERRORS) or retry_import(error)
 
 

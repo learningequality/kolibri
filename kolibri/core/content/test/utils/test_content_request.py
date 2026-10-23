@@ -20,6 +20,7 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from rest_framework.test import APIClient
+from urllib3.exceptions import ProtocolError
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -2508,6 +2509,24 @@ class MetadataImportBackoffTestCase(BaseQuerysetTestCase):
         download.refresh_from_db()
         self.assertEqual(download.failure_count, 1)
         self.assertEqual(download.retry_after, _NOW + timedelta(hours=1))
+
+    def test_body_dropped__not_backed_off(self, *_mocks):
+        def drops_body(url):
+            response = _http_response(url)
+            response._content = False
+            response.raw.stream.side_effect = ProtocolError()
+            return response
+
+        self.peer_servers[urlparse(self.peer.base_url).netloc] = _kolibri_peer(
+            drops_body
+        )
+        download = self._create_download(source_instance_id=self.peer.instance_id)
+
+        process_content_requests()
+
+        download.refresh_from_db()
+        self.assertEqual(download.failure_count, 0)
+        self.assertIsNone(download.retry_after)
 
     def test_only_peer_times_out__not_backed_off(self, *_mocks):
         self.peer_servers[urlparse(self.peer.base_url).netloc] = _kolibri_peer(
