@@ -4,7 +4,6 @@
     :is="contentNodeRoute ? 'KRouterLink' : 'div'"
     :to="contentNodeRoute"
     class="resource-item"
-    :data-focus="contentNodeRoute ? 'true' : undefined"
   >
     <ResourceLabel
       v-if="size === 'small'"

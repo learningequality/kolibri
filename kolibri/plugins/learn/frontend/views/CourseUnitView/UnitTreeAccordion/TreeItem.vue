@@ -6,7 +6,6 @@
   >
     <button
       class="tree-item"
-      data-focus="true"
       :disabled="disabled"
       @click="$emit('click')"
     >

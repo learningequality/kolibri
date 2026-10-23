@@ -654,11 +654,12 @@
 
       &:focus {
         color: var(--palette-blue-v500);
+        background-color: var(--palette-blue-v100);
         border-left: 3px solid var(--palette-blue-v500);
         outline: unset;
 
         .unit-icons {
-          fill: var(--palette-blue-v500);
+          fill: var(--palette-blue-v500) !important;
         }
       }
 
@@ -668,9 +669,10 @@
 
       &:hover {
         color: var(--palette-blue-v500);
+        background-color: var(--palette-blue-v100);
 
         .unit-icons {
-          fill: var(--palette-blue-v500);
+          fill: var(--palette-blue-v500) !important;
         }
       }
     }
