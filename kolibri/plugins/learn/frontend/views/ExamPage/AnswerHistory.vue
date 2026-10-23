@@ -70,9 +70,9 @@
                 class="list-item"
               >
                 <button
-                  :class="buttonClass(question.item)"
-                  :disabled="question.item === questionItem"
                   class="clickable"
+                  :class="{ 'current-question': question.item === questionItem }"
+                  :disabled="question.item === questionItem"
                   @click="$emit('goToQuestion', section.startQuestionNumber + qIndex)"
                 >
                   <KIcon
@@ -256,21 +256,6 @@
         const attempt = this.pastattempts.find(attempt => attempt.item === question.item);
         return attempt && attempt.answer;
       },
-      buttonClass(item) {
-        if (this.questionItem === item) {
-          return this.$computedClass({
-            color: this.$themeTokens.text,
-            backgroundColor: this.$themeTokens.surface,
-            border: `2px solid ${this.$themeTokens.primary}`,
-          });
-        }
-        return this.$computedClass({
-          backgroundColor: this.$themeTokens.surface,
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_200,
-          },
-        });
-      },
     },
   };
 
@@ -301,10 +286,21 @@
     text-align: left;
     cursor: pointer;
     user-select: none;
+    background-color: var(--tokens-surface);
     border: 0;
     border-radius: 4px;
     outline-offset: -2px;
     transition: background-color $core-time;
+
+    &:hover {
+      background-color: var(--palette-grey-v200);
+    }
+
+    &.current-question {
+      color: var(--tokens-text);
+      background-color: var(--tokens-surface);
+      border: 2px solid var(--tokens-primary);
+    }
   }
 
   .dot {

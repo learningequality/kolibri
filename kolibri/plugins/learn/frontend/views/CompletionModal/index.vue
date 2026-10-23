@@ -83,7 +83,6 @@
                 v-if="nextContentNode"
                 ref="nextContentNodeSection"
                 icon="forwardRounded"
-                :class="sectionClass"
                 :title="$tr('moveOnTitle')"
                 :description="$tr('moveOnDescription')"
                 :buttonLabel="$tr('moveOnButtonLabel')"
@@ -98,7 +97,6 @@
               <CompletionModalSection
                 ref="staySection"
                 :icon="isQuiz || isSurvey ? 'reports' : 'restart'"
-                :class="sectionClass"
                 :title="staySectionTitle"
                 :description="staySectionDescription"
                 :buttonLabel="
@@ -110,7 +108,6 @@
               <CompletionModalSection
                 v-if="recommendedContentNodes && recommendedContentNodes.length"
                 icon="alternativeRoute"
-                :class="sectionClass"
                 :title="$tr('helpfulResourcesTitle')"
                 :description="$tr('helpfulResourcesDescription')"
               >
@@ -305,13 +302,6 @@
           overflowX: 'hidden',
           padding: this.windowBreakpoint < 2 ? '0 24px' : '0 54px',
         };
-      },
-      sectionClass() {
-        return this.$computedClass({
-          ':not(:last-child)': {
-            borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
-          },
-        });
       },
       recommendedResourceItemSize() {
         if (this.windowBreakpoint > 1) {

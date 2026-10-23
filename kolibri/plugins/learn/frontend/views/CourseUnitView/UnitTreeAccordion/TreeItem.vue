@@ -6,7 +6,6 @@
   >
     <button
       class="tree-item"
-      :class="$computedClass({ ':focus': $coreOutline })"
       :disabled="disabled"
       @click="$emit('click')"
     >

@@ -8,9 +8,9 @@
       class="list-item"
     >
       <button
-        :class="buttonClass(index)"
-        :disabled="questionNumber === index"
         class="clickable"
+        :class="{ 'current-question': questionNumber === index }"
+        :disabled="questionNumber === index"
         @click="$emit('goToQuestion', index)"
       >
         <KIcon
@@ -88,17 +88,6 @@
         const attempt = this.pastattempts.find(attempt => attempt.item === question);
         return attempt && attempt.answer;
       },
-      buttonClass(index) {
-        if (this.questionNumber === index) {
-          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_200 });
-        }
-        return this.$computedClass({
-          backgroundColor: this.$themeTokens.surface,
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_200,
-          },
-        });
-      },
     },
     $trs: {
       question: {
@@ -136,10 +125,19 @@
     width: 100%;
     text-align: left;
     user-select: none;
+    background-color: var(--tokens-surface);
     border: 0;
     border-radius: 4px;
     outline-offset: -2px;
     transition: background-color $core-time;
+
+    &:hover {
+      background-color: var(--palette-grey-v200);
+    }
+
+    &.current-question {
+      background-color: var(--palette-grey-v200);
+    }
   }
 
   .dot {
