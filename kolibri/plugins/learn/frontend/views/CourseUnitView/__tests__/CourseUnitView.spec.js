@@ -4,11 +4,13 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import Modalities from 'kolibri-constants/Modalities';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
 
 const { previousLabel$, nextLabel$ } = coursesStrings;
+const { goBackAction$ } = coreStrings;
 
 const mockPreviousRouteRef = { value: null };
 
@@ -413,6 +415,18 @@ describe('CourseUnitView', () => {
         params: { courseSessionId: COURSE_ID },
       });
       expect(router.back).not.toHaveBeenCalled();
+    });
+
+    it('has an accessible name on the back button', async () => {
+      const wrapper = renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_1,
+        resourceId: RESOURCE_1,
+      });
+
+      const backButton = await wrapper.findByTestId('course-back-button');
+
+      expect(backButton).toHaveAccessibleName(goBackAction$());
     });
   });
 
