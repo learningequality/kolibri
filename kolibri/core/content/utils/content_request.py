@@ -1,5 +1,6 @@
 import logging
 import uuid
+from collections import defaultdict
 from collections import deque
 from datetime import timedelta
 from itertools import chain
@@ -684,12 +685,23 @@ def _assigned_descendant_ids(assignments, contentnode_ids):
 
 
 def _delete_unassigned_failed_downloads():
-    failed_downloads = ContentDownloadRequest.objects.filter(
+    downloads_by_source = defaultdict(list)
+    for (
+        download_id,
+        source_model,
+        source_id,
+        contentnode_id,
+        channel_version,
+    ) in ContentDownloadRequest.objects.filter(
         reason=ContentRequestReason.SyncInitiated, failure_count__gt=0
-    )
+    ).values_list(
+        "id", "source_model", "source_id", "contentnode_id", "channel_version"
+    ):
+        downloads_by_source[(source_model, source_id)].append(
+            (download_id, _uuid_to_hex(contentnode_id), channel_version or 0)
+        )
     unassigned_ids = []
-    sources = failed_downloads.order_by().values_list("source_model", "source_id")
-    for source_model, source_id in sources.distinct():
+    for (source_model, source_id), source_downloads in downloads_by_source.items():
         assignments = ContentAssignmentManager.find_source_downloadable_assignments(
             source_model, source_id
         )
@@ -697,12 +709,6 @@ def _delete_unassigned_failed_downloads():
             (_uuid_to_hex(assignment.contentnode_id), assignment.channel_version or 0)
             for assignment in assignments
         }
-        source_downloads = [
-            (download_id, _uuid_to_hex(contentnode_id), channel_version or 0)
-            for download_id, contentnode_id, channel_version in failed_downloads.filter(
-                source_model=source_model, source_id=source_id
-            ).values_list("id", "contentnode_id", "channel_version")
-        ]
         descendant_ids = _assigned_descendant_ids(
             assignments, [contentnode_id for _, contentnode_id, _ in source_downloads]
         )
