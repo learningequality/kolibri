@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--
-        Minimal AppCompat theme - satisfies Android requirements but stays invisible.
-        All visual theming is handled by Kolibri's web interface.
+        Minimal theme - satisfies Android requirements but stays invisible.
+        All visual theming is handled by Kolibri's web interface, apart from the server switcher.
     -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
         <!-- White window background for most screens -->
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="bottomSheetDialogTheme">@style/ServerSheetTheme</item>
+        <item name="materialAlertDialogTheme">@style/ServerAlertDialogTheme</item>
+    </style>
+
+    <style name="ServerAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorSurface">@android:color/white</item>
+        <item name="colorOnSurface">@android:color/black</item>
+    </style>
+
+    <style name="ServerSheetTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="colorPrimary">@color/brand_primary</item>
+    </style>
+
+    <style name="ServerChipTheme" parent="ThemeOverlay.MaterialComponents.Light">
+        <item name="colorPrimary">@color/brand_primary</item>
     </style>
 
     <!--

@@ -7,6 +7,7 @@ from Java via KolibriServerService.
 
 import logging
 import socket
+import threading
 
 from auth import get_os_user_auth_token
 from magicbus.plugins import SimplePlugin
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Module-level reference to the running server bus (for shutdown)
 _server_bus = None
+_server_bus_lock = threading.Lock()
 
 
 class AppPlugin(SimplePlugin):
@@ -119,13 +121,16 @@ class AndroidKolibriProcessBus(BaseKolibriProcessBus):
         self.transition("EXITED")
 
 
-def start_server(port=0):
+def start_server(port, stop_requested):
     """
     Start the Kolibri HTTP server
     Called from Java KolibriServerService
 
     port is a port to try to reuse (the live page's); 0 means there is none, and the
     HTTP_PORT option decides.
+
+    stop_requested is the Java AtomicBoolean the service sets before calling
+    stop_server for this start.
 
     Runs HTTP server for both local WebView (via Service Worker)
     and remote peer connections. Blocks until server stops.
@@ -148,16 +153,21 @@ def start_server(port=0):
     # RunningException if that port is occupied.
     logger.info("Creating Kolibri server bus")
     bus = AndroidKolibriProcessBus(port=_resolve_server_port(port))
-    _server_bus = bus
+    with _server_bus_lock:
+        if stop_requested.get():
+            logger.info("Kolibri server stopped before it started")
+            return
+        _server_bus = bus
 
     try:
         logger.info("Starting Kolibri server")
         # Note: This blocks until server stops
         bus.run()
     finally:
-        _server_bus = None
-        # Reset server state in ViewModel
-        KolibriServerViewModel.getInstance().resetServerState()
+        with _server_bus_lock:
+            if _server_bus is bus:
+                _server_bus = None
+                KolibriServerViewModel.getInstance().resetServerState()
 
 
 def stop_server():
@@ -165,12 +175,13 @@ def stop_server():
     Stop the Kolibri HTTP server
     Called from Java KolibriServerService.onDestroy()
     """
-    global _server_bus
+    with _server_bus_lock:
+        bus = _server_bus
 
-    if _server_bus is not None:
+    if bus is not None:
         logger.info("Stopping Kolibri server")
         try:
-            _server_bus.stop()
+            bus.stop()
         except Exception as e:
             logger.exception("Error stopping server: %s", e)
     else:
