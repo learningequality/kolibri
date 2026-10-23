@@ -2691,6 +2691,14 @@ class DeleteUnassignedFailedDownloadsTestCase(BaseQuerysetTestCase):
             )
         )
 
+    def test_legacy_course_node_without_channel_version__kept(self, *_mocks):
+        CourseSession.objects.filter(id=self.course_session.id).update(
+            channel_version=0
+        )
+        self._assert_kept(
+            self._create_failed_download(self.course_session, self.course_node.id)
+        )
+
     def test_course_descendant_under_assigned_course__kept(self, *_mocks):
         self._assert_kept(
             self._create_failed_download(self.course_session, self.course_descendant.id)
