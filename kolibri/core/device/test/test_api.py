@@ -7,6 +7,7 @@ from datetime import timedelta
 from unittest import mock
 from unittest.mock import patch
 
+import ifaddr
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.core.exceptions import ValidationError
@@ -40,6 +41,7 @@ from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import app_initialize_url
+from kolibri.core.discovery.models import LocalHostname
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -47,6 +49,10 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
 DUMMY_PASSWORD = "password"
+
+
+def _adapter(name, *ips, prefix=24):
+    return ifaddr.Adapter(name, name, [ifaddr.IP(ip, prefix, name) for ip in ips])
 
 
 class DeviceSettingsTestCase(APITestCase):
@@ -232,23 +238,42 @@ class DeviceInfoTestCase(APITestCase):
             # Make sure each url is a valid link
             self.assertTrue(url.startswith("http://"))
 
-    @patch(
-        "kolibri.core.device.viewsets.device_info.get_urls",
-        return_value=(1, ["http://127.0.0.1:8000", "http://kolibri.com"]),
-    )
-    def test_no_localhost_urls_when_others_available(self, get_urls_mock):
-        response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
-        self.assertEqual(len(response.data["urls"]), 1)
-        self.assertEqual(response.data["urls"][0], "http://kolibri.com")
+    def _get_urls_with_adapters(self, adapters):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pid_file = os.path.join(tmpdir, "server.pid")
+            with open(pid_file, "w") as f:
+                f.write(f"{os.getpid()}\n8080\n8081\n0\n")
+            with patch("kolibri.utils.server.PID_FILE", pid_file), patch(
+                "kolibri.utils.server.ifaddr.get_adapters", return_value=adapters
+            ), patch(
+                "kolibri.utils.server.get_outgoing_interface_address",
+                return_value=None,
+            ), override_option("Deployment", "LISTEN_ADDRESS", "0.0.0.0"):
+                response = self.client.get(
+                    reverse("kolibri:core:deviceinfo"), format="json"
+                )
+        return response.data["urls"]
 
-    @patch(
-        "kolibri.core.device.viewsets.device_info.get_urls",
-        return_value=(1, ["http://127.0.0.1:8000"]),
-    )
-    def test_localhost_urls_when_no_others_available(self, get_urls_mock):
-        response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
-        self.assertEqual(len(response.data["urls"]), 1)
-        self.assertEqual(response.data["urls"][0], "http://127.0.0.1:8000")
+    def test_no_localhost_urls_when_others_available(self):
+        urls = self._get_urls_with_adapters(
+            [
+                _adapter("lo", "127.0.0.1", prefix=8),
+                _adapter("eth0", "10.0.0.5"),
+            ]
+        )
+        self.assertEqual(urls, ["http://10.0.0.5:8080/"])
+
+    def test_localhost_urls_when_no_others_available(self):
+        urls = self._get_urls_with_adapters([_adapter("lo", "127.0.0.1", prefix=8)])
+        self.assertEqual(urls, ["http://127.0.0.1:8080/"])
+
+    @patch("kolibri.utils.server.PID_FILE", "/nonexistent/server.pid")
+    def test_no_urls_falls_back_to_request_url_with_prefix(self):
+        with override_option("Deployment", "URL_PATH_PREFIX", "kolibri/"):
+            response = self.client.get(
+                reverse("kolibri:core:deviceinfo"), SERVER_NAME="10.0.0.2"
+            )
+        self.assertEqual(response.data["urls"], ["http://10.0.0.2/kolibri/"])
 
     def test_database_path(self):
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
@@ -302,6 +327,161 @@ class DeviceInfoTestCase(APITestCase):
         )
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
         self.assertEqual(response.status_code, 200)
+
+
+class ConnectionUrlsTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        DatabaseIDModel.objects.create()
+        cls.facility = FacilityFactory.create()
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
+        clear_process_cache()
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        self.pid_file = os.path.join(tmpdir.name, "server.pid")
+        with open(self.pid_file, "w") as f:
+            f.write(f"{os.getpid()}\n8080\n8081\n0\n")
+        pid_file_patch = patch("kolibri.utils.server.PID_FILE", self.pid_file)
+        pid_file_patch.start()
+        self.addCleanup(pid_file_patch.stop)
+
+    def _login(self, user):
+        self.client.login(
+            username=user.username, password=DUMMY_PASSWORD, facility=self.facility
+        )
+
+    def _get(self, **extra):
+        return self.client.get(reverse("kolibri:core:connectionurls-list"), **extra)
+
+    def _get_data(self, adapters):
+        self._login(self.superuser)
+        with patch(
+            "kolibri.utils.server.ifaddr.get_adapters", return_value=adapters
+        ), patch(
+            "kolibri.utils.server.get_outgoing_interface_address", return_value=None
+        ):
+            return self._get(HTTP_HOST="127.0.0.1:8080").data
+
+    def _get_urls(self, adapters):
+        return [entry["url"] for entry in self._get_data(adapters)]
+
+    def test_superuser_allowed(self):
+        self._login(self.superuser)
+        self.assertEqual(self._get().status_code, 200)
+
+    def test_facility_admin_allowed(self):
+        admin = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_admin(admin)
+        self._login(admin)
+        self.assertEqual(self._get().status_code, 200)
+
+    def test_facility_coach_allowed(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(coach)
+        self._login(coach)
+        self.assertEqual(self._get().status_code, 200)
+
+    def test_class_coach_allowed(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.classroom.add_coach(coach)
+        self._login(coach)
+        self.assertEqual(self._get().status_code, 200)
+
+    def test_learner_denied(self):
+        learner = FacilityUserFactory.create(facility=self.facility)
+        self._login(learner)
+        self.assertEqual(self._get().status_code, 403)
+
+    def test_anonymous_denied(self):
+        self.assertEqual(self._get().status_code, 403)
+
+    def test_flags_local_hostnames_and_drops_loopback(self):
+        LocalHostname.objects.create(hostname="kolibri.local")
+        data = self._get_data(
+            [
+                _adapter("lo", "127.0.0.1", prefix=8),
+                _adapter("eth0", "192.168.1.5"),
+            ]
+        )
+        self.assertEqual(
+            data,
+            [
+                {"url": "http://192.168.1.5:8080/", "is_local_hostname": False},
+                {"url": "http://kolibri.local:8080/", "is_local_hostname": True},
+            ],
+        )
+
+    def test_only_loopback_urls_returns_empty_list(self):
+        urls = self._get_urls([_adapter("lo", "127.0.0.1", prefix=8)])
+        self.assertEqual(urls, [])
+
+    def test_local_hostnames_without_lan_address_returns_empty_list(self):
+        LocalHostname.objects.create(hostname="kolibri.local")
+        LocalHostname.objects.create(hostname="lab.kolibri.local")
+        urls = self._get_urls([_adapter("lo", "127.0.0.1", prefix=8)])
+        self.assertEqual(urls, [])
+
+    def test_loopback_listen_address_falls_back_to_network_request_url(self):
+        self._login(self.superuser)
+        with override_option("Deployment", "LISTEN_ADDRESS", "127.0.0.1"):
+            response = self._get(HTTP_HOST="kolibri.school.example")
+        self.assertEqual(
+            response.data,
+            [{"url": "http://kolibri.school.example/", "is_local_hostname": False}],
+        )
+
+    def test_drops_every_loopback_address(self):
+        urls = self._get_urls(
+            [
+                _adapter("lo", "127.0.0.1", "127.0.1.1", prefix=8),
+                _adapter("eth0", "192.168.1.5"),
+            ]
+        )
+        self.assertEqual(urls, ["http://192.168.1.5:8080/"])
+
+    def test_urls_include_url_path_prefix(self):
+        LocalHostname.objects.create(hostname="kolibri.local")
+        with override_option("Deployment", "URL_PATH_PREFIX", "kolibri/"):
+            urls = self._get_urls([_adapter("eth0", "192.168.1.5")])
+        self.assertEqual(
+            urls,
+            ["http://192.168.1.5:8080/kolibri/", "http://kolibri.local:8080/kolibri/"],
+        )
+
+    def test_ip_urls_ordered_with_container_and_vpn_networks_last(self):
+        urls = self._get_urls(
+            [
+                _adapter("docker0", "172.17.0.1", prefix=16),
+                _adapter("tun0", "10.8.0.2"),
+                _adapter("eth0", "192.168.1.5"),
+            ]
+        )
+        self.assertEqual(
+            urls,
+            [
+                "http://192.168.1.5:8080/",
+                "http://10.8.0.2:8080/",
+                "http://172.17.0.1:8080/",
+            ],
+        )
+
+    def test_no_urls_falls_back_to_request_url_with_prefix(self):
+        os.remove(self.pid_file)
+        self._login(self.superuser)
+        with override_option("Deployment", "URL_PATH_PREFIX", "kolibri/"):
+            response = self.client.get(
+                reverse("kolibri:core:connectionurls-list"), SERVER_NAME="10.0.0.2"
+            )
+        self.assertEqual(
+            response.data,
+            [{"url": "http://10.0.0.2/kolibri/", "is_local_hostname": False}],
+        )
 
 
 class DeviceNameTestCase(APITestCase):

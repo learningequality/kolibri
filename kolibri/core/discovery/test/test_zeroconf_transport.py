@@ -4,6 +4,7 @@ import time
 import uuid
 from unittest import mock
 
+import ifaddr
 import pytest
 from django.test import SimpleTestCase
 from django.test import TestCase
@@ -24,8 +25,6 @@ from ..utils.network.broadcast import SERVICE_TYPE
 from ..utils.network.search import NetworkLocationListener
 from ..utils.network.zeroconf_transport import BARE_LOCAL_LABEL
 from ..utils.network.zeroconf_transport import EVENT_UPDATE_LOCAL_NAMES
-from ..utils.network.zeroconf_transport import filter_lan_addresses
-from ..utils.network.zeroconf_transport import get_outgoing_interface_address
 from ..utils.network.zeroconf_transport import LOCAL_NAME_BARE
 from ..utils.network.zeroconf_transport import LOCAL_NAME_DEVICE
 from ..utils.network.zeroconf_transport import slugify_device_name
@@ -50,7 +49,15 @@ LOOPBACK_IP = "127.0.0.1"
 DISCOVERY_TIMEOUT = 15
 PEER_SERVICE_NAME = f"peer.{SERVICE_TYPE}"
 ZEROCONF_MODULE = "kolibri.core.discovery.utils.network.zeroconf_transport."
+SERVER_MODULE = "kolibri.utils.server."
 ZEROCONF_NEEDS_UPDATE = getattr(Zeroconf, "update_interfaces", None) is None
+
+
+def build_adapters(*names_and_ips):
+    return [
+        ifaddr.Adapter(name, name, [ifaddr.IP(ip, 24, name)])
+        for name, ip in names_and_ips
+    ]
 
 
 class SlugifyDeviceNameTestCase(SimpleTestCase):
@@ -71,45 +78,6 @@ class SlugifyDeviceNameTestCase(SimpleTestCase):
 
     def test_long_name_truncated_to_max_label_length(self):
         self.assertEqual("a" * 32, slugify_device_name("a" * 64))
-
-
-class FilterLanAddressesTestCase(SimpleTestCase):
-    def test_keeps_rfc1918_addresses(self):
-        self.assertEqual([MOCK_LAN_IP], filter_lan_addresses([MOCK_LAN_IP]))
-
-    def test_excludes_cgnat_addresses(self):
-        self.assertEqual([], filter_lan_addresses([MOCK_CGNAT_IP]))
-
-    def test_excludes_link_local_addresses(self):
-        self.assertEqual([], filter_lan_addresses([MOCK_LINK_LOCAL_IP]))
-
-    def test_excludes_loopback_addresses(self):
-        self.assertEqual([], filter_lan_addresses(["127.0.0.1"]))
-
-    def test_excludes_public_addresses(self):
-        self.assertEqual([], filter_lan_addresses(["8.8.8.8"]))
-
-    def test_mixed_addresses_keeps_only_lan(self):
-        self.assertEqual(
-            [MOCK_LAN_IP],
-            filter_lan_addresses([MOCK_CGNAT_IP, MOCK_LINK_LOCAL_IP, MOCK_LAN_IP]),
-        )
-
-
-class GetOutgoingInterfaceAddressTestCase(SimpleTestCase):
-    @mock.patch(ZEROCONF_MODULE + "socket.socket")
-    def test_returns_routing_table_source_address(self, mock_socket):
-        sock = mock_socket.return_value
-        sock.getsockname.return_value = (MOCK_LAN_IP, 9)
-        self.assertEqual(MOCK_LAN_IP, get_outgoing_interface_address())
-        sock.close.assert_called_once_with()
-
-    @mock.patch(ZEROCONF_MODULE + "socket.socket")
-    def test_returns_none_when_no_default_route(self, mock_socket):
-        sock = mock_socket.return_value
-        sock.connect.side_effect = OSError()
-        self.assertIsNone(get_outgoing_interface_address())
-        sock.close.assert_called_once_with()
 
 
 LOCAL_HOSTNAMES_MODULE = "kolibri.core.discovery.utils.network.local_hostnames."
@@ -149,11 +117,27 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
         )
         get_all_addresses_patcher.start()
         self.addCleanup(get_all_addresses_patcher.stop)
+        adapters_patcher = mock.patch(
+            SERVER_MODULE + "ifaddr.get_adapters",
+            return_value=build_adapters(("wlan0", MOCK_LAN_IP)),
+        )
+        self.mock_get_adapters = adapters_patcher.start()
+        self.addCleanup(adapters_patcher.stop)
+        multicast_addresses_patcher = mock.patch(
+            "zeroconf.get_all_addresses",
+            side_effect=lambda: [
+                ip.ip
+                for adapter in self.mock_get_adapters.return_value
+                for ip in adapter.ips
+            ],
+        )
+        multicast_addresses_patcher.start()
+        self.addCleanup(multicast_addresses_patcher.stop)
         # Default to "no default route" so tests don't open a real socket and
         # address selection falls back to the LAN-filtered addresses. Tests
         # exercising the outgoing-interface preference override this.
         outgoing_patcher = mock.patch(
-            ZEROCONF_MODULE + "get_outgoing_interface_address", return_value=None
+            SERVER_MODULE + "get_outgoing_interface_address", return_value=None
         )
         self.mock_outgoing_interface_address = outgoing_patcher.start()
         self.addCleanup(outgoing_patcher.stop)
@@ -305,48 +289,63 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
             args=(["kolibri.local"],),
         )
 
-    @mock.patch(ZEROCONF_MODULE + "get_all_addresses")
-    def test_register__local_names_lan_address_selection(self, mock_get_all_addresses):
+    def _assert_bare_alias_address(self, expected_address):
+        self.transport.register(self.instance)
+        _, bare_service = self.transport.local_names[LOCAL_NAME_BARE]
+        self.assertEqual(expected_address, bare_service.address)
+
+    def test_register__local_names_lan_address_selection(self):
         self._prepare_register()
         cases = [
             (
-                [MOCK_CGNAT_IP, MOCK_LINK_LOCAL_IP, MOCK_LAN_IP],
+                [
+                    ("tailscale0", MOCK_CGNAT_IP),
+                    ("eth1", MOCK_LINK_LOCAL_IP),
+                    ("wlan0", MOCK_LAN_IP),
+                ],
                 socket.inet_aton(MOCK_LAN_IP),
             ),
-            ([MOCK_CGNAT_IP], None),
+            ([("tailscale0", MOCK_CGNAT_IP)], None),
         ]
-        for addresses, expected_address in cases:
-            mock_get_all_addresses.return_value = addresses
-            self.transport.register(self.instance)
-            _, bare_service = self.transport.local_names[LOCAL_NAME_BARE]
-            self.assertEqual(expected_address, bare_service.address)
+        for adapters, expected_address in cases:
+            self.mock_get_adapters.return_value = build_adapters(*adapters)
+            self._assert_bare_alias_address(expected_address)
 
-    @mock.patch(ZEROCONF_MODULE + "get_all_addresses")
-    def test_register__prefers_outgoing_interface_address(self, mock_get_all_addresses):
+    def test_register__prefers_outgoing_interface_address(self):
         # On a multi-homed host both RFC1918 addresses survive the LAN filter,
         # so we must advertise the default-route interface, not whichever one
         # sorts first. Reproduces the QA-reported case where a Docker-bridge
         # address was handed to LAN peers that couldn't reach it.
         self._prepare_register()
-        mock_get_all_addresses.return_value = [MOCK_SECONDARY_LAN_IP, MOCK_LAN_IP]
+        self.mock_get_adapters.return_value = build_adapters(
+            ("eth1", MOCK_SECONDARY_LAN_IP), ("wlan0", MOCK_LAN_IP)
+        )
         self.mock_outgoing_interface_address.return_value = MOCK_LAN_IP
-        self.transport.register(self.instance)
-        _, bare_service = self.transport.local_names[LOCAL_NAME_BARE]
-        self.assertEqual(socket.inet_aton(MOCK_LAN_IP), bare_service.address)
+        self._assert_bare_alias_address(socket.inet_aton(MOCK_LAN_IP))
 
-    @mock.patch(ZEROCONF_MODULE + "get_all_addresses")
-    def test_register__falls_back_when_outgoing_not_lan_reachable(
-        self, mock_get_all_addresses
-    ):
+    def test_register__falls_back_when_outgoing_not_lan_reachable(self):
         # If the outgoing interface isn't LAN-reachable (e.g. a VPN default
         # route filtered out as CGNAT), fall back to a LAN-filtered address
         # rather than advertising the unreachable one.
         self._prepare_register()
-        mock_get_all_addresses.return_value = [MOCK_CGNAT_IP, MOCK_LAN_IP]
+        self.mock_get_adapters.return_value = build_adapters(
+            ("tailscale0", MOCK_CGNAT_IP), ("wlan0", MOCK_LAN_IP)
+        )
         self.mock_outgoing_interface_address.return_value = MOCK_CGNAT_IP
-        self.transport.register(self.instance)
-        _, bare_service = self.transport.local_names[LOCAL_NAME_BARE]
-        self.assertEqual(socket.inet_aton(MOCK_LAN_IP), bare_service.address)
+        self._assert_bare_alias_address(socket.inet_aton(MOCK_LAN_IP))
+
+    def test_register__prefers_physical_adapter_over_vpn_default_route(self):
+        self._prepare_register()
+        self.mock_get_adapters.return_value = build_adapters(
+            ("tun0", "10.8.0.2"), ("wlan0", MOCK_LAN_IP)
+        )
+        self.mock_outgoing_interface_address.return_value = "10.8.0.2"
+        self._assert_bare_alias_address(socket.inet_aton(MOCK_LAN_IP))
+
+    def test_register__virtual_only_host_uses_virtual_adapter(self):
+        self._prepare_register()
+        self.mock_get_adapters.return_value = build_adapters(("docker0", "172.17.0.1"))
+        self._assert_bare_alias_address(socket.inet_aton("172.17.0.1"))
 
     def test_register__device_name_alias(self):
         self._register_with_device_name("Tony's Laptop")
@@ -380,13 +379,11 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
             set(self.listener.mock.update_local_names.call_args[0][0]),
         )
 
-    @mock.patch(ZEROCONF_MODULE + "get_all_addresses")
-    def test_renew__local_names_follow_lan_address_change(self, mock_get_all_addresses):
-        mock_get_all_addresses.return_value = [MOCK_LAN_IP]
+    def test_renew__local_names_follow_lan_address_change(self):
         self._register_with_device_name("Some Name")
 
         new_lan_ip = "192.168.1.9"
-        mock_get_all_addresses.return_value = [new_lan_ip]
+        self.mock_get_adapters.return_value = build_adapters(("wlan0", new_lan_ip))
         self.transport.renew()
 
         _, bare_service = self.transport.local_names[LOCAL_NAME_BARE]
@@ -709,6 +706,11 @@ class ZeroconfRebindTestCase(TestCase):
         self.get_all_addresses = self._patch(
             ZEROCONF_MODULE + "get_all_addresses", return_value=[LOOPBACK_IP]
         )
+        self._patch(
+            SERVER_MODULE + "ifaddr.get_adapters",
+            return_value=build_adapters(("lo", LOOPBACK_IP)),
+        )
+        self._patch(SERVER_MODULE + "get_outgoing_interface_address", return_value=None)
         self._patch(LOCAL_HOSTNAMES_MODULE + "sync_local_hostnames.enqueue")
         self._patch(
             "kolibri.core.discovery.tasks.perform_network_location_update.enqueue"

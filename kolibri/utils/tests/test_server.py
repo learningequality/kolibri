@@ -5,7 +5,9 @@ Tests for `kolibri.utils.server` module.
 import os
 from unittest import mock
 from unittest import TestCase
+from urllib.parse import urlparse
 
+import ifaddr
 import pytest
 
 from kolibri.core.discovery.models import LocalHostname
@@ -216,6 +218,29 @@ class GetUrlsTestCase(TestCase):
         self.assertEqual(["http://127.0.0.1:1234/"], urls)
 
     @mock.patch.object(server, "get_local_hostnames")
+    def test_get_urls__loopback_listen_address_omits_local_hostnames(
+        self, mock_hostnames
+    ):
+        mock_hostnames.return_value = ["kolibri.local"]
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "127.0.0.1"}):
+            _status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(["http://127.0.0.1:1234/"], urls)
+
+    @mock.patch.object(server, "get_local_hostnames")
+    @mock.patch.object(server, "get_outgoing_interface_address", return_value=None)
+    @mock.patch(
+        "kolibri.utils.server.ifaddr.get_adapters",
+        return_value=[ifaddr.Adapter("lo", "lo", [ifaddr.IP("127.0.0.1", 8, "lo")])],
+    )
+    def test_get_urls__no_lan_address_omits_local_hostnames(
+        self, _mock_adapters, _mock_outgoing, mock_hostnames
+    ):
+        mock_hostnames.return_value = ["kolibri.local"]
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}):
+            _status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(["http://127.0.0.1:1234/"], urls)
+
+    @mock.patch.object(server, "get_local_hostnames")
     @mock.patch.object(server, "_get_local_ips")
     def test_get_urls__local_hostnames_survive_ip_enumeration_failure(
         self, mock_ips, mock_hostnames
@@ -226,6 +251,322 @@ class GetUrlsTestCase(TestCase):
             status, urls = server.get_urls(listen_port=1234)
         self.assertEqual(server.STATUS_RUNNING, status)
         self.assertEqual(["http://kolibri.local:1234/"], urls)
+
+
+def _adapter(nice_name, ip, prefix=24, name=None):
+    return ifaddr.Adapter(
+        nice_name if name is None else name,
+        nice_name,
+        [ifaddr.IP(ip, prefix, nice_name)],
+    )
+
+
+def _adapter_ipv4s():
+    return [
+        ip.ip for adapter in ifaddr.get_adapters() for ip in adapter.ips if ip.is_IPv4
+    ]
+
+
+def _patch_multicast_addresses():
+    return mock.patch("zeroconf.get_all_addresses", side_effect=_adapter_ipv4s)
+
+
+def _windows_adapter(description, ip, prefix=24):
+    return _adapter(
+        description, ip, prefix, name=b"{4D36E972-E325-11CE-BFC1-08002BE10318}"
+    )
+
+
+class GetUrlsIpOrderTestCase(TestCase):
+    def setUp(self):
+        for patcher in (
+            mock.patch.object(server, "get_local_hostnames", return_value=[]),
+            mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}),
+            _patch_multicast_addresses(),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def test_ip_order(self):
+        cases = [
+            (
+                "windows bytes adapter name",
+                [_windows_adapter("Intel Wi-Fi", "192.168.1.20")],
+                None,
+                ["192.168.1.20"],
+            ),
+            (
+                "default route first",
+                [_adapter("eth0", "10.0.0.5"), _adapter("wlan0", "192.168.1.20")],
+                "192.168.1.20",
+                ["192.168.1.20", "10.0.0.5"],
+            ),
+            (
+                "loopback first",
+                [_adapter("wlan0", "192.168.1.20"), _adapter("lo", "127.0.0.1", 8)],
+                "192.168.1.20",
+                ["127.0.0.1", "192.168.1.20"],
+            ),
+            (
+                "vpn on default route after lan",
+                [_adapter("tun0", "10.8.0.2"), _adapter("wlan0", "192.168.1.20")],
+                "10.8.0.2",
+                ["192.168.1.20", "10.8.0.2"],
+            ),
+            (
+                "nordlynx on default route after lan",
+                [_adapter("nordlynx", "10.5.0.2"), _adapter("wlan0", "192.168.1.20")],
+                "10.5.0.2",
+                ["192.168.1.20", "10.5.0.2"],
+            ),
+            (
+                "windows nordlynx on default route after lan",
+                [
+                    _windows_adapter("NordLynx Tunnel", "10.5.0.2"),
+                    _windows_adapter("Intel Wi-Fi", "192.168.1.20"),
+                ],
+                "10.5.0.2",
+                ["192.168.1.20", "10.5.0.2"],
+            ),
+            (
+                "anyconnect on default route after lan",
+                [_adapter("cscotun0", "10.20.0.9"), _adapter("wlan0", "192.168.1.20")],
+                "10.20.0.9",
+                ["192.168.1.20", "10.20.0.9"],
+            ),
+            (
+                "windows anyconnect after lan",
+                [
+                    _windows_adapter(
+                        "Cisco AnyConnect Secure Mobility Client Virtual Miniport Adapter for Windows x64",
+                        "10.20.0.9",
+                    ),
+                    _windows_adapter("Intel Wi-Fi", "192.168.1.20"),
+                ],
+                None,
+                ["192.168.1.20", "10.20.0.9"],
+            ),
+            (
+                "zerotier after lan",
+                [
+                    _adapter("ztc3q4abcd", "10.147.17.5"),
+                    _adapter("wlan0", "192.168.1.20"),
+                ],
+                None,
+                ["192.168.1.20", "10.147.17.5"],
+            ),
+            (
+                "windows zerotier after lan",
+                [
+                    _windows_adapter("ZeroTier Virtual Port", "10.147.17.5"),
+                    _windows_adapter("Intel Wi-Fi", "192.168.1.20"),
+                ],
+                None,
+                ["192.168.1.20", "10.147.17.5"],
+            ),
+            (
+                "non-lan default route after lan",
+                [
+                    _adapter("tailscale0", "100.101.102.103", 32),
+                    _adapter("wlan0", "192.168.1.20"),
+                ],
+                "100.101.102.103",
+                ["192.168.1.20", "100.101.102.103"],
+            ),
+            (
+                "public address before virtual adapter",
+                [_adapter("docker0", "172.17.0.1", 16), _adapter("eth0", "8.8.8.8")],
+                None,
+                ["8.8.8.8", "172.17.0.1"],
+            ),
+            (
+                "windows virtual adapter after lan",
+                [
+                    _windows_adapter(
+                        "Hyper-V Virtual Ethernet Adapter", "172.27.144.1", 20
+                    ),
+                    _windows_adapter("Intel Wi-Fi", "192.168.1.20"),
+                ],
+                None,
+                ["192.168.1.20", "172.27.144.1"],
+            ),
+            (
+                "windows mobile hotspot not virtual",
+                [
+                    _windows_adapter("Intel Ethernet", "192.168.200.15"),
+                    _windows_adapter(
+                        "Microsoft Wi-Fi Direct Virtual Adapter", "192.168.137.1"
+                    ),
+                ],
+                None,
+                ["192.168.137.1", "192.168.200.15"],
+            ),
+            (
+                "docker network bridge after lan",
+                [
+                    _adapter("br-3f9a1c2b4d5e", "172.18.0.1", 16),
+                    _adapter("wlan0", "192.168.1.20"),
+                ],
+                None,
+                ["192.168.1.20", "172.18.0.1"],
+            ),
+            (
+                "openwrt lan bridge before wan",
+                [_adapter("br-lan", "192.168.1.1"), _adapter("eth1", "100.70.0.2", 10)],
+                "100.70.0.2",
+                ["192.168.1.1", "100.70.0.2"],
+            ),
+            (
+                "android hotspot before cellular default route",
+                [
+                    _adapter("rmnet_data0", "10.45.3.2"),
+                    _adapter("swlan0", "192.168.43.1"),
+                ],
+                "10.45.3.2",
+                ["192.168.43.1", "10.45.3.2"],
+            ),
+        ]
+        for description, adapters, outgoing_ip, expected_ips in cases:
+            with self.subTest(description), mock.patch.object(
+                server, "get_outgoing_interface_address", return_value=outgoing_ip
+            ), mock.patch(
+                "kolibri.utils.server.ifaddr.get_adapters", return_value=adapters
+            ):
+                _status, urls = server.get_urls(listen_port=1234)
+                self.assertEqual([urlparse(url).hostname for url in urls], expected_ips)
+
+    @mock.patch.object(
+        server, "get_outgoing_interface_address", return_value="10.45.3.2"
+    )
+    @mock.patch(
+        "kolibri.utils.server.ifaddr.get_adapters",
+        return_value=[
+            _adapter("lo", "127.0.0.1", 8),
+            _adapter("seth_lte0", "10.45.3.2"),
+            _adapter("wlan1", "192.168.43.1"),
+        ],
+    )
+    @mock.patch("zeroconf.get_all_addresses", return_value=["192.168.43.1"])
+    def test_non_multicast_adapter_after_multicast_adapter(self, *mocks):
+        _status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(
+            [urlparse(url).hostname for url in urls],
+            ["127.0.0.1", "192.168.43.1", "10.45.3.2"],
+        )
+
+
+@mock.patch.object(server, "get_outgoing_interface_address", return_value=None)
+@mock.patch(
+    "kolibri.utils.server.ifaddr.get_adapters",
+    return_value=[
+        ifaddr.Adapter("eth1", "eth1", [ifaddr.IP("10.0.0.5", 24, "eth1")]),
+        ifaddr.Adapter("wlan0", "wlan0", [ifaddr.IP("192.168.1.5", 24, "wlan0")]),
+    ],
+)
+@_patch_multicast_addresses()
+class GetLanAddressTestCase(TestCase):
+    def test_all_interfaces(self, *mocks):
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}):
+            self.assertEqual("10.0.0.5", server.get_lan_address())
+
+    def test_listen_address(self, *mocks):
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "192.168.1.5"}):
+            self.assertEqual("192.168.1.5", server.get_lan_address())
+
+    def test_loopback_listen_address(self, *mocks):
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "127.0.0.1"}):
+            self.assertIsNone(server.get_lan_address())
+
+
+@mock.patch.object(server, "get_outgoing_interface_address", return_value=None)
+class GetLanAddressAdapterOrderTestCase(TestCase):
+    def setUp(self):
+        for patcher in (
+            mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}),
+            _patch_multicast_addresses(),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def test_public_lan_adapter_over_docker_bridge(self, _mock_outgoing):
+        with mock.patch(
+            "kolibri.utils.server.ifaddr.get_adapters",
+            return_value=[
+                _adapter("docker0", "172.17.0.1", 16),
+                _adapter("eth0", "130.89.1.20", 16),
+            ],
+        ):
+            self.assertEqual("130.89.1.20", server.get_lan_address())
+
+    def test_only_virtual_adapter(self, _mock_outgoing):
+        with mock.patch(
+            "kolibri.utils.server.ifaddr.get_adapters",
+            return_value=[_adapter("docker0", "172.17.0.1", 16)],
+        ):
+            self.assertEqual("172.17.0.1", server.get_lan_address())
+
+    def test_cgnat_only(self, _mock_outgoing):
+        with mock.patch(
+            "kolibri.utils.server.ifaddr.get_adapters",
+            return_value=[_adapter("tailscale0", "100.101.102.103", 32)],
+        ):
+            self.assertIsNone(server.get_lan_address())
+
+    @mock.patch.object(server, "get_local_hostnames", return_value=[])
+    def test_first_ip_url_is_lan_address(self, _mock_hostnames, mock_outgoing):
+        cases = [
+            (
+                "public lan adapter over cgnat vpn on default route",
+                [
+                    _adapter("eth0", "130.89.1.20", 16),
+                    _adapter("tailscale0", "100.101.102.103", 32),
+                ],
+                "100.101.102.103",
+            ),
+            (
+                "public lan adapter over public vpn on default route",
+                [
+                    _adapter("eth0", "130.89.1.20", 16),
+                    _adapter("tailscale0", "203.0.113.7", 32),
+                ],
+                "203.0.113.7",
+            ),
+        ]
+        for description, adapters, outgoing_ip in cases:
+            mock_outgoing.return_value = outgoing_ip
+            with self.subTest(description), mock.patch(
+                "kolibri.utils.server.ifaddr.get_adapters", return_value=adapters
+            ):
+                _status, urls = server.get_urls(listen_port=1234)
+                self.assertEqual("http://130.89.1.20:1234/", urls[0])
+                self.assertEqual("130.89.1.20", server.get_lan_address())
+
+    @mock.patch.object(server, "get_local_hostnames", return_value=["kolibri.local"])
+    def test_get_urls_lists_hostnames_for_public_lan_adapter(self, *mocks):
+        with mock.patch(
+            "kolibri.utils.server.ifaddr.get_adapters",
+            return_value=[_adapter("eth0", "130.89.1.20", 16)],
+        ):
+            _status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(
+            ["http://130.89.1.20:1234/", "http://kolibri.local:1234/"], urls
+        )
+
+
+class GetOutgoingInterfaceAddressTestCase(TestCase):
+    @mock.patch("kolibri.utils.server.socket.socket")
+    def test_returns_routing_table_source_address(self, mock_socket):
+        sock = mock_socket.return_value
+        sock.getsockname.return_value = ("192.168.1.5", 9)
+        self.assertEqual("192.168.1.5", server.get_outgoing_interface_address())
+        sock.close.assert_called_once_with()
+
+    @mock.patch("kolibri.utils.server.socket.socket")
+    def test_returns_none_when_no_default_route(self, mock_socket):
+        sock = mock_socket.return_value
+        sock.connect.side_effect = OSError()
+        self.assertIsNone(server.get_outgoing_interface_address())
+        sock.close.assert_called_once_with()
 
 
 @mock.patch(
