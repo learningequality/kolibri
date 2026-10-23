@@ -3,16 +3,22 @@
   <div class="selected-language">
     <KIconButton
       icon="language"
-      :ariaLabel="changeLanguageLabel"
+      aria-hidden="true"
+      tabindex="-1"
       class="globe px-8"
       @click="$emit('click')"
     />
     <span
       class="no-shrink px-8"
-      aria-hidden="true"
       :title="selectedLanguage.english_name"
     >
-      {{ selectedLanguage.lang_name }}
+      <span
+        class="visuallyhidden"
+        data-testid="current-language-label"
+      >
+        {{ currentLanguageLabel$({ language: selectedLanguage.lang_name }) }}
+      </span>
+      <span aria-hidden="true">{{ selectedLanguage.lang_name }}</span>
     </span>
   </div>
 
@@ -21,25 +27,21 @@
 
 <script>
 
-  import { computed } from 'vue';
   import { createTranslator } from 'kolibri/utils/i18n';
 
   export const selectedLanguageStrings = createTranslator('SelectedLanguage', {
-    changeLanguageButtonLabel: {
-      message: 'Change language, currently {language}',
+    currentLanguageLabel: {
+      message: 'Current language, {language}',
       context:
-        'Accessible label for the control that opens the language switcher, stating the currently selected interface language.',
+        'Screen-reader-only label stating the interface language that is currently selected.',
     },
   });
 
   export default {
     name: 'SelectedLanguage',
-    setup(props) {
-      const { changeLanguageButtonLabel$ } = selectedLanguageStrings;
-      const changeLanguageLabel = computed(() =>
-        changeLanguageButtonLabel$({ language: props.selectedLanguage.lang_name }),
-      );
-      return { changeLanguageLabel };
+    setup() {
+      const { currentLanguageLabel$ } = selectedLanguageStrings;
+      return { currentLanguageLabel$ };
     },
     props: {
       selectedLanguage: {

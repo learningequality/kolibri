@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import SelectedLanguage, { selectedLanguageStrings } from '../SelectedLanguage';
 
-const { changeLanguageButtonLabel$ } = selectedLanguageStrings;
+const { currentLanguageLabel$ } = selectedLanguageStrings;
 
 const selectedLanguage = {
   id: 'en',
@@ -14,23 +14,27 @@ function renderComponent() {
 }
 
 describe('SelectedLanguage', () => {
-  it('exposes a focusable control with a non-empty accessible name, not hidden from assistive tech', () => {
+  it('keeps the decorative globe icon out of the tab order and hidden from assistive tech', () => {
     renderComponent();
 
-    const control = screen.getByRole('button', {
-      name: changeLanguageButtonLabel$({ language: 'English' }),
-    });
+    const control = screen.getByRole('button', { hidden: true });
 
-    expect(control).not.toHaveAttribute('aria-hidden');
-    expect(control).not.toHaveAttribute('tabindex', '-1');
+    expect(control).toHaveAttribute('aria-hidden', 'true');
+    expect(control).toHaveAttribute('tabindex', '-1');
   });
 
-  it('emits click when the control is activated', async () => {
+  it('announces the current language to screen readers', () => {
+    renderComponent();
+
+    expect(screen.getByTestId('current-language-label')).toHaveTextContent(
+      currentLanguageLabel$({ language: selectedLanguage.lang_name }),
+    );
+  });
+
+  it('emits click when the globe icon is activated', async () => {
     const { emitted } = renderComponent();
 
-    const control = screen.getByRole('button', {
-      name: changeLanguageButtonLabel$({ language: 'English' }),
-    });
+    const control = screen.getByRole('button', { hidden: true });
     await fireEvent.click(control);
 
     expect(emitted().click).toHaveLength(1);
