@@ -5,6 +5,7 @@ from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now
 
@@ -106,7 +107,13 @@ class AttendanceRecord(AbstractFacilityDataModel):
         return f"{self.attendance_session_id}:{self.user_id}"
 
     def infer_dataset(self, *args, **kwargs):
-        return self.cached_related_dataset_lookup("attendance_session")
+        user_dataset_id = self.cached_related_dataset_lookup("user")
+        session_dataset_id = self.cached_related_dataset_lookup("attendance_session")
+        if user_dataset_id != session_dataset_id:
+            raise KolibriValidationError(
+                "User and attendance session for an AttendanceRecord object must be in same dataset."
+            )
+        return session_dataset_id
 
     def calculate_partition(self):
         return self.dataset_id
