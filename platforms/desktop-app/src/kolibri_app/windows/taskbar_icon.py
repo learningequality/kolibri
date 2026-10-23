@@ -26,6 +26,7 @@ import sys
 import webbrowser
 from ctypes import wintypes
 from importlib.resources import files
+from threading import Thread
 
 import pywintypes
 import win32api
@@ -74,6 +75,14 @@ NIM_DELETE = 0x02
 NIIF_USER = 0x04
 NIIF_LARGE_ICON = 0x20
 
+# ChangeWindowMessageFilterEx action
+MSGFLT_ALLOW = 1
+
+# SHELLEXECUTEINFOW.fMask: return the started process in hProcess
+SEE_MASK_NOCLOSEPROCESS = 0x40
+
+INFINITE = 0xFFFFFFFF
+
 
 class _NOTIFYICONDATAW(ctypes.Structure):
     _fields_ = [
@@ -96,6 +105,62 @@ class _NOTIFYICONDATAW(ctypes.Structure):
         ("guidItem", ctypes.c_byte * 16),
         ("hBalloonIcon", wintypes.HICON),
     ]
+
+
+class _SHELLEXECUTEINFOW(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", wintypes.DWORD),
+        ("fMask", wintypes.ULONG),
+        ("hwnd", wintypes.HWND),
+        ("lpVerb", wintypes.LPCWSTR),
+        ("lpFile", wintypes.LPCWSTR),
+        ("lpParameters", wintypes.LPCWSTR),
+        ("lpDirectory", wintypes.LPCWSTR),
+        ("nShow", ctypes.c_int),
+        ("hInstApp", wintypes.HINSTANCE),
+        ("lpIDList", ctypes.c_void_p),
+        ("lpClass", wintypes.LPCWSTR),
+        ("hkeyClass", wintypes.HKEY),
+        ("dwHotKey", wintypes.DWORD),
+        ("hIconOrMonitor", wintypes.HANDLE),
+        ("hProcess", wintypes.HANDLE),
+    ]
+
+
+def _run_elevated(args):
+    """Start this app as administrator with `args`.
+
+    Returns the process handle, which the caller must close, or None if the
+    process did not start, e.g. because the user declined the UAC prompt.
+    """
+    if not getattr(sys, "frozen", False):
+        args = f"-m kolibri_app {args}"
+    info = _SHELLEXECUTEINFOW()
+    info.cbSize = ctypes.sizeof(_SHELLEXECUTEINFOW)
+    info.fMask = SEE_MASK_NOCLOSEPROCESS
+    info.lpVerb = "runas"
+    info.lpFile = sys.executable
+    info.lpParameters = args
+    info.nShow = win32con.SW_SHOWNORMAL
+    if not ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(info)):
+        logging.error(
+            f"Failed to start elevated command. Error: {win32api.GetLastError()}"
+        )
+        return None
+    return wintypes.HANDLE(info.hProcess)
+
+
+def _wait_for_exit_code(process):
+    """Block until `process` exits, close its handle and return its exit code."""
+    kernel32 = ctypes.windll.kernel32
+    try:
+        kernel32.WaitForSingleObject(process, INFINITE)
+        exit_code = wintypes.DWORD()
+        if not kernel32.GetExitCodeProcess(process, ctypes.byref(exit_code)):
+            return None
+        return exit_code.value
+    finally:
+        kernel32.CloseHandle(process)
 
 
 _shell_notify_icon = ctypes.windll.shell32.Shell_NotifyIconW
@@ -181,6 +246,14 @@ class KolibriTaskBarIcon:
             self.hwnd, win32con.GWL_WNDPROC, self._wndproc
         )
 
+        # Explorer broadcasts this when it (re)creates the taskbar, which drops
+        # every notification icon; wx.adv.TaskBarIcon used to handle it for us.
+        self._taskbar_created_msg = win32gui.RegisterWindowMessage("TaskbarCreated")
+        # Let a non-elevated Explorer reach an elevated tray process.
+        ctypes.windll.user32.ChangeWindowMessageFilterEx(
+            self.hwnd, self._taskbar_created_msg, MSGFLT_ALLOW, None
+        )
+
         self._load_icons()
         self._add_icon()
 
@@ -223,17 +296,27 @@ class KolibriTaskBarIcon:
         except (OSError, pywintypes.error) as e:
             logging.error(f"Error loading tray icons: {e}")
 
-    def _add_icon(self):
-        """Register the tray icon with the shell."""
+    def _icon_nid(self):
         nid = _new_nid(self.hwnd)
         nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP
         nid.uCallbackMessage = WM_TRAY_CALLBACK
         nid.hIcon = self._tray_hicon or 0
         nid.szTip = APP_NAME
-        if _shell_notify_icon(NIM_ADD, ctypes.byref(nid)):
+        return nid
+
+    def _add_icon(self):
+        """Register the tray icon with the shell."""
+        if _shell_notify_icon(NIM_ADD, ctypes.byref(self._icon_nid())):
             self._added = True
         else:
             logging.error("Shell_NotifyIcon NIM_ADD failed for the tray icon.")
+
+    def restore_icon(self):
+        """Add the tray icon back if the shell no longer has it."""
+        if _shell_notify_icon(NIM_MODIFY, ctypes.byref(self._icon_nid())):
+            return
+        logging.warning("The tray icon is missing, adding it again.")
+        self._add_icon()
 
     def _remove_icon(self):
         """Remove the tray icon from the shell."""
@@ -251,7 +334,13 @@ class KolibriTaskBarIcon:
             elif lparam == win32con.WM_RBUTTONUP:
                 self._show_menu()
             return 0
+        if msg == self._taskbar_created_msg:
+            logging.info("Explorer recreated the taskbar.")
+            self.restore_icon()
+            return 0
         if msg == win32con.WM_DESTROY:
+            # Destroy() unhooks this proc first, so this is never a clean exit.
+            logging.warning("The tray window was destroyed, removing the tray icon.")
             self._remove_icon()
         return win32gui.CallWindowProc(self._old_wndproc, hwnd, msg, wparam, lparam)
 
@@ -274,6 +363,7 @@ class KolibriTaskBarIcon:
             timeout: How long to show the notification (in seconds)
         """
         try:
+            self.restore_icon()
             nid = _new_nid(self.hwnd)
             nid.uFlags = NIF_INFO
             # szInfo/szInfoTitle are fixed WCHAR buffers (256/64); an over-long
@@ -372,11 +462,15 @@ class KolibriTaskBarIcon:
             wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item
         )
 
+        if self.app.server_manager.uses_service:
+            restart_item = menu.Append(wx.ID_ANY, _("Restart Kolibri service"))
+            self.frame.Bind(wx.EVT_MENU, self.on_restart_service, restart_item)
+
         menu.AppendSeparator()
 
-        # 4. Exit
-        exit_item = menu.Append(wx.ID_EXIT, _("Exit"))
-        self.frame.Bind(wx.EVT_MENU, self.on_exit, exit_item)
+        # 4. Close
+        close_item = menu.Append(wx.ID_EXIT, _("Close"))
+        self.frame.Bind(wx.EVT_MENU, self.on_close, close_item)
 
         return menu
 
@@ -391,13 +485,7 @@ class KolibriTaskBarIcon:
             return
 
         if is_webview2_installed():
-            # WebView2 is available, show/create the main window
-            main_window = self.app.view
-            if main_window:
-                self._show_window(main_window)
-            else:
-                # Create new window
-                self.app.create_kolibri_window()
+            self.app.show_or_create_ui()
         else:
             # WebView2 not available, open in default browser
             webbrowser.open(self.app.kolibri_url)
@@ -433,29 +521,19 @@ class KolibriTaskBarIcon:
         new_state = "auto" if is_auto_start_enabled else "disabled"
 
         try:
-            exe_path = sys.executable
-            if getattr(sys, "frozen", False):
-                params = f"--configure-service {new_state}"
-                exe_to_run = exe_path
-            else:
-                params = f"-m kolibri_app --configure-service {new_state}"
-                exe_to_run = exe_path
+            process = _run_elevated(f"--configure-service {new_state}")
 
-            shell_execute_result = ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", exe_to_run, params, None, 1
-            )
-
-            if shell_execute_result <= 32:
-                logging.error(
-                    f"Failed to elevate for service configuration. Code: {shell_execute_result}"
-                )
+            if process is None:
                 self.run_on_start_item.Check(not is_auto_start_enabled)
                 wx.MessageBox(
-                    _("Administrator rights are required to change this setting."),
+                    _("Administrator permissions are required to change this setting."),
                     _("Error"),
                     wx.OK | wx.ICON_ERROR,
                 )
                 return
+
+            # The start type is verified by polling, not by the exit code.
+            ctypes.windll.kernel32.CloseHandle(process)
 
             # Schedule verification and tray icon configuration
             wx.CallLater(
@@ -501,18 +579,46 @@ class KolibriTaskBarIcon:
                 _("Failed to update the service startup setting."),
             )
 
-    def on_exit(self, event):
+    def on_restart_service(self, event):
+        answer = wx.MessageBox(
+            _(
+                "Anyone using Kolibri on this server right now will temporarily be unable to use it."
+            ),
+            _("Restart Kolibri service"),
+            wx.OK | wx.CANCEL | wx.ICON_WARNING,
+        )
+        if answer != wx.OK:
+            return
+
+        process = _run_elevated("--restart-service")
+        if process is None:
+            wx.MessageBox(
+                _("Administrator permissions are required to change this setting."),
+                _("Error"),
+                wx.OK | wx.ICON_ERROR,
+            )
+            return
+        # The restart waits for a graceful stop, so don't block the UI on it.
+        Thread(target=self._wait_for_restart, args=(process,), daemon=True).start()
+
+    def _wait_for_restart(self, process):
+        exit_code = _wait_for_exit_code(process)
+        if exit_code != 0:
+            logging.error(f"The service restart failed. Exit code: {exit_code}")
+            wx.CallAfter(
+                wx.MessageBox,
+                _("The Kolibri service could not be restarted."),
+                _("Error"),
+                wx.OK | wx.ICON_ERROR,
+            )
+
+    def on_close(self, event):
         """
-        Handles the exit menu item.
+        Handles the close menu item.
         - When running with background service: Does not stop the service
         - When running local server: Stops the local server
         """
-        server_manager = self.app.server_manager
-
-        if (
-            hasattr(server_manager, "_server_mode")
-            and server_manager._server_mode == "service"
-        ):
+        if self.app.server_manager.uses_service:
             # Running with service - don't stop the service, just exit the UI
             logging.info("Exiting tray icon (service will continue running)")
             # Don't call app.shutdown() to avoid stopping the service

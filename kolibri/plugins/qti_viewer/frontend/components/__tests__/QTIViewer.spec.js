@@ -4,6 +4,7 @@ import { nextTick } from 'vue';
 import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
 import items from '../__fixtures__/items';
 import QTIViewer from '../QTIViewer.vue';
+import { itemXml, responseDecl } from '../../utils/qti/__tests__/qtiXmlHelpers.js';
 
 jest.mock('kolibri/composables/useContentViewer');
 
@@ -124,5 +125,28 @@ describe('QTIViewer hints', () => {
 
     expect(registeredApi.totalHints.value).toBe(0);
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+});
+
+describe('QTIViewer answer state', () => {
+  const ITEM_XML = itemXml(
+    [responseDecl('RESPONSE', 'string')],
+    '<qti-item-body><p>Enter</p></qti-item-body>',
+  );
+
+  it('restores responses saved under answerState.responses', async () => {
+    mockViewer(ITEM_XML, { answerState: { responses: { RESPONSE: 'a' } } });
+    render(Harness);
+    await nextTick();
+
+    expect(registeredApi.checkAnswer().answerState.responses.RESPONSE).toBe('a');
+  });
+
+  it('restores responses saved flat by a hint taken on 0.20 alphas', async () => {
+    mockViewer(ITEM_XML, { answerState: { RESPONSE: 'a', QTI_CONTEXT: {} } });
+    render(Harness);
+    await nextTick();
+
+    expect(registeredApi.checkAnswer().answerState.responses.RESPONSE).toBe('a');
   });
 });

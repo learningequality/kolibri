@@ -136,6 +136,20 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           uv sync --package kolibri-installer-android --extra build --python 3.10
+      - name: Block download.eclipse.org
+        run: echo "127.0.0.1 download.eclipse.org" | sudo tee -a /etc/hosts
+      - name: Check streamlineKolibriTar runs before the Python requirements tasks
+        shell: bash
+        run: |
+          ./gradlew :app:assembleDebug --dry-run | tee dry-run.txt
+          awk '
+            /:app:streamlineKolibriTar / { seen = 1 }
+            /PythonRequirements|extractPythonBuildPackages/ {
+              matched = 1
+              if (!seen) { print "Before streamlineKolibriTar: " $1; bad = 1 }
+            }
+            END { if (!matched) print "No Python requirements tasks in the task graph"; exit bad || !matched }
+          ' dry-run.txt
       - name: Build the aab
         if: ${{ inputs.release }}
         env:
