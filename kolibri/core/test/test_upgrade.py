@@ -3,10 +3,10 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from semver import VersionInfo
 
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.upgrade import VersionUpgrade
-from semver import VersionInfo
 
 
 def test_filter_old_version():
@@ -70,12 +70,8 @@ def test_order_old_version():
     first = VersionUpgrade(old_version="<0.10.1", upgrade=lambda: function(0))
     second = VersionUpgrade(upgrade=lambda: function(1))
 
-    with patch(
-        "kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")
-    ):
-        with patch(
-            "kolibri.core.upgrade.get_upgrades", return_value=[second, first]
-        ):
+    with patch("kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")):
+        with patch("kolibri.core.upgrade.get_upgrades", return_value=[second, first]):
             run_upgrades("0.10.0", "1.1.2")
             function.assert_has_calls([call(0), call(1)])
 
@@ -86,12 +82,8 @@ def test_order_compound_old_version():
     first = VersionUpgrade(old_version=">0.9.1,<0.10.1", upgrade=lambda: function(0))
     second = VersionUpgrade(upgrade=lambda: function(1))
 
-    with patch(
-        "kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")
-    ):
-        with patch(
-            "kolibri.core.upgrade.get_upgrades", return_value=[second, first]
-        ):
+    with patch("kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")):
+        with patch("kolibri.core.upgrade.get_upgrades", return_value=[second, first]):
             run_upgrades("0.10.0", "1.1.2")
             function.assert_has_calls([call(0), call(1)])
 
@@ -102,12 +94,8 @@ def test_order_new_version():
     first = VersionUpgrade(new_version=">0.10.1", upgrade=lambda: function(0))
     second = VersionUpgrade(upgrade=lambda: function(1))
 
-    with patch(
-        "kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")
-    ):
-        with patch(
-            "kolibri.core.upgrade.get_upgrades", return_value=[second, first]
-        ):
+    with patch("kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")):
+        with patch("kolibri.core.upgrade.get_upgrades", return_value=[second, first]):
             run_upgrades("0.10.0", "1.1.2")
             function.assert_has_calls([call(0), call(1)])
 
@@ -118,12 +106,8 @@ def test_order_compound_new_version():
     first = VersionUpgrade(new_version=">0.10.1,<1.1.3", upgrade=lambda: function(0))
     second = VersionUpgrade(upgrade=lambda: function(1))
 
-    with patch(
-        "kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")
-    ):
-        with patch(
-            "kolibri.core.upgrade.get_upgrades", return_value=[second, first]
-        ):
+    with patch("kolibri.core.upgrade.CURRENT_VERSION", VersionInfo.parse("0.11.0")):
+        with patch("kolibri.core.upgrade.get_upgrades", return_value=[second, first]):
             run_upgrades("0.10.0", "1.1.2")
             function.assert_has_calls([call(0), call(1)])
 
