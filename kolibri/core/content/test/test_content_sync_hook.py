@@ -1,14 +1,26 @@
+import uuid
+from datetime import timedelta
 from unittest import mock
 
+from django.test import TestCase
+from django.utils import timezone
 from morango.sync.context import SessionContext
 
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.sync_operations import KolibriSyncOperations
 from kolibri.core.content.kolibri_plugin import ContentSyncHook
+from kolibri.core.content.kolibri_plugin import (
+    NetworkDiscoveryForAutomaticResourceImportHook,
+)
+from kolibri.core.content.models import ContentDownloadRequest
+from kolibri.core.content.models import ContentRequestReason
+from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.test.utils.test_content_request import (
     BaseIncompleteDownloadsQuerysetTestCase,
 )
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.discovery.models import NetworkLocation
 
 
 class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
@@ -41,3 +53,62 @@ class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
                     (status.status, status.status_sentiment),
                     DeviceStatus.InsufficientStorage,
                 )
+
+
+@mock.patch(
+    "kolibri.core.content.kolibri_plugin.get_device_setting", return_value=False
+)
+@mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+class NetworkDiscoveryForAutomaticResourceImportHookTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="a")
+
+    def setUp(self):
+        self.peer = NetworkLocation(
+            base_url="http://peer.local:8080/", instance_id=uuid.uuid4().hex
+        )
+
+    def _create_backed_off_download(self, source_instance_id):
+        return ContentDownloadRequest.objects.create(
+            reason=ContentRequestReason.SyncInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            source_instance_id=source_instance_id,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Failed,
+            failure_count=3,
+            retry_after=timezone.now() + timedelta(hours=4),
+        )
+
+    def test_on_connect__retries_backed_off_downloads_from_peer(self, mock_task, _):
+        download = self._create_backed_off_download(self.peer.instance_id)
+
+        NetworkDiscoveryForAutomaticResourceImportHook().on_connect(self.peer)
+
+        mock_task.enqueue_if_not_active.assert_called_once()
+        download.refresh_from_db()
+        self.assertIsNone(download.retry_after)
+        self.assertEqual(download.failure_count, 3)
+
+    def test_on_connect__learner_only_device__retries_backed_off_downloads_from_peer(
+        self, mock_task, mock_get_device_setting
+    ):
+        mock_get_device_setting.return_value = True
+        download = self._create_backed_off_download(self.peer.instance_id)
+
+        NetworkDiscoveryForAutomaticResourceImportHook().on_connect(self.peer)
+
+        mock_task.enqueue_if_not_active.assert_not_called()
+        download.refresh_from_db()
+        self.assertIsNone(download.retry_after)
+
+    def test_on_connect__other_peers_downloads_stay_backed_off(self, mock_task, _):
+        download = self._create_backed_off_download(uuid.uuid4().hex)
+
+        NetworkDiscoveryForAutomaticResourceImportHook().on_connect(self.peer)
+
+        mock_task.enqueue_if_not_active.assert_not_called()
+        download.refresh_from_db()
+        self.assertIsNotNone(download.retry_after)

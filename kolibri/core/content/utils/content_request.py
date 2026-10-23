@@ -457,6 +457,12 @@ def retry_due():
     return Q(retry_after__isnull=True) | Q(retry_after__lte=local_now())
 
 
+def retry_downloads_from_source(instance_id):
+    ContentDownloadRequest.objects.filter(
+        source_instance_id=instance_id, retry_after__isnull=False
+    ).update(retry_after=None)
+
+
 def incomplete_downloads_queryset():
     """
     Returns a queryset used to determine the incomplete downloads, with and without metadata, as
