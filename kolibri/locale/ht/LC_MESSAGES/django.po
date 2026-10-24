@@ -206,6 +206,26 @@ msgstr "Ap chache"
 msgid "Looking for other Kolibri devices"
 msgstr "Ap chache lòt aparèy Kolibri yo"
 
+#: core/device/tasks.py:111
+#, python-brace-format
+msgctxt ""
+"The default device name for a user installing Kolibri using the personal 'on "
+"my own' (formerly Quick Start) flow"
+msgid "Personal device for {name}"
+msgstr "Aparèy pèsonèl pou {name}"
+
+#: core/device/tasks.py:115
+#, python-brace-format
+msgctxt ""
+"Default facility name when Kolibri is installed with the 'Quick start' setup "
+"option for at home learning, outside any type of structure or institution "
+"like a school or a library. '{name}' will display the full name of the super "
+"admin user for their Kolibri server. Note that users can change this default "
+"name after the setup, and put whatever name they want to use for their home "
+"facility."
+msgid "Home Facility for {name}"
+msgstr "Etablisman inisyal pou {name}"
+
 #: core/device/viewsets/device_settings.py:23
 msgid "Language is not supported by Kolibri"
 msgstr "Lang nan pa sipòte nan lojisyèl Kolibri a"

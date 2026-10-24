@@ -32,10 +32,13 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
+from kolibri.core.device.login_tokens import login_tokens
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.device.models import OSUser
 from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.models import UserSyncStatus
@@ -832,39 +835,32 @@ class InitializeEndpointTestCase(APITestCase):
         provision_device(default_facility=cls.facility)
         cls.superuser = create_superuser(cls.facility)
 
-    def test_os_user_capability_enabled_log_in(self):
-        with mock.patch(
-            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
-            return_value=("test_user", False),
-        ):
-            initialize_url = app_initialize_url(auth_token="test")
-            self.client.get(initialize_url)
-            session_data = self.client.session.load()
-            user_id = session_data.get(SESSION_KEY)
-            user = FacilityUser.objects.get(id=user_id)
-            self.assertTrue(user.os_user)
-            self.assertEqual(user.os_user.os_username, "test_user")
-            self.assertNotEqual(self.superuser.id, user.id)
+    def _log_in_os_user(self, os_user_id, account_name=None, full_name=""):
+        auth_token = login_tokens.generate_for_user(
+            OSUserInfo(os_user_id, account_name or os_user_id, full_name, False)
+        )
+        self.client.logout()
+        self.client.get(app_initialize_url(auth_token=auth_token))
+        user_id = self.client.session.load().get(SESSION_KEY)
+        self.assertIsNotNone(user_id)
+        return FacilityUser.objects.get(id=user_id)
 
-    def _log_in_os_user(self, os_username):
-        with mock.patch(
-            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
-            return_value=(os_username, False),
-        ):
-            self.client.logout()
-            self.client.get(app_initialize_url(auth_token="test"))
-        return FacilityUser.objects.get(id=self.client.session.load()[SESSION_KEY])
+    def test_os_user_capability_enabled_log_in(self):
+        user = self._log_in_os_user("test_user")
+        self.assertEqual(user.os_user.os_username, "test_user")
+        self.assertNotEqual(self.superuser.id, user.id)
+
+    def test_existing_os_user_signs_in_by_os_user_id(self):
+        existing = FacilityUserFactory.create(facility=self.facility)
+        OSUser.objects.create(os_username="jane", user=existing)
+        user = self._log_in_os_user("jane", account_name="jane.doe")
+        self.assertEqual(user.id, existing.id)
 
     def test_same_named_os_users_in_different_domains_get_different_users(self):
-        with mock.patch("sys.platform", "win32"):
-            desktop_user = self._log_in_os_user("DESKTOP\\alice")
-            corp_user = self._log_in_os_user("CORP\\alice")
+        corp_user = self._log_in_os_user("CORP\\alice", account_name="alice")
+        desktop_user = self._log_in_os_user("DESKTOP\\alice", account_name="alice")
+        self.assertEqual(corp_user.username, "alice")
         self.assertNotEqual(desktop_user.id, corp_user.id)
-
-    def test_windows_os_user_username_drops_domain(self):
-        with mock.patch("sys.platform", "win32"):
-            user = self._log_in_os_user("DESKTOP\\alice")
-        self.assertEqual(user.username, "alice")
 
     def test_os_username_with_invalid_characters_gets_valid_username(self):
         for os_username in ("Jane Doe", "jane.doe-2", "a" * 40):
@@ -876,10 +872,17 @@ class InitializeEndpointTestCase(APITestCase):
         user = self._log_in_os_user("jane@corp.example.com")
         self.assertEqual(user.username, "jane@corp.example.com")
 
-    def test_os_user_full_name_is_account_name(self):
-        with mock.patch("sys.platform", "win32"):
-            user = self._log_in_os_user("DESKTOP\\Jane Doe")
+    def test_os_user_full_name_is_set(self):
+        user = self._log_in_os_user("jane", full_name="Jane Doe")
         self.assertEqual(user.full_name, "Jane Doe")
+
+    def test_empty_os_user_full_name_falls_back_to_account_name(self):
+        user = self._log_in_os_user("CORP\\jane", account_name="jane")
+        self.assertEqual(user.full_name, "jane")
+
+    def test_long_os_user_full_name_is_truncated(self):
+        user = self._log_in_os_user("jane", full_name="J" * 150)
+        self.assertEqual(user.full_name, "J" * 120)
 
     def test_no_os_user_capability_no_log_in(self):
         initialize_url = app_initialize_url()
@@ -888,19 +891,24 @@ class InitializeEndpointTestCase(APITestCase):
         user_id = session_data.get(SESSION_KEY)
         self.assertIsNone(user_id)
 
+    def test_os_user_without_name_no_log_in(self):
+        auth_token = login_tokens.generate_for_user(OSUserInfo("", "", "", True))
+        response = self.client.get(app_initialize_url(auth_token=auth_token))
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(self.client.session.load().get(SESSION_KEY))
+        self.assertFalse(FacilityUser.objects.filter(username="").exists())
+
     def test_os_user_capability_enabled_already_logged_in_no_change(self):
-        with mock.patch(
-            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
-            return_value=("test_user", False),
-        ):
-            self.client.login(username=self.superuser.username, password="password")
-            initialize_url = app_initialize_url(auth_token="test")
-            self.client.get(initialize_url)
-            session_data = self.client.session.load()
-            user_id = session_data.get(SESSION_KEY)
-            user = FacilityUser.objects.get(id=user_id)
-            self.assertFalse(hasattr(user, "os_user"))
-            self.assertEqual(self.superuser.id, user.id)
+        auth_token = login_tokens.generate_for_user(
+            OSUserInfo("test_user", "test_user", "", False)
+        )
+        self.client.login(username=self.superuser.username, password="password")
+        self.client.get(app_initialize_url(auth_token=auth_token))
+        session_data = self.client.session.load()
+        user_id = session_data.get(SESSION_KEY)
+        user = FacilityUser.objects.get(id=user_id)
+        self.assertFalse(hasattr(user, "os_user"))
+        self.assertEqual(self.superuser.id, user.id)
 
     def test_redirect_relative_next_url(self):
         """A relative same-host path is accepted."""

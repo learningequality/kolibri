@@ -39,8 +39,8 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc"))
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc", "kolibri", "dist"))
 
+from kolibri.core.device.login_tokens import login_tokens
 from kolibri.core.device.utils import app_initialize_url
-from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
 from kolibri_app.windows.stop_window import StopWindowPlugin
@@ -109,10 +109,8 @@ class WindowsIpcPlugin(SimplePlugin):
                 logging.error("Could not identify the pipe client.", exc_info=True)
                 self._send_pipe_message(pipe, {"type": "server_error"})
                 return
-            auth_token = KolibriAppGetOSUserHook.login_tokens.generate_for_user(
-                user.user_name, user.is_admin
-            )
-            logging.info(f"Sending server info to Windows user {user.user_name}.")
+            auth_token = login_tokens.generate_for_user(user)
+            logging.info(f"Sending server info to Windows user {user.os_user_id}.")
             root_url = f"http://localhost:{self.ready_port}" + app_initialize_url(
                 auth_token=auth_token
             )

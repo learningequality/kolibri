@@ -1,8 +1,12 @@
+import json
+import os
+import re
 from typing import ClassVar
-from unittest import mock
 
 import pytest
+from django.conf import settings as django_settings
 from django.test import TestCase
+from django.utils import translation
 from rest_framework.exceptions import ParseError
 from rest_framework.exceptions import ValidationError
 
@@ -12,13 +16,15 @@ from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.device.login_tokens import login_tokens
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.device.models import DeviceAppKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.tasks import _os_user_default_names
 from kolibri.core.device.tasks import DeviceProvisionValidator
 from kolibri.core.device.tasks import provisiondevice
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
-from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
 from kolibri.plugins.utils.test.helpers import plugin_disabled
 
@@ -176,6 +182,27 @@ class DeviceProvisionTestCase(TestCase):
         with pytest.raises(ValidationError):
             self._post_deviceprovision(data)
 
+    def test_unnamed_facility_without_os_user_error(self):
+        data = self._default_provision_data()
+        data["facility"] = {}
+        with pytest.raises(ValidationError):
+            self._post_deviceprovision(data)
+        self.assertFalse(Facility.objects.exists())
+
+    def test_null_facility_without_facility_id_error(self):
+        data = self._default_provision_data()
+        data["facility"] = None
+        with pytest.raises(ValidationError):
+            self._post_deviceprovision(data)
+        self.assertFalse(Facility.objects.exists())
+
+    def test_missing_device_name_without_os_user_error(self):
+        data = self._default_provision_data()
+        del data["device_name"]
+        with pytest.raises(ValidationError):
+            self._post_deviceprovision(data)
+        self.assertFalse(Facility.objects.exists())
+
     def test_osuser_superuser_error_no_app(self):
         with plugin_disabled("kolibri.plugins.app"):
             data = self._default_provision_data()
@@ -183,27 +210,67 @@ class DeviceProvisionTestCase(TestCase):
             with pytest.raises(ValidationError):
                 self._post_deviceprovision(data)
 
+    def _os_user_provision_data(self):
+        data = self._default_provision_data()
+        del data["superuser"]
+        del data["device_name"]
+        data["facility"] = {}
+        return data
+
+    def _os_user_token(self, full_name="Jane Doe"):
+        return login_tokens.generate_for_user(
+            OSUserInfo("jane", "jane", full_name, True)
+        )
+
     def test_osuser_superuser_created(self):
-        with mock.patch(
-            "kolibri.core.device.tasks.GetOSUserHook", autospec=True
-        ) as mock_hook1, mock.patch(
-            "kolibri.core.auth.models.GetOSUserHook"
-        ) as mock_hook2:
-            mock_hook1.is_registered = mock_hook2.is_registered = True
-            mock_hook2.retrieve_os_user.return_value = ("test_os_user", True)
-            initialize_url = app_initialize_url(auth_token="test")
-            self.client.get(initialize_url)
-            data = self._default_provision_data()
-            del data["superuser"]
-            self._post_deviceprovision(data, auth_token="test")
-            self.client.get(initialize_url)
-            self.assertEqual(
-                DevicePermissions.objects.get(),
-                FacilityUser.objects.get().devicepermissions,
-            )
-            self.assertTrue(FacilityUser.objects.get().os_user)
-            self.assertFalse(
-                DeviceSettings.objects.get().allow_other_browsers_to_connect
+        self._post_deviceprovision(
+            self._os_user_provision_data(), auth_token=self._os_user_token()
+        )
+        self.assertEqual(
+            DevicePermissions.objects.get(),
+            FacilityUser.objects.get().devicepermissions,
+        )
+        self.assertTrue(FacilityUser.objects.get().os_user)
+        self.assertFalse(DeviceSettings.objects.get().allow_other_browsers_to_connect)
+
+    def test_osuser_names_device_facility_and_user(self):
+        self._post_deviceprovision(
+            self._os_user_provision_data(), auth_token=self._os_user_token()
+        )
+        self.assertEqual(
+            DeviceSettings.objects.get().name, "Personal device for Jane Doe"
+        )
+        self.assertEqual(Facility.objects.get().name, "Home Facility for Jane Doe")
+        self.assertEqual(FacilityUser.objects.get().full_name, "Jane Doe")
+
+    def test_osuser_names_device_in_language(self):
+        data = self._os_user_provision_data()
+        data["language_id"] = "fr-fr"
+        self._post_deviceprovision(data, auth_token=self._os_user_token())
+        self.assertEqual(
+            DeviceSettings.objects.get().name, "Appareil personnel pour Jane Doe"
+        )
+
+    def test_osuser_long_name_truncates_device_and_facility_names(self):
+        self._post_deviceprovision(
+            self._os_user_provision_data(),
+            auth_token=self._os_user_token(full_name="J" * 120),
+        )
+        self.assertEqual(len(DeviceSettings.objects.get().name), 50)
+        self.assertEqual(len(Facility.objects.get().name), 100)
+
+    def test_osuser_sent_names_win(self):
+        data = self._os_user_provision_data()
+        data["device_name"] = "My laptop"
+        data["facility"] = self.facility_data
+        self._post_deviceprovision(data, auth_token=self._os_user_token())
+        self.assertEqual(DeviceSettings.objects.get().name, "My laptop")
+        self.assertEqual(Facility.objects.get().name, self.facility_data["name"])
+
+    def test_osuser_unknown_token_error(self):
+        with pytest.raises(ParseError):
+            self._post_deviceprovision(
+                self._os_user_provision_data(), auth_token="unknown"
             )
 
     def test_imported_facility_no_update(self):
@@ -240,3 +307,35 @@ class DeviceProvisionTestCase(TestCase):
         del data["facility"]
         with pytest.raises(ParseError):
             self._post_deviceprovision(data)
+
+
+def _unquote_icu(message):
+    return re.sub(r"'(\{[^}]*\})'", r"\1", message).replace("''", "'")
+
+
+class OSUserDefaultNamesTranslationTestCase(TestCase):
+    def test_backend_names_match_frontend_translations(self):
+        locale_dir = django_settings.LOCALE_PATHS[0]
+        os_user = OSUserInfo("jane", "jane", "{name}", False)
+        for locale in sorted(os.listdir(locale_dir)):
+            messages_path = os.path.join(
+                locale_dir,
+                locale,
+                "LC_MESSAGES",
+                "kolibri.plugins.setup_wizard.app-messages.json",
+            )
+            # ach_UG holds Crowdin pseudo-IDs, not translations
+            if locale == "ach_UG" or not os.path.exists(messages_path):
+                continue
+            with open(messages_path, encoding="utf-8") as f:
+                messages = json.load(f)
+            with self.subTest(locale=locale), translation.override(
+                translation.to_language(locale)
+            ):
+                self.assertEqual(
+                    _os_user_default_names(os_user),
+                    (
+                        _unquote_icu(messages["SettingUpKolibri.onMyOwnDeviceName"]),
+                        _unquote_icu(messages["SettingUpKolibri.onMyOwnFacilityName"]),
+                    ),
+                )

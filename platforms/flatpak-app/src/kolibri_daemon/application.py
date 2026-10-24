@@ -12,10 +12,11 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import KolibriDaemonDBus
 
+from kolibri.core.device.login_tokens import login_tokens
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.globals import UPDATED_MARKER_PATH
-from kolibri_app.login_tokens import login_tokens
 
 from .dbus_helpers import DBusManagerProxy
 from .desktop_users import AccountsServiceManager
@@ -547,7 +548,12 @@ class Application(Gio.Application):
 
     def generate_login_token(self, user_info: UserInfo) -> str:
         return login_tokens.generate_for_user(
-            user_info.user_id, user_info.user_name, user_info.is_admin
+            OSUserInfo(
+                user_info.user_name,
+                user_info.user_name,
+                user_info.full_name,
+                user_info.is_admin,
+            )
         )
 
     def get_item_ids_for_search(self, search: str) -> Future[list]:

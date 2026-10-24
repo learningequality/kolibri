@@ -36,13 +36,11 @@
 
 <script>
 
-  import { ref } from 'vue';
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
   import { useSessionStorage } from '@vueuse/core';
   import useUser from 'kolibri/composables/useUser';
   import { error as coreError, handleApiError, clearError } from 'kolibri/utils/appError';
-  import pluginData from 'kolibri-plugin-data';
   import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
@@ -54,7 +52,6 @@
   import Lockr from 'lockr';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import { DeviceTypePresets } from '../../constants';
-  import { SetupWizardResource } from '../../api';
 
   const PROVISION_TASK_QUEUE = 'device_provision';
 
@@ -69,7 +66,6 @@
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
         false,
       );
-      const osUserName = ref('');
       return {
         isAppContext,
         login,
@@ -77,16 +73,10 @@
         handleApiError,
         clearError,
         picturePasswordPending,
-        osUserName,
       };
     },
     computed: {
       facilityData() {
-        const usersName = get(this.wizardContext('superuser'), 'full_name', this.osUserName);
-        const facilityName =
-          this.wizardContext('facilityName') ||
-          // full names may be up to 120 chars, but facility names can only be 100 chars
-          this.$tr('onMyOwnFacilityName', { name: usersName }).slice(0, 100);
         const selectedFacility = this.wizardContext('selectedFacility');
         if (selectedFacility) {
           if (selectedFacility.id) {
@@ -97,8 +87,16 @@
             // Otherwise we'll pass the facility data we have (including settings set by user)
             return { facility: selectedFacility };
           }
+        } else if (this.wizardContext('facilityName')) {
+          return { facility: { name: this.wizardContext('facilityName') } };
+        } else if (this.userBasedOnOs) {
+          return { facility: {} };
         } else {
-          return { facility: { name: facilityName } };
+          const usersName = get(this.wizardContext('superuser'), 'full_name');
+          // full names may be up to 120 chars, but facility names can only be 100 chars
+          return {
+            facility: { name: this.$tr('onMyOwnFacilityName', { name: usersName }).slice(0, 100) },
+          };
         }
       },
       learnerCanLoginWithNoPassword() {
@@ -124,7 +122,7 @@
       userBasedOnOs() {
         // On my own setup with OS user means that the user will be created
         // at login time, based on the OS user.
-        return this.isOnMyOwnSetup && this.isAppContext && pluginData.canGetOSUser;
+        return this.isOnMyOwnSetup && this.isAppContext;
       },
       learnerCanEditPassword() {
         // Note that we don't ask this question of a user during onboarding -- however,
@@ -166,18 +164,20 @@
           learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
         };
 
+        const deviceName =
+          this.wizardContext('deviceName') ||
+          (this.userBasedOnOs
+            ? null
+            : // full names may be up to 120 chars, but device names can only be 50 chars
+              this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name') }).slice(0, 50));
+
         const payload = {
           ...this.facilityData,
           superuser,
           settings: omitBy(settings, v => v === null),
           preset: this.presetValue,
           language_id: currentLanguage,
-          device_name:
-            this.wizardContext('deviceName') ||
-            // full names may be up to 120 chars, but device names can only be 50 chars
-            this.$tr('onMyOwnDeviceName', {
-              name: get(superuser, 'full_name', this.osUserName),
-            }).slice(0, 50),
+          device_name: deviceName,
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           is_soud: this.wizardContext('fullOrLOD') === DeviceTypePresets.LOD,
@@ -216,9 +216,6 @@
       },
       async startProvisionDeviceTask() {
         try {
-          if (this.userBasedOnOs) {
-            this.osUserName = (await SetupWizardResource.osuser()).name;
-          }
           await TaskResource.startTask({
             type: TaskTypes.PROVISIONDEVICE,
             ...this.deviceProvisioningData,
