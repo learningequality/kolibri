@@ -9,6 +9,7 @@ from urllib.parse import urlunsplit
 import wx
 
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.server import get_local_origin
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import APP_USER_SUFFIX
 from kolibri_app.constants import WINDOWS
@@ -214,7 +215,7 @@ class KolibriApp(wx.App):
         if (
             url is not None
             and url.startswith("http")
-            and not url.startswith("http://localhost")
+            and urlsplit(url).hostname != urlsplit(self.kolibri_origin or "").hostname
         ):
             webbrowser.open(url)
             return False
@@ -241,7 +242,7 @@ class KolibriApp(wx.App):
             return {}
 
     def load_kolibri(self, listen_port, root_url=None):
-        self.kolibri_origin = f"http://localhost:{listen_port}"
+        self.kolibri_origin = get_local_origin(listen_port)
 
         if self.server_start_timer:
             self.server_start_timer.Stop()
@@ -255,7 +256,10 @@ class KolibriApp(wx.App):
         next_url = None
         # Match the path only: the Windows service binds a new port on every start.
         saved_url = urlsplit(saved_state.get(URL, ""))
-        if saved_url.hostname == "localhost" and saved_url.path:
+        if (
+            saved_url.hostname == urlsplit(self.kolibri_origin).hostname
+            and saved_url.path
+        ):
             next_url = urlunsplit(
                 ("", "", saved_url.path, saved_url.query, saved_url.fragment)
             )

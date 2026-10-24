@@ -41,6 +41,7 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
 
 from kolibri.core.device.login_tokens import login_tokens
 from kolibri.core.device.utils import app_initialize_url
+from kolibri.utils.server import get_local_origin
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
 from kolibri_app.windows.stop_window import StopWindowPlugin
@@ -111,7 +112,7 @@ class WindowsIpcPlugin(SimplePlugin):
                 return
             auth_token = login_tokens.generate_for_user(user)
             logging.info(f"Sending server info to Windows user {user.os_user_id}.")
-            root_url = f"http://localhost:{self.ready_port}" + app_initialize_url(
+            root_url = get_local_origin(self.ready_port) + app_initialize_url(
                 auth_token=auth_token
             )
             self._send_pipe_message(
