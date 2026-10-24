@@ -76,6 +76,7 @@ describe('CustomContentRenderer', () => {
   beforeEach(() => {
     plugin_data.urls = {
       __sandboxUrl: '/sandbox/',
+      __sandboxPolyfillUrl: '/polyfills.js',
       __zipContentUrl: '/zipcontent/',
       __zipContentOrigin: 'http://localhost',
       __zipContentPort: '8001',
@@ -100,7 +101,7 @@ describe('CustomContentRenderer', () => {
       {},
       'http://localhost:8001/zipcontent/abc123.zip/index.html',
       TOPIC.files[0].checksum,
-      { handlerUrl: '/static/handler.js' },
+      { handlerUrl: '/static/handler.js', polyfillUrl: '/polyfills.js' },
     );
   });
 
