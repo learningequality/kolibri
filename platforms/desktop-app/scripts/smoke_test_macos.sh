@@ -74,14 +74,14 @@ done
 
 # Poll for the real serving port. The app first logs the configured port,
 # which is "0" (auto-select) — the OS assigns a real port only once the server
-# reaches the SERVING state and logs "localhost:<port>". On a slow first launch
-# (DB migrations) that line can lag, so wait for a non-zero localhost port
+# reaches the SERVING state and logs "127.0.0.1:<port>". On a slow first launch
+# (DB migrations) that line can lag, so wait for a non-zero loopback port
 # rather than grabbing the "port 0" placeholder.
 PORT=""
 PORT_TIMEOUT=60
 ELAPSED=0
 while [ $ELAPSED -lt $PORT_TIMEOUT ]; do
-    PORT=$(grep -oE "localhost:[0-9]+" "$KOLIBRI_LOG" | cut -d: -f2 | grep -vx "0" | head -1)
+    PORT=$(grep -oE "127\.0\.0\.1:[0-9]+" "$KOLIBRI_LOG" | cut -d: -f2 | grep -vx "0" | head -1)
     if [ -n "$PORT" ]; then
         break
     fi
