@@ -3,7 +3,9 @@ import logging
 import ntpath
 
 from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import default_storage
+from django.core.files.utils import validate_file_name
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db.utils import OperationalError
@@ -124,6 +126,12 @@ class ImportUsersFromCSVValidator(JobValidator):
     facility = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), allow_null=True, default=None
     )
+
+    def validate_csvfilename(self, value):
+        try:
+            return validate_file_name(value)
+        except SuspiciousFileOperation as e:
+            raise serializers.ValidationError(str(e)) from e
 
     def validate(self, data):
         if data.get("csvfile") and data.get("csvfilename"):
