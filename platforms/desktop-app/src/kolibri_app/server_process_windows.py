@@ -43,6 +43,7 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
+from kolibri_app.webview_location import loopback_origin
 from kolibri_app.windows.stop_window import StopWindowPlugin
 from kolibri_app.windows_users import pipe_client_user_info
 
@@ -113,7 +114,7 @@ class WindowsIpcPlugin(SimplePlugin):
                 user.user_name, user.is_admin
             )
             logging.info(f"Sending server info to Windows user {user.user_name}.")
-            root_url = f"http://localhost:{self.ready_port}" + app_initialize_url(
+            root_url = loopback_origin(self.ready_port) + app_initialize_url(
                 auth_token=auth_token
             )
             self._send_pipe_message(
