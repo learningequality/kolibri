@@ -22,13 +22,17 @@ class AsyncNotificationQueue:
         # flag to decide if the async queue must be started
         self.started = False
 
+        self._lock = threading.Lock()
+
     def append(self, fn):
         """
         Convenience method to append log saving function to the current queue
         """
-        if not self.started:
-            AsyncNotificationsThread.start_command()
-        self.queue.append(fn)
+        with self._lock:
+            if not self.started:
+                threading.Thread(target=self.start, daemon=True).start()
+                self.started = True
+            self.queue.append(fn)
 
     def toggle_queue(self):
         """
@@ -36,10 +40,8 @@ class AsyncNotificationQueue:
         to be added to the queue while previously added functions are being executed
         and cleared without fear of race conditions dropping saves.
         """
-        old_queue = self.queue
-        new_queue = self.running
-        self.queue = new_queue
-        self.running = old_queue
+        with self._lock:
+            self.queue, self.running = self.running, self.queue
 
     def clear_running(self):
         """
@@ -64,7 +66,7 @@ class AsyncNotificationQueue:
         connections.close_all()
 
     def start(self):
-        self.started = True
+        logging.info("Initializing background log saving process")
         while True:
             self.toggle_queue()
             self.run()
@@ -84,15 +86,3 @@ def wrap_to_save_queue(fn, *args, **kwargs):
         fn(*args, **kwargs)
 
     log_queue.append(wrapper)
-
-
-class AsyncNotificationsThread(threading.Thread):
-    @classmethod
-    def start_command(cls):
-        thread = cls()
-        thread.daemon = True
-        thread.start()
-
-    def run(self):
-        logging.info("Initializing background log saving process")
-        log_queue.start()

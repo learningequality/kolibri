@@ -69,8 +69,49 @@ class TaskQueueTest(TestCase):
 
     def test_append_queue_adds_to_queue(self):
         log_queue = AsyncNotificationQueue()
-        log_queue.append(1)
+        with patch.object(threading.Thread, "start"):
+            log_queue.append(1)
         self.assertEqual(log_queue.queue[0], 1)
+
+    def test_append_during_thread_start_starts_one_thread(self):
+        log_queue = AsyncNotificationQueue()
+        in_start = threading.Event()
+        release = threading.Event()
+
+        def blocking_start(thread):
+            in_start.set()
+            release.wait(5)
+
+        first = threading.Thread(target=log_queue.append, args=(1,))
+        second = threading.Thread(target=log_queue.append, args=(2,))
+        real_start = threading.Thread.start
+        with patch.object(
+            threading.Thread, "start", autospec=True, side_effect=blocking_start
+        ) as start:
+            real_start(first)
+            in_start.wait(5)
+            real_start(second)
+            second.join(0.1)
+            release.set()
+            first.join()
+            second.join()
+
+        self.assertEqual(start.call_count, 1)
+        self.assertEqual(sorted(log_queue.queue), [1, 2])
+
+    def test_append_retries_failed_thread_start(self):
+        log_queue = AsyncNotificationQueue()
+        with patch.object(
+            threading.Thread,
+            "start",
+            autospec=True,
+            side_effect=[RuntimeError("can't start new thread"), None],
+        ) as start:
+            with self.assertRaises(RuntimeError):
+                log_queue.append(1)
+            log_queue.append(2)
+
+        self.assertEqual(start.call_count, 2)
 
 
 def _notification():
