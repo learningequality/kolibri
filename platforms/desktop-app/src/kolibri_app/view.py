@@ -21,6 +21,7 @@ from kolibri_app.constants import WINDOWS
 from kolibri_app.i18n import _
 from kolibri_app.i18n import locale_info
 from kolibri_app.logger import logging
+from kolibri_app.webview_location import restore_url_for
 
 if WINDOWS:
     from kolibri_app import webview2_native
@@ -32,6 +33,7 @@ LOADER_PAGE = "loading.html"
 BRIDGE_NAME = "kolibriBridge"
 BRIDGE_MSG_PRINT = "print"
 BRIDGE_MSG_DOWNLOAD = "download"
+BRIDGE_MSG_LOCATION = "location"
 
 
 def _bridge_script(source, message_type):
@@ -57,6 +59,12 @@ window.print = function () {
 DOWNLOAD_SCRIPT = _bridge_script(
     (files("kolibri_app") / "scripts" / "download.js").read_text(encoding="utf-8"),
     BRIDGE_MSG_DOWNLOAD,
+)
+
+# wx raises no event for same-document navigations.
+LOCATION_SCRIPT = _bridge_script(
+    (files("kolibri_app") / "scripts" / "location.js").read_text(encoding="utf-8"),
+    BRIDGE_MSG_LOCATION,
 )
 
 ZOOM_LEVELS = [
@@ -171,6 +179,7 @@ def _open_devtools_linux(native_ptr):
 class KolibriView(object):
     def __init__(self, app, url=None, size=(1024, 768)):
         self.app = app
+        self._restore_location = app.last_page.location
 
         self.is_showing_loader = False
 
@@ -320,6 +329,10 @@ class KolibriView(object):
             PRINT_SCRIPT if WINDOWS else DOWNLOAD_SCRIPT,
             injectionTime=html2.WEBVIEW_INJECT_AT_DOCUMENT_START,
         )
+        self.webview.AddUserScript(
+            LOCATION_SCRIPT,
+            injectionTime=html2.WEBVIEW_INJECT_AT_DOCUMENT_START,
+        )
 
     def add_menu_item(self, menu, title, handler=None, item_id=None):
         item_id = item_id or wx.NewId()
@@ -338,6 +351,7 @@ class KolibriView(object):
         self.view.ShowFullScreen(enable)
 
     def load_url(self, url):
+        self._restore_location = self.app.last_page.location
         wx.CallAfter(self.webview.LoadURL, url)
 
     def zoom(self, zoom_in):
@@ -358,7 +372,6 @@ class KolibriView(object):
     def OnClose(self, event):
         if WINDOWS:
             # On Windows, just hide the window.
-            self.app.save_state(self)
             self.view.Hide()
         else:
             self.shutdown()
@@ -388,6 +401,8 @@ class KolibriView(object):
             wx.CallAfter(
                 self.save_download, message.get("filename"), message.get("data")
             )
+        elif message_type == BRIDGE_MSG_LOCATION:
+            self.app.last_page.save(message.get("url"))
         else:
             logging.warning(f"Unhandled {BRIDGE_NAME} message: {message_type!r}")
 
@@ -432,6 +447,18 @@ class KolibriView(object):
         if self.is_showing_loader:
             self.clear_history()
             self.is_showing_loader = False
+
+        url = event.GetURL()
+        if not self.app.last_page.serves(url):
+            return
+        restore_url = restore_url_for(url, self._restore_location)
+        self._restore_location = None
+        self.app.last_page.save(restore_url or url)
+        if restore_url:
+            quoted = json.dumps(restore_url)
+            self.webview.RunScriptAsync(
+                f"if (location.href !== {quoted}) location.replace({quoted});"
+            )
 
     def OnTitleChanged(self, event):
         self.view.SetTitle(event.GetString())
@@ -491,6 +518,5 @@ class KolibriView(object):
         if self in self.app.windows:
             self.app.windows.remove(self)
         if not self.app.windows:
-            self.app.save_state(self)
             # No more open windows, run shutdown
             wx.CallAfter(self.app.shutdown)

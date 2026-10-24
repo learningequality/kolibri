@@ -9,7 +9,6 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.device.utils import device_provisioned
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri.dist.magicbus.plugins.tasks import Monitor
-from kolibri.utils.server import get_urls
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
@@ -119,12 +118,12 @@ class _DBusPlugin(SimplePlugin):
         self.__update_state(status=KolibriStatus.STARTING)
 
     def SERVING(self, port: int):
-        _, base_urls = get_urls(listen_port=port)
-        self.__update_state(base_url=base_urls[0], status=KolibriStatus.STARTED)
+        self.__update_state(
+            base_url=f"http://127.0.0.1:{port}/", status=KolibriStatus.STARTED
+        )
 
     def ZIP_SERVING(self, zip_port: int):
-        _, zip_urls = get_urls(listen_port=zip_port)
-        self.__update_state(extra_url=zip_urls[0])
+        self.__update_state(extra_url=f"http://127.0.0.1:{zip_port}/")
 
     def __on_start_error(self, error_class, error, traceback):
         self.__update_state(status=KolibriStatus.ERROR)

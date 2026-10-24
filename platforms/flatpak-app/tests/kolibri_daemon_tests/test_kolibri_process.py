@@ -13,6 +13,7 @@ class _RecordingApplication:
         self.autostart = autostart
         self.detach_count = 0
         self.kolibri = None
+        self.state = None
 
     def attach_kolibri(self, kolibri):
         self.kolibri = kolibri
@@ -23,7 +24,7 @@ class _RecordingApplication:
         self.detach_count += 1
 
     def update_kolibri_state(self, state):
-        pass
+        self.state = state
 
 
 class _BlockingHTTPServer:
@@ -116,3 +117,15 @@ class TestKolibriDaemonProcess(unittest.TestCase):
 
         self.assertFalse(httpserver.thread.is_alive())
         self.assertEqual(application.detach_count, 1)
+
+    def test_serving_publishes_loopback_urls(self):
+        application, bus, _ = self._make_bus()
+
+        ifaddr = server.ifaddr
+        lan = ifaddr.Adapter("eth0", "eth0", [ifaddr.IP("192.0.2.7", 24, "eth0")])
+        with mock.patch.object(ifaddr, "get_adapters", return_value=[lan]):
+            bus.publish("SERVING", 8080)
+            bus.publish("ZIP_SERVING", 8081)
+
+        self.assertEqual(application.state.base_url, "http://127.0.0.1:8080/")
+        self.assertEqual(application.state.extra_url, "http://127.0.0.1:8081/")
