@@ -1,3 +1,4 @@
+import needsPolyfills from 'browserslist-config-kolibri/needsPolyfills';
 import Mediator from './mediator';
 import { events, nameSpace } from './base';
 
@@ -61,35 +62,30 @@ export default class SandboxEnvironment {
     this.handler = handler;
   }
 
+  _loadScript(url) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = url;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+      document.head.appendChild(script);
+    });
+  }
+
   /**
    * Load a handler script from a URL and wait for it to register.
    * @param {string} url - URL to the handler script
    * @returns {Promise<void>}
    */
-  _loadHandler(url) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = url;
-
-      // A classic script that throws while evaluating still fires load, not error.
-      script.onload = () => {
-        if (this.handler) {
-          resolve();
-        } else {
-          reject(
-            new Error(
-              `Handler script loaded but did not register: ${url} - ` +
-                'call register() on the handler class at module scope',
-            ),
-          );
-        }
-      };
-
-      script.onerror = () => {
-        reject(new Error(`Failed to load handler script: ${url}`));
-      };
-      document.head.appendChild(script);
-    });
+  async _loadHandler(url) {
+    await this._loadScript(url);
+    // A classic script that throws while evaluating still fires load, not error.
+    if (!this.handler) {
+      throw new Error(
+        `Handler script loaded but did not register: ${url} - ` +
+          'call register() on the handler class at module scope',
+      );
+    }
   }
 
   /**
@@ -131,6 +127,7 @@ export default class SandboxEnvironment {
    * @param {string} options.contentNamespace - Namespace for content storage
    * @param {string} [options.startUrl] - URL to the content entry point
    * @param {string} [options.handlerUrl] - URL to the content type's handler script
+   * @param {string} [options.polyfillUrl] - URL to the core-js polyfill bundle
    * @param {object} [options.contentState] - Saved state keyed by shim name
    * @param {object} [options.userData] - The learner's user data
    * @param {number} options.now - Current server time
@@ -140,6 +137,7 @@ export default class SandboxEnvironment {
     contentNamespace,
     startUrl = '',
     handlerUrl = null,
+    polyfillUrl = null,
     contentState = {},
     userData = {},
     now,
@@ -177,6 +175,11 @@ export default class SandboxEnvironment {
         throw new Error('handlerUrl is required - each content type must provide its own handler');
       }
 
+      if (polyfillUrl && needsPolyfills()) {
+        await this._loadScript(polyfillUrl).catch(e => {
+          logging.error('Polyfill loading failed:', e);
+        });
+      }
       await this._loadHandler(handlerUrl);
 
       this.handler.setNow(now);

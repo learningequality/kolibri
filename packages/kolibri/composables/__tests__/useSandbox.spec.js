@@ -25,7 +25,10 @@ jest.mock('kolibri-sandbox', () =>
   }),
 );
 
-jest.mock('kolibri/urls', () => ({ sandbox: () => '/sandbox/' }));
+jest.mock('kolibri/urls', () => ({
+  sandbox: () => '/sandbox/',
+  sandboxPolyfills: () => '/polyfills.js',
+}));
 
 let mockHandlerUrl = '/handler.js';
 
@@ -246,7 +249,7 @@ describe('useSandbox', () => {
   });
 
   describe('sandbox initialization', () => {
-    it('hands the client the content state, user data, url, checksum and handler url', () => {
+    it('hands the client the content state, user data, url, checksum, handler and polyfill urls', () => {
       const { init, sandbox } = renderSandbox({
         timeSpent: 30,
         duration: 300,
@@ -267,7 +270,7 @@ describe('useSandbox', () => {
         },
         FILE.storage_url,
         FILE.checksum,
-        { handlerUrl: '/handler.js' },
+        { handlerUrl: '/handler.js', polyfillUrl: '/polyfills.js' },
       );
     });
 
