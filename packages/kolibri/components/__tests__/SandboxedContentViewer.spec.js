@@ -28,7 +28,7 @@ jest.mock('kolibri-sandbox', () =>
   }),
 );
 
-jest.mock('kolibri/urls', () => ({ sandbox: () => '/sandbox/' }));
+jest.mock('kolibri/urls', () => ({ sandbox: () => '/sandbox/', sandboxPolyfills: () => null }));
 
 jest.mock('screenfull', () => ({
   isEnabled: true,

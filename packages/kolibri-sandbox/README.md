@@ -8,7 +8,7 @@ Kolibri Sandbox is a library to allow for mocking of various HTML5 APIs inside a
 
 The code inside the iframe mocks the localStorage, sessionStorage, document.cookie and indexedDB interfaces inside the iframe, allowing HTML5 apps contained therein to access them as if they were not sandboxed, but still safely.
 
-Once this has been setup, it sends a ready event to the external code that may be listening that it is ready. Once it receives a return ready event, it loads the content type's handler bundle, creates a nested iframe, and hands it to the handler to navigate to the content.
+Once this has been setup, it sends a ready event to the external code that may be listening that it is ready. Once it receives a return ready event, it loads Kolibri's core-js polyfill bundle if the browser fails the same feature test as the main page, then the content type's handler bundle, creates a nested iframe, and hands it to the handler to navigate to the content.
 
 This inner code then communicates with an object external to the iframe that is setup by the SandboxedContentViewer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
 

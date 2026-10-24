@@ -60,7 +60,10 @@ describe('Sandbox mainClient', () => {
       const userData = { userId: 'test' };
       return new Promise(resolve => {
         sandbox.mediator.sendMessage = jest.fn();
-        sandbox.initialize(contentState, userData, 'http://start.url', 'testns');
+        sandbox.initialize(contentState, userData, 'http://start.url', 'testns', {
+          handlerUrl: 'http://handler.url',
+          polyfillUrl: 'http://polyfill.url',
+        });
         sandbox.on(events.IFRAMEREADY, () => {
           resolve();
         });
@@ -72,7 +75,8 @@ describe('Sandbox mainClient', () => {
           data: {
             contentNamespace: 'testns',
             startUrl: 'http://start.url',
-            handlerUrl: null,
+            handlerUrl: 'http://handler.url',
+            polyfillUrl: 'http://polyfill.url',
             contentState: { myShim: { key: 'value' } },
             userData: { userId: 'test' },
             now: 1234,
