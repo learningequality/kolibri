@@ -4,9 +4,6 @@
     ref="btn"
     :to="to"
     class="header-tab"
-    :activeClass="activeClasses"
-    :style="{ color: 'var(--tokens-annotation)' }"
-    :class="defaultStyles"
   >
     <div
       class="inner"
@@ -33,20 +30,6 @@
         required: true,
       },
     },
-    computed: {
-      activeClasses() {
-        // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
-      },
-      defaultStyles() {
-        return this.$computedClass({
-          ':focus': this.$coreOutline,
-          ':hover': {
-            backgroundColor: this.$themePalette.blue.v_100,
-          },
-        });
-      },
-    },
   };
 
 </script>
@@ -69,6 +52,7 @@
     font-size: 14px;
     font-weight: bold;
     line-height: 36px;
+    color: var(--tokens-annotation);
     text-align: center;
     text-decoration: none;
     text-overflow: ellipsis;
@@ -82,8 +66,15 @@
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
     outline: none;
-    outline-offset: -2px !important;
     transition: background-color $core-time ease;
+
+    &:hover {
+      background-color: var(--palette-blue-v100);
+    }
+
+    &.router-link-active {
+      color: var(--tokens-primary);
+    }
 
     @media print {
       min-width: 0;
@@ -98,6 +89,13 @@
         display: none;
       }
     }
+  }
+
+  // Like $coreOutline, only shown for keyboard navigation. The inset offset
+  // is kept from before because the tab has overflow: hidden.
+  body[modality='keyboard'] .header-tab:focus {
+    outline: 3px solid var(--tokens-focusOutline);
+    outline-offset: -2px;
   }
 
   .inner {
