@@ -549,6 +549,23 @@ class AttendanceRecordAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
+    def test_bulk_update_rejects_user_from_another_dataset(self):
+        # bulk_create skips pre_save, so the model-level dataset check in
+        # infer_dataset never runs on this path -- it has to be validated here.
+        other_facility = Facility.objects.create(name="Other Record Facility")
+        other_learner = FacilityUser.objects.create(
+            username="rec_other", facility=other_facility
+        )
+        session = self._create_session()
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [{"user": other_learner.id, "present": True}],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(AttendanceRecord.objects.filter(user=other_learner).exists())
+
     def test_bulk_update_creates_and_updates_records(self):
         session = self._create_session()
         AttendanceRecord.objects.create(

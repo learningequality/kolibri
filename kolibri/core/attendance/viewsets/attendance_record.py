@@ -64,14 +64,27 @@ class BulkUpdateSerializer(Serializer):
 
     def validate(self, data):
         records = data.get("records", [])
+        session = data["attendance_session"]
         user_ids = {r["user"] for r in records}
-        existing_ids = set(
-            FacilityUser.objects.filter(id__in=user_ids).values_list("id", flat=True)
+        users = list(
+            FacilityUser.objects.filter(id__in=user_ids).values_list("id", "dataset_id")
         )
-        missing = user_ids - existing_ids
+        missing = user_ids - {user_id for user_id, _ in users}
         if missing:
             raise ValidationError(
                 {"records": f"Invalid user IDs: {', '.join(sorted(missing))}"}
+            )
+        # bulk_create below skips pre_save, so AttendanceRecord.infer_dataset
+        # never runs to reject a user from another dataset; check it here.
+        foreign = {
+            user_id for user_id, dataset_id in users if dataset_id != session.dataset_id
+        }
+        if foreign:
+            raise ValidationError(
+                {
+                    "records": "User IDs from another dataset: "
+                    f"{', '.join(sorted(foreign))}"
+                }
             )
         return data
 
