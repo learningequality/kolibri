@@ -24,6 +24,7 @@ from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.serializers import DateTimeTzField
 from kolibri.core.utils.pagination import OptionalPageNumberPagination
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,10 @@ class AttendanceSessionSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
         records_data = validated_data.pop("attendance_records", None)
+        # Set here rather than with auto_now on the model: deserialization saves
+        # through the same path, so auto_now would overwrite a synced-in value
+        # with the receiving device's clock.
+        validated_data["date_modified"] = local_now()
         with transaction.atomic():
             instance = super().update(instance, validated_data)
             if records_data is not None:

@@ -302,6 +302,24 @@ class AttendanceSessionAPITestCase(APITestCase):
             1,
         )
 
+    def test_update_moves_date_modified_forward(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner, present=False
+        )
+        original_modified = session.date_modified
+        self._login(self.coach)
+        data = {
+            "collection": self.classroom.id,
+            "attendance_records": [
+                {"user": self.learner.id, "present": True},
+            ],
+        }
+        response = self.client.put(_session_detail_url(session.id), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        session.refresh_from_db()
+        self.assertGreater(session.date_modified, original_modified)
+
     def test_learner_cannot_update_session(self):
         session = self._create_session()
         self._login(self.learner)
