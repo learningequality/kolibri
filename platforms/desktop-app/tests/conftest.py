@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(
     0, os.path.join(os.path.dirname(__file__), "..", "installer", "translations")
 )
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "build_config"))
 
 # _version.py is generated at build time (Makefile `write-version`) and
 # gitignored, so it is absent in a fresh checkout / the test row. kolibri_app
@@ -29,6 +30,8 @@ _logger_mock.logging = logging.getLogger("test_kolibri_app")
 sys.modules.setdefault("kolibri_app.logger", _logger_mock)
 sys.modules.setdefault("wx", MagicMock())
 sys.modules.setdefault("wx.adv", MagicMock())
+# dmgbuild only installs on darwin.
+sys.modules.setdefault("dmgbuild", MagicMock())
 # Mock only the leaf submodule view.py imports; mocking the top-level "django"
 # package triggers pytest-django's setup path and causes collection errors.
 sys.modules.setdefault("django.utils.translation.trans_real", MagicMock())
