@@ -369,7 +369,12 @@ class AssessmentMetaData(base_models.AssessmentMetaData):
 
 
 class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):
-    pass
+    def has_imported_version(self, channel_id, version):
+        return (
+            self.filter(id=channel_id, version__gte=version)
+            .exclude(partial=True)
+            .exists()
+        )
 
 
 BATCH_SIZE = 1000

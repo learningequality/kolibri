@@ -15,7 +15,9 @@ from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.channel_import import import_channel_by_id
 from kolibri.core.content.utils.channel_import import ImportCancelError
+from kolibri.core.content.utils.channels import discard_stale_upgrade_database
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.channels import is_channel_database_current
 from kolibri.core.content.utils.content_manifest import ContentManifest
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.content.utils.file_availability import LocationError
@@ -608,6 +610,9 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
 
 
 class RemoteResourceImportManagerBase(ResourceImportManagerBase):
+    overwrite_channel_database = False
+    discards_stale_upgrade_database = False
+
     def __init__(
         self,
         channel_id,
@@ -650,10 +655,13 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         if _listing:
             self.public = _listing.get("public")
             self.library = _listing.get("library")
-            raw_version = _listing.get("version")
-            self.remote_version = 0 if raw_version is None else raw_version
+            self.listed_version = _listing.get("version")
+            self.remote_version = (
+                0 if self.listed_version is None else self.listed_version
+            )
         else:
             self.public = self.library = self.remote_version = None
+            self.listed_version = None
 
         self.session = SameHostSession()
 
@@ -694,6 +702,13 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             return None
         return "next" if self.remote_version == 0 else self.remote_version
 
+    def _get_channel_database_transfer(self, dest):
+        if self.discards_stale_upgrade_database and self.listed_version is not None:
+            discard_stale_upgrade_database(
+                self.channel_id, self.listed_version, self.content_dir
+            )
+        return super()._get_channel_database_transfer(dest)
+
     def get_channel_database_size(self):
         """
         Get the size of the remote channel database by making a HEAD request.
@@ -717,6 +732,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             dest,
             cancel_check=self.is_cancelled,
             timeout=self.timeout,
+            overwrite=self.overwrite_channel_database,
         )
 
     def create_file_transfer(self, f, filename, dest):
@@ -864,6 +880,8 @@ class RemoteChannelDatabaseImportManager(RemoteResourceImportManagerBase):
     Used by the remotechannelimport task.
     """
 
+    discards_stale_upgrade_database = True
+
     def __init__(self, channel_id, baseurl=None, peer_id=None, token=None):
         super().__init__(
             channel_id,
@@ -871,6 +889,15 @@ class RemoteChannelDatabaseImportManager(RemoteResourceImportManagerBase):
             peer_id=peer_id,
             import_channel_database=True,
             token=token,
+        )
+
+    @property
+    def overwrite_channel_database(self):
+        return self.version_requested or (
+            self.listing_found
+            and not is_channel_database_current(
+                self.channel_id, self.remote_version, self.content_dir
+            )
         )
 
     def get_import_data(self):
