@@ -567,19 +567,6 @@ class AttendanceRecordAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
-    def test_bulk_update_moves_session_date_modified_forward(self):
-        session = self._create_session()
-        original_modified = session.date_modified
-        self._login(self.coach)
-        data = {
-            "attendance_session": session.id,
-            "records": [{"user": self.learner1.id, "present": True}],
-        }
-        response = self.client.post(_record_bulk_update_url(), data, format="json")
-        self.assertEqual(response.status_code, 200)
-        session.refresh_from_db()
-        self.assertGreater(session.date_modified, original_modified)
-
     def test_bulk_update_creates_and_updates_records(self):
         session = self._create_session()
         AttendanceRecord.objects.create(
@@ -605,6 +592,19 @@ class AttendanceRecordAPITestCase(APITestCase):
                 attendance_session=session, user=self.learner2
             ).present
         )
+
+    def test_bulk_update_moves_session_date_modified_forward(self):
+        session = self._create_session()
+        original_modified = session.date_modified
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [{"user": self.learner1.id, "present": True}],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        session.refresh_from_db()
+        self.assertGreater(session.date_modified, original_modified)
 
     def test_bulk_update_does_not_touch_unsent_records(self):
         session = self._create_session()
