@@ -23,6 +23,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.serializers import HexOnlyUUIDField
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +133,10 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
                     records_to_create.append(record)
             if records_to_create:
                 AttendanceRecord.objects.bulk_create(records_to_create)
+            # Editing a session's records modifies the session, so its
+            # date_modified has to move with them.
+            session.date_modified = local_now()
+            session.save(update_fields=["date_modified"])
         all_records = AttendanceRecord.objects.filter(
             attendance_session=session, user_id__in=user_ids
         )
