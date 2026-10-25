@@ -839,6 +839,7 @@ class FileDownload(Transfer):
         timeout=Transfer.DEFAULT_TIMEOUT,
         retry_wait=30,
         full_ranges=True,
+        overwrite=False,
     ):
         # Allow an existing requests.Session to be passed in, so it can be
         # reused for speed. The default blocks cross-host redirects so a
@@ -852,6 +853,8 @@ class FileDownload(Transfer):
         # A flag to download the full range in one request, or to download
         # chunks of the file.
         self.full_ranges = full_ranges
+
+        self.overwrite = overwrite
 
         self.set_range(start_range, end_range)
 
@@ -875,9 +878,13 @@ class FileDownload(Transfer):
         Whether the destination file is already in place and, when a checksum is
         known, matches it, so there is nothing left to download.
         """
-        return os.path.isfile(self.dest) and (
-            not self.checksum
-            or _md5_file(self.dest, self.dest_file_obj.chunk_size) == self.checksum
+        return (
+            not self.overwrite
+            and os.path.isfile(self.dest)
+            and (
+                not self.checksum
+                or _md5_file(self.dest, self.dest_file_obj.chunk_size) == self.checksum
+            )
         )
 
     def _set_completed(self):

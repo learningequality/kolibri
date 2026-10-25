@@ -1006,6 +1006,18 @@ class TestTransferDownloadExistingDestination(unittest.TestCase):
             self.assertEqual(f.read(), self.content)
         self.assertFalse(os.path.exists(self.dest + ".transfer"))
 
+    def test_overwrite_replaces_existing_destination_without_checksum(self):
+        self._write_dest(self.content[:-1])
+        self._mock_get(self.content)
+
+        with FileDownload(
+            self.source, self.dest, session=self.mock_session, overwrite=True
+        ) as fd:
+            fd.run()
+
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
     def test_corrupt_download_keeps_existing_destination(self):
         stale = self.content[:-1]
         self._write_dest(stale)
