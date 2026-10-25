@@ -15,7 +15,9 @@ from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.channel_import import import_channel_by_id
 from kolibri.core.content.utils.channel_import import ImportCancelError
+from kolibri.core.content.utils.channels import discard_stale_upgrade_database
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.channels import is_channel_database_current
 from kolibri.core.content.utils.content_manifest import ContentManifest
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.content.utils.file_availability import LocationError
@@ -131,6 +133,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         self.admin_imported = admin_imported
         self.import_channel_database = import_channel_database
         self.version_requested = False
+        self.imports_draft = False
         self.channel_database_transferred_bytes = 0
         super().__init__()
 
@@ -305,7 +308,9 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             not_admin_imported_ids,
         ) = self._get_existing_node_state()
 
+        dest_existed = os.path.exists(dest)
         filetransfer = self._get_channel_database_transfer(dest)
+        reused_dest = filetransfer.finalized
 
         try:
             with filetransfer:
@@ -323,6 +328,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
                         self.is_cancelled,
                         self.content_dir,
                         version_requested=self.version_requested,
+                        draft=self.imports_draft,
                     )
                     if import_ran:
                         self._restore_node_metadata(
@@ -338,7 +344,8 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
 
         if self.is_cancelled():
             try:
-                os.remove(dest)
+                if not dest_existed or (filetransfer.finalized and not reused_dest):
+                    os.remove(dest)
             except OSError as e:
                 logger.info("Tried to remove %s, but exception %s occurred.", dest, e)
             # Reraise any cancellation.
@@ -608,6 +615,8 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
 
 
 class RemoteResourceImportManagerBase(ResourceImportManagerBase):
+    overwrite_channel_database = False
+
     def __init__(
         self,
         channel_id,
@@ -650,10 +659,14 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         if _listing:
             self.public = _listing.get("public")
             self.library = _listing.get("library")
-            raw_version = _listing.get("version")
-            self.remote_version = 0 if raw_version is None else raw_version
+            self.listed_version = _listing.get("version")
+            self.remote_version = (
+                0 if self.listed_version is None else self.listed_version
+            )
         else:
-            self.public = self.library = self.remote_version = None
+            self.public = self.library = self.remote_version = self.listed_version = (
+                None
+            )
 
         self.session = SameHostSession()
 
@@ -717,6 +730,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             dest,
             cancel_check=self.is_cancelled,
             timeout=self.timeout,
+            overwrite=self.overwrite_channel_database,
         )
 
     def create_file_transfer(self, f, filename, dest):
@@ -871,6 +885,25 @@ class RemoteChannelDatabaseImportManager(RemoteResourceImportManagerBase):
             peer_id=peer_id,
             import_channel_database=True,
             token=token,
+        )
+        self.imports_draft = self._channel_db_version == "next"
+
+    def _get_channel_database_transfer(self, dest):
+        if self.imports_draft or self.listed_version is not None:
+            discard_stale_upgrade_database(
+                self.channel_id,
+                None if self.imports_draft else self.listed_version,
+                self.content_dir,
+            )
+        return super()._get_channel_database_transfer(dest)
+
+    @property
+    def overwrite_channel_database(self):
+        return self.version_requested or (
+            self.listing_found
+            and not is_channel_database_current(
+                self.channel_id, self.remote_version, self.content_dir
+            )
         )
 
     def get_import_data(self):

@@ -291,10 +291,12 @@ class ChannelImport:
         partial=False,
         version_requested=False,
         force_upgrade=False,
+        draft=False,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
         self.version_requested = version_requested
+        self.draft = draft
         try:
             self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         except ChannelMetadata.DoesNotExist:
@@ -757,7 +759,6 @@ class ChannelImport:
     def check_and_delete_existing_channel(self):
         if self.current_channel:
             current_version = self.current_channel.version
-            current_partial = self.current_channel.partial
             if self.partial:
                 if current_version == self.channel_version:
                     return True
@@ -776,11 +777,16 @@ class ChannelImport:
                     )
                     return False
 
-            if current_version is not None and (
-                current_version < self.channel_version
-                or current_partial
-                or (self.version_requested and current_version > self.channel_version)
-            ):
+            up_to_date = (
+                not self.draft
+                and ChannelMetadata.objects.has_imported_version(
+                    self.channel_id, self.channel_version
+                )
+                and not (
+                    self.version_requested and current_version > self.channel_version
+                )
+            )
+            if current_version is not None and not up_to_date:
                 # We have a different version of this channel (upgrade, downgrade, or partial),
                 # so clean out the old data first.
                 logger.info(
@@ -1251,6 +1257,7 @@ def initialize_import_manager(
     partial=False,
     version_requested=False,
     force_upgrade=False,
+    draft=False,
 ):
     if isinstance(source, dict):
         schema_version = source["schema_version"]
@@ -1273,11 +1280,16 @@ def initialize_import_manager(
         partial=partial,
         version_requested=version_requested,
         force_upgrade=force_upgrade,
+        draft=draft,
     )
 
 
 def import_channel_from_local_db(
-    channel_id, cancel_check=None, contentfolder=None, version_requested=False
+    channel_id,
+    cancel_check=None,
+    contentfolder=None,
+    version_requested=False,
+    draft=False,
 ):
     source = get_content_database_file_path(channel_id, contentfolder=contentfolder)
 
@@ -1288,6 +1300,7 @@ def import_channel_from_local_db(
         source,
         cancel_check=cancel_check,
         version_requested=version_requested,
+        draft=draft,
     ) as import_manager:
         return import_manager.run_and_annotate()
 
@@ -1310,7 +1323,7 @@ def import_channel_from_data(
 
 
 def import_channel_by_id(
-    channel_id, cancel_check, contentfolder=None, version_requested=False
+    channel_id, cancel_check, contentfolder=None, version_requested=False, draft=False
 ):
     try:
         return import_channel_from_local_db(
@@ -1318,6 +1331,7 @@ def import_channel_by_id(
             cancel_check=cancel_check,
             contentfolder=contentfolder,
             version_requested=version_requested,
+            draft=draft,
         )
     except InvalidSchemaVersionError as e:
         raise CommandError(
