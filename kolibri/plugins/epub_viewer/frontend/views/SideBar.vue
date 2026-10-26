@@ -28,7 +28,7 @@
     width: 250px;
     padding: 16px;
     overflow-y: auto;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
 </style>

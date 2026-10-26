@@ -120,7 +120,6 @@
     .learner-password-card {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      page-break-inside: avoid;
       break-inside: avoid;
     }
   }
