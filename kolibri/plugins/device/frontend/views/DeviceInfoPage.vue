@@ -260,8 +260,8 @@
   th {
     padding-right: 24px;
     padding-bottom: 24px;
-    text-align: left;
     vertical-align: top;
+    text-align: left;
   }
 
   td {
@@ -296,7 +296,7 @@
 
   .mobile {
     max-width: 1px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
 </style>
