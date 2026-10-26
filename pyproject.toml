@@ -61,6 +61,7 @@ kolibri = "kolibri.utils.cli:main"
 "kolibri.plugins.bloompub_viewer" = "kolibri.plugins.bloompub_viewer"
 "kolibri.plugins.safe_html5_viewer" = "kolibri.plugins.safe_html5_viewer"
 "kolibri.plugins.h5p_viewer" = "kolibri.plugins.h5p_viewer"
+"kolibri.plugins.zim_viewer" = "kolibri.plugins.zim_viewer"
 
 [project.optional-dependencies]
 postgres = ["psycopg2-binary==2.9.11; python_version >= '3.9' and python_version <= '3.14'"]
