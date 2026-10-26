@@ -99,11 +99,8 @@ def _menu_labels(uses_service):
 
 
 class TestTrayMenu(unittest.TestCase):
-    def test_offers_service_restart_when_connected_to_the_service(self):
-        self.assertIn("Restart Kolibri service", _menu_labels(uses_service=True))
-
-    def test_does_not_offer_service_restart_for_a_local_server(self):
-        self.assertNotIn("Restart Kolibri service", _menu_labels(uses_service=False))
+    def test_does_not_offer_service_restart(self):
+        self.assertNotIn("Restart Kolibri service", _menu_labels(uses_service=True))
 
     def test_labels_the_quit_item_close(self):
         labels = _menu_labels(uses_service=True)
@@ -144,7 +141,7 @@ class _ImmediateThread:
         self.target(*self.args)
 
 
-ADMIN_REQUIRED = "Administrator permissions are required to change this setting."
+ADMIN_REQUIRED = "Administrator rights are required to change this setting."
 RESTART_FAILED = "The Kolibri service could not be restarted."
 
 

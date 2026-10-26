@@ -462,10 +462,6 @@ class KolibriTaskBarIcon:
             wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item
         )
 
-        if self.app.server_manager.uses_service:
-            restart_item = menu.Append(wx.ID_ANY, _("Restart Kolibri service"))
-            self.frame.Bind(wx.EVT_MENU, self.on_restart_service, restart_item)
-
         menu.AppendSeparator()
 
         # 4. Close
@@ -526,7 +522,7 @@ class KolibriTaskBarIcon:
             if process is None:
                 self.run_on_start_item.Check(not is_auto_start_enabled)
                 wx.MessageBox(
-                    _("Administrator permissions are required to change this setting."),
+                    _("Administrator rights are required to change this setting."),
                     _("Error"),
                     wx.OK | wx.ICON_ERROR,
                 )
@@ -593,7 +589,7 @@ class KolibriTaskBarIcon:
         process = _run_elevated("--restart-service")
         if process is None:
             wx.MessageBox(
-                _("Administrator permissions are required to change this setting."),
+                _("Administrator rights are required to change this setting."),
                 _("Error"),
                 wx.OK | wx.ICON_ERROR,
             )
