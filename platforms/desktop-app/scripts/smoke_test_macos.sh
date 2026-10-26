@@ -16,21 +16,33 @@ echo "[1/6] Mounting and verifying DMG..."
 hdiutil attach "$DMG_PATH" -mountpoint "$MOUNT_POINT"
 sleep 2
 
-if [ ! -d "$MOUNT_POINT/Kolibri.app" ]; then
-    echo "ERROR: Kolibri.app not found in DMG"
-    echo "DMG contents:"
-    ls -la "$MOUNT_POINT" || true
+fail_mounted() {
+    echo "ERROR: $1"
+    ls -la "${2:-$MOUNT_POINT}" || true
     hdiutil detach "$MOUNT_POINT"
     exit 1
+}
+
+if [ ! -d "$MOUNT_POINT/Kolibri.app" ]; then
+    fail_mounted "Kolibri.app not found in DMG"
+fi
+
+if [ "$(readlink "$MOUNT_POINT/Applications")" != "/Applications" ]; then
+    fail_mounted "Applications symlink to /Applications not found in DMG"
+fi
+
+if [ ! -f "$MOUNT_POINT/.background.png" ]; then
+    fail_mounted ".background.png not found in DMG"
+fi
+
+if ! grep -q Iloc "$MOUNT_POINT/.DS_Store" 2>/dev/null; then
+    fail_mounted "Icon layout (.DS_Store Iloc records) not found in DMG"
 fi
 
 # Find the versioned executable (e.g., Kolibri-0.19.0b2)
 EXECUTABLE=$(find "$MOUNT_POINT/Kolibri.app/Contents/MacOS/" -maxdepth 1 -name "Kolibri-*" | head -1 | xargs basename)
 if [ -z "$EXECUTABLE" ]; then
-    echo "ERROR: Kolibri executable not found"
-    ls -la "$MOUNT_POINT/Kolibri.app/Contents/MacOS" || true
-    hdiutil detach "$MOUNT_POINT"
-    exit 1
+    fail_mounted "Kolibri executable not found" "$MOUNT_POINT/Kolibri.app/Contents/MacOS"
 fi
 echo "✓ DMG verified, found executable: $EXECUTABLE"
 

@@ -90,7 +90,7 @@ pyinstaller: clean write-version
 	$(PYTHON_EXEC) -OO -m PyInstaller kolibri.spec
 
 build-dmg: needs-version
-	$(PYTHON_EXEC) -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}" dist/kolibri-${KOLIBRI_VERSION}.dmg
+	$(PYTHON_EXEC) build_config/build_dmg.py "Kolibri ${KOLIBRI_VERSION}" dist/kolibri-${KOLIBRI_VERSION}.dmg
 
 .PHONY: webview2
 # Download WebView2 runtime installer
