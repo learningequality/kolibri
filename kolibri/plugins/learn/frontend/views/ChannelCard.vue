@@ -29,7 +29,7 @@
       <KFixedGrid
         numCols="4"
         gutter="16"
-        style="margin: 0 16px"
+        style="margin: 0 16px;"
       >
         <KFixedGridItem span="1">
           <ChannelThumbnail
@@ -202,8 +202,8 @@
     width: 100%;
     max-height: 270px;
     padding-bottom: $margin;
-    text-decoration: none;
     vertical-align: top;
+    text-decoration: none;
     border-radius: $radius;
     transition: box-shadow $core-time ease;
 

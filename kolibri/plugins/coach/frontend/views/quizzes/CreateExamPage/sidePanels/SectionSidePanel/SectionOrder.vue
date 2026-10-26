@@ -33,13 +33,13 @@
                   @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
                   @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
                 />
-                <span style="flex: 1">
+                <span style="flex: 1;">
                   {{ sectionOrderingTitle(section) }}
                 </span>
                 <span
                   v-if="section.description"
                   class="current-section-style"
-                  style="flex: 2; text-overflow: ellipsis"
+                  style="flex: 2; text-overflow: ellipsis;"
                 >
                   {{ section.description }}
                 </span>

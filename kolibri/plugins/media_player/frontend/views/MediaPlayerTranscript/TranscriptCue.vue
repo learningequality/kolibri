@@ -168,8 +168,8 @@
     .transcript-cue-text {
       display: inline-block;
       padding: 14px 5px;
-      white-space: normal;
       vertical-align: top;
+      white-space: normal;
     }
 
     .transcript-cue-time {

@@ -21,7 +21,7 @@
             <span
               :ref="tabRefLabel(tab.id)"
               appearance="flat-button"
-              style="display: inline-block"
+              style="display: inline-block;"
               :appearanceOverrides="tabStyles"
             >
               {{ tab.label }}
@@ -77,7 +77,7 @@
       >
         <KGridItem
           class="right-side-heading"
-          style="padding: 0.7em 0.75em"
+          style="padding: 0.7em 0.75em;"
         >
           <KButton
             ref="addQuestionsButton"
@@ -102,7 +102,7 @@
       <!-- TODO This should be a separate component like "empty section container" or something -->
       <div
         v-if="!activeQuestions.length"
-        style="max-width: 350px; padding: 0 0 1em; margin: 0 auto; text-align: center"
+        style="max-width: 350px; padding: 0 0 1em; margin: 0 auto; text-align: center;"
       >
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
         <div
@@ -115,7 +115,7 @@
           >?</span>
         </div>
 
-        <p style="margin-top: 1em; font-weight: bold">
+        <p style="margin-top: 1em; font-weight: bold;">
           {{ noQuestionsInSection$() }}
         </p>
 
@@ -124,7 +124,7 @@
         <KButton
           primary
           icon="plus"
-          style="margin-top: 1em"
+          style="margin-top: 1em;"
           @click="openSelectResources()"
         >
           {{ addQuestionsLabel$() }}
