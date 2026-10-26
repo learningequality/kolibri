@@ -2393,11 +2393,8 @@ def import_metadata_responses(django_db_setup, django_db_blocker):
         }
 
 
-@pytest.mark.django_db(transaction=True, databases="__all__")
-class TestImportMetadataChannelUpgrade:
+class ChannelMetadataImportBase:
     """
-    Integration tests for _import_metadata covering channel-upgrade scenarios.
-
     _get_import_metadata is mocked to return data in the format produced by
     ImportMetadataViewset._serialize (keyed by model db_table names, schema_version "5").
     import_channel_from_data is exercised for real so that ContentNode and ChannelMetadata
@@ -2436,26 +2433,16 @@ class TestImportMetadataChannelUpgrade:
 
         # Mocking PreferredDevicesWithClient to return a single peer with the test instance_id
         _preferred_mock = mock.MagicMock()
-        peer1 = _create_network_location(instance_id=self.instance_id)
+        self.peer = _create_network_location(instance_id=self.instance_id)
         _preferred_mock.return_value.__iter__.return_value = [
-            (peer1, mock_client),
+            (self.peer, mock_client),
         ]
         _preferred_mock.build_from_sync_sessions.return_value = []
         _preferred_patch = mock.patch(
             _module + "PreferredDevicesWithClient", new=_preferred_mock
         )
 
-        # Mocking _process_content_requests to avoid side effects during the test
-        def _process_content_requests_mock(incomplete_downloads):
-            # Just assume all downloads are completed successfully without doing any real processing
-            incomplete_downloads.update(status=ContentRequestStatus.Completed)
-
-        _process_content_requests_patch = mock.patch(
-            _module + "_process_content_requests",
-            side_effect=_process_content_requests_mock,
-        )
-
-        with _get_import_metadata_patch, _preferred_patch, _process_content_requests_patch:
+        with _get_import_metadata_patch as self.mock_get_import_metadata, _preferred_patch:
             yield
 
     def _upgrade_channel_version_on_server(self):
@@ -2468,8 +2455,10 @@ class TestImportMetadataChannelUpgrade:
 
         self.channel_version += 1
 
-    def _create_download(self, contentnode_id, metadata=None, channel_version=None):
-        download = ContentDownloadRequest.build_for_user(self.admin)
+    def _create_download(
+        self, contentnode_id, metadata=None, channel_version=None, user=None
+    ):
+        download = ContentDownloadRequest.build_for_user(user or self.admin)
         download.contentnode_id = contentnode_id
         download.source_instance_id = self.instance_id
         if metadata is not None:
@@ -2480,6 +2469,26 @@ class TestImportMetadataChannelUpgrade:
 
         download.save()
         return download
+
+
+@pytest.mark.django_db(transaction=True, databases="__all__")
+class TestImportMetadataChannelUpgrade(ChannelMetadataImportBase):
+    """
+    Integration tests for _import_metadata covering channel-upgrade scenarios.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _patch_process_content_requests(self):
+        # Mocking _process_content_requests to avoid side effects during the test
+        def _process_content_requests_mock(incomplete_downloads):
+            # Just assume all downloads are completed successfully without doing any real processing
+            incomplete_downloads.update(status=ContentRequestStatus.Completed)
+
+        with mock.patch(
+            _module + "_process_content_requests",
+            side_effect=_process_content_requests_mock,
+        ):
+            yield
 
     def _get_metadata(self, contentnode_id, channel_version, model):
         return self.import_metadata_responses[f"v{channel_version}_metadata"][
@@ -2620,3 +2629,90 @@ class TestImportMetadataChannelUpgrade:
         assert not ContentNode.objects.filter(id=self.leaf_2).exists()
         assert ContentNode.objects.filter(id=self.leaf_1).exists()
         assert ChannelMetadata.objects.get(id=self.channel_id).version == 2
+
+
+_transfer_outcomes = pytest.mark.parametrize(
+    "transfer_succeeds,expected_status",
+    [
+        (True, ContentRequestStatus.Completed),
+        (False, ContentRequestStatus.Failed),
+    ],
+)
+
+
+@pytest.mark.django_db(transaction=True, databases="__all__")
+class TestProcessContentRequestsFileTransfer(ChannelMetadataImportBase):
+    @pytest.fixture(autouse=True)
+    def _patch_file_transfer(self):
+        self.transfer_succeeds = True
+        self.transfers = []
+
+        def _build_import_manager(channel_id, peer, download_request, **kwargs):
+            self.transfers.append((download_request.id, peer))
+
+            def _run():
+                if not self.transfer_succeeds:
+                    raise LocationError("not found")
+                ContentNode.objects.filter(id=download_request.contentnode_id).update(
+                    available=True
+                )
+                return None, 1
+
+            return mock.MagicMock(exception=None, **{"run.side_effect": _run})
+
+        with mock.patch(
+            _module + "ContentDownloadRequestResourceImportManager",
+            side_effect=_build_import_manager,
+        ), mock.patch(_module + "get_free_space_for_downloads", return_value=10**9):
+            yield
+
+    def _status(self, download):
+        download.refresh_from_db()
+        return download.status
+
+    @_transfer_outcomes
+    def test_transfer_outcome_sets_request_status(
+        self, transfer_succeeds, expected_status
+    ):
+        self.transfer_succeeds = transfer_succeeds
+        download = self._create_download(self.leaf_1)
+
+        process_content_requests()
+
+        assert self._status(download) == expected_status
+        assert self.transfers == [(download.id, self.peer)]
+
+    def test_second_request_for_transferred_node_completes_without_transfer(self):
+        coach = FacilityUser.objects.create(
+            username="coach",
+            password="password",
+            facility=self.facility,
+        )
+        self.facility.add_coach(coach)
+        admin_download = self._create_download(self.leaf_1)
+        coach_download = self._create_download(self.leaf_1, user=coach)
+
+        process_content_requests()
+
+        assert self._status(admin_download) == ContentRequestStatus.Completed
+        assert self._status(coach_download) == ContentRequestStatus.Completed
+        assert len(self.transfers) == 1
+
+    @_transfer_outcomes
+    def test_channel_upgrade_requeues_transfer_of_completed_request(
+        self, transfer_succeeds, expected_status
+    ):
+        v1_download = self._create_download(self.leaf_1)
+        process_content_requests()
+
+        self._upgrade_channel_version_on_server()
+        self._create_download(self.leaf_1, channel_version=self.channel_version)
+        self.transfer_succeeds = transfer_succeeds
+        self.transfers.clear()
+        self.mock_get_import_metadata.reset_mock()
+
+        process_content_requests()
+
+        assert self._status(v1_download) == expected_status
+        assert (v1_download.id, self.peer) in self.transfers
+        self.mock_get_import_metadata.assert_called_once()
