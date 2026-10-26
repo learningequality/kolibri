@@ -1,7 +1,7 @@
 <template>
 
   <!-- z-index 7 - one beneath top menu bar for nested elevations -->
-  <BaseToolbar style="z-index: 7">
+  <BaseToolbar style="z-index: 7;">
     <div
       class="container"
       :style="{ flexWrap: windowBreakpoint > 0 ? 'nowrap' : 'wrap' }"

@@ -49,7 +49,7 @@
               </h3>
               <p
                 v-if="contentNode.description"
-                style="margin-top: 4px; margin-bottom: 4px; font-size: 14px"
+                style="margin-top: 4px; margin-bottom: 4px; font-size: 14px;"
               >
                 <KTextTruncator
                   :text="contentNode.description"
@@ -300,8 +300,8 @@
     display: inline-block;
     padding: 8px;
     font-size: 13px;
-    text-decoration: none;
     vertical-align: top;
+    text-decoration: none;
   }
 
   .duration {

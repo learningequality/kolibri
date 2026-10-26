@@ -143,7 +143,7 @@
         >
           <ElapsedTime
             :date="lessonDateCreated"
-            style="margin-top: 8px"
+            style="margin-top: 8px;"
           />
         </KGridItem>
       </div>

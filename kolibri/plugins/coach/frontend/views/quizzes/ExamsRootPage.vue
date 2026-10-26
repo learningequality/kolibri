@@ -70,7 +70,7 @@
         >
           <template #headers>
             <th>{{ titleLabel$() }}</th>
-            <th style="position: relative">
+            <th style="position: relative;">
               {{ avgScoreLabel$() }}
               <AverageScoreTooltip v-show="!$isPrint" />
             </th>

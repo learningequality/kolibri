@@ -152,6 +152,7 @@
 
   .pdf-sidebar {
     overflow-y: auto;
+
     @extend %dropshadow-2dp;
   }
 

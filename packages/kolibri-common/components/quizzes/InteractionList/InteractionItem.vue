@@ -92,8 +92,8 @@
 <style lang="scss" scoped>
 
   .attempt-box {
-    display: inline-block;
     float: left;
+    display: inline-block;
     width: 60px;
     height: 60px;
     padding: 10px;

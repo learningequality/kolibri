@@ -24,12 +24,12 @@
           class="truncator"
           :text="contentNode.description"
           :maxLines="2"
-          style="min-height: 17px; margin-bottom: 8px"
+          style="min-height: 17px; margin-bottom: 8px;"
         />
         <MetadataChips :tags="metadataTags" />
         <div
           v-if="!contentNode.description"
-          style="min-height: 17px"
+          style="min-height: 17px;"
         ></div>
       </div>
     </template>

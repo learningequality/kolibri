@@ -359,8 +359,8 @@
   // === SIDE PANEL (push mode) ===
   .side-panel {
     display: flex;
-    flex-direction: column;
     flex-shrink: 0;
+    flex-direction: column;
   }
 
   .side-panel-header {

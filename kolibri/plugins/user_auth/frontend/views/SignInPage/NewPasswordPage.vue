@@ -23,7 +23,7 @@
         appearance="raised-button"
         :primary="true"
         :text="coreString('continueAction')"
-        style="display: block; width: 100%; margin: 24px auto 0"
+        style="display: block; width: 100%; margin: 24px auto 0;"
         :disabled="busy"
         data-testid="submit"
         @click="updatePassword"

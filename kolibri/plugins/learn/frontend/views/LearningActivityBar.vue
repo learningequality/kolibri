@@ -2,13 +2,13 @@
 
   <nav :aria-label="$tr('optionsLabel')">
     <KToolbar
-      style="z-index: 8"
+      style="z-index: 8;"
       :style="contentSpecificStyles"
       class="toolbar"
     >
       <CoachContentLabel
         :value="isCoachContent"
-        style="width: auto; margin-top: 8px"
+        style="width: auto; margin-top: 8px;"
       />
       <KLabeledIcon :style="{ 'margin-top': '8px' }">
         <template #icon>

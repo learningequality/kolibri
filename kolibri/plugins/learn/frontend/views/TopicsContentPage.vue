@@ -127,12 +127,12 @@
       @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
-        <h2 style="margin: 0">
+        <h2 style="margin: 0;">
           {{ viewResourcesTitle }}
         </h2>
       </template>
       <AlsoInThis
-        style="margin-top: 8px"
+        style="margin-top: 8px;"
         :contentNodes="viewResourcesContents"
         :moreContentNodesAvailable="moreResourcesContentAvailable"
         :moreContentNodesLoading="moreResourcesContentLoading"
