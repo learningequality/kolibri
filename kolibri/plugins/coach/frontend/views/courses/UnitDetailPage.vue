@@ -73,13 +73,13 @@
                       <tr>
                         <th
                           scope="col"
-                          class="visually-hidden"
+                          class="visuallyhidden"
                         >
                           {{ titleLabel$() }}
                         </th>
                         <th
                           scope="col"
-                          class="visually-hidden"
+                          class="visuallyhidden"
                         >
                           {{ progressLabel$() }}
                         </th>
@@ -162,13 +162,13 @@
                       <tr>
                         <th
                           scope="col"
-                          class="visually-hidden"
+                          class="visuallyhidden"
                         >
                           {{ learningObjectiveLabel$() }}
                         </th>
                         <th
                           scope="col"
-                          class="visually-hidden"
+                          class="visuallyhidden"
                         >
                           {{ learnerDistributionChartLabel$() }}
                         </th>
@@ -429,18 +429,6 @@
   .resource-icon {
     flex-shrink: 0;
     margin-inline-end: 8px;
-  }
-
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
   .lo-table {
