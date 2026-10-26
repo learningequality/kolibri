@@ -17,7 +17,7 @@
           class="column-pane"
         >
           <div class="column-contents-wrapper">
-            <KPageContainer style="padding: 0">
+            <KPageContainer style="padding: 0;">
               <AnswerHistory
                 :pastattempts="pastattempts"
                 :sections="sections"
@@ -40,7 +40,7 @@
             <KPageContainer
               v-if="windowIsLarge"
               dir="auto"
-              style="overflow-x: visible"
+              style="overflow-x: visible;"
             >
               <KGrid>
                 <KGridItem :layout12="{ span: 8 }">
@@ -122,10 +122,10 @@
                 />
               </KPageContainer>
             </div>
-            <KPageContainer style="min-height: 45vh; overflow-x: visible">
+            <KPageContainer style="min-height: 45vh; overflow-x: visible;">
               <KSelect
                 v-if="windowIsSmall || windowIsMedium"
-                style="margin-top: 1em"
+                style="margin-top: 1em;"
                 :value="currentQuestionOption"
                 :options="questionSelectOptions"
                 :label="questionsLabel$()"

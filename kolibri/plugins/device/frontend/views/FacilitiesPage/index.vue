@@ -12,14 +12,14 @@
             <KButton
               v-if="isAnyFacilityRegistered"
               :text="$tr('syncAllAction')"
-              style="margin-top: 16px; margin-bottom: -16px"
+              style="margin-top: 16px; margin-bottom: -16px;"
               @click="showSyncAllModal = true"
             />
             <KButton
               hasDropdown
               :text="$tr('createFacilityLabel')"
               primary
-              style="margin-top: 16px; margin-bottom: -16px"
+              style="margin-top: 16px; margin-bottom: -16px;"
             >
               <template #menu>
                 <KDropdownMenu
@@ -50,7 +50,7 @@
             <template v-for="(facility, idx) in facilities">
               <tr
                 :key="idx"
-                style="border: 0 !important"
+                style="border: 0 !important;"
               >
                 <td>
                   <FacilityNameAndSyncStatus
@@ -63,7 +63,7 @@
                 </td>
               </tr>
               <tr :key="idx + facilities.length">
-                <td style="padding: 0 0 16px">
+                <td style="padding: 0 0 16px;">
                   <!-- Gives most space possible to buttons and aligns them with text -->
                   <KButtonGroup class="mobile-button-group">
                     <KButton
@@ -494,8 +494,8 @@
   .button-col {
     padding: 4px;
     padding-top: 8px;
-    text-align: right;
     vertical-align: middle;
+    text-align: right;
 
     .sync {
       margin-right: 0;

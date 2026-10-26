@@ -145,7 +145,7 @@
           {{ $tr('forceLogoutWarning') }}
         </p>
         <div class="buttons">
-          <KButtonGroup style="margin-top: 8px">
+          <KButtonGroup style="margin-top: 8px;">
             <KButton
               type="submit"
               :text="coreString('saveAction')"

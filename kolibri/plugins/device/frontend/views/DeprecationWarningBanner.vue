@@ -5,7 +5,7 @@
     class="alert"
     :style="{ backgroundColor: 'var(--palette-yellow-v100)' }"
   >
-    <div style="display: flex">
+    <div style="display: flex;">
       <div>
         <KIcon
           icon="warning"

@@ -164,8 +164,8 @@
   .copies {
     display: inline-block;
     font-size: 13px;
-    text-decoration: none;
     vertical-align: top;
+    text-decoration: none;
   }
 
   .header-bar {
@@ -206,7 +206,7 @@
   .text {
     position: relative;
     height: 120px;
-    padding: 0 $margin $margin $margin;
+    padding: 0 $margin $margin;
   }
 
   .learning-activity-label {

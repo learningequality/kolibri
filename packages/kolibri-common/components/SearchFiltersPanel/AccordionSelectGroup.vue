@@ -3,7 +3,7 @@
   <div>
     <AccordionContainer
       :multiple="false"
-      style="border: 0"
+      style="border: 0;"
     >
       <AccordionItem
         v-if="Object.keys(availableLibraryCategories).length"

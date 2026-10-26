@@ -115,7 +115,7 @@
                   :link="item.url"
                   :icon="item.icon"
                   :linkActive="item.active"
-                  style="cursor: pointer"
+                  style="cursor: pointer;"
                   data-testid="side-nav-item"
                   @toggleMenu="toggleNav"
                 />
@@ -138,7 +138,7 @@
 
             <div
               v-if="showSoudNotice"
-              style="padding: 16px"
+              style="padding: 16px;"
             >
               <LearnOnlyDeviceNotice />
             </div>

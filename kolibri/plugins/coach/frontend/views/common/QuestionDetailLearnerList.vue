@@ -170,10 +170,10 @@
   }
 
   .learner-item {
+    clear: both;
     display: block;
     min-width: 120px;
     padding-left: 1em;
-    clear: both;
   }
 
   .clickable {
