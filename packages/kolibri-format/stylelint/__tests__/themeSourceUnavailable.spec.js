@@ -3,39 +3,40 @@
  * failure ends the whole stylelint run, so the rule turns it into one warning per file.
  */
 
-import stylelint from 'stylelint';
+import { TIMEOUT, lintInChildProcess } from '../../__tests__/stylelintTestUtils';
 
-// the names are asked for only once a themed custom property turns up, so this mock
-// throws in exactly the place the rule would look them up
-jest.mock('kolibri-css-variables', () => {
-  const actual = jest.requireActual('kolibri-css-variables');
-  return {
-    ...actual,
-    getThemeCssVariableNames: () => {
-      const error = new Error('the design system is not installed');
-      error.code = 'KOLIBRI_THEME_SOURCE_UNAVAILABLE';
-      throw error;
-    },
+jest.setTimeout(TIMEOUT);
+
+const THROWING_THEME_SOURCE = `
+  import { createRequire } from 'node:module';
+  const cssVariables = createRequire(process.cwd() + '/')('kolibri-css-variables');
+  cssVariables.getThemeCssVariableNames = () => {
+    const error = new Error('the design system is not installed');
+    error.code = 'KOLIBRI_THEME_SOURCE_UNAVAILABLE';
+    throw error;
   };
-});
+`;
 
-const plugin = require('../rules/no-unknown-theme-custom-properties');
+const plugin = require.resolve('../rules/no-unknown-theme-custom-properties');
 
-const { ruleName } = plugin.rule;
+const ruleName = 'kolibri/no-unknown-theme-custom-properties';
 
-async function warningsFor(code, options = true) {
-  const { results } = await stylelint.lint({
-    code,
-    codeFilename: 'test.scss',
-    customSyntax: 'postcss-scss',
-    config: { plugins: [plugin], rules: { [ruleName]: options } },
-  });
+function warningsFor(code, options = true) {
+  const { results } = lintInChildProcess(
+    {
+      code,
+      codeFilename: 'test.scss',
+      customSyntax: 'postcss-scss',
+      config: { plugins: [plugin], rules: { [ruleName]: options } },
+    },
+    THROWING_THEME_SOURCE,
+  );
   return results[0].warnings.filter(warning => warning.rule === ruleName);
 }
 
 describe('no-unknown-theme-custom-properties without a readable theme source', () => {
-  it('warns once for a file that uses a theme custom property', async () => {
-    const warnings = await warningsFor(`
+  it('warns once for a file that uses a theme custom property', () => {
+    const warnings = warningsFor(`
       .a {
         color: var(--tokens-primary);
         background: var(--palette-grey-v400);
@@ -45,12 +46,12 @@ describe('no-unknown-theme-custom-properties without a readable theme source', (
     expect(warnings[0].text).toContain('the design system is not installed');
   });
 
-  it('says nothing about a file with no theme custom property', async () => {
-    expect(await warningsFor('.a { color: var(--someLocalProperty); }')).toEqual([]);
+  it('says nothing about a file with no theme custom property', () => {
+    expect(warningsFor('.a { color: var(--someLocalProperty); }')).toEqual([]);
   });
 
-  it('says nothing when every theme name in the file is an ignored one', async () => {
-    const warnings = await warningsFor('.a { color: var(--tokens-appDefined); }', [
+  it('says nothing when every theme name in the file is an ignored one', () => {
+    const warnings = warningsFor('.a { color: var(--tokens-appDefined); }', [
       true,
       { ignoreProperties: ['--tokens-appDefined'] },
     ]);

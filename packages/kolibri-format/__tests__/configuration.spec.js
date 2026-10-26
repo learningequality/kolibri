@@ -4,37 +4,34 @@
  * `eslint.config.mjs` themselves, so dropping a registration fails the suite.
  */
 
-import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-import stylelint from 'stylelint';
+import { ROOT_DIR, TIMEOUT, lintInChildProcess, runInChildProcess } from './stylelintTestUtils';
 
-import stylelintConfig from '../.stylelintrc';
+jest.setTimeout(TIMEOUT);
 
-// the configs `.stylelintrc.js` extends resolve from here, not from the repository root
-const ROOT_DIR = path.resolve(__dirname, '..');
+const STYLELINT_CONFIG_FILE = path.join(ROOT_DIR, '.stylelintrc.js');
 
 function lintThroughConfig(code, fix = false) {
-  return stylelint.lint({
+  return lintInChildProcess({
     code,
     codeFilename: path.join(ROOT_DIR, 'smokeTest.scss'),
     customSyntax: 'postcss-scss',
-    config: stylelintConfig,
-    configBasedir: ROOT_DIR,
+    configFile: STYLELINT_CONFIG_FILE,
     fix,
   });
 }
 
 describe('.stylelintrc.js', () => {
-  it('enables `kolibri/no-unknown-theme-custom-properties`', async () => {
-    const { results } = await lintThroughConfig('.a { color: var(--tokens-surfase); }');
+  it('enables `kolibri/no-unknown-theme-custom-properties`', () => {
+    const { results } = lintThroughConfig('.a { color: var(--tokens-surfase); }\n');
     const rules = results[0].warnings.map(warning => warning.rule);
     expect(rules).toContain('kolibri/no-unknown-theme-custom-properties');
   });
 
-  it('fixes the source `v_N` version key form through it', async () => {
-    const { output } = await lintThroughConfig('.a { color: var(--palette-grey-v_400); }', true);
-    expect(output).toBe('.a { color: var(--palette-grey-v400); }');
+  it('fixes the source `v_N` version key form through it', () => {
+    const { code } = lintThroughConfig('.a { color: var(--palette-grey-v_400); }\n', true);
+    expect(code).toBe('.a { color: var(--palette-grey-v400); }\n');
   });
 
   describe('`v-bind()` in a `<style>` block', () => {
@@ -52,31 +49,36 @@ describe('.stylelintrc.js', () => {
 `;
 
     function lintComponent(fix = false) {
-      return stylelint.lint({
+      return lintInChildProcess({
         code: component,
         codeFilename: path.join(ROOT_DIR, 'SmokeTest.vue'),
-        config: stylelintConfig,
-        configBasedir: ROOT_DIR,
+        configFile: STYLELINT_CONFIG_FILE,
         fix,
       });
     }
 
-    it('keeps the case of the bound name when fixing', async () => {
-      const { output } = await lintComponent(true);
-      expect(output).toBe(component);
+    it('keeps the case of the bound name when fixing', () => {
+      const { code } = lintComponent(true);
+      expect(code).toBe(component);
     });
 
-    it('reports no error', async () => {
-      const { results } = await lintComponent();
+    it('reports no error', () => {
+      const { results } = lintComponent();
       expect(results[0].warnings).toEqual([]);
     });
   });
 
-  it('accepts a valid camelCase token name', async () => {
+  it('accepts a valid camelCase token name', () => {
     // `custom-property-pattern` from `stylelint-config-standard` checks `var()` usage as
     // well as declarations, so its kebab-case default reports every valid token name
-    const { results } = await lintThroughConfig('.a { color: var(--tokens-textDisabled); }');
+    const { results } = lintThroughConfig('.a { color: var(--tokens-textDisabled); }\n');
     expect(results[0].warnings).toEqual([]);
+  });
+
+  it('reports a duplicate selector', () => {
+    const { results } = lintThroughConfig('.a { top: 0; }\n\n.a { left: 0; }\n');
+    const rules = results[0].warnings.map(warning => warning.rule);
+    expect(rules).toContain('no-duplicate-selectors');
   });
 });
 
@@ -96,11 +98,7 @@ describe('eslint.config.mjs', () => {
       const filePath = ${JSON.stringify(FILE_PATH)};
       ${body}
     `;
-    const output = execFileSync(process.execPath, ['--input-type=module', '-e', script], {
-      cwd: ROOT_DIR,
-      encoding: 'utf-8',
-    });
-    return JSON.parse(output.trim().split('\n').pop());
+    return runInChildProcess(script);
   }
 
   function ruleSeveritiesFor(code) {
@@ -120,13 +118,8 @@ describe('eslint.config.mjs', () => {
     `);
   }
 
-  // spawning node and loading the flat config can outrun Jest's 5s default
-  const TIMEOUT = 30000;
-
-  it(
-    'enables the two theming rules for `<style>` blocks as errors',
-    () => {
-      const severities = ruleSeveritiesFor(`<template>
+  it('enables the two theming rules for `<style>` blocks as errors', () => {
+    const severities = ruleSeveritiesFor(`<template>
   <div
     v-if="show"
     class="a"
@@ -141,19 +134,13 @@ describe('eslint.config.mjs', () => {
   }
 </style>
 `);
-      // the severity matters: `kolibri-format` gates on the error count, so a
-      // warning would leave linting green with neither rule enforced
-      expect(severities).toContainEqual(['kolibri/vue-no-theme-tokens-in-v-bind', ERROR]);
-      expect(severities).toContainEqual(['kolibri/vue-no-root-v-if-with-style-v-bind', ERROR]);
-    },
-    TIMEOUT,
-  );
+    // the severity matters: `kolibri-format` gates on the error count, so a
+    // warning would leave linting green with neither rule enforced
+    expect(severities).toContainEqual(['kolibri/vue-no-theme-tokens-in-v-bind', ERROR]);
+    expect(severities).toContainEqual(['kolibri/vue-no-root-v-if-with-style-v-bind', ERROR]);
+  });
 
-  it(
-    'enforces `kolibri/vue-no-theme-accessor-in-inline-styles`',
-    () => {
-      expect(configuredRule('kolibri/vue-no-theme-accessor-in-inline-styles')).toEqual([ERROR]);
-    },
-    TIMEOUT,
-  );
+  it('enforces `kolibri/vue-no-theme-accessor-in-inline-styles`', () => {
+    expect(configuredRule('kolibri/vue-no-theme-accessor-in-inline-styles')).toEqual([ERROR]);
+  });
 });

@@ -2,7 +2,14 @@
 const { Command } = require('commander');
 const Minimatch = require('minimatch').Minimatch;
 const glob = require('kolibri-glob');
-const { logging, lint, noChange } = require('./index');
+const {
+  assertOnePostcss,
+  errorOrChange,
+  logging,
+  lint,
+  noChange,
+  usesPostcssHtml,
+} = require('./index');
 
 const program = new Command();
 
@@ -32,37 +39,34 @@ program
     if (!files.length) {
       program.help();
     } else {
-      let totalFiles = 0;
+      const matches = files
+        .flatMap(file => glob.sync(file, { ignore }))
+        .filter(globbedFile => !patternCheck || patternCheck.match(globbedFile));
+      let lintable = matches;
+      let initialCode = noChange;
+      try {
+        if (matches.some(usesPostcssHtml)) {
+          assertOnePostcss();
+        }
+      } catch (error) {
+        logging.error(error.message);
+        lintable = matches.filter(file => !usesPostcssHtml(file));
+        initialCode = errorOrChange;
+      }
       Promise.all(
-        files.map(file => {
-          const matches = glob.sync(file, {
-            ignore,
-          });
-          return Promise.all(
-            matches.map(globbedFile => {
-              if (!patternCheck || patternCheck.match(globbedFile)) {
-                totalFiles += 1;
-                return lint({ file: globbedFile, write }).catch(error => {
-                  logging.error(`Error processing file: ${globbedFile}`);
-                  logging.error(error.error ? error.error : error);
-                  return typeof error.code === 'number' ? error.code : 1;
-                });
-              } else {
-                return Promise.resolve(0);
-              }
-            }),
-          ).then(sources => {
-            return sources.reduce((code, result) => {
-              return Math.max(code, result);
-            }, noChange);
-          });
-        }),
+        lintable.map(globbedFile =>
+          lint({ file: globbedFile, write }).catch(error => {
+            logging.error(`Error processing file: ${globbedFile}`);
+            logging.error(error.error ? error.error : error);
+            return typeof error.code === 'number' ? error.code : 1;
+          }),
+        ),
       ).then(sources => {
-        logging.info(`Linted ${totalFiles} file${totalFiles !== 1 ? 's' : ''}`);
+        logging.info(`Linted ${lintable.length} file${lintable.length !== 1 ? 's' : ''}`);
         process.exit(
           sources.reduce((code, result) => {
             return Math.max(code, result);
-          }, noChange),
+          }, initialCode),
         );
       });
     }

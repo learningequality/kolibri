@@ -1,7 +1,8 @@
-// An absolute path is needed here. A relative one resolves against the consuming
-// project, because `configBasedir` points there when stylelint runs.
+// An absolute path is needed here. stylelint resolves a relative one against the
+// directory of the config file it loaded, which can be a host project's re-export.
 const noUnknownThemeCustomProperties =
   require.resolve('./stylelint/rules/no-unknown-theme-custom-properties');
+const { default: scssPlugins } = require('stylelint-scss');
 
 module.exports = {
   plugins: ['stylelint-csstree-validator', noUnknownThemeCustomProperties],
@@ -10,11 +11,12 @@ module.exports = {
     'stylelint-config-recommended-scss',
     'stylelint-config-sass-guidelines',
     'stylelint-config-recess-order',
-    'stylelint-config-prettier',
     'stylelint-config-html/vue',
   ],
   rules: {
     'color-hex-length': 'long',
+    // `stylelint-config-recommended-scss` 17 switches this off
+    'no-duplicate-selectors': true,
     'csstree/validator': {
       syntaxExtensions: ['sass', 'less'],
       ignoreValue: /v-bind\(/, // `v-bind()` in a `<style>` block is Vue syntax, not CSS
@@ -29,6 +31,9 @@ module.exports = {
     'font-family-name-quotes': null, // Don't worry about this
     'color-named': null, // No opinion
     'color-function-notation': 'legacy', // Require commas in color functions, as otherwise our build breaks.
+    // Its autofix turns `rgba()` into 4-argument `rgb()`, which node-sass 9 rejects and
+    // which needs Chrome 65, above the browserslist floor of Chrome 49
+    'color-function-alias-notation': null,
     'alpha-value-notation': 'number', // Require alpha values to be numbers, as percentages seem to be SCSS specific.
 
     'declaration-block-no-redundant-longhand-properties': null, // Easier to read margin-top etc than margin shorthand
@@ -57,7 +62,7 @@ module.exports = {
     'import-notation': 'string', // Enforce string imports rather than 'url' as 'url' doesn't work with sass-loader
     'media-feature-range-notation': 'prefix', // Enforce use of min-width and max-width as sass-loader breaks otherwise
     // Enforce indentation of 2 spaces and to be indented within style blocks in Vue SFC
-    indentation: [2, { baseIndentLevel: 1 }],
+    '@stylistic/indentation': [2, { baseIndentLevel: 1 }],
   },
   overrides: [
     {
@@ -67,6 +72,8 @@ module.exports = {
     {
       files: ['**/*.less'],
       customSyntax: 'postcss-less',
+      // `stylelint-scss` rules throw on Less variables, e.g. `scss/operator-no-unspaced`
+      rules: Object.fromEntries(scssPlugins.map(({ ruleName }) => [ruleName, null])),
     },
     {
       files: ['**/*.sass'],
