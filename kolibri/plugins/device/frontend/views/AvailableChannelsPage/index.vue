@@ -70,7 +70,10 @@
         </template>
 
         <template #default="{ showItem, handleChange, itemIsSelected }">
-          <p v-if="!channelsAreAvailable && !status">
+          <p
+            v-if="!channelsAreAvailable && !status"
+            data-testid="no-channels"
+          >
             {{ $tr('noChannelsAvailable') }}
           </p>
 

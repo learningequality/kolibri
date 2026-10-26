@@ -28,10 +28,10 @@ const { onYourDevice$, selectResourcesAction$ } = crossComponentTranslator(WithI
 const { channelTokenLabel$ } = crossComponentTranslator(ChannelTokenModal);
 const { languageLabel$, continueAction$ } = coreStrings;
 
-const AWESOME_CHANNEL = 'Awesome Channel'; // en, on device
-const KAETZE_CHANNEL = 'Kaetze Channel'; // de, on device
-const BIRD_CHANNEL = 'Bird Channel'; // no language, not on device
-const HUNDEN_CHANNEL = 'Hunden Channel'; // de, not on device
+const AWESOME_CHANNEL = 'Awesome Channel';
+const KAETZE_CHANNEL = 'Kaetze Channel';
+const BIRD_CHANNEL = 'Bird Channel';
+const HUNDEN_CHANNEL = 'Hunden Channel';
 const ALL_CHANNEL_NAMES = [AWESOME_CHANNEL, KAETZE_CHANNEL, BIRD_CHANNEL, HUNDEN_CHANNEL];
 
 describe('AvailableChannelsPage', () => {
@@ -53,8 +53,7 @@ describe('AvailableChannelsPage', () => {
     return render(AvailableChannelsPage, { store: options.store || store, ...router });
   }
 
-  // `v-show` keeps a filtered-out channel in the DOM but hidden, so queries that
-  // skip hidden elements by default (hidden: true keeps it findable either way).
+  // hidden: true, since a filtered-out channel is still in the DOM (v-show).
   function channelHeading(name) {
     return screen.getByRole('heading', { name, level: 2, hidden: true });
   }
@@ -155,14 +154,14 @@ describe('AvailableChannelsPage', () => {
     setTransferType('localimport');
     renderPage();
 
-    expect(screen.getByText(numChannelsAvailable$({ count: 4 }))).toBeInTheDocument();
+    expect(screen.getByTestId('available')).toHaveTextContent(numChannelsAvailable$({ count: 4 }));
   });
 
   it('shows the "no channels" message and hides the filters when there are no channels', () => {
     store.commit('manageContent/wizard/SET_AVAILABLE_CHANNELS', []);
     renderPage();
 
-    expect(screen.getByText(noChannelsAvailable$())).toBeInTheDocument();
+    expect(screen.getByTestId('no-channels')).toHaveTextContent(noChannelsAvailable$());
     expect(screen.queryByText(languageLabel$())).not.toBeInTheDocument();
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
@@ -186,6 +185,8 @@ describe('AvailableChannelsPage', () => {
   it('offers a language filter option for each language present among the channels', async () => {
     renderPage();
 
+    // selectKSelectOption also picks an option and closes the list, so listing
+    // every option needs just its first half: open the control.
     await userEvent.click(
       screen
         .getByText(languageLabel$(), { selector: '.ui-select-label-text' })
@@ -234,13 +235,11 @@ describe('AvailableChannelsPage', () => {
       name: selectResourcesAction$(),
     });
 
-    expect(link).toHaveAttribute('href', expect.stringContaining('awesome_channel'));
+    expect(link).toHaveAttribute('href', '#/content/channel/awesome_channel');
   });
 
   describe('submitting a channel token', () => {
     beforeEach(async () => {
-      // The router is shared across tests in this file; start every scenario
-      // here from a known route.
       await router.router.push({ name: 'AVAILABLE_CHANNELS' }).catch(() => {});
       setTransferType('remoteimport');
     });
@@ -283,7 +282,7 @@ describe('AvailableChannelsPage', () => {
       });
     });
 
-    it('goes to the content-selection page when the token-resolved version matches the installed one', async () => {
+    it('goes to the content-selection page with the token when the token-resolved version matches the installed one', async () => {
       getRemoteChannelBundleByToken.mockResolvedValue([{ id: 'awesome_channel', version: 10 }]);
       renderPage();
 
@@ -291,10 +290,11 @@ describe('AvailableChannelsPage', () => {
 
       await waitFor(() => {
         expect(router.router.currentRoute.name).toBe('SELECT_CONTENT');
+        expect(router.router.currentRoute.query.token).toBe('my-token');
       });
     });
 
-    it('goes to the content-selection page when the channel is not installed', async () => {
+    it('goes to the content-selection page with the token when the channel is not installed', async () => {
       getRemoteChannelBundleByToken.mockResolvedValue([
         { id: 'new_uninstalled_channel', version: 1 },
       ]);
@@ -304,6 +304,7 @@ describe('AvailableChannelsPage', () => {
 
       await waitFor(() => {
         expect(router.router.currentRoute.name).toBe('SELECT_CONTENT');
+        expect(router.router.currentRoute.query.token).toBe('my-token');
       });
     });
 

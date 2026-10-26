@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { createTranslator } from 'kolibri/utils/i18n';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import NewChannelVersionPage, {
@@ -25,23 +25,33 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   startTask: jest.fn().mockResolvedValue({ id: 'task-1', extra_metadata: {} }),
 }));
 
-const DIFF_STATS_TASK = {
+const NO_NEW_RESOURCES_TASK = {
   clearable: true,
   status: 'COMPLETED',
   extra_metadata: {
-    // 0 new resources keeps handleSubmit on its simpler "go straight to
-    // Manage Tasks" path, rather than the one that watches the task list.
     new_resources_count: 0,
     deleted_resources_count: 1,
     updated_resources_count: 2,
   },
 };
 
-const { updateChannelAction$ } = createTranslator(
-  NewChannelVersionPage.name,
-  NewChannelVersionPage.$trs,
-);
+const { updateChannelAction$ } = crossComponentTranslator(NewChannelVersionPage);
 const { continueAction$ } = coreStrings;
+
+// Submitting the update navigates away to Manage Tasks with ?last=MANAGE_CHANNEL.
+// This page stays mounted standalone in the test (no router-view swaps it out as
+// in the real app), so its own back-link re-resolves against that query param and
+// vue-router warns that MANAGE_CHANNEL needs a channel_id param it wasn't given.
+const BACK_LINK_ROUTE_WARNING = /missing param for named route "MANAGE_CHANNEL"/;
+
+function stubBackLinkRouteWarning() {
+  const realWarn = console.warn; // eslint-disable-line no-console
+  return jest.spyOn(console, 'warn').mockImplementation((message, ...rest) => {
+    if (!BACK_LINK_ROUTE_WARNING.test(message)) {
+      realWarn(message, ...rest);
+    }
+  });
+}
 
 function makeRenderOptions(routeQuery) {
   const store = makeSelectContentPageStore();
@@ -77,11 +87,12 @@ async function renderLoadedPage(routeQuery = {}) {
 
 describe('NewChannelVersionPage', () => {
   beforeEach(() => {
-    fetchOrTriggerChannelDiffStatsTask.mockResolvedValue(DIFF_STATS_TASK);
+    fetchOrTriggerChannelDiffStatsTask.mockResolvedValue(NO_NEW_RESOURCES_TASK);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('titles the tab with the loaded version text, its only h1', async () => {
@@ -111,18 +122,14 @@ describe('NewChannelVersionPage', () => {
     const updateButton = await screen.findByRole('button', { name: updateChannelAction$() });
     expect(updateButton).toBeDisabled();
 
-    resolveDiffStats(DIFF_STATS_TASK);
+    resolveDiffStats(NO_NEW_RESOURCES_TASK);
     await waitFor(() => {
       expect(updateButton).toBeEnabled();
     });
   });
 
   it('starts the update task with the token when the user arrived with a token in the URL', async () => {
-    // In the real app, submitting navigates away to Manage Tasks and this page is
-    // unmounted. Here it stays mounted standalone, so its own back-link keeps
-    // reacting to that new route and warns about a route it's not relevant to
-    // anymore; that warning is a test-harness artifact, not app behavior.
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const warnSpy = stubBackLinkRouteWarning();
     const updateButton = await renderLoadedPage({ token: 'my-special-token' });
 
     await userEvent.click(updateButton);
@@ -133,12 +140,11 @@ describe('NewChannelVersionPage', () => {
         expect.objectContaining({ token: 'my-special-token' }),
       );
     });
-    warnSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(BACK_LINK_ROUTE_WARNING));
   });
 
   it('starts the update task without a token when the user arrived without one', async () => {
-    // See the comment in the previous test for why console.warn is stubbed here.
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const warnSpy = stubBackLinkRouteWarning();
     const updateButton = await renderLoadedPage({});
 
     await userEvent.click(updateButton);
@@ -149,6 +155,6 @@ describe('NewChannelVersionPage', () => {
     });
     const [callArgs] = TaskResource.startTask.mock.calls.at(-1);
     expect(callArgs).not.toHaveProperty('token');
-    warnSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(BACK_LINK_ROUTE_WARNING));
   });
 });

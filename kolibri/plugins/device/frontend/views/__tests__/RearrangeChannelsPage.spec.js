@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import { createTranslator } from 'kolibri/utils/i18n';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import { dragSortStrings } from 'kolibri-common/components/draggable/dragSortStrings';
@@ -20,10 +20,8 @@ jest.mock('../../apiResources/deviceChannel', () => ({
 }));
 
 const { moveItemUpLabel$, moveItemDownLabel$ } = dragSortStrings;
-const { successNotification$, failureNotification$ } = createTranslator(
-  RearrangeChannelsPage.name,
-  RearrangeChannelsPage.$trs,
-);
+const { successNotification$, failureNotification$ } =
+  crossComponentTranslator(RearrangeChannelsPage);
 
 const CHANNEL_1 = { id: '1', name: 'Channel 1' };
 const CHANNEL_2 = { id: '2', name: 'Channel 2' };
@@ -55,7 +53,6 @@ describe('RearrangeChannelsPage', () => {
     await screen.findByText(CHANNEL_2.name);
   }
 
-  // Both channels are always present; only their relative DOM order changes.
   function channel1IsBeforeChannel2() {
     const first = screen.getByText(CHANNEL_1.name);
     const second = screen.getByText(CHANNEL_2.name);
