@@ -17,4 +17,5 @@ DEFAULT_PLUGINS = [
     "kolibri.plugins.user_profile",
     "kolibri.plugins.bloompub_viewer",
     "kolibri.plugins.h5p_viewer",
+    "kolibri.plugins.zim_viewer",
 ]
