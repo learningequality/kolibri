@@ -49,9 +49,6 @@ from kolibri_app.windows_registry import set_ui_startup_enabled
 
 DEFAULT_NOTIFICATION_TIMEOUT = 5
 
-VERIFICATION_MAX_RETRIES = 15
-VERIFICATION_RETRY_INTERVAL_MS = 1000
-
 # Callback message the shell posts to our window for mouse events on the icon.
 WM_TRAY_CALLBACK = win32con.WM_USER + 20
 # Stable per-window identifier for our single tray icon.
@@ -528,15 +525,14 @@ class KolibriTaskBarIcon:
                 )
                 return
 
-            # The start type is verified by polling, not by the exit code.
-            ctypes.windll.kernel32.CloseHandle(process)
+            if is_auto_start_enabled:
+                self.app.server_manager.use_service()
 
-            # Schedule verification and tray icon configuration
-            wx.CallLater(
-                VERIFICATION_RETRY_INTERVAL_MS,
-                self.verify_service_change,
-                is_auto_start_enabled,
-            )
+            Thread(
+                target=self._wait_for_service_change,
+                args=(process, is_auto_start_enabled),
+                daemon=True,
+            ).start()
 
         except (OSError, PermissionError) as e:
             logging.error(f"Error trying to change service startup: {e}")
@@ -547,29 +543,21 @@ class KolibriTaskBarIcon:
                 wx.OK | wx.ICON_ERROR,
             )
 
-    def verify_service_change(self, is_auto_start_enabled, retries=0):
-        """
-        Periodically check if the service start type was updated and notify the user.
-        """
-        expected_state = "auto" if is_auto_start_enabled else "disabled"
-        current_state = get_service_start_type()
+    def _wait_for_service_change(self, process, is_auto_start_enabled):
+        exit_code = _wait_for_exit_code(process)
+        if exit_code != 0:
+            logging.error(f"The service startup change failed. Exit code: {exit_code}")
+        wx.CallAfter(self._finish_service_change, is_auto_start_enabled, exit_code == 0)
 
-        if current_state == expected_state:
+    def _finish_service_change(self, is_auto_start_enabled, succeeded):
+        self.app.server_manager.finish_service_handover()
+        if succeeded:
             status_translated = _("enabled") if is_auto_start_enabled else _("disabled")
             self.show_notification(
                 _("Kolibri Service Updated"),
                 _("Automatic startup has been {}.").format(status_translated),
             )
-        elif retries < VERIFICATION_MAX_RETRIES:
-            wx.CallLater(
-                VERIFICATION_RETRY_INTERVAL_MS,
-                self.verify_service_change,
-                is_auto_start_enabled,
-                retries=retries + 1,
-            )
         else:
-            # Revert the checkbox if the operation failed
-            self.run_on_start_item.Check(not is_auto_start_enabled)
             self.show_notification(
                 _("Kolibri Service Error"),
                 _("Failed to update the service startup setting."),

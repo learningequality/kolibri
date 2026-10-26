@@ -106,10 +106,20 @@ class WindowsServerManager:
         self._server_mode = None  # Can be 'service' or 'local'
         self._pipe_retry_count = 0
         self._quiet_retries = False
+        self._handing_over_to_service = False
 
     @property
     def uses_service(self):
         return self._server_mode == "service"
+
+    def use_service(self):
+        self._server_mode = "service"
+        self._pipe_retry_count = 0
+        self._quiet_retries = False
+        self._handing_over_to_service = True
+
+    def finish_service_handover(self):
+        self._handing_over_to_service = False
 
     def start(self):
         if self._server_mode:
@@ -498,6 +508,9 @@ class WindowsServerManager:
                 f"Service connection attempt {self._pipe_retry_count}/{MAX_PIPE_RETRIES} failed."
             )
         if self._pipe_retry_count >= MAX_PIPE_RETRIES:
+            if self._handing_over_to_service:
+                self._pipe_retry_count = 0
+                return False
             # A local server on the service's data dir would be a second writer
             if is_service_running(SERVICE_NAME):
                 if not self._quiet_retries:
