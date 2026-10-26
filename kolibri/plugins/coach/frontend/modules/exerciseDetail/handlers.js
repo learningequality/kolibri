@@ -1,6 +1,7 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import store from '../../store';
+import { PageNames } from '../../constants';
 
 export function exerciseRootRedirectHandler(params, name, next, query) {
   return showExerciseDetailView(params).then(() => {
@@ -17,46 +18,52 @@ export function exerciseRootRedirectHandler(params, name, next, query) {
   });
 }
 
-export function generateExerciseDetailHandler(paramsToCheck) {
-  return function exerciseDetailHandler(to, from) {
-    const { params } = to;
-    const fromParams = from.params;
-    const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
-    if (setLoading) {
-      // Only set loading state if we are not switching between
-      // different views of the same learner's exercise report.
-      pageLoading.value = true;
-    }
-    showExerciseDetailView(params).then(() => {
-      // Set not loading regardless, as we are now
-      // ready to render.
-      pageLoading.value = false;
-    });
+const EXERCISE_REPORTS = [
+  PageNames.LESSON_EXERCISE_LEARNER_REPORT,
+  PageNames.LESSON_LEARNER_EXERCISE_REPORT,
+];
+
+export function isSameExerciseReport(to, from) {
+  return (
+    EXERCISE_REPORTS.includes(to.name) &&
+    to.name === from.name &&
+    ['learnerId', 'lessonId', 'exerciseId'].every(param => to.params[param] === from.params[param])
+  );
+}
+
+export function exerciseDetailHandler(to, from) {
+  if (isSameExerciseReport(to, from)) {
+    store.commit('exerciseDetail/SET_STATE', reportPosition(to.params));
+    pageLoading.value = false;
+    return;
+  }
+  pageLoading.value = true;
+  showExerciseDetailView(to.params).then(() => {
+    // Set not loading regardless, as we are now
+    // ready to render.
+    pageLoading.value = false;
+  });
+}
+
+function reportPosition({ questionId = 0, tryIndex = 0, interactionIndex = 0 }) {
+  return {
+    questionId: Number(questionId),
+    tryIndex: Number(tryIndex),
+    interactionIndex: Number(interactionIndex),
   };
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function showExerciseDetailView({
-  learnerId,
-  exerciseId,
-  questionId = 0,
-  tryIndex = 0,
-  interactionIndex = 0,
-} = {}) {
-  tryIndex = Number(tryIndex);
-  interactionIndex = Number(interactionIndex);
-  questionId = Number(questionId);
+function showExerciseDetailView(params) {
   // Passed in exerciseId is the content_id of the contentNode
   // Map this to the id of the content node to do this fetch
-  exerciseId = store.state.classSummary.contentMap[exerciseId].node_id;
-  return ContentNodeResource.retrieve(exerciseId).then(
+  const nodeId = store.state.classSummary.contentMap[params.exerciseId].node_id;
+  return ContentNodeResource.retrieve(nodeId).then(
     exercise => {
       store.commit('exerciseDetail/SET_STATE', {
-        questionId,
+        ...reportPosition(params),
         exercise,
-        interactionIndex,
-        tryIndex,
-        learnerId,
+        learnerId: params.learnerId,
       });
     },
     error => {
