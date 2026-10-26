@@ -75,7 +75,7 @@
           @cancel="closeModal"
           @submit="closeModal"
         >
-          <p style="overflow-y: visible">{{ $tr('aboutGroupsDescription') }}</p>
+          <p style="overflow-y: visible;">{{ $tr('aboutGroupsDescription') }}</p>
           <template #actions>
             <KButton @click="closeModal">
               {{ coreString('closeAction') }}

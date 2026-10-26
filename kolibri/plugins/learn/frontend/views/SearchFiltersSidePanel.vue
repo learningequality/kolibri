@@ -84,8 +84,8 @@
   .side-panel-title {
     margin: 0;
     overflow: hidden;
-    font-size: 18px;
     text-overflow: ellipsis;
+    font-size: 18px;
     white-space: nowrap;
   }
 

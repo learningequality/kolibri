@@ -150,7 +150,7 @@
       <UiAlert
         :dismissible="false"
         type="success"
-        style="margin-top: 16px"
+        style="margin-top: 16px;"
       >
         {{ $tr('success') }}
       </UiAlert>
@@ -324,8 +324,8 @@
   td,
   th {
     padding: 8px;
-    text-align: left;
     vertical-align: top;
+    text-align: left;
   }
 
   .numeric {

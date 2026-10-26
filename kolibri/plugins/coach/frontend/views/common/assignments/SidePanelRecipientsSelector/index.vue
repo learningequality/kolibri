@@ -32,7 +32,7 @@
             v-if="selectedRecipients === ClassRecipients.GROUP_OR_INDIVIDUAL"
             appearance="basic-link"
             :text="hasGroupOrIndividualRecipients ? $tr('changeAction') : $tr('selectAction')"
-            style="margin: 0 0.5em"
+            style="margin: 0 0.5em;"
             @click="isLearnersSelectorOpen = true"
           />
         </div>

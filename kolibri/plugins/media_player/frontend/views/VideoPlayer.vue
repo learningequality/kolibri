@@ -462,6 +462,7 @@
   /deep/ .custom-skin {
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
+
     @include font-family-noto;
 
     font-size: $video-player-font-size;
@@ -474,8 +475,8 @@
 
     /* Seek Bar */
     .vjs-progress-control {
-      height: initial;
       visibility: inherit;
+      height: initial;
       opacity: inherit;
 
       .vjs-progress-holder {

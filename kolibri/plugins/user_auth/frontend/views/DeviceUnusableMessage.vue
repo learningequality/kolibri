@@ -16,7 +16,7 @@
     <p v-else>{{ strings.unknownIssueNotice$() }}</p>
     <KButton
       :disabled="taskLoading"
-      style="margin-top: 16px"
+      style="margin-top: 16px;"
       primary
       :text="strings.reinstallKolibriAction$()"
       @click="deprovision"

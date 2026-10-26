@@ -44,7 +44,7 @@
               })
             }}
           </span>
-          <KButtonGroup style="margin-top: 8px">
+          <KButtonGroup style="margin-top: 8px;">
             <KIconButton
               icon="chevronLeft"
               :ariaLabel="$tr('previousResults')"

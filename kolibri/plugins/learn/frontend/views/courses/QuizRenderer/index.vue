@@ -497,10 +497,10 @@
 
   .navigation-buttons-wrapper {
     display: flex;
+    flex-grow: 1;
     // Using row-reverse to make the "next" button come first in the DOM order for better
     // accessibility, but still have it appear on the right side visually.
     flex-direction: row-reverse;
-    flex-grow: 1;
     gap: 16px;
     justify-content: space-between;
   }

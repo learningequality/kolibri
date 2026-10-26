@@ -11,7 +11,7 @@
         :layout4="{ span: 2 }"
       >
         <KPageContainer class="content-spacing">
-          <div style="display: flex; justify-content: space-between">
+          <div style="display: flex; justify-content: space-between;">
             <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
             <ReportsControls
               :disablePrint="true"
@@ -66,7 +66,7 @@
         :layout4="{ span: 2 }"
       >
         <KPageContainer class="content-spacing">
-          <div style="display: flex; justify-content: space-between">
+          <div style="display: flex; justify-content: space-between;">
             <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
             <ReportsControls
               :disablePrint="true"

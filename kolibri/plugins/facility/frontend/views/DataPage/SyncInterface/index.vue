@@ -29,7 +29,7 @@
               :style="tableCellStyle"
               class="button-col"
             >
-              <KButtonGroup style="margin-top: 12px; overflow: visible">
+              <KButtonGroup style="margin-top: 12px; overflow: visible;">
                 <KButton
                   appearance="raised-button"
                   :text="$tr('sync')"

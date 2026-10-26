@@ -131,7 +131,7 @@
           <!-- below prev/next buttons in tab and DOM order, in page -->
           <KPageContainer
             v-if="!windowIsLarge"
-            style="margin-bottom: 45px"
+            style="margin-bottom: 45px;"
           >
             <div
               class="bottom-block"

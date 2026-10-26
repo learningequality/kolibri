@@ -286,10 +286,10 @@
     text-align: left;
     cursor: pointer;
     user-select: none;
+    outline-offset: -2px;
     background-color: var(--tokens-surface);
     border: 0;
     border-radius: 4px;
-    outline-offset: -2px;
     transition: background-color $core-time;
 
     &:hover {

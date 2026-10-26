@@ -39,7 +39,7 @@
               v-else-if="isImporting(userRow.user)"
               disableDefaultTransition
               :size="24"
-              style="margin: 4px auto 0"
+              style="margin: 4px auto 0;"
             />
             <p
               v-else
