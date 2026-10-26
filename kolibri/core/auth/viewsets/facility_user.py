@@ -43,6 +43,7 @@ from ..constants import role_kinds
 from ..constants.demographics import DEFERRED
 from ..constants.demographics import NOT_SPECIFIED
 from ..errors import NoAvailableSequences
+from ..errors import SequenceAlreadyAssigned
 from ..models import Collection
 from ..models import Facility
 from ..models import FacilityUser
@@ -554,6 +555,56 @@ class DeletedFacilityUserViewSet(
         if not users.exists():
             raise Http404("No deleted users found to restore.")
 
+        restored_ids = list(users.values_list("id", flat=True))
         users.update(date_deleted=None)
+        # Deliberately not inside transaction.atomic(): assign_picture_password
+        # retries after an IntegrityError, and a failed save marks the enclosing
+        # transaction for rollback, so the retry would raise
+        # TransactionManagementError instead of recovering (#15594).
+        self._reassign_picture_passwords(restored_ids)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @staticmethod
+    def _reassign_picture_passwords(user_ids):
+        """
+        Give a picture password back to restored learners who have none.
+
+        The backfills that would otherwise reach them only see live learners, so
+        a learner who was deleted before the facility turned picture login on
+        comes back without a sequence and cannot log in by picture.
+        """
+        learners = list(
+            FacilityUser.objects.filter(
+                id__in=user_ids,
+                picture_password__isnull=True,
+                roles__isnull=True,
+            )
+            .exclude(devicepermissions__is_superuser=True)
+            .select_related("dataset", "facility")
+        )
+        # Decide per dataset rather than per learner: assigning does not change
+        # the learner count, but it does clear the cache that count is read
+        # from, so checking inside the loop re-counts for every learner.
+        assignable_datasets = {
+            dataset_id
+            for dataset_id in {
+                learner.dataset_id
+                for learner in learners
+                if learner.dataset.picture_password_settings is not None
+            }
+            if not are_picture_passwords_exhausted(dataset_id)
+        }
+        for learner in learners:
+            if learner.dataset_id not in assignable_datasets:
+                continue
+            try:
+                assign_picture_password(learner, learner.facility)
+            except (NoAvailableSequences, SequenceAlreadyAssigned):
+                # The restore itself has already been written, so a learner who
+                # cannot be given a sequence is left without one rather than
+                # failing an operation that has happened.
+                logger.warning(
+                    "Could not assign a picture password to restored user %s",
+                    learner.id,
+                )
