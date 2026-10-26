@@ -129,18 +129,47 @@ def get_assigned_sequences(facility):
     )
 
 
+def _reclaim_sequence_from_deleted_learner(facility):
+    """
+    Free the sequence held by the learner deleted longest ago, and return it.
+
+    Soft-deleted learners keep their picture password so it is still theirs if
+    they are restored, so once every sequence is spoken for the only way to
+    assign another is to take one back. The learner deleted longest ago is the
+    one least likely to want theirs again.
+    """
+    holder = (
+        FacilityUser.all_objects.filter(
+            facility=facility,
+            roles__isnull=True,
+            picture_password__isnull=False,
+            date_deleted__isnull=False,
+        )
+        .order_by("date_deleted")
+        .first()
+    )
+    if holder is None:
+        raise NoAvailableSequences(
+            "All picture password sequences have been assigned for this facility."
+        )
+    sequence = holder.picture_password
+    holder.picture_password = None
+    holder.save(update_fields=["picture_password"])
+    return sequence
+
+
 def get_available_sequence(facility):
     """
     Pick a random unassigned sequence for the facility.
-    Raises NoAvailableSequences if every possible sequence is taken.
+
+    When every sequence is taken, reclaims one from a soft-deleted learner.
+    Raises NoAvailableSequences if there is nothing to reclaim either.
     """
     all_sequences = get_all_valid_sequences(PICTURE_PASSWORD_SET)
     assigned = get_assigned_sequences(facility)
     available = all_sequences - assigned
     if not available:
-        raise NoAvailableSequences(
-            "All picture password sequences have been assigned for this facility."
-        )
+        return _reclaim_sequence_from_deleted_learner(facility)
     return random.choice(list(available))
 
 
