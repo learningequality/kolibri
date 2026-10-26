@@ -50,8 +50,8 @@ const renderComponent = ({ pastTries = PAST_TRIES } = {}) => {
     },
   });
   return {
-    resolveTry: back =>
-      pendingTries[back].resolve({ ...pastTries[back], attemptlogs: ATTEMPTLOGS }),
+    resolveTry: (back, tries = pastTries) =>
+      pendingTries[back].resolve({ ...tries[back], attemptlogs: ATTEMPTLOGS }),
     rejectTry: (back, error = new Error()) => pendingTries[back].reject(error),
     updateProps,
     emitted,
@@ -140,6 +140,21 @@ describe('QuizReport', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
     resolveTry(1);
     expect(await screen.findByTestId('try-score')).toHaveTextContent('50%');
+  });
+
+  it('labels the chosen attempt by the tries listed when it loads', async () => {
+    const { resolveTry, select } = await renderLoaded();
+    const triesWithNewTry = [
+      { id: 'new', correct: 0, completion_timestamp: new Date() },
+      ...PAST_TRIES,
+    ];
+    MasteryLogResource.list.mockResolvedValue(triesWithNewTry);
+
+    await chooseTryWithMouse(select, '50%');
+    resolveTry(1, triesWithNewTry);
+
+    expect(await screen.findByTestId('try-score')).toHaveTextContent('100%');
+    expect(select).toHaveTextContent(tryLabel('100%'));
   });
 
   it('shows no Attempt select for a learner with one try', async () => {

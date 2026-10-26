@@ -475,6 +475,7 @@
       tryIndex(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.loadAttempts();
+          this.loadAllTries();
         }
       },
     },
