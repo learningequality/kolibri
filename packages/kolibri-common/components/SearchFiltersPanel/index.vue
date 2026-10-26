@@ -21,7 +21,7 @@
         <SearchBox
           key="channel-search"
           ref="searchBox"
-          style="margin-bottom: 1em"
+          style="margin-bottom: 1em;"
           :disabled="searchLoading"
           :placeholder="coreString('searchByKeyword')"
           :value="activeSearchTerms.keywords || ''"
@@ -40,7 +40,7 @@
         :showChannels="showChannels"
         :activeCategories="activeCategories"
         :handleCategory="handleCategory"
-        style="margin-top: 1em"
+        style="margin-top: 1em;"
       />
     </div>
     <div v-if="currentCategory">

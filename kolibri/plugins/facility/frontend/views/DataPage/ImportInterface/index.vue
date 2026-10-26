@@ -17,24 +17,24 @@
         @click="showInfoModal = true"
       />
     </p>
-    <p style="display: flex; flex-direction: column; margin-top: 24px">
+    <p style="display: flex; flex-direction: column; margin-top: 24px;">
       <KRouterLink
         :text="$tr('import')"
         appearance="raised-button"
-        style="width: max-content; margin: 0 16px 20px 0"
+        style="width: max-content; margin: 0 16px 20px 0;"
         :to="$store.getters.facilityPageLinks.ImportCsvPage"
       />
       <KButton
         :text="$tr('downloadCSV')"
         appearance="raised-button"
-        style="width: max-content; margin: 0 16px 20px 0"
+        style="width: max-content; margin: 0 16px 20px 0;"
         :disabled="!exported"
         @click="downloadCsv"
       />
       <KButton
         appearance="basic-link"
         :text="exported ? $tr('regenerateCSV') : $tr('generateCSV')"
-        style="margin: 0 8px 10px 0"
+        style="margin: 0 8px 10px 0;"
         @click="exportCsv"
       />
       <DataPageTaskProgress v-if="isExporting">

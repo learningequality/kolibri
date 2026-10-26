@@ -963,9 +963,9 @@
     display: inline-block;
     height: 100%;
     overflow: hidden;
+    vertical-align: top;
     text-align: center;
     white-space: normal;
-    vertical-align: top;
   }
 
 </style>

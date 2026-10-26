@@ -143,7 +143,7 @@
             />
             <div
               v-if="currentAttemptDiff"
-              style="padding-bottom: 15px"
+              style="padding-bottom: 15px;"
             >
               <AttemptIconDiff
                 :correct="currentAttempt.correct"

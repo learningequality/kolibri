@@ -300,9 +300,11 @@
     max-height: 170px;
     margin-right: 32px;
     overflow-y: hidden;
+
     @media (max-width: 426px) {
       width: 300px;
     }
+
     @media (max-width: 320px) {
       width: 270px;
     }
@@ -311,9 +313,11 @@
   .show-description {
     width: 372px;
     margin-right: 32px;
+
     @media (max-width: 426px) {
       width: 300px;
     }
+
     @media (max-width: 320px) {
       width: 270px;
     }

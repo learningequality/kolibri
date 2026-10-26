@@ -30,7 +30,7 @@
             class="info-box"
             :style="{ backgroundColor: 'var(--palette-grey-v100)' }"
           >
-            <div style="display: flex">
+            <div style="display: flex;">
               <KIcon
                 icon="infoOutline"
                 class="info-icon"
