@@ -503,7 +503,6 @@
   .qti-text-entry-interaction-report {
     min-height: 1.5em;
     padding: 8px;
-    word-wrap: break-word;
     overflow-wrap: break-word;
     border-radius: 4px;
   }
