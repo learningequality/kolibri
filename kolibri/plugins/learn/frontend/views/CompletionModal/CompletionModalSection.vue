@@ -1,6 +1,6 @@
 <template>
 
-  <section :class="['completion-modal-section', $computedClass(sectionStyle)]">
+  <section class="completion-modal-section">
     <KFixedGrid :numCols="gridColumnsTotal">
       <KFixedGridItem
         v-if="displayGridIcon"
@@ -144,13 +144,6 @@
       hasButton() {
         return Boolean(this.buttonLabel);
       },
-      sectionStyle() {
-        return {
-          ':not(:last-child)': {
-            borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
-          },
-        };
-      },
       displayGridIcon() {
         return this.windowBreakpoint > 0;
       },
@@ -197,6 +190,10 @@
     padding-bottom: 22px;
     margin: 28px 0 0;
     font-size: 14px;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--palette-grey-v400);
+    }
   }
 
   .title {
