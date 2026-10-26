@@ -111,8 +111,8 @@ $container-lg: 1170px;
   height: 1px;
   margin: -1px;
   overflow: hidden;
-  clip: rect(1px 1px 1px 1px);
   border: 0;
+  clip-path: inset(50%);
 }
 
 /*
@@ -124,10 +124,10 @@ $container-lg: 1170px;
  */
 .qti-slot-stepper {
   display: inline-flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  margin-inline-start: 8px;
   visibility: hidden;
+  flex-shrink: 0;
+  flex-direction: column;
+  margin-inline-start: 8px;
 }
 
 body[modality='keyboard'] [role='listbox']:focus > .qti-slot-stepper {
@@ -1582,8 +1582,8 @@ For padding Top and Bottom and Left and Right
 /* Clearfix Hack to apply to a container of
  floated content that overflows the container. */
 .qti-float-clearfix::after {
-  display: table;
   clear: both;
+  display: table;
   content: '';
 }
 

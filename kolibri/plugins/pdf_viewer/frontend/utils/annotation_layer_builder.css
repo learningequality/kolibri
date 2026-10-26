@@ -115,9 +115,9 @@
 .annotationLayer .choiceWidgetAnnotation select :focus,
 .annotationLayer .buttonWidgetAnnotation.checkBox :focus,
 .annotationLayer .buttonWidgetAnnotation.radioButton :focus {
+  outline: auto;
   background-color: transparent;
   background-image: none;
-  outline: auto;
 }
 
 .annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,
@@ -187,7 +187,7 @@
   margin-left: 5px;
   font: message-box;
   font-size: 9px;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
   cursor: pointer;
   background-color: rgba(255, 255, 153, 1);
