@@ -379,6 +379,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Previous resource',
     context: 'Action label for navigating to the previous resource in a course unit',
   },
+  footerNavigationAccessibleLabel: {
+    message: '{label}: {title}',
+    context:
+      "Accessible name for the icon button in the course unit side panel's navigation footer, read by screen readers. Combines the footer's visible label (e.g. 'Up next', 'Next resource', 'Previous resource') with the title of the unit or resource the button navigates to.",
+  },
+  footerNavigationUnavailableAccessibleLabel: {
+    message: '{title} is not available yet',
+    context:
+      "Accessible name for the icon button in the course unit side panel's navigation footer when the unit it leads to is locked and cannot be navigated to yet. Includes the locked unit's title.",
+  },
   courseDetailsAction: {
     message: 'Course details',
     context: 'Action label to view course details',
