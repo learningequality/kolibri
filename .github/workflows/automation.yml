@@ -22,8 +22,10 @@ on: # zizmor: ignore[dangerous-triggers]
       - created
   pull_request_target:
     types:
+      - edited
       - labeled
       - opened
+      - reopened
       - review_requested
   schedule:
     - cron: 1 0 * * 1
