@@ -221,6 +221,28 @@ class TestServiceFallback(unittest.TestCase):
         self.assertTrue(_falls_back_to_a_local_server(manager))
 
 
+class TestLocalServerShutdown(unittest.TestCase):
+    def test_does_not_relaunch_the_server_it_is_stopping(self):
+        manager = _local_server_manager()
+        manager.pipe_reader_thread = MagicMock()
+        manager.server_process = MagicMock()
+        manager.server_process.poll.return_value = None
+
+        def stop_server():
+            manager.server_process.poll.return_value = 0
+            manager._handle_pipe_error(
+                _Win32Error(server_manager_windows.winerror.ERROR_BROKEN_PIPE)
+            )
+
+        with (
+            patch.object(server_manager_windows, "kolibri_stop", stop_server),
+            patch.object(wx, "CallAfter", lambda f, *args: f(*args)),
+            patch.object(manager, "_launch_server_process") as launch,
+        ):
+            manager.shutdown()
+        launch.assert_not_called()
+
+
 def _tray(uses_service):
     tray = object.__new__(taskbar_icon.KolibriTaskBarIcon)
     tray.app = MagicMock()

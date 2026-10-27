@@ -158,8 +158,8 @@ class WindowsServerManager:
         Clean shutdown of server subprocess and IPC communication.
         Job Object provides additional safety for subprocess cleanup.
         """
-        self._shutdown_server_process()
         self._shutdown_pipe_thread()
+        self._shutdown_server_process()
         self._cleanup_handles()
 
     def _shutdown_server_process(self):
@@ -486,7 +486,10 @@ class WindowsServerManager:
 
     def _should_exit_on_pipe_error(self, e):
         """Check if pipe error should cause thread to exit immediately."""
-        return e.winerror == winerror.ERROR_OPERATION_ABORTED
+        return (
+            self.pipe_shutdown_event.is_set()
+            or e.winerror == winerror.ERROR_OPERATION_ABORTED
+        )
 
     def _log_pipe_error(self, e):
         """Log pipe error with appropriate level based on error type."""
