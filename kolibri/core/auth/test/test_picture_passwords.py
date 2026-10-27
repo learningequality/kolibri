@@ -17,6 +17,7 @@ from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exha
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
 from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
+from kolibri.core.auth.utils.picture_passwords import get_available_sequence
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 
 from ..models import Facility
@@ -209,6 +210,30 @@ class AssignPicturePasswordTestCase(TestCase):
         self.assertEqual(overflow_learner.picture_password, oldest_sequence)
         self.assertIsNone(FacilityUser.all_objects.get(pk=oldest.pk).picture_password)
         self.assertIsNotNone(FacilityUser.all_objects.get(pk=newer.pk).picture_password)
+
+    def test_get_available_sequence_does_not_reclaim(self):
+        small_set = {1: {}, 2: {}, 3: {}}
+        all_seqs = sorted(get_all_valid_sequences(small_set))
+        for i, seq in enumerate(all_seqs):
+            learner = self._create_learner(f"readonly{i}")
+            learner.picture_password = seq
+            learner.save(update_fields=["picture_password"])
+            if i == 0:
+                holder = learner
+        holder.date_deleted = now() - timedelta(days=10)
+        holder.save()
+
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
+            small_set,
+        ):
+            with self.assertRaises(NoAvailableSequences):
+                get_available_sequence(self.facility)
+
+        self.assertEqual(
+            all_seqs[0],
+            FacilityUser.all_objects.get(pk=holder.pk).picture_password,
+        )
 
     def test_raises_no_available_sequences_when_pool_exhausted(self):
         small_set = {1: {}, 2: {}, 3: {}}

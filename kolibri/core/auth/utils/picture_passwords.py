@@ -2,6 +2,7 @@ import logging
 import random
 from itertools import permutations
 
+from django.db import transaction
 from django.db.models.functions import Coalesce
 from django.db.utils import IntegrityError
 
@@ -129,14 +130,17 @@ def get_assigned_sequences(facility):
     )
 
 
-def _reclaim_sequence_from_deleted_learner(facility):
+def _reclaim_sequence_from_deleted_learner(user, facility):
     """
-    Free the sequence held by the learner deleted longest ago, and return it.
+    Move the sequence held by the learner deleted longest ago onto the user.
 
     Soft-deleted learners keep their picture password so it is still theirs if
     they are restored, so once every sequence is spoken for the only way to
     assign another is to take one back. The learner deleted longest ago is the
     one least likely to want theirs again.
+
+    Raises NoAvailableSequences if there is no soft-deleted holder to take one
+    from.
     """
     holder = (
         FacilityUser.all_objects.filter(
@@ -145,31 +149,32 @@ def _reclaim_sequence_from_deleted_learner(facility):
             picture_password__isnull=False,
             date_deleted__isnull=False,
         )
-        .order_by("date_deleted")
+        .order_by("date_deleted", "id")
         .first()
     )
     if holder is None:
         raise NoAvailableSequences(
             "All picture password sequences have been assigned for this facility."
         )
-    sequence = holder.picture_password
-    holder.picture_password = None
-    holder.save(update_fields=["picture_password"])
-    return sequence
+    with transaction.atomic():
+        user.picture_password = holder.picture_password
+        holder.picture_password = None
+        holder.save(update_fields=["picture_password"])
+        user.save(update_fields=["picture_password"])
 
 
 def get_available_sequence(facility):
     """
     Pick a random unassigned sequence for the facility.
-
-    When every sequence is taken, reclaims one from a soft-deleted learner.
-    Raises NoAvailableSequences if there is nothing to reclaim either.
+    Raises NoAvailableSequences if every possible sequence is taken.
     """
     all_sequences = get_all_valid_sequences(PICTURE_PASSWORD_SET)
     assigned = get_assigned_sequences(facility)
     available = all_sequences - assigned
     if not available:
-        return _reclaim_sequence_from_deleted_learner(facility)
+        raise NoAvailableSequences(
+            "All picture password sequences have been assigned for this facility."
+        )
     return random.choice(list(available))
 
 
@@ -177,14 +182,21 @@ def assign_picture_password(user, facility):
     """
     Assign a unique picture password sequence to the user.
 
+    When every sequence is taken, takes back the one held by the learner
+    deleted longest ago.
+
     Handles IntegrityError (race condition where another request assigned
     the same sequence between our read and write) by retrying once.
 
     Raises:
-        NoAvailableSequences: if no remaining sequences are available for facility.
+        NoAvailableSequences: if no sequence is free and none can be reclaimed.
         SequenceAlreadyAssigned: if we hit IntegrityError twice during assignment.
     """
-    sequence = get_available_sequence(facility)
+    try:
+        sequence = get_available_sequence(facility)
+    except NoAvailableSequences:
+        _reclaim_sequence_from_deleted_learner(user, facility)
+        return
 
     try:
         user.picture_password = sequence
