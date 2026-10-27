@@ -190,6 +190,54 @@ describe('Mapping', () => {
     });
   });
 
+  describe('numeric map-key normalization', () => {
+    const rows = [
+      ['float', '1e-5', 0.00001],
+      ['float', '1E5', 100000],
+      ['float', '0.0000001', 1e-7],
+      ['float', '1.50', 1.5],
+      ['float', '1E21', 1e21],
+      ['integer', '+7', 7],
+      ['integer', '1E5', 100000],
+    ];
+
+    describe.each(['false', 'true'])('case-sensitive="%s"', caseSensitive => {
+      it.each(rows)('%s map-key %s matches response %p', (baseType, mapKey, response) => {
+        const variable = buildMapping({
+          baseType,
+          mappingAttrs: 'default-value="0"',
+          entries: `<qti-map-entry map-key="${mapKey}" mapped-value="1" case-sensitive="${caseSensitive}" />`,
+        });
+        expect(variable.score(response)).toBe(1);
+      });
+    });
+
+    it.each([
+      ['abc', NaN],
+      ['1,5', 1.5],
+      ['INF', Infinity],
+    ])('float map-key %s scores the other entries and never matches %p', (mapKey, nearMiss) => {
+      const variable = buildMapping({
+        baseType: 'float',
+        mappingAttrs: 'default-value="0"',
+        entries: `<qti-map-entry map-key="${mapKey}" mapped-value="0.5" />
+                  <qti-map-entry map-key="1" mapped-value="1" />`,
+      });
+      expect(variable.score(1)).toBe(1);
+      expect(variable.score(nearMiss)).toBe(0);
+    });
+
+    it('integer map-key 1.5 scores the other entries', () => {
+      const variable = buildMapping({
+        baseType: 'integer',
+        mappingAttrs: 'default-value="0"',
+        entries: `<qti-map-entry map-key="1.5" mapped-value="0.5" />
+                  <qti-map-entry map-key="1" mapped-value="1" />`,
+      });
+      expect(variable.score(1)).toBe(1);
+    });
+  });
+
   describe('case sensitivity', () => {
     it('should match case-insensitively when case-sensitive="false"', () => {
       const variable = buildMapping({
