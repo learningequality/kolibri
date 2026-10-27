@@ -1,5 +1,6 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
+import { displayQuestionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import store from '../../store';
 import { coachStrings } from '../../views/common/commonCoachStrings';
@@ -62,10 +63,7 @@ function showQuestionDetailView(params) {
         let title;
         if (exam) {
           const question = questions.find(source => source.item === questionId);
-          title = coachStrings.$tr('nthExerciseName', {
-            name: question.title,
-            number: question.counter_in_exercise,
-          });
+          title = displayQuestionTitle(question, exercise.title);
         } else {
           const questionNumber = Math.max(
             1,
