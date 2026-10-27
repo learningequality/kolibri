@@ -307,7 +307,12 @@ class AttendanceSessionAPITestCase(APITestCase):
         AttendanceRecord.objects.create(
             attendance_session=session, user=self.learner, present=False
         )
-        original_modified = session.date_modified
+        # Backdate rather than compare two local_now() calls one request apart:
+        # the Windows clock ticks every ~15.6ms, so they can tie.
+        original_modified = now() - timedelta(minutes=1)
+        AttendanceSession.objects.filter(pk=session.pk).update(
+            date_modified=original_modified
+        )
         self._login(self.coach)
         data = {
             "collection": self.classroom.id,
@@ -595,7 +600,10 @@ class AttendanceRecordAPITestCase(APITestCase):
 
     def test_bulk_update_moves_session_date_modified_forward(self):
         session = self._create_session()
-        original_modified = session.date_modified
+        original_modified = now() - timedelta(minutes=1)
+        AttendanceSession.objects.filter(pk=session.pk).update(
+            date_modified=original_modified
+        )
         self._login(self.coach)
         data = {
             "attendance_session": session.id,

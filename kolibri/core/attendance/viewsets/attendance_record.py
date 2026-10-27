@@ -133,8 +133,6 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
                     records_to_create.append(record)
             if records_to_create:
                 AttendanceRecord.objects.bulk_create(records_to_create)
-            # Editing a session's records modifies the session, so its
-            # date_modified has to move with them.
             session.date_modified = local_now()
             session.save(update_fields=["date_modified"])
         all_records = AttendanceRecord.objects.filter(
