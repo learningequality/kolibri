@@ -55,7 +55,6 @@ class QuestionSourceSerializer(Serializer):
     exercise_id = HexUUIDField(format="hex")
     # A hex assessment item id, or a QTI item identifier: Studio writes either
     # "K" + 22 base64url characters or the QTI editor's slug, e.g. "item_k3j9x0ab".
-    # max_length matches AttemptLog.item.
     question_id = RegexField(
         r"^(?:[0-9a-f]{32}|[A-Za-z_][A-Za-z0-9_.-]*)$", max_length=200
     )

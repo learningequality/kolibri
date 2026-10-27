@@ -349,7 +349,6 @@ class BaseExamTest:
             "Kiqr_v4mwSSKrndkc0pgXpw",
             # An item authored in Studio's QTI editor (generateRandomSlug("item"))
             "item_k3j9x0ab",
-            # A Perseus assessment item id, which can start with a digit
             "0" + uuid.uuid4().hex[1:],
         ):
             with self.subTest(question_id=question_id):
@@ -891,6 +890,18 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         except models.Exam.DoesNotExist:
             self.fail("Exam not created")
         super().assertLearnerAssignments(exam.id, user)
+
+    def test_logged_in_admin_exam_update_question_sources_with_qti_question_id(self):
+        self.login_as_admin()
+        sections = self.make_basic_sections(1)
+        sections[0]["questions"][0]["question_id"] = "KQabcyK22Tx-8YmTmTKtGAA"
+        response = self.patch_updated_exam(self.exam.id, {"question_sources": sections})
+        self.assertEqual(response.status_code, 200)
+        self.exam.refresh_from_db()
+        self.assertEqual(
+            self.exam.question_sources[0]["questions"][0]["question_id"],
+            "KQabcyK22Tx-8YmTmTKtGAA",
+        )
 
     def test_logged_in_admin_exam_cant_update_active(self):
         self.login_as_admin()
