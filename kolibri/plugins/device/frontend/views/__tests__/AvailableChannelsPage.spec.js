@@ -1,4 +1,4 @@
-import { render, screen, within, fireEvent, waitFor } from '@testing-library/vue';
+import { render, screen, within, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { crossComponentTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -75,7 +75,7 @@ describe('AvailableChannelsPage', () => {
   async function submitToken(token) {
     await userEvent.click(screen.getByRole('button', { name: channelTokenButtonLabel$() }));
     const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
-    await fireEvent.update(textbox, token);
+    await userEvent.type(textbox, token);
     await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
   }
 
@@ -208,7 +208,7 @@ describe('AvailableChannelsPage', () => {
   it('filters the channel list by a title keyword', async () => {
     renderPage();
 
-    await fireEvent.update(
+    await userEvent.type(
       screen.getByRole('searchbox', { name: titleFilterPlaceholder$() }),
       'bir ch',
     );
@@ -219,7 +219,7 @@ describe('AvailableChannelsPage', () => {
   it('filters the channel list by both language and title keyword', async () => {
     renderPage();
 
-    await fireEvent.update(
+    await userEvent.type(
       screen.getByRole('searchbox', { name: titleFilterPlaceholder$() }),
       'hund',
     );

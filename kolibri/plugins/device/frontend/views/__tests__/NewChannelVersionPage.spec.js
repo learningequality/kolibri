@@ -53,9 +53,8 @@ function stubBackLinkRouteWarning() {
   });
 }
 
-function makeRenderOptions(routeQuery) {
-  const store = makeSelectContentPageStore();
-  const routes = new VueRouter({
+function makeRouter(routeQuery) {
+  const router = new VueRouter({
     routes: [
       {
         name: 'NEW_CHANNEL_VERSION_PAGE',
@@ -66,23 +65,27 @@ function makeRenderOptions(routeQuery) {
       { name: 'MANAGE_CHANNEL', path: '/content/manage_channel/:channel_id' },
     ],
   });
-  routes.push({
+  router.push({
     name: 'NEW_CHANNEL_VERSION_PAGE',
     params: { channel_id: 'awesome_channel' },
     query: routeQuery,
   });
-  return { store, routes };
+  return router;
 }
 
+// Returns the router so tests can check where the page navigates to.
 function renderPage(routeQuery = {}) {
-  return render(NewChannelVersionPage, makeRenderOptions(routeQuery));
+  const store = makeSelectContentPageStore();
+  const router = makeRouter(routeQuery);
+  render(NewChannelVersionPage, { store, routes: router });
+  return router;
 }
 
 async function renderLoadedPage(routeQuery = {}) {
-  renderPage(routeQuery);
+  const router = renderPage(routeQuery);
   const updateButton = await screen.findByRole('button', { name: updateChannelAction$() });
   await waitFor(() => expect(updateButton).toBeEnabled());
-  return updateButton;
+  return { updateButton, router };
 }
 
 describe('NewChannelVersionPage', () => {
@@ -110,7 +113,7 @@ describe('NewChannelVersionPage', () => {
     expect(headings[0]).toHaveTextContent(versionText);
   });
 
-  it('disables the "Update channel" action until the channel and task info have loaded', async () => {
+  it('disables the "Update channel" action until the update details have loaded', async () => {
     let resolveDiffStats;
     fetchOrTriggerChannelDiffStatsTask.mockReturnValue(
       new Promise(resolve => {
@@ -130,7 +133,7 @@ describe('NewChannelVersionPage', () => {
 
   it('starts the update task with the token when the user arrived with a token in the URL', async () => {
     const warnSpy = stubBackLinkRouteWarning();
-    const updateButton = await renderLoadedPage({ token: 'my-special-token' });
+    const { updateButton, router } = await renderLoadedPage({ token: 'my-special-token' });
 
     await userEvent.click(updateButton);
     await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
@@ -140,12 +143,19 @@ describe('NewChannelVersionPage', () => {
         expect.objectContaining({ token: 'my-special-token' }),
       );
     });
+    await waitFor(() => {
+      expect(router.currentRoute.name).toBe('MANAGE_TASKS');
+      expect(router.currentRoute.query).toMatchObject({
+        last: 'MANAGE_CHANNEL',
+        channel_id: 'awesome_channel',
+      });
+    });
     expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(BACK_LINK_ROUTE_WARNING));
   });
 
   it('starts the update task without a token when the user arrived without one', async () => {
     const warnSpy = stubBackLinkRouteWarning();
-    const updateButton = await renderLoadedPage({});
+    const { updateButton, router } = await renderLoadedPage({});
 
     await userEvent.click(updateButton);
     await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
@@ -155,6 +165,13 @@ describe('NewChannelVersionPage', () => {
     });
     const [callArgs] = TaskResource.startTask.mock.calls.at(-1);
     expect(callArgs).not.toHaveProperty('token');
+    await waitFor(() => {
+      expect(router.currentRoute.name).toBe('MANAGE_TASKS');
+      expect(router.currentRoute.query).toMatchObject({
+        last: 'MANAGE_CHANNEL',
+        channel_id: 'awesome_channel',
+      });
+    });
     expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(BACK_LINK_ROUTE_WARNING));
   });
 });
