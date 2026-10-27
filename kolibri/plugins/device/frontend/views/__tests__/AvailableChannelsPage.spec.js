@@ -1,7 +1,13 @@
-import { nextTick } from 'vue';
-import { enableAutoDestroy, mount } from '@vue/test-utils';
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within, waitFor } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import AvailableChannelsPage, { pageTitleStrings } from '../AvailableChannelsPage';
+import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
+import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
+import WithImportDetails from '../ManageContentPage/ChannelPanel/WithImportDetails';
+import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 import pluginStore from '../../store';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 import router from './testRouter';
@@ -9,67 +15,77 @@ import router from './testRouter';
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');
 jest.mock('kolibri-common/composables/usePageLoading');
+jest.mock('../../modules/wizard/utils', () => ({
+  getRemoteChannelBundleByToken: jest.fn(),
+}));
 
-function makeWrapper(options = {}) {
-  const { store, props = {} } = options;
-  const defaultProps = {};
-  const node = document.createElement('div');
-  document.body.appendChild(node);
-  return mount(AvailableChannelsPage, {
-    propsData: { ...defaultProps, ...props },
-    store: store || makeAvailableChannelsPageStore(),
-    ...router,
-    attachTo: node,
-  });
-}
+const { channelTokenButtonLabel$, noChannelsAvailable$, importResourcesHeader$ } =
+  crossComponentTranslator(AvailableChannelsPage);
+const { numChannelsAvailable$, titleFilterPlaceholder$, allLanguages$ } = crossComponentTranslator(
+  FilteredChannelListContainer,
+);
+const { onYourDevice$, selectResourcesAction$ } = crossComponentTranslator(WithImportDetails);
+const { channelTokenLabel$ } = crossComponentTranslator(ChannelTokenModal);
+const { languageLabel$, continueAction$ } = coreStrings;
 
-// prettier-ignore
-function getElements(wrapper) {
-  return {
-    noChannels: () => wrapper.find('.no-channels'),
-    channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.find('[data-testid="available"]').text().trim(),
-    channelListItems: () => wrapper.findAllComponents({ name: 'WithImportDetails' }),
-    ChannelTokenModal: () => wrapper.findComponent({ name: 'ChannelTokenModal' }),
-    filters: () => wrapper.find('.filters'),
-    languageFilter: () => wrapper.findComponent({ name: 'KSelect' }),
-    titleText: () => wrapper.find('[data-testid="title"]').text().trim(),
-    titleFilter: () => wrapper.findComponent({ name: 'FilterTextbox' }),
-    unlistedChannelsButton: () => wrapper.find('[data-testid="token-button"]'),
-    filterComponent: () => wrapper.findComponent({name: 'FilteredChannelListContainer'}),
-  }
-}
+const AWESOME_CHANNEL = 'Awesome Channel';
+const KAETZE_CHANNEL = 'Kaetze Channel';
+const BIRD_CHANNEL = 'Bird Channel';
+const HUNDEN_CHANNEL = 'Hunden Channel';
+const ALL_CHANNEL_NAMES = [AWESOME_CHANNEL, KAETZE_CHANNEL, BIRD_CHANNEL, HUNDEN_CHANNEL];
 
-function testChannelVisibility(wrapper, visibilities) {
-  const channels = getElements(wrapper).channelListItems();
-  visibilities.forEach((v, i) => {
-    if (v) {
-      expect(channels.at(i).element).toBeVisible();
-    } else {
-      expect(channels.at(i).element).not.toBeVisible();
-    }
-  });
-}
-
-describe('availableChannelsPage', () => {
+describe('AvailableChannelsPage', () => {
   let store;
-
-  enableAutoDestroy(afterEach);
 
   beforeEach(() => {
     store = makeAvailableChannelsPageStore();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   function setTransferType(transferType) {
     store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
 
+  function renderPage(options = {}) {
+    return render(AvailableChannelsPage, { store: options.store || store, ...router });
+  }
+
+  // hidden: true, since a filtered-out channel is still in the DOM (v-show).
+  function channelHeading(name) {
+    return screen.getByRole('heading', { name, level: 2, hidden: true });
+  }
+
+  function channelRow(name) {
+    return within(channelHeading(name).closest('.channel-list-item'));
+  }
+
+  function expectVisibleChannels(expectedVisibleNames) {
+    for (const name of ALL_CHANNEL_NAMES) {
+      if (expectedVisibleNames.includes(name)) {
+        expect(channelHeading(name)).toBeVisible();
+      } else {
+        expect(channelHeading(name)).not.toBeVisible();
+      }
+    }
+  }
+
+  async function submitToken(token) {
+    await userEvent.click(screen.getByRole('button', { name: channelTokenButtonLabel$() }));
+    const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
+    await userEvent.type(textbox, token);
+    await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
+  }
+
   describe('page title', () => {
     async function expectTitleAndOneH1(title) {
       pluginStore.replaceState(store.state);
       render(AvailableChannelsPage, { store: pluginStore, ...router });
-      await nextTick();
-      expect(document.title).toBe(`${title} - Kolibri`);
+      await waitFor(() => {
+        expect(document.title).toBe(`${title} - Kolibri`);
+      });
       expect(screen.queryAllByRole('heading', { level: 1 })).toHaveLength(1);
     }
 
@@ -103,207 +119,145 @@ describe('availableChannelsPage', () => {
     });
   });
 
-  it('in REMOTEIMPORT mode, the unlisted channel button is available', async () => {
-    // ...and clicking it opens the channel token modal
-    setTransferType('remoteimport');
-    const wrapper = makeWrapper({ store });
-    const { unlistedChannelsButton, ChannelTokenModal } = getElements(wrapper);
-    // prettier-ignore
-    const button = unlistedChannelsButton();
-    button.trigger('click');
-    await wrapper.vm.$nextTick();
-    expect(ChannelTokenModal().exists()).toEqual(true);
+  describe('unlisted-channel token button', () => {
+    it('is available in REMOTEIMPORT mode, and opens the token modal', async () => {
+      setTransferType('remoteimport');
+      renderPage();
+
+      await userEvent.click(screen.getByRole('button', { name: channelTokenButtonLabel$() }));
+
+      expect(screen.getByRole('textbox', { name: channelTokenLabel$() })).toBeInTheDocument();
+    });
+
+    it('is not available in LOCALIMPORT mode', () => {
+      setTransferType('localimport');
+      renderPage();
+
+      expect(
+        screen.queryByRole('button', { name: channelTokenButtonLabel$() }),
+      ).not.toBeInTheDocument();
+    });
   });
 
-  it('in LOCALIMPORT mode, the unlisted channel button is not available', () => {
-    setTransferType('localexport');
-    const wrapper = makeWrapper({ store });
-    const { unlistedChannelsButton } = getElements(wrapper);
-    expect(unlistedChannelsButton().exists()).toBe(false);
-  });
-
-  it('in LOCALIMPORT mode, the back link text and title are correct', () => {
+  it('shows "Select resources for import" as the page heading', () => {
     setTransferType('localimport');
     const selectedDrive = store.state.manageContent.wizard.driveList.find(
       ({ id }) => id === 'f9e29616935fbff37913ed46bf20e2c0',
     );
     store.state.manageContent.wizard.selectedDrive = selectedDrive;
-    const wrapper = makeWrapper({ store });
-    const { titleText } = getElements(wrapper);
-    expect(titleText()).toEqual('Select resources for import');
+    renderPage();
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(importResourcesHeader$());
   });
 
-  it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
-    setTransferType('remoteimport');
-    const wrapper = makeWrapper({ store });
-    const { titleText } = getElements(wrapper);
-    expect(titleText()).toEqual('Select resources for import');
-  });
-
-  it('in REMOTEIMPORT/LOCALIMPORT shows the correct number of channels available message', () => {
+  it('shows the number of channels available', () => {
     setTransferType('localimport');
-    const wrapper = makeWrapper({ store });
-    const { channelsAvailableText, noChannels } = getElements(wrapper);
-    expect(channelsAvailableText()).toEqual('4 channels available');
-    expect(noChannels().exists()).toEqual(false);
+    renderPage();
+
+    expect(screen.getByTestId('available')).toHaveTextContent(numChannelsAvailable$({ count: 4 }));
   });
 
-  it('if there are no channels, then filters do not appear', () => {
+  it('shows the "no channels" message and hides the filters when there are no channels', () => {
     store.commit('manageContent/wizard/SET_AVAILABLE_CHANNELS', []);
-    const wrapper = makeWrapper({ store });
-    const { filters } = getElements(wrapper);
-    expect(filters().exists()).toEqual(false);
+    renderPage();
+
+    expect(screen.getByTestId('no-channels')).toHaveTextContent(noChannelsAvailable$());
+    expect(screen.queryByText(languageLabel$())).not.toBeInTheDocument();
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
 
-  it('in LOCALIMPORT/REMOTEIMPORT, channel item (not) on device has the correct props', () => {
-    const wrapper = makeWrapper();
-    const { channelListItems } = getElements(wrapper);
-    const channels = channelListItems();
-    const channelNProps = n => channels.at(n).props();
-    expect(channelNProps(0).onDevice).toEqual(true);
-    expect(channelNProps(1).onDevice).toEqual(true);
-    expect(channelNProps(2).onDevice).toEqual(false);
-    expect(channelNProps(3).onDevice).toEqual(false);
+  it('marks the channels that are already on this device', () => {
+    renderPage();
+
+    expect(channelRow(AWESOME_CHANNEL).getByText(onYourDevice$())).toBeInTheDocument();
+    expect(channelRow(KAETZE_CHANNEL).getByText(onYourDevice$())).toBeInTheDocument();
+    expect(channelRow(BIRD_CHANNEL).queryByText(onYourDevice$())).not.toBeInTheDocument();
+    expect(channelRow(HUNDEN_CHANNEL).queryByText(onYourDevice$())).not.toBeInTheDocument();
   });
 
-  it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
+  it('with no filters applied, every channel is visible', () => {
     setTransferType('localimport');
-    const wrapper = makeWrapper({ store });
-    const { filterComponent } = getElements(wrapper);
-    const { titleFilter, languageFilter } = filterComponent().vm;
-    expect(titleFilter).toEqual('');
-    expect(languageFilter.value).toEqual('ALL');
-    testChannelVisibility(wrapper, [true, true, true, true]);
+    renderPage();
+
+    expectVisibleChannels(ALL_CHANNEL_NAMES);
   });
 
-  it('the correct language filter options appear', () => {
-    const wrapper = makeWrapper();
-    const { languageFilter } = getElements(wrapper);
-    // Fake labels for now
-    const expected = [
-      { label: 'All languages', value: 'ALL' },
-      { label: 'English', value: 'en' },
-      { label: 'German', value: 'de' },
-    ];
-    expect(languageFilter().props().options).toEqual(expected);
+  it('offers a language filter option for each language present among the channels', async () => {
+    renderPage();
+
+    // selectKSelectOption also picks an option and closes the list, so listing
+    // every option needs just its first half: open the control.
+    await userEvent.click(
+      screen
+        .getByText(languageLabel$(), { selector: '.ui-select-label-text' })
+        .closest('.ui-select-label'),
+    );
+    const optionLabels = (await screen.findAllByRole('listitem')).map(el => el.textContent.trim());
+
+    expect(optionLabels).toEqual([allLanguages$(), 'English', 'German']);
   });
 
-  it('with language filter, the correct channels appear', async () => {
-    const wrapper = makeWrapper();
-    const { languageFilter } = getElements(wrapper);
-    const filter = languageFilter();
-    await wrapper.vm.$nextTick();
-    filter.vm.selection = { label: 'English', value: 'en' };
+  it('filters the channel list by language', async () => {
+    renderPage();
 
-    await wrapper.vm.$nextTick();
-    testChannelVisibility(wrapper, [true, false, false, false]);
+    await selectKSelectOption(languageLabel$(), 'English');
+
+    expectVisibleChannels([AWESOME_CHANNEL]);
   });
 
-  it('with keyword filter, the correct channels appear', async () => {
-    const wrapper = makeWrapper();
-    const { titleFilter, filterComponent } = getElements(wrapper);
-    const filter = titleFilter();
-    // Can't trigger 'input' event; need to set new value manually
-    filter.vm.model = 'bir ch';
-    await wrapper.vm.$nextTick();
-    expect(filterComponent().vm.titleFilter).toEqual('bir ch');
-    testChannelVisibility(wrapper, [false, false, true, false]);
+  it('filters the channel list by a title keyword', async () => {
+    renderPage();
+
+    await userEvent.type(
+      screen.getByRole('searchbox', { name: titleFilterPlaceholder$() }),
+      'bir ch',
+    );
+
+    await waitFor(() => expectVisibleChannels([BIRD_CHANNEL]));
   });
 
-  it('with both filters, the correct channels appear', async () => {
-    const wrapper = makeWrapper();
-    const { languageFilter, titleFilter } = getElements(wrapper);
-    const lFilter = languageFilter();
-    const tFilter = titleFilter();
-    tFilter.vm.model = 'hund';
-    await wrapper.vm.$nextTick();
-    lFilter.vm.selection = { label: 'German', value: 'de' };
-    await wrapper.vm.$nextTick();
-    testChannelVisibility(wrapper, [false, false, false, true]);
+  it('filters the channel list by both language and title keyword', async () => {
+    renderPage();
+
+    await userEvent.type(
+      screen.getByRole('searchbox', { name: titleFilterPlaceholder$() }),
+      'hund',
+    );
+    await selectKSelectOption(languageLabel$(), 'German');
+
+    await waitFor(() => expectVisibleChannels([HUNDEN_CHANNEL]));
   });
 
-  it('the "select" link goes to the correct place', () => {
-    const wrapper = makeWrapper();
-    const { channelListItems } = getElements(wrapper);
-    const channels = channelListItems();
-    // prettier-ignore
-    const link = channels.at(0).findComponent({ name: 'KRouterLink' });
-    expect(link.props().to).toMatchObject({
-      name: 'SELECT_CONTENT',
-      params: {
-        channel_id: 'awesome_channel',
-      },
-      query: {
-        drive_id: undefined,
-      },
-    });
-  });
+  it('the "select resources" action links to that channel\'s content-selection page', () => {
+    renderPage();
 
-  describe('handleSubmitToken', () => {
-    let wrapper;
-    let pushSpy;
-
-    beforeEach(() => {
-      store = makeAvailableChannelsPageStore();
-      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
-      wrapper = makeWrapper({ store });
-      pushSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
+    const link = channelRow(AWESOME_CHANNEL).getByRole('link', {
+      name: selectResourcesAction$(),
     });
 
-    afterEach(() => {
-      pushSpy.mockRestore();
-      wrapper.destroy();
-    });
-
-    it('single-channel token: routes to selectContentPage with token in query', () => {
-      wrapper.vm.handleSubmitToken({ token: 'test-token-xyz', channels: [{ id: 'channel-abc' }] });
-      expect(pushSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'SELECT_CONTENT',
-          query: expect.objectContaining({ token: 'test-token-xyz' }),
-        }),
-      );
-    });
-
-    it('collection token (multiple channels): does not route to SELECT_CONTENT', () => {
-      wrapper.vm.handleSubmitToken({
-        token: 'collection-token',
-        channels: [{ id: 'ch-1' }, { id: 'ch-2' }],
-      });
-      expect(pushSpy).toHaveBeenCalledTimes(1);
-      const pushed = pushSpy.mock.calls[0][0];
-      expect(pushed.name).not.toBe('SELECT_CONTENT');
-      expect(pushed.query).toMatchObject({ token: 'collection-token' });
-    });
+    expect(link).toHaveAttribute('href', '#/content/channel/awesome_channel');
   });
 
-  describe('handleSubmitToken redirect', () => {
+  describe('submitting a channel token', () => {
     beforeEach(async () => {
-      // Reset shared router to AVAILABLE_CHANNELS so each navigation test starts fresh
       await router.router.push({ name: 'AVAILABLE_CHANNELS' }).catch(() => {});
+      setTransferType('remoteimport');
     });
 
-    it('redirects to NewChannelVersionPage when token-resolved version differs from installed', async () => {
-      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
-      const wrapper = makeWrapper({ store });
+    it('redirects to the new-version page when the token resolves to a different version than installed', async () => {
+      getRemoteChannelBundleByToken.mockResolvedValue([{ id: 'awesome_channel', version: 11 }]);
+      renderPage();
 
-      // awesome_channel is installed at version 10 (from test data in makeStore)
-      // Token resolves to version 11 — a different version
-      await wrapper.vm.handleSubmitToken({
-        token: 'my-token',
-        channels: [{ id: 'awesome_channel', version: 11 }],
+      await submitToken('my-token');
+
+      await waitFor(() => {
+        expect(router.router.currentRoute.name).toBe('NEW_CHANNEL_VERSION_PAGE');
+        expect(router.router.currentRoute.params.channel_id).toBe('awesome_channel');
+        expect(router.router.currentRoute.query.token).toBe('my-token');
       });
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.$route.name).toBe('NEW_CHANNEL_VERSION_PAGE');
-      expect(wrapper.vm.$route.params.channel_id).toBe('awesome_channel');
-      expect(wrapper.vm.$route.query.token).toBe('my-token');
     });
 
-    it('redirects to NewChannelVersionPage for an installed draft (version 0) even when versions match', async () => {
-      // A draft always reports version 0, so an installed draft has the same version
-      // number as a changed draft. The version-difference check alone would skip the
-      // upgrade flow, so drafts must always route to it.
+    it('redirects to the new-version page for an installed draft even when versions match', async () => {
       const draftStore = makeAvailableChannelsPageStore({
         channelList: [
           {
@@ -317,45 +271,53 @@ describe('availableChannelsPage', () => {
         ],
       });
       draftStore.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
-      const wrapper = makeWrapper({ store: draftStore });
+      getRemoteChannelBundleByToken.mockResolvedValue([{ id: 'draft_channel', version: 0 }]);
+      renderPage({ store: draftStore });
 
-      await wrapper.vm.handleSubmitToken({
-        token: 'my-token',
-        channels: [{ id: 'draft_channel', version: 0 }],
+      await submitToken('my-token');
+
+      await waitFor(() => {
+        expect(router.router.currentRoute.name).toBe('NEW_CHANNEL_VERSION_PAGE');
+        expect(router.router.currentRoute.params.channel_id).toBe('draft_channel');
       });
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.$route.name).toBe('NEW_CHANNEL_VERSION_PAGE');
-      expect(wrapper.vm.$route.params.channel_id).toBe('draft_channel');
-      expect(wrapper.vm.$route.query.token).toBe('my-token');
     });
 
-    it('goes to SelectContentPage when token-resolved version matches installed', async () => {
-      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
-      const wrapper = makeWrapper({ store });
+    it('goes to the content-selection page with the token when the token-resolved version matches the installed one', async () => {
+      getRemoteChannelBundleByToken.mockResolvedValue([{ id: 'awesome_channel', version: 10 }]);
+      renderPage();
 
-      // awesome_channel is installed at version 10; token also resolves to version 10
-      await wrapper.vm.handleSubmitToken({
-        token: 'my-token',
-        channels: [{ id: 'awesome_channel', version: 10 }],
+      await submitToken('my-token');
+
+      await waitFor(() => {
+        expect(router.router.currentRoute.name).toBe('SELECT_CONTENT');
+        expect(router.router.currentRoute.query.token).toBe('my-token');
       });
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.$route.name).toBe('SELECT_CONTENT');
     });
 
-    it('goes to SelectContentPage when channel is not installed', async () => {
-      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
-      const wrapper = makeWrapper({ store });
+    it('goes to the content-selection page with the token when the channel is not installed', async () => {
+      getRemoteChannelBundleByToken.mockResolvedValue([
+        { id: 'new_uninstalled_channel', version: 1 },
+      ]);
+      renderPage();
 
-      // new_uninstalled_channel is not in channelsOnDevice
-      await wrapper.vm.handleSubmitToken({
-        token: 'my-token',
-        channels: [{ id: 'new_uninstalled_channel', version: 1 }],
+      await submitToken('my-token');
+
+      await waitFor(() => {
+        expect(router.router.currentRoute.name).toBe('SELECT_CONTENT');
+        expect(router.router.currentRoute.query.token).toBe('my-token');
       });
-      await wrapper.vm.$nextTick();
+    });
 
-      expect(wrapper.vm.$route.name).toBe('SELECT_CONTENT');
+    it('stays on this page with the token in the query when the token resolves to a collection of channels', async () => {
+      getRemoteChannelBundleByToken.mockResolvedValue([{ id: 'ch-1' }, { id: 'ch-2' }]);
+      renderPage();
+
+      await submitToken('collection-token');
+
+      await waitFor(() => {
+        expect(router.router.currentRoute.name).toBe('AVAILABLE_CHANNELS');
+        expect(router.router.currentRoute.query.token).toBe('collection-token');
+      });
     });
   });
 });
