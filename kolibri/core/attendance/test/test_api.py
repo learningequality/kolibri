@@ -94,6 +94,22 @@ class AttendanceSessionAPITestCase(APITestCase):
             AttendanceSession.objects.filter(created_by=self.coach).exists()
         )
 
+    def test_create_session_rejects_cross_dataset_user_in_records(self):
+        other_facility = Facility.objects.create(name="Other Session Facility")
+        other_learner = FacilityUser.objects.create(
+            username="sess_other", facility=other_facility
+        )
+        self._login(self.coach)
+        data = {
+            "collection": self.classroom.id,
+            "attendance_records": [{"user": other_learner.id, "present": True}],
+        }
+
+        response = self.client.post(_session_list_url(), data, format="json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(AttendanceRecord.objects.filter(user=other_learner).exists())
+
     def test_create_session_with_iso_8601_datetime(self):
         """Frontend sends session_start_datetime as ISO 8601 string with T and Z.
 
@@ -550,8 +566,6 @@ class AttendanceRecordAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 0)
 
     def test_bulk_update_rejects_user_from_another_dataset(self):
-        # bulk_create skips pre_save, so the model-level dataset check in
-        # infer_dataset never runs on this path -- it has to be validated here.
         other_facility = Facility.objects.create(name="Other Record Facility")
         other_learner = FacilityUser.objects.create(
             username="rec_other", facility=other_facility

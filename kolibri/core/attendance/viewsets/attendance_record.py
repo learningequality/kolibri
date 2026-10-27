@@ -19,6 +19,7 @@ from rest_framework.serializers import ValidationError
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.attendance.models import AttendanceRecord
 from kolibri.core.attendance.models import AttendanceSession
+from kolibri.core.attendance.utils import validate_users_share_dataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
@@ -74,18 +75,7 @@ class BulkUpdateSerializer(Serializer):
             raise ValidationError(
                 {"records": f"Invalid user IDs: {', '.join(sorted(missing))}"}
             )
-        # bulk_create below skips pre_save, so AttendanceRecord.infer_dataset
-        # never runs to reject a user from another dataset; check it here.
-        foreign = {
-            user_id for user_id, dataset_id in users if dataset_id != session.dataset_id
-        }
-        if foreign:
-            raise ValidationError(
-                {
-                    "records": "User IDs from another dataset: "
-                    f"{', '.join(sorted(foreign))}"
-                }
-            )
+        validate_users_share_dataset(users, session.dataset_id, "records")
         return data
 
 

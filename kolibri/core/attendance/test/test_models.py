@@ -125,8 +125,6 @@ class AttendanceRecordTestCase(TestCase):
         )
 
     def test_cross_dataset_user_raises(self):
-        # Membership and Role both refuse to link a user to a collection in
-        # another dataset; a record's user must likewise share the session's.
         other_facility = Facility.objects.create(name="Other Facility AR")
         other_learner = FacilityUser.objects.create(
             username="other_learner_ar", facility=other_facility

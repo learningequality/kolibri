@@ -17,6 +17,7 @@ from rest_framework.serializers import PrimaryKeyRelatedField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.attendance.models import AttendanceRecord
 from kolibri.core.attendance.models import AttendanceSession
+from kolibri.core.attendance.utils import validate_users_share_dataset
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import _ensure_raw_dict
@@ -64,6 +65,14 @@ class AttendanceSessionSerializer(ModelSerializer):
     def validate(self, attrs):
         if not self.instance and "request" in self.context:
             attrs["created_by"] = self.context["request"].user
+        records = attrs.get("attendance_records")
+        if records:
+            collection = attrs.get("collection") or self.instance.collection
+            validate_users_share_dataset(
+                [(record["user"].id, record["user"].dataset_id) for record in records],
+                collection.dataset_id,
+                "attendance_records",
+            )
         return attrs
 
     def create(self, validated_data):
