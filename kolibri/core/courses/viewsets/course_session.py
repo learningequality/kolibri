@@ -785,7 +785,6 @@ class CourseSessionViewset(ValuesViewset):
         active_test.closed = True
         active_test.save()
 
-        # Another test may still be open, so report the same state as last_unit_test.
         course_state = _compute_course_state(
             course_session.course,
             UnitTestAssignment.objects.filter(course_session=course_session)
