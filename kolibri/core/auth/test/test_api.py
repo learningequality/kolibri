@@ -4691,6 +4691,34 @@ class RestorePicturePasswordTestCase(APITestCase):
         learner.refresh_from_db()
         self.assertIsNotNone(learner.picture_password)
 
+    def test_restoring_several_learners_gives_each_a_distinct_sequence(
+        self, mock_cleanup_task
+    ):
+        """Both callers restore a comma-joined selection, so the bulk path is the
+        normal one: every learner must come back with a sequence, and no two may
+        be handed the same one."""
+        learners = [
+            FacilityUserFactory.create(facility=self.facility) for _ in range(3)
+        ]
+        ids = ",".join(str(learner.id) for learner in learners)
+        self.client.delete(reverse("kolibri:core:facilityuser-list") + f"?by_ids={ids}")
+        models.FacilityUser.all_objects.filter(
+            id__in=[learner.id for learner in learners]
+        ).update(picture_password=None)
+
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-restore") + f"?by_ids={ids}"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        restored = models.FacilityUser.objects.filter(
+            id__in=[learner.id for learner in learners]
+        )
+        self.assertEqual(3, restored.count())
+        sequences = [learner.picture_password for learner in restored]
+        self.assertNotIn(None, sequences)
+        self.assertEqual(len(sequences), len(set(sequences)))
+
     def test_restored_learner_keeps_their_own_picture_password(self, mock_cleanup_task):
         """A learner who still holds their sequence keeps it, rather than being
         handed a different one."""
