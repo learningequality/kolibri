@@ -231,9 +231,6 @@ class PicturePasswordCollisionOperationTestCase(TestCase):
     def test_soft_deleted_local_user_reassigned(
         self, mock_get_dataset_id, mock_super, mock_deserialize
     ):
-        # A soft-deleted learner still holds the sequence against the unique
-        # constraint, so the incoming record cannot deserialize until it is
-        # reassigned, even though the default manager hides the row.
         mock_get_dataset_id.return_value = self.dataset_id
         local_user = FacilityUser.objects.create(
             username="local_learner",

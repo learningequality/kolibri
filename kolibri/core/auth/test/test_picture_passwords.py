@@ -122,9 +122,6 @@ class GetAssignedSequencesTestCase(TestCase):
         self.assertNotIn("10.11.12", assigned)
 
     def test_includes_soft_deleted_learners(self):
-        # A soft-deleted learner keeps its picture_password for 30 days, so the
-        # (dataset, picture_password) constraint still holds the sequence even
-        # though the default manager hides the row.
         learner = FacilityUser.objects.create(
             username="soft_deleted",
             facility=self.facility,
@@ -181,8 +178,6 @@ class AssignPicturePasswordTestCase(TestCase):
         self.assertEqual(len(passwords), len(set(passwords)))
 
     def test_exhausted_pool_reclaims_from_longest_deleted_learner(self):
-        # Soft-deleted learners keep their sequence until the pool runs out,
-        # then the one deleted longest ago gives theirs up first.
         small_set = {1: {}, 2: {}, 3: {}}
         all_seqs = sorted(get_all_valid_sequences(small_set))
         holders = []
