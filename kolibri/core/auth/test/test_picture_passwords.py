@@ -246,6 +246,38 @@ class AssignPicturePasswordTestCase(TestCase):
             with self.assertRaises(NoAvailableSequences):
                 assign_picture_password(overflow_learner, self.facility)
 
+    def test_retry_reclaims_when_the_pool_empties_mid_assignment(self):
+        holder = self._create_learner("retry_holder")
+        holder.picture_password = "1.2.3"
+        holder.save(update_fields=["picture_password"])
+        holder.date_deleted = now() - timedelta(days=5)
+        holder.save()
+
+        learner = self._create_learner("retry_learner")
+        real_save = learner.save
+        calls = []
+
+        def collide_once(*args, **kwargs):
+            calls.append(1)
+            if len(calls) == 1:
+                raise IntegrityError()
+            return real_save(*args, **kwargs)
+
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
+            side_effect=["4.5.6", NoAvailableSequences()],
+        ):
+            with mock.patch.object(learner, "save", side_effect=collide_once):
+                assign_picture_password(learner, self.facility)
+
+        self.assertEqual(
+            "1.2.3",
+            FacilityUser.objects.values_list("picture_password", flat=True).get(
+                pk=learner.pk
+            ),
+        )
+        self.assertIsNone(FacilityUser.all_objects.get(pk=holder.pk).picture_password)
+
     def test_raises_sequence_already_assigned_after_two_integrity_errors(self):
         learner = self._create_learner("collision")
         with mock.patch(

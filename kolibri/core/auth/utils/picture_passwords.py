@@ -200,7 +200,11 @@ def assign_picture_password(user, facility):
         user.save(update_fields=["picture_password"])
     except IntegrityError:
         logger.warning("Picture password collision for user %s, retrying.", user.id)
-        sequence = get_available_sequence(facility)
+        try:
+            sequence = get_available_sequence(facility)
+        except NoAvailableSequences:
+            _reclaim_sequence_from_deleted_learner(user, facility)
+            return
         user.picture_password = sequence
         try:
             user.save(update_fields=["picture_password"])
