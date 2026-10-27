@@ -1473,6 +1473,8 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit2.id)
         self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["unit_phase"], "post_test_active")
+        self.assertEqual(response.data["active_unit_id"], self.unit.id)
         open_tests = models.UnitTestAssignment.objects.filter(
             course_session=self.courseSession, closed=False
         )

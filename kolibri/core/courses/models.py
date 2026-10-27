@@ -554,10 +554,6 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
 
 class UnitTestAssignmentQuerySet(SyncableModelQuerySet):
     def most_recent_first(self):
-        """
-        Orders open tests first, then the latest unit in the course, then the
-        post-test before the pre-test of the same unit.
-        """
         return self.annotate(
             unit_lft=Subquery(
                 ContentNode.objects.filter(id=OuterRef("unit_contentnode_id")).values(
