@@ -299,11 +299,11 @@
       />
     </KPageContainer>
 
-    <BottomAppBar data-testid="bottom-bar">
-      <div
-        v-if="!isAppContext"
-        class="bottom-bar-save-group"
-      >
+    <BottomAppBar
+      v-if="!isAppContext"
+      data-testid="bottom-bar"
+    >
+      <div class="bottom-bar-save-group">
         <KCircularLoader
           v-if="pictureLoginTaskLoading"
           :size="24"
