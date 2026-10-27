@@ -154,9 +154,6 @@ def assign_picture_password(user, facility):
     """
     sequence = get_available_sequence(facility)
 
-    # Save inside a savepoint: the user-creation and role-deletion callers wrap
-    # this in an atomic block, where an IntegrityError escaping a save marks the
-    # whole transaction for rollback and the retry below could not run.
     try:
         user.picture_password = sequence
         with transaction.atomic():
