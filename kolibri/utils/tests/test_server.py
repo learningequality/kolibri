@@ -2,6 +2,7 @@
 Tests for `kolibri.utils.server` module.
 """
 
+import contextlib
 import os
 from unittest import mock
 from unittest import TestCase
@@ -233,13 +234,8 @@ class GetUrlsTestCase(TestCase):
 )
 class ServerInitializationTestCase(TestCase):
     def tearDown(self):
-        # server.start() builds a KolibriProcessBus whose PIDPlugin writes the real
-        # PID_FILE with this process's PID. Left behind, a later `kolibri stop`
-        # would read it and SIGKILL the test runner.
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.remove(server.PID_FILE)
-        except OSError:
-            pass
 
     @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
