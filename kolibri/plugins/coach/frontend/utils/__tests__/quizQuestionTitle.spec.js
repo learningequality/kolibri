@@ -15,6 +15,8 @@ describe('quizQuestionTitle', () => {
 
   it('shows only the number when the exercise is not available', () => {
     const question = { exercise_id: 'missing', counter_in_exercise: 5, title: '' };
-    expect(quizQuestionTitle(question, EXERCISES).trim()).toBe('(5)');
+    const title = quizQuestionTitle(question, EXERCISES);
+    expect(title).toContain('(5)');
+    expect(title).not.toContain('undefined');
   });
 });

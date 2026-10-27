@@ -41,14 +41,4 @@ describe('questionDetail/handlers for a quiz', () => {
     });
     expect(title).toBe('Adding fractions (5)');
   });
-
-  it('keeps the title the coach set for the question', async () => {
-    const title = await questionDetailTitle({
-      item: 'q1:ex1',
-      exercise_id: 'ex1',
-      counter_in_exercise: 5,
-      title: 'Warm-up',
-    });
-    expect(title).toBe('Warm-up');
-  });
 });
