@@ -73,7 +73,6 @@ function makeRouter(routeQuery) {
   return router;
 }
 
-// Returns the router so tests can check where the page navigates to.
 function renderPage(routeQuery = {}) {
   const store = makeSelectContentPageStore();
   const router = makeRouter(routeQuery);
