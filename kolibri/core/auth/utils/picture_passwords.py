@@ -138,9 +138,6 @@ def _reclaim_sequence_from_deleted_learner(user, facility):
     they are restored, so once every sequence is spoken for the only way to
     assign another is to take one back. The learner deleted longest ago is the
     one least likely to want theirs again.
-
-    Raises NoAvailableSequences if there is no soft-deleted holder to take one
-    from.
     """
     holder = (
         FacilityUser.all_objects.filter(
