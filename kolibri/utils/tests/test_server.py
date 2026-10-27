@@ -232,6 +232,15 @@ class GetUrlsTestCase(TestCase):
     "kolibri.utils.server._read_pid_file", return_value=((None, None, None, None))
 )
 class ServerInitializationTestCase(TestCase):
+    def tearDown(self):
+        # server.start() builds a KolibriProcessBus whose PIDPlugin writes the real
+        # PID_FILE with this process's PID. Left behind, a later `kolibri stop`
+        # would read it and SIGKILL the test runner.
+        try:
+            os.remove(server.PID_FILE)
+        except OSError:
+            pass
+
     @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied(self, wait_for_port_mock, logging_mock, read_pid_file_mock):
