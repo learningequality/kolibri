@@ -120,6 +120,36 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertIsNone(result["resume_position"])
         self.assertFalse(result["completed"])
 
+    def test_two_open_tests_returns_latest_unit(self):
+        # Two devices can each open a test for the session; after a sync both
+        # are open. Learners should get the same one Coach shows.
+        later_unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.course_node.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.course_node,
+            available=True,
+            title="Later Unit",
+            modality=modalities.UNIT,
+        )
+        for unit_id, test_type in (
+            (self.unit_node.id, TestType.Post),
+            (later_unit.id, TestType.Pre),
+        ):
+            UnitTestAssignment.objects.create(
+                course_session=self.course_session,
+                unit_contentnode_id=unit_id,
+                collection=self.classroom,
+                test_type=test_type,
+                closed=False,
+                activated_by=self.coach,
+            )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertEqual(result["active_test"]["unit_id"], later_unit.id)
+        self.assertEqual(result["active_test"]["test_type"], TestType.Pre)
+
     def test_active_test_opened_but_not_submitted_by_learner(self):
         """Opening a test creates its summary log, so a learner who has yet to
         submit the still active test has nonetheless opened it."""

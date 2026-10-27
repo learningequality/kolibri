@@ -762,27 +762,22 @@ class CourseSessionViewset(ValuesViewset):
         unit_contentnode_id = unit.id
         test_type = serializer.validated_data["test_type"]
 
-        # Find the currently active test
-        try:
-            active_test = UnitTestAssignment.objects.get(
-                course_session=course_session, closed=False
-            )
-        except UnitTestAssignment.DoesNotExist:
+        open_tests = UnitTestAssignment.objects.filter(
+            course_session=course_session, closed=False
+        )
+        if not open_tests.exists():
             return Response(
                 {"error": "No active test exists for this course session"},
                 status=HTTP_404_NOT_FOUND,
             )
 
-        # Validate that the provided parameters match the active test
-        if str(active_test.unit_contentnode_id) != str(unit_contentnode_id):
+        # A sync can leave more than one test open, so close the one asked for.
+        active_test = open_tests.filter(
+            unit_contentnode_id=unit_contentnode_id, test_type=test_type
+        ).first()
+        if active_test is None:
             raise ValidationError(
-                "The provided unit_contentnode_id does not match the active test",
-                code=error_constants.INVALID,
-            )
-
-        if active_test.test_type != test_type:
-            raise ValidationError(
-                "The provided test_type does not match the active test",
+                "The provided unit_contentnode_id and test_type do not match an active test",
                 code=error_constants.INVALID,
             )
 
@@ -813,11 +808,14 @@ class CourseSessionViewset(ValuesViewset):
         course_session = self.get_object()
 
         # but first, find the currently active test
-        try:
-            active_test = UnitTestAssignment.objects.get(
+        active_test = (
+            UnitTestAssignment.objects.filter(
                 course_session=course_session, closed=False
             )
-        except UnitTestAssignment.DoesNotExist:
+            .most_recent_first()
+            .first()
+        )
+        if active_test is None:
             return Response({"active_test": None}, status=HTTP_200_OK)
 
         #  then fetch the unit's ContentNode
@@ -859,21 +857,7 @@ class CourseSessionViewset(ValuesViewset):
 
         test = (
             UnitTestAssignment.objects.filter(course_session=course_session)
-            .annotate(
-                b_lft=Subquery(
-                    ContentNode.objects.filter(
-                        id=OuterRef("unit_contentnode_id")
-                    ).values("lft")[:1]
-                ),
-                test_type_rank=Case(
-                    When(test_type=TestType.Post, then=Value(0)),
-                    When(test_type=TestType.Pre, then=Value(1)),
-                    default=Value(2),
-                    output_field=IntegerField(),
-                ),
-            )
-            # open tests first (closed=False < True), then latest unit, post-test (rank 0) before pre
-            .order_by("closed", "-b_lft", "test_type_rank")
+            .most_recent_first()
             .first()
         )
 
