@@ -4742,6 +4742,7 @@ class RestorePicturePasswordTestCase(APITestCase):
         self.assertIsNone(other_superuser.date_deleted)
         self.assertIsNone(other_superuser.picture_password)
 
+
 class PicturePasswordPrevalidateTestCase(APITestCase):
     databases = "__all__"
 
