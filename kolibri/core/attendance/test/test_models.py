@@ -38,9 +38,7 @@ class AttendanceSessionTestCase(TestCase):
             created_by=self.coach,
         )
         backdated = local_now() - timedelta(days=3)
-        AttendanceSession.objects.filter(pk=session.pk).update(
-            date_modified=backdated
-        )
+        AttendanceSession.objects.filter(pk=session.pk).update(date_modified=backdated)
         session.refresh_from_db()
 
         session.save(update_dirty_bit_to=False)
