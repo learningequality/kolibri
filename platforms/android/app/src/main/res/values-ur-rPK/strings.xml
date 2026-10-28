@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">کولیبری</string>
-    <string name="notification_channel_ticker">ٹاسک شروع ہو گیا…</string>
-    <string name="notification_service_channel_content">کام ترقی میں ہے</string>
+    <string name="notification_channel_ticker">ٹاسک شروع ہو گیا</string>
+    <string name="notification_service_channel_title">اہم کام جاری ہیں</string>
+    <string name="notification_service_channel_content">کام جاری ہے</string>
     <string name="notification_service_channel_action">ٹاسک مینیجر دیکھیں</string>
-    <string name="notification_default_channel_title">ٹاسک</string>
-    <string name="notification_download_complete_title">ڈاؤن لوڈ مکمل</string>
-    <string name="os_user_name">طالب</string>
+    <string name="notification_default_channel_title">کام</string>
+    <string name="notification_task_title">کولیبری کا کام چل رہا ہے</string>
+    <string name="notification_task_text">پس منظر میں عمل درآمد جاری ہے۔۔۔</string>
+    <string name="notification_download_complete_title">ڈاؤن لوڈ مکمل ہوچکا ہے</string>
+    <string name="notification_download_failed_title">ڈاؤن لوڈ کی کوشش نام رہی</string>
+    <string name="toast_download_started">ڈاؤن لوڈنگ کی جارہی ہے</string>
+    <string name="toast_download_complete">کو ڈاؤن لوڈز میں محفوظ کرلیا گیا</string>
+    <string name="toast_download_failed">ڈاؤن لوڈ نہیں کیا جاسکا</string>
+    <string name="os_user_name">طالب علم</string>
 </resources>

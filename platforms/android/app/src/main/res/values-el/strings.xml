@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">Η εργασία ξεκίνησε…</string>
+    <string name="notification_service_channel_title">Σημαντικές Εργασίες σε Εξέλιξη</string>
     <string name="notification_service_channel_content">Σε εξέλιξη</string>
     <string name="notification_service_channel_action">Προβολή διαχειριστή εργασιών</string>
     <string name="notification_default_channel_title">Εργασίες</string>
+    <string name="notification_task_title">Εκτέλεση Εργασίας Kolibri</string>
+    <string name="notification_task_text">Η εργασία εκτελείται στο παρασκήνιο…</string>
     <string name="notification_download_complete_title">Η λήψη ολοκληρώθηκε</string>
+    <string name="notification_download_failed_title">Η λήψη απέτυχε</string>
+    <string name="toast_download_started">Γίνεται λήψη του %1$s…</string>
+    <string name="toast_download_complete">Το %1$s αποθηκεύτηκε στις «Λήψεις»</string>
+    <string name="toast_download_failed">Δεν ήταν δυνατή η λήψη του %1$s</string>
     <string name="os_user_name">Εκπαιδευόμενος</string>
 </resources>

@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">កិច្ចការបានចាប់ផ្ដើម</string>
+    <string name="notification_service_channel_title">ភារកិច្ចសំខាន់ៗដែលកំពុងដំណើរការ</string>
     <string name="notification_service_channel_content">កំពុង​ដំណើរការ</string>
     <string name="notification_service_channel_action">មើលកម្មវិធីគ្រប់គ្រងភារកិច្ច</string>
     <string name="notification_default_channel_title">ភារកិច្ចនានា</string>
+    <string name="notification_task_title">Kolibri កំពុងដំណើរការ</string>
+    <string name="notification_task_text">ដំណើរការកិច្ចការនៅផ្ទៃខាងក្រោយ...</string>
     <string name="notification_download_complete_title">បញ្ចប់ដោនឡូត.</string>
+    <string name="notification_download_failed_title">ការទាញយកបានបរាជ័យ</string>
+    <string name="toast_download_started">កំពុង​ទាញយក %1$s…</string>
+    <string name="toast_download_complete">បានរក្សាទុក %1$s ដើម្បី Downloads</string>
+    <string name="toast_download_failed">មិនអាចទាញយកបានទេ %1$s</string>
     <string name="os_user_name">អ្នកសិក្សា</string>
 </resources>

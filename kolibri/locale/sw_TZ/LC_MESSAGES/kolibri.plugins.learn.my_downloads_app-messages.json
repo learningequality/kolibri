@@ -27,7 +27,7 @@
   "CommonLearnStrings.resourceCompletedLabel": "Umekamilisha nyenzo ya mafunzo",
   "CommonLearnStrings.resumeLabel": "Endelea",
   "CommonLearnStrings.shareFile": "Tuma",
-  "CommonLearnStrings.shareFileMessage": "",
+  "CommonLearnStrings.shareFileMessage": "\"{title}\" (kwa \"{topic}\"), kutoka {copyrightHolder}",
   "CommonLearnStrings.showLess": "Onyesha kidogo",
   "CommonLearnStrings.suggestedTime": "Muda uliopendekezwa",
   "CommonLearnStrings.toggleLicenseDescription": "Badilisha maelezo ya leseni",

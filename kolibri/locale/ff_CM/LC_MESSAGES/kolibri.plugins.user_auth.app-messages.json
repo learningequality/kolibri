@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "Anndaaka",
   "TaskStrings.taskWaitingStatus": "E reeni",
   "TaskStrings.unknownUsername": "Kuutiniroowo anndaaka",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "Waɗugo paltirgel kesel",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "Hokku junngo nastu Kolibri",
   "UserAuthPageTitleStrings.signInPageTitle": "Hokkugo junngo",
   "UserAuthPageTitleStrings.signUpPageTitle": "Waɗugo sigorɗum",

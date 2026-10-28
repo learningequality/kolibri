@@ -344,6 +344,7 @@
   "CoursesStrings.unitCompletedDescription": "crwdns426691:0crwdne426691:0",
   "CoursesStrings.unitInProgressLabel": "crwdns442925:0num={num}crwdne442925:0",
   "CoursesStrings.unitNLabel": "crwdns426693:0num={num}crwdne426693:0",
+  "CoursesStrings.unitNotStartedLabel": "crwdns451399:0num={num}crwdne451399:0",
   "CoursesStrings.unitNumberLabel": "crwdns424710:0{number}crwdne424710:0",
   "CoursesStrings.unitProgressLabel": "crwdns426695:0crwdne426695:0",
   "CoursesStrings.unitTitleWithStatus": "crwdns426697:0{title}crwdnd426697:0{status}crwdne426697:0",

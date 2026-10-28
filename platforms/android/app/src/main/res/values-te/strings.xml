@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">టాస్క్ ప్రారంభమైంది…</string>
+    <string name="notification_service_channel_title">ముఖ్యమైన పనులు నడుస్తున్నాయి</string>
     <string name="notification_service_channel_content">పురోగతిలో ఉన్న</string>
     <string name="notification_service_channel_action">టాస్క్ మేనేజర్‌ని వీక్షించు</string>
     <string name="notification_default_channel_title">టాస్క్‌లు</string>
+    <string name="notification_task_title">కోలిబ్రి పని నడుస్తోంది</string>
+    <string name="notification_task_text">నేపథ్యంలో పని ప్రాసెస్‌ అవుతోంది...</string>
     <string name="notification_download_complete_title">డౌన్‌లోడ్ పూర్తయింది</string>
+    <string name="notification_download_failed_title">డౌన్‌లోడ్‌ విఫలమైంది</string>
+    <string name="toast_download_started">డౌన్‌లోడ్‌ అవుతోంది %1$s…</string>
+    <string name="toast_download_complete">డౌన్‌లోడ్‌లో %1$s సేవ్‌ అయింది</string>
+    <string name="toast_download_failed">%1$s డౌన్‌లోడ్‌ కాలేకపోయింది</string>
     <string name="os_user_name">నేర్చుకునేవాళ్లు</string>
 </resources>

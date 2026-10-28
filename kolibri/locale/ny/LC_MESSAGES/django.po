@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 20:35+0000\n"
-"PO-Revision-Date: 2026-10-09 20:48\n"
+"PO-Revision-Date: 2026-10-28 00:05\n"
 "Last-Translator: \n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -269,7 +269,7 @@ msgstr "Mtundu wa zopezeka mkatimu"
 
 #: core/logger/csv_export.py:325
 msgid "Folder level {i + 1}"
-msgstr ""
+msgstr "Mlingo wafoda"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:103

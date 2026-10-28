@@ -533,7 +533,7 @@
   "UpdateNotification.upgradeLearnAndDownload": "Научи повече и изтегли оттук",
   "UpdateNotification.upgradeMessageGeneric": "Налична е нова версия на Колибри.",
   "UpdateNotification.upgradeMessageImportant": "Пуснахме важна актуализация с поправки към тази версия на Колибри.",
-  "UpdateNotification.upgradeMessage_0_18_0": "Налична е версия 0.18.0 на Колибри! Новите функции включват цялостно търсене и филтриране в рамките на създаване на уроци и тестове, поддръжка на Bloom Reader, актуализирана навигация в Учител, както и корекции на грешки и подобрения.",
+  "UpdateNotification.upgradeMessage_0_20_0": "",
   "ViewerToolbar.enterFullscreen": "Влез в режим на цял екран",
   "ViewerToolbar.exitFullscreen": "Изход от режима на цял екран",
   "kolibriOnboardingGuideStrings.HomePageWelcomeMessage": "",

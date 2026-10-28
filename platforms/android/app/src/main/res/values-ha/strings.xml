@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">An fara aiki...</string>
+    <string name="notification_service_channel_title">Muhimman ayyuka na gudana.</string>
     <string name="notification_service_channel_content">Ana kai</string>
     <string name="notification_service_channel_action">Duba mai sarrafa aiki</string>
     <string name="notification_default_channel_title">Ayyuka</string>
+    <string name="notification_task_title">Ayyukan Kolibri na gudana</string>
+    <string name="notification_task_text">Ana sarrafa aiki a bayan fage…</string>
     <string name="notification_download_complete_title">An kammala saukewa</string>
+    <string name="notification_download_failed_title">Sauke fayil ɗin bai yi nasara ba.</string>
+    <string name="toast_download_started">Ana sauke %1$s…</string>
+    <string name="toast_download_complete">An adana %1$s a fayil ɗin Saukewa</string>
+    <string name="toast_download_failed">Ba za a iya sauke %1$s ba</string>
     <string name="os_user_name">Mai koyo</string>
 </resources>

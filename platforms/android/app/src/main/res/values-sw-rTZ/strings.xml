@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">Kazi imeanzishwa…</string>
+    <string name="notification_service_channel_title">Kazi Muhimu Inaendelea</string>
     <string name="notification_service_channel_content">Inaendelea</string>
     <string name="notification_service_channel_action">Tazama kidhibiti cha kazi</string>
     <string name="notification_default_channel_title">Kazi</string>
+    <string name="notification_task_title">Kazi ya Kolibri Inaendelea</string>
+    <string name="notification_task_text">Inachakata kazi kwa nyuma…</string>
     <string name="notification_download_complete_title">Imekamilisha kupakua</string>
+    <string name="notification_download_failed_title">Faili iliyopakuliwa</string>
+    <string name="toast_download_started">Inapakua %1$s…</string>
+    <string name="toast_download_complete">Imehifadhi %1$s kwenye Vipakuzi</string>
+    <string name="toast_download_failed">Haingeweza kupakua %1$s</string>
     <string name="os_user_name">Mwanafunzi</string>
 </resources>

@@ -533,7 +533,7 @@
   "UpdateNotification.upgradeLearnAndDownload": "გაიგეთ მეტი და გადმოწერეთ აქედან",
   "UpdateNotification.upgradeMessageGeneric": "კოლიბრის ახალი ვერსია არის ხელმისაწვდომი.",
   "UpdateNotification.upgradeMessageImportant": "მნიშვნელოვანი განახლება გამოვაქვეყნეთ, რომელშიც კოლიბრის ამ ვერსიის ხარვეზები გასწორებულია.",
-  "UpdateNotification.upgradeMessage_0_18_0": "კოლიბრის 0.18.0 ვერსია ხელმისაწვდომია! ახალი ფუნქციები მოიცავს გაკვეთილებისა და ქვიზების შექმნისას ყოვლისმომცველ ძიებასა და ფილტრაციას, Bloom reader-ის მხარდაჭერას, განახლებულ ნავიგაციას მწვრთნელის გვერდზე, ასევე ხარვეზების გასწორებებსა და გაუმჯობესებებს.",
+  "UpdateNotification.upgradeMessage_0_20_0": "",
   "ViewerToolbar.enterFullscreen": "მთელ ეკრანზე გაშვება",
   "ViewerToolbar.exitFullscreen": "მთელი ეკრანიდან გამოსვლა",
   "kolibriOnboardingGuideStrings.HomePageWelcomeMessage": "",

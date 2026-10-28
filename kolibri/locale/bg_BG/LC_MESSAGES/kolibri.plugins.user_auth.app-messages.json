@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "Неизвестно",
   "TaskStrings.taskWaitingStatus": "Изчакване",
   "TaskStrings.unknownUsername": "Неизвестен потребител",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "Създай нова парола",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "Вход в Колибри",
   "UserAuthPageTitleStrings.signInPageTitle": "Потребителски вход",
   "UserAuthPageTitleStrings.signUpPageTitle": "Създаване на профил",

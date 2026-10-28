@@ -26,7 +26,7 @@
   "CustomThemeStrings.thisIsASampleText": "Esto es un texto de ejemplo.",
   "CustomThemeStrings.titleDeleteTheme": "Eliminar tema",
   "CustomThemeStrings.titleSelectBackground": "Seleccionar color de fondo",
-  "CustomThemeStrings.titleSelectColor": "Seleccione el color del tema",
+  "CustomThemeStrings.titleSelectColor": "Seleccionar el color del tema",
   "CustomThemeStrings.titleSelectLink": "Seleccionar color de enlace",
   "CustomThemeStrings.titleSelectText": "Seleccionar color de texto",
   "LoadingError.couldNotLoadThisBook": "No se pudo cargar este libro",
@@ -59,7 +59,7 @@
   "SettingsSideBar.setYellowTheme": "Activar tema amarillo",
   "SettingsSideBar.sideBarTitle": "Configuración",
   "SettingsSideBar.textSize": "Tamaño del texto",
-  "SettingsSideBar.theme": "Tema",
+  "SettingsSideBar.theme": "Temas",
   "SettingsSideBar.whiteTheme": "Blanco",
   "SettingsSideBar.yellowTheme": "Amarillo",
   "TocButton.toggleTocSideBar": "Abre/Cierra la barra lateral de contenido"

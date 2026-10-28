@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 20:35+0000\n"
-"PO-Revision-Date: 2026-10-09 20:49\n"
+"PO-Revision-Date: 2026-10-28 00:05\n"
 "Last-Translator: \n"
 "Language-Team: Haitian Creole\n"
 "Language: ht_HT\n"
@@ -24,7 +24,7 @@ msgstr "Kontni selil '{}' pa valid"
 
 #: core/auth/constants/commands_errors.py:16
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "Okenn enstalasyon predefini pa egziste. Asire w ou konfigire yon enstalasyon sou aparèy la anvan w egzekite kòmann sa"
+msgstr "Okenn dispozitif pa defo pa egziste. Asire w ou konfigire yon dispozitif sou aparèy la anvan w egzekite kòmann sa"
 
 #: core/auth/constants/commands_errors.py:18
 #: core/auth/management/commands/bulkimportusers.py:95
@@ -41,15 +41,15 @@ msgstr "Administratè Siperyè"
 
 #: core/auth/constants/user_kinds.py:28
 msgid "Class coach"
-msgstr "Pwofesè kou a"
+msgstr "Antrenè kou a"
 
 #: core/auth/constants/user_kinds.py:29
 msgid "Facility coach"
-msgstr "Pwofesè etablisman"
+msgstr "Antrenè etablisman"
 
 #: core/auth/constants/user_kinds.py:30
 msgid "Learner"
-msgstr "Elèv"
+msgstr "Aprenan"
 
 #: core/auth/management/commands/bulkexportusers.py:41
 #: core/auth/management/commands/bulkexportusers.py:118
@@ -99,7 +99,7 @@ msgstr "Enskripsyon aprenan ({})"
 #: core/auth/management/commands/bulkexportusers.py:66
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "Atribisyon edikatè ({})"
+msgstr "Atribisyon antrenè ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:126
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
@@ -151,11 +151,11 @@ msgstr "Yo jwenn yon etikèt antèt ki pa kòrèk nan premye liy lan"
 #: core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "Okenn enstalasyon predefini pa egziste. Asire w ou konfigire yon enstalasyon sou aparèy la anvan w egzekite kòmann sa"
+msgstr "Okenn dispozitif pa defo pa egziste. Asire w ou konfigire yon dispozitif sou aparèy la anvan w enpòte itilizatè yo ak kou yo"
 
 #: core/auth/management/commands/bulkimportusers.py:94
 msgid "Error trying to read csv file: {}"
-msgstr "Erè pandan y ap eseye li fichye csv a: {}"
+msgstr "Erè pandan y ap eseye li fichye csv: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
@@ -208,11 +208,11 @@ msgstr "Ap chache lòt aparèy Kolibri yo"
 
 #: core/device/viewsets/device_settings.py:23
 msgid "Language is not supported by Kolibri"
-msgstr "Lang nan pa sipòte nan lojisyèl Kolibri a"
+msgstr "Lang lan pa sipòte nan lojisyèl Kolibri a"
 
 #: core/logger/csv_export.py:132
 msgid "Facility name"
-msgstr "Non lekòl la"
+msgstr "Non dispozitif la"
 
 #: core/logger/csv_export.py:133
 msgid "Username"
@@ -269,7 +269,7 @@ msgstr "Tip kontni"
 
 #: core/logger/csv_export.py:325
 msgid "Folder level {i + 1}"
-msgstr ""
+msgstr "Nivo dosye {i + 1}"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:103

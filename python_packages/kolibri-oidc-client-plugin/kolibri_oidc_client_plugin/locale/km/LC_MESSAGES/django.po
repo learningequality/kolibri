@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-09 16:46-0700\n"
-"PO-Revision-Date: 2026-10-09 20:49\n"
+"PO-Revision-Date: 2026-10-28 00:05\n"
 "Last-Translator: \n"
 "Language-Team: Khmer\n"
 "Language: km_KH\n"
@@ -19,5 +19,5 @@ msgstr ""
 
 #: kolibri_plugin.py:20
 msgid "Sign in with OpenID Connect"
-msgstr ""
+msgstr "ចូលដោយប្រើ OpenID Connect"
 

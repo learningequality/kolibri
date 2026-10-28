@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "უცნობი",
   "TaskStrings.taskWaitingStatus": "მოლოდინი",
   "TaskStrings.unknownUsername": "უცნობი მომხმარებელი",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "შექმენით ახალი პაროლი",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "შედით კოლიბრიზე",
   "UserAuthPageTitleStrings.signInPageTitle": "შესვლა",
   "UserAuthPageTitleStrings.signUpPageTitle": "ანგარიშის შექმნა",

@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kolibri</string>
-    <string name="notification_channel_ticker">Ise ti beere…</string>
+    <string name="notification_channel_ticker">Iṣẹ́ ti bẹ̀rẹ̀…</string>
+    <string name="notification_service_channel_title">Àwọn Iṣẹ́ Pàtàkì ń lọ lọ́wọ́</string>
     <string name="notification_service_channel_content">Ń tẹ̀síwájú</string>
     <string name="notification_service_channel_action">Wo alákòóso iṣẹ́</string>
-    <string name="notification_default_channel_title">Isẹ́</string>
+    <string name="notification_default_channel_title">Àwọn Iṣẹ́</string>
+    <string name="notification_task_title">Kolibri ń ṣíṣe</string>
+    <string name="notification_task_text">Ń ṣètò iṣẹ́ lábẹ́lẹ̀</string>
     <string name="notification_download_complete_title">Ṣe igbasilẹ ní kíkún</string>
+    <string name="notification_download_failed_title">Ìgbàsílẹ̀ kùnnà</string>
+    <string name="toast_download_started">Ń ṣe ìgbàsílẹ̀ %1$s…</string>
+    <string name="toast_download_complete">Ti wà nítọ́jú%1$s sí Àwọn Ìgbàsílẹ̀</string>
+    <string name="toast_download_failed">Kò lè ṣe ìgbàsílẹ̀%1$s</string>
     <string name="os_user_name">Akẹ́kọ̀ọ́</string>
 </resources>

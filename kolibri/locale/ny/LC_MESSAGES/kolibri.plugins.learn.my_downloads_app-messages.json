@@ -27,7 +27,7 @@
   "CommonLearnStrings.resourceCompletedLabel": "Zinthu zatheka",
   "CommonLearnStrings.resumeLabel": "Yambiranso",
   "CommonLearnStrings.shareFile": "Onetsani Ena",
-  "CommonLearnStrings.shareFileMessage": "",
+  "CommonLearnStrings.shareFileMessage": "\"{title}\" (in \"{topic}\"), kuchokera {copyrightHolder}",
   "CommonLearnStrings.showLess": "Onetsani zochepa",
   "CommonLearnStrings.suggestedTime": "Nthawi yoperekedwa",
   "CommonLearnStrings.toggleLicenseDescription": "Sinthani kaonekedwe ka mawu a laisensi",

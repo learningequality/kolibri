@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">Tugas dimulai...</string>
+    <string name="notification_service_channel_title">Menjalankan Tugas Penting</string>
     <string name="notification_service_channel_content">Dalam kemajuan</string>
     <string name="notification_service_channel_action">Lihat pengelola tugas</string>
     <string name="notification_default_channel_title">Latihan-latihan</string>
+    <string name="notification_task_title">Menjalankan Tugas Kolibri</string>
+    <string name="notification_task_text">Memproses tugas di latar belakang…</string>
     <string name="notification_download_complete_title">Unduhan selesai</string>
+    <string name="notification_download_failed_title">Unduhan gagal</string>
+    <string name="toast_download_started">Mengunduh %1$s…</string>
+    <string name="toast_download_complete">Disimpan %1$s ke Unduhan</string>
+    <string name="toast_download_failed">Tidak dapat mengunduh %1$s</string>
     <string name="os_user_name">Pelajar</string>
 </resources>

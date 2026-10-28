@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">ਕੋਲੀਬਰੀ</string>
     <string name="notification_channel_ticker">ਕੰਮ ਸ਼ੁਰੂ ਹੋਇਆ...</string>
+    <string name="notification_service_channel_title">ਮਹੱਤਵਪੂਰਨ ਕੰਮ ਚੱਲ ਰਹੇ ਹਨ</string>
     <string name="notification_service_channel_content">ਤਰੱਕੀ ਹੋ ਰਹੀ ਹੈ</string>
     <string name="notification_service_channel_action">ਟਾਸਕ ਮੈਨੇਜਰ ਵੇਖੋ</string>
     <string name="notification_default_channel_title">ਕਾਰਜ</string>
+    <string name="notification_task_title">ਕੋਲੀਬਰੀ ਦਾ ਕੰਮ ਚੱਲ ਰਿਹਾ ਹੈ</string>
+    <string name="notification_task_text">ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਕੰਮ ਪ੍ਰੋਸੈਸ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="notification_download_complete_title">ਡਾਊਨਲੋਡ ਪੂਰਾ ਹੋਇਆ</string>
+    <string name="notification_download_failed_title">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>
+    <string name="toast_download_started">%1$s ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…</string>
+    <string name="toast_download_complete">%1$s ਨੂੰ ਡਾਊਨਲੋਡਸ ਵਿੱਚ ਸੇਵ ਕੀਤਾ ਗਿਆ</string>
+    <string name="toast_download_failed">%1$s ਡਾਊਨਲੋਡ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ</string>
     <string name="os_user_name">ਸਿੱਖਣ ਵਾਲੇ</string>
 </resources>

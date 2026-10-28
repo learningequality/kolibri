@@ -4,7 +4,7 @@
   "AnswerGuideStrings.chooseThenTarget": "Choose a response, then choose a target.",
   "AnswerGuideStrings.inlineChoice": "Choose the best inline option for {count, plural, one {the} other {each}} gap.",
   "AnswerGuideStrings.order": "Drag to reorder, or use the up/down buttons for keyboard navigation:",
-  "AnswerGuideStrings.orderKeyboard": "Use the right/left buttons to reorder:",
+  "AnswerGuideStrings.orderHorizontal": "Drag to reorder, or use the left/right buttons for keyboard navigation:",
   "AnswerGuideStrings.shortAnswer": "Short answer only:",
   "AssociateInteractionStrings.emptySlotPlaceholder": "Answer",
   "AssociateInteractionStrings.firstSlotEmpty": "Pair {number, number}, first response: empty",

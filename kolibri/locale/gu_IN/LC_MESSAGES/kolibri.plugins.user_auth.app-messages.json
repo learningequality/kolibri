@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "અજ્ઞાત",
   "TaskStrings.taskWaitingStatus": "રાહ જુએ છે",
   "TaskStrings.unknownUsername": "અજાણ્યું વપરાશકર્તા",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "સાઇન ઇન કરો અથવા એકાઉન્ટ બનાવો",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "નવો પાસવર્ડ બનાવો",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "કોલીબ્રીમાં સાઇન ઇન કરો",
   "UserAuthPageTitleStrings.signInPageTitle": "વપરાશકર્તા સાઇન ઇન",
   "UserAuthPageTitleStrings.signUpPageTitle": "એકાઉન્ટ બનાવો",

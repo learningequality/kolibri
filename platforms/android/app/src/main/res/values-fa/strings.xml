@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">کُلیبری</string>
     <string name="notification_channel_ticker">فعالیت آغاز شد…</string>
+    <string name="notification_service_channel_title">وظایف مهم در حال اجرا هستند</string>
     <string name="notification_service_channel_content">در حال انجام</string>
     <string name="notification_service_channel_action">مشاهده مدیریت وظایف</string>
     <string name="notification_default_channel_title">کارها</string>
+    <string name="notification_task_title">در حال اجرای وظیفه کلیبری</string>
+    <string name="notification_task_text">در حال پردازش وظیفه در پس‌زمینه…</string>
     <string name="notification_download_complete_title">بارگیری کامل شد</string>
+    <string name="notification_download_failed_title">دانلود ناموفق</string>
+    <string name="toast_download_started">درحال دانلود %1$s…</string>
+    <string name="toast_download_complete">%1$s در دانلودها ذخیره شد</string>
+    <string name="toast_download_failed">دانلود %1$s انجام نشد</string>
     <string name="os_user_name">دانش‌آموز</string>
 </resources>
