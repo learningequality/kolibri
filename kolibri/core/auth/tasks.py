@@ -1,6 +1,7 @@
 import datetime
 import logging
 import ntpath
+import os
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -124,6 +125,13 @@ class ImportUsersFromCSVValidator(JobValidator):
     facility = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), allow_null=True, default=None
     )
+
+    def validate_csvfilename(self, value):
+        if value in (".", "..") or os.path.basename(value) != value:
+            raise serializers.ValidationError(
+                "Supplied csvfilename must be a file name, not a path"
+            )
+        return value
 
     def validate(self, data):
         if data.get("csvfile") and data.get("csvfilename"):
