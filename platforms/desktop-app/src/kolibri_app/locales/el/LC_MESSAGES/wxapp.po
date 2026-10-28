@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-09 20:48\n"
+"PO-Revision-Date: 2026-10-28 00:05\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Greek\n"
 "Language: el\n"
@@ -24,25 +24,25 @@ msgstr "Πληροφορίες για το Kolibri"
 #: src/kolibri_app/about_dialog.py:40
 #, python-format
 msgid "App version: %(version)s"
-msgstr ""
+msgstr "Έκδοση app: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:42
 #, python-format
 msgid "Kolibri version: %(version)s"
-msgstr ""
+msgstr "Έκδοση Kolibri: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:45 src/kolibri_app/view.py:278
 msgid "Documentation"
-msgstr ""
+msgstr "Τεκμηρίωση"
 
 #: src/kolibri_app/about_dialog.py:47
 msgid "Community Forum"
-msgstr ""
+msgstr "Φόρουμ Κοινότητας"
 
 #: src/kolibri_app/about_dialog.py:60
 #, python-format
 msgid "© %(year)s Learning Equality"
-msgstr ""
+msgstr "© %(year)s Learning Equality"
 
 #: src/kolibri_app/about_dialog.py:64
 msgid "Close"
@@ -50,31 +50,31 @@ msgstr "Κλείσιμο"
 
 #: src/kolibri_app/view.py:217
 msgid "Open Kolibri in Browser"
-msgstr ""
+msgstr "Άνοιγμα του Kolibri στο πρόγραμμα περιήγησης"
 
 #: src/kolibri_app/view.py:223
 msgid "Open Kolibri Home Folder"
-msgstr ""
+msgstr "Άνοιγμα Αρχικού Φακέλου του Kolibri"
 
 #: src/kolibri_app/view.py:231 src/kolibri_app/view.py:302
 msgid "About Kolibri…"
-msgstr ""
+msgstr "Σχετικά με το Kolibri…"
 
 #: src/kolibri_app/view.py:241
 msgid "Cut\tCtrl+X"
-msgstr ""
+msgstr "Αποκοπή Ctrl+X"
 
 #: src/kolibri_app/view.py:242
 msgid "Copy\tCtrl+C"
-msgstr ""
+msgstr "Αντιγραφή Ctrl+C"
 
 #: src/kolibri_app/view.py:243
 msgid "Paste\tCtrl+V"
-msgstr ""
+msgstr "Επικόλληση Ctrl+V"
 
 #: src/kolibri_app/view.py:245
 msgid "Select All\tCtrl+A"
-msgstr ""
+msgstr "Επιλογή Όλων Ctrl+A"
 
 #: src/kolibri_app/view.py:247
 msgid "Edit"
@@ -82,23 +82,23 @@ msgstr "Επεξεργασία"
 
 #: src/kolibri_app/view.py:249
 msgid "File"
-msgstr ""
+msgstr "Αρχείο"
 
 #: src/kolibri_app/view.py:253
 msgid "Reload"
-msgstr ""
+msgstr "Επαναφόρτωση"
 
 #: src/kolibri_app/view.py:257
 msgid "Actual Size\tCtrl+0"
-msgstr ""
+msgstr "Πραγματικό Μέγεθος Ctrl+0"
 
 #: src/kolibri_app/view.py:263
 msgid "Zoom In\tCtrl++"
-msgstr ""
+msgstr "Μεγέθυνση Ctrl++"
 
 #: src/kolibri_app/view.py:269
 msgid "Zoom Out\tCtrl+-"
-msgstr ""
+msgstr "Σμίκρυνση Ctrl+-"
 
 #: src/kolibri_app/view.py:273
 msgid "View"
@@ -106,27 +106,27 @@ msgstr "Προβολή"
 
 #: src/kolibri_app/view.py:284
 msgid "Community Forums"
-msgstr ""
+msgstr "Φόρουμ Κοινότητας"
 
 #: src/kolibri_app/view.py:290
 msgid "Show Logs"
-msgstr ""
+msgstr "Εμφάν. Καταγραφών"
 
 #: src/kolibri_app/view.py:295
 msgid "Open Developer Tools"
-msgstr ""
+msgstr "Άνοιγμα Εργαλείων Προγραμματιστή"
 
 #: src/kolibri_app/view.py:298
 msgid "Troubleshooting"
-msgstr ""
+msgstr "Αντιμετώπιση προβλημάτων"
 
 #: src/kolibri_app/view.py:305
 msgid "Help"
-msgstr ""
+msgstr "Βοήθεια"
 
 #: src/kolibri_app/view.py:402
 msgid "Save file"
-msgstr ""
+msgstr "Αποθήκευση αρχείου"
 
 #: src/kolibri_app/windows/taskbar_icon.py:301
 msgid "Kolibri"
@@ -134,49 +134,50 @@ msgstr "Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:301
 msgid "Kolibri is starting... Please wait."
-msgstr ""
+msgstr "Το Kolibri ξεκινάει... Παρακαλώ περιμένετε."
 
 #: src/kolibri_app/windows/taskbar_icon.py:308
 msgid "Kolibri is running"
-msgstr ""
+msgstr "Το Kolibri εκτελείται"
 
 #: src/kolibri_app/windows/taskbar_icon.py:309
 msgid "Kolibri is ready"
-msgstr ""
+msgstr "Το Kolibri είναι έτοιμο"
 
 #: src/kolibri_app/windows/taskbar_icon.py:316
 #, python-brace-format
 msgid "Kolibri failed to start.\n"
 "Check logs at: {}"
-msgstr ""
+msgstr "Η εκκίνηση του Kolibri απέτυχε.\n"
+"Ελέγξτε τα αρχεία καταγραφής στη θέση: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:318
 msgid "Kolibri is experiencing an error"
-msgstr ""
+msgstr "Το Kolibri αντιμετωπίζει ένα σφάλμα"
 
 #: src/kolibri_app/windows/taskbar_icon.py:346
 msgid "Open Kolibri App"
-msgstr ""
+msgstr "Άνοιγμα της Εφαρμογής Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:354
 msgid "Open Kolibri App after sign in"
-msgstr ""
+msgstr "Άνοιγμα της Εφαρμογής Kolibri μετά την είσοδο"
 
 #: src/kolibri_app/windows/taskbar_icon.py:361
 msgid "Run Kolibri service on Windows startup"
-msgstr ""
+msgstr "Εκτέλεση της υπηρεσίας Kolibri κατά την εκκίνηση των Windows"
 
 #: src/kolibri_app/windows/taskbar_icon.py:369
 msgid "Run Kolibri service on Windows startup (Unavailable)"
-msgstr ""
+msgstr "Εκτέλεση της υπηρεσίας Kolibri κατά την εκκίνηση των Windows (Μη διαθέσιμο)"
 
 #: src/kolibri_app/windows/taskbar_icon.py:378
 msgid "Exit"
-msgstr ""
+msgstr "Έξοδος"
 
 #: src/kolibri_app/windows/taskbar_icon.py:387
 msgid "Kolibri service is not ready yet"
-msgstr ""
+msgstr "Η υπηρεσία Kolibri δεν είναι έτοιμη ακόμα"
 
 #: src/kolibri_app/windows/taskbar_icon.py:388
 msgid "Info"
@@ -186,34 +187,34 @@ msgstr "Πληροφορίες"
 #: src/kolibri_app/windows/taskbar_icon.py:411
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "enabled"
-msgstr ""
+msgstr "ενεργοποιημένο"
 
 #. i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
 #: src/kolibri_app/windows/taskbar_icon.py:414
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "disabled"
-msgstr ""
+msgstr "απενεργοποιημένο"
 
 #: src/kolibri_app/windows/taskbar_icon.py:417
 msgid "Kolibri App Setting Updated"
-msgstr ""
+msgstr "Η Ρύθμιση Εφαρμογών Kolibri Ενημερώθηκε"
 
 #: src/kolibri_app/windows/taskbar_icon.py:418
 #, python-brace-format
 msgid "Opening Kolibri App after sign in has been {}"
-msgstr ""
+msgstr "Άνοιγμα της Εφαρμογής Kolibri μετά την είσοδο {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:426
 msgid "Kolibri App Setting Error"
-msgstr ""
+msgstr "Σφάλμα Ρύθμισης Εφαρμογής Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:427
 msgid "Failed to change the Kolibri App startup setting"
-msgstr ""
+msgstr "Αποτυχία αλλαγής της ρύθμισης εκκίνησης της Εφαρμογής Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:454
 msgid "Administrator rights are required to change this setting."
-msgstr ""
+msgstr "Απαιτούνται δικαιώματα διαχειριστή για την αλλαγή αυτής της ρύθμισης."
 
 #: src/kolibri_app/windows/taskbar_icon.py:455
 #: src/kolibri_app/windows/taskbar_icon.py:472
@@ -223,22 +224,22 @@ msgstr "Σφάλμα"
 #: src/kolibri_app/windows/taskbar_icon.py:471
 #, python-brace-format
 msgid "An error occurred while changing the service setting: {}"
-msgstr ""
+msgstr "Παρουσιάστηκε σφάλμα κατά την αλλαγή της ρύθμισης υπηρεσίας: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:486
 msgid "Kolibri Service Updated"
-msgstr ""
+msgstr "Η Ρύθμιση Εφαρμογών Kolibri Ενημερώθηκε"
 
 #: src/kolibri_app/windows/taskbar_icon.py:487
 #, python-brace-format
 msgid "Automatic startup has been {}."
-msgstr ""
+msgstr "Η αυτόματη εκκίνηση ήταν {}."
 
 #: src/kolibri_app/windows/taskbar_icon.py:500
 msgid "Kolibri Service Error"
-msgstr ""
+msgstr "Σφάλμα Υπηρεσίας Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:501
 msgid "Failed to update the service startup setting."
-msgstr ""
+msgstr "Αποτυχία ενημέρωσης της ρύθμισης εκκίνησης της υπηρεσίας."
 

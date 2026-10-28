@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "未知",
   "TaskStrings.taskWaitingStatus": "等待中",
   "TaskStrings.unknownUsername": "未知用户",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "创建新密码",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "登录课励彼",
   "UserAuthPageTitleStrings.signInPageTitle": "用户登录",
   "UserAuthPageTitleStrings.signUpPageTitle": "创建账户",

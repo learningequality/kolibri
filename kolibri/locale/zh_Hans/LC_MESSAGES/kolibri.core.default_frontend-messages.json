@@ -533,7 +533,7 @@
   "UpdateNotification.upgradeLearnAndDownload": "了解更多且下载",
   "UpdateNotification.upgradeMessageGeneric": "有新版本的课励彼可用",
   "UpdateNotification.upgradeMessageImportant": "我们已经发布了一个重要的更新以修复这个版本的课励彼。",
-  "UpdateNotification.upgradeMessage_0_18_0": "Kolibri 版本 0.18.0 可用！ 新功能包括在课程和测验创建中进行全面搜索和过滤。 Bloom阅读器支持，更新教练中的导航，以及错误修复和改进。",
+  "UpdateNotification.upgradeMessage_0_20_0": "",
   "ViewerToolbar.enterFullscreen": "进入全屏",
   "ViewerToolbar.exitFullscreen": "退出全屏",
   "kolibriOnboardingGuideStrings.HomePageWelcomeMessage": "",

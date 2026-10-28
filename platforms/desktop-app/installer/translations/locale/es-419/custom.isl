@@ -1,5 +1,5 @@
 [CustomMessages]
-installservicetask=Ejecutar Kolibri automáticamente cuando el ordenador se inicie
+installservicetask=Ejecutar Kolibri automáticamente cuando se inicie el ordenador
 newerversioninstalled="Una versión más reciente de {#AppName} (%1) ya está instalada. Este instalador contiene la versión %2, que es más antigua. La instalación se cerrará."
 sameversioninstalled=Esta versión de %1 ya está instalada. ¿Quieres reparar la instalación volviendo a instalar?
 olderversioninstalled="Se detectó una versión anterior de {#AppName} (%1). ¿Quieres actualizar a la versión {#AppVersion}?"

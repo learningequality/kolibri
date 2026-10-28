@@ -533,7 +533,7 @@
   "UpdateNotification.upgradeLearnAndDownload": "နောက်ထပ်ကြည့်ရှုပြီးတော့ ဒေါင်းလုတ်ဆွဲမည်",
   "UpdateNotification.upgradeMessageGeneric": "Kolibri ဗားရှင်းအသစ် ထွက်ပါပြီနော်",
   "UpdateNotification.upgradeMessageImportant": "Kolibri ၏ ဒီဗားရှင်းကိုအဆင့်မြှင့်တင်ထားသော ဗားရှင်းထွက်ရှိနေပါပြီနော်",
-  "UpdateNotification.upgradeMessage_0_18_0": "Kolibri ဗားရှင်း 0.18.0 ရရှိနိုင်ပါပြီ! အသစ်ထည့်သွင်းထားသော လုပ်ဆောင်ချက်များတွင် သင်ခန်းစာနှင့် စစ်ဆေးမှု ဖန်တီးမှုအတွင်း အပြည့်အဝ ရှာဖွေရန်နှင့် စစ်ထုတ်ရန်၊ Bloom reader အထောက်အပံ့၊ Coach တွင် အ navigational ပြင်ဆင်မှုများနှင့် အမှားပြင်ဆင်မှုများနှင့် တိုးတက်မှုများ ပါဝင်သည်။",
+  "UpdateNotification.upgradeMessage_0_20_0": "",
   "ViewerToolbar.enterFullscreen": "စာမျက်နှာအပြည့်ဝင်ရောက်မည်",
   "ViewerToolbar.exitFullscreen": "စာမျက်နှာအပြည့်မှထွက်ရန်",
   "kolibriOnboardingGuideStrings.HomePageWelcomeMessage": "",

@@ -4,7 +4,7 @@
   "AnswerGuideStrings.chooseThenTarget": "crwdns450661:0crwdne450661:0",
   "AnswerGuideStrings.inlineChoice": "crwdns443101:0count={count}crwdne443101:0",
   "AnswerGuideStrings.order": "crwdns443103:0crwdne443103:0",
-  "AnswerGuideStrings.orderKeyboard": "crwdns443105:0crwdne443105:0",
+  "AnswerGuideStrings.orderHorizontal": "crwdns451405:0crwdne451405:0",
   "AnswerGuideStrings.shortAnswer": "crwdns450663:0crwdne450663:0",
   "AssociateInteractionStrings.emptySlotPlaceholder": "crwdns450665:0crwdne450665:0",
   "AssociateInteractionStrings.firstSlotEmpty": "crwdns450667:0number={number}crwdne450667:0",

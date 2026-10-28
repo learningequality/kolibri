@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">Công việc bắt đầu…</string>
+    <string name="notification_service_channel_title">Các tác vụ quan trọng đang chạy</string>
     <string name="notification_service_channel_content">Đang làm</string>
     <string name="notification_service_channel_action">Xem trình quản lý công việc</string>
     <string name="notification_default_channel_title">Công việc</string>
+    <string name="notification_task_title">Tác vụ Kolibri đang chạy</string>
+    <string name="notification_task_text">Đang xử lý tác vụ trong nền…</string>
     <string name="notification_download_complete_title">Tải xuống hoàn tất</string>
+    <string name="notification_download_failed_title">Tải xuống không thành công</string>
+    <string name="toast_download_started">Đang tải xuống %1$s…</string>
+    <string name="toast_download_complete">Đã lưu %1$s vào thư mục Tải xuống</string>
+    <string name="toast_download_failed">Không thể tải xuống %1$s</string>
     <string name="os_user_name">Học viên</string>
 </resources>

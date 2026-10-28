@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-09 20:49\n"
+"PO-Revision-Date: 2026-10-28 00:05\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Marathi\n"
 "Language: mr\n"
@@ -24,12 +24,12 @@ msgstr "कोलिब्री बाबत"
 #: src/kolibri_app/about_dialog.py:40
 #, python-format
 msgid "App version: %(version)s"
-msgstr ""
+msgstr "ॲप आवृत्ती: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:42
 #, python-format
 msgid "Kolibri version: %(version)s"
-msgstr ""
+msgstr "कोलिब्री आवृत्ती: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:45 src/kolibri_app/view.py:278
 msgid "Documentation"
@@ -37,12 +37,12 @@ msgstr "दस्तऐवज"
 
 #: src/kolibri_app/about_dialog.py:47
 msgid "Community Forum"
-msgstr ""
+msgstr "कम्युनिटी फोरम"
 
 #: src/kolibri_app/about_dialog.py:60
 #, python-format
 msgid "© %(year)s Learning Equality"
-msgstr ""
+msgstr "© %(year)s Learning Equality"
 
 #: src/kolibri_app/about_dialog.py:64
 msgid "Close"
@@ -50,31 +50,31 @@ msgstr "बंद करा"
 
 #: src/kolibri_app/view.py:217
 msgid "Open Kolibri in Browser"
-msgstr ""
+msgstr "ब्राउझरमध्ये कोलिब्री उघडा"
 
 #: src/kolibri_app/view.py:223
 msgid "Open Kolibri Home Folder"
-msgstr ""
+msgstr "कोलिब्री होम फोल्डर उघडा"
 
 #: src/kolibri_app/view.py:231 src/kolibri_app/view.py:302
 msgid "About Kolibri…"
-msgstr ""
+msgstr "कोलिब्रीबद्दल…"
 
 #: src/kolibri_app/view.py:241
 msgid "Cut\tCtrl+X"
-msgstr ""
+msgstr "कट करा\tCtrl+X"
 
 #: src/kolibri_app/view.py:242
 msgid "Copy\tCtrl+C"
-msgstr ""
+msgstr "कॉपी करा\tCtrl+C"
 
 #: src/kolibri_app/view.py:243
 msgid "Paste\tCtrl+V"
-msgstr ""
+msgstr "पेस्ट करा\tCtrl+V"
 
 #: src/kolibri_app/view.py:245
 msgid "Select All\tCtrl+A"
-msgstr ""
+msgstr "सर्व निवडा\tCtrl+A"
 
 #: src/kolibri_app/view.py:247
 msgid "Edit"
@@ -82,23 +82,23 @@ msgstr "बदल करा"
 
 #: src/kolibri_app/view.py:249
 msgid "File"
-msgstr ""
+msgstr "फाइल"
 
 #: src/kolibri_app/view.py:253
 msgid "Reload"
-msgstr ""
+msgstr "पुन्हा लोड करा"
 
 #: src/kolibri_app/view.py:257
 msgid "Actual Size\tCtrl+0"
-msgstr ""
+msgstr "मूळ आकार\tCtrl+0"
 
 #: src/kolibri_app/view.py:263
 msgid "Zoom In\tCtrl++"
-msgstr ""
+msgstr "मोठे करा\tCtrl++"
 
 #: src/kolibri_app/view.py:269
 msgid "Zoom Out\tCtrl+-"
-msgstr ""
+msgstr "लहान करा\tCtrl+-"
 
 #: src/kolibri_app/view.py:273
 msgid "View"
@@ -106,27 +106,27 @@ msgstr "पहा"
 
 #: src/kolibri_app/view.py:284
 msgid "Community Forums"
-msgstr ""
+msgstr "कम्युनिटी फोरम"
 
 #: src/kolibri_app/view.py:290
 msgid "Show Logs"
-msgstr ""
+msgstr "लॉग दाखवा"
 
 #: src/kolibri_app/view.py:295
 msgid "Open Developer Tools"
-msgstr ""
+msgstr "डेव्हलपर टूल्स उघडा"
 
 #: src/kolibri_app/view.py:298
 msgid "Troubleshooting"
-msgstr ""
+msgstr "समस्यानिवारण"
 
 #: src/kolibri_app/view.py:305
 msgid "Help"
-msgstr ""
+msgstr "मदत"
 
 #: src/kolibri_app/view.py:402
 msgid "Save file"
-msgstr ""
+msgstr "फाइल सेव्ह करा"
 
 #: src/kolibri_app/windows/taskbar_icon.py:301
 msgid "Kolibri"
@@ -142,33 +142,34 @@ msgstr "कोलिब्री सुरु आहे"
 
 #: src/kolibri_app/windows/taskbar_icon.py:309
 msgid "Kolibri is ready"
-msgstr ""
+msgstr "कोलिब्री तयार आहे"
 
 #: src/kolibri_app/windows/taskbar_icon.py:316
 #, python-brace-format
 msgid "Kolibri failed to start.\n"
 "Check logs at: {}"
-msgstr ""
+msgstr "कोलिब्री सुरू करण्यात अयशस्वी.\n"
+"येथे लॉग तपासा: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:318
 msgid "Kolibri is experiencing an error"
-msgstr ""
+msgstr "कोलिब्रीमध्ये एक त्रुटी आली आहे"
 
 #: src/kolibri_app/windows/taskbar_icon.py:346
 msgid "Open Kolibri App"
-msgstr ""
+msgstr "कोलिब्री ॲप उघडा"
 
 #: src/kolibri_app/windows/taskbar_icon.py:354
 msgid "Open Kolibri App after sign in"
-msgstr ""
+msgstr "साइन इन केल्यानंतर कोलिब्री ॲप उघडा"
 
 #: src/kolibri_app/windows/taskbar_icon.py:361
 msgid "Run Kolibri service on Windows startup"
-msgstr ""
+msgstr "Windows सुरू झाल्यावर कोलिब्री सेवा चालवा"
 
 #: src/kolibri_app/windows/taskbar_icon.py:369
 msgid "Run Kolibri service on Windows startup (Unavailable)"
-msgstr ""
+msgstr "Windows सुरू झाल्यावर कोलिब्री सेवा चालवा (अनुपलब्ध)"
 
 #: src/kolibri_app/windows/taskbar_icon.py:378
 msgid "Exit"
@@ -176,7 +177,7 @@ msgstr "बाहेर पडा"
 
 #: src/kolibri_app/windows/taskbar_icon.py:387
 msgid "Kolibri service is not ready yet"
-msgstr ""
+msgstr "कोलिब्री सेवा अद्याप तयार नाही"
 
 #: src/kolibri_app/windows/taskbar_icon.py:388
 msgid "Info"
@@ -186,34 +187,34 @@ msgstr "माहिती"
 #: src/kolibri_app/windows/taskbar_icon.py:411
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "enabled"
-msgstr ""
+msgstr "सक्षम केले"
 
 #. i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
 #: src/kolibri_app/windows/taskbar_icon.py:414
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "disabled"
-msgstr ""
+msgstr "अक्षम केले"
 
 #: src/kolibri_app/windows/taskbar_icon.py:417
 msgid "Kolibri App Setting Updated"
-msgstr ""
+msgstr "कोलिब्री ॲप सेटिंग अपडेट केली"
 
 #: src/kolibri_app/windows/taskbar_icon.py:418
 #, python-brace-format
 msgid "Opening Kolibri App after sign in has been {}"
-msgstr ""
+msgstr "साइन इन केल्यानंतर कोलिब्री ॲप उघडणे {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:426
 msgid "Kolibri App Setting Error"
-msgstr ""
+msgstr "कोलिब्री ॲप सेटिंग त्रुटी"
 
 #: src/kolibri_app/windows/taskbar_icon.py:427
 msgid "Failed to change the Kolibri App startup setting"
-msgstr ""
+msgstr "कोलिब्री ॲपची स्टार्टअप सेटिंग बदलण्यात अयशस्वी"
 
 #: src/kolibri_app/windows/taskbar_icon.py:454
 msgid "Administrator rights are required to change this setting."
-msgstr ""
+msgstr "ही सेटिंग बदलण्यासाठी प्रशासक अधिकारांची आवश्यकता आहे."
 
 #: src/kolibri_app/windows/taskbar_icon.py:455
 #: src/kolibri_app/windows/taskbar_icon.py:472
@@ -223,22 +224,22 @@ msgstr "चूक"
 #: src/kolibri_app/windows/taskbar_icon.py:471
 #, python-brace-format
 msgid "An error occurred while changing the service setting: {}"
-msgstr ""
+msgstr "सेवा सेटिंग बदलताना त्रुटी आली: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:486
 msgid "Kolibri Service Updated"
-msgstr ""
+msgstr "कोलिब्री सेवा अपडेट केली"
 
 #: src/kolibri_app/windows/taskbar_icon.py:487
 #, python-brace-format
 msgid "Automatic startup has been {}."
-msgstr ""
+msgstr "स्वयंचलित स्टार्टअप {} आहे."
 
 #: src/kolibri_app/windows/taskbar_icon.py:500
 msgid "Kolibri Service Error"
-msgstr ""
+msgstr "कोलिब्री सेवा त्रुटी"
 
 #: src/kolibri_app/windows/taskbar_icon.py:501
 msgid "Failed to update the service startup setting."
-msgstr ""
+msgstr "सेवा स्टार्टअप सेटिंग अपडेट करण्यात अयशस्वी."
 

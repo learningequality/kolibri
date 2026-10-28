@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-09 20:49\n"
+"PO-Revision-Date: 2026-10-28 00:05\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Korean\n"
 "Language: ko\n"
@@ -24,12 +24,12 @@ msgstr "Kolibri란"
 #: src/kolibri_app/about_dialog.py:40
 #, python-format
 msgid "App version: %(version)s"
-msgstr ""
+msgstr "앱 버전: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:42
 #, python-format
 msgid "Kolibri version: %(version)s"
-msgstr ""
+msgstr "Kolibri 버전: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:45 src/kolibri_app/view.py:278
 msgid "Documentation"
@@ -37,12 +37,12 @@ msgstr "문서"
 
 #: src/kolibri_app/about_dialog.py:47
 msgid "Community Forum"
-msgstr ""
+msgstr "커뮤니티 포럼"
 
 #: src/kolibri_app/about_dialog.py:60
 #, python-format
 msgid "© %(year)s Learning Equality"
-msgstr ""
+msgstr "© %(year)s Learning Equality"
 
 #: src/kolibri_app/about_dialog.py:64
 msgid "Close"
@@ -50,31 +50,31 @@ msgstr "닫기"
 
 #: src/kolibri_app/view.py:217
 msgid "Open Kolibri in Browser"
-msgstr ""
+msgstr "브라우저에서 Kolibri 열기"
 
 #: src/kolibri_app/view.py:223
 msgid "Open Kolibri Home Folder"
-msgstr ""
+msgstr "Kolibri 홈 폴더 열기"
 
 #: src/kolibri_app/view.py:231 src/kolibri_app/view.py:302
 msgid "About Kolibri…"
-msgstr ""
+msgstr "Kolibri 정보…"
 
 #: src/kolibri_app/view.py:241
 msgid "Cut\tCtrl+X"
-msgstr ""
+msgstr "잘라내기        Ctrl+X"
 
 #: src/kolibri_app/view.py:242
 msgid "Copy\tCtrl+C"
-msgstr ""
+msgstr "복사        Ctrl+C"
 
 #: src/kolibri_app/view.py:243
 msgid "Paste\tCtrl+V"
-msgstr ""
+msgstr "붙여넣기        Ctrl+V"
 
 #: src/kolibri_app/view.py:245
 msgid "Select All\tCtrl+A"
-msgstr ""
+msgstr "모두 선택        Ctrl+A"
 
 #: src/kolibri_app/view.py:247
 msgid "Edit"
@@ -82,23 +82,23 @@ msgstr "편집"
 
 #: src/kolibri_app/view.py:249
 msgid "File"
-msgstr ""
+msgstr "파일"
 
 #: src/kolibri_app/view.py:253
 msgid "Reload"
-msgstr ""
+msgstr "새로 고침"
 
 #: src/kolibri_app/view.py:257
 msgid "Actual Size\tCtrl+0"
-msgstr ""
+msgstr "실제 크기        Ctrl+0"
 
 #: src/kolibri_app/view.py:263
 msgid "Zoom In\tCtrl++"
-msgstr ""
+msgstr "확대        Ctrl++"
 
 #: src/kolibri_app/view.py:269
 msgid "Zoom Out\tCtrl+-"
-msgstr ""
+msgstr "축소        Ctrl+-"
 
 #: src/kolibri_app/view.py:273
 msgid "View"
@@ -106,27 +106,27 @@ msgstr "보기"
 
 #: src/kolibri_app/view.py:284
 msgid "Community Forums"
-msgstr ""
+msgstr "커뮤니티 포럼"
 
 #: src/kolibri_app/view.py:290
 msgid "Show Logs"
-msgstr ""
+msgstr "로그 보기"
 
 #: src/kolibri_app/view.py:295
 msgid "Open Developer Tools"
-msgstr ""
+msgstr "개발자 도구 열기"
 
 #: src/kolibri_app/view.py:298
 msgid "Troubleshooting"
-msgstr ""
+msgstr "문제 해결"
 
 #: src/kolibri_app/view.py:305
 msgid "Help"
-msgstr ""
+msgstr "도움말"
 
 #: src/kolibri_app/view.py:402
 msgid "Save file"
-msgstr ""
+msgstr "파일 저장"
 
 #: src/kolibri_app/windows/taskbar_icon.py:301
 msgid "Kolibri"
@@ -142,33 +142,34 @@ msgstr "Kolibri가 작동 중입니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:309
 msgid "Kolibri is ready"
-msgstr ""
+msgstr "Kolibri가 준비되었습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:316
 #, python-brace-format
 msgid "Kolibri failed to start.\n"
 "Check logs at: {}"
-msgstr ""
+msgstr "Kolibri를 시작하지 못했습니다.\n"
+"로그 위치: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:318
 msgid "Kolibri is experiencing an error"
-msgstr ""
+msgstr "Kolibri에 오류가 발생했습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:346
 msgid "Open Kolibri App"
-msgstr ""
+msgstr "Kolibri 앱 열기"
 
 #: src/kolibri_app/windows/taskbar_icon.py:354
 msgid "Open Kolibri App after sign in"
-msgstr ""
+msgstr "로그인 후 Kolibri 앱 열기"
 
 #: src/kolibri_app/windows/taskbar_icon.py:361
 msgid "Run Kolibri service on Windows startup"
-msgstr ""
+msgstr "Windows 시작 시 Kolibri 서비스 실행"
 
 #: src/kolibri_app/windows/taskbar_icon.py:369
 msgid "Run Kolibri service on Windows startup (Unavailable)"
-msgstr ""
+msgstr "Windows 시작 시 Kolibri 서비스 실행 (사용할 수 없음)"
 
 #: src/kolibri_app/windows/taskbar_icon.py:378
 msgid "Exit"
@@ -176,7 +177,7 @@ msgstr "종료"
 
 #: src/kolibri_app/windows/taskbar_icon.py:387
 msgid "Kolibri service is not ready yet"
-msgstr ""
+msgstr "Kolibri 서비스가 아직 준비되지 않았습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:388
 msgid "Info"
@@ -186,34 +187,34 @@ msgstr "정보"
 #: src/kolibri_app/windows/taskbar_icon.py:411
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "enabled"
-msgstr ""
+msgstr "활성화됨"
 
 #. i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
 #: src/kolibri_app/windows/taskbar_icon.py:414
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "disabled"
-msgstr ""
+msgstr "비활성화됨"
 
 #: src/kolibri_app/windows/taskbar_icon.py:417
 msgid "Kolibri App Setting Updated"
-msgstr ""
+msgstr "Kolibri 앱 설정이 업데이트되었습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:418
 #, python-brace-format
 msgid "Opening Kolibri App after sign in has been {}"
-msgstr ""
+msgstr "로그인 후 Kolibri 앱 열기가 {} 상태가 되었습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:426
 msgid "Kolibri App Setting Error"
-msgstr ""
+msgstr "Kolibri 앱 설정 오류"
 
 #: src/kolibri_app/windows/taskbar_icon.py:427
 msgid "Failed to change the Kolibri App startup setting"
-msgstr ""
+msgstr "Kolibri 앱 시작 설정을 변경하지 못했습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:454
 msgid "Administrator rights are required to change this setting."
-msgstr ""
+msgstr "이 설정을 변경하려면 운영자 권한이 필요합니다."
 
 #: src/kolibri_app/windows/taskbar_icon.py:455
 #: src/kolibri_app/windows/taskbar_icon.py:472
@@ -223,22 +224,22 @@ msgstr "오류"
 #: src/kolibri_app/windows/taskbar_icon.py:471
 #, python-brace-format
 msgid "An error occurred while changing the service setting: {}"
-msgstr ""
+msgstr "서비스 설정을 변경하는 중 오류가 발생했습니다: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:486
 msgid "Kolibri Service Updated"
-msgstr ""
+msgstr "Kolibri 서비스가 업데이트되었습니다"
 
 #: src/kolibri_app/windows/taskbar_icon.py:487
 #, python-brace-format
 msgid "Automatic startup has been {}."
-msgstr ""
+msgstr "자동 시작이 {} 상태가 되었습니다."
 
 #: src/kolibri_app/windows/taskbar_icon.py:500
 msgid "Kolibri Service Error"
-msgstr ""
+msgstr "Kolibri 서비스 오류"
 
 #: src/kolibri_app/windows/taskbar_icon.py:501
 msgid "Failed to update the service startup setting."
-msgstr ""
+msgstr "서비스 시작 설정을 업데이트하지 못했습니다."
 

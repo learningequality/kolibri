@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">Iniciando tarefa…</string>
+    <string name="notification_service_channel_title">Tarefas Importantes em Curso</string>
     <string name="notification_service_channel_content">Em curso</string>
     <string name="notification_service_channel_action">Ver o gestor de tarefas</string>
     <string name="notification_default_channel_title">Tarefas</string>
+    <string name="notification_task_title">Tarefa da Kolibri em curso</string>
+    <string name="notification_task_text">A processar tarefa em segundo plano...</string>
     <string name="notification_download_complete_title">Transferência completa</string>
+    <string name="notification_download_failed_title">Falha na transferência</string>
+    <string name="toast_download_started">A transferir %1$s…</string>
+    <string name="toast_download_complete">%1$s guardado nas transferências</string>
+    <string name="toast_download_failed">%1$s não pôde ser transferido</string>
     <string name="os_user_name">Aluno</string>
 </resources>

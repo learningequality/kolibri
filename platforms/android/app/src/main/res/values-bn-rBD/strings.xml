@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">কলিব্রি</string>
     <string name="notification_channel_ticker">টাস্ক শুরু হয়েছে…</string>
+    <string name="notification_service_channel_title">গুরুত্বপূর্ণ টাস্ক/কাজ চলছে</string>
     <string name="notification_service_channel_content">চলছে</string>
     <string name="notification_service_channel_action">টাস্ক ম্যানেজার দেখুন</string>
     <string name="notification_default_channel_title">টাস্ক</string>
+    <string name="notification_task_title">কলিব্রি-এর টাস্ক চলছে</string>
+    <string name="notification_task_text">ব্যাকগ্রাউন্ডে টাস্ক সম্পন্ন হচ্ছে...</string>
     <string name="notification_download_complete_title">ডাউনলোড সম্পূর্ণ হয়েছে</string>
+    <string name="notification_download_failed_title">ডাউনলোড ব্যর্থ হয়েছে</string>
+    <string name="toast_download_started">%1$s ডাউনলোড হচ্ছে…</string>
+    <string name="toast_download_complete">%1$s ডাউনলোড ফোল্ডারে সংরক্ষণ করা হয়েছে</string>
+    <string name="toast_download_failed">%1$s ডাউনলোড করা যায়নি</string>
     <string name="os_user_name">শিক্ষার্থী</string>
 </resources>

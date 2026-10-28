@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 20:35+0000\n"
-"PO-Revision-Date: 2026-10-09 20:49\n"
+"PO-Revision-Date: 2026-10-28 00:22\n"
 "Last-Translator: \n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -29,15 +29,15 @@ msgstr "کوئی پہلے سے طے شدہ سہولت موجود نہیں ہے۔
 #: core/auth/constants/commands_errors.py:18
 #: core/auth/management/commands/bulkimportusers.py:95
 msgid "Error trying to write csv file: {}"
-msgstr "CSV فائل لکھنے کی کوشش میں خامی: {}"
+msgstr "csv فائل لکھنے کی کوشش میں خرابی: {}"
 
 #: core/auth/constants/user_kinds.py:26
 msgid "Admin"
-msgstr "منتظم"
+msgstr "ایڈمن"
 
 #: core/auth/constants/user_kinds.py:27
 msgid "Super admin"
-msgstr "سپر منتظم"
+msgstr "سپر ایڈمن"
 
 #: core/auth/constants/user_kinds.py:28
 msgid "Class coach"
@@ -45,11 +45,11 @@ msgstr "کلاس کوچ"
 
 #: core/auth/constants/user_kinds.py:29
 msgid "Facility coach"
-msgstr "سہولت کوچ"
+msgstr "فیسیلیٹی کا کوچ"
 
 #: core/auth/constants/user_kinds.py:30
 msgid "Learner"
-msgstr "طالب"
+msgstr "طالب علم"
 
 #: core/auth/management/commands/bulkexportusers.py:41
 #: core/auth/management/commands/bulkexportusers.py:118
@@ -94,7 +94,7 @@ msgstr "صنف ({})"
 #: core/auth/management/commands/bulkexportusers.py:59
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "سیکھنے والے کا اندراج ({})"
+msgstr "طالب علم کا اندراج"
 
 #: core/auth/management/commands/bulkexportusers.py:66
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
@@ -109,7 +109,7 @@ msgstr "صارف کی قسم ({})"
 #: core/auth/management/commands/bulkexportusers.py:136
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "سیکھنے والے کا اندراج ({})"
+msgstr "طالب علم کا اندراج ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:143
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
@@ -132,7 +132,7 @@ msgstr "کالم '{}' میں قدر درست نہیں ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:78
 msgid "Username is duplicated"
-msgstr "صارف کا نام دوبارہ درج ہے"
+msgstr "صارف کا نام دوبار درج ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgid "Username only can contain characters, numbers and underscores"
@@ -151,11 +151,11 @@ msgstr "پہلی صف میں غلط ہیڈر لیبل ملا ہے"
 #: core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "کوئی پہلے سے طے شدہ سہولت موجود نہیں ہے۔ صارفین اور کلاسوں کو درآمد کرنے سے پہلے ڈیوائس پر ایک سہولت کا قیام  یقینی بنائیں"
+msgstr "کوئی پہلے سے طے شدہ فیسیلیٹی موجود نہیں ہے۔ صارفین اور کلاسوں کو درآمد کرنے سے پہلے ڈیوائس پر ایک فیسیلیٹی کا قیام  یقینی بنائیں"
 
 #: core/auth/management/commands/bulkimportusers.py:94
 msgid "Error trying to read csv file: {}"
-msgstr "CSV فائل کو پڑھنے کی کوشش میں خامی: {}"
+msgstr "csv فائل کو پڑھنے کی کوشش میں خامی: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
@@ -199,7 +199,7 @@ msgstr "لائبریری کا اپ ڈیٹ ناکام ہوگیا"
 #. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:12
 msgid "Searching"
-msgstr "تلاش کر رہا ہے…"
+msgstr "تلاش جاری ہے…"
 
 #. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:14
@@ -208,11 +208,11 @@ msgstr "کولیبری کے دیگر ڈیوائسز کی تلاش جاری ہے"
 
 #: core/device/viewsets/device_settings.py:23
 msgid "Language is not supported by Kolibri"
-msgstr "کولیبری کی طرف سے زبان کی معاونت نہیں"
+msgstr "کولیبری یہ زبان قبول نہیں کرتا"
 
 #: core/logger/csv_export.py:132
 msgid "Facility name"
-msgstr "تعلیمی ادارہ کا نام"
+msgstr "فیسیلیٹی کا نام"
 
 #: core/logger/csv_export.py:133
 msgid "Username"
@@ -269,7 +269,7 @@ msgstr "مواد کی قسم"
 
 #: core/logger/csv_export.py:325
 msgid "Folder level {i + 1}"
-msgstr ""
+msgstr "فولڈر لیول {i + 1}"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:103
@@ -303,11 +303,11 @@ msgstr "کولیبری شروع ہو رہا ہے"
 
 #: core/templates/kolibri/loading_page.html:87
 msgid "Starting Kolibri"
-msgstr "کولیبری شروع کرنا"
+msgstr "کولیبری شروع ہورہا ہے"
 
 #: core/templates/kolibri/loading_page.html:89
 msgid "You should be automatically redirected when Kolibri is ready"
-msgstr "کولیبری تیار ہوتے ہی آپ کو خود بخود ری ڈائریکٹ کردیا جائے گا"
+msgstr "کولیبری کے تیار ہوتے ہی آپ کو خود بخود ری ڈائریکٹ کردیا جائے گا"
 
 #: core/templates/kolibri/loading_page.html:90
 msgid "If not, please ask for help in our community forums"
@@ -339,7 +339,7 @@ msgstr "کولیبری"
 
 #: core/views.py:179
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "کوئی مناسب ری ڈائریکشن پیج دستیاب نہیں۔ کولبری کی کنفیگریشن میں ممکنہ خرابی ہے"
+msgstr "کوئی مناسب ری ڈائریکشن پیج دستیاب نہیں۔ کولیبری کی کنفیگریشن میں ممکنہ خرابی ہے"
 
 #: plugins/coach/kolibri_plugin.py:24
 msgid "Coach"
@@ -347,12 +347,12 @@ msgstr "کوچ"
 
 #: plugins/facility/kolibri_plugin.py:18
 msgid "Facility"
-msgstr "تعلیمی ادارہ"
+msgstr "فیسیلیٹی"
 
 #: plugins/facility/views.py:148
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
-msgstr "مواد_سیشن_لوگز_سے_"
+msgstr "لوگز_سے_کنٹینٹ_سیشن"
 
 #: plugins/facility/views.py:155 plugins/facility/views.py:173
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
@@ -362,7 +362,7 @@ msgstr "ـ تک"
 #: plugins/facility/views.py:166
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
-msgstr "مواد_خلاصہ_لوگز_سے_"
+msgstr "لوگز_سے_کنٹینٹ_سمری"
 
 #: plugins/facility/views.py:184
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"

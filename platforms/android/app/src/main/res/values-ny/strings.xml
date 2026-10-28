@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">Ntchito iyi yayambika…</string>
+    <string name="notification_service_channel_title">Ntchito zofunika zikugwiridwa</string>
     <string name="notification_service_channel_content">Ali mkati</string>
     <string name="notification_service_channel_action">Onani mndanda wa zomwe kompyuta yanu ikuchita</string>
     <string name="notification_default_channel_title">Zochitika</string>
+    <string name="notification_task_title">Ntchito ya Kolibri ikugwiridwa</string>
+    <string name="notification_task_text">Kukonza ntchito kumbuyo</string>
     <string name="notification_download_complete_title">Yamaliza kupanga dawunilodi</string>
+    <string name="notification_download_failed_title">Kutsitsa pa intaneti kwakanika</string>
+    <string name="toast_download_started">Kutsitsa pa intaneti %1$s</string>
+    <string name="toast_download_complete">Zasungidwa %1$s ku zotsitsa pa intaneti</string>
+    <string name="toast_download_failed">Yakanika kutsitsa pa intaneti %1$s</string>
     <string name="os_user_name">Wophunzira</string>
 </resources>

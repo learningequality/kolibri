@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">كوليبري</string>
     <string name="notification_channel_ticker">بدأت المهمة…</string>
+    <string name="notification_service_channel_title">المهام المهمة قيد التشغيل</string>
     <string name="notification_service_channel_content">جاري العمل عليه</string>
     <string name="notification_service_channel_action">عرض مدير المهام</string>
     <string name="notification_default_channel_title">المهام</string>
+    <string name="notification_task_title">مهمة كوليبري قيد التنفيذ</string>
+    <string name="notification_task_text">جارٍ معالجة المهمة في الخلفية…</string>
     <string name="notification_download_complete_title">اكتمل التحميل</string>
+    <string name="notification_download_failed_title">فشل التنزيل</string>
+    <string name="toast_download_started">جارٍ التحميل %1$s…</string>
+    <string name="toast_download_complete">تم حفظ %1$s في التنزيلات</string>
+    <string name="toast_download_failed">تعذر تحميل %1$s</string>
     <string name="os_user_name">المتعلّم</string>
 </resources>

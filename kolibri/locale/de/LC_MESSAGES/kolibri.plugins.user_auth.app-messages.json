@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "Unbekannt",
   "TaskStrings.taskWaitingStatus": "Warten",
   "TaskStrings.unknownUsername": "Unbekannter Benutzer",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "Neues Passwort erstellen",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "Bei Kolibri anmelden",
   "UserAuthPageTitleStrings.signInPageTitle": "Benutzeranmeldung",
   "UserAuthPageTitleStrings.signUpPageTitle": "Konto erstellen",

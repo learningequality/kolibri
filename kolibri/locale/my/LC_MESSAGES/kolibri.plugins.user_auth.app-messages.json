@@ -146,6 +146,8 @@
   "TaskStrings.taskUnknownStatus": "မသိ",
   "TaskStrings.taskWaitingStatus": "စောင့်ဆိုင်းနေသည်",
   "TaskStrings.unknownUsername": "အမည်မသိသောအသုံးပြုသူ",
+  "UserAuthPageTitleStrings.authSelectPageTitle": "",
+  "UserAuthPageTitleStrings.newPasswordPageTitle": "စကား၀ှက်အသစ်တစ်ခုဖန်တီးမည်",
   "UserAuthPageTitleStrings.pictureSignInPageTitle": "Kolibri သို့ ဝင်ရောက်မည်",
   "UserAuthPageTitleStrings.signInPageTitle": "အသုံးပြုသူ ဝင်ရောက်ရန်",
   "UserAuthPageTitleStrings.signUpPageTitle": "အကောင့်ဖန်တီးမည်",

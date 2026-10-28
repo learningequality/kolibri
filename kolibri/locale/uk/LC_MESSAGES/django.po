@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 20:35+0000\n"
-"PO-Revision-Date: 2026-10-09 20:49\n"
+"PO-Revision-Date: 2026-10-28 00:06\n"
 "Last-Translator: \n"
 "Language-Team: Ukrainian\n"
 "Language: uk_UA\n"
@@ -204,11 +204,11 @@ msgstr "Пошук"
 #. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:14
 msgid "Looking for other Kolibri devices"
-msgstr "Пошук інших пристроїв Колібрі"
+msgstr "Пошук інших пристроїв Kolibri"
 
 #: core/device/viewsets/device_settings.py:23
 msgid "Language is not supported by Kolibri"
-msgstr "Мова не підтримується Колібрі"
+msgstr "Мова не підтримується Kolibri"
 
 #: core/logger/csv_export.py:132
 msgid "Facility name"
@@ -233,11 +233,11 @@ msgstr "Назва каналу"
 
 #: core/logger/csv_export.py:140
 msgid "Content id"
-msgstr "Ідентифікатор контенту"
+msgstr "Id контенту"
 
 #: core/logger/csv_export.py:141
 msgid "Content title"
-msgstr "Назва контенту"
+msgstr "Назва матеріалу"
 
 #: core/logger/csv_export.py:146
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
@@ -269,7 +269,7 @@ msgstr "Тип контенту"
 
 #: core/logger/csv_export.py:325
 msgid "Folder level {i + 1}"
-msgstr ""
+msgstr "Рівень теки {i + 1}"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:103
@@ -299,15 +299,15 @@ msgstr "Очікування"
 
 #: core/templates/kolibri/loading_page.html:8
 msgid "Kolibri is starting"
-msgstr "Колібрі запускається"
+msgstr "Kolibri запускається"
 
 #: core/templates/kolibri/loading_page.html:87
 msgid "Starting Kolibri"
-msgstr "Запуск Колібрі"
+msgstr "Запуск Kolibri"
 
 #: core/templates/kolibri/loading_page.html:89
 msgid "You should be automatically redirected when Kolibri is ready"
-msgstr "Ви будете автоматично перенаправлені, коли Колібрі буде готовий"
+msgstr "Ви будете автоматично перенаправлені, коли Kolibri буде готовий"
 
 #: core/templates/kolibri/loading_page.html:90
 msgid "If not, please ask for help in our community forums"
@@ -327,7 +327,7 @@ msgstr "Версія вашого браузера не підтримуєтьс
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "Щоб використовувати Колібрі, ми рекомендуємо використовувати Firefox або Chrome."
+msgstr "Щоб використовувати Kolibri, ми рекомендуємо користуватися Firefox або Chrome."
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
@@ -335,11 +335,11 @@ msgstr "Ви також можете спробувати оновити пот�
 
 #: core/templatetags/core_tags.py:70
 msgid "Kolibri"
-msgstr "Колібрі"
+msgstr "Kolibri"
 
 #: core/views.py:179
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "Не знайдено належних сторінок перенаправлення. Ймовірно, що Колібрі не налаштований належним чином"
+msgstr "Не знайдено належних сторінок перенаправлення. Ймовірно, Kolibri не налаштований належним чином"
 
 #: plugins/coach/kolibri_plugin.py:24
 msgid "Coach"

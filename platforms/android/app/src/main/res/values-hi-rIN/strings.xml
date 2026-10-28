@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Kolibri</string>
+    <string name="app_name">कोलिब्री </string>
     <string name="notification_channel_ticker">कार्य शुरू हो गया हैं</string>
+    <string name="notification_service_channel_title">महत्वपूर्ण टास्क चल रहे हैं</string>
     <string name="notification_service_channel_content">जारी है</string>
     <string name="notification_service_channel_action">टास्क मैनेजर देखें</string>
     <string name="notification_default_channel_title">कार्य</string>
+    <string name="notification_task_title">कोलिब्री टास्क चल रहा है</string>
+    <string name="notification_task_text">बैकग्राउंड में टास्क प्रोसेस हो रहा है…</string>
     <string name="notification_download_complete_title">डाउनलोड पूरा हो गया</string>
+    <string name="notification_download_failed_title">डाउनलोड विफल हो गया</string>
+    <string name="toast_download_started">डाउनलोड हो रहा है %1$s…</string>
+    <string name="toast_download_complete">%1$s को डाउनलोड्स में सेव किया गया</string>
+    <string name="toast_download_failed">%1$s डाउनलोड नहीं किया जा सका</string>
     <string name="os_user_name">शिक्षणार्थी/पाठक</string>
 </resources>

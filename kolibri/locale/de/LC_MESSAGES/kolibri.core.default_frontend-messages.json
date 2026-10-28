@@ -533,7 +533,7 @@
   "UpdateNotification.upgradeLearnAndDownload": "Weitere Infos und hier herunterladen",
   "UpdateNotification.upgradeMessageGeneric": "Eine neue Version von Kolibri ist verfügbar.",
   "UpdateNotification.upgradeMessageImportant": "Es wurde ein wichtiges Update mit Fehlerbehebungen für diese Kolibri-Version veröffentlicht.",
-  "UpdateNotification.upgradeMessage_0_18_0": "Kolibri Version 0.18. ist ab sofort verfügbar! Neu sind u. a. eine umfassendere Suchfunktion und zusätzliche Filtermöglichkeiten für Unterrichtseinheiten und die Testerstellung, Bloom Reader-Unterstützung, eine aktualisierte Navigation in Coach sowie Fehlerbehebungen und Verbesserungen.",
+  "UpdateNotification.upgradeMessage_0_20_0": "",
   "ViewerToolbar.enterFullscreen": "Vollbildmodus aktivieren",
   "ViewerToolbar.exitFullscreen": "Vollbildmodus beenden",
   "kolibriOnboardingGuideStrings.HomePageWelcomeMessage": "",

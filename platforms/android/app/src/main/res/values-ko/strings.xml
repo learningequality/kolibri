@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="notification_channel_ticker">작업 시작중..</string>
+    <string name="notification_service_channel_title">중요한 작업 실행 중</string>
     <string name="notification_service_channel_content">진행 중</string>
     <string name="notification_service_channel_action">작업 관리자 보기</string>
     <string name="notification_default_channel_title">작업</string>
+    <string name="notification_task_title">Kolibri 작업 실행 중</string>
+    <string name="notification_task_text">배경에서 작업을 처리하는 중…</string>
     <string name="notification_download_complete_title">다운로드 완료</string>
+    <string name="notification_download_failed_title">다운로드 실패</string>
+    <string name="toast_download_started">%1$s 다운로드 중...</string>
+    <string name="toast_download_complete">%1$s을(를) 다운로드 폴더에 저장했습니다</string>
+    <string name="toast_download_failed">%1$s을(를) 다운로드할 수 없습니다</string>
     <string name="os_user_name">학생</string>
 </resources>
