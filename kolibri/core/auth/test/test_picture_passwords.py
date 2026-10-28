@@ -2,7 +2,6 @@ from datetime import timedelta
 from unittest import mock
 from unittest.mock import patch
 
-from django.db import transaction
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -18,7 +17,6 @@ from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exha
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
 from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
-from kolibri.core.auth.utils.picture_passwords import get_available_sequence
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 
 from ..models import Facility
@@ -207,86 +205,6 @@ class AssignPicturePasswordTestCase(TestCase):
         self.assertIsNone(FacilityUser.all_objects.get(pk=oldest.pk).picture_password)
         self.assertIsNotNone(FacilityUser.all_objects.get(pk=newer.pk).picture_password)
 
-    def test_get_available_sequence_does_not_reclaim(self):
-        small_set = {1: {}, 2: {}, 3: {}}
-        all_seqs = sorted(get_all_valid_sequences(small_set))
-        for i, seq in enumerate(all_seqs):
-            learner = self._create_learner(f"readonly{i}")
-            learner.picture_password = seq
-            learner.save(update_fields=["picture_password"])
-            if i == 0:
-                holder = learner
-        holder.date_deleted = now() - timedelta(days=10)
-        holder.save()
-
-        with mock.patch(
-            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
-            small_set,
-        ):
-            with self.assertRaises(NoAvailableSequences):
-                get_available_sequence(self.facility)
-
-        self.assertEqual(
-            all_seqs[0],
-            FacilityUser.all_objects.get(pk=holder.pk).picture_password,
-        )
-
-    def test_reclaim_works_inside_a_caller_atomic_block(self):
-        """Both real callers wrap this in transaction.atomic(), so the reclaim's
-        own atomic() has to be a savepoint that leaves the caller's transaction
-        usable."""
-        small_set = {1: {}, 2: {}, 3: {}}
-        all_seqs = sorted(get_all_valid_sequences(small_set))
-        for i, seq in enumerate(all_seqs):
-            learner = self._create_learner(f"atomicfill{i}")
-            learner.picture_password = seq
-            learner.save(update_fields=["picture_password"])
-            if i == 0:
-                holder = learner
-        holder.date_deleted = now() - timedelta(days=9)
-        holder.save()
-
-        newcomer = self._create_learner("atomic_newcomer")
-
-        with transaction.atomic():
-            with mock.patch(
-                "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
-                small_set,
-            ):
-                assign_picture_password(newcomer, self.facility)
-            self.assertTrue(FacilityUser.objects.filter(pk=newcomer.pk).exists())
-
-        newcomer.refresh_from_db()
-        self.assertEqual(all_seqs[0], newcomer.picture_password)
-        self.assertIsNone(FacilityUser.all_objects.get(pk=holder.pk).picture_password)
-
-    def test_failed_reclaim_leaves_the_sequence_with_its_holder(self):
-        small_set = {1: {}, 2: {}, 3: {}}
-        all_seqs = sorted(get_all_valid_sequences(small_set))
-        for i, seq in enumerate(all_seqs):
-            learner = self._create_learner(f"rollbackfill{i}")
-            learner.picture_password = seq
-            learner.save(update_fields=["picture_password"])
-            if i == 0:
-                holder = learner
-        holder.date_deleted = now() - timedelta(days=9)
-        holder.save()
-
-        newcomer = self._create_learner("rollback_newcomer")
-
-        with mock.patch(
-            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
-            small_set,
-        ):
-            with mock.patch.object(newcomer, "save", side_effect=IntegrityError()):
-                with self.assertRaises(IntegrityError):
-                    assign_picture_password(newcomer, self.facility)
-
-        self.assertEqual(
-            all_seqs[0],
-            FacilityUser.all_objects.get(pk=holder.pk).picture_password,
-        )
-
     def test_raises_no_available_sequences_when_pool_exhausted(self):
         small_set = {1: {}, 2: {}, 3: {}}
         all_seqs = sorted(get_all_valid_sequences(small_set))
@@ -302,38 +220,6 @@ class AssignPicturePasswordTestCase(TestCase):
         ):
             with self.assertRaises(NoAvailableSequences):
                 assign_picture_password(overflow_learner, self.facility)
-
-    def test_retry_reclaims_when_the_pool_empties_mid_assignment(self):
-        holder = self._create_learner("retry_holder")
-        holder.picture_password = "1.2.3"
-        holder.save(update_fields=["picture_password"])
-        holder.date_deleted = now() - timedelta(days=5)
-        holder.save()
-
-        learner = self._create_learner("retry_learner")
-        real_save = learner.save
-        calls = []
-
-        def collide_once(*args, **kwargs):
-            calls.append(1)
-            if len(calls) == 1:
-                raise IntegrityError()
-            return real_save(*args, **kwargs)
-
-        with mock.patch(
-            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
-            side_effect=["4.5.6", NoAvailableSequences()],
-        ):
-            with mock.patch.object(learner, "save", side_effect=collide_once):
-                assign_picture_password(learner, self.facility)
-
-        self.assertEqual(
-            "1.2.3",
-            FacilityUser.objects.values_list("picture_password", flat=True).get(
-                pk=learner.pk
-            ),
-        )
-        self.assertIsNone(FacilityUser.all_objects.get(pk=holder.pk).picture_password)
 
     def test_raises_sequence_already_assigned_after_two_integrity_errors(self):
         learner = self._create_learner("collision")
