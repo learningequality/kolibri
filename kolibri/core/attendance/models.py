@@ -50,6 +50,8 @@ class AttendanceSession(AbstractFacilityDataModel):
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
         self.enforce_authoring_user_field("created_by", **kwargs)
+        if kwargs.get("update_dirty_bit_to") is not False:
+            self.date_modified = local_now()
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
@@ -7,6 +9,7 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
+from kolibri.utils.time_utils import local_now
 
 
 class AttendanceSessionTestCase(TestCase):
@@ -28,6 +31,22 @@ class AttendanceSessionTestCase(TestCase):
         self.assertIsNotNone(session.id)
         self.assertEqual(session.collection, self.classroom)
         self.assertEqual(session.created_by, self.coach)
+
+    def test_deserialized_save_keeps_the_incoming_date_modified(self):
+        session = AttendanceSession.objects.create(
+            collection=self.classroom,
+            created_by=self.coach,
+        )
+        backdated = local_now() - timedelta(days=3)
+        AttendanceSession.objects.filter(pk=session.pk).update(
+            date_modified=backdated
+        )
+        session.refresh_from_db()
+
+        session.save(update_dirty_bit_to=False)
+
+        session.refresh_from_db()
+        self.assertEqual(backdated, session.date_modified)
 
     def test_default_timestamps(self):
         session = AttendanceSession.objects.create(
