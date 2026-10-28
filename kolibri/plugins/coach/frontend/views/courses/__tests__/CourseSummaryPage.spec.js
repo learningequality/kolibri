@@ -559,6 +559,7 @@ describe('CourseSummaryPage', () => {
 
   describe('CourseSummaryPage — making the course visible', () => {
     const {
+      visibleToLearnersLabel$,
       startPreTestForUnitConfirmation$,
       startPreTestAfterCourseVisibleDescription$,
       startPreTestAfterCourseVisibleConfirmAction$,
@@ -585,7 +586,7 @@ describe('CourseSummaryPage', () => {
     }
 
     async function toggleVisibility(toggleCourseActive) {
-      await fireEvent.click(screen.getByRole('checkbox'));
+      await fireEvent.click(screen.getByRole('checkbox', { name: visibleToLearnersLabel$() }));
       await waitFor(() => expect(toggleCourseActive).toHaveBeenCalled());
       await global.flushPromises();
     }
@@ -599,10 +600,10 @@ describe('CourseSummaryPage', () => {
 
       await toggleVisibility(toggleCourseActive);
 
-      expect(screen.getByText(startPreTestForUnitConfirmation$({ num: 2 }))).toBeInTheDocument();
-      expect(
-        screen.getByText(startPreTestAfterCourseVisibleDescription$({ num: 2 })),
-      ).toBeInTheDocument();
+      const dialog = screen.getByRole('dialog', {
+        name: startPreTestForUnitConfirmation$({ num: 2 }),
+      });
+      expect(dialog).toHaveTextContent(startPreTestAfterCourseVisibleDescription$({ num: 2 }));
     });
 
     it('starts the pre-test when the coach answers "Yes"', async () => {
@@ -616,9 +617,7 @@ describe('CourseSummaryPage', () => {
       );
 
       expect(activateTest).toHaveBeenCalledWith(TestType.PRE);
-      expect(
-        screen.queryByText(startPreTestAfterCourseVisibleDescription$({ num: 2 })),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     it('closes the prompt without starting a test when the coach answers "No"', async () => {
@@ -632,9 +631,7 @@ describe('CourseSummaryPage', () => {
       );
 
       expect(activateTest).not.toHaveBeenCalled();
-      expect(
-        screen.queryByText(startPreTestAfterCourseVisibleDescription$({ num: 2 })),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     it.each([UnitPhase.PRE_TEST_ACTIVE, UnitPhase.POST_TEST_PENDING, UnitPhase.POST_TEST_ACTIVE])(
@@ -644,9 +641,7 @@ describe('CourseSummaryPage', () => {
 
         await toggleVisibility(toggleCourseActive);
 
-        expect(
-          screen.queryByText(startPreTestAfterCourseVisibleDescription$({ num: 2 })),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       },
     );
 
@@ -658,9 +653,7 @@ describe('CourseSummaryPage', () => {
 
       await toggleVisibility(toggleCourseActive);
 
-      expect(
-        screen.queryByText(startPreTestAfterCourseVisibleDescription$({ num: 2 })),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 

@@ -52,11 +52,13 @@
           <template v-else>
             <div class="course-active status-item">
               <KLabeledIcon
+                id="course-visibility-label"
                 class="status-icon"
                 icon="unlistedchannel"
                 :label="visibleToLearnersLabel$()"
               />
               <KSwitch
+                ariaLabelledBy="course-visibility-label"
                 :value="courseSession.active"
                 :disabled="contentMissing"
                 @change="onCourseVisibilityChange"
@@ -390,7 +392,7 @@
   import useCourseSession from '../../composables/useCourseSession';
   import useClassSummary from '../../composables/useClassSummary.js';
   import useCourseNotificationPolling from '../../composables/useCourseNotificationPolling';
-  import { UnitPhase } from '../../constants/courseConstants';
+  import { TestType, UnitPhase } from '../../constants/courseConstants';
   import UnitReportResource from '../../apiResources/unitReport';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import { overrideRoute } from '../../utils';
@@ -843,7 +845,7 @@
           submitText: startPreTestAfterCourseVisibleConfirmAction$(),
           cancelText: startPreTestAfterCourseVisibleDismissAction$(),
           submit: () => {
-            activateTest('pre');
+            activateTest(TestType.PRE);
             activeModal.value = null;
           },
           cancel: () => (activeModal.value = null),
@@ -862,7 +864,7 @@
               submitText: startPreTest$(),
               cancelText: cancelAction$(),
               submit: () => {
-                activateTest('pre');
+                activateTest(TestType.PRE);
                 activeModal.value = null;
               },
               cancel: () => (activeModal.value = null),
@@ -888,7 +890,7 @@
               submitText: startPostTest$(),
               cancelText: cancelAction$(),
               submit: () => {
-                activateTest('post');
+                activateTest(TestType.POST);
                 activeModal.value = null;
               },
               cancel: () => (activeModal.value = null),
