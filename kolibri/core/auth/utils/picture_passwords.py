@@ -169,3 +169,14 @@ def assign_picture_password(user, facility):
             raise SequenceAlreadyAssigned(
                 "Picture password sequence assignment failed due to repeated collisions."
             ) from e
+
+
+def assign_picture_password_if_enabled(user, facility):
+    if facility.dataset.picture_password_settings is None:
+        return
+    if are_picture_passwords_exhausted(user.dataset_id):
+        return
+    try:
+        assign_picture_password(user, facility)
+    except NoAvailableSequences:
+        pass

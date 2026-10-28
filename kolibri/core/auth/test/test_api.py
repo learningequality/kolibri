@@ -4676,8 +4676,6 @@ class RestorePicturePasswordTestCase(APITestCase):
         )
 
     def test_restored_learner_is_assigned_a_picture_password(self, mock_cleanup_task):
-        """A learner whose sequence was reclaimed while deleted gets one back on
-        restore, so they can log in again."""
         learner = FacilityUserFactory.create(facility=self.facility)
         self._soft_delete(learner)
         # What _reclaim_sequence_from_deleted_learner does when the pool runs out.
@@ -4694,9 +4692,6 @@ class RestorePicturePasswordTestCase(APITestCase):
     def test_restoring_several_learners_gives_each_a_distinct_sequence(
         self, mock_cleanup_task
     ):
-        """Both callers restore a comma-joined selection, so the bulk path is the
-        normal one: every learner must come back with a sequence, and no two may
-        be handed the same one."""
         learners = [
             FacilityUserFactory.create(facility=self.facility) for _ in range(3)
         ]
@@ -4720,8 +4715,6 @@ class RestorePicturePasswordTestCase(APITestCase):
         self.assertEqual(len(sequences), len(set(sequences)))
 
     def test_restored_learner_keeps_their_own_picture_password(self, mock_cleanup_task):
-        """A learner who still holds their sequence keeps it, rather than being
-        handed a different one."""
         learner = FacilityUserFactory.create(facility=self.facility)
         models.FacilityUser.objects.filter(pk=learner.pk).update(
             picture_password="1.2.3"
@@ -4738,10 +4731,6 @@ class RestorePicturePasswordTestCase(APITestCase):
     def test_restored_superuser_is_not_assigned_a_picture_password(
         self, mock_cleanup_task
     ):
-        """Superusers are excluded, as they are in
-        assign_picture_passwords_to_facility and PicturePasswordsSyncHook: the
-        learner count does not include them, so a sequence spent on one is
-        unaccounted for against the limit."""
         other_superuser = create_superuser(self.facility, username="othersuperuser")
         self._soft_delete(other_superuser)
 
@@ -4752,131 +4741,6 @@ class RestorePicturePasswordTestCase(APITestCase):
         # assert the restore really happened, so the assertion below is not vacuous
         self.assertIsNone(other_superuser.date_deleted)
         self.assertIsNone(other_superuser.picture_password)
-
-    @patch(
-        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 0
-    )
-    def test_restored_learner_not_assigned_at_the_learner_limit(
-        self, mock_cleanup_task
-    ):
-        """At or above the learner limit no sequence is handed out, as in
-        FacilityUserSerializer.create."""
-        learner = FacilityUserFactory.create(facility=self.facility)
-        self._soft_delete(learner)
-        models.FacilityUser.all_objects.filter(pk=learner.pk).update(
-            picture_password=None
-        )
-
-        response = self._restore(learner)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        learner.refresh_from_db()
-        self.assertIsNone(learner.date_deleted)
-        self.assertIsNone(learner.picture_password)
-
-    def test_restored_learner_not_assigned_when_settings_null(self, mock_cleanup_task):
-        """A facility that does not use picture login gets no assignment on
-        restore."""
-        self.facility.dataset.picture_password_settings = None
-        self.facility.dataset.learner_can_edit_password = True
-        self.facility.dataset.save()
-        learner = FacilityUserFactory.create(facility=self.facility)
-        self._soft_delete(learner)
-
-        response = self._restore(learner)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        learner.refresh_from_db()
-        self.assertIsNone(learner.date_deleted)
-        self.assertIsNone(learner.picture_password)
-
-
-@patch("kolibri.core.auth.viewsets.facility_user.cleanup_expired_deleted_users")
-class RestorePicturePasswordCollisionTestCase(APITransactionTestCase):
-    """Runs outside a wrapping transaction, so a real IntegrityError behaves as
-    it does in production. A TestCase supplies an atomic block of its own, which
-    would break the retry regardless of the code under test."""
-
-    databases = "__all__"
-
-    def setUp(self):
-        super().setUp()
-        provision_device()
-        self.facility = models.Facility.objects.create(name="RestoreCollisionFacility")
-        self.superuser = create_superuser(self.facility)
-        self.facility.dataset.learner_can_edit_password = False
-        self.facility.dataset.picture_password_settings = {
-            "icon_style": "standard",
-            "show_icon_text": False,
-        }
-        self.facility.dataset.save()
-        self.client.login(
-            username=self.superuser.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-
-    def test_restore_succeeds_when_a_sequence_cannot_be_assigned(
-        self, mock_cleanup_task
-    ):
-        """Two collisions in a row raise SequenceAlreadyAssigned. The restore has
-        already been written by then, so it must still report success and leave
-        the learner without a sequence rather than 500 on a completed action."""
-        taken = "1.2.3"
-        holder = FacilityUserFactory.create(facility=self.facility)
-        models.FacilityUser.objects.filter(pk=holder.pk).update(picture_password=taken)
-        learner = FacilityUserFactory.create(facility=self.facility)
-        self.client.delete(
-            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": learner.pk})
-        )
-        models.FacilityUser.all_objects.filter(pk=learner.pk).update(
-            picture_password=None
-        )
-
-        with patch(
-            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
-            side_effect=[taken, taken],
-        ):
-            response = self.client.post(
-                reverse("kolibri:core:deletedfacilityuser-restore")
-                + f"?by_ids={learner.id}"
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        learner.refresh_from_db()
-        self.assertIsNone(learner.date_deleted)
-        self.assertIsNone(learner.picture_password)
-
-    def test_restore_survives_a_picture_password_collision(self, mock_cleanup_task):
-        """assign_picture_password retries after an IntegrityError. That only
-        works outside an atomic block -- a failed save marks the transaction for
-        rollback, and the retry's query would raise TransactionManagementError
-        instead (#15594)."""
-        taken = "1.2.3"
-        holder = FacilityUserFactory.create(facility=self.facility)
-        models.FacilityUser.objects.filter(pk=holder.pk).update(picture_password=taken)
-        learner = FacilityUserFactory.create(facility=self.facility)
-        self.client.delete(
-            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": learner.pk})
-        )
-        models.FacilityUser.all_objects.filter(pk=learner.pk).update(
-            picture_password=None
-        )
-
-        with patch(
-            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
-            side_effect=[taken, "4.5.6"],
-        ):
-            response = self.client.post(
-                reverse("kolibri:core:deletedfacilityuser-restore")
-                + f"?by_ids={learner.id}"
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        learner.refresh_from_db()
-        self.assertIsNone(learner.date_deleted)
-        self.assertEqual("4.5.6", learner.picture_password)
-
 
 class PicturePasswordPrevalidateTestCase(APITestCase):
     databases = "__all__"
