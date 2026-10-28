@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest import mock
 from unittest.mock import patch
 
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -224,6 +225,64 @@ class AssignPicturePasswordTestCase(TestCase):
         ):
             with self.assertRaises(NoAvailableSequences):
                 get_available_sequence(self.facility)
+
+        self.assertEqual(
+            all_seqs[0],
+            FacilityUser.all_objects.get(pk=holder.pk).picture_password,
+        )
+
+    def test_reclaim_works_inside_a_caller_atomic_block(self):
+        """Both real callers wrap this in transaction.atomic(), so the reclaim's
+        own atomic() has to be a savepoint that leaves the caller's transaction
+        usable."""
+        small_set = {1: {}, 2: {}, 3: {}}
+        all_seqs = sorted(get_all_valid_sequences(small_set))
+        for i, seq in enumerate(all_seqs):
+            learner = self._create_learner(f"atomicfill{i}")
+            learner.picture_password = seq
+            learner.save(update_fields=["picture_password"])
+            if i == 0:
+                holder = learner
+        holder.date_deleted = now() - timedelta(days=9)
+        holder.save()
+
+        newcomer = self._create_learner("atomic_newcomer")
+
+        with transaction.atomic():
+            with mock.patch(
+                "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
+                small_set,
+            ):
+                assign_picture_password(newcomer, self.facility)
+            self.assertTrue(FacilityUser.objects.filter(pk=newcomer.pk).exists())
+
+        newcomer.refresh_from_db()
+        self.assertEqual(all_seqs[0], newcomer.picture_password)
+        self.assertIsNone(FacilityUser.all_objects.get(pk=holder.pk).picture_password)
+
+    def test_failed_reclaim_leaves_the_sequence_with_its_holder(self):
+        """If the user's save fails after the holder was cleared, the clear has
+        to roll back, or the sequence ends up assigned to nobody."""
+        small_set = {1: {}, 2: {}, 3: {}}
+        all_seqs = sorted(get_all_valid_sequences(small_set))
+        for i, seq in enumerate(all_seqs):
+            learner = self._create_learner(f"rollbackfill{i}")
+            learner.picture_password = seq
+            learner.save(update_fields=["picture_password"])
+            if i == 0:
+                holder = learner
+        holder.date_deleted = now() - timedelta(days=9)
+        holder.save()
+
+        newcomer = self._create_learner("rollback_newcomer")
+
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
+            small_set,
+        ):
+            with mock.patch.object(newcomer, "save", side_effect=IntegrityError()):
+                with self.assertRaises(IntegrityError):
+                    assign_picture_password(newcomer, self.facility)
 
         self.assertEqual(
             all_seqs[0],
