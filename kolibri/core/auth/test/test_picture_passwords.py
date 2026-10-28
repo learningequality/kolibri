@@ -261,8 +261,6 @@ class AssignPicturePasswordTestCase(TestCase):
         self.assertIsNone(FacilityUser.all_objects.get(pk=holder.pk).picture_password)
 
     def test_failed_reclaim_leaves_the_sequence_with_its_holder(self):
-        """If the user's save fails after the holder was cleared, the clear has
-        to roll back, or the sequence ends up assigned to nobody."""
         small_set = {1: {}, 2: {}, 3: {}}
         all_seqs = sorted(get_all_valid_sequences(small_set))
         for i, seq in enumerate(all_seqs):
