@@ -19,7 +19,6 @@ from rest_framework.serializers import ValidationError
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.attendance.models import AttendanceRecord
 from kolibri.core.attendance.models import AttendanceSession
-from kolibri.core.attendance.utils import validate_users_share_dataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
@@ -65,17 +64,17 @@ class BulkUpdateSerializer(Serializer):
 
     def validate(self, data):
         records = data.get("records", [])
-        session = data["attendance_session"]
         user_ids = {r["user"] for r in records}
-        users = list(
-            FacilityUser.objects.filter(id__in=user_ids).values_list("id", "dataset_id")
+        existing_ids = set(
+            FacilityUser.objects.filter(
+                id__in=user_ids, dataset_id=data["attendance_session"].dataset_id
+            ).values_list("id", flat=True)
         )
-        missing = user_ids - {user_id for user_id, _ in users}
+        missing = user_ids - existing_ids
         if missing:
             raise ValidationError(
                 {"records": f"Invalid user IDs: {', '.join(sorted(missing))}"}
             )
-        validate_users_share_dataset(users, session.dataset_id, "records")
         return data
 
 
