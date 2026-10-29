@@ -359,7 +359,7 @@
         })
           .then() // If successful, should redirect to LessonSummaryPage
           .catch(error => {
-            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE, 'BLANK']);
             if (errors) {
               this.$refs.detailsModal.handleSubmitTitleFailure();
             } else if (error.response && error.response.data && error.response.data.learner_ids) {
