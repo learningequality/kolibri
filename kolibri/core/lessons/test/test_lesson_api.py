@@ -664,3 +664,30 @@ class LessonReadResponseTestCase(APITestCase):
         self.assertIn(group.id, data["assignments"])
         # learner_ids should contain the learner
         self.assertIn(learner.id, data["learner_ids"])
+    def test_can_update_lesson_active(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {
+                "active": False,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.lesson.refresh_from_db()
+
+    def test_create_lesson_blank_title_returns_bad_request(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            reverse("kolibri:core:lesson-list"),
+            {
+                "title": "   ",
+                "active": True,
+                "collection": self.classroom.id,
+                "assignments": [],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("title", response.data)
