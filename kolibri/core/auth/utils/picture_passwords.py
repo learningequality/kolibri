@@ -115,6 +115,9 @@ def get_assigned_sequences(facility):
     """
     Return the set of picture_password values already assigned to
     learners in the facility. Coaches and admins are excluded.
+
+    Soft-deleted learners are included: their sequence keeps occupying the
+    (dataset, picture_password) constraint until they are hard-deleted.
     """
     return set(
         FacilityUser.all_objects.filter(
@@ -165,11 +168,16 @@ def assign_picture_password(user, facility):
     """
     Assign a unique picture password sequence to the user.
 
+    When no sequence is free, takes back the one held by the learner deleted
+    longest ago, writing that learner's row as well as this user's.
+
     Handles IntegrityError (race condition where another request assigned
     the same sequence between our read and write) by retrying once.
 
     Raises:
-        NoAvailableSequences: if no remaining sequences are available for facility.
+        NoAvailableSequences: if no sequence is free and there is no
+            soft-deleted learner to take one from, or if the pool has filled
+            by the time the retry looks.
         SequenceAlreadyAssigned: if we hit IntegrityError twice during assignment.
     """
     try:
