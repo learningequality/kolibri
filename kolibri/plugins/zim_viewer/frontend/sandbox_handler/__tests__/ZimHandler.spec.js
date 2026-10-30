@@ -1,11 +1,16 @@
 import { events } from 'kolibri-sandbox/base';
 import ZimHandler from '../ZimHandler';
 import { EntryKinds, loadArticleIntoIframe } from '../articleLoader';
+import { attachNavigationInterceptor } from '../navigationInterceptor';
 import { ZimReader } from '../reader';
 
 jest.mock('../articleLoader', () => ({
   EntryKinds: jest.requireActual('../articleLoader').EntryKinds,
   loadArticleIntoIframe: jest.fn(),
+}));
+jest.mock('../navigationInterceptor', () => ({
+  attachNavigationInterceptor: jest.fn(() => jest.fn()),
+  scrollToFragment: jest.fn(),
 }));
 jest.mock('../reader', () => ({ ZimReader: jest.fn() }));
 
@@ -223,6 +228,8 @@ describe('ZimHandler', () => {
 
     it('keeps the article it was opened from working under it, for a host that only closes it', async () => {
       const { handler, iframe } = makeHandler();
+      const detach = jest.fn();
+      attachNavigationInterceptor.mockReturnValueOnce(detach);
       loadArticleIntoIframe.mockResolvedValueOnce(html('C/Index', ['blob:a1']));
       await settle(iframe, handler._loadAndAttach('C/Index'));
       loadArticleIntoIframe.mockResolvedValueOnce({
@@ -234,6 +241,7 @@ describe('ZimHandler', () => {
 
       await settle(iframe, handler._loadAndAttach('C/Doc.pdf'));
 
+      expect(detach).not.toHaveBeenCalled();
       expect(revoke).not.toHaveBeenCalled();
       expect(handler._objectUrls).toEqual(['blob:a1']);
       expect(handler._currentPath).toBe('C/Doc.pdf');
@@ -394,6 +402,8 @@ describe('ZimHandler', () => {
 
     it('returns to the article a page was opened from as it was left, without reloading it', async () => {
       const { handler, iframe } = makeHandler();
+      const detach = jest.fn();
+      attachNavigationInterceptor.mockReturnValueOnce(detach);
       loadArticleIntoIframe.mockResolvedValueOnce(html('C/Index', ['blob:a1']));
       await settle(iframe, handler._loadAndAttach('C/Index'));
       const el = iframe.contentDocument.scrollingElement || iframe.contentDocument.documentElement;
@@ -422,6 +432,7 @@ describe('ZimHandler', () => {
       expect(sentEvents(handler, events.SHIMSTATEUPDATE)).toEqual([]);
       expect(handler.shims.scrollProgress.getProgress()).toBe(0.5);
       expect(handler._currentPath).toBe('C/Index');
+      expect(detach).not.toHaveBeenCalled();
       expect(revoke).not.toHaveBeenCalled();
     });
 
