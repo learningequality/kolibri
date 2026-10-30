@@ -5,7 +5,7 @@
     :showNavigation="false"
     :loading="pageLoading"
   >
-    <KPageContainer style="max-width: 1000px; margin: 32px auto 0">
+    <KPageContainer style="max-width: 1000px; margin: 32px auto 0;">
       <h1>{{ coreString('facilitiesLabel') }}</h1>
       <CoreTable>
         <template #headers>

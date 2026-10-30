@@ -86,7 +86,7 @@
             <tr v-if="scheduledTasks.length === 0">
               <td
                 colspan="5"
-                style="text-align: center"
+                style="text-align: center;"
               >
                 <b>{{ $tr('NoSync') }}</b>
               </td>

@@ -66,23 +66,23 @@
     min-height: 36px;
     margin: 8px;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 14px;
     font-weight: bold;
     line-height: 36px;
     text-align: center;
-    text-decoration: none;
-    text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;
+    text-decoration: none;
     cursor: pointer;
     user-select: none;
+    outline: none;
+    outline-offset: -2px !important;
     border: 0;
     border-style: solid;
     border-width: 0;
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
-    outline: none;
-    outline-offset: -2px !important;
     transition: background-color $core-time ease;
 
     @media print {

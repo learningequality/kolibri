@@ -321,8 +321,8 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .user-menu-button {
-    text-transform: none;
     vertical-align: middle;
+    text-transform: none;
   }
 
   .username {
@@ -335,9 +335,9 @@
     // overflow: hidden on both x and y so that the -y doesn't show scroll buttons
     // at certain zooms/screen sizes
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: small;
     font-weight: bold;
-    text-overflow: ellipsis;
   }
 
   @media (max-width: 750px) {
@@ -355,10 +355,10 @@
     margin: 0;
     overflow-x: hidden;
     overflow-y: auto;
+    outline: none;
     list-style: none;
     background-color: inherit;
     border: 0.0625rem solid rgba(0, 0, 0, 0.08);
-    outline: none;
   }
 
   .user-menu-dropdown {

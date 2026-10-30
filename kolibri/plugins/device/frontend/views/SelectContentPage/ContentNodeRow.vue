@@ -18,7 +18,7 @@
           <KIcon
             v-if="isCourse"
             icon="course"
-            style="top: 4px"
+            style="top: 4px;"
             data-testid="icon-course"
           />
           <ContentIcon

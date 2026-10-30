@@ -50,7 +50,7 @@
               <KButton
                 appearance="flat-button"
                 :text="permissionsButtonText(user)"
-                style="margin: 6px"
+                style="margin: 6px;"
                 @click="goToUserPermissionsPage(user.id)"
               />
             </td>

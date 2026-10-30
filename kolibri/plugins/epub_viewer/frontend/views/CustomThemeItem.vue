@@ -118,6 +118,7 @@
 
   .truncate {
     max-width: 100%;
+
     @include truncate-text;
   }
 

@@ -113,8 +113,8 @@
       font-size: 16px;
 
       .dropdown-icon {
-        transition: transform 0.2s ease-in-out;
         transform: rotate(0deg);
+        transition: transform 0.2s ease-in-out;
 
         &.expanded {
           transform: rotate(90deg);

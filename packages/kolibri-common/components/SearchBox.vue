@@ -246,11 +246,11 @@
   }
 
   .search-clear-button {
+    visibility: hidden;
     width: 24px;
     height: 24px;
     margin-right: 6px;
     vertical-align: middle;
-    visibility: hidden;
   }
 
   .search-clear-button-visible {

@@ -37,7 +37,7 @@
             :options="languageOptions"
             :disabled="language.value === undefined"
             :floatingLabel="false"
-            style="max-width: 300px"
+            style="max-width: 300px;"
             data-testid="languageSelect"
           />
         </div>

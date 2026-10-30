@@ -9,7 +9,7 @@
     <KRadioButtonGroup>
       <KRadioButton
         v-model="selected"
-        style="margin-bottom: 1em"
+        style="margin-bottom: 1em;"
         :buttonValue="Presets.PERSONAL"
         :label="$tr('onMyOwnLabel')"
         :description="getCommonSyncString('onMyOwn')"

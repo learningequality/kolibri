@@ -28,7 +28,7 @@
                   <KRouterLink
                     :text="resource.title"
                     :to="getResourceLink(resource.id)"
-                    style="font-size: 14px"
+                    style="font-size: 14px;"
                   />
                 </span>
                 <p

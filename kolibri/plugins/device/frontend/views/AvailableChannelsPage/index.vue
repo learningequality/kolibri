@@ -95,7 +95,7 @@
 
       <KCircularLoader
         v-else
-        style="margin: 2em auto"
+        style="margin: 2em auto;"
       />
 
       <ChannelTokenModal

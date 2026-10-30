@@ -369,8 +369,8 @@
   th {
     padding: 12px 8px;
     line-height: 1.5em;
-    text-align: left;
     vertical-align: top;
+    text-align: left;
   }
 
   .label {

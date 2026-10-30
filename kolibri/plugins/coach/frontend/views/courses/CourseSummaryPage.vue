@@ -5,7 +5,7 @@
     <KGrid v-else>
       <!-- Header row (full width) -->
       <KGridItem>
-        <KPageContainer style="padding-top: 24px">
+        <KPageContainer style="padding-top: 24px;">
           <KRouterLink
             class="go-back"
             icon="back"
@@ -1150,8 +1150,8 @@
 
   .active-unit-title {
     display: flex;
-    flex-direction: column;
     flex-grow: 2;
+    flex-direction: column;
     gap: 8px;
     width: 75%;
     font-size: 16px;

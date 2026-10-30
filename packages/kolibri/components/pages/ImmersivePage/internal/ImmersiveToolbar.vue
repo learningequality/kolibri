@@ -156,8 +156,8 @@
 
   .link {
     display: inline-block;
-    border-radius: 50%;
     outline-offset: -4px;
+    border-radius: 50%;
   }
 
   /deep/ .k-toolbar-left {

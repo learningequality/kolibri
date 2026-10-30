@@ -1,11 +1,13 @@
-import stylelint from 'stylelint';
+import { TIMEOUT, lintInChildProcess } from '../../__tests__/stylelintTestUtils';
 
-import plugin from '../rules/no-unknown-theme-custom-properties';
+jest.setTimeout(TIMEOUT);
 
-const { ruleName, messages } = plugin.rule;
+const plugin = require.resolve('../rules/no-unknown-theme-custom-properties');
+
+const ruleName = 'kolibri/no-unknown-theme-custom-properties';
 
 function lintScss(code, options = true) {
-  return stylelint.lint({
+  return lintInChildProcess({
     code,
     codeFilename: 'test.scss',
     customSyntax: 'postcss-scss',
@@ -17,7 +19,7 @@ function lintScss(code, options = true) {
 }
 
 function lintVue(code) {
-  return stylelint.lint({
+  return lintInChildProcess({
     code,
     codeFilename: 'Test.vue',
     customSyntax: 'postcss-html',
@@ -28,8 +30,8 @@ function lintVue(code) {
   });
 }
 
-async function fixedScss(code) {
-  const { output } = await stylelint.lint({
+function fixedScss(code) {
+  const { code: fixed } = lintInChildProcess({
     code,
     codeFilename: 'test.scss',
     customSyntax: 'postcss-scss',
@@ -39,18 +41,17 @@ async function fixedScss(code) {
     },
     fix: true,
   });
-  return output;
+  return fixed;
 }
 
 // filters to this rule's warnings, so an unrelated one cannot pass a test
-async function warningsFor(result) {
-  const { results } = await result;
+function warningsFor({ results }) {
   return results[0].warnings.filter(warning => warning.rule === ruleName);
 }
 
 describe('no-unknown-theme-custom-properties', () => {
-  it('accepts valid theme custom properties', async () => {
-    const warnings = await warningsFor(
+  it('accepts valid theme custom properties', () => {
+    const warnings = warningsFor(
       lintScss(`
         .a {
           color: var(--tokens-primary);
@@ -63,8 +64,8 @@ describe('no-unknown-theme-custom-properties', () => {
     expect(warnings).toHaveLength(0);
   });
 
-  it('ignores a `var()` without a themed prefix', async () => {
-    const warnings = await warningsFor(
+  it('ignores a `var()` without a themed prefix', () => {
+    const warnings = warningsFor(
       lintScss(`
         .a {
           color: var(--someLocalProperty);
@@ -75,36 +76,36 @@ describe('no-unknown-theme-custom-properties', () => {
     expect(warnings).toHaveLength(0);
   });
 
-  it('reports a misspelled name, pointing at the name', async () => {
+  it('reports a misspelled name, pointing at the name', () => {
     const code = '.a { color: var(--tokens-focusOutine); }';
-    const warnings = await warningsFor(lintScss(code));
+    const warnings = warningsFor(lintScss(code));
     expect(warnings).toHaveLength(1);
-    expect(warnings[0].text).toBe(messages.rejected('--tokens-focusOutine'));
+    expect(warnings[0].text).toBe(
+      'Unexpected unknown theme custom property "--tokens-focusOutine" (kolibri/no-unknown-theme-custom-properties)',
+    );
     expect(code.slice(warnings[0].column - 1, warnings[0].endColumn - 1)).toBe(
       '--tokens-focusOutine',
     );
   });
 
-  it('reports a misspelled name given a fallback, or nested in one', async () => {
+  it('reports a misspelled name given a fallback, or nested in one', () => {
+    expect(warningsFor(lintScss('.a { color: var(--tokens-focusOutine, #ff0000); }'))).toHaveLength(
+      1,
+    );
     expect(
-      await warningsFor(lintScss('.a { color: var(--tokens-focusOutine, #ff0000); }')),
-    ).toHaveLength(1);
-    expect(
-      await warningsFor(
-        lintScss('.a { color: var(--someLocalProperty, var(--tokens-focusOutine)); }'),
-      ),
+      warningsFor(lintScss('.a { color: var(--someLocalProperty, var(--tokens-focusOutine)); }')),
     ).toHaveLength(1);
   });
 
-  it('reports a misspelled name passed to an at-rule, pointing at the name', async () => {
+  it('reports a misspelled name passed to an at-rule, pointing at the name', () => {
     const code = '.a { @include shadow(var(--tokens-surfase)); }';
-    const warnings = await warningsFor(lintScss(code));
+    const warnings = warningsFor(lintScss(code));
     expect(warnings).toHaveLength(1);
     expect(code.slice(warnings[0].column - 1, warnings[0].endColumn - 1)).toBe('--tokens-surfase');
   });
 
-  it('reports a misspelled name inside a single file component style block', async () => {
-    const warnings = await warningsFor(
+  it('reports a misspelled name inside a single file component style block', () => {
+    const warnings = warningsFor(
       lintVue(`<template><div class="a" /></template>
         <style lang="scss" scoped>
           .a {
@@ -115,54 +116,58 @@ describe('no-unknown-theme-custom-properties', () => {
       `),
     );
     expect(warnings).toHaveLength(1);
-    expect(warnings[0].text).toBe(messages.rejected('--tokens-surfase'));
+    expect(warnings[0].text).toBe(
+      'Unexpected unknown theme custom property "--tokens-surfase" (kolibri/no-unknown-theme-custom-properties)',
+    );
   });
 
-  it('suggests the emitted name for the source `v_N` version key form', async () => {
-    const warnings = await warningsFor(lintScss('.a { color: var(--palette-grey-v_400); }'));
+  it('suggests the emitted name for the source `v_N` version key form', () => {
+    const warnings = warningsFor(lintScss('.a { color: var(--palette-grey-v_400); }'));
     expect(warnings).toHaveLength(1);
-    expect(warnings[0].text).toBe(messages.rejected('--palette-grey-v_400', '--palette-grey-v400'));
+    expect(warnings[0].text).toBe(
+      'Unexpected unknown theme custom property "--palette-grey-v_400", did you mean "--palette-grey-v400"? (kolibri/no-unknown-theme-custom-properties)',
+    );
   });
 
-  it('fixes the `v_N` form wherever it appears', async () => {
-    expect(await fixedScss('.a { color: var(--palette-grey-v_400); }')).toBe(
+  it('fixes the `v_N` form wherever it appears', () => {
+    expect(fixedScss('.a { color: var(--palette-grey-v_400); }')).toBe(
       '.a { color: var(--palette-grey-v400); }',
     );
-    expect(await fixedScss('.a { border-color: var(--brand-primary-v_600); }')).toBe(
+    expect(fixedScss('.a { border-color: var(--brand-primary-v_600); }')).toBe(
       '.a { border-color: var(--brand-primary-v600); }',
     );
-    expect(await fixedScss('.a { color: var(--tokens-primary, var(--palette-grey-v_400)); }')).toBe(
+    expect(fixedScss('.a { color: var(--tokens-primary, var(--palette-grey-v_400)); }')).toBe(
       '.a { color: var(--tokens-primary, var(--palette-grey-v400)); }',
     );
-    expect(await fixedScss('.a { @include shadow(var(--palette-grey-v_400)); }')).toBe(
+    expect(fixedScss('.a { @include shadow(var(--palette-grey-v_400)); }')).toBe(
       '.a { @include shadow(var(--palette-grey-v400)); }',
     );
   });
 
-  it('reports rather than rewrites a value that holds a comment', async () => {
+  it('reports rather than rewrites a value that holds a comment', () => {
     // postcss keeps the comment in `raws`, which rewriting the value would drop
     const code = '.a { color: var(--palette-grey-v_400) /* keep */; }';
-    expect(await fixedScss(code)).toBe(code);
-    expect(await warningsFor(lintScss(code))).toHaveLength(1);
+    expect(fixedScss(code)).toBe(code);
+    expect(warningsFor(lintScss(code))).toHaveLength(1);
   });
 
-  it('leaves a name with no certain replacement alone, and still reports it', async () => {
+  it('leaves a name with no certain replacement alone, and still reports it', () => {
     const code = '.a { color: var(--tokens-surfase); }';
-    expect(await fixedScss(code)).toBe(code);
-    expect(await warningsFor(lintScss(code))).toHaveLength(1);
+    expect(fixedScss(code)).toBe(code);
+    expect(warningsFor(lintScss(code))).toHaveLength(1);
   });
 
-  it('accepts names `ignoreProperties` covers, and still reports the rest', async () => {
+  it('accepts names `ignoreProperties` covers, and still reports the rest', () => {
     // apps add their own tokens at runtime with `setTokenMapping()`
     const code = '.a { color: var(--tokens-appDefined); }';
     expect(
-      await warningsFor(lintScss(code, [true, { ignoreProperties: ['--tokens-appDefined'] }])),
+      warningsFor(lintScss(code, [true, { ignoreProperties: ['--tokens-appDefined'] }])),
     ).toHaveLength(0);
     expect(
-      await warningsFor(lintScss(code, [true, { ignoreProperties: [/^--tokens-app/] }])),
+      warningsFor(lintScss(code, [true, { ignoreProperties: [/^--tokens-app/] }])),
     ).toHaveLength(0);
     expect(
-      await warningsFor(
+      warningsFor(
         lintScss('.a { color: var(--tokens-surfase); }', [
           true,
           { ignoreProperties: ['--tokens-appDefined'] },
@@ -171,8 +176,8 @@ describe('no-unknown-theme-custom-properties', () => {
     ).toHaveLength(1);
   });
 
-  it('rejects an `ignoreProperties` entry that is not a string or regexp', async () => {
-    const { results } = await lintScss('.a { color: var(--tokens-surfase); }', [
+  it('rejects an `ignoreProperties` entry that is not a string or regexp', () => {
+    const { results } = lintScss('.a { color: var(--tokens-surfase); }', [
       true,
       { ignoreProperties: [42] },
     ]);

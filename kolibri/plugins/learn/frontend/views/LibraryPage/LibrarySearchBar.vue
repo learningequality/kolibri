@@ -473,9 +473,9 @@
     height: 100%;
     padding: 0 12px;
     font-size: 16px;
+    outline: none;
     background: transparent;
     border: 0;
-    outline: none;
 
     /* Remove browser-default search input clear icon */
     &::-webkit-search-cancel-button {

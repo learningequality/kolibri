@@ -37,7 +37,7 @@
             v-if="!actionEnabled"
             :primary="true"
             appearance="raised-button"
-            style="margin-top: 20px"
+            style="margin-top: 20px;"
             :text="actionLabel"
             :disabled="true"
             data-testid="welcome-action-button"
@@ -46,7 +46,7 @@
             v-else
             :primary="true"
             appearance="raised-button"
-            style="margin-top: 20px"
+            style="margin-top: 20px;"
             :text="actionLabel"
             :to="openCourseContentPage()"
             data-testid="welcome-action-link"
@@ -128,7 +128,7 @@
               <ul class="unit-content-list">
                 <li
                   class="unit-item"
-                  style="padding: 0"
+                  style="padding: 0;"
                 >
                   <button
                     data-testid="pre-test-button-item"
@@ -633,10 +633,10 @@
     width: 100%;
     padding: 12px;
     user-select: text;
-    background-color: unset;
-    border: 0;
     outline: unset;
     outline-offset: 0;
+    background-color: unset;
+    border: 0;
 
     .unit-content {
       display: flex;
@@ -654,9 +654,9 @@
 
       &:focus {
         color: var(--palette-blue-v500);
+        outline: unset;
         background-color: var(--palette-blue-v100);
         border-left: 3px solid var(--palette-blue-v500);
-        outline: unset;
 
         .unit-icons {
           fill: var(--palette-blue-v500) !important;

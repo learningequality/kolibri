@@ -66,8 +66,8 @@
   }
 
   .card-group-details-header {
-    margin: 0;
     clear: none;
+    margin: 0;
     font-size: $header-size;
     text-align: left;
   }

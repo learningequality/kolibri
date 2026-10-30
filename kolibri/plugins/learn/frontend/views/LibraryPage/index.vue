@@ -606,8 +606,8 @@
     height: 130px;
     max-height: 258px;
     padding-bottom: $margin;
-    text-decoration: none;
     vertical-align: top;
+    text-decoration: none;
     border-radius: $radius;
     transition: box-shadow $core-time ease;
 

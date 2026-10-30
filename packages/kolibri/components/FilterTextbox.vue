@@ -190,11 +190,11 @@
     position: absolute;
     top: 6px;
     right: 0;
+    visibility: hidden;
     width: 24px;
     height: 24px;
     margin-right: 8px;
     margin-left: 8px;
-    visibility: hidden;
   }
 
   .k-filter-clear-button-visible {

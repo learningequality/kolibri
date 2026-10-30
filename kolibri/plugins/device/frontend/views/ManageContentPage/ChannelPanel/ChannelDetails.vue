@@ -162,8 +162,8 @@
 
   // Col 2: Title, description, other texts
   .col-2 {
-    flex-direction: column;
     flex-grow: 2;
+    flex-direction: column;
     align-items: stretch;
 
     .description {
@@ -171,7 +171,7 @@
 
       /* KA Burmese description with no spaces would run off
      * screen - this breaks it within the container */
-      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .col-2-row-1 {
