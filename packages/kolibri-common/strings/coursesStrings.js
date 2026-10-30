@@ -515,6 +515,11 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Shown in the learner side panel when the learner has not attempted any test, either for the whole course or for a single unit',
   },
+  testNotSubmittedLabel: {
+    message: "The learner hasn't submitted the test yet",
+    context:
+      'Shown in the learner side panel for a unit whose test the learner has opened but not submitted',
+  },
   hasntStartedUnitsLabel: {
     message: "{name} hasn't started any units",
     context:

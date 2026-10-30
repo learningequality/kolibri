@@ -81,9 +81,11 @@ def _fetch_mastery_logs(learner_ids, content_id_map):
 
     content_id_map maps synthetic content_id → (unit_id, test_type).
 
-    Returns {mastery log id: {learner_id, unit_id, test_type}}.
+    Returns ({mastery log id: {learner_id, unit_id, test_type}},
+    {(learner_id, content_id) with a MasteryLog but no complete one}).
     """
     mastery_log_to_meta = {}
+    logged = set()
     seen = set()
 
     for ml in (
@@ -92,16 +94,23 @@ def _fetch_mastery_logs(learner_ids, content_id_map):
             # SQLite's 999-variable budget.
             summarylog__content_id__inline_in=list(content_id_map),
             summarylog__user_id__inline_in=learner_ids,
-            complete=True,
-            # end_timestamp is set when the mastery log is submitted; an
-            # isnull guard excludes in-progress logs that have complete=True
-            # but no recorded end time.
-            end_timestamp__isnull=False,
         )
         .order_by("-end_timestamp")
-        .values("id", "summarylog__content_id", "summarylog__user_id")
+        .values(
+            "id",
+            "summarylog__content_id",
+            "summarylog__user_id",
+            "complete",
+            "end_timestamp",
+        )
     ):
         key = (ml["summarylog__user_id"], ml["summarylog__content_id"])
+        logged.add(key)
+        # end_timestamp is set when the mastery log is submitted; a null
+        # check excludes in-progress logs that have complete=True but no
+        # recorded end time.
+        if not ml["complete"] or ml["end_timestamp"] is None:
+            continue
         if key not in seen:
             seen.add(key)
             unit_id, test_type = content_id_map[ml["summarylog__content_id"]]
@@ -111,7 +120,7 @@ def _fetch_mastery_logs(learner_ids, content_id_map):
                 "test_type": test_type,
             }
 
-    return mastery_log_to_meta
+    return mastery_log_to_meta, logged - seen
 
 
 def _fetch_deduplicated_attempts(mastery_log_ids):
@@ -174,26 +183,31 @@ def compute_all_test_scores(
     LO map, and so also names the units to score.  When the same item appears
     more than once in a mastery log, the most recent attempt wins.
 
-    Returns:
-        {
+    Returns (scores, started):
+        scores = {
             unit_id_str: {
                 "pre":  { learner_id_str: { lo_id_str: correct_count }, ... },
                 "post": { learner_id_str: { lo_id_str: correct_count }, ... },
             },
             ...
         }
+        started = {unit_id_str: {"pre": [learner_id_str, ...], "post": [...]}}
 
-    Every requested unit id is present.  A learner who completed the test is
-    always present in the inner dict (even if every answer was wrong).  A
-    learner who never started, or whose MasteryLog is still in-progress
-    (complete=False), is absent.
+    Every requested unit id is present in both.  A learner who completed the
+    test is always present in scores (even if every answer was wrong).  A
+    learner whose MasteryLog is still in-progress (complete=False) is in
+    started instead.  A learner who never started is in neither.
     """
     results = {
         unit_id: {test_type: {} for test_type in _TEST_TYPES}
         for unit_id in assessment_objectives_by_unit
     }
+    started = {
+        unit_id: {test_type: [] for test_type in _TEST_TYPES}
+        for unit_id in assessment_objectives_by_unit
+    }
     if not learner_ids:
-        return results
+        return results, started
 
     content_id_map = {
         get_synthetic_content_id(str(course_session_id), unit_id, test_type): (
@@ -204,9 +218,13 @@ def compute_all_test_scores(
         for test_type in _TEST_TYPES
     }
 
-    mastery_log_to_meta = _fetch_mastery_logs(learner_ids, content_id_map)
+    mastery_log_to_meta, unsubmitted = _fetch_mastery_logs(learner_ids, content_id_map)
+    for learner_id, content_id in sorted(unsubmitted):
+        unit_id, test_type = content_id_map[content_id]
+        started[unit_id][test_type].append(str(learner_id))
+
     if not mastery_log_to_meta:
-        return results
+        return results, started
 
     # Initialise every learner that has a complete mastery log so they appear
     # even if they answered every question incorrectly.
@@ -220,7 +238,7 @@ def compute_all_test_scores(
         results, item_latest, mastery_log_to_meta, assessment_objectives_by_unit
     )
 
-    return results
+    return results, started
 
 
 def _learning_objectives(options):
@@ -315,7 +333,7 @@ class UnitReportViewSet(viewsets.ViewSet):
         learner_ids = [learner["id"] for learner in learners]
 
         statuses = _fetch_test_statuses(course_session, selected_ids)
-        all_scores = compute_all_test_scores(
+        all_scores, all_started = compute_all_test_scores(
             learner_ids,
             course_session_id,
             {
@@ -328,6 +346,7 @@ class UnitReportViewSet(viewsets.ViewSet):
         for unit in selected:
             options = unit["options"]
             scores = all_scores[unit["id"]]
+            started = all_started[unit["id"]]
             status = statuses[unit["id"]]
             units.append(
                 {
@@ -339,10 +358,12 @@ class UnitReportViewSet(viewsets.ViewSet):
                     "pre_test": {
                         "status": status[TestType.Pre],
                         "scores": scores[TestType.Pre],
+                        "started": started[TestType.Pre],
                     },
                     "post_test": {
                         "status": status[TestType.Post],
                         "scores": scores[TestType.Post],
+                        "started": started[TestType.Post],
                     },
                 }
             )
