@@ -140,6 +140,22 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     );
   });
 
+  it('shows the password field for a passwordless target facility', () => {
+    render(MergeAccountDialog, {
+      provide: {
+        changeFacilityService: { send: sendMachineEvent, state: { value: 'requireAccountCreds' } },
+        state: computed(() => ({
+          targetFacility: { learner_can_login_with_no_password: true },
+          targetAccount: { username: 'test2' },
+        })),
+      },
+    });
+
+    expect(
+      within(screen.getByTestId('passwordTextbox')).getByLabelText(coreStrings.passwordLabel$()),
+    ).toBeInTheDocument();
+  });
+
   it('focuses the password field when the password is rejected', async () => {
     client.mockRejectedValue({ response: { status: 401 } });
     render(MergeAccountDialog, {

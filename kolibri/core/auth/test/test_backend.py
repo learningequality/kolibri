@@ -6,6 +6,8 @@ from django.core.exceptions import PermissionDenied
 from django.test import TestCase
 from django.utils import timezone
 
+from kolibri.core.device.models import DevicePermissions
+
 from ..backends import BasicUserAuthScope
 from ..backends import FacilityAuthScope
 from ..backends import FacilityUserBackend
@@ -193,6 +195,42 @@ class FacilityUserBackendTestCase(TestCase):
                 username=superuser.username,
                 facility=self.facility,
             )
+        )
+
+    def test_authenticate__does_not_allow_content_manager_passwordless_when_full_import(
+        self,
+    ):
+        content_manager = FacilityUser.objects.create(
+            username="content_manager", facility=self.facility
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        disable_picture_password(self.facility, passwordless=True)
+
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                username=content_manager.username,
+                facility=self.facility,
+            )
+        )
+
+    def test_authenticate__allows_content_manager_passwordless_when_single_user_on_device(
+        self,
+    ):
+        content_manager = FacilityUser.objects.create(
+            username="content_manager", facility=self.facility
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        self.is_full_facility_import.return_value = False
+        disable_picture_password(self.facility, passwordless=True)
+
+        self.assertEqual(
+            content_manager,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username=content_manager.username,
+                facility=self.facility,
+            ),
         )
 
     def test_authenticate__allows_superuser_passwordless_when_single_user_on_device(
