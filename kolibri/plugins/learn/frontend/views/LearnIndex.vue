@@ -12,7 +12,10 @@
       />
     </transition>
 
-    <router-view />
+    <router-view
+      ref="routedPage"
+      :inert="showPicturePasswordModal && modalPanelOpen"
+    />
   </NotificationsRoot>
 
 </template>
@@ -29,6 +32,7 @@
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import plugin_data from 'kolibri-plugin-data';
   import useUser from 'kolibri/composables/useUser';
+  import useModalPanelOpen from 'kolibri/composables/useModalPanelOpen';
   import { PageNames } from '../constants';
 
   export default {
@@ -47,6 +51,8 @@
 
       const showPicturePasswordModal = ref(false);
       const assignedPicturePassword = ref(null);
+      const routedPage = ref(null);
+      const modalPanelOpen = useModalPanelOpen(routedPage, showPicturePasswordModal);
 
       onMounted(async () => {
         if (!picturePasswordPending.value) return;
@@ -75,6 +81,8 @@
         showPicturePasswordModal,
         assignedPicturePassword,
         dismissPicturePasswordModal,
+        routedPage,
+        modalPanelOpen,
       };
     },
     computed: {

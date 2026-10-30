@@ -25,15 +25,17 @@
 
     <div
       v-else
+      ref="basePage"
       tabindex="-1"
       data-testid="base-page"
+      :inert="overlayOpen && modalPanelOpen"
     >
       <slot :loading="loading"></slot>
     </div>
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="!loading && showNotification && mostRecentNotification"
+      v-if="updateNotificationShown"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
       :linkText="mostRecentNotification.linkText"
@@ -47,6 +49,7 @@
 
 <script>
 
+  import { ref } from 'vue';
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri/constants';
   import { currentLanguage, defaultLanguage } from 'kolibri/utils/i18n';
@@ -55,6 +58,8 @@
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useModalPanelOpen from 'kolibri/composables/useModalPanelOpen';
   import { error, handleApiError } from 'kolibri/utils/appError';
   import PingbackNotificationDismissedResource from './internal/PingbackNotificationDismissedResource';
   import PingbackNotificationResource from './internal/PingbackNotificationResource';
@@ -71,10 +76,19 @@
     },
     setup() {
       const { isAdmin, currentUserId } = useUser();
+      const { snackbarIsVisible, snackbarOptions } = useSnackbar();
+      const basePage = ref(null);
+      const observingBasePage = ref(false);
+      const modalPanelOpen = useModalPanelOpen(basePage, observingBasePage);
 
       return {
         isAdmin,
         currentUserId,
+        snackbarIsVisible,
+        snackbarOptions,
+        basePage,
+        observingBasePage,
+        modalPanelOpen,
         error,
         handleApiError,
       };
@@ -132,6 +146,15 @@
         }
         return false;
       },
+      updateNotificationShown() {
+        return !this.loading && this.showNotification && Boolean(this.mostRecentNotification);
+      },
+      overlayOpen() {
+        return (
+          this.updateNotificationShown ||
+          (this.snackbarIsVisible && Boolean(this.snackbarOptions.backdrop))
+        );
+      },
       mostRecentNotification() {
         if (this.notifications.length === 0) {
           return null;
@@ -154,6 +177,14 @@
           };
         }
         return null;
+      },
+    },
+    watch: {
+      overlayOpen: {
+        handler(open) {
+          this.observingBasePage = open;
+        },
+        immediate: true,
       },
     },
     created() {

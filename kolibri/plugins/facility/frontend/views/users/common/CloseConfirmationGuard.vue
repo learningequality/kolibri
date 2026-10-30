@@ -3,7 +3,6 @@
   <div>
     <KModal
       v-if="isConfirmationModalOpen"
-      appendToOverlay
       :submitText="submitText || coreStrings.continueAction$()"
       :cancelText="cancelText || coreStrings.cancelAction$()"
       :title="title || coreStrings.closeConfirmationTitle$()"

@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import OverlayHeading from '../../../common/OverlayHeading';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import { PageNames } from '../../../../constants';
@@ -95,6 +96,37 @@ describe('CreateExamPage', () => {
     expect(headings).toHaveLength(1);
     expect(headings[0]).toHaveAttribute('data-testid', 'panel');
     expect(document.title).toBe('Create new quiz - Kolibri');
+  });
+
+  it('keeps the close confirmation out from behind the open recipients panel', async () => {
+    const router = await renderCreateExamPage();
+    await openRecipientsPanel();
+    expect(
+      screen.getByRole('dialog', {
+        name: LearnersSelectorSidePanel.$trs.selectGroupsAndIndividualLearnersTitle.message,
+      }),
+    ).toBeInTheDocument();
+    await leavePage(router);
+    const confirmation = screen.getByRole('dialog', {
+      name: coachStrings.closeConfirmationTitle$(),
+    });
+    const activeModals = [...document.querySelectorAll('[aria-modal="true"]')].filter(
+      modal => !modal.closest('[inert]'),
+    );
+    expect(confirmation.closest('[inert]')).toBeNull();
+    expect(activeModals.every(modal => modal.contains(confirmation))).toBe(true);
+    await fireEvent.click(
+      within(confirmation).getByRole('button', { name: coreStrings.cancelAction$() }),
+    );
+    expect(document.querySelector('[inert]')).toBeNull();
+  });
+
+  it('leaves the page reachable behind the close confirmation with no panel open', async () => {
+    await leavePage(await renderCreateExamPage());
+    expect(
+      screen.getByRole('dialog', { name: coachStrings.closeConfirmationTitle$() }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('[inert]')).toBeNull();
   });
 
   describe('without a title conflict', () => {

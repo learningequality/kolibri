@@ -214,6 +214,7 @@
       <SidePanelModal
         v-if="metadataSidePanelContent"
         alignment="right"
+        :ariaLabel="metadataSidePanelContent.title"
         @closePanel="metadataSidePanelContent = null"
         @shouldFocusFirstEl="findFirstEl()"
       >

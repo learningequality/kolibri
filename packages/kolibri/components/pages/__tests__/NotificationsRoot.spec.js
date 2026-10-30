@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { UserKinds } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { error } from 'kolibri/utils/appError';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import NotificationsRoot from '../NotificationsRoot';
@@ -134,5 +135,72 @@ describe('NotificationsRoot', function () {
       notification: NOTIFICATION.id,
     });
     expect(screen.queryByText(NOTIFICATION.i18n.en.title)).not.toBeInTheDocument();
+  });
+
+  describe('overlays over the page', () => {
+    const NOTIFICATION = {
+      id: 'notification-1',
+      link_url: 'https://learningequality.org',
+      i18n: { en: { title: 'Upgrade available', msg: 'A new version', link_text: 'Download' } },
+    };
+    const SNACKBAR_TEXT = 'Disconnected';
+
+    function renderWithoutPanel() {
+      render(NotificationsRoot, { slots: { default: '<h1>Page</h1>' } });
+    }
+
+    function renderWithPanel() {
+      render(NotificationsRoot, {
+        slots: { default: '<section role="dialog" aria-modal="true" />' },
+      });
+    }
+
+    function activeModals() {
+      return [...document.querySelectorAll('[aria-modal="true"]')].filter(
+        modal => !modal.closest('[inert]'),
+      );
+    }
+
+    afterEach(() => {
+      useSnackbar().clearSnackbar();
+    });
+
+    it('leaves the page reachable with no panel open', async () => {
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true }));
+      PingbackNotificationResource.list.mockResolvedValue([NOTIFICATION]);
+      renderWithoutPanel();
+      await screen.findByRole('dialog', { name: NOTIFICATION.i18n.en.title });
+      useSnackbar().createSnackbar({ text: SNACKBAR_TEXT, backdrop: true, autoDismiss: false });
+      await global.flushPromises();
+      expect(document.getElementById('coresnackbar')).toHaveTextContent(SNACKBAR_TEXT);
+      expect(screen.getByTestId('base-page')).not.toHaveAttribute('inert');
+    });
+
+    it('keeps the update notification out from behind the panel', async () => {
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true }));
+      PingbackNotificationResource.list.mockResolvedValue([NOTIFICATION]);
+      renderWithPanel();
+      const notification = await screen.findByRole('dialog', {
+        name: NOTIFICATION.i18n.en.title,
+      });
+      expect(notification.closest('[inert]')).toBeNull();
+      expect(activeModals().every(modal => modal.contains(notification))).toBe(true);
+      await userEvent.click(screen.getByRole('button', { name: coreString('closeAction') }));
+      expect(screen.getByTestId('base-page').closest('[inert]')).toBeNull();
+    });
+
+    it('keeps a backdrop snackbar out from behind the panel', async () => {
+      useUser.mockImplementation(() => useUserMock({ isAdmin: false }));
+      renderWithPanel();
+      useSnackbar().createSnackbar({ text: SNACKBAR_TEXT, backdrop: true, autoDismiss: false });
+      await global.flushPromises();
+      const snackbar = document.getElementById('coresnackbar');
+      expect(snackbar).toHaveTextContent(SNACKBAR_TEXT);
+      expect(snackbar.closest('[inert]')).toBeNull();
+      expect(activeModals().every(modal => modal.contains(snackbar))).toBe(true);
+      useSnackbar().clearSnackbar();
+      await global.flushPromises();
+      expect(screen.getByTestId('base-page').closest('[inert]')).toBeNull();
+    });
   });
 });
