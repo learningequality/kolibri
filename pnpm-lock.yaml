@@ -1156,9 +1156,24 @@ importers:
 
   kolibri/plugins/zim_viewer:
     dependencies:
+      core-js:
+        specifier: 'catalog:'
+        version: 3.49.0
       fzstd:
         specifier: ^0.1.1
         version: 0.1.1
+      kolibri:
+        specifier: workspace:*
+        version: link:../../../packages/kolibri
+      kolibri-sandbox:
+        specifier: workspace:*
+        version: link:../../../packages/kolibri-sandbox
+      kolibri-viewer:
+        specifier: workspace:*
+        version: link:../../../packages/kolibri-viewer
+      kolibri-zip:
+        specifier: workspace:*
+        version: link:../../../packages/kolibri-zip
       lru-cache:
         specifier: ^11.5.3
         version: 11.5.3
@@ -1252,6 +1267,9 @@ importers:
       ua-parser-js:
         specifier: ^1.0.41
         version: 1.0.41
+      uuid:
+        specifier: ^14.0.2
+        version: 14.0.2
       vue:
         specifier: 'catalog:'
         version: 2.7.16
