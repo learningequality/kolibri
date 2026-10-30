@@ -44,6 +44,11 @@ EXECUTABLE=$(find "$MOUNT_POINT/Kolibri.app/Contents/MacOS/" -maxdepth 1 -name "
 if [ -z "$EXECUTABLE" ]; then
     fail_mounted "Kolibri executable not found" "$MOUNT_POINT/Kolibri.app/Contents/MacOS"
 fi
+
+APP_PACKAGE_DIR="$MOUNT_POINT/Kolibri.app/Contents/Resources/kolibri_app"
+if [ ! -f "$APP_PACKAGE_DIR/locales/es_419/LC_MESSAGES/wxapp.mo" ]; then
+    fail_mounted "es_419 wxapp.mo not found in app bundle" "$APP_PACKAGE_DIR"
+fi
 echo "✓ DMG verified, found executable: $EXECUTABLE"
 
 # 2. Copy app and unmount DMG

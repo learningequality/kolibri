@@ -13,7 +13,7 @@ echo ""
 
 # 1. Install
 echo "[1/6] Installing Kolibri..."
-"$INSTALLER_PATH" //VERYSILENT //SUPPRESSMSGBOXES //LOG="$LOG_FILE" || {
+"$INSTALLER_PATH" //VERYSILENT //SUPPRESSMSGBOXES //LANG=es_419 //LOG="$LOG_FILE" || {
     echo "ERROR: Installer exited with code $?"
     head -100 "$LOG_FILE" 2>/dev/null || echo "Log file not found"
     exit 1
@@ -45,6 +45,17 @@ if [ ! -f "$INSTALL_DIR/KolibriApp.exe" ]; then
 fi
 if [ ! -d "$INSTALL_DIR/nssm" ]; then
     echo "ERROR: nssm directory not found at $INSTALL_DIR/nssm"
+    exit 1
+fi
+INSTALLER_LANGUAGE=$(reg query 'HKLM\Software\Kolibri' //v Language | awk '/Language/ {print $NF}')
+if [ "$INSTALLER_LANGUAGE" != "es-419" ]; then
+    echo "ERROR: Registry Language is '$INSTALLER_LANGUAGE' (expected es-419)"
+    exit 1
+fi
+APP_PACKAGE_DIR="$INSTALL_DIR/_internal/kolibri_app"
+if [ ! -f "$APP_PACKAGE_DIR/locales/es_419/LC_MESSAGES/wxapp.mo" ]; then
+    echo "ERROR: es_419 wxapp.mo not found under $APP_PACKAGE_DIR/locales"
+    ls -R "$APP_PACKAGE_DIR" || true
     exit 1
 fi
 echo "✓ Installation files verified"
@@ -112,6 +123,13 @@ fi
 echo "✓ API responding correctly (HTTP $HTTP_CODE)"
 echo "API Response: $API_RESPONSE" | head -c 200
 echo ""
+
+REDIRECT_URL=$(curl -s -o /dev/null -w "%{redirect_url}" -H "Accept-Language: en" "http://localhost:$PORT/")
+if [[ "$REDIRECT_URL" != */es-419/* ]]; then
+    echo "ERROR: Unprefixed request redirected to '$REDIRECT_URL' (expected an /es-419/ path)"
+    exit 1
+fi
+echo "✓ Installer language served: $REDIRECT_URL"
 
 # 6. Check for errors in logs
 echo "[6/6] Checking for errors in logs..."
