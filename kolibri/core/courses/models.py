@@ -1,11 +1,17 @@
 import hashlib
 
 from django.db import models
+from django.db.models import Case
+from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
+from django.db.models import Value
+from django.db.models import When
 from django.db.utils import IntegrityError
 from le_utils.constants import modalities
+from morango.models import SyncableModelManager
+from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
 from morango.models.core import Store
 
@@ -180,7 +186,9 @@ class CourseSession(AbstractFacilityDataModel):
             collection__membership__user=user
         )
 
-        unit_test_active = unit_test_assignments_qs.filter(closed=False).first()
+        unit_test_active = (
+            unit_test_assignments_qs.filter(closed=False).most_recent_first().first()
+        )
         if unit_test_active:
             result["active_test"] = {
                 "unit_id": unit_test_active.unit_contentnode_id,
@@ -544,6 +552,23 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
         return super().deserialize(dict_model, sync_filter=sync_filter)
 
 
+class UnitTestAssignmentQuerySet(SyncableModelQuerySet):
+    def most_recent_first(self):
+        return self.annotate(
+            unit_lft=Subquery(
+                ContentNode.objects.filter(id=OuterRef("unit_contentnode_id")).values(
+                    "lft"
+                )[:1]
+            ),
+            test_type_rank=Case(
+                When(test_type=TestType.Post, then=Value(0)),
+                When(test_type=TestType.Pre, then=Value(1)),
+                default=Value(2),
+                output_field=IntegerField(),
+            ),
+        ).order_by("closed", "-unit_lft", "test_type_rank")
+
+
 class UnitTestAssignment(AbstractFacilityDataModel):
     """
     Manages the status of pre and post tests within course units.
@@ -603,6 +628,8 @@ class UnitTestAssignment(AbstractFacilityDataModel):
 
     # Morango model name for syncing
     morango_model_name = "unittestassignment"
+
+    objects = SyncableModelManager.from_queryset(UnitTestAssignmentQuerySet)()
 
     def __str__(self):
         return (

@@ -1451,6 +1451,62 @@ class UnitTestActivationAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def _create_open_tests_from_two_devices(self):
+        # activate_test keeps one open test per course session only on the device
+        # it runs on, so a sync can bring in a second open test.
+        for unit, test_type in ((self.unit, "post"), (self.unit2, "pre")):
+            models.UnitTestAssignment.objects.create(
+                course_session=self.courseSession,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=test_type,
+                closed=False,
+                activated_by=self.coach,
+            )
+
+    def test_close_test_with_two_open_tests_closes_requested_test(self):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_open_tests_from_two_devices()
+
+        response = self._close_test(self.unit2.id, "pre")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], self.unit2.id)
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["unit_phase"], "post_test_active")
+        self.assertEqual(response.data["active_unit_id"], self.unit.id)
+        open_tests = models.UnitTestAssignment.objects.filter(
+            course_session=self.courseSession, closed=False
+        )
+        self.assertEqual(
+            list(open_tests.values_list("unit_contentnode_id", "test_type")),
+            [(self.unit.id, "post")],
+        )
+
+    def test_close_test_with_two_open_tests_rejects_test_that_is_not_open(self):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_open_tests_from_two_devices()
+
+        response = self._close_test(self.unit.id, "pre")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            models.UnitTestAssignment.objects.filter(
+                course_session=self.courseSession, closed=False
+            ).count(),
+            2,
+        )
+
+    def test_active_test_with_two_open_tests_returns_latest_unit(self):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_open_tests_from_two_devices()
+
+        response = self._get_active_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], self.unit2.id)
+        self.assertEqual(response.data["test_type"], "pre")
+
     def test_activate_test_updates_existing_assignment(self):
         """Test that activating a test updates an existing assignment"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
