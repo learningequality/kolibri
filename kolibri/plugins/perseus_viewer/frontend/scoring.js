@@ -34,7 +34,7 @@ function scoreGroup(options, userInput, language) {
   );
 }
 
-// Mirrors perseus-score 8.11.7's `scorePerseusItem` and `scoreGroup`, without `widgetScores`.
+// Mirrors perseus-score 8.12.26's `scorePerseusItem` and `scoreGroup`, without `widgetScores`.
 // Both pass one locale to every widget, group children included.
 export function scoreItem(question, userInput, language) {
   return flattenScores(
