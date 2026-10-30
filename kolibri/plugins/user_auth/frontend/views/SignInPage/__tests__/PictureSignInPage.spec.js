@@ -301,12 +301,14 @@ describe('PictureSignInPage', () => {
   });
 
   describe('error handling and accessibility', () => {
-    it('focuses the sentinel inside the grid on mount so screen readers do not announce all icons', async () => {
+    it('focuses the sentinel inside the grid on mount so screen readers do not announce all icons', () => {
+      // render() re-appends the mounted root, which drops focus in jsdom, so record the focus.
+      const focused = [];
+      const recordFocus = event => focused.push(event.target);
+      document.addEventListener('focusin', recordFocus);
       const { container } = renderComponent();
-      await waitFor(() => {
-        const sentinel = container.querySelector('form [aria-hidden="true"]');
-        expect(sentinel).toHaveFocus();
-      });
+      document.removeEventListener('focusin', recordFocus);
+      expect(focused).toEqual([container.querySelector('form [aria-hidden="true"]')]);
     });
 
     it('returns focus to the error sentinel inside the grid after a failed prevalidate', async () => {

@@ -1,5 +1,6 @@
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import { PageNames } from '../constants';
 
 export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
   if (!toRoute.params.classId) {
@@ -15,6 +16,17 @@ export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
     pageLoading.value = false;
     return true;
   }
+}
+
+export function staysOnPage(to, from) {
+  return (
+    to.name === from.name &&
+    Boolean(
+      (to.params.quizId && from.params.quizId) ||
+      (to.params.exerciseId && from.params.exerciseId && to.meta.keepFocus) ||
+      (to.name === PageNames.GROUP_LESSON_SUMMARY && to.params.lessonId === from.params.lessonId),
+    )
+  );
 }
 
 /** Matches a compact (no-dash) UUID: exactly 32 lowercase hex characters. */
