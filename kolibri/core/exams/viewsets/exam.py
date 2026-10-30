@@ -18,6 +18,7 @@ from rest_framework.serializers import JSONField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import RegexField
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import ValidationError
 
@@ -52,7 +53,11 @@ _EXAM_ONLY_FIELDS = frozenset({"active", "archive", "date_archived", "date_activ
 
 class QuestionSourceSerializer(Serializer):
     exercise_id = HexUUIDField(format="hex")
-    question_id = HexUUIDField(format="hex")
+    # A hex assessment item id, or a QTI item identifier: Studio writes either
+    # "K" + 22 base64url characters or the QTI editor's slug, e.g. "item_k3j9x0ab".
+    question_id = RegexField(
+        r"^(?:[0-9a-f]{32}|[A-Za-z_][A-Za-z0-9_.-]*)$", max_length=200
+    )
     title = CharField(default="", allow_blank=True)
     counter_in_exercise = IntegerField()
 
