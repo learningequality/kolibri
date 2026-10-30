@@ -234,6 +234,29 @@ describe('useSandbox', () => {
       ]);
     });
 
+    it.each(['time', 'approx_time'])(
+      'polls the duration-based value when the completion criteria model is %s',
+      model => {
+        jest.useFakeTimers();
+        const { init, emitted, sandbox } = renderSandbox({
+          options: { completion_criteria: { model, threshold: 300 } },
+          timeSpent: 30,
+          duration: 300,
+          sandboxOptions: { pollProgress: true },
+        });
+        init();
+
+        sandbox().progress = 1;
+        sandbox().stateUpdateCallback({});
+        jest.advanceTimersByTime(5000);
+
+        expect(emitted.filter(([event]) => event === 'updateProgress')).toEqual([
+          ['updateProgress', 0.1],
+        ]);
+        expect(emitted).not.toContainEqual(['finished', undefined]);
+      },
+    );
+
     it('emits finished once progress reaches 1', () => {
       const { init, emitted, sandbox } = renderSandbox({ timeSpent: 300, duration: 300 });
       init();

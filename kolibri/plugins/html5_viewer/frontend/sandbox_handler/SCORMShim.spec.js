@@ -167,6 +167,10 @@ describe('SCORM shim', () => {
         shim.LMSSetValue('cmi.core.lesson_status', 'passed');
         expect(scorm.getProgress()).toEqual(1);
       });
+      it('should report full progress when lesson_status is completed', () => {
+        shim.LMSSetValue('cmi.core.lesson_status', 'completed');
+        expect(scorm.getProgress()).toEqual(1);
+      });
       it('should prefer a reported score over lesson_status', () => {
         shim.LMSSetValue('cmi.core.lesson_status', 'passed');
         shim.LMSSetValue('cmi.core.score.raw', 50);
