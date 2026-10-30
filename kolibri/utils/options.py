@@ -42,11 +42,17 @@ logger = logging.getLogger(__name__)
 
 CACHE_SHARDS = 8
 
+# Databases registered by plugins via AdditionalSQLiteDatabaseHook cannot be
+# counted at module import, before the plugin registry has been initialized;
+# this covers the error_reports plugin's database, enabled by default.
+PLUGIN_SQLITE_DATABASES_ALLOWANCE = 1
+
 # file descriptors per thread
 FD_PER_THREAD = sum(
     (
         5,  # minimum allowance
         1 + len(ADDITIONAL_SQLITE_DATABASES),  # DBs assuming SQLite
+        PLUGIN_SQLITE_DATABASES_ALLOWANCE,
         CACHE_SHARDS,  # assuming diskcache
     )
 )
@@ -242,6 +248,21 @@ def validate_bytes(value):
         value = bytes_from_humans(value)
     except ValueError as e:
         raise VdtValueError(value) from e
+    return value
+
+
+def throttle_rate(value):
+    """
+    Check the value is a rate Django REST Framework's
+    SimpleRateThrottle.parse_rate accepts: '<requests>/<period>', split on
+    the only slash, where just the period's first letter (s, m, h or d) is
+    read.
+    """
+    if not isinstance(value, str) or value.count("/") != 1:
+        raise VdtValueError(value)
+    requests, period = value.split("/")
+    if not requests.isdigit() or period[:1] not in ("s", "m", "h", "d"):
+        raise VdtValueError(value)
     return value
 
 
@@ -847,6 +868,7 @@ def _get_validator():
             "origin_or_port": origin_or_port,
             "port": port,
             "url_prefix": url_prefix,
+            "throttle_rate": throttle_rate,
             "bytes": validate_bytes,
             "storage_option": storage_option,
             "cache_option": cache_option,

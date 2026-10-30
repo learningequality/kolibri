@@ -109,6 +109,12 @@ class Logging {
   disableAll(persist) {
     this.callAllLoggersOrNamed([persist], 'disableAll');
   }
+
+  // loglevel binds the console methods when a logger's methods are built,
+  // so a replaced console method only reaches existing loggers after this.
+  rebuild() {
+    loglevel.rebuild();
+  }
 }
 
 const logging = new Logging();
