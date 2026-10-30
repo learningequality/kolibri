@@ -23,6 +23,7 @@ from .base import InternalContentNodeMixin
 from .filters import contentnode_filter_fields
 from .filters import ContentNodeFilter
 from .filters import OptionalPagination
+from .filters import select_node_ids
 
 
 class UserContentNodeFilter(ContentNodeFilter):
@@ -43,8 +44,8 @@ class UserContentNodeFilter(ContentNodeFilter):
         )
         if lesson is None:
             return queryset.none()
-        node_ids = [x["contentnode_id"] for x in lesson.resources]
-        return queryset.filter(pk__in=node_ids)
+        select_node_ids(self.request, [x["contentnode_id"] for x in lesson.resources])
+        return queryset
 
     def filter_by_resume(self, queryset, name, value):
         user = self.request.user
@@ -185,3 +186,6 @@ class UserContentNodeViewset(
                 ).values_list("end_timestamp")[:1]
             )
         )
+
+    def list(self, request, *args, **kwargs):
+        return self.list_nodes(request)
