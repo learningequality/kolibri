@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Bloom Player</title>
+        <!-- Bloom Player picks its UI language from navigator.language (src/l10n/localizationManager.ts). -->
+        <script>document.documentElement.lang = navigator.language;</script>
+        <script>if (window.parent && window.parent.sandbox) {try {window.parent.sandbox.initializeIframe(window);} catch (e) {}}</script>
+        <% htmlWebpackPlugin.files.css.forEach(function (css) { %><link rel="stylesheet" href="<%= css %>"><% }) %>
+    </head>
+    <body style="background-color: #2e2e2e;">
+        <div id="root"></div>
+        <% htmlWebpackPlugin.files.js.forEach(function (js) { %><script src="<%= js %>"></script><% }) %>
+    </body>
+</html>

@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 06:06:23 +0000
+Subject: [PATCH 11/11] Keep legal comments in the standalone bundle
+
+Vite defaults esbuild's legalComments to "none", which drops the third-party license notices from the minified player.
+---
+ vite.config.ts | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/vite.config.ts b/vite.config.ts
+index 4ff3f8d..ec23bb9 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -46,6 +46,9 @@ export default defineConfig(({ command, mode }) => {
+                 ).toISOString(),
+             ),
+         },
++        esbuild: {
++            legalComments: "inline",
++        },
+         build: {
+             outDir: "dist",
+             copyPublicDir: false, // Disables the copying of public/ directory during build
