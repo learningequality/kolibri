@@ -1,3 +1,6 @@
+import { displayQuestionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+import { coachStrings } from '../views/common/commonCoachStrings';
+
 const ratio = question => {
   return question.correct / question.total;
 };
@@ -25,6 +28,23 @@ export const getDifficultQuestions = questions => {
       return 0;
     });
 };
+
+/**
+ * Title for a quiz question in coach reports.
+ * @param {object} question - A quiz question from the exam's question_sources.
+ * @param {object[]} exercises - The quiz's exercise content nodes.
+ * @returns {string}
+ */
+export function quizQuestionTitle(question, exercises) {
+  const exercise = exercises.find(node => node.id === question.exercise_id);
+  if (exercise) {
+    return displayQuestionTitle(question, exercise.title);
+  }
+  return coachStrings.$tr('nthExerciseName', {
+    name: question.title,
+    number: question.counter_in_exercise,
+  });
+}
 
 /**
  * Merges params and query from a new route into the current route, overriding existing values.

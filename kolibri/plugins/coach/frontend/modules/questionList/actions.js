@@ -8,6 +8,7 @@ import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from '../../apiResources/exerciseDifficulties';
 import QuizDifficulties from '../../apiResources/quizDifficulties';
 import PracticeQuizDifficulties from '../../apiResources/practiceQuizDifficulties';
+import { quizQuestionTitle } from '../../utils';
 
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let itemPromise;
@@ -41,7 +42,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
 
   return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
     if (quizId) {
-      const exam = item.exam;
+      const { exam, exercises } = item;
       store.commit('SET_STATE', { exam });
       // If no one attempted one of the questions, it could get missed out of the list
       // of difficult questions, so use the exam data to fill in the blanks here.
@@ -54,14 +55,10 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };
-        const title = coachStrings.$tr('nthExerciseName', {
-          name: question.title,
-          number: question.counter_in_exercise,
-        });
         return {
           ...stat,
           ...question,
-          title,
+          title: quizQuestionTitle(question, exercises),
         };
       });
     } else {
