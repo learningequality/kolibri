@@ -124,6 +124,17 @@ class AttendanceRecordTestCase(TestCase):
             created_by=cls.coach,
         )
 
+    def test_cross_dataset_user_raises(self):
+        other_facility = Facility.objects.create(name="Other Facility AR")
+        other_learner = FacilityUser.objects.create(
+            username="other_learner_ar", facility=other_facility
+        )
+        with self.assertRaises(IntegrityError):
+            AttendanceRecord.objects.create(
+                attendance_session=self.session,
+                user=other_learner,
+            )
+
     def test_create_attendance_record(self):
         record = AttendanceRecord.objects.create(
             attendance_session=self.session,
