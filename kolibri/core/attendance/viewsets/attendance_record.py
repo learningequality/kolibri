@@ -132,6 +132,7 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
                     records_to_create.append(record)
             if records_to_create:
                 AttendanceRecord.objects.bulk_create(records_to_create)
+            session.save()
         all_records = AttendanceRecord.objects.filter(
             attendance_session=session, user_id__in=user_ids
         )

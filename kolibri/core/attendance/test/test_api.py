@@ -302,6 +302,29 @@ class AttendanceSessionAPITestCase(APITestCase):
             1,
         )
 
+    def test_update_moves_date_modified_forward(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner, present=False
+        )
+        # Backdate rather than compare two local_now() calls one request apart:
+        # the Windows clock ticks every ~15.6ms, so they can tie.
+        original_modified = now() - timedelta(minutes=1)
+        AttendanceSession.objects.filter(pk=session.pk).update(
+            date_modified=original_modified
+        )
+        self._login(self.coach)
+        data = {
+            "collection": self.classroom.id,
+            "attendance_records": [
+                {"user": self.learner.id, "present": True},
+            ],
+        }
+        response = self.client.put(_session_detail_url(session.id), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        session.refresh_from_db()
+        self.assertGreater(session.date_modified, original_modified)
+
     def test_learner_cannot_update_session(self):
         session = self._create_session()
         self._login(self.learner)
@@ -574,6 +597,22 @@ class AttendanceRecordAPITestCase(APITestCase):
                 attendance_session=session, user=self.learner2
             ).present
         )
+
+    def test_bulk_update_moves_session_date_modified_forward(self):
+        session = self._create_session()
+        original_modified = now() - timedelta(minutes=1)
+        AttendanceSession.objects.filter(pk=session.pk).update(
+            date_modified=original_modified
+        )
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [{"user": self.learner1.id, "present": True}],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        session.refresh_from_db()
+        self.assertGreater(session.date_modified, original_modified)
 
     def test_bulk_update_does_not_touch_unsent_records(self):
         session = self._create_session()
