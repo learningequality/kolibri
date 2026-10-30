@@ -1,0 +1,89 @@
+{
+  "bodies": {
+    "C/Index": "<html><body>Hello, ZIM</body></html>",
+    "C/page0": "<p>page 0</p>",
+    "C/page1": "<p>page 1</p>",
+    "C/page2": "<p>page 2</p>",
+    "C/page3": "<p>page 3</p>"
+  },
+  "clusterRanges": [
+    "2048-2101",
+    "2102-2132",
+    "2133-2154",
+    "2155-2185",
+    "2186-2207",
+    "2208-2236",
+    "2237-2245"
+  ],
+  "descriptors": {
+    "C/Index": {
+      "blobNumber": 0,
+      "clusterNumber": 0,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/Index"
+    },
+    "C/Redirect": {
+      "blobNumber": 0,
+      "clusterNumber": 0,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/Index"
+    },
+    "C/page0": {
+      "blobNumber": 0,
+      "clusterNumber": 1,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/page0"
+    },
+    "C/page1": {
+      "blobNumber": 0,
+      "blobOffset": 2142,
+      "blobSize": 13,
+      "clusterNumber": 2,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/page1"
+    },
+    "C/page2": {
+      "blobNumber": 0,
+      "clusterNumber": 3,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/page2"
+    },
+    "C/page3": {
+      "blobNumber": 0,
+      "blobOffset": 2195,
+      "blobSize": 13,
+      "clusterNumber": 4,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/page3"
+    },
+    "M/Counter": {
+      "blobNumber": 0,
+      "clusterNumber": 5,
+      "mimetype": "text/plain",
+      "namespace": "M",
+      "path": "M/Counter"
+    },
+    "W/mainPage": {
+      "blobNumber": 0,
+      "clusterNumber": 0,
+      "mimetype": "text/html",
+      "namespace": "C",
+      "path": "C/Index"
+    },
+    "X/listing/titleOrdered/v1": {
+      "blobNumber": 0,
+      "blobOffset": 2246,
+      "blobSize": 0,
+      "clusterNumber": 6,
+      "mimetype": "application/octet-stream+zimlisting",
+      "namespace": "X",
+      "path": "X/listing/titleOrdered/v1"
+    }
+  }
+}
