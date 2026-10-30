@@ -1,3 +1,4 @@
+import { parseXsdDouble } from 'kolibri-common/utils/localeNumbers';
 import { BASE_TYPE } from '../../constants';
 
 /**
@@ -47,6 +48,16 @@ export const validateNumber = value => {
   const num = coerceNumber(value);
   return !isNaN(num) && isFinite(num);
 };
+
+export function parseXsdNumber(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    return parseXsdDouble(value.trim());
+  }
+  return null;
+}
 
 export const validateBoolean = value => {
   if (typeof value === 'boolean') {
@@ -204,16 +215,20 @@ export function coerceValueWithBaseType(value, baseType) {
         throw new TypeError(`Cannot coerce ${value} to boolean`);
       }
       return coerceBoolean(value);
-    case BASE_TYPE.INTEGER:
-      if (!validateNumber(value)) {
+    case BASE_TYPE.INTEGER: {
+      const number = parseXsdNumber(value);
+      if (number === null) {
         throw new TypeError(`Cannot coerce ${value} to integer`);
       }
-      return parseInt(value, 10);
-    case BASE_TYPE.FLOAT:
-      if (!validateNumber(value)) {
+      return Math.trunc(number);
+    }
+    case BASE_TYPE.FLOAT: {
+      const number = parseXsdNumber(value);
+      if (number === null) {
         throw new TypeError(`Cannot coerce ${value} to float`);
       }
-      return parseFloat(value);
+      return number;
+    }
     case BASE_TYPE.STRING:
     case BASE_TYPE.IDENTIFIER:
     case BASE_TYPE.URI:

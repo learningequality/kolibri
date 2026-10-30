@@ -143,6 +143,19 @@ describe('LookupTable', () => {
       expect(variable.lookup(15)).toBe(1); // just above first threshold
       expect(variable.lookup(20)).toBe(1); // at second threshold, include-boundary=true
     });
+
+    it.each([['source-value="0x10"'], ['source-value="10abc"'], ['source-value=""'], ['']])(
+      'should skip an entry with %p',
+      sourceAttr => {
+        const variable = buildLookup({
+          tableType: 'interpolation-table',
+          tableAttrs: 'default-value="-1"',
+          entries: `<qti-interpolation-table-entry ${sourceAttr} target-value="1" />
+            <qti-interpolation-table-entry source-value="20" target-value="2" />`,
+        });
+        expect(variable.lookup(-5)).toBe(2);
+      },
+    );
   });
 
   describe('match table', () => {
@@ -187,8 +200,28 @@ describe('LookupTable', () => {
         tableAttrs: 'default-value="0"',
         entries: `<qti-match-table-entry source-value="3.7" target-value="99" />`,
       });
-      expect(variable.lookup(3)).toBe(99); // parseInt("3.7") = 3
+      expect(variable.lookup(3)).toBe(99);
       expect(variable.lookup(3.7)).toBe(0); // 3.7 doesn't match int 3
+    });
+
+    it('should parse an E-notation source-value as its number', () => {
+      const variable = buildLookup({
+        tableType: 'match-table',
+        tableAttrs: 'default-value="0"',
+        entries: `<qti-match-table-entry source-value="1E5" target-value="99" />`,
+      });
+      expect(variable.lookup(100000)).toBe(99);
+    });
+
+    it('should skip an entry whose source-value is not a number', () => {
+      const variable = buildLookup({
+        tableType: 'match-table',
+        tableAttrs: 'default-value="0"',
+        entries: `<qti-match-table-entry source-value="10abc" target-value="99" />
+          <qti-match-table-entry source-value="2" target-value="20" />`,
+      });
+      expect(variable.lookup(10)).toBe(0);
+      expect(variable.lookup(2)).toBe(20);
     });
   });
 
