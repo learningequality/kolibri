@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 import { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import { nextTick, ref } from 'vue';
@@ -18,7 +18,7 @@ import useClassSummary, { useClassSummaryMock } from '../../../composables/useCl
 /* eslint-enable import-x/named */
 import UnitReportResource from '../../../apiResources/unitReport';
 import useSidePanelTitle from '../../../composables/useSidePanelTitle';
-import { UnitPhase } from '../../../constants/courseConstants';
+import { TestType, UnitPhase } from '../../../constants/courseConstants';
 
 const {
   unitsLabel$,
@@ -596,6 +596,106 @@ describe('CourseSummaryPage', () => {
       await panel.click();
 
       expect(router.currentRoute.name).toBe('COURSE_SUMMARY_OBJECTIVES');
+    });
+  });
+
+  describe('CourseSummaryPage — making the course visible', () => {
+    const {
+      visibleToLearnersLabel$,
+      startPreTestForUnitConfirmation$,
+      startPreTestAfterCourseVisibleDescription$,
+      startPreTestAfterCourseVisibleConfirmAction$,
+      startPreTestAfterCourseVisibleDismissAction$,
+    } = coursesStrings;
+    const SECOND_UNIT = { id: UNIT_B, numberedTitle: 'Unit 2: B' };
+
+    function setup({ unitPhase, toggledActive = true }) {
+      const toggleCourseActive = jest.fn().mockResolvedValue({ active: toggledActive });
+      const activateTest = jest.fn();
+      useCourseSession.mockImplementation(() =>
+        useCourseSessionMock({
+          courseSession: ref({ ...MOCK_COURSE_SESSION, active: !toggledActive }),
+          units: ref([{ id: UNIT_A }, SECOND_UNIT]),
+          activeUnit: ref(SECOND_UNIT),
+          activeUnitIndex: ref(1),
+          unitPhase: ref(unitPhase),
+          toggleCourseActive,
+          activateTest,
+        }),
+      );
+      renderPage('COURSE_SUMMARY_UNITS');
+      return { toggleCourseActive, activateTest };
+    }
+
+    async function toggleVisibility(toggleCourseActive) {
+      await fireEvent.click(screen.getByRole('checkbox', { name: visibleToLearnersLabel$() }));
+      await waitFor(() => expect(toggleCourseActive).toHaveBeenCalled());
+      await global.flushPromises();
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('asks the coach to start the next pre-test when learners have nothing to do', async () => {
+      const { toggleCourseActive } = setup({ unitPhase: UnitPhase.PRE_TEST_PENDING });
+
+      await toggleVisibility(toggleCourseActive);
+
+      const dialog = screen.getByRole('dialog', {
+        name: startPreTestForUnitConfirmation$({ num: 2 }),
+      });
+      expect(dialog).toHaveTextContent(startPreTestAfterCourseVisibleDescription$({ num: 2 }));
+    });
+
+    it('starts the pre-test when the coach answers "Yes"', async () => {
+      const { toggleCourseActive, activateTest } = setup({
+        unitPhase: UnitPhase.PRE_TEST_PENDING,
+      });
+
+      await toggleVisibility(toggleCourseActive);
+      await fireEvent.click(
+        screen.getByRole('button', { name: startPreTestAfterCourseVisibleConfirmAction$() }),
+      );
+
+      expect(activateTest).toHaveBeenCalledWith(TestType.PRE);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('closes the prompt without starting a test when the coach answers "No"', async () => {
+      const { toggleCourseActive, activateTest } = setup({
+        unitPhase: UnitPhase.PRE_TEST_PENDING,
+      });
+
+      await toggleVisibility(toggleCourseActive);
+      await fireEvent.click(
+        screen.getByRole('button', { name: startPreTestAfterCourseVisibleDismissAction$() }),
+      );
+
+      expect(activateTest).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it.each([UnitPhase.PRE_TEST_ACTIVE, UnitPhase.POST_TEST_PENDING, UnitPhase.POST_TEST_ACTIVE])(
+      'does not ask when learners can already work in the %s phase',
+      async unitPhase => {
+        const { toggleCourseActive } = setup({ unitPhase });
+
+        await toggleVisibility(toggleCourseActive);
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+    );
+
+    it('does not ask when the coach hides the course', async () => {
+      const { toggleCourseActive } = setup({
+        unitPhase: UnitPhase.PRE_TEST_PENDING,
+        toggledActive: false,
+      });
+
+      await toggleVisibility(toggleCourseActive);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 
