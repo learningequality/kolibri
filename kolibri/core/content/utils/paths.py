@@ -163,7 +163,7 @@ def get_content_storage_dir_path(datafolder=None, contentfolder=None):
 
 
 def get_content_storage_file_path(filename, datafolder=None, contentfolder=None):
-    if not VALID_STORAGE_FILENAME.match(filename):
+    if not VALID_STORAGE_FILENAME.fullmatch(filename):
         raise InvalidStorageFilenameError(
             f"'{filename}' is not a valid content storage filename"
         )

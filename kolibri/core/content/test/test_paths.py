@@ -2,8 +2,10 @@ import hashlib
 
 from django.test import TestCase
 
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_database_file_url
+from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
@@ -28,6 +30,27 @@ class LocalFilePathsTest(TestCase):
 @override_option("Deployment", "URL_PATH_PREFIX", "prefix_test/")
 class PrefixedLocalFilesPathsTest(LocalFilePathsTest):
     pass
+
+
+class ContentStorageFilePathTest(TestCase):
+    md5 = "0" * 32
+
+    def test_rejects_a_name_that_is_not_a_storage_filename(self):
+        for filename in (
+            f"{self.md5}.zim.bak",
+            f"{self.md5}.zim\\..\\secret",
+            f"x{self.md5}.zim",
+        ):
+            with self.subTest(filename=filename):
+                with self.assertRaises(InvalidStorageFilenameError):
+                    get_content_storage_file_path(filename)
+
+    def test_accepts_a_storage_filename(self):
+        for filename in (f"{self.md5}.zim", f"{self.md5}-data.zip"):
+            with self.subTest(filename=filename):
+                self.assertTrue(
+                    get_content_storage_file_path(filename).endswith(filename)
+                )
 
 
 class ZipContentConfigTest(TestCase):
