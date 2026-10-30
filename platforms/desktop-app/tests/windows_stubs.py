@@ -49,8 +49,17 @@ _windows_modules = {
     "kolibri_app.server_process_windows": MagicMock(),
 }
 
+_stubbed_imports = (
+    "kolibri_app.server_manager_windows",
+    "kolibri_app.windows.taskbar_icon",
+    "kolibri_app.windows_utils",
+    "kolibri_app.windows.stop_window",
+    "kolibri_app.application",
+)
+
 wx = sys.modules["wx"]
 
+_imported_before = {name: sys.modules.pop(name, None) for name in _stubbed_imports}
 sys.modules.update(_windows_modules)
 try:
     with (
@@ -68,3 +77,13 @@ try:
 finally:
     for _name in _windows_modules:
         del sys.modules[_name]
+    for _name, _module in _imported_before.items():
+        _parent_name, _, _child = _name.rpartition(".")
+        _parent = sys.modules[_parent_name]
+        if _module is None:
+            sys.modules.pop(_name, None)
+            if hasattr(_parent, _child):
+                delattr(_parent, _child)
+        else:
+            sys.modules[_name] = _module
+            setattr(_parent, _child, _module)
