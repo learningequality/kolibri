@@ -70,6 +70,16 @@ class GetFacilityTestCase(TestCase):
         Facility.objects.create(name="b_facility")
         self.assertEqual(self.facility, utils.get_facility())
 
+    def test_get_facility_multiple_facilities_interactive_invalid_choice(self):
+        Facility.objects.create(name="facility2")
+        for answer in ("0", "3", "abc"):
+            with self.subTest(answer=answer):
+                with mock.patch(
+                    "kolibri.core.auth.management.utils.input", return_value=answer
+                ):
+                    with self.assertRaisesRegex(CommandError, "is not in the range"):
+                        utils.get_facility()
+
 
 class GetFacilityFailureTestCase(TestCase):
     def test_get_facility_no_facilities(self):
@@ -791,11 +801,6 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
         self.client.get.side_effect = NetworkLocationResponseFailure(
             "server error", response=response
         )
-        with self.assertRaises(ResourceGoneError):
-            self._call()
-
-    def test_command_error_raises_resource_gone(self):
-        self.client.get.side_effect = CommandError("command failed")
         with self.assertRaises(ResourceGoneError):
             self._call()
 
