@@ -3,6 +3,8 @@ Tests for `kolibri.utils.server` module.
 """
 
 import os
+import sys
+import threading
 from unittest import mock
 from unittest import TestCase
 
@@ -124,6 +126,91 @@ class TestProcessHookWiring:
 
         hook.MagicBusPluginClass.assert_called_once_with(bus)
         plugin.subscribe.assert_called_once_with()
+
+
+class TestPIDPluginSetPidFile:
+    @pytest.fixture
+    def bus(self, tmp_path):
+        bus = mock.MagicMock()
+        bus.pid_file = str(tmp_path / "server.pid")
+        bus.port = 8080
+        bus.zip_port = 8081
+        return bus
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows refuses os.replace onto an open file, so the write falls back to in-place",
+    )
+    def test_pid_file_stays_readable_while_concurrently_rewritten(self, bus):
+        plugin = server.PIDPlugin(bus)
+        writes_done = threading.Event()
+        read_statuses = set()
+        write_errors = []
+
+        def write_repeatedly():
+            try:
+                for _ in range(300):
+                    plugin.set_pid_file(server.STATUS_RUNNING)
+            except Exception as e:
+                write_errors.append(e)
+
+        def read_until_writes_done():
+            while not writes_done.is_set():
+                read_statuses.add(server._read_pid_file(bus.pid_file)[3])
+
+        reader = threading.Thread(target=read_until_writes_done)
+        writers = [threading.Thread(target=write_repeatedly) for _ in range(2)]
+        reader.start()
+        for writer in writers:
+            writer.start()
+        for writer in writers:
+            writer.join()
+        writes_done.set()
+        reader.join()
+
+        assert write_errors == []
+        assert server.STATUS_PID_FILE_INVALID not in read_statuses
+
+    @mock.patch.object(server, "PID_FILE_REPLACE_TIMEOUT", 0)
+    def test_persistently_refused_replace_still_writes_pid_file(self, bus, tmp_path):
+        plugin = server.PIDPlugin(bus)
+
+        with mock.patch.object(server.os, "replace", side_effect=PermissionError):
+            plugin.set_pid_file(server.STATUS_RUNNING)
+
+        assert server._read_pid_file(bus.pid_file) == (
+            os.getpid(),
+            bus.port,
+            bus.zip_port,
+            server.STATUS_RUNNING,
+        )
+        assert os.listdir(tmp_path) == ["server.pid"]
+
+    def test_briefly_refused_replace_still_replaces_pid_file(self, bus):
+        plugin = server.PIDPlugin(bus)
+        original_inode = os.stat(bus.pid_file).st_ino
+        real_replace = os.replace
+        refusals = [PermissionError, PermissionError]
+
+        def replace_after_refusals(src, dst):
+            if refusals:
+                raise refusals.pop()
+            real_replace(src, dst)
+
+        with mock.patch.object(server.os, "replace", replace_after_refusals):
+            plugin.set_pid_file(server.STATUS_RUNNING)
+
+        assert os.stat(bus.pid_file).st_ino != original_inode
+        assert server._read_pid_file(bus.pid_file)[3] == server.STATUS_RUNNING
+
+    def test_failed_replace_leaves_no_temp_file(self, bus, tmp_path):
+        plugin = server.PIDPlugin(bus)
+
+        with mock.patch.object(server.os, "replace", side_effect=OSError):
+            with pytest.raises(OSError):
+                plugin.set_pid_file(server.STATUS_RUNNING)
+
+        assert os.listdir(tmp_path) == ["server.pid"]
 
 
 class TestZeroConfPlugin:
