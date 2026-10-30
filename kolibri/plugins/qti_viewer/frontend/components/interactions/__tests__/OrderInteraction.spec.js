@@ -4,13 +4,17 @@ import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
 
+// MathML fixtures take SafeHTML's MathJax path in jsdom, which has no layout;
+// its font URL needs plugin URL data that tests lack.
+jest.mock('kolibri/urls');
+
 const smokeFixtures = [
   ['q15-order-example-2', 3],
   ['q15-order-example-3', 3],
   ['q15-order-example-4', 9],
 ];
 
-const { moveItemLeftLabel$ } = dragSortStrings;
+const { moveItemDownLabel$, moveItemLeftLabel$, moveItemUpLabel$ } = dragSortStrings;
 
 describe('Smoke', () => {
   it.each(smokeFixtures)('%s renders %d ordered choices', (id, choiceCount) => {
@@ -155,5 +159,39 @@ describe('Labels', () => {
       .map(row => row.querySelector('.qti-order-label').textContent);
 
     expect(decimalPeriod).toEqual(['1.', '2.', '3.']);
+  });
+});
+
+describe('MathML choices', () => {
+  const ROOT_ALTTEXT = 'square root of 16';
+  const xml = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      identifier="order-math" title="Order math" adaptive="false" time-dependent="false">
+      <qti-response-declaration identifier="RESPONSE" cardinality="ordered" base-type="identifier"/>
+      <qti-item-body>
+        <qti-order-interaction response-identifier="RESPONSE">
+          <qti-simple-choice identifier="A">Four</qti-simple-choice>
+          <qti-simple-choice identifier="B"><math xmlns="http://www.w3.org/1998/Math/MathML" alttext="${ROOT_ALTTEXT}"><msqrt><mn>16</mn></msqrt></math></qti-simple-choice>
+        </qti-order-interaction>
+      </qti-item-body>
+    </qti-assessment-item>`;
+
+  it("names a choice's move button by its math alttext", () => {
+    renderAssessmentItem(xml);
+    expect(
+      screen.getByRole('button', { name: moveItemUpLabel$({ item: ROOT_ALTTEXT }) }),
+    ).toBeInTheDocument();
+  });
+
+  it('names a choice by its aria-hidden text when that is all it has', () => {
+    renderAssessmentItem(
+      xml.replace(
+        '<qti-simple-choice identifier="A">Four</qti-simple-choice>',
+        '<qti-simple-choice identifier="A"><span aria-hidden="true">Only</span></qti-simple-choice>',
+      ),
+    );
+    expect(
+      screen.getByRole('button', { name: moveItemDownLabel$({ item: 'Only' }) }),
+    ).toBeInTheDocument();
   });
 });

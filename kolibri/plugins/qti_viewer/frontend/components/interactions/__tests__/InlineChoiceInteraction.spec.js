@@ -5,6 +5,10 @@ import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { inlineChoiceStrings } from '../InlineChoiceInteraction.vue';
 
+// MathML fixtures take SafeHTML's MathJax path in jsdom, which has no layout;
+// its font URL needs plugin URL data that tests lack.
+jest.mock('kolibri/urls');
+
 const smokeFixtures = [
   ['q12-inline-choice-interaction', 1],
   ['shakespeare-biography', 2],
@@ -261,5 +265,35 @@ describe('Shuffle', () => {
     const renderedIds = findKDropdownMenus()[0].options.map(o => o.value);
     // 'D' is fixed at the last position.
     expect(renderedIds[renderedIds.length - 1]).toBe('D');
+  });
+});
+
+describe('Labelled choice content', () => {
+  const xml = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      identifier="inline-labelled" title="Labelled" adaptive="false" time-dependent="false">
+      <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="identifier"/>
+      <qti-item-body>
+        <p>Pick <qti-inline-choice-interaction response-identifier="RESPONSE">
+          <qti-inline-choice identifier="A"><span aria-label="Label">Visible</span></qti-inline-choice>
+          <qti-inline-choice identifier="B">Plain</qti-inline-choice>
+          <qti-inline-choice identifier="C"><math xmlns="http://www.w3.org/1998/Math/MathML" alttext="square root of 16"><msqrt><mn>16</mn></msqrt></math></qti-inline-choice>
+          <qti-inline-choice identifier="D"><math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="x squared"><msup><mi>x</mi><mn>2</mn></msup></math></qti-inline-choice>
+          <qti-inline-choice identifier="E">3 <span aria-hidden="true">×</span> 4</qti-inline-choice>
+          <qti-inline-choice identifier="F"><math xmlns="http://www.w3.org/1998/Math/MathML" aria-hidden="true" alttext="y squared"><msup><mi>y</mi><mn>2</mn></msup></math></qti-inline-choice>
+        </qti-inline-choice-interaction>.</p>
+      </qti-item-body>
+    </qti-assessment-item>`;
+
+  it('labels choice content by its aria-label or alttext', () => {
+    renderAssessmentItem(xml);
+    expect(findKDropdownMenus()[0].options).toEqual([
+      { label: 'Label', value: 'A' },
+      { label: 'Plain', value: 'B' },
+      { label: 'square root of 16', value: 'C' },
+      { label: 'x squared', value: 'D' },
+      { label: '3 × 4', value: 'E' },
+      { label: 'y squared', value: 'F' },
+    ]);
   });
 });

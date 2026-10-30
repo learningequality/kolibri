@@ -109,7 +109,7 @@
         .filter(vnode => getComponentTag(vnode) === 'qti-inline-choice')
         .map(vnode => ({
           identifier: vnode.componentOptions.propsData.identifier,
-          text: choiceText(vnode),
+          text: choiceText(vnode, { visible: true }),
           fixed: isFixed(vnode),
         }));
 
