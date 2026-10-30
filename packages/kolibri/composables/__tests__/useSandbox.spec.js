@@ -117,6 +117,7 @@ function renderSandbox({
           userFullName: computed(() => 'Test User'),
           progress: computed(() => session.progress.value),
           embedded: computed(() => false),
+          loading: computed(() => false),
           setCustomExtractors: () => {},
           registerAssessmentApi: () => {},
         });
@@ -518,6 +519,7 @@ describe('useSandbox', () => {
           data: new Uint8Array([1]),
           name: 'Doc.pdf',
           hasPrevious: true,
+          isPage: true,
         });
 
         expect(api.renderedFile.value).toEqual({
@@ -525,6 +527,7 @@ describe('useSandbox', () => {
           mimetype: 'application/pdf',
           name: 'Doc.pdf',
           hasPrevious: true,
+          isPage: true,
         });
       });
 

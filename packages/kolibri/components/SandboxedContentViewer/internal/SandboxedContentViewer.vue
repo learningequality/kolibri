@@ -29,8 +29,13 @@
       tabindex="-1"
       :style="containerStyle"
     >
+      <KCircularLoader
+        v-if="hostLoading"
+        :delay="false"
+        class="loader"
+      />
       <img
-        v-if="renderedImage"
+        v-else-if="renderedImage"
         class="rendered-file-content rendered-image"
         :src="renderedFile.url"
         :alt="renderedFile.name || renderedImageLabel"
@@ -45,6 +50,8 @@
         :key="renderedFile.url"
         class="rendered-file-content"
         :element="renderedElement"
+        v-bind="renderedPageSession"
+        v-on="renderedPageListeners"
         @error="showRenderedFileError"
       />
     </div>

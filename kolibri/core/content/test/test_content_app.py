@@ -2126,6 +2126,27 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
+    def test_popular_omitted_include_coach_content_keeps_coach_content(self):
+        expected_content_ids = self._create_session_logs()
+        node = content.ContentNode.objects.get(content_id=expected_content_ids[0])
+        node.coach_content = True
+        node.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
+        response_content_ids = {node["content_id"] for node in response.json()}
+        self.assertIn(expected_content_ids[0], response_content_ids)
+
+        cache.clear()
+
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"popular": True, "include_coach_content": False},
+        )
+        response_content_ids = {node["content_id"] for node in response.json()}
+        self.assertNotIn(expected_content_ids[0], response_content_ids)
+
     def test_popular_coach_has_coach_content(self):
         coach = FacilityUser.objects.create(username="coach", facility=self.facility)
         coach.set_password(DUMMY_PASSWORD)
@@ -2142,6 +2163,137 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_popular_orders_by_session_count(self):
+        content_ids = self._create_session_logs()
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
+        response_content_ids = [node["content_id"] for node in response.json()]
+        self.assertEqual(response_content_ids, list(content_ids))
+
+    def test_popular_falls_back_to_content_id_when_no_instance_id(self):
+        node = (
+            content.ContentNode.objects.filter(available=True)
+            .exclude(kind="topic")
+            .first()
+        )
+        [
+            ContentSessionLog.objects.create(
+                channel_id=node.channel_id,
+                content_id=node.content_id,
+                instance_id=None,
+                start_timestamp=timezone.now(),
+                kind=node.kind,
+            )
+            for _ in range(50)
+        ]
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
+        response_ids = {n["id"] for n in response.json()}
+        self.assertEqual(response_ids, {node.id})
+
+    def test_popular_ranks_only_content_on_this_device(self):
+        expected_content_ids = self._create_session_logs()
+        for _ in range(20):
+            content_id = uuid.uuid4().hex
+            for _ in range(60):
+                ContentSessionLog.objects.create(
+                    channel_id=uuid.uuid4().hex,
+                    content_id=content_id,
+                    instance_id=uuid.uuid4().hex,
+                    start_timestamp=timezone.now(),
+                    kind="video",
+                )
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
+        response_content_ids = [node["content_id"] for node in response.json()]
+        self.assertEqual(response_content_ids, list(expected_content_ids))
+
+    def test_popular_omits_a_logged_instance_that_is_gone(self):
+        node = (
+            content.ContentNode.objects.filter(available=True)
+            .exclude(kind="topic")
+            .first()
+        )
+        for _ in range(50):
+            ContentSessionLog.objects.create(
+                channel_id=node.channel_id,
+                content_id=node.content_id,
+                instance_id=uuid.uuid4().hex,
+                start_timestamp=timezone.now(),
+                kind=node.kind,
+            )
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
+        self.assertEqual(response.json(), [])
+
+    @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+    def _create_virtual_page_session_logs(self, coach_content=False):
+        checksum = hashlib.md5(b"popular-virtual-node-test").hexdigest()
+        path = get_content_storage_file_path(f"{checksum}.zim")
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+        with open(path, "wb") as fh:
+            fh.write(build_minimal_zim())
+
+        channel_id = uuid.uuid4().hex
+        root = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            title="ZIM root",
+            kind="topic",
+            available=True,
+            coach_content=coach_content,
+        )
+        content.ChannelMetadata.objects.create(
+            id=channel_id, name="ZIM channel", root=root
+        )
+        local_file = content.LocalFile.objects.create(
+            id=checksum, extension="zim", available=True, file_size=1
+        )
+        content.File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file,
+            contentnode=root,
+            preset="zim",
+        )
+        build_virtual_contentnodes(channel_id)
+        virtual_id = virtual_node_id(root.id, "C/Index")
+        page_content_id = virtual_content_id(root.content_id, "C/Index")
+
+        [
+            ContentSessionLog.objects.create(
+                channel_id=channel_id,
+                content_id=page_content_id,
+                instance_id=virtual_id,
+                start_timestamp=timezone.now(),
+                kind="document",
+            )
+            for _ in range(50)
+        ]
+        return virtual_id
+
+    def test_popular_includes_virtual_node(self):
+        virtual_id = self._create_virtual_page_session_logs()
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
+        response_ids = {n["id"] for n in response.json()}
+        self.assertIn(virtual_id, response_ids)
+
+    def test_popular_excludes_virtual_node_of_coach_content_root(self):
+        virtual_id = self._create_virtual_page_session_logs(coach_content=True)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"popular": True, "include_coach_content": False},
+        )
+        response_ids = {n["id"] for n in response.json()}
+        self.assertNotIn(virtual_id, response_ids)
 
     def _create_summary_logs(self):
         facility = Facility.objects.create(name="MyFac")
@@ -2197,6 +2349,268 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
         )
         self.assertEqual(response.headers["Cache-Control"], "max-age=0")
+
+    def _create_facility_user(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        return user
+
+    @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+    def test_resume_returns_virtual_node_by_instance_id(self):
+        user = self._create_facility_user()
+
+        checksum = hashlib.md5(b"resume-virtual-node-test").hexdigest()
+        path = get_content_storage_file_path(f"{checksum}.zim")
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+        with open(path, "wb") as fh:
+            fh.write(build_minimal_zim())
+
+        channel_id = uuid.uuid4().hex
+        root = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            title="ZIM root",
+            kind="topic",
+            available=True,
+        )
+        content.ChannelMetadata.objects.create(
+            id=channel_id, name="ZIM channel", root=root
+        )
+        local_file = content.LocalFile.objects.create(
+            id=checksum, extension="zim", available=True, file_size=1
+        )
+        content.File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file,
+            contentnode=root,
+            preset="zim",
+        )
+        build_virtual_contentnodes(channel_id)
+        virtual_id = virtual_node_id(root.id, "C/Index")
+
+        ContentSummaryLog.objects.create(
+            channel_id=channel_id,
+            content_id=root.content_id,
+            instance_id=virtual_id,
+            user_id=user.id,
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            kind="document",
+            progress=0.5,
+        )
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
+        response_ids = {node["id"] for node in response.json()}
+        self.assertEqual(response_ids, {virtual_id})
+
+    def test_resume_returns_exact_node_not_content_id_sibling(self):
+        user = self._create_facility_user()
+        shared_content_id = uuid.uuid4().hex
+        root = content.ContentNode.objects.get(title="root")
+        node_a = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=shared_content_id,
+            channel_id=root.channel_id,
+            parent=root,
+            title="Node A",
+            kind="document",
+            available=True,
+        )
+        content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=shared_content_id,
+            channel_id=root.channel_id,
+            parent=root,
+            title="Node B",
+            kind="document",
+            available=True,
+        )
+
+        ContentSummaryLog.objects.create(
+            channel_id=root.channel_id,
+            content_id=shared_content_id,
+            instance_id=node_a.id,
+            user_id=user.id,
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            kind="document",
+            progress=0.5,
+        )
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
+        response_ids = {node["id"] for node in response.json()}
+        self.assertEqual(response_ids, {node_a.id})
+
+    def test_resume_falls_back_to_content_id_when_instance_id_null(self):
+        user = self._create_facility_user()
+        node = (
+            content.ContentNode.objects.filter(available=True)
+            .exclude(kind="topic")
+            .first()
+        )
+        ContentSummaryLog.objects.create(
+            channel_id=node.channel_id,
+            content_id=node.content_id,
+            instance_id=None,
+            user_id=user.id,
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            kind=node.kind,
+            progress=0.5,
+        )
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
+        response_ids = {n["id"] for n in response.json()}
+        self.assertEqual(response_ids, {node.id})
+
+    def test_resume_omits_a_logged_instance_that_is_gone(self):
+        user = self._create_facility_user()
+        node = (
+            content.ContentNode.objects.filter(available=True)
+            .exclude(kind="topic")
+            .first()
+        )
+        ContentSummaryLog.objects.create(
+            channel_id=node.channel_id,
+            content_id=node.content_id,
+            instance_id=uuid.uuid4().hex,
+            user_id=user.id,
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            kind=node.kind,
+            progress=0.5,
+        )
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
+        self.assertEqual(response.json(), [])
+
+    def _create_resumable_logs_in_recency_order(self, user, count=3):
+        # Summary log ids derive from content_id; fixture siblings share content_ids.
+        seen_content_ids = set()
+        nodes = []
+        for node in content.ContentNode.objects.filter(available=True).exclude(
+            kind="topic"
+        ):
+            if node.content_id in seen_content_ids:
+                continue
+            seen_content_ids.add(node.content_id)
+            nodes.append(node)
+            if len(nodes) == count:
+                break
+        now = timezone.now()
+        for i, node in enumerate(nodes):
+            ContentSummaryLog.objects.create(
+                channel_id=node.channel_id,
+                content_id=node.content_id,
+                instance_id=node.id,
+                user_id=user.id,
+                start_timestamp=now,
+                end_timestamp=now + datetime.timedelta(minutes=i),
+                kind=node.kind,
+                progress=0.5,
+            )
+        return nodes
+
+    def test_resume_orders_by_recency(self):
+        user = self._create_facility_user()
+        nodes = self._create_resumable_logs_in_recency_order(user)
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
+        response_ids = [n["id"] for n in response.json()]
+        expected_order = [node.id for node in reversed(nodes)]
+        self.assertEqual(response_ids, expected_order)
+
+    def test_resume_max_results_paginates_instead_of_returning_everything(self):
+        user = self._create_facility_user()
+        nodes = self._create_resumable_logs_in_recency_order(user)
+        expected_order = [node.id for node in reversed(nodes)]
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"resume": True, "max_results": 2},
+        )
+        body = response.json()
+        response_ids = [n["id"] for n in body["results"]]
+        self.assertEqual(response_ids, expected_order[:2])
+        self.assertIsNotNone(body["more"])
+
+    def test_resume_max_results_next_page_returns_remainder(self):
+        user = self._create_facility_user()
+        nodes = self._create_resumable_logs_in_recency_order(user)
+        expected_order = [node.id for node in reversed(nodes)]
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        first_page = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"resume": True, "max_results": 2},
+        ).json()
+
+        second_page = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data=first_page["more"]
+        ).json()
+        response_ids = [n["id"] for n in second_page["results"]]
+        self.assertEqual(response_ids, expected_order[2:])
+        self.assertIsNone(second_page["more"])
+
+    def test_resume_exclude_course_ancestry(self):
+        user = self._create_facility_user()
+
+        course_node = content.ContentNode.objects.get(title="c2")
+        course_node.modality = modalities.COURSE
+        course_node.save()
+        course_descendant = content.ContentNode.objects.get(title="c2c2")
+        non_course_node = content.ContentNode.objects.get(title="c1")
+
+        now = timezone.now()
+        for i, node in enumerate((course_descendant, non_course_node)):
+            ContentSummaryLog.objects.create(
+                channel_id=node.channel_id,
+                content_id=node.content_id,
+                instance_id=node.id,
+                user_id=user.id,
+                start_timestamp=now,
+                end_timestamp=now + datetime.timedelta(minutes=i),
+                kind=node.kind,
+                progress=0.5,
+            )
+
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"resume": True, "exclude_course_ancestry": True},
+        )
+        response_ids = {n["id"] for n in response.json()}
+        self.assertNotIn(course_descendant.id, response_ids)
+        self.assertIn(non_course_node.id, response_ids)
+
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"resume": True, "exclude_course_ancestry": False},
+        )
+        response_ids = {n["id"] for n in response.json()}
+        self.assertIn(course_descendant.id, response_ids)
+        self.assertIn(non_course_node.id, response_ids)
 
     def test_next_steps_prereq(self):
         facility = Facility.objects.create(name="MyFac")

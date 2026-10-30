@@ -223,6 +223,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, context) {
     const error = ref(null);
@@ -357,6 +361,7 @@ export default {
       userFullName: computed(() => props.userFullName),
       progress: computed(() => props.progress),
       embedded: computed(() => props.embedded),
+      loading: computed(() => props.loading),
       setCustomExtractors,
       registerAssessmentApi,
     };

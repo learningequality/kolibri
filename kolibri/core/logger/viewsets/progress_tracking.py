@@ -420,12 +420,13 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 content_id=content_id,
                 user=user,
             )
-            updated_fields = ("end_timestamp", "channel_id")
+            updated_fields = ("end_timestamp", "channel_id", "instance_id")
             if repeat:
                 summarylog.progress = 0
                 updated_fields += ("progress",)
             summarylog.channel_id = channel_id
             summarylog.end_timestamp = start_timestamp
+            summarylog.instance_id = context["node_id"]
             summarylog.save(update_fields=updated_fields)
         except ContentSummaryLog.DoesNotExist:
             summarylog = ContentSummaryLog.objects.create(
@@ -435,6 +436,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 kind=kind,
                 start_timestamp=start_timestamp,
                 end_timestamp=start_timestamp,
+                instance_id=context["node_id"],
             )
             self._process_created_notification(summarylog, context)
 
@@ -524,6 +526,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 kind=kind,
                 visitor_id=visitor_id,
                 extra_fields={"context": context.to_dict()},
+                instance_id=context["node_id"],
             )
             output.update({"session_id": sessionlog.id, "context": context.to_dict()})
         return Response(output)
