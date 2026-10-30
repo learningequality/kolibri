@@ -25,6 +25,7 @@ from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
 from kolibri.utils.debian_check import check_debian_user
+from kolibri.utils.main import get_version
 from kolibri.utils.main import initialize
 from kolibri.utils.main import set_django_settings_and_python_path
 from kolibri.utils.main import setup_logging
@@ -34,6 +35,9 @@ from kolibri.utils.plugin_scaffold import MODE_CHOICES
 from kolibri.utils.plugin_scaffold import MODE_PACKAGE
 from kolibri.utils.plugin_scaffold import scaffold_plugin
 from kolibri.utils.plugin_scaffold import SURFACE_CHOICES
+from kolibri.utils.port_election import elect_http_port
+from kolibri.utils.port_election import FALLBACK_HTTP_PORT
+from kolibri.utils.port_election import PREFERRED_HTTP_PORT
 
 logger = logging.getLogger(__name__)
 
@@ -620,9 +624,31 @@ def list_env():
     click.echo_via_pager(_get_env_vars())
 
 
-@configure.command(cls=KolibriDjangoCommand, help="Setup Kolibri")
-def setup():
+class KolibriSetupCommand(KolibriDjangoCommand):
+    def invoke(self, ctx):
+        ctx.meta["fresh_install"] = not get_version()
+        return super().invoke(ctx)
+
+
+@configure.command(cls=KolibriSetupCommand, help="Setup Kolibri")
+@click.option(
+    "--preferred-port",
+    type=click.IntRange(1, 65535),
+    default=None,
+    help=(
+        "Elect and save the HTTP port: this port if it can be bound, "
+        f"otherwise {FALLBACK_HTTP_PORT}. "
+        f"Runs by default on a fresh setup, preferring port {PREFERRED_HTTP_PORT}. "
+        "Skipped when HTTP_PORT is already set."
+    ),
+)
+@click.pass_context
+def setup(ctx, preferred_port):
     """
     Setup Kolibri.
     """
+    if preferred_port is not None:
+        elect_http_port(preferred_port)
+    elif ctx.meta["fresh_install"]:
+        elect_http_port(PREFERRED_HTTP_PORT)
     logger.info("Kolibri has successfully been setup")

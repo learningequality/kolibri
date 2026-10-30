@@ -303,7 +303,7 @@ class ZeroConfPlugin(Monitor):
             NetworkLocationListener,
         )
 
-        instance = build_broadcast_instance(self.port)
+        instance = build_broadcast_instance(_advertised_port(self.port))
 
         if self.backend is None:
             # the transport resolved via `NetworkDiscoveryHook` owns interface
@@ -1114,30 +1114,43 @@ def _get_local_ips():
     )
 
 
-def get_urls(listen_port=None):
+def _advertised_port(bind_port):
+    return conf.OPTIONS["Deployment"]["ADVERTISED_HTTP_PORT"] or bind_port
+
+
+def _local_hosts():
+    hosts = []
+    try:
+        hosts.extend(
+            _get_local_ips()
+            if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
+            else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
+        )
+    except RuntimeError:
+        logger.error("Error retrieving network interface list!")
+    hosts.extend(get_local_hostnames())
+    return hosts
+
+
+def _urls_on_port(hosts, port):
+    port_suffix = "" if port == 80 else f":{port}"
+    return [f"http://{host}{port_suffix}/" for host in hosts]
+
+
+def get_urls(listen_port=None, include_bound_port=False):
     """
     :param listen_port: if set, will not try to determine the listen port from
                         other running instances.
     """
     try:
-        if listen_port:
-            port = listen_port
-        else:
-            __, __, port = get_status()
+        port = listen_port or get_status()[2]
         urls = []
         if port:
-            try:
-                all_addresses = (
-                    _get_local_ips()
-                    if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
-                    else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
-                )
-                for ip in all_addresses:
-                    urls.append(f"http://{ip}:{port}/")
-            except RuntimeError:
-                logger.error("Error retrieving network interface list!")
-            for hostname in get_local_hostnames():
-                urls.append(f"http://{hostname}:{port}/")
+            hosts = _local_hosts()
+            advertised_port = _advertised_port(port)
+            urls = _urls_on_port(hosts, advertised_port)
+            if include_bound_port and advertised_port != port:
+                urls += _urls_on_port(hosts, port)
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

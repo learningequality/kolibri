@@ -4,10 +4,13 @@ Tests for `kolibri.utils.cli` module.
 
 import logging
 import os
+import socket
 import tempfile
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
+from configobj import ConfigObj
 
 import kolibri.plugins
 from kolibri.plugins.utils import autoremove_unavailable_plugins
@@ -308,3 +311,94 @@ def test_plugin_create_invalid_mode_errors(scaffold_mock, tmp_path):
         )
     assert excinfo.value.code != 0
     assert not scaffold_mock.called
+
+
+@pytest.fixture
+def options_ini(monkeypatch):
+    monkeypatch.delenv("KOLIBRI_HTTP_PORT", raising=False)
+    monkeypatch.delenv("KOLIBRI_LISTEN_PORT", raising=False)
+    bound = []
+
+    class FakeSocket:
+        def __init__(self, family, type_):
+            pass
+
+        def setsockopt(self, *args):
+            pass
+
+        def bind(self, address):
+            bound.append(address[1])
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(socket, "socket", FakeSocket)
+    path = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+    original = None
+    if os.path.exists(path):
+        with open(path) as f:
+            original = f.read()
+    with open(path, "w") as f:
+        f.write("\n")
+    yield SimpleNamespace(path=path, bound=bound)
+    if original is None:
+        os.remove(path)
+    else:
+        with open(path, "w") as f:
+            f.write(original)
+
+
+def _pinned_http_port(path):
+    return ConfigObj(path).get("Deployment", {}).get("HTTP_PORT")
+
+
+def _run_setup(*args):
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["configure", "setup", "--skip-update", *args], prog_name="kolibri")
+    return excinfo.value.code
+
+
+@pytest.fixture
+def data_version():
+    path = os.path.join(conf.KOLIBRI_HOME, ".data_version")
+    original = None
+    if os.path.exists(path):
+        with open(path) as f:
+            original = f.read()
+        os.remove(path)
+
+    def write(version):
+        with open(path, "w") as f:
+            f.write(version)
+
+    yield write
+    if original is None:
+        if os.path.exists(path):
+            os.remove(path)
+    else:
+        write(original)
+
+
+def test_configure_setup_fresh_pins_port_80(options_ini, data_version, monkeypatch):
+    initialize = cli.initialize
+
+    def initialize_and_record_version(**kwargs):
+        initialize(**kwargs)
+        data_version(kolibri.__version__)
+
+    monkeypatch.setattr(cli, "initialize", initialize_and_record_version)
+    assert _run_setup() == 0
+    assert _pinned_http_port(options_ini.path) == "80"
+
+
+def test_configure_setup_upgrade_does_not_elect(options_ini, data_version):
+    data_version(kolibri.__version__)
+    assert _run_setup() == 0
+    assert options_ini.bound == []
+    assert _pinned_http_port(options_ini.path) is None
+
+
+def test_configure_setup_upgrade_preferred_port_pins_it(options_ini, data_version):
+    data_version(kolibri.__version__)
+    assert _run_setup("--preferred-port", "8000") == 0
+    assert _pinned_http_port(options_ini.path) == "8000"
