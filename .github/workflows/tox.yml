@@ -412,7 +412,7 @@ jobs:
   android_platform_tests:
     name: Android host tests
     needs: [pre_job, stage1_required_checks]
-    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
+    if: ${{ (needs.pre_job.outputs.python == 'true' || needs.pre_job.outputs.android == 'true') && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
