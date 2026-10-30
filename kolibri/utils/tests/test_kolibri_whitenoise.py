@@ -1,8 +1,10 @@
 import os
 import re
 import tempfile
+from gzip import compress
 from gzip import GzipFile
 from http import HTTPStatus
+from io import BytesIO
 from unittest.mock import MagicMock
 from unittest.mock import mock_open
 from unittest.mock import patch
@@ -14,8 +16,11 @@ from kolibri.utils.kolibri_whitenoise import COMPRESSED_FILE_FOR_REGULAR_PATH
 from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 from kolibri.utils.kolibri_whitenoise import EndRangeStaticFile
 from kolibri.utils.kolibri_whitenoise import FileFinder
+from kolibri.utils.kolibri_whitenoise import MAX_RANGES_HEADER
+from kolibri.utils.kolibri_whitenoise import MULTIPART_MAX_RANGES
 from kolibri.utils.kolibri_whitenoise import NOT_FOUND
 from kolibri.utils.kolibri_whitenoise import SlicedFile
+from kolibri.utils.kolibri_whitenoise import StreamingStaticFile
 
 
 def test_file_finder():
@@ -120,6 +125,12 @@ def test_dynamic_whitenoise_suspicious_file():
     os.removedirs(tempdir12)
 
 
+def _headers(response):
+    names = [key.lower() for key, _value in response.headers]
+    assert len(names) == len(set(names)), response.headers
+    return dict(response.headers)
+
+
 @pytest.fixture
 def mock_stat():
     with patch("os.stat") as mock_stat:
@@ -190,7 +201,301 @@ def test_get_range_response(mock_stat, mock_file):
 
     assert isinstance(response, Response)
     assert response.status == HTTPStatus.PARTIAL_CONTENT
-    assert "Content-Range" in dict(response.headers)
-    assert dict(response.headers)["Content-Range"] == "bytes 0-499/1000"
+    assert "Content-Range" in _headers(response)
+    assert _headers(response)["Content-Range"] == "bytes 0-499/1000"
     assert response.file is not None
     assert isinstance(response.file, SlicedFile)
+
+
+def _read_all(fileobj):
+    chunks = []
+    while True:
+        chunk = fileobj.read(64)
+        if not chunk:
+            break
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
+def _expected_multipart_body(
+    response, content, ranges, content_type="application/octet-stream"
+):
+    ctype = _headers(response)["Content-Type"]
+    prefix = "multipart/byteranges; boundary="
+    assert ctype.startswith(prefix)
+    boundary = ctype[len(prefix) :]
+    body = b""
+    for start, end in ranges:
+        body += (
+            f"--{boundary}\r\n"
+            f"Content-Type: {content_type}\r\n"
+            f"Content-Range: bytes {start}-{end}/{len(content)}\r\n"
+            "\r\n"
+        ).encode()
+        body += content[start : end + 1] + b"\r\n"
+    return body + f"--{boundary}--\r\n".encode()
+
+
+@pytest.fixture
+def real_static_file(tmp_path):
+    content = bytes(i % 256 for i in range(1000))
+    path = tmp_path / "data.bin"
+    path.write_bytes(content)
+    headers = [("Content-Length", "1000"), ("Content-Type", "application/octet-stream")]
+    static_file = EndRangeStaticFile(str(path), headers)
+    return static_file, str(path), headers, content
+
+
+@pytest.fixture
+def gzip_sibling_static_file(tmp_path):
+    content = bytes(i % 256 for i in range(1000))
+    path = tmp_path / "data.bin"
+    path.write_bytes(content)
+    gz_path = tmp_path / "data.bin.gz"
+    gz_path.write_bytes(compress(content))
+    static_file = EndRangeStaticFile(
+        str(path),
+        [("Content-Type", "application/octet-stream")],
+        encodings={"gzip": str(gz_path)},
+    )
+    return static_file, gz_path.read_bytes()
+
+
+def test_multirange_on_gzip_alternative_serves_full_file(gzip_sibling_static_file):
+    static_file, gz_content = gzip_sibling_static_file
+    response = static_file.get_response(
+        "GET", {"HTTP_ACCEPT_ENCODING": "gzip", "HTTP_RANGE": "bytes=0-9,50-59"}
+    )
+    with response.file:
+        body = _read_all(response.file)
+    assert response.status == HTTPStatus.OK
+    assert _headers(response)["Content-Encoding"] == "gzip"
+    assert body == gz_content
+
+
+def test_single_range_on_gzip_alternative_omits_max_ranges(gzip_sibling_static_file):
+    static_file, _gz_content = gzip_sibling_static_file
+    response = static_file.get_response(
+        "GET", {"HTTP_ACCEPT_ENCODING": "gzip", "HTTP_RANGE": "bytes=0-9"}
+    )
+    response.file.close()
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    assert MAX_RANGES_HEADER not in _headers(response)
+
+
+def test_get_multipart_range_response(real_static_file):
+    static_file, path, headers, content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(
+            "bytes=0-9,500-509", headers, file_handle
+        )
+        body = _read_all(response.file)
+
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    resp_headers = _headers(response)
+    assert int(resp_headers["Content-Length"]) == len(body)
+    assert body == _expected_multipart_body(response, content, [(0, 9), (500, 509)])
+
+
+@pytest.mark.parametrize(
+    "range_header",
+    [
+        "bytes=10-5",
+        "bytes=10-5,20-29",
+        "items=0-9",
+        "bytes=abc",
+        "bytes=1-2-3",
+        "bytes=-",
+        "bytes=",
+    ],
+)
+def test_invalid_range_header_serves_full_file(real_static_file, range_header):
+    static_file, _path, _headers, content = real_static_file
+    response = static_file.get_response("GET", {"HTTP_RANGE": range_header})
+    with response.file:
+        body = _read_all(response.file)
+    assert response.status == HTTPStatus.OK
+    assert body == content
+
+
+def test_single_byte_range_is_satisfiable(real_static_file):
+    static_file, path, headers, content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response("bytes=5-5", headers, file_handle)
+        body = _read_all(response.file)
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    assert _headers(response)["Content-Range"] == "bytes 5-5/1000"
+    assert body == content[5:6]
+
+
+@pytest.mark.parametrize(
+    "range_header,start,end",
+    [
+        ("bytes=-10", 990, 999),
+        ("bytes=-5000", 0, 999),
+        ("bytes=990-", 990, 999),
+        ("bytes=990-5000", 990, 999),
+    ],
+)
+def test_open_and_suffix_ranges_clamp_to_file(
+    real_static_file, range_header, start, end
+):
+    static_file, path, headers, content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(range_header, headers, file_handle)
+        body = _read_all(response.file)
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    assert _headers(response)["Content-Range"] == f"bytes {start}-{end}/1000"
+    assert body == content[start : end + 1]
+
+
+def test_multipart_advertises_max_ranges(real_static_file):
+    static_file, path, headers, _content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(
+            "bytes=0-9,500-509", headers, file_handle
+        )
+    assert _headers(response)[MAX_RANGES_HEADER] == str(MULTIPART_MAX_RANGES)
+
+
+def test_single_range_advertises_max_ranges(real_static_file):
+    static_file, path, headers, _content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response("bytes=0-9", headers, file_handle)
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    assert isinstance(response.file, SlicedFile)
+    assert _headers(response)[MAX_RANGES_HEADER] == str(MULTIPART_MAX_RANGES)
+
+
+def test_multipart_coalesces_overlapping_ranges(real_static_file):
+    static_file, path, headers, content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(
+            "bytes=0-9,5-14", headers, file_handle
+        )
+        body = _read_all(response.file)
+    assert body == _expected_multipart_body(response, content, [(0, 14)])
+
+
+def test_multipart_over_cap_returns_416_not_full_file(real_static_file):
+    static_file, path, headers, _content = real_static_file
+    spec = "bytes=" + ",".join(
+        f"{i * 2}-{i * 2}" for i in range(MULTIPART_MAX_RANGES + 1)
+    )
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(spec, headers, file_handle)
+    assert response.status == HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE
+    assert _headers(response)["Content-Range"] == "bytes */1000"
+
+
+def test_multipart_all_unsatisfiable_returns_416(real_static_file):
+    static_file, path, headers, _content = real_static_file
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(
+            "bytes=2000-3000,4000-5000", headers, file_handle
+        )
+    assert response.status == HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE
+
+
+class _FakeRemoteFile(BytesIO):
+    def get_file_size(self):
+        return len(self.getvalue())
+
+
+def test_streaming_static_file_serves_full_file_for_multirange():
+    content = bytes(i % 256 for i in range(1000))
+    static_file = StreamingStaticFile(
+        "/content/storage/a/b/data.bin",
+        [("Content-Type", "application/octet-stream")],
+        "http://remote.test/content/storage/a/b/data.bin",
+    )
+    with patch(
+        "kolibri.utils.kolibri_whitenoise.RemoteFile",
+        side_effect=lambda path, url: _FakeRemoteFile(content),
+    ):
+        response = static_file.get_response("GET", {"HTTP_RANGE": "bytes=0-9,500-509"})
+    with response.file:
+        body = _read_all(response.file)
+    assert response.status == HTTPStatus.OK
+    assert body == content
+
+
+def test_multipart_from_compressed_file_for_regular_path(tmp_path):
+    content = bytes(i % 256 for i in range(1000))
+    path = tmp_path / "data.bin"
+    path.write_bytes(b"")
+    (tmp_path / "data.bin.file_size").write_text(str(len(content)))
+    (tmp_path / "data.bin.gz").write_bytes(compress(content))
+    static_file = EndRangeStaticFile(
+        str(path),
+        [("Content-Type", "application/octet-stream")],
+        encodings={"gzip": str(tmp_path / "data.bin.gz")},
+    )
+    response = static_file.get_response(
+        "GET", {"HTTP_ACCEPT_ENCODING": "", "HTTP_RANGE": "bytes=500-509,0-9"}
+    )
+    with response.file:
+        body = _read_all(response.file)
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    assert body == _expected_multipart_body(response, content, [(0, 9), (500, 509)])
+
+
+def test_multipart_over_cap_rejected_before_coalescing(real_static_file):
+    static_file, path, headers, _content = real_static_file
+    spec = "bytes=" + ",".join(["0-9"] * (MULTIPART_MAX_RANGES + 1))
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(spec, headers, file_handle)
+    assert response.status == HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE
+
+
+def test_multipart_over_cap_rejected_before_parsing_remaining_specs(real_static_file):
+    static_file, _path, _headers_list, _content = real_static_file
+    spec = "bytes=" + ",".join(["0-9"] * (MULTIPART_MAX_RANGES + 1) + ["invalid"])
+    response = static_file.get_response("GET", {"HTTP_RANGE": spec})
+    assert response.status == HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE
+
+
+def test_multipart_parts_carry_file_content_type(tmp_path):
+    content = bytes(i % 256 for i in range(1000))
+    path = tmp_path / "data.txt"
+    path.write_bytes(content)
+    headers = [
+        ("Content-Length", "1000"),
+        ("Content-Type", "text/plain"),
+        ("Cache-Control", "max-age=120"),
+    ]
+    static_file = EndRangeStaticFile(str(path), headers)
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(
+            "bytes=0-9,500-509", headers, file_handle
+        )
+        body = _read_all(response.file)
+    assert _headers(response)["Cache-Control"] == "max-age=120"
+    assert body == _expected_multipart_body(
+        response, content, [(0, 9), (500, 509)], content_type="text/plain"
+    )
+
+
+def test_multipart_parts_default_content_type(real_static_file):
+    static_file, path, _headers_list, content = real_static_file
+    headers = [("Content-Length", "1000")]
+    with open(path, "rb") as file_handle:
+        response = static_file.get_range_response(
+            "bytes=0-9,500-509", headers, file_handle
+        )
+        body = _read_all(response.file)
+    assert body == _expected_multipart_body(response, content, [(0, 9), (500, 509)])
+
+
+@pytest.mark.filterwarnings("error::pytest.PytestUnraisableExceptionWarning")
+def test_multipart_head_reports_full_content_length(real_static_file):
+    static_file, path, headers, _content = real_static_file
+    with open(path, "rb") as file_handle:
+        get_resp = static_file.get_range_response(
+            "bytes=0-9,500-509", headers, file_handle
+        )
+    head_resp = static_file.get_range_response("bytes=0-9,500-509", headers, None)
+    assert head_resp.file is None
+    head_length = _headers(head_resp)["Content-Length"]
+    assert head_length == _headers(get_resp)["Content-Length"]
+    assert int(head_length) > 0
