@@ -7,10 +7,50 @@
   >
     <ViewerToolbar
       :isInFullscreen="isFullscreen"
+      :showFullscreenToggle="!renderedWithOwnFullscreen"
       @toggleFullscreen="toggleFullscreen"
-    />
+    >
+      <template #left>
+        <KIconButton
+          v-if="canGoBack"
+          ref="backButton"
+          icon="back"
+          :ariaLabel="goBackLabel"
+          :tooltip="goBackLabel"
+          @click="goBack"
+        />
+      </template>
+    </ViewerToolbar>
 
     <div
+      v-if="renderedFile"
+      ref="renderedFileElement"
+      class="rendered-file"
+      tabindex="-1"
+      :style="containerStyle"
+    >
+      <img
+        v-if="renderedImage"
+        class="rendered-file-content rendered-image"
+        :src="renderedFile.url"
+        :alt="renderedFile.name || renderedImageLabel"
+      >
+      <ContentViewerError
+        v-else-if="renderedFileError"
+        class="rendered-file-content"
+        :error="renderedFileError"
+      />
+      <ContentViewer
+        v-else
+        :key="renderedFile.url"
+        class="rendered-file-content"
+        :element="renderedElement"
+        @error="showRenderedFileError"
+      />
+    </div>
+
+    <div
+      v-show="!renderedFile"
       class="iframe-container"
       :style="containerStyle"
     >
@@ -41,12 +81,16 @@
 
   import Fullscreen from 'kolibri/components/Fullscreen';
   import ViewerToolbar from 'kolibri/components/ViewerToolbar';
+  import ContentViewer from '../../internal/ContentViewer';
+  import ContentViewerError from '../../internal/ContentViewer/ContentViewerError';
   import setup from './setup';
 
   export default {
     name: 'SandboxedContentViewer',
 
     components: {
+      ContentViewer,
+      ContentViewerError,
       Fullscreen,
       ViewerToolbar,
     },
@@ -62,6 +106,8 @@
       'updateContentState',
       'error',
       'navigateTo',
+      'nowShowing',
+      'goBack',
       'finished',
     ],
   };
@@ -88,9 +134,19 @@
     overflow: hidden;
   }
 
-  .iframe {
+  .iframe,
+  .rendered-file-content {
     width: 100%;
     height: 100%;
+  }
+
+  .rendered-file {
+    width: 100%;
+    height: calc(100% - #{$frame-topbar-height});
+  }
+
+  .rendered-image {
+    object-fit: contain;
   }
 
   .loader {

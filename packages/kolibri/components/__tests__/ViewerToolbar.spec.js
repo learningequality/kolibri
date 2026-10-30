@@ -30,6 +30,11 @@ describe('ViewerToolbar', () => {
     screen.getByRole('button', { name: exitFullscreen$() });
   });
 
+  it('hides the fullscreen button when told to', () => {
+    renderToolbar({ showFullscreenToggle: false });
+    expect(screen.queryByRole('button', { name: enterFullscreen$() })).not.toBeInTheDocument();
+  });
+
   it('emits toggleFullscreen when fullscreen button is clicked', async () => {
     const { emitted } = renderToolbar();
     await userEvent.click(screen.getByRole('button', { name: enterFullscreen$() }));
