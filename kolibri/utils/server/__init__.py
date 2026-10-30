@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import signal
 
 try:
@@ -17,11 +18,13 @@ import threading
 import time
 import traceback as _traceback
 from functools import partial
+from ipaddress import ip_address
 from subprocess import CalledProcessError
 from subprocess import check_output
 
 import ifaddr
 import requests
+import zeroconf
 from cheroot.wsgi import Server as BaseServer
 from django.conf import settings
 from django.core.management import call_command
@@ -993,6 +996,11 @@ def get_status_from_pid_file():
     return status
 
 
+def get_port():
+    _, port, _, _ = _read_pid_file(PID_FILE)
+    return port
+
+
 def get_zip_port():
     _, _, zip_port, _ = _read_pid_file(PID_FILE)
     return zip_port
@@ -1095,23 +1103,122 @@ def get_status():  # noqa: C901
     # raise NotRunning(STATUS_UNKNOW)
 
 
-def _get_local_ips():
-    """
-    Don't rely on the zeroconf get_all_addresses here as it's possible that it could have been modified to only detect
-    interfaces that support multicasting. This is a fallback to get all the local IP addresses of the machine, whether they
-    are multicast or not.
+# Linux names for Docker, Podman, LXC/LXD, veth pair, libvirt bridge, OpenVPN, WireGuard, NordVPN (NordLynx),
+# Cisco AnyConnect, ZeroTier and Tailscale adapters; utun is macOS's VPN adapter;
+# vmnet and vboxnet are VMware's and VirtualBox's host-only adapters.
+# ifaddr sets Adapter.name to the bytes adapter GUID on Windows; nice_name is always str.
+_VIRTUAL_ADAPTER_PREFIXES = (
+    "docker",
+    "podman",
+    "lxcbr",
+    "lxdbr",
+    "veth",
+    "virbr",
+    "tun",
+    "tap",
+    "wg",
+    "nordlynx",
+    "cscotun",
+    "zt",
+    "tailscale",
+    "utun",
+    "vmnet",
+    "vboxnet",
+)
 
-    However, we still exclude known dummy Windows 169.254.*.* addresses as these are not useful for the user to see.
-    :return: a list of IP addresses
-    """
-    return list(
-        {
-            addr.ip
-            for iface in ifaddr.get_adapters()
-            for addr in iface.ips
-            if addr.is_IPv4 and not addr.ip.startswith("169.254")
-        }
+# On Windows nice_name is the adapter description, e.g. "Hyper-V Virtual Ethernet Adapter" (WSL, Default Switch),
+# "VirtualBox Host-Only Ethernet Adapter", or the VPN adapters "TAP-Windows Adapter V9" (OpenVPN),
+# "WireGuard Tunnel", "Wintun Userspace Tunnel", "NordLynx Tunnel", "ZeroTier Virtual Port", "Tailscale Tunnel" and
+# "Cisco AnyConnect Secure Mobility Client Virtual Miniport Adapter for Windows x64".
+# Mobile Hotspot's "Microsoft Wi-Fi Direct Virtual Adapter" serves the LAN its clients join.
+_VIRTUAL_ADAPTER_DESCRIPTION_WORDS = (
+    "Hyper-V",
+    "VirtualBox",
+    "VMware",
+    "TAP-Windows",
+    "WireGuard",
+    "Wintun",
+    "NordLynx",
+    "AnyConnect",
+    "ZeroTier",
+    "Tailscale",
+)
+
+# Docker names user-defined network bridges "br-" plus the network ID's first 12 hex digits;
+# OpenWrt's LAN bridge is "br-lan".
+_DOCKER_NETWORK_BRIDGE = re.compile(r"br-[0-9a-f]{12}")
+
+# Android cellular data adapters: rmnet (Qualcomm), ccmni (MediaTek), and v4-<name>, the 464XLAT CLAT adapter.
+# Carriers often assign them RFC 1918 or 192.0.0.0/24 addresses, so _is_lan_reachable counts them as LAN.
+_CELLULAR_ADAPTER_PREFIXES = ("rmnet", "ccmni", "v4-")
+
+
+def _is_off_lan_adapter(nice_name):
+    return (
+        nice_name.startswith(_VIRTUAL_ADAPTER_PREFIXES + _CELLULAR_ADAPTER_PREFIXES)
+        or _DOCKER_NETWORK_BRIDGE.fullmatch(nice_name) is not None
+        or any(word in nice_name for word in _VIRTUAL_ADAPTER_DESCRIPTION_WORDS)
     )
+
+
+def _get_local_ips():
+    is_off_lan_by_ip = {
+        addr.ip: _is_off_lan_adapter(iface.nice_name)
+        for iface in ifaddr.get_adapters()
+        for addr in iface.ips
+        if addr.is_IPv4 and not addr.ip.startswith("169.254")
+    }
+    # The Android app's monkey_patch_zeroconf.py replaces this with only up, multicast-capable adapters'
+    # addresses, which excludes cellular data adapters whatever their name.
+    multicast_ips = set(zeroconf.get_all_addresses())
+    outgoing_ip = get_outgoing_interface_address()
+    return sorted(
+        is_off_lan_by_ip,
+        key=lambda ip: (
+            not ip_address(ip).is_loopback,
+            is_off_lan_by_ip[ip],
+            ip not in multicast_ips,
+            not _is_lan_reachable(ip),
+            ip != outgoing_ip,
+            ip_address(ip).packed,
+        ),
+    )
+
+
+def _get_listen_ips():
+    listen_address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    return _get_local_ips() if listen_address == "0.0.0.0" else [listen_address]
+
+
+def _is_lan_reachable(address):
+    parsed = ip_address(address)
+    return (parsed.is_private or parsed.is_global) and not (
+        parsed.is_loopback or parsed.is_link_local
+    )
+
+
+def get_lan_address():
+    """
+    :return: `None` when the server listens on no LAN-reachable address.
+    """
+    return next(filter(_is_lan_reachable, _get_listen_ips()), None)
+
+
+def get_outgoing_interface_address():
+    """
+    :return: the default-route interface's address, or `None` when there is
+             no default route.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # 203.0.113.0/24 is TEST-NET-3 (RFC 5737): a globally-routed-looking
+        # destination that matches the default route without being contacted.
+        s.connect(("203.0.113.1", 9))
+        return s.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        s.close()
 
 
 def get_urls(listen_port=None):
@@ -1127,17 +1234,17 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             try:
-                all_addresses = (
-                    _get_local_ips()
-                    if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
-                    else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
-                )
-                for ip in all_addresses:
-                    urls.append(f"http://{ip}:{port}/")
+                listen_ips = _get_listen_ips()
+                list_hostnames = any(map(_is_lan_reachable, listen_ips))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
-            for hostname in get_local_hostnames():
-                urls.append(f"http://{hostname}:{port}/")
+                listen_ips = []
+                list_hostnames = True
+            for ip in listen_ips:
+                urls.append(f"http://{ip}:{port}/")
+            if list_hostnames:
+                for hostname in get_local_hostnames():
+                    urls.append(f"http://{hostname}:{port}/")
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
