@@ -4,7 +4,6 @@ from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
 from rest_framework import permissions
@@ -138,25 +137,22 @@ def fetch_notification_maps(**scope_filter):
     """
     needs_help = {}
     completed = {}
-    try:
-        notifications = (
-            LearnerProgressNotification.objects.filter(
-                Q(notification_event=NotificationEventType.Completed)
-                | Q(notification_event=NotificationEventType.Help),
-                **scope_filter,
-            )
-            .order_by("timestamp")
-            .values_list("user_id", "contentnode_id", "timestamp", "notification_event")
+    notifications = (
+        LearnerProgressNotification.objects.filter(
+            Q(notification_event=NotificationEventType.Completed)
+            | Q(notification_event=NotificationEventType.Help),
+            **scope_filter,
         )
+        .order_by("timestamp")
+        .values_list("user_id", "contentnode_id", "timestamp", "notification_event")
+    )
 
-        for user_id, node_id, timestamp, event in notifications:
-            key = (user_id, node_id)
-            if event == NotificationEventType.Help:
-                needs_help[key] = timestamp
-            elif event == NotificationEventType.Completed:
-                completed[key] = timestamp
-    except OperationalError:
-        pass
+    for user_id, node_id, timestamp, event in notifications:
+        key = (user_id, node_id)
+        if event == NotificationEventType.Help:
+            needs_help[key] = timestamp
+        elif event == NotificationEventType.Completed:
+            completed[key] = timestamp
     return needs_help, completed
 
 
