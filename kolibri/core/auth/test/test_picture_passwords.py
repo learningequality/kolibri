@@ -1,9 +1,11 @@
+from datetime import timedelta
 from unittest import mock
 from unittest.mock import patch
 
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
+from django.utils.timezone import now
 from morango.sync.utils import mute_signals
 
 from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
@@ -64,6 +66,8 @@ class GetAllValidSequencesTestCase(TestCase):
 
 
 class GetAssignedSequencesTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create(name="Picture LoginTest Facility")
@@ -116,8 +120,22 @@ class GetAssignedSequencesTestCase(TestCase):
         assigned = get_assigned_sequences(self.facility)
         self.assertNotIn("10.11.12", assigned)
 
+    def test_includes_soft_deleted_learners(self):
+        learner = FacilityUser.objects.create(
+            username="soft_deleted",
+            facility=self.facility,
+            picture_password="1.2.3",
+        )
+        learner.date_deleted = now()
+        learner.save()
+
+        assigned = get_assigned_sequences(self.facility)
+        self.assertIn("1.2.3", assigned)
+
 
 class AssignPicturePasswordTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create(name="Test Facility")
@@ -157,6 +175,35 @@ class AssignPicturePasswordTestCase(TestCase):
             )
         ]
         self.assertEqual(len(passwords), len(set(passwords)))
+
+    def test_exhausted_pool_reclaims_from_longest_deleted_learner(self):
+        small_set = {1: {}, 2: {}, 3: {}}
+        all_seqs = sorted(get_all_valid_sequences(small_set))
+        holders = []
+        for i, seq in enumerate(all_seqs):
+            learner = self._create_learner(f"reclaim{i}")
+            learner.picture_password = seq
+            learner.save(update_fields=["picture_password"])
+            holders.append(learner)
+
+        oldest, newer = holders[0], holders[1]
+        oldest.date_deleted = now() - timedelta(days=10)
+        oldest.save()
+        newer.date_deleted = now() - timedelta(days=1)
+        newer.save()
+        oldest_sequence = oldest.picture_password
+
+        overflow_learner = self._create_learner("reclaim_overflow")
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
+            small_set,
+        ):
+            assign_picture_password(overflow_learner, self.facility)
+
+        overflow_learner.refresh_from_db()
+        self.assertEqual(overflow_learner.picture_password, oldest_sequence)
+        self.assertIsNone(FacilityUser.all_objects.get(pk=oldest.pk).picture_password)
+        self.assertIsNotNone(FacilityUser.all_objects.get(pk=newer.pk).picture_password)
 
     def test_raises_no_available_sequences_when_pool_exhausted(self):
         small_set = {1: {}, 2: {}, 3: {}}
