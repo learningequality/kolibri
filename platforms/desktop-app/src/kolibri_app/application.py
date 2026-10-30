@@ -1,6 +1,7 @@
 import atexit
 import json
 import os
+import time
 import webbrowser
 from urllib.parse import urlencode
 from urllib.parse import urlsplit
@@ -36,6 +37,18 @@ URL = "URL"
 # Custom Windows message for showing UI
 WM_SHOW_KOLIBRI_UI = win32con.WM_USER + 1 if WINDOWS else None
 
+INSTANCE_WINDOW_RETRIES = 20
+INSTANCE_WINDOW_RETRY_SECONDS = 0.5
+
+
+def _find_instance_window():
+    for _ in range(INSTANCE_WINDOW_RETRIES):
+        hwnd = win32gui.FindWindow(None, f"{APP_NAME}_IPC_Window")
+        if hwnd:
+            return hwnd
+        time.sleep(INSTANCE_WINDOW_RETRY_SECONDS)
+    return None
+
 
 class KolibriApp(wx.App):
     def __init__(self, tray_only=False):
@@ -58,7 +71,7 @@ class KolibriApp(wx.App):
             # Another instance is running
             if WINDOWS:
                 # Find and send message to existing instance
-                hwnd = win32gui.FindWindow(None, f"{APP_NAME}_IPC_Window")
+                hwnd = _find_instance_window()
                 if hwnd:
                     win32gui.PostMessage(hwnd, WM_SHOW_KOLIBRI_UI, 0, 0)
                     logging.info("Sent show UI message to existing instance")
