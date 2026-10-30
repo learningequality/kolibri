@@ -332,11 +332,8 @@ describe('facility config page view', () => {
 
     it('shows Save changes in the page content instead of the bottom app bar', () => {
       renderPage({ isAppContext: true });
-      const bottomBar = screen.getByTestId('bottom-bar');
+      expect(screen.queryByTestId('bottom-bar')).not.toBeInTheDocument();
       const pageContainer = screen.getByTestId('page-container');
-      expect(
-        within(bottomBar).queryByRole('button', { name: coreString('saveChangesAction') }),
-      ).not.toBeInTheDocument();
       expect(
         within(pageContainer).getByRole('button', { name: coreString('saveChangesAction') }),
       ).toBeInTheDocument();
