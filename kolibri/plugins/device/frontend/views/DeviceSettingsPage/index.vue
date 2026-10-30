@@ -443,7 +443,7 @@
       const { snackbarIsVisible, createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
       usePageTitle(pageTitleStrings.pageHeader$, { hasVisibleHeading: true });
-      fetchPlugins.then(() => {
+      fetchPlugins().then(() => {
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
       });
 

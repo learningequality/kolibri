@@ -1,19 +1,14 @@
-import { ref, nextTick } from 'vue';
+import { nextTick } from 'vue';
 import useAuthWatcher from '../useAuthWatcher';
-import useAuthFlow from '../useAuthFlow';
+import { AuthFlowStore } from '../useAuthFlow';
 
-jest.mock('../useAuthFlow');
+AuthFlowStore.stub();
 
 describe('useAuthWatcher', () => {
-  let facilityId;
-  let facilityConfig;
-
   beforeEach(() => {
-    facilityId = ref('1');
-    facilityConfig = ref({ id: '1', name: 'Facility 1' });
-    useAuthFlow.mockReturnValue({
-      facilityId,
-      facilityConfig,
+    AuthFlowStore.mock({
+      facilityId: '1',
+      facilityConfig: { id: '1', name: 'Facility 1' },
     });
   });
 
@@ -23,7 +18,7 @@ describe('useAuthWatcher', () => {
       const { watchForFacilityChange } = useAuthWatcher();
       watchForFacilityChange(callback);
 
-      facilityId.value = '2';
+      AuthFlowStore.mock({ facilityId: '2' });
       await nextTick();
 
       expect(callback).toHaveBeenCalledWith('2', '1');
@@ -37,7 +32,7 @@ describe('useAuthWatcher', () => {
       watchForFacilityConfigChange(callback);
 
       const newConfig = { id: '1', name: 'Facility 1 Updated' };
-      facilityConfig.value = newConfig;
+      AuthFlowStore.mock({ facilityConfig: newConfig });
       await nextTick();
 
       expect(callback).toHaveBeenCalledWith(newConfig, expect.any(Object));
@@ -48,7 +43,7 @@ describe('useAuthWatcher', () => {
       const { watchForFacilityConfigChange } = useAuthWatcher();
       watchForFacilityConfigChange(callback);
 
-      facilityConfig.value = { id: '2', name: 'Facility 2' };
+      AuthFlowStore.mock({ facilityConfig: { id: '2', name: 'Facility 2' } });
       await nextTick();
 
       expect(callback).not.toHaveBeenCalled();

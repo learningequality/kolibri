@@ -16,6 +16,9 @@ import { ReadableStream, WritableStream, TransformStream } from 'web-streams-pol
 import logging from 'kolibri-logging';
 import { i18nSetup } from 'kolibri/utils/i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
+import { installComposableTesting } from './composableTesting';
+
+installComposableTesting();
 
 Object.assign(globalThis, {
   ReadableStream,

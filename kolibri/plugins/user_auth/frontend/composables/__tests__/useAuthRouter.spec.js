@@ -1,11 +1,10 @@
-import { ref } from 'vue';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import router from 'kolibri/router';
-import useAuthFlow from '../useAuthFlow';
+import { AuthFlowStore } from '../useAuthFlow';
+import useAuthRouter from '../useAuthRouter';
 import getUrlParameter from '../../views/getUrlParameter';
 import { ComponentMap } from '../../constants';
 
-jest.mock('../useAuthFlow');
 jest.mock('kolibri/router', () => ({
   __esModule: true,
   default: {
@@ -21,17 +20,11 @@ jest.mock('kolibri/router', () => ({
 }));
 jest.mock('../../views/getUrlParameter', () => jest.fn(() => ''));
 
+AuthFlowStore.stub();
+
 describe('useAuthRouter', () => {
   function createAuthRouter(route = null) {
-    let useAuthRouter;
-    route = route || { query: {} };
-
-    jest.isolateModules(() => {
-      // eslint-disable-next-line global-require
-      useAuthRouter = require('../useAuthRouter').default;
-    });
-
-    return useAuthRouter(route);
+    return useAuthRouter(route || { query: {} });
   }
 
   function mockAuthFlow({
@@ -39,11 +32,7 @@ describe('useAuthRouter', () => {
     hasMultipleFacilities = false,
     signInMethod = OptionsForSignIn.USERNAME_PASSWORD,
   } = {}) {
-    useAuthFlow.mockReturnValue({
-      facilityId: ref(facilityId),
-      hasMultipleFacilities: ref(hasMultipleFacilities),
-      signInMethod: ref(signInMethod),
-    });
+    AuthFlowStore.mock({ facilityId, hasMultipleFacilities, signInMethod });
   }
 
   beforeEach(() => {
