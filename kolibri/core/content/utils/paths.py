@@ -306,5 +306,25 @@ def zip_content_static_root():
     return join_url(get_content_url(zip_content_path_prefix()), "static/")
 
 
+def zip_content_static_js_url(chunks, unique_id):
+    """
+    :returns: the URL a script tag inside the sandbox iframe loads the first JS
+      chunk of bundle ``unique_id`` from, or ``None`` when ``chunks`` has none.
+    """
+    chunk = next((c for c in chunks if c["name"].endswith(".js")), None)
+    if chunk is None:
+        return None
+    public_path = chunk.get("publicPath", "auto")
+    if getattr(settings, "DEVELOPER_MODE", False) and not public_path.startswith(
+        "auto"
+    ):
+        return public_path
+    # The sandbox iframe is served from the alternate (zip content) origin, so
+    # serve from that origin's static root — where alt_wsgi mounts the sandbox
+    # static dirs — not the main-origin STATIC_URL, which 404s when resolved
+    # against the iframe's origin.
+    return join_url(zip_content_static_root(), f"{unique_id}/{chunk['name']}")
+
+
 def get_sandbox_path():
     return f"{zip_content_static_root()}{SANDBOX}{get_sandbox_html_filename()}"

@@ -6,10 +6,12 @@ from django.test import TestCase
 from le_utils.constants import format_presets
 
 from kolibri.core.content.hooks import SandboxedContentViewerHook
+from kolibri.core.content.sandbox_static import get_sandbox_static_locations
 from kolibri.core.content.utils.paths import zip_content_static_root
 from kolibri.core.webpack.hooks import WebpackError
 
 HANDLER_ID = "kolibri.core.content.test.sandbox_handler"
+POLYFILLS_ID = "kolibri.core.polyfills"
 
 
 class SandboxHook(SandboxedContentViewerHook):
@@ -43,17 +45,30 @@ class SandboxedContentViewerHookTestCase(TestCase):
             os.path.join(os.path.dirname(__file__), "static"),
         )
 
-    def test_get_sandbox_static_paths_puts_core_first(self):
+    def test_get_sandbox_static_locations_mounts_core_then_polyfills_then_plugins(
+        self,
+    ):
         with patch.object(
             SandboxedContentViewerHook,
             "_registered_hooks",
             {self.hook.unique_id: self.hook},
         ):
-            paths = SandboxedContentViewerHook.get_sandbox_static_paths()
+            locations = get_sandbox_static_locations()
 
-        self.assertEqual(len(paths), 2)
-        self.assertTrue(paths[0].endswith(os.path.join("content", "static")))
-        self.assertEqual(paths[1], self.hook.sandbox_static_path)
+        core_static = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+        polyfills = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "static",
+            POLYFILLS_ID,
+        )
+        self.assertEqual(
+            locations,
+            [
+                ("", core_static),
+                (f"{POLYFILLS_ID}/", polyfills),
+                ("", self.hook.sandbox_static_path),
+            ],
+        )
 
     def test_missing_stats_file_raises(self):
         with self._patch_stats(WebpackError("missing")), self.assertRaises(

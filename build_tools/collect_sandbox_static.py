@@ -18,19 +18,18 @@ FILE_SIZE = ".file_size"
 
 def sandbox_sources():
     """
-    The directories alt_wsgi.py mounts on the sandbox server, in resolution order, and
-    the built output directory of every sandbox handler bundle.
+    The ``(prefix, directory)`` locations alt_wsgi.py mounts on the sandbox server, in
+    resolution order, and the built output directory of every sandbox handler bundle.
     """
     # kolibri.utils.conf reads KOLIBRI_HOME at import, so the caller sets it first.
-    from kolibri.core.content.hooks import SandboxedContentViewerHook  # noqa: PLC0415
+    from kolibri.core.content import sandbox_static  # noqa: PLC0415
     from kolibri.plugins.registry import registered_plugins  # noqa: PLC0415
 
     list(registered_plugins)
-    handler_outputs = [
-        os.path.join(hook.sandbox_static_path, hook.sandbox_handler_unique_id)
-        for hook in SandboxedContentViewerHook.registered_hooks
-    ]
-    return SandboxedContentViewerHook.get_sandbox_static_paths(), handler_outputs
+    return (
+        sandbox_static.get_sandbox_static_locations(),
+        sandbox_static.get_sandbox_handler_output_dirs(),
+    )
 
 
 def _is_serve_artifact(path):
@@ -77,13 +76,15 @@ def _content_files(source_dir):
                 yield src
 
 
-def collect(source_dirs, handler_outputs, destination):
-    _assert_built(source_dirs, handler_outputs)
+def collect(source_locations, handler_outputs, destination):
+    _assert_built([source_dir for _, source_dir in source_locations], handler_outputs)
 
     collected = {}
-    for source_dir in source_dirs:
+    for prefix, source_dir in source_locations:
         for src in _content_files(source_dir):
-            rel = os.path.relpath(src, source_dir)
+            rel = os.path.normpath(
+                os.path.join(prefix, os.path.relpath(src, source_dir))
+            )
             if rel in collected:
                 raise RuntimeError(
                     f"{rel} is in both {collected[rel]} and {source_dir}; "
@@ -106,8 +107,8 @@ def main():
     with tempfile.TemporaryDirectory() as home:
         # A fresh home enables exactly the default plugins.
         os.environ["KOLIBRI_HOME"] = home
-        source_dirs, handler_outputs = sandbox_sources()
-        count = collect(source_dirs, handler_outputs, args.destination)
+        source_locations, handler_outputs = sandbox_sources()
+        count = collect(source_locations, handler_outputs, args.destination)
     sys.stdout.write(f"Collected {count} files to {args.destination}\n")
 
 

@@ -17,6 +17,7 @@ from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.content.utils.paths import get_sandbox_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
+from kolibri.core.content.utils.paths import zip_content_static_js_url
 from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import NavigationHook
@@ -99,6 +100,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         }
 
         zip_content_origin, zip_content_port = get_zip_content_config()
+        polyfills = FrontEndPolyfillAssetHook()
 
         url_data.update(
             {
@@ -109,6 +111,9 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                 ),
                 "__zipContentUrl": get_zip_content_base_path(),
                 "__sandboxUrl": get_sandbox_path(),
+                "__sandboxPolyfillUrl": zip_content_static_js_url(
+                    polyfills.bundle, polyfills.unique_id
+                ),
                 "__zipContentOrigin": zip_content_origin,
                 "__zipContentPort": zip_content_port,
             }

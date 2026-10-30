@@ -15,8 +15,7 @@ from importlib_resources import files
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 
-from kolibri.core.content.utils.paths import zip_content_static_root
-from kolibri.core.utils.urls import join_url
+from kolibri.core.content.utils.paths import zip_content_static_js_url
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.core.webpack.hooks import WebpackInclusionMixin
 from kolibri.plugins.hooks import define_hook
@@ -134,25 +133,6 @@ class SandboxedContentViewerHook(ContentViewerHook):
         """
         return str(files(self._module_path).joinpath("static"))
 
-    @classmethod
-    def get_sandbox_static_paths(cls):
-        """
-        Returns a list of filesystem paths to static directories
-        that should be mounted on the sandbox server.
-
-        Includes:
-        - Core content static directory (kolibri/core/content/static)
-        - Plugin static directories for each registered sandbox handler
-
-        All of these are mounted at one URL root, and the first location holding a
-        path wins, so a plugin must namespace its own subdirectory (core is mounted
-        first and cannot be shadowed).
-        """
-        core_static_path = str(files("kolibri.core.content").joinpath("static"))
-        return [core_static_path] + [
-            hook.sandbox_static_path for hook in cls.registered_hooks
-        ]
-
     @property
     def sandbox_handler_unique_id(self):
         """Full unique ID for the sandbox handler bundle."""
@@ -166,23 +146,11 @@ class SandboxedContentViewerHook(ContentViewerHook):
             return self._cached_sandbox_handler_url
 
         unique_id = self.sandbox_handler_unique_id
-        stats = self.resolve_stats(unique_id)
-        chunks = stats.get("chunks", {}).get(unique_id, [])
-        chunk = next((c for c in chunks if c["name"].endswith(".js")), None)
-        if chunk is None:
-            return None
-        public_path = chunk.get("publicPath", "auto")
-        if developer_mode and not public_path.startswith("auto"):
-            return public_path
-        # The handler <script> is loaded inside the sandbox iframe, which
-        # is served from the alternate (zip content) origin. Serve the
-        # handler from that origin's static root — where alt_wsgi mounts
-        # the plugin static dirs — not the main-origin STATIC_URL, which
-        # 404s when resolved against the iframe's origin.
-        self._cached_sandbox_handler_url = join_url(
-            zip_content_static_root(), f"{unique_id}/{chunk['name']}"
-        )
-        return self._cached_sandbox_handler_url
+        chunks = self.resolve_stats(unique_id).get("chunks", {}).get(unique_id, [])
+        url = zip_content_static_js_url(chunks, unique_id)
+        if url is not None:
+            self._cached_sandbox_handler_url = url
+        return url
 
     @property
     def viewer_data(self):

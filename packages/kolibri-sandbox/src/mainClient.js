@@ -41,9 +41,10 @@ export default class MainClient {
    * @param {string} contentNamespace - Namespace for content storage (usually file checksum)
    * @param {object} options - Additional options
    * @param {string} [options.handlerUrl] - URL to a sandbox handler script for pluggable handlers
+   * @param {string} [options.polyfillUrl] - URL to the core-js polyfill bundle
    */
   initialize(contentState, userData, startUrl, contentNamespace, options = {}) {
-    const { handlerUrl = null } = options;
+    const { handlerUrl = null, polyfillUrl = null } = options;
     /*
      * userData should be an object with the following keys, all optional:
      * userId: <user ID>,
@@ -72,6 +73,7 @@ export default class MainClient {
           contentNamespace,
           startUrl,
           handlerUrl,
+          polyfillUrl,
           // Send current accumulated state, not the original contentState
           contentState: this._shimData,
           userData: this._userData,
