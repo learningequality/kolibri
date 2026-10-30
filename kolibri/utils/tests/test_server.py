@@ -2,6 +2,7 @@
 Tests for `kolibri.utils.server` module.
 """
 
+import contextlib
 import os
 from unittest import mock
 from unittest import TestCase
@@ -232,6 +233,10 @@ class GetUrlsTestCase(TestCase):
     "kolibri.utils.server._read_pid_file", return_value=((None, None, None, None))
 )
 class ServerInitializationTestCase(TestCase):
+    def tearDown(self):
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(server.PID_FILE)
+
     @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied(self, wait_for_port_mock, logging_mock, read_pid_file_mock):
