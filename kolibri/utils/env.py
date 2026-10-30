@@ -37,6 +37,13 @@ ENVIRONMENT_VARIABLES = {
             integers, fall back to the default of 10000.
         """,
     },
+    "KOLIBRI_MIGRATION_LOCK_TIMEOUT": {
+        "description": """
+            Seconds to wait for another Kolibri process to finish updating the
+            database before giving up. Values that are not integers fall back to
+            the default of 1800.
+        """,
+    },
     "KOLIBRI_NO_C_EXTENSIONS": {
         "description": "Disable C extensions.",
     },
