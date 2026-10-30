@@ -1,8 +1,10 @@
 import { nextTick } from 'vue';
-import { render, screen, within } from '@testing-library/vue';
+import { fireEvent, render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import LessonResource from 'kolibri-common/apiResources/LessonResource';
 import { coachStrings } from '../../common/commonCoachStrings';
 import makeStore from '../../../__tests__/utils/makeStore';
 import LessonsRootPage from '../LessonsRootPage.vue';
@@ -14,7 +16,9 @@ const {
   lessonsLabel$,
   recipientsLabel$,
   titleLabel$,
+  saveLessonError$,
 } = coachStrings;
+const { saveChangesAction$, requiredFieldError$ } = coreStrings;
 
 const CLASS_NAME = 'Class A';
 const GROUP = { id: 'group-a', name: 'Group A', member_ids: [] };
@@ -23,6 +27,7 @@ jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/fetchClassSyncStatus');
 jest.mock('kolibri/urls');
+jest.mock('kolibri-common/apiResources/LessonResource');
 jest.mock('kolibri/router', () => ({
   getRoute: jest.fn((name, params) => ({ name, params })),
   getReactiveRoute: jest.fn(() => ({ params: {} })),
@@ -45,12 +50,12 @@ function makeLesson(overrides) {
   };
 }
 
-function renderComponent(lessons, groups = []) {
+function renderComponent(lessons, groups = [], options = {}) {
   const store = makeStore();
   store.state.classSummary.name = CLASS_NAME;
   store.state.lessonsRoot.lessons = lessons;
   store.state.classSummary.groupMap = Object.fromEntries(groups.map(group => [group.id, group]));
-  return render(LessonsRootPage, { store, routes });
+  return render(LessonsRootPage, { store, routes, ...options });
 }
 
 describe('LessonsRootPage', () => {
@@ -117,6 +122,39 @@ describe('LessonsRootPage', () => {
       expect(
         screen.getByText(filterLessonStatus$(), { selector: '.ui-select-label-text' }),
       ).not.toBeVisible();
+    });
+  });
+
+  describe('new lesson modal', () => {
+    it('shows the inline required-field error on the title field when the backend rejects a blank title', async () => {
+      LessonResource.create = jest.fn().mockRejectedValue({
+        response: {
+          data: [
+            { id: 'BLANK', metadata: { field: 'title', message: 'This field may not be blank.' } },
+          ],
+        },
+      });
+      renderComponent([], [], { data: () => ({ showModal: true }) });
+
+      await fireEvent.click(screen.getByRole('button', { name: saveChangesAction$() }));
+      await global.flushPromises();
+
+      expect(screen.getByRole('textbox', { name: titleLabel$() })).toBeInTheDocument();
+      expect(screen.getByText(requiredFieldError$())).toBeInTheDocument();
+      expect(screen.queryByText(saveLessonError$())).not.toBeInTheDocument();
+    });
+
+    it('shows the generic error banner for a save failure unrelated to the title', async () => {
+      LessonResource.create = jest.fn().mockRejectedValue({
+        response: { data: [{ id: 'SOME_OTHER_ERROR' }] },
+      });
+      renderComponent([], [], { data: () => ({ showModal: true }) });
+
+      await fireEvent.click(screen.getByRole('button', { name: saveChangesAction$() }));
+      await global.flushPromises();
+
+      expect(screen.getByText(saveLessonError$())).toBeInTheDocument();
+      expect(screen.queryByText(requiredFieldError$())).not.toBeInTheDocument();
     });
   });
 });
