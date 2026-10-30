@@ -46,8 +46,9 @@ CACHE_SHARDS = 8
 FD_PER_THREAD = sum(
     (
         5,  # minimum allowance
-        1 + len(ADDITIONAL_SQLITE_DATABASES),  # DBs assuming SQLite
-        CACHE_SHARDS,  # assuming diskcache
+        # A WAL-mode SQLite connection holds the database and its -wal file open
+        2 * (1 + len(ADDITIONAL_SQLITE_DATABASES)),  # DBs assuming SQLite
+        2 * CACHE_SHARDS,  # assuming diskcache, whose shards are WAL-mode SQLite
     )
 )
 
