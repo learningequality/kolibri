@@ -5,10 +5,13 @@ import sqlite3
 
 from django.core.cache import cache
 
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
 
 from .paths import get_content_database_dir_path
+from .paths import get_content_database_file_path
+from .paths import get_upgrade_content_database_file_path
 from .source_db import SourceDB
 
 logger = logging.getLogger(__name__)
@@ -94,6 +97,31 @@ def read_channel_metadata_from_db_file(channeldbpath):
         source_channel_metadata["root_id"] = source_channel_metadata["root_pk"]
 
     return source_channel_metadata
+
+
+def discard_stale_upgrade_database(channel_id, version, content_dir=None):
+    upgrade_path = get_upgrade_content_database_file_path(
+        channel_id, contentfolder=content_dir
+    )
+    if (
+        os.path.isfile(upgrade_path)
+        and read_channel_metadata_from_db_file(upgrade_path)["version"] != version
+    ):
+        os.remove(upgrade_path)
+
+
+def is_channel_database_current(channel_id, remote_version, content_dir=None):
+    if remote_version is None:
+        return False
+    if ChannelMetadata.objects.filter(
+        id=channel_id, version__gt=remote_version
+    ).exists():
+        return True
+    return ChannelMetadata.objects.has_imported_version(
+        channel_id, remote_version
+    ) and os.path.isfile(
+        get_content_database_file_path(channel_id, contentfolder=content_dir)
+    )
 
 
 def get_channels_for_data_folder(datafolder):

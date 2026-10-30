@@ -757,7 +757,6 @@ class ChannelImport:
     def check_and_delete_existing_channel(self):
         if self.current_channel:
             current_version = self.current_channel.version
-            current_partial = self.current_channel.partial
             if self.partial:
                 if current_version == self.channel_version:
                     return True
@@ -776,11 +775,12 @@ class ChannelImport:
                     )
                     return False
 
-            if current_version is not None and (
-                current_version < self.channel_version
-                or current_partial
-                or (self.version_requested and current_version > self.channel_version)
-            ):
+            up_to_date = ChannelMetadata.objects.has_imported_version(
+                self.channel_id, self.channel_version
+            ) and not (
+                self.version_requested and current_version > self.channel_version
+            )
+            if current_version is not None and not up_to_date:
                 # We have a different version of this channel (upgrade, downgrade, or partial),
                 # so clean out the old data first.
                 logger.info(

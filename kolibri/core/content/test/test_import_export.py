@@ -18,6 +18,7 @@ from django.core.management import call_command
 from django.core.management import CommandError
 from django.db.models import Q
 from django.test import TestCase
+from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import library as library_constants
 from requests import Session
@@ -26,8 +27,10 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
+from requests.structures import CaseInsensitiveDict
 
 import kolibri.core.content.management.commands.importchannel as importchannel_module
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.models import ChannelMetadata
@@ -38,7 +41,10 @@ from kolibri.core.content.tasks import remoteimport
 from kolibri.core.content.upgrade import populate_channel_library_field
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
+from kolibri.core.content.utils.channel_import import import_channel_by_id
 from kolibri.core.content.utils.channel_transfer import transfer_channel
+from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -57,15 +63,22 @@ from kolibri.core.content.utils.resource_import import (
 from kolibri.core.content.utils.resource_import import (
     RemoteChannelResourceImportManager,
 )
+from kolibri.core.content.utils.resource_import import RemoteChannelUpdateManager
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.utils.cache import process_cache
 from kolibri.utils import conf
 from kolibri.utils.file_transfer import ChunkedFile
 from kolibri.utils.file_transfer import Transfer
 from kolibri.utils.file_transfer import TransferCanceled
 from kolibri.utils.file_transfer import TransferFailed
 from kolibri.utils.tests.helpers import override_option
+
+from .helpers import build_content_db_from_frozen_schema
+from .helpers import FrozenSchemaDBMixin
+from .helpers import load_content_fixture_data
 
 # helper class for mocking that is equal to anything
 
@@ -567,6 +580,16 @@ class ImportChannelTestCase(TestCase):
 
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
+    def setUp(self):
+        super().setUp()
+        lookup_patch = patch.object(
+            importchannel_module,
+            "lookup_channel_listing_status",
+            return_value={"id": self.the_channel_id, "version": 1},
+        )
+        lookup_patch.start()
+        self.addCleanup(lookup_patch.stop)
+
     @patch(
         "kolibri.core.content.utils.channel_transfer.paths.get_content_database_file_url"
     )
@@ -596,7 +619,7 @@ class ImportChannelTestCase(TestCase):
         dummy_job.is_cancelled.assert_called_with()
         # Check that the FileDownload initiated
         FileDownloadMock.assert_called_with(
-            "notest", local_path, cancel_check=dummy_job.is_cancelled
+            "notest", local_path, cancel_check=dummy_job.is_cancelled, overwrite=True
         )
         # Check that cancel was called
         dummy_job.check_for_cancel.assert_called_with()
@@ -992,8 +1015,12 @@ class ImportChannelTestCase(TestCase):
     )
     @patch("kolibri.core.content.utils.channel_transfer.transfer.FileDownload")
     @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.lookup_channel_listing_status"
+    )
     def test_download_channel_with_uuid_passes_no_version(
         self,
+        mock_lookup,
         get_current_job_mock,
         FileDownloadMock,
         local_path_mock,
@@ -1002,6 +1029,7 @@ class ImportChannelTestCase(TestCase):
         import_channel_mock,
     ):
         """When a UUID (not a token) is passed, get_content_database_file_url is called with version=None."""
+        mock_lookup.return_value = {"id": self.the_channel_id, "version": 5}
         dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
         fd, local_path = tempfile.mkstemp()
@@ -1012,11 +1040,374 @@ class ImportChannelTestCase(TestCase):
 
         call_command("importchannel", "network", self.the_channel_id)
 
+        mock_lookup.assert_called_once()
         _, call_kwargs = remote_path_mock.call_args
         # Assert `version` is explicitly present as a kwarg (not merely absent, which would
         # also make .get() return None). Before the fix, version is not passed at all.
         self.assertIn("version", call_kwargs)
         self.assertIsNone(call_kwargs["version"])
+
+
+@patch(
+    "kolibri.core.content.management.commands.importchannel.AsyncCommand.start_progress"
+)
+class ImportChannelNewVersionTestCase(FrozenSchemaDBMixin, TransactionTestCase):
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def setUp(self):
+        super().setUp()
+        content_dir_override = override_option("Paths", "CONTENT_DIR", self.directory)
+        content_dir_override.enable()
+        self.addCleanup(content_dir_override.disable)
+        self.db_path = paths.get_content_database_file_path(self.the_channel_id)
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+
+        self.session = MagicMock()
+        for target in (
+            "kolibri.utils.file_transfer.SameHostSession",
+            "kolibri.core.content.utils.resource_import.SameHostSession",
+        ):
+            session_patch = patch(target, return_value=self.session)
+            session_patch.start()
+            self.addCleanup(session_patch.stop)
+        self.lookup_client = MagicMock()
+        self._set_lookup_status(404)
+        lookup_patch = patch(
+            "kolibri.core.content.utils.resource_import.NetworkClient.discover_from_address",
+            return_value=self.lookup_client,
+        )
+        lookup_patch.start()
+        self.addCleanup(lookup_patch.stop)
+
+    def _set_lookup_status(self, status_code):
+        self.lookup_client.get.side_effect = NetworkLocationResponseFailure(
+            response=MagicMock(status_code=status_code)
+        )
+
+    def _list_remote_version(self, version, library=None):
+        self.lookup_client.get.side_effect = None
+        self.lookup_client.get.return_value.json.return_value = [
+            {"id": self.the_channel_id, "version": version, "library": library}
+        ]
+
+    def _build_channel_db(self, path, version):
+        data = load_content_fixture_data(CONTENT_SCHEMA_VERSION)
+        data["content_channelmetadata"][0]["version"] = version
+        build_content_db_from_frozen_schema(path, CONTENT_SCHEMA_VERSION, data)
+
+    def _serve_remote_version(self, version, listed=True):
+        remote_path = os.path.join(self.directory, "remote.sqlite3")
+        self._build_channel_db(remote_path, version)
+        with open(remote_path, "rb") as f:
+            remote_bytes = f.read()
+        response = MagicMock()
+        response.headers = CaseInsensitiveDict(
+            {"content-length": str(len(remote_bytes))}
+        )
+        response.iter_content.side_effect = lambda *args, **kwargs: iter([remote_bytes])
+        self.session.get.return_value = response
+        self.session.head.return_value = response
+        if listed:
+            self._list_remote_version(version)
+
+    def _import_local_version(self, version):
+        self._build_channel_db(self.db_path, version)
+        import_channel_by_id(self.the_channel_id, lambda: False)
+
+    def test_outdated_local_database_is_replaced_and_imported(
+        self, start_progress_mock
+    ):
+        self._import_local_version(1)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+        self.assertEqual(read_channel_metadata_from_db_file(self.db_path)["version"], 2)
+
+    def test_current_local_version_skips_download(self, start_progress_mock):
+        self._import_local_version(2)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_not_called()
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+
+    def test_fresh_import_ignores_failed_version_lookup(self, start_progress_mock):
+        self._serve_remote_version(2, listed=False)
+        self._set_lookup_status(500)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+
+    def test_partial_channel_at_remote_version_is_imported(self, start_progress_mock):
+        self._import_local_version(2)
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(partial=True)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_called()
+        self.assertFalse(ChannelMetadata.objects.get(id=self.the_channel_id).partial)
+
+    def test_partial_channel_newer_than_remote_is_kept(self, start_progress_mock):
+        self._import_local_version(3)
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(partial=True)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_not_called()
+        self.assertEqual(self._local_file_version(), 3)
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+
+    def test_missing_database_file_at_remote_version_is_downloaded(
+        self, start_progress_mock
+    ):
+        self._import_local_version(2)
+        os.remove(self.db_path)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_called()
+        self.assertEqual(read_channel_metadata_from_db_file(self.db_path)["version"], 2)
+
+    def test_missing_database_file_is_not_replaced_by_older_listed_remote(
+        self, start_progress_mock
+    ):
+        self._import_local_version(3)
+        os.remove(self.db_path)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_not_called()
+        self.assertFalse(os.path.exists(self.db_path))
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+
+    def test_missing_database_file_at_unlisted_remote_version_is_downloaded_once(
+        self, start_progress_mock
+    ):
+        self._import_local_version(2)
+        os.remove(self.db_path)
+        self._serve_remote_version(2, listed=False)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.assertEqual(self.session.get.call_count, 1)
+        self.assertEqual(self._local_file_version(), 2)
+
+    def _local_file_version(self):
+        return read_channel_metadata_from_db_file(self.db_path)["version"]
+
+    def test_unlisted_older_remote_keeps_local_database(self, start_progress_mock):
+        self._import_local_version(3)
+        self._serve_remote_version(2, listed=False)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.assertEqual(self._local_file_version(), 3)
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+        self.assertFalse(
+            os.path.exists(
+                paths.get_upgrade_content_database_file_path(self.the_channel_id)
+            )
+        )
+
+    def test_unlisted_newer_remote_is_imported(self, start_progress_mock):
+        self._import_local_version(1)
+        self._serve_remote_version(2, listed=False)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.assertEqual(self._local_file_version(), 2)
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+
+    def test_failed_lookup_fails_without_download(self, start_progress_mock):
+        self._import_local_version(1)
+        self._serve_remote_version(2, listed=False)
+        self._set_lookup_status(500)
+
+        with self.assertRaises(CommandError):
+            call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_not_called()
+
+    def test_unreachable_lookup_fails_without_download(self, start_progress_mock):
+        self._import_local_version(1)
+        self._serve_remote_version(2, listed=False)
+        self.lookup_client.get.side_effect = NetworkLocationConnectionFailure()
+
+        with self.assertRaises(CommandError):
+            call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_not_called()
+
+    def test_current_channel_with_null_partial_skips_download(
+        self, start_progress_mock
+    ):
+        self._import_local_version(2)
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(partial=None)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.session.get.assert_not_called()
+
+    def test_upgrade_database_older_than_remote_is_replaced(self, start_progress_mock):
+        self._import_local_version(1)
+        self._build_channel_db(
+            paths.get_upgrade_content_database_file_path(self.the_channel_id), 2
+        )
+        self._serve_remote_version(3)
+
+        call_command("importchannel", "network", self.the_channel_id)
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+
+    def test_token_import_replaces_upgrade_database_newer_than_listing(
+        self, start_progress_mock
+    ):
+        self._import_local_version(1)
+        self._build_channel_db(
+            paths.get_upgrade_content_database_file_path(self.the_channel_id), 4
+        )
+        self._serve_remote_version(3)
+
+        call_command("importchannel", "network", "sometoken")
+
+        self.assertEqual(self._local_file_version(), 3)
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+
+    def test_token_import_of_current_channel_records_library(self, start_progress_mock):
+        self._import_local_version(2)
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(library=None)
+        self._list_remote_version(2, library=library_constants.KOLIBRI)
+
+        call_command("importchannel", "network", "sometoken")
+
+        self.session.get.assert_not_called()
+        self.assertEqual(
+            ChannelMetadata.objects.get(id=self.the_channel_id).library,
+            library_constants.KOLIBRI,
+        )
+
+    @patch("kolibri.core.content.utils.resource_import.schedule_ping")
+    def test_remote_channel_database_import_keeps_newer_local_database(
+        self, schedule_ping_mock, start_progress_mock
+    ):
+        self._import_local_version(3)
+        self._serve_remote_version(2)
+
+        RemoteChannelDatabaseImportManager(self.the_channel_id).run()
+
+        self.assertEqual(self._local_file_version(), 3)
+
+    @patch("kolibri.core.content.utils.resource_import.schedule_ping")
+    def test_remote_channel_database_import_discards_stale_upgrade_database_and_keeps_newer_local(
+        self, schedule_ping_mock, start_progress_mock
+    ):
+        self._import_local_version(4)
+        self._build_channel_db(
+            paths.get_upgrade_content_database_file_path(self.the_channel_id), 5
+        )
+        self._serve_remote_version(3)
+
+        RemoteChannelDatabaseImportManager(self.the_channel_id).run()
+
+        self.assertEqual(self._local_file_version(), 4)
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 4)
+
+    @patch("kolibri.core.content.utils.resource_import.schedule_ping")
+    def test_remote_channel_database_import_keeps_newer_partial_channel(
+        self, schedule_ping_mock, start_progress_mock
+    ):
+        self._import_local_version(3)
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(partial=True)
+        self._serve_remote_version(2)
+
+        RemoteChannelDatabaseImportManager(self.the_channel_id).run()
+
+        self.session.get.assert_not_called()
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+
+    @patch("kolibri.core.content.utils.resource_import.schedule_ping")
+    def test_remote_channel_database_import_replaces_outdated_database(
+        self, schedule_ping_mock, start_progress_mock
+    ):
+        self._import_local_version(1)
+        self._serve_remote_version(2)
+
+        RemoteChannelDatabaseImportManager(self.the_channel_id).run()
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+
+    @patch("kolibri.core.content.utils.resource_import.schedule_ping")
+    def test_remote_channel_database_import_replaces_stale_upgrade_database(
+        self, schedule_ping_mock, start_progress_mock
+    ):
+        self._import_local_version(1)
+        self._build_channel_db(
+            paths.get_upgrade_content_database_file_path(self.the_channel_id), 2
+        )
+        self._serve_remote_version(3)
+
+        RemoteChannelDatabaseImportManager(self.the_channel_id).run()
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 3)
+
+    @patch("kolibri.core.content.utils.resource_import.schedule_ping")
+    def test_remote_channel_update_applies_its_diffed_upgrade_database(
+        self, schedule_ping_mock, start_progress_mock
+    ):
+        self._import_local_version(1)
+        self._build_channel_db(
+            paths.get_upgrade_content_database_file_path(self.the_channel_id), 2
+        )
+        self._serve_remote_version(3)
+        stats_key = CHANNEL_UPDATE_STATS_CACHE_KEY.format(self.the_channel_id)
+        process_cache.set(stats_key, {"updated_resource_ids": []}, None)
+        self.addCleanup(process_cache.delete, stats_key)
+
+        RemoteChannelUpdateManager(
+            self.the_channel_id, import_channel_database=True
+        ).run()
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+
+    def test_token_no_upgrade_download_is_applied_by_later_import(
+        self, start_progress_mock
+    ):
+        self._import_local_version(1)
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", "sometoken", no_upgrade=True)
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 1)
+
+        call_command("importchannel", "network", "sometoken")
+
+        self.assertEqual(ChannelMetadata.objects.get(id=self.the_channel_id).version, 2)
+        self.assertEqual(self._local_file_version(), 2)
+
+    def test_token_no_upgrade_on_fresh_device_stages_database(
+        self, start_progress_mock
+    ):
+        self._serve_remote_version(2)
+
+        call_command("importchannel", "network", "sometoken", no_upgrade=True)
+
+        self.assertFalse(
+            ChannelMetadata.objects.filter(id=self.the_channel_id).exists()
+        )
+        self.assertEqual(
+            read_channel_metadata_from_db_file(
+                paths.get_upgrade_content_database_file_path(self.the_channel_id)
+            )["version"],
+            2,
+        )
 
 
 @patch(
