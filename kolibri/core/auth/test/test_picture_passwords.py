@@ -1,6 +1,7 @@
 from unittest import mock
 from unittest.mock import patch
 
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -173,6 +174,40 @@ class AssignPicturePasswordTestCase(TestCase):
         ):
             with self.assertRaises(NoAvailableSequences):
                 assign_picture_password(overflow_learner, self.facility)
+
+    def test_collision_inside_atomic_block_retries_without_breaking_transaction(self):
+        existing = self._create_learner("taken")
+        existing.picture_password = "1.2.3"
+        existing.save(update_fields=["picture_password"])
+
+        learner = self._create_learner("collider")
+
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
+            side_effect=["1.2.3", "4.5.6"],
+        ):
+            with transaction.atomic():
+                assign_picture_password(learner, self.facility)
+                self.assertTrue(FacilityUser.objects.filter(pk=learner.pk).exists())
+
+        learner.refresh_from_db()
+        self.assertEqual(learner.picture_password, "4.5.6")
+
+    def test_double_collision_leaves_the_caller_transaction_usable(self):
+        existing = self._create_learner("taken_twice")
+        existing.picture_password = "1.2.3"
+        existing.save(update_fields=["picture_password"])
+
+        learner = self._create_learner("double_collider")
+
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
+            side_effect=["1.2.3", "1.2.3"],
+        ):
+            with transaction.atomic():
+                with self.assertRaises(SequenceAlreadyAssigned):
+                    assign_picture_password(learner, self.facility)
+                self.assertTrue(FacilityUser.objects.filter(pk=learner.pk).exists())
 
     def test_raises_sequence_already_assigned_after_two_integrity_errors(self):
         learner = self._create_learner("collision")

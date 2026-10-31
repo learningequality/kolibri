@@ -4639,6 +4639,110 @@ class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
         self.assertIsNone(user.picture_password)
 
 
+@patch("kolibri.core.auth.viewsets.facility_user.cleanup_expired_deleted_users")
+class RestorePicturePasswordTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = models.Facility.objects.create(name="RestorePicPwdFacility")
+        cls.superuser = create_superuser(cls.facility)
+        # Both must be set before save(), as in
+        # FacilityUserSerializerPicturePasswordTestCase.
+        cls.facility.dataset.learner_can_edit_password = False
+        cls.facility.dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": False,
+        }
+        cls.facility.dataset.save()
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _soft_delete(self, user):
+        response = self.client.delete(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": user.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def _restore(self, user):
+        return self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-restore") + f"?by_ids={user.id}"
+        )
+
+    def test_restored_learner_is_assigned_a_picture_password(self, mock_cleanup_task):
+        learner = FacilityUserFactory.create(facility=self.facility)
+        self._soft_delete(learner)
+        # What _reclaim_sequence_from_deleted_learner does when the pool runs out.
+        models.FacilityUser.all_objects.filter(pk=learner.pk).update(
+            picture_password=None
+        )
+
+        response = self._restore(learner)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        learner.refresh_from_db()
+        self.assertIsNotNone(learner.picture_password)
+
+    def test_restoring_several_learners_gives_each_a_distinct_sequence(
+        self, mock_cleanup_task
+    ):
+        learners = [
+            FacilityUserFactory.create(facility=self.facility) for _ in range(3)
+        ]
+        ids = ",".join(str(learner.id) for learner in learners)
+        self.client.delete(reverse("kolibri:core:facilityuser-list") + f"?by_ids={ids}")
+        models.FacilityUser.all_objects.filter(
+            id__in=[learner.id for learner in learners]
+        ).update(picture_password=None)
+
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-restore") + f"?by_ids={ids}"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        restored = models.FacilityUser.objects.filter(
+            id__in=[learner.id for learner in learners]
+        )
+        self.assertEqual(3, restored.count())
+        sequences = [learner.picture_password for learner in restored]
+        self.assertNotIn(None, sequences)
+        self.assertEqual(len(sequences), len(set(sequences)))
+
+    def test_restored_learner_keeps_their_own_picture_password(self, mock_cleanup_task):
+        learner = FacilityUserFactory.create(facility=self.facility)
+        models.FacilityUser.objects.filter(pk=learner.pk).update(
+            picture_password="1.2.3"
+        )
+        self._soft_delete(learner)
+
+        response = self._restore(learner)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        learner.refresh_from_db()
+        self.assertIsNone(learner.date_deleted)
+        self.assertEqual("1.2.3", learner.picture_password)
+
+    def test_restored_superuser_is_not_assigned_a_picture_password(
+        self, mock_cleanup_task
+    ):
+        other_superuser = create_superuser(self.facility, username="othersuperuser")
+        self._soft_delete(other_superuser)
+
+        response = self._restore(other_superuser)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        other_superuser.refresh_from_db()
+        # assert the restore really happened, so the assertion below is not vacuous
+        self.assertIsNone(other_superuser.date_deleted)
+        self.assertIsNone(other_superuser.picture_password)
+
+
 class PicturePasswordPrevalidateTestCase(APITestCase):
     databases = "__all__"
 

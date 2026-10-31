@@ -2,6 +2,7 @@ import logging
 import random
 from itertools import permutations
 
+from django.db import transaction
 from django.db.models.functions import Coalesce
 from django.db.utils import IntegrityError
 
@@ -155,14 +156,27 @@ def assign_picture_password(user, facility):
 
     try:
         user.picture_password = sequence
-        user.save(update_fields=["picture_password"])
+        with transaction.atomic():
+            user.save(update_fields=["picture_password"])
     except IntegrityError:
         logger.warning("Picture password collision for user %s, retrying.", user.id)
         sequence = get_available_sequence(facility)
         user.picture_password = sequence
         try:
-            user.save(update_fields=["picture_password"])
+            with transaction.atomic():
+                user.save(update_fields=["picture_password"])
         except IntegrityError as e:
             raise SequenceAlreadyAssigned(
                 "Picture password sequence assignment failed due to repeated collisions."
             ) from e
+
+
+def assign_picture_password_if_enabled(user, facility):
+    if facility.dataset.picture_password_settings is None:
+        return
+    if are_picture_passwords_exhausted(user.dataset_id):
+        return
+    try:
+        assign_picture_password(user, facility)
+    except NoAvailableSequences:
+        pass
