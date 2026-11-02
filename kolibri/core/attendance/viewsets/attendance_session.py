@@ -13,6 +13,7 @@ from rest_framework.serializers import BooleanField
 from rest_framework.serializers import IntegerField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import ValidationError
 
 from kolibri.core.api import ValuesViewset
 from kolibri.core.attendance.models import AttendanceRecord
@@ -64,6 +65,12 @@ class AttendanceSessionSerializer(ModelSerializer):
     def validate(self, attrs):
         if not self.instance and "request" in self.context:
             attrs["created_by"] = self.context["request"].user
+        collection = attrs.get("collection") or self.instance.collection
+        if any(
+            record["user"].dataset_id != collection.dataset_id
+            for record in attrs.get("attendance_records", [])
+        ):
+            raise ValidationError({"attendance_records": "Invalid user IDs"})
         return attrs
 
     def create(self, validated_data):
