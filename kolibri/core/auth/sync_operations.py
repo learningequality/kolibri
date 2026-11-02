@@ -393,7 +393,7 @@ class PicturePasswordCollisionOperation(ReceiverDeserializeOperation):
             return transfer_statuses.COMPLETED
 
         local_users = list(
-            FacilityUser.objects.filter(
+            FacilityUser.all_objects.filter(
                 dataset_id=dataset_id,
                 picture_password__in=conflicting_passwords,
             )
