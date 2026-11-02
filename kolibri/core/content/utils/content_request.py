@@ -1262,9 +1262,7 @@ def process_content_removal_requests(queryset):
     """
 
     # Cycle: content_delete imports this module.
-    from kolibri.core.content.utils.content_delete import (  # noqa: PLC0415
-        delete_content,
-    )
+    from kolibri.core.content.utils.content_delete import delete_content  # noqa: PLC0415
 
     # exclude admin imported nodes
     removable_nodes = (

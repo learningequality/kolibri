@@ -7,9 +7,7 @@ from collections import namedtuple
 from typing import ClassVar
 
 from kolibri.core.tasks.constants import NO_VALUE
-from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
-    Priority,
-)
+from kolibri.core.tasks.constants import Priority  # noqa F401 - imported for backwards compatibility
 from kolibri.core.tasks.exceptions import JobNotRunning
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import callable_to_import_path

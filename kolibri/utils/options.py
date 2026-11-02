@@ -261,9 +261,7 @@ def storage_option(value, *opts):
     if value == "gcs":
         try:
             # Checks the optional storages package is installed.
-            from storages.backends.gcloud import (  # noqa: F401, PLC0415
-                GoogleCloudStorage,
-            )
+            from storages.backends.gcloud import GoogleCloudStorage  # noqa: F401, PLC0415
 
             return value
         except ModuleNotFoundError as e:

@@ -498,9 +498,7 @@ def is_full_facility_import(dataset_id):
     from morango.models.certificates import Certificate  # noqa: PLC0415
 
     # Cycle: this pulls in kolibri.utils.conf, which loads plugins that import this module.
-    from kolibri.core.auth.constants.morango_sync import (  # noqa: PLC0415
-        ScopeDefinitions,
-    )
+    from kolibri.core.auth.constants.morango_sync import ScopeDefinitions  # noqa: PLC0415
 
     return (
         Certificate.objects.get(id=dataset_id)

@@ -1623,9 +1623,7 @@ class Role(AbstractFacilityDataModel):
             user.refresh_from_db(fields=["picture_password"])
             if user.picture_password is None and not user.roles.exists():
                 # Deferred to avoid circular import: picture_passwords.py imports from models.py
-                from .utils.picture_passwords import (  # noqa: PLC0415
-                    assign_picture_password_if_enabled,
-                )
+                from .utils.picture_passwords import assign_picture_password_if_enabled  # noqa: PLC0415
 
                 assign_picture_password_if_enabled(user, user.facility)
             return result
@@ -1684,9 +1682,7 @@ class Facility(Collection):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
             # Cycle: device.models imports this module.
-            from kolibri.core.device.models import (  # noqa: PLC0415
-                DEFAULT_DEMOGRAPHIC_FIELDS_KEY,
-            )
+            from kolibri.core.device.models import DEFAULT_DEMOGRAPHIC_FIELDS_KEY  # noqa: PLC0415
 
             kwargs = {}
 
