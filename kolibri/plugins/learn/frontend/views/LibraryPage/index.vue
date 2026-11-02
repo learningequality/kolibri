@@ -21,7 +21,15 @@
       :deviceId="deviceId"
       :route="back"
     >
-      <main class="main-grid">
+      <main
+        class="main-grid"
+        :aria-labelledby="displayingSearchResults ? null : 'library-channels-heading'"
+      >
+        <!--
+          The search bar precedes the h1 in the DOM. Manually overriding
+          means we don't accidentally bypass the search experience entirely
+          for screen reader users.
+        -->
         <!-- Search header: search bar + filter pills grouped together -->
         <div
           class="search-header"
@@ -32,6 +40,7 @@
         >
           <LibrarySearchBar
             v-if="!isLocalLibraryEmpty || deviceId"
+            ref="searchBar"
             data-testid="library-search-bar"
           />
 
@@ -39,6 +48,7 @@
             v-if="!rootNodesLoading && (!isLocalLibraryEmpty || deviceId)"
             data-testid="horizontal-filter-pills"
             @openFilters="showFilterModal = true"
+            @focusLost="focusSearchBar"
           />
         </div>
 
@@ -60,27 +70,20 @@
         >
           <div>
             <h1
-              v-if="!isLocalLibraryEmpty"
+              v-if="!isLocalLibraryEmpty || hasNetworkLibraries"
+              id="library-channels-heading"
               class="channels-label"
             >
               {{ channelsLabel }}
             </h1>
-            <div
-              v-else-if="
-                isLocalLibraryEmpty && isNetworkLibraryAvailable && !isLoadingNetworkLibraries
-              "
+            <p
+              v-if="isLocalLibraryEmpty && hasNetworkLibraries"
+              data-testid="nothing-in-lib-label"
+              class="nothing-in-lib-label"
             >
-              <h1 class="channels-label">
-                {{ channelsLabel }}
-              </h1>
-              <p
-                data-testid="nothing-in-lib-label"
-                class="nothing-in-lib-label"
-              >
-                {{ coreString('nothingInLibraryLearner') }}
-              </p>
-            </div>
-            <NoResourcePage v-else />
+              {{ coreString('nothingInLibraryLearner') }}
+            </p>
+            <NoResourcePage v-else-if="isLocalLibraryEmpty" />
           </div>
 
           <ChannelCardGroupGrid
@@ -281,7 +284,7 @@
         search,
         searchMore,
         currentRoute,
-      } = useSearch();
+      } = useSearch(null, { announceResults: true });
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
 
@@ -442,6 +445,9 @@
       };
     },
     computed: {
+      hasNetworkLibraries() {
+        return this.isNetworkLibraryAvailable && !this.isLoadingNetworkLibraries;
+      },
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
@@ -541,6 +547,11 @@
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
+      },
+      focusSearchBar() {
+        if (this.$refs.searchBar) {
+          this.$refs.searchBar.focus();
+        }
       },
       injecttr(...args) {
         return this.$tr(...args);
