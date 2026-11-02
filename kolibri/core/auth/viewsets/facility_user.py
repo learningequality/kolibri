@@ -553,7 +553,7 @@ class DeletedFacilityUserViewSet(
                 roles__isnull=True,
             )
             .exclude(devicepermissions__is_superuser=True)
-            .select_related("dataset", "facility")
+            .select_related("facility__dataset")
         ):
             assign_picture_password_if_enabled(learner, learner.facility)
 
