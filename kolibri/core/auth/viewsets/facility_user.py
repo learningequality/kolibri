@@ -42,7 +42,6 @@ from kolibri.core.utils.pagination import OptionalPageNumberPagination
 from ..constants import role_kinds
 from ..constants.demographics import DEFERRED
 from ..constants.demographics import NOT_SPECIFIED
-from ..errors import NoAvailableSequences
 from ..models import Collection
 from ..models import Facility
 from ..models import FacilityUser
@@ -52,8 +51,7 @@ from ..models import validate_username_allowed_chars
 from ..models import validate_username_max_length
 from ..permissions import KolibriAuthPermissions
 from ..permissions import KolibriAuthPermissionsFilter
-from ..utils.picture_passwords import are_picture_passwords_exhausted
-from ..utils.picture_passwords import assign_picture_password
+from ..utils.picture_passwords import assign_picture_password_if_enabled
 
 logger = logging.getLogger(__name__)
 
@@ -282,15 +280,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         with transaction.atomic():
             instance = super().create(validated_data)
-            facility = instance.facility
-            if (
-                facility.dataset.picture_password_settings is not None
-                and not are_picture_passwords_exhausted(instance.dataset_id)
-            ):
-                try:
-                    assign_picture_password(instance, instance.facility)
-                except NoAvailableSequences:
-                    pass
+            assign_picture_password_if_enabled(instance, instance.facility)
         return instance
 
     def _validate_extra_demographics(self, attrs, facility):
@@ -554,6 +544,17 @@ class DeletedFacilityUserViewSet(
         if not users.exists():
             raise Http404("No deleted users found to restore.")
 
+        restored_ids = list(users.values_list("id", flat=True))
         users.update(date_deleted=None)
+        for learner in (
+            FacilityUser.objects.filter(
+                id__in=restored_ids,
+                picture_password__isnull=True,
+                roles__isnull=True,
+            )
+            .exclude(devicepermissions__is_superuser=True)
+            .select_related("dataset", "facility")
+        ):
+            assign_picture_password_if_enabled(learner, learner.facility)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
