@@ -4726,6 +4726,18 @@ class RestorePicturePasswordTestCase(APITestCase):
         self.assertIsNone(learner.date_deleted)
         self.assertEqual("1.2.3", learner.picture_password)
 
+    def test_restored_coach_is_not_assigned_a_picture_password(self, mock_cleanup_task):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(coach)
+        self._soft_delete(coach)
+
+        response = self._restore(coach)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        coach.refresh_from_db()
+        self.assertIsNone(coach.date_deleted)
+        self.assertIsNone(coach.picture_password)
+
     def test_restored_superuser_is_not_assigned_a_picture_password(
         self, mock_cleanup_task
     ):
