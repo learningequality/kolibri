@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 import signal
@@ -362,6 +363,8 @@ status_map = {
 
 IS_RUNNING = {STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN}
 
+PID_FILE_REPLACE_TIMEOUT = 1
+
 
 class PIDPlugin(SimplePlugin):
     def __init__(self, bus):
@@ -382,8 +385,26 @@ class PIDPlugin(SimplePlugin):
         """
         if status is None:
             _, _, _, status = _read_pid_file(self.bus.pid_file)
-        with open(self.bus.pid_file, "w") as f:
-            f.write(f"{os.getpid()}\n{self.bus.port}\n{self.bus.zip_port}\n{status}\n")
+        contents = f"{os.getpid()}\n{self.bus.port}\n{self.bus.zip_port}\n{status}\n"
+        tmp_pid_file = f"{self.bus.pid_file}.{os.getpid()}.{threading.get_ident()}.tmp"
+        try:
+            with open(tmp_pid_file, "w") as f:
+                f.write(contents)
+            deadline = time.monotonic() + PID_FILE_REPLACE_TIMEOUT
+            while True:
+                try:
+                    os.replace(tmp_pid_file, self.bus.pid_file)
+                    break
+                except PermissionError:
+                    # Windows refuses os.replace onto a file another handle holds open.
+                    if time.monotonic() >= deadline:
+                        with open(self.bus.pid_file, "w") as f:
+                            f.write(contents)
+                        break
+                    time.sleep(0.01)
+        finally:
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(tmp_pid_file)
 
     def SERVING(self, port):
         self.bus.port = port or self.bus.port
