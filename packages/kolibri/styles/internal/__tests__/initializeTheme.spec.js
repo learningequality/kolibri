@@ -1,4 +1,5 @@
 import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+import logger from 'kolibri-logging';
 import pluginData from 'kolibri-plugin-data';
 import themeConfig from 'kolibri/styles/themeConfig';
 import { validateObject } from 'kolibri/utils/objectSpecs';
@@ -54,6 +55,25 @@ function initializedThemeHookTheme() {
   };
 }
 
+function brandColorScale() {
+  return {
+    v_50: '#F5F7FF',
+    v_100: '#D9E1FD',
+    v_200: '#B4C3FB',
+    v_300: '#8EA4F9',
+    v_400: '#6986F7',
+    v_500: '#4368F5',
+    v_600: '#2547F3',
+  };
+}
+
+function brandColorsTheme() {
+  return {
+    ...initializedThemeHookTheme(),
+    brandColors: { primary: brandColorScale(), secondary: brandColorScale() },
+  };
+}
+
 describe('initializeTheme', () => {
   it('populates every section from spec defaults when the server sends no theme', () => {
     pluginData.kolibriTheme = undefined;
@@ -96,5 +116,31 @@ describe('themeSpec', () => {
   // does not type-check, and validateObject's complaint only reaches a silenced logger.
   it('validates the bundled default theme', () => {
     expect(validateObject(initializedThemeHookTheme(), themeSpec)).toBe(true);
+  });
+
+  it('validates brand scales defining v_50 to v_600', () => {
+    expect(validateObject(brandColorsTheme(), themeSpec)).toBe(true);
+  });
+
+  describe('with error logging enabled', () => {
+    let consoleError;
+
+    beforeEach(() => {
+      consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      logger.setLevel('error');
+    });
+
+    afterEach(() => {
+      logger.setLevel('silent');
+      consoleError.mockRestore();
+    });
+
+    it.each(['primary', 'secondary'])('rejects a %s scale missing v_50', family => {
+      const theme = brandColorsTheme();
+      delete theme.brandColors[family].v_50;
+
+      expect(validateObject(theme, themeSpec)).toBe(false);
+      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining(`${family}.v_50`));
+    });
   });
 });
