@@ -347,19 +347,43 @@ class BaseExamTest:
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
 
-    def test_exam_with_invalid_question_id(self):
-        self.login_as_admin()
+    def _post_exam_with_question_id(self, question_id):
         exam = self.make_basic_exam()
+        exam["title"] = f"Exam {uuid.uuid4().hex}"
         exam["question_sources"][0]["questions"].append(
             {
                 "exercise_id": uuid.uuid4().hex,
-                "question_id": "q1",
+                "question_id": question_id,
                 "title": "Title",
                 "counter_in_exercise": 1,
             }
         )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
+        return self.post_new_exam(exam)
+
+    def test_exam_with_invalid_question_id(self):
+        self.login_as_admin()
+        for question_id in ("1q", "item k3j9x0ab", "item!", "", "q" * 201):
+            with self.subTest(question_id=question_id):
+                response = self._post_exam_with_question_id(question_id)
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(
+                    response.data[0]["metadata"]["field"],
+                    "question_sources.questions.question_id",
+                )
+
+    def test_exam_with_qti_question_ids_succeeds(self):
+        self.login_as_admin()
+        for question_id in (
+            # Studio's QTI id for a converted assessment item (hex_to_qti_id)
+            "KQabcyK22Tx-8YmTmTKtGAA",
+            "Kiqr_v4mwSSKrndkc0pgXpw",
+            # An item authored in Studio's QTI editor (generateRandomSlug("item"))
+            "item_k3j9x0ab",
+            "0" + uuid.uuid4().hex[1:],
+        ):
+            with self.subTest(question_id=question_id):
+                response = self._post_exam_with_question_id(question_id)
+                self.assertEqual(response.status_code, 201)
 
     def test_exam_with_no_question_id_fails(self):
         self.login_as_admin()
@@ -981,6 +1005,18 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         except models.Exam.DoesNotExist:
             self.fail("Exam not created")
         super().assertLearnerAssignments(exam.id, user)
+
+    def test_logged_in_admin_exam_update_question_sources_with_qti_question_id(self):
+        self.login_as_admin()
+        sections = self.make_basic_sections(1)
+        sections[0]["questions"][0]["question_id"] = "KQabcyK22Tx-8YmTmTKtGAA"
+        response = self.patch_updated_exam(self.exam.id, {"question_sources": sections})
+        self.assertEqual(response.status_code, 200)
+        self.exam.refresh_from_db()
+        self.assertEqual(
+            self.exam.question_sources[0]["questions"][0]["question_id"],
+            "KQabcyK22Tx-8YmTmTKtGAA",
+        )
 
     def test_logged_in_admin_exam_cant_update_active(self):
         self.login_as_admin()
