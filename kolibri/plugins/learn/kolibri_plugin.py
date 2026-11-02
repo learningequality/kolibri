@@ -64,12 +64,8 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
         from kolibri.core.content.models import ContentNode  # noqa: PLC0415
 
         # Cycle: well_known imports kolibri.utils.conf, which registers this plugin.
-        from kolibri.core.discovery.well_known import (  # noqa: PLC0415
-            CENTRAL_CONTENT_BASE_INSTANCE_ID,
-        )
-        from kolibri.core.discovery.well_known import (  # noqa: PLC0415
-            CENTRAL_CONTENT_BASE_URL,
-        )
+        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID  # noqa: PLC0415
+        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL  # noqa: PLC0415
 
         courses_exist = ContentNode.objects.filter(
             available=True, modality=modalities.COURSE

@@ -146,9 +146,7 @@ class LocalSearchHandler(SearchHandler):
     @_close_db_connection_after
     def _get_item_ids_for_search(search: str) -> list:
         # Needs init_kolibri() to have set up Django.
-        from kolibri.core.content.viewsets.contentnode.base import (  # noqa: PLC0415
-            ContentNodeViewset,
-        )
+        from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset  # noqa: PLC0415
         from kolibri.dist.rest_framework.test import APIRequestFactory  # noqa: PLC0415
 
         request = APIRequestFactory().get("", {"search": search, "max_results": 10})
@@ -170,9 +168,7 @@ class LocalSearchHandler(SearchHandler):
     @staticmethod
     def _get_metadata_for_item_id(item_id: str) -> dict:
         # Needs init_kolibri() to have set up Django.
-        from kolibri.core.content.viewsets.contentnode.base import (  # noqa: PLC0415
-            ContentNodeViewset,
-        )
+        from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset  # noqa: PLC0415
         from kolibri.dist.rest_framework.test import APIRequestFactory  # noqa: PLC0415
 
         node_id = SearchHandler._item_id_to_node_id(item_id)

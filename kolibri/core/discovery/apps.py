@@ -11,9 +11,7 @@ def _seed_reserved_locations(sender, **kwargs):
     if (router.db_for_write(NetworkLocation) or "default") != using:
         return
     # apps.py is imported before the app registry is ready.
-    from kolibri.core.discovery.tasks import (  # noqa: PLC0415
-        _refresh_reserved_locations,
-    )
+    from kolibri.core.discovery.tasks import _refresh_reserved_locations  # noqa: PLC0415
 
     _refresh_reserved_locations()
 

@@ -10,12 +10,8 @@ class KolibriAuthConfig(AppConfig):
         # apps.py is imported before the app registry is ready.
         from morango.api.viewsets import session_controller  # noqa: PLC0415
 
-        from kolibri.core.auth.sync_event_hook_utils import (  # noqa: PLC0415
-            post_sync_transfer_handler,
-        )
-        from kolibri.core.auth.sync_event_hook_utils import (  # noqa: PLC0415
-            pre_sync_transfer_handler,
-        )
+        from kolibri.core.auth.sync_event_hook_utils import post_sync_transfer_handler  # noqa: PLC0415
+        from kolibri.core.auth.sync_event_hook_utils import pre_sync_transfer_handler  # noqa: PLC0415
 
         from .signals import cascade_delete_membership  # noqa: F401, PLC0415
         from .signals import cascade_delete_user  # noqa: F401, PLC0415

@@ -300,9 +300,7 @@ class ZeroConfPlugin(Monitor):
         )
 
         # The CLI imports this module before Django setup.
-        from kolibri.core.discovery.utils.network.search import (  # noqa: PLC0415
-            NetworkLocationListener,
-        )
+        from kolibri.core.discovery.utils.network.search import NetworkLocationListener  # noqa: PLC0415
 
         instance = build_broadcast_instance(self.port)
 
