@@ -8,6 +8,7 @@
       class="modal-overlay"
       role="presentation"
       @keyup.esc.stop="emitCloseEvent"
+      @keydown.enter="enterPressedInModal = true"
       @keyup.enter="goToNextContentNode"
     >
       <div
@@ -250,6 +251,7 @@
          */
         nextContentNode: null,
         loading: true,
+        enterPressedInModal: false,
       };
     },
     computed: {
@@ -331,6 +333,9 @@
       }
       Promise.all(promises).then(() => {
         this.loading = false;
+        this.$nextTick(() => {
+          this.focusFirstEl();
+        });
       });
     },
     beforeMount() {
@@ -342,10 +347,12 @@
       this.$nextTick(() => {
         this.focusFirstEl();
       });
+      window.addEventListener('focus', this.focusElementTest, true);
     },
     destroyed() {
       // Restore scrollbars to <html> tag
       window.document.documentElement.style['overflow'] = '';
+      window.removeEventListener('focus', this.focusElementTest, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       // (setTimeout(fn, 0) will execute the next event cycle, as soon as the main thread stack
@@ -399,7 +406,9 @@
         this.$emit('close');
       },
       goToNextContentNode() {
-        this.$router.push(this.nextContentNodeRoute);
+        if (this.enterPressedInModal && this.nextContentNode) {
+          this.$router.push(this.nextContentNodeRoute);
+        }
       },
       /**
        * Handles focus events to trap focus within the modal when appropriate.
@@ -430,8 +439,14 @@
         }
         // focus has escaped the modal - put it back!
         if (!this.$refs.modal.contains(target)) {
+          if (this.lastFocus === document.body || !this.lastFocus.isConnected) {
+            this.lastFocus = target;
+          }
           this.focusModal();
         }
+      },
+      focusModal() {
+        this.$refs.modal.focus();
       },
       focusFirstEl() {
         if (this.nextContentNode && this.$refs.nextContentNodeSection) {

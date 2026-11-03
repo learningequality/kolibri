@@ -4,13 +4,17 @@
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="
-          !(rootNodesLoading || searchLoading) && welcomeModalVisible && !picturePasswordPending
+          !sidePanelOpen &&
+            !(rootNodesLoading || searchLoading) &&
+            welcomeModalVisible &&
+            !picturePasswordPending
         "
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
       <MeteredConnectionNotificationModal
         v-else-if="usingMeteredConnection"
+        :suppressed="sidePanelOpen"
         @update="value => (allowDownloadOnMeteredConnection = value)"
       />
     </transition>
@@ -452,6 +456,9 @@
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
+      sidePanelOpen() {
+        return this.showFilterModal || Boolean(this.metadataSidePanelContent);
+      },
       allowDownloads() {
         return this.canAddDownloads && Boolean(this.deviceId);
       },

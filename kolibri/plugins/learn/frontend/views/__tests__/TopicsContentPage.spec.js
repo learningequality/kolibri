@@ -1,14 +1,20 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import flushPromises from 'flush-promises';
 import client from 'kolibri/client';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
 import Modalities from 'kolibri-constants/Modalities';
+import { ContentErrorConstants } from 'kolibri/constants';
+import AddDeviceForm from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/AddDeviceForm';
 // eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import makeStore from '../../__tests__/utils/makeStore';
 import TopicsContentPage from '../TopicsContentPage';
+import LearningActivityBar from '../LearningActivityBar';
+import CompletionModal from '../CompletionModal';
+import { learnStrings } from '../commonLearnStrings';
 /* eslint-disable import-x/named */
 import useDownloadRequests, {
   useDownloadRequestsMock,
@@ -31,6 +37,8 @@ jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () 
 
 const CONTENT_ID = 'content-id';
 const CHANNEL_ID = 'channel-id';
+const PANEL_RESOURCE_TITLE = 'Resource in a panel';
+const PANEL_TOPIC_TITLE = 'Topic in a panel';
 
 const localVue = createLocalVue();
 
@@ -288,6 +296,103 @@ describe('TopicsContentPage', () => {
           });
         });
       });
+    });
+  });
+
+  describe.each([
+    {
+      panel: 'information',
+      openButtonName: coreStrings.viewInformation$(),
+      panelName: PANEL_RESOURCE_TITLE,
+    },
+    {
+      panel: 'view resources',
+      openButtonName: crossComponentTranslator(LearningActivityBar).$tr('viewTopicResources'),
+      panelName: PANEL_TOPIC_TITLE,
+    },
+  ])('with the $panel side panel open', ({ openButtonName, panelName }) => {
+    const RESOURCE = {
+      id: CONTENT_ID,
+      content_id: 'content-content-id',
+      channel_id: CHANNEL_ID,
+      kind: 'document',
+      title: PANEL_RESOURCE_TITLE,
+      ancestors: [{ id: 'root', title: PANEL_TOPIC_TITLE }],
+      parent: 'root',
+      files: [],
+      options: {},
+      assessmentmetadata: null,
+    };
+    const FAIL_TO_LOAD = 'Fail to load';
+    const FINISH = 'Finish';
+    const ContentViewer = {
+      template: `
+        <div>
+          <button @click="$emit('error', { error: '${ContentErrorConstants.LOADING_ERROR}' })">
+            ${FAIL_TO_LOAD}
+          </button>
+          <button @click="$emit('finished')">${FINISH}</button>
+        </div>
+      `,
+    };
+
+    afterEach(() => {
+      client.__reset();
+    });
+
+    async function renderRemoteContentWithPanel() {
+      ContentNodeResource.retrieve.mockResolvedValue(RESOURCE);
+      ContentNodeResource.fetchTree.mockResolvedValue({ children: { results: [] } });
+      render(TopicsContentPage, {
+        props: { id: CONTENT_ID, deviceId: 'remote-device-id' },
+        store: makeStore(),
+        routes: [],
+        // eslint-disable-next-line kolibri/tests-no-stubs
+        stubs: { ContentViewer },
+      });
+      await flushPromises();
+      const openButton = await screen.findByRole('button', { name: openButtonName });
+      openButton.focus();
+      await fireEvent.click(openButton);
+      await flushPromises();
+      expect(screen.getByRole('dialog', { name: panelName })).toBeInTheDocument();
+    }
+
+    function flushFocusRestore() {
+      return new Promise(resolve => setTimeout(resolve));
+    }
+
+    it('closes the panel when the remote content fails to load', async () => {
+      await renderRemoteContentWithPanel();
+      await fireEvent.click(screen.getByRole('button', { name: FAIL_TO_LOAD }));
+      await flushPromises();
+      expect(screen.queryByRole('dialog', { name: panelName })).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('dialog', {
+          name: crossComponentTranslator(AddDeviceForm).$tr('errorCouldNotConnect'),
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('closes the panel and keeps focus in the completion modal', async () => {
+      client.__setPayload({ complete: true, progress: 0.5, extra_fields: {} });
+      await renderRemoteContentWithPanel();
+      await fireEvent.click(screen.getByRole('button', { name: FINISH }));
+      await flushPromises();
+      await flushFocusRestore();
+      await flushPromises();
+      expect(screen.queryByRole('dialog', { name: panelName })).not.toBeInTheDocument();
+      const completionModal = screen.getByRole('dialog', {
+        name: learnStrings.resourceCompletedLabel$(),
+      });
+      expect(completionModal).toContainElement(document.activeElement);
+      await fireEvent.click(
+        screen.getByRole('button', {
+          name: crossComponentTranslator(CompletionModal).$tr('stayButtonLabel'),
+        }),
+      );
+      await flushFocusRestore();
+      expect(screen.getByRole('button', { name: openButtonName })).toHaveFocus();
     });
   });
 

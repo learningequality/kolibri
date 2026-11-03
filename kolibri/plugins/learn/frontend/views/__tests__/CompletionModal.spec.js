@@ -1,5 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
+/* eslint-disable import-x/named */
+import useContentLink, { useContentLinkMock } from '../../composables/useContentLink';
+import useLearnerResources, {
+  useLearnerResourcesMock,
+} from '../../composables/useLearnerResources';
+/* eslint-enable import-x/named */
 
 import CompletionModal from '../CompletionModal';
 
@@ -13,6 +21,8 @@ jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow', () => ({
   default: () => ({ windowBreakpoint: 2, windowHeight: 768, windowWidth: 1024 }),
 }));
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
+
+const STAY_BUTTON_LABEL = crossComponentTranslator(CompletionModal).$tr('stayButtonLabel');
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -54,6 +64,81 @@ describe('CompletionModal', () => {
     const wrapper = makeWrapper();
 
     expect(wrapper.exists()).toBe(true);
+  });
+
+  it('focuses its first section button once its content loads', async () => {
+    render(CompletionModal, {
+      routes: [],
+      props: {
+        contentNode: { id: 'test-content-node', ancestors: [], parent: 'test-parent' },
+        isUserLoggedIn: true,
+      },
+    });
+    const stayButton = await screen.findByRole('button', {
+      name: STAY_BUTTON_LABEL,
+    });
+    await waitFor(() => expect(stayButton).toHaveFocus());
+  });
+
+  describe('on Enter', () => {
+    const NEXT_ROUTE = '/next';
+
+    async function renderWithNextResource(lessonResources) {
+      useLearnerResources.mockImplementation(() =>
+        useLearnerResourcesMock({
+          fetchLesson: jest.fn().mockResolvedValue({ resources: lessonResources }),
+        }),
+      );
+      useContentLink.mockImplementation(() =>
+        useContentLinkMock({ genContentLinkKeepCurrentBackLink: jest.fn(() => NEXT_ROUTE) }),
+      );
+      const router = new VueRouter({ mode: 'abstract', routes: [{ path: NEXT_ROUTE }] });
+      render(CompletionModal, {
+        routes: router,
+        props: {
+          contentNode: { id: 'test-content-node', ancestors: [], parent: 'test-parent' },
+          isUserLoggedIn: true,
+          lessonId: 'lesson-id',
+        },
+      });
+      await screen.findByRole('button', {
+        name: STAY_BUTTON_LABEL,
+      });
+      return router;
+    }
+
+    const LESSON_WITH_NEXT = [
+      { contentnode_id: 'test-content-node' },
+      { contentnode_id: 'next-node', contentnode: { id: 'next-node', title: 'Next resource' } },
+    ];
+
+    async function pressEnter(element) {
+      await fireEvent.keyDown(element, { key: 'Enter' });
+      await fireEvent.keyUp(element, { key: 'Enter' });
+    }
+
+    afterEach(() => {
+      useLearnerResources.mockImplementation(() => useLearnerResourcesMock());
+      useContentLink.mockImplementation(() => useContentLinkMock());
+    });
+
+    it('moves on to the next resource', async () => {
+      const router = await renderWithNextResource(LESSON_WITH_NEXT);
+      await pressEnter(screen.getByRole('dialog'));
+      expect(router.currentRoute.path).toBe(NEXT_ROUTE);
+    });
+
+    it('ignores the keyup of an Enter pressed before it opened', async () => {
+      const router = await renderWithNextResource(LESSON_WITH_NEXT);
+      await fireEvent.keyUp(screen.getByRole('dialog'), { key: 'Enter' });
+      expect(router.currentRoute.path).not.toBe(NEXT_ROUTE);
+    });
+
+    it('stays put on the last resource', async () => {
+      const router = await renderWithNextResource([{ contentnode_id: 'test-content-node' }]);
+      await pressEnter(screen.getByRole('dialog'));
+      expect(router.currentRoute.path).not.toBe(NEXT_ROUTE);
+    });
   });
 
   it('displays close button', () => {

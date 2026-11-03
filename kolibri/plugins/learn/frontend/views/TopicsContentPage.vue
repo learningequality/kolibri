@@ -74,6 +74,7 @@
         @mounted="contentPageMounted = true"
         @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
         @error="onError"
+        @completionModalShown="closeSidePanels"
       />
     </div>
 
@@ -693,8 +694,13 @@
       handleRemoteDownloadRequest() {
         this.addDownloadRequest(this.content);
       },
+      closeSidePanels() {
+        this.sidePanelContent = null;
+        this.showViewResourcesSidePanel = false;
+      },
       onError(error) {
         if (error && error.error === ContentErrorConstants.LOADING_ERROR && this.deviceId) {
+          this.closeSidePanels();
           this.showConnectionErrorModal = true;
         }
       },
