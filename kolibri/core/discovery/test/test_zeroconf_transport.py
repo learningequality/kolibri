@@ -25,6 +25,7 @@ from ..utils.network.broadcast import SERVICE_TYPE
 from ..utils.network.search import NetworkLocationListener
 from ..utils.network.zeroconf_transport import BARE_LOCAL_LABEL
 from ..utils.network.zeroconf_transport import EVENT_UPDATE_LOCAL_NAMES
+from ..utils.network.zeroconf_transport import LOCAL_ALIAS_TYPE_BARE
 from ..utils.network.zeroconf_transport import LOCAL_NAME_BARE
 from ..utils.network.zeroconf_transport import LOCAL_NAME_DEVICE
 from ..utils.network.zeroconf_transport import slugify_device_name
@@ -43,7 +44,6 @@ MOCK_LAN_IP = "192.168.1.5"
 # naive min() over the LAN-filtered addresses would wrongly pick it.
 MOCK_SECONDARY_LAN_IP = "172.27.63.113"
 MOCK_CGNAT_IP = "100.64.0.5"  # Tailscale-style CGNAT address, not LAN-reachable
-MOCK_LINK_LOCAL_IP = "169.254.1.1"
 LOOPBACK_IP = "127.0.0.1"
 # seconds; covers `register_service` probing and a peer answering a query
 DISCOVERY_TIMEOUT = 15
@@ -115,7 +115,7 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
         get_all_addresses_patcher = mock.patch(
             ZEROCONF_MODULE + "get_all_addresses", return_value=[MOCK_LAN_IP]
         )
-        get_all_addresses_patcher.start()
+        self.mock_get_all_addresses = get_all_addresses_patcher.start()
         self.addCleanup(get_all_addresses_patcher.stop)
         adapters_patcher = mock.patch(
             SERVER_MODULE + "ifaddr.get_adapters",
@@ -460,6 +460,111 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
             interfaces=self.transport.interfaces
         )
 
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_with_instance_publishes_local_names_once_on_rebind(self):
+        self._register_with_device_name("Some Name")
+        self.zeroconf.interfaces = [MOCK_INTERFACE_IP]
+        self.listener.mock.update_local_names.reset_mock()
+        self.transport.update(self.instance, mock.Mock())
+        self.listener.mock.update_local_names.assert_called_once()
+
+    def _rebind_without_instance(
+        self, adapters, initial_adapters=(("wlan0", MOCK_LAN_IP),)
+    ):
+        self.mock_get_adapters.return_value = build_adapters(*initial_adapters)
+        self._register_with_device_name("Some Name")
+        self.zeroconf.interfaces = [ip for _, ip in initial_adapters]
+        self.mock_get_adapters.return_value = build_adapters(*adapters)
+        self.mock_get_all_addresses.return_value = [ip for _, ip in adapters]
+        self.transport.update(None, mock.Mock())
+        return {
+            key: local_name.service.address
+            for key, local_name in self.transport.local_names.items()
+        }
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_without_instance_points_local_names_at_new_lan_address(self):
+        new_lan_ip = "192.168.1.9"
+        self.assertEqual(
+            dict.fromkeys(
+                (LOCAL_NAME_BARE, LOCAL_NAME_DEVICE), socket.inet_aton(new_lan_ip)
+            ),
+            self._rebind_without_instance([("wlan0", new_lan_ip)]),
+        )
+
+    def _announced(self):
+        return [call[0][0] for call in self.zeroconf.update_service.call_args_list]
+
+    def _local_name_services(self):
+        return [
+            local_name.service for local_name in self.transport.local_names.values()
+        ]
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_without_instance_announces_local_names_moved_to_surviving_interface(
+        self,
+    ):
+        self.mock_outgoing_interface_address.return_value = "192.168.20.200"
+        self._rebind_without_instance(
+            [("wlan0", "192.168.20.76")],
+            initial_adapters=(("eth0", "192.168.20.200"), ("wlan0", "192.168.20.76")),
+        )
+        self.assertCountEqual(self._local_name_services(), self._announced())
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_with_instance_announces_moved_local_names_on_rebind(self):
+        self._register_with_device_name("Some Name")
+        self.zeroconf.interfaces = [MOCK_LAN_IP]
+        self.mock_get_adapters.return_value = build_adapters(("wlan0", "192.168.1.9"))
+        self.mock_get_all_addresses.return_value = ["192.168.1.9"]
+        self.transport.update(self.instance, mock.Mock())
+        self.assertCountEqual(self._local_name_services(), self._announced())
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_without_instance_unregisters_local_names_when_lan_lost(self):
+        self.assertEqual({}, self._rebind_without_instance([]))
+        self.listener.mock.update_local_names.assert_called_with([])
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_without_instance_publishes_local_names_when_lan_arrives(self):
+        self._rebind_without_instance([("wlan0", MOCK_LAN_IP)], initial_adapters=())
+        self.assertEqual(
+            {"kolibri.local", "somename.local"},
+            set(self.listener.mock.update_local_names.call_args[0][0]),
+        )
+
+    def _call_names(self):
+        return [name for name, _, _ in self.zeroconf.mock_calls]
+
+    def _assert_local_names_claimed_after_rebind(self):
+        names = self._call_names()
+        self.assertEqual(2, names.count("register_service"))
+        self.assertLess(
+            names.index("update_interfaces"), names.index("register_service")
+        )
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_without_instance_claims_local_names_after_joining_new_lan(self):
+        self.mock_get_adapters.return_value = build_adapters()
+        self._register_with_device_name("Some Name")
+        self.zeroconf.interfaces = []
+        self.zeroconf.reset_mock()
+        self.mock_get_adapters.return_value = build_adapters(("wlan0", MOCK_LAN_IP))
+        self.mock_get_all_addresses.return_value = [MOCK_LAN_IP]
+        self.transport.update(None, mock.Mock())
+        self._assert_local_names_claimed_after_rebind()
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_update_with_instance_claims_local_names_after_joining_new_lan(self):
+        self.mock_get_adapters.return_value = build_adapters()
+        self._register_with_device_name("Some Name")
+        self.zeroconf.interfaces = []
+        self.zeroconf.reset_mock()
+        self.mock_get_adapters.return_value = build_adapters(("wlan0", MOCK_LAN_IP))
+        self.mock_get_all_addresses.return_value = [MOCK_LAN_IP]
+        self.transport.update(self.instance, mock.Mock())
+        self._assert_local_names_claimed_after_rebind()
+
     def test_local_name_event_listener_error_propagates(self):
         # A raising local-name listener must surface its own exception, not an
         # AttributeError from a bus with no `throws` configured.
@@ -683,7 +788,7 @@ class ZeroconfRebindTestCase(TestCase):
         self.get_all_addresses = self._patch(
             ZEROCONF_MODULE + "get_all_addresses", return_value=[LOOPBACK_IP]
         )
-        self._patch(
+        self.adapters = self._patch(
             SERVER_MODULE + "ifaddr.get_adapters",
             return_value=build_adapters(("lo", LOOPBACK_IP)),
         )
@@ -771,6 +876,14 @@ class ZeroconfRebindTestCase(TestCase):
         self._rebind()
         self._run_tasks_until_stored(peer_id)
 
+    def test_alias_query_without_lan_address_keeps_discovery_running(self):
+        _, peer = self._advertise()
+        peer.get_service_info(
+            LOCAL_ALIAS_TYPE_BARE, f"{BARE_LOCAL_LABEL}.{LOCAL_ALIAS_TYPE_BARE}"
+        )
+        peer_id, _ = self._advertise()
+        self._run_tasks_until_stored(peer_id)
+
     @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
     def test_rebind_drops_a_peer_that_stopped_advertising(self):
         gone_id, gone = self._advertise()
@@ -783,3 +896,22 @@ class ZeroconfRebindTestCase(TestCase):
         late_id, _ = self._advertise()
         self._run_tasks_until_stored(late_id)
         self.assertEqual({late_id: self.backend.id}, self._stored())
+
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
+    def test_reclaims_local_names_after_lan_drop_whose_goodbye_was_lost(self):
+        transport = self.backend.transport
+        transport.instance.device_info["device_name"] = "Some Name"
+        on_lan = build_adapters(("wlan0", MOCK_LAN_IP))
+        self.adapters.return_value = on_lan
+        transport.renew()
+        self.assertEqual(
+            {LOCAL_NAME_BARE, LOCAL_NAME_DEVICE}, set(transport.local_names)
+        )
+        self.adapters.return_value = build_adapters(("lo", LOOPBACK_IP))
+        with mock.patch.object(transport.zeroconf, "send"):
+            self._rebind()
+        self.adapters.return_value = on_lan
+        transport.renew()
+        self.assertEqual(
+            {LOCAL_NAME_BARE, LOCAL_NAME_DEVICE}, set(transport.local_names)
+        )

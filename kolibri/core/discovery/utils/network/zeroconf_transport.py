@@ -191,7 +191,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         # also does `check_service` internally, but it should pass by this point
         self.zeroconf.register_service(service, ttl=service.ttl)
         self.instance.set_broadcasting(service, is_self=True)
-        self._sync_local_names(True, get_lan_address())
+        self._claim_local_names(get_lan_address())
 
     def renew(self, do_broadcast=True):
         """
@@ -202,17 +202,10 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         if not self.is_broadcasting:
             return
 
-        logger.info(
-            "Updating ourselves to zeroconf network with id '%s' and port '%s'",
-            self.instance.zeroconf_id,
-            self.instance.port,
-        )
-        service = self.instance.to_service_info()
-        self._announce(service, do_broadcast)
-
-        # even though may not have actually broadcast, we still set that we're broadcasting
-        self.instance.set_broadcasting(service, is_self=True)
-        self._sync_local_names(do_broadcast, get_lan_address())
+        lan_address = get_lan_address()
+        self._announce_instance(do_broadcast)
+        self._move_local_names(do_broadcast, lan_address)
+        self._claim_local_names(lan_address)
 
     def update(self, instance, on_rebind):
         """
@@ -223,22 +216,40 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         :param on_rebind: Called before we rebind, so the backend has cycled
             its broadcast id by the time the rebind rediscovers peers
         """
-        # compute first: it decides whether we broadcast the renewal now (we
-        # skip broadcasting if we're about to rebind interfaces anyway)
-        addresses_changed = self._addresses_changed
-
         if instance is not None:
             self.instance = instance
-            self.renew(do_broadcast=not addresses_changed)
 
-        if addresses_changed:
-            logger.info(
-                "List of local addresses has changed since zeroconf was last initialized, updating now"
-            )
-            on_rebind()
-            # `update_interfaces` will broadcast the new instance if it was updated
-            self.zeroconf.update_interfaces(interfaces=self.interfaces)
-            self._rebrowse()
+        if not self._addresses_changed:
+            if instance is not None:
+                self.renew()
+            return
+
+        lan_address = get_lan_address()
+        # skip broadcasting now: `update_interfaces` broadcasts the new instance
+        if instance is not None:
+            self._announce_instance(do_broadcast=False)
+        self._move_local_names(False, lan_address)
+
+        logger.info(
+            "List of local addresses has changed since zeroconf was last initialized, updating now"
+        )
+        on_rebind()
+        self.zeroconf.update_interfaces(interfaces=self.interfaces)
+        # Zeroconf 0.19.17 probes a name only on interfaces joined before `update_interfaces`
+        self._claim_local_names(lan_address)
+        self._rebrowse()
+
+    def _announce_instance(self, do_broadcast):
+        logger.info(
+            "Updating ourselves to zeroconf network with id '%s' and port '%s'",
+            self.instance.zeroconf_id,
+            self.instance.port,
+        )
+        service = self.instance.to_service_info()
+        self._announce(service, do_broadcast)
+
+        # even though may not have actually broadcast, we still set that we're broadcasting
+        self.instance.set_broadcasting(service, is_self=True)
 
     def unregister(self):
         """Stops advertising our instance and drops our `.local` aliases."""
@@ -247,9 +258,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
 
         if self.instance.service_info is not None:
             self.zeroconf.unregister_service(self.instance.service_info)
-        for local_name in self.local_names.values():
-            self.zeroconf.unregister_service(local_name.service)
-        self.local_names = {}
+        self._unregister_local_names()
         self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
         self.instance.reset_broadcasting()
 
@@ -390,7 +399,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             type_,
             f"{label}.{type_}",
             server=server,
-            address=_packed_lan_address(lan_address),
+            address=socket.inet_aton(lan_address),
             port=self.instance.port or DEFAULT_PORT,
             properties={},
         )
@@ -405,12 +414,38 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             return
         self.local_names[key] = LocalName(label, service)
 
-    def _register_local_names(self, lan_address):
-        """Registers the bare `kolibri.local` name and the device-name alias."""
-        self._register_local_name(
-            LOCAL_NAME_BARE, LOCAL_ALIAS_TYPE_BARE, BARE_LOCAL_LABEL, lan_address
-        )
-        self._update_device_name_alias(lan_address)
+    def _move_local_names(self, do_broadcast, lan_address):
+        """Zeroconf's engine thread dies answering a query for a record whose address is None."""
+        if lan_address is None:
+            self._unregister_local_names()
+        else:
+            self._broadcast_local_names(do_broadcast, lan_address)
+
+    def _claim_local_names(self, lan_address):
+        if lan_address is not None:
+            if LOCAL_NAME_BARE not in self.local_names:
+                self._register_local_name(
+                    LOCAL_NAME_BARE,
+                    LOCAL_ALIAS_TYPE_BARE,
+                    BARE_LOCAL_LABEL,
+                    lan_address,
+                )
+            self._update_device_name_alias(lan_address)
+        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
+
+    def _unregister_local_names(self):
+        for local_name in self.local_names.values():
+            self._unregister_local_name(local_name.service)
+        self.local_names = {}
+
+    def _unregister_local_name(self, service):
+        self.zeroconf.unregister_service(service)
+        # Zeroconf 0.19's `check_service` takes our own looped-back pointer for
+        # a conflict, and the goodbye that expires it is lost on a dropped LAN
+        cache = self.zeroconf.cache
+        for record in list(cache.entries_with_name(service.type)):
+            if getattr(record, "alias", None) == service.name:
+                cache.remove(record)
 
     def _update_device_name_alias(self, lan_address):
         """
@@ -423,7 +458,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         if current is not None:
             if current.label == slug:
                 return
-            self.zeroconf.unregister_service(current.service)
+            self._unregister_local_name(current.service)
             del self.local_names[LOCAL_NAME_DEVICE]
         if slug:
             self._register_local_name(
@@ -431,12 +466,13 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             )
 
     def _broadcast_local_names(self, do_broadcast, lan_address):
-        """Re-announces already-claimed local names, e.g. after a port or LAN address change."""
-        address = _packed_lan_address(lan_address)
+        """Zeroconf's `update_interfaces` only announces services on newly added interfaces."""
+        address = socket.inet_aton(lan_address)
         for local_name in self.local_names.values():
+            moved = local_name.service.address != address
             local_name.service.port = self.instance.port or DEFAULT_PORT
             local_name.service.address = address
-            self._announce(local_name.service, do_broadcast)
+            self._announce(local_name.service, do_broadcast or moved)
 
     def _build_instance(self, service_info):
         """
