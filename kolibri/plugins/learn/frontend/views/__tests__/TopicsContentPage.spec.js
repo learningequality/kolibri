@@ -39,6 +39,7 @@ const CONTENT_ID = 'content-id';
 const CHANNEL_ID = 'channel-id';
 const PANEL_RESOURCE_TITLE = 'Resource in a panel';
 const PANEL_TOPIC_TITLE = 'Topic in a panel';
+const STAY_BUTTON_LABEL = crossComponentTranslator(CompletionModal).$tr('stayButtonLabel');
 
 const localVue = createLocalVue();
 
@@ -142,6 +143,7 @@ describe('TopicsContentPage', () => {
     // reset back to defaults
     useDownloadRequests.mockImplementation(() => useDownloadRequestsMock());
     useChannels.mockImplementation(() => useChannelsMock());
+    client.__reset();
   });
 
   it('smoke test', async () => {
@@ -336,10 +338,6 @@ describe('TopicsContentPage', () => {
       `,
     };
 
-    afterEach(() => {
-      client.__reset();
-    });
-
     async function renderRemoteContentWithPanel() {
       ContentNodeResource.retrieve.mockResolvedValue(RESOURCE);
       ContentNodeResource.fetchTree.mockResolvedValue({ children: { results: [] } });
@@ -386,11 +384,7 @@ describe('TopicsContentPage', () => {
         name: learnStrings.resourceCompletedLabel$(),
       });
       expect(completionModal).toContainElement(document.activeElement);
-      await fireEvent.click(
-        screen.getByRole('button', {
-          name: crossComponentTranslator(CompletionModal).$tr('stayButtonLabel'),
-        }),
-      );
+      await fireEvent.click(screen.getByRole('button', { name: STAY_BUTTON_LABEL }));
       await flushFocusRestore();
       expect(screen.getByRole('button', { name: openButtonName })).toHaveFocus();
     });
@@ -422,9 +416,15 @@ describe('TopicsContentPage', () => {
       },
     };
 
-    async function renderPage(content) {
+    async function renderPage(content, { stubs } = {}) {
       ContentNodeResource.retrieve.mockResolvedValue(content);
-      render(TopicsContentPage, { props: { id: CONTENT_ID }, store: makeStore(), routes: [] });
+      render(TopicsContentPage, {
+        props: { id: CONTENT_ID },
+        store: makeStore(),
+        routes: [],
+        // eslint-disable-next-line kolibri/tests-no-stubs
+        stubs,
+      });
       await flushPromises();
     }
 
@@ -441,6 +441,35 @@ describe('TopicsContentPage', () => {
       expect(headings).toHaveLength(1);
       expect(headings[0]).toHaveTextContent(`${RESOURCE_TITLE} - ${CHANNEL_TITLE}`);
       expect(headings[0]).toHaveClass('visuallyhidden');
+    });
+
+    it('keeps the page h1 the only one outside the completion modal', async () => {
+      client.__setPayload({ complete: true, progress: 0.5, extra_fields: {} });
+      const FINISH = 'Finish';
+      ContentNodeResource.fetchTree.mockResolvedValue({ children: { results: [] } });
+      await renderPage(resource, {
+        stubs: {
+          ContentViewer: { template: `<button @click="$emit('finished')">${FINISH}</button>` },
+        },
+      });
+      const pageHeading = `${RESOURCE_TITLE} - ${CHANNEL_TITLE}`;
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(pageHeading);
+
+      await fireEvent.click(screen.getByRole('button', { name: FINISH }));
+      await flushPromises();
+      const completionModal = screen.getByRole('dialog', {
+        name: learnStrings.resourceCompletedLabel$(),
+      });
+      expect(completionModal).toHaveAttribute('aria-modal', 'true');
+      const outsideModal = screen
+        .getAllByRole('heading', { level: 1 })
+        .filter(heading => !heading.closest('[aria-modal="true"]'));
+      expect(outsideModal).toHaveLength(1);
+      expect(outsideModal[0]).toHaveTextContent(pageHeading);
+
+      await fireEvent.click(screen.getByRole('button', { name: STAY_BUTTON_LABEL }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(pageHeading);
     });
 
     it("leaves a practice quiz's question heading as its only h1", async () => {

@@ -16,6 +16,7 @@
         class="modal"
         :tabindex="0"
         role="dialog"
+        aria-modal="true"
         aria-labelledby="modal-title"
         :style="[modalSizeStyles, { background: 'var(--tokens-surface)' }]"
       >
@@ -453,6 +454,8 @@
           this.$refs.nextContentNodeSection.getButtonRef().$el.focus();
         } else if (this.$refs.staySection) {
           this.$refs.staySection.getButtonRef().$el.focus();
+        } else {
+          this.focusModal();
         }
       },
     },

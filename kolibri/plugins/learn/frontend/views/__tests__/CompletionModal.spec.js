@@ -80,6 +80,22 @@ describe('CompletionModal', () => {
     await waitFor(() => expect(stayButton).toHaveFocus());
   });
 
+  it('focuses the dialog while its content loads', async () => {
+    useLearnerResources.mockImplementationOnce(() =>
+      useLearnerResourcesMock({ fetchLesson: jest.fn(() => new Promise(() => {})) }),
+    );
+    render(CompletionModal, {
+      routes: [],
+      props: {
+        contentNode: { id: 'test-content-node', ancestors: [], parent: 'test-parent' },
+        isUserLoggedIn: true,
+        lessonId: 'lesson-id',
+      },
+    });
+    const dialog = screen.getByRole('dialog');
+    await waitFor(() => expect(dialog).toHaveFocus());
+  });
+
   describe('on Enter', () => {
     const NEXT_ROUTE = '/next';
 
