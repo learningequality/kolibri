@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Wed, 4 Nov 2026 13:19:00 +0000
+Subject: [PATCH 12/12] Set the page language to the one most UI strings use
+
+Bloom Player falls back per string from the browser language to the book's languages to English, so <html lang> taken from navigator.language misnames the UI language whenever the player has few or no translations for it.
+---
+ src/bloom-player-controls.tsx       |  5 +++++
+ src/l10n/localizationManager.ts     | 19 +++++++++++++++
+ src/l10n/mostUsedUiLanguage.test.ts | 35 +++++++++++++++++++++++++++++
+ 3 files changed, 59 insertions(+)
+ create mode 100644 src/l10n/mostUsedUiLanguage.test.ts
+
+diff --git a/src/bloom-player-controls.tsx b/src/bloom-player-controls.tsx
+index c33eacc..83a3594 100644
+--- a/src/bloom-player-controls.tsx
++++ b/src/bloom-player-controls.tsx
+@@ -272,6 +272,11 @@ export const BloomPlayerControls: React.FunctionComponent<BloomPlayerProps> = (
+         initialPreferredUiLanguages,
+     );
+ 
++    useEffect(() => {
++        document.documentElement.lang =
++            LocalizationManager.getMostUsedUiLanguage(preferredUiLanguages);
++    }, [preferredUiLanguages]);
++
+     useEffect(() => {
+         if (!paused) {
+             // When we change from paused to playing, reset this to the initial state (false)
+diff --git a/src/l10n/localizationManager.ts b/src/l10n/localizationManager.ts
+index 9dfe77b..01c999b 100644
+--- a/src/l10n/localizationManager.ts
++++ b/src/l10n/localizationManager.ts
+@@ -114,6 +114,25 @@ class LocalizationManagerImplementation {
+         return [undefined, undefined];
+     }
+
++    public getMostUsedUiLanguage(preferredLanguages: string[]): string {
++        this.setUp();
++        const counts = new Map<string, number>();
++        this.l10nDictionary.forEach((_, id) => {
++            const [, language = "en"] = this.getTranslationAndLanguage(
++                id,
++                preferredLanguages,
++            );
++            counts.set(language, (counts.get(language) || 0) + 1);
++        });
++        let mostUsed = "en";
++        counts.forEach((count, language) => {
++            if (count > (counts.get(mostUsed) || 0)) {
++                mostUsed = language;
++            }
++        });
++        return mostUsed;
++    }
++
+     public getTranslation(
+         id: string,
+         preferredLanguages: string[],
+diff --git a/src/l10n/mostUsedUiLanguage.test.ts b/src/l10n/mostUsedUiLanguage.test.ts
+new file mode 100644
+index 0000000..eb9522e
+--- /dev/null
++++ b/src/l10n/mostUsedUiLanguage.test.ts
+@@ -0,0 +1,35 @@
++import { LocalizationManager } from "./localizationManager";
++
++beforeAll(() => {
++    LocalizationManager.setUp({
++        ar: {
++            "Sample.A": { message: "أ", description: "" },
++        },
++        es: {
++            "Sample.A": { message: "A en español", description: "" },
++            "Sample.C": { message: "C en español", description: "" },
++        },
++        fr: {
++            "Sample.A": { message: "A en français", description: "" },
++            "Sample.B": { message: "B en français", description: "" },
++        },
++    });
++});
++
++test("getMostUsedUiLanguage is English when no preferred language has translations", () => {
++    expect(LocalizationManager.getMostUsedUiLanguage(["de"])).toEqual("en");
++});
++
++test("getMostUsedUiLanguage is the language most strings resolve to", () => {
++    expect(LocalizationManager.getMostUsedUiLanguage(["fr"])).toEqual("fr");
++    expect(LocalizationManager.getMostUsedUiLanguage(["es", "fr"])).toEqual(
++        "es",
++    );
++    expect(LocalizationManager.getMostUsedUiLanguage(["fr", "es"])).toEqual(
++        "fr",
++    );
++});
++
++test("getMostUsedUiLanguage is English when most strings fall back to English", () => {
++    expect(LocalizationManager.getMostUsedUiLanguage(["ar"])).toEqual("en");
++});
