@@ -1,6 +1,7 @@
 import logging
 import uuid
 from collections import deque
+from datetime import timedelta
 from itertools import chain
 from urllib.parse import urlencode
 
@@ -23,6 +24,7 @@ from morango.models.core import SyncSession
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
@@ -49,12 +51,18 @@ from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
 from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
+from kolibri.utils.file_transfer import retry_import
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +256,9 @@ class PreferredDevices:
         self._filters = filters or {}
 
     @classmethod
-    def build_from_sync_sessions(cls, version_filter=None, filters=None):
+    def build_from_sync_sessions(
+        cls, version_filter=None, filters=None, exclude_instance_ids=()
+    ):
         """
         Build a PreferredNetworkLocations object from recent sync sessions
 
@@ -259,12 +269,18 @@ class PreferredDevices:
         filters = filters or {}
         # only include devices that are not a subset of the user's device
         filters.update(subset_of_users_device=False)
+        excluded = {_uuid_to_hex(i) for i in exclude_instance_ids if i}
         instance_ids = list(
-            set(
-                SyncSession.objects.order_by("-last_activity_timestamp")
+            {
+                _uuid_to_hex(instance_id)
+                for instance_id in SyncSession.objects.order_by(
+                    "-last_activity_timestamp"
+                )
                 .values_list("server_instance_id", flat=True)
                 .distinct()
-            )
+                if instance_id
+            }
+            - excluded
         )
         return cls(
             instance_ids,
@@ -438,13 +454,19 @@ def _total_size_annotation(available=False):
     )
 
 
+def retry_due():
+    return Q(retry_after__isnull=True) | Q(retry_after__lte=local_now())
+
+
 def incomplete_downloads_queryset():
     """
     Returns a queryset used to determine the incomplete downloads, with and without metadata, as
     well as the total import size if it does have metadata
     """
     qs = (
-        ContentDownloadRequest.objects.filter(status__in=INCOMPLETE_STATUSES)
+        ContentDownloadRequest.objects.filter(
+            retry_due(), status__in=INCOMPLETE_STATUSES
+        )
         .order_by("priority", "requested_at")
         .annotate(
             has_metadata=Exists(
@@ -655,7 +677,50 @@ def _merge_import_metadata(metadata_list):
 
 MAX_NODES_PER_REQUEST = 10
 
+_RETRY_BACKOFF_BASE = timedelta(hours=1)
+_RETRY_BACKOFF_MAX = timedelta(days=7)
+
 _SCHEMA_VERSION_TOO_HIGH = "Schema version is too high"
+
+_PEER_UNREACHABLE_ERRORS = (
+    NetworkLocationConnectionFailure,
+    NetworkLocationNotFound,
+    NetworkLocationResponseTimeout,
+)
+
+
+class _PeerUnreachable(Exception):
+    pass
+
+
+def _peer_unreachable(error):
+    if isinstance(error, NetworkLocationResponseFailure):
+        return retry_import(error.__cause__)
+    return isinstance(error, _PEER_UNREACHABLE_ERRORS) or retry_import(error)
+
+
+def _retry_after(failure_count):
+    return local_now() + _RETRY_BACKOFF_BASE * min(
+        2 ** (failure_count - 1), _RETRY_BACKOFF_MAX // _RETRY_BACKOFF_BASE
+    )
+
+
+def _record_failure(download_request):
+    download_request.failure_count += 1
+    download_request.retry_after = _retry_after(download_request.failure_count)
+
+
+def _record_failures(downloads):
+    failure_counts = (
+        downloads.order_by("-failure_count")
+        .values_list("failure_count", flat=True)
+        .distinct()
+    )
+    for failure_count in list(failure_counts):
+        downloads.filter(failure_count=failure_count).update(
+            failure_count=failure_count + 1,
+            retry_after=_retry_after(failure_count + 1),
+        )
 
 
 def _schema_version_too_high(error):
@@ -766,6 +831,15 @@ def _get_import_metadata(client, download, schema_version=CONTENT_SCHEMA_VERSION
     return _merge_import_metadata(metadata_list) or None, params.get("schema_version")
 
 
+def _get_import_metadata_unless_unavailable(client, download, schema_version):
+    try:
+        return _get_import_metadata(client, download, schema_version=schema_version)
+    except NetworkLocationResponseFailure as e:
+        if _peer_unreachable(e):
+            raise
+        return None, schema_version
+
+
 def _get_downloads_for_potential_removed_contentnodes(import_metadata):
     channel_metadata = import_metadata.get(ChannelMetadata._meta.db_table, [{}])[0]
     channel_id = channel_metadata.get("id", None)
@@ -819,8 +893,8 @@ def _import_metadata(client, downloads_needing_metadata_import):
     while downloads_to_process:
         download = downloads_to_process.popleft()
 
-        import_metadata, schema_version = _get_import_metadata(
-            client, download, schema_version=schema_version
+        import_metadata, schema_version = _get_import_metadata_unless_unavailable(
+            client, download, schema_version
         )
 
         # if the request 404'd, then we wouldn't have this data
@@ -865,6 +939,8 @@ def _import_metadata(client, downloads_needing_metadata_import):
                 removed_downloads_qs.update(
                     status=ContentRequestStatus.Pending,
                     priority=ContentRequestPriority.CRITICAL,
+                    failure_count=0,
+                    retry_after=None,
                 )
                 removed_downloads = list(removed_downloads_qs)
                 if removed_downloads:
@@ -904,6 +980,22 @@ def _import_metadata(client, downloads_needing_metadata_import):
     return total_count == processed_count
 
 
+def _import_metadata_from_peer(peer, client, downloads):
+    """
+    :return: Whether all metadata was imported successfully, and the ids of ``downloads``
+        the peer answered for
+    """
+    requested_ids = list(downloads.values_list("id", flat=True))
+    try:
+        is_complete = _import_metadata(client, downloads)
+    except NetworkClientError as e:
+        if not _peer_unreachable(e):
+            raise
+        logger.warning("Peer %s unreachable during metadata import", peer.id)
+        return False, []
+    return is_complete, requested_ids
+
+
 def process_metadata_import(downloads_needing_metadata_import):
     """
     Processes metadata import for a queryset of downloads that need metadata imported.
@@ -925,15 +1017,18 @@ def process_metadata_import(downloads_needing_metadata_import):
         preferred_instance_ids, version_filter=version_filter
     )
 
+    answered_ids = set()
     # first, try to import metadata from the preferred peers, filtering the requests
     # by the matching instance_id
     for peer, client in preferred_peers:
-        _import_metadata(
+        _, peer_answered_ids = _import_metadata_from_peer(
+            peer,
             client,
             downloads_needing_metadata_import.filter(
                 source_instance_id=_uuid_to_hex(peer.instance_id),
             ),
         )
+        answered_ids.update(peer_answered_ids)
 
     # if all downloads that need (re-)importing have been satisfied, stop early.
     if not downloads_needing_metadata_import.exists():
@@ -942,17 +1037,24 @@ def process_metadata_import(downloads_needing_metadata_import):
     # otherwise, try to import metadata without filtering the requests by matching instance_id,
     # first from the same preferred peers, then by any fallback peers
     fallback_peers = PreferredDevicesWithClient.build_from_sync_sessions(
-        version_filter=version_filter
+        version_filter=version_filter, exclude_instance_ids=preferred_instance_ids
     )
     for peer, client in chain(preferred_peers, fallback_peers):
-        is_complete = _import_metadata(
+        is_complete, peer_answered_ids = _import_metadata_from_peer(
+            peer,
             client,
             downloads_needing_metadata_import.exclude(
                 source_instance_id=_uuid_to_hex(peer.instance_id)
             ),
         )
+        answered_ids.update(peer_answered_ids)
         # if we've completed the import, then we can stop
-        if is_complete:
+        if (
+            is_complete
+            and not downloads_needing_metadata_import.filter(
+                has_metadata=False
+            ).exists()
+        ):
             break
     else:
         # if we haven't completed the import by this point, then we can log a warning
@@ -961,6 +1063,12 @@ def process_metadata_import(downloads_needing_metadata_import):
             "No acceptable peer device for importing content metadata for %s nodes",
             unprocessed_count,
         )
+
+    _record_failures(
+        downloads_needing_metadata_import.filter(
+            has_metadata=False, id__inline_in=answered_ids
+        )
+    )
 
 
 def incomplete_removals_queryset():
@@ -1089,6 +1197,7 @@ def process_download_request(download_request):
     download_request.status = ContentRequestStatus.InProgress
     download_request.save()
 
+    any_peer_answered = False
     try:
         # by this point we should have a ContentNode
         node = ContentNode.objects.get(pk=download_request.contentnode_id)
@@ -1097,7 +1206,9 @@ def process_download_request(download_request):
 
         peer_sets = [
             # we do not need to filter by version, since content import should work for any
-            PreferredDevices.build_from_sync_sessions(),
+            PreferredDevices.build_from_sync_sessions(
+                exclude_instance_ids=[download_request.source_instance_id]
+            ),
         ]
 
         # prepend the preferred by source instance id, if it exists
@@ -1109,28 +1220,39 @@ def process_download_request(download_request):
 
         # we try to import from the source instance first
         for peer in chain(*peer_sets):
-            if _process_download(download_request, node.channel_id, peer):
+            try:
+                imported = _process_download(download_request, node.channel_id, peer)
+            except _PeerUnreachable:
+                logger.warning("Peer %s unreachable during content import", peer.id)
+                continue
+            any_peer_answered = True
+            if imported:
                 # if we successfully imported, break out of the loop
                 break
         else:
+            if any_peer_answered:
+                _record_failure(download_request)
             raise NoPeerAvailable(
                 f"Unable to import {download_request.contentnode_id} from peers"
             )
     except AlreadyAvailable:
         # do nothing, since the content is already available
         logger.debug("Content already available, skipping import")
-    except NoPeerAvailable:
-        logger.warning("No peer available during content import")
+    except (NoPeerAvailable, InsufficientStorageSpaceError) as e:
+        logger.warning("Content import failed: %s", e)
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
         return False
     except Exception:
         logger.exception("Unexpected error during content import")
         download_request.status = ContentRequestStatus.Failed
+        _record_failure(download_request)
         download_request.save()
         return False
 
     download_request.status = ContentRequestStatus.Completed
+    download_request.failure_count = 0
+    download_request.retry_after = None
     download_request.save()
     return True
 
@@ -1168,10 +1290,16 @@ def _process_download(download_request, channel_id, peer):
             return False
         # without an exception, and non-zero count, we can assume the import was successful
         return True
-    except LocationError:
+    except InsufficientStorageSpaceError:
+        raise
+    except LocationError as e:
+        if _peer_unreachable(e.__cause__):
+            raise _PeerUnreachable from e
         # content not found on peer, try the next one
         return False
     except Exception as e:
+        if _peer_unreachable(e):
+            raise _PeerUnreachable from e
         # some other error occurred, log it and try the next peer
         logger.exception(e)
         return False
