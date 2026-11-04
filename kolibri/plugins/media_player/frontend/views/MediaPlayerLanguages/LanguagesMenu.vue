@@ -32,21 +32,12 @@
 
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
+    /* rtl:ignore */
     left: -8em;
     width: 16em;
     // minus 32px max immersive layout padding
     max-height: calc(#{$video-player-height-vw} - #{$video-player-control-height} - 32px);
     overflow-y: auto;
-  }
-
-  /deep/ .k-radio-button {
-    padding: 8px 0;
-    margin: 0;
-
-    .checked,
-    .unchecked {
-      top: 8px;
-    }
   }
 
 </style>

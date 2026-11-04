@@ -3,6 +3,7 @@
   <div
     v-show="open"
     class="vjs-menu"
+    :dir="languageDirection"
     :aria-hidden="(!open).toString()"
   >
     <div class="vjs-menu-content">
@@ -20,8 +21,13 @@
 
 <script>
 
+  import { languageDirection } from 'kolibri/utils/i18n';
+
   export default {
     name: 'MediaPlayerMenu',
+    setup() {
+      return { languageDirection };
+    },
     data: function () {
       return {
         open: false,

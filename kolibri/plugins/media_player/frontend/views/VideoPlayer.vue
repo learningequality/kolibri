@@ -380,11 +380,6 @@
     /deep/ .fill-space {
       height: auto;
     }
-
-    [dir='rtl'] & {
-      right: auto;
-      left: 0;
-    }
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
@@ -405,10 +400,6 @@
 
     /deep/ .loading-space {
       padding-top: 90px;
-    }
-
-    [dir='rtl'] & {
-      right: 0;
     }
   }
 
