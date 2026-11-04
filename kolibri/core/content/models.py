@@ -515,6 +515,8 @@ class ContentRequest(models.Model):
         null=True,
         blank=True,
     )
+    failure_count = models.IntegerField(default=0)
+    retry_after = DateTimeTzField(null=True, blank=True)
 
     objects = ContentRequestManager()
 

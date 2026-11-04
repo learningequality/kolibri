@@ -1,3 +1,6 @@
+from datetime import timedelta
+from unittest import mock
+
 from django.http.request import HttpRequest
 from django.test import TestCase
 from django.urls import reverse
@@ -9,6 +12,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRequestStatus
+from kolibri.utils.time_utils import local_now
 
 from ..viewsets.content_request import ContentDownloadRequestSerializer
 
@@ -297,3 +301,58 @@ class ContentDownloadRequestViewsetTest(APITestCase):
 
         self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(response.data["status"], ContentRequestStatus.Pending)
+
+    def _assert_re_request_clears_backoff(self, backed_off_status):
+        download = ContentDownloadRequest.build_for_user(self.user)
+        download.contentnode_id = self.data["contentnode_id"]
+        download.metadata = self.data["metadata"]
+        download.status = backed_off_status
+        download.failure_count = 3
+        download.retry_after = local_now() + timedelta(days=1)
+        download.save()
+
+        self.client.post(
+            reverse("kolibri:core:contentrequest-list"),
+            data=self.data,
+            format="json",
+        )
+
+        download.refresh_from_db()
+        self.assertEqual(download.status, ContentRequestStatus.Pending)
+        self.assertEqual(download.failure_count, 0)
+        self.assertIsNone(download.retry_after)
+
+    @mock.patch(
+        "kolibri.core.content.viewsets.content_request.automatic_resource_import"
+    )
+    def test_re_request_clears_failed_download_backoff(self, mock_import):
+        self._assert_re_request_clears_backoff(ContentRequestStatus.Failed)
+        mock_import.enqueue_if_not_active.assert_called_once()
+
+    @mock.patch(
+        "kolibri.core.content.viewsets.content_request.automatic_resource_import"
+    )
+    def test_re_request_clears_metadata_import_backoff(self, mock_import):
+        self._assert_re_request_clears_backoff(ContentRequestStatus.Pending)
+        mock_import.enqueue_if_not_active.assert_called_once()
+
+    @mock.patch(
+        "kolibri.core.content.viewsets.content_request.automatic_resource_import"
+    )
+    def test_re_request_takes_new_source_instance_id(self, mock_import):
+        download = ContentDownloadRequest.build_for_user(self.user)
+        download.contentnode_id = self.data["contentnode_id"]
+        download.metadata = self.data["metadata"]
+        download.source_instance_id = "1d30132f85ba42d9a3d30d1a225ad8ba"
+        download.status = ContentRequestStatus.Failed
+        download.save()
+        new_source_instance_id = "8f0c5b9f0c2a4e5e9d4c3b2a1f0e9d8c"
+
+        self.client.post(
+            reverse("kolibri:core:contentrequest-list"),
+            data=dict(self.data, source_instance_id=new_source_instance_id),
+            format="json",
+        )
+
+        download.refresh_from_db()
+        self.assertEqual(download.source_instance_id, new_source_instance_id)
