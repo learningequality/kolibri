@@ -2,6 +2,7 @@ import { TextEncoder, TextDecoder } from 'node:util';
 
 import xhrMock from 'xhr-mock';
 import { zipSync, strToU8 } from 'fflate';
+import playerManifest from '../../bloom_build/bloom_build.json';
 import BloomRunner from './BloomRunner';
 
 // jsdom provides neither TextEncoder, TextDecoder nor URL.createObjectURL
@@ -116,22 +117,27 @@ describe('BloomRunner', () => {
   });
 
   describe('init', () => {
+    const META_JSON = '{"title":"A book"}';
+
     beforeEach(() => {
-      serveBook({});
+      serveBook({ [HTM_NAME]: bookHtm(''), 'meta.json': META_JSON });
     });
 
-    it('starts the player once the book is processed, whatever the frame is showing', async () => {
-      jest.spyOn(BloomRunner.prototype, 'processFiles').mockResolvedValue();
+    it('starts the player on the book, whatever the frame is showing', async () => {
       const runner = new BloomRunner();
       const iframe = document.createElement('iframe');
 
       await runner.init(iframe, BOOK_PATH);
 
-      expect(iframe.src).toContain('bloomplayer.htm');
+      const htm = await runner.zip.file(HTM_NAME);
+      const [path, query] = iframe.getAttribute('src').split('?');
+      const params = new URLSearchParams(query);
+      expect(path).toBe(`../bloom/${playerManifest.filename}`);
+      expect(params.get('url')).toBe(blobUrlOfSize(htm.toString().length));
+      expect(params.get('metaJsonUrl')).toBe(blobUrlOfSize(META_JSON.length));
     });
 
     it('rejects when starting the player throws', async () => {
-      jest.spyOn(BloomRunner.prototype, 'processFiles').mockResolvedValue();
       const failure = new Error('navigation blocked');
       const iframe = {
         set src(value) {
@@ -192,29 +198,6 @@ describe('BloomRunner', () => {
       const dom = await loadBook('<span id="s1" class="audio-sentence">Hi</span>', {});
 
       expect(dom.querySelector('.audio-sentence')).not.toHaveAttribute('data-audio-src');
-    });
-  });
-
-  describe('initBloom', () => {
-    function runnerWithIframe(iframe) {
-      const runner = new BloomRunner();
-      runner.iframe = iframe;
-      runner.contentUrl = 'blob:book.htm';
-      runner.metaUrl = 'blob:meta.json';
-      return runner;
-    }
-
-    it('points the player at the book', () => {
-      const iframe = {};
-      const runner = runnerWithIframe(iframe);
-
-      runner.initBloom();
-
-      const [path, query] = iframe.src.split('?');
-      const params = new URLSearchParams(query);
-      expect(path).toContain('bloomplayer.htm');
-      expect(params.get('url')).toBe('blob:book.htm');
-      expect(params.get('metaJsonUrl')).toBe('blob:meta.json');
     });
   });
 });

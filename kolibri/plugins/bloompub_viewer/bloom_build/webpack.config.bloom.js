@@ -1,8 +1,21 @@
 const path = require('node:path');
+const fs = require('node:fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+class BloomPlayerManifestPlugin {
+  apply(compiler) {
+    compiler.hooks.afterEmit.tap('BloomPlayerManifestPlugin', compilation => {
+      if (compilation.errors.length > 0) {
+        return;
+      }
+      const filename = Object.keys(compilation.assets).find(name => name.endsWith('.htm'));
+      fs.writeFileSync(path.resolve(__dirname, './bloom_build.json'), JSON.stringify({ filename }));
+    });
+  }
+}
 
 module.exports = {
   entry: path.resolve(__dirname, './bloomBundle.js'),
@@ -60,8 +73,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new BloomPlayerManifestPlugin(),
     new HtmlWebpackPlugin({
-      filename: 'bloomplayer.htm',
+      filename: 'bloomplayer-[contenthash].htm',
       template: path.resolve(__dirname, './bloomplayer.htm'),
       inject: false,
       minify: false,

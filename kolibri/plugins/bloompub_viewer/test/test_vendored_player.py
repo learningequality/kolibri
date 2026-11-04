@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -7,15 +8,22 @@ from kolibri.core.content.zip_wsgi import INITIALIZE_SANDBOX_FROM_IFRAME
 
 PLUGIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-TEMPLATE = os.path.join(PLUGIN_DIR, "bloom_build", "bloomplayer.htm")
+BUILD_DIR = os.path.join(PLUGIN_DIR, "bloom_build")
+
+TEMPLATE = os.path.join(BUILD_DIR, "bloomplayer.htm")
+
+BUILD_MANIFEST = os.path.join(BUILD_DIR, "bloom_build.json")
 
 STATIC_DIR = os.path.join(PLUGIN_DIR, "static", "bloom")
 
-PLAYER = os.path.join(STATIC_DIR, "bloomplayer.htm")
+
+def built_page_name():
+    with open(BUILD_MANIFEST) as f:
+        return json.load(f)["filename"]
 
 
 def read_built_page():
-    with open(PLAYER) as f:
+    with open(os.path.join(STATIC_DIR, built_page_name())) as f:
         return f.read()
 
 
@@ -46,7 +54,7 @@ class BloomPlayerBuiltFilesTestCase(SimpleTestCase):
         unreferenced = {
             name
             for name in os.listdir(STATIC_DIR)
-            if name != "bloomplayer.htm"
+            if name != built_page_name()
             and name not in self.referenced
             and not name.endswith((".LICENSE.txt", ".gz", ".file_size"))
         }
