@@ -31,8 +31,8 @@ catalogs:
       specifier: 5.9.0
       version: 5.9.0
     lodash:
-      specifier: ^4.17.23
-      version: 4.17.23
+      specifier: ^4.18.1
+      version: 4.18.1
     mathjax-full:
       specifier: 3.2.2
       version: 3.2.2
@@ -76,7 +76,7 @@ importers:
         version: 30.0.0
       '@vue/vue2-jest':
         specifier: ^29.2.6
-        version: 29.2.6(@babel/core@8.0.6)(babel-jest@30.3.0(@babel/core@8.0.6))(jest@30.5.2(@types/node@26.6.2))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 29.2.6(@babel/core@8.0.6)(babel-jest@30.3.0(@babel/core@8.0.6))(jest@30.5.2(@types/node@26.6.2))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)
       '@vueuse/shared':
         specifier: ^11.3.0
         version: 11.3.0(vue@2.7.16)
@@ -173,7 +173,7 @@ importers:
         version: link:../../packages/kolibri-plugin-data
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       mathjax-full:
         specifier: 'catalog:'
         version: 3.2.2
@@ -236,7 +236,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       markdown-it:
         specifier: 14.3.3
         version: 14.3.3
@@ -291,7 +291,7 @@ importers:
         version: link:../../../packages/kolibri-plugin-data
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -349,7 +349,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       mark.js:
         specifier: ^8.11.1
         version: 8.11.1
@@ -416,7 +416,7 @@ importers:
         version: link:../../../packages/kolibri-plugin-data
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -468,7 +468,7 @@ importers:
         version: link:../../../packages/kolibri-zip
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       toposort-class:
         specifier: ^1.0.1
         version: 1.0.1
@@ -542,7 +542,7 @@ importers:
     devDependencies:
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
 
   kolibri/plugins/learn:
     dependencies:
@@ -578,7 +578,7 @@ importers:
         version: link:../../../packages/kolibri-sandbox
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0
@@ -636,7 +636,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       safe-json-parse:
         specifier: ^4.0.0
         version: 4.0.0
@@ -679,7 +679,7 @@ importers:
         version: link:../../../packages/kolibri-viewer
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       pdfjs-dist:
         specifier: ^2.16.105
         version: 2.16.105
@@ -839,7 +839,7 @@ importers:
         version: link:../../../packages/kolibri-zip
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       mathjax-full:
         specifier: 'catalog:'
         version: 3.2.2
@@ -912,7 +912,7 @@ importers:
         version: link:../../../packages/kolibri-plugin-data
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -946,7 +946,7 @@ importers:
         version: link:../../../packages/kolibri-zip
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -980,7 +980,7 @@ importers:
         version: link:../../../packages/kolibri-zip
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1020,7 +1020,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1060,7 +1060,7 @@ importers:
         version: link:../../../packages/kolibri-viewer
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       object-fit-images:
         specifier: ^3.2.4
         version: 3.2.4
@@ -1090,7 +1090,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1130,7 +1130,7 @@ importers:
         version: 5.9.0
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1172,7 +1172,7 @@ importers:
         version: link:../kolibri-css-variables
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       requireindex:
         specifier: ^1.1.0
         version: 1.2.0
@@ -1227,7 +1227,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       path-to-regexp:
         specifier: 1.9.0
         version: 1.9.0
@@ -1327,7 +1327,7 @@ importers:
         version: 2.14.1
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       mini-css-extract-plugin:
         specifier: ^2.9.4
         version: 2.10.0(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
@@ -1363,7 +1363,7 @@ importers:
         version: 5.3.16(@swc/core@1.15.24(@swc/helpers@0.5.23))(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
       vue-loader:
         specifier: ^15.11.1
-        version: 15.11.1(css-loader@7.1.2(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
+        version: 15.11.1(css-loader@7.1.2(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
       vue-style-loader:
         specifier: ^4.1.3
         version: 4.1.3
@@ -1423,7 +1423,7 @@ importers:
         version: 0.8.5
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       mathjax-full:
         specifier: 'catalog:'
         version: 3.2.2
@@ -1628,7 +1628,7 @@ importers:
         version: link:../kolibri-logging
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
       recast:
         specifier: ^0.23.11
         version: 0.23.11
@@ -1680,7 +1680,7 @@ importers:
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
       '@vue/vue2-jest':
         specifier: ^29.2.6
-        version: 29.2.6(@babel/core@8.0.6)(babel-jest@30.2.0(@babel/core@8.0.6))(jest@30.2.0(@types/node@25.0.9))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 29.2.6(@babel/core@8.0.6)(babel-jest@30.2.0(@babel/core@8.0.6))(jest@30.2.0(@types/node@25.0.9))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)
       aphrodite:
         specifier: ^2.4.0
         version: 2.4.0
@@ -1819,7 +1819,7 @@ importers:
         version: 1.0.22
       lodash:
         specifier: 'catalog:'
-        version: 4.17.23
+        version: 4.18.1
     devDependencies:
       fflate:
         specifier: ^0.8.3
@@ -7478,6 +7478,9 @@ packages:
 
   lodash@4.17.23:
     resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
+
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   loglevel@1.9.2:
     resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
@@ -13249,9 +13252,9 @@ snapshots:
     optionalDependencies:
       prettier: 2.8.8
 
-  '@vue/component-compiler-utils@3.3.0(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)':
+  '@vue/component-compiler-utils@3.3.0(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)':
     dependencies:
-      consolidate: 0.15.1(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      consolidate: 0.15.1(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       hash-sum: 1.0.2
       lru-cache: 4.1.5
       merge-source-map: 1.1.0
@@ -13319,16 +13322,16 @@ snapshots:
   '@vue/test-utils@1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)':
     dependencies:
       dom-event-types: 1.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       pretty: 2.0.0
       vue: 2.7.16
       vue-template-compiler: 2.7.16
 
-  '@vue/vue2-jest@29.2.6(@babel/core@8.0.6)(babel-jest@30.2.0(@babel/core@8.0.6))(jest@30.2.0(@types/node@25.0.9))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)':
+  '@vue/vue2-jest@29.2.6(@babel/core@8.0.6)(babel-jest@30.2.0(@babel/core@8.0.6))(jest@30.2.0(@types/node@25.0.9))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)':
     dependencies:
       '@babel/core': 8.0.6
       '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@8.0.6)
-      '@vue/component-compiler-utils': 3.3.0(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      '@vue/component-compiler-utils': 3.3.0(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       babel-jest: 30.2.0(@babel/core@8.0.6)
       chalk: 2.4.2
       css-tree: 2.3.1
@@ -13395,11 +13398,11 @@ snapshots:
       - walrus
       - whiskers
 
-  '@vue/vue2-jest@29.2.6(@babel/core@8.0.6)(babel-jest@30.3.0(@babel/core@8.0.6))(jest@30.5.2(@types/node@26.6.2))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)':
+  '@vue/vue2-jest@29.2.6(@babel/core@8.0.6)(babel-jest@30.3.0(@babel/core@8.0.6))(jest@30.5.2(@types/node@26.6.2))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3)(underscore@1.13.8)(vue-template-compiler@2.7.16)(vue@2.7.16)':
     dependencies:
       '@babel/core': 8.0.6
       '@babel/plugin-transform-modules-commonjs': 7.29.7(@babel/core@8.0.6)
-      '@vue/component-compiler-utils': 3.3.0(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      '@vue/component-compiler-utils': 3.3.0(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       babel-jest: 30.3.0(@babel/core@8.0.6)
       chalk: 2.4.2
       css-tree: 2.3.1
@@ -14404,11 +14407,11 @@ snapshots:
 
   console-control-strings@1.1.0: {}
 
-  consolidate@0.15.1(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8):
+  consolidate@0.15.1(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8):
     dependencies:
       bluebird: 3.7.2
     optionalDependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
       underscore: 1.13.8
@@ -14622,7 +14625,7 @@ snapshots:
   csv-generator-client@2.1.1:
     dependencies:
       babel-polyfill: 6.26.0
-      lodash: 4.17.23
+      lodash: 4.18.1
 
   csv-parse@7.0.2: {}
 
@@ -14926,7 +14929,7 @@ snapshots:
       event-emitter: 0.3.5
       jszip: 3.10.1
       localforage: 1.10.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       marks-pane: 1.0.9
       path-webpack: 0.0.3
       stream-browserify: 2.0.2
@@ -15832,7 +15835,7 @@ snapshots:
   globule@1.3.4:
     dependencies:
       glob: 7.1.7
-      lodash: 4.17.23
+      lodash: 4.18.1
       minimatch: 3.0.8
 
   gonzales-pe@4.3.0:
@@ -15939,7 +15942,7 @@ snapshots:
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       pretty-error: 4.0.0
       tapable: 2.3.3
     optionalDependencies:
@@ -17279,6 +17282,8 @@ snapshots:
 
   lodash@4.17.23: {}
 
+  lodash@4.18.1: {}
+
   loglevel@1.9.2: {}
 
   loose-envify@1.4.0:
@@ -17751,7 +17756,7 @@ snapshots:
       gaze: 1.1.3
       get-stdin: 4.0.1
       glob: 7.2.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       make-fetch-happen: 10.2.1
       meow: 9.0.0
       nan: 2.24.0
@@ -18293,7 +18298,7 @@ snapshots:
 
   pretty-error@4.0.0:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       renderkid: 3.0.0
 
   pretty-format@27.5.1:
@@ -18636,7 +18641,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       strip-ansi: 6.0.1
 
   require-directory@2.1.1: {}
@@ -18755,7 +18760,7 @@ snapshots:
   sass-graph@4.0.1:
     dependencies:
       glob: 7.2.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       scss-tokenizer: 0.4.3
       yargs: 17.7.2
 
@@ -19808,7 +19813,7 @@ snapshots:
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       esquery: 1.7.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
@@ -19828,9 +19833,9 @@ snapshots:
       intl-relativeformat: 1.3.0
       vue: 2.7.16
 
-  vue-loader@15.11.1(css-loader@7.1.2(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)):
+  vue-loader@15.11.1(css-loader@7.1.2(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)):
     dependencies:
-      '@vue/component-compiler-utils': 3.3.0(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      '@vue/component-compiler-utils': 3.3.0(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       css-loader: 7.1.2(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
       hash-sum: 1.0.2
       loader-utils: 1.4.2
