@@ -61,6 +61,7 @@ describe('BloomRunner', () => {
   });
 
   afterEach(() => {
+    document.head.innerHTML = '';
     document.body.innerHTML = '';
     xhrMock.teardown();
   });
@@ -96,6 +97,33 @@ describe('BloomRunner', () => {
       };
 
       await expect(new BloomRunner().init(iframe, BOOK_PATH)).rejects.toBe(failure);
+    });
+  });
+
+  describe('stylesheet links in the book', () => {
+    it('keeps the href the book gave each replaced link in data-original-href', async () => {
+      serveBook({
+        [HTM_NAME]:
+          '<!DOCTYPE html><html><head>' +
+          '<link rel="stylesheet" type="text/css" href="defaultLangStyles.css">' +
+          '<link rel="stylesheet" type="text/css" href="missing.css">' +
+          '</head><body></body></html>',
+        'meta.json': '{}',
+        'defaultLangStyles.css': fileOfSize(7),
+      });
+      const runner = new BloomRunner();
+      await runner.init(document.createElement('iframe'), BOOK_PATH);
+      const htm = await runner.zip.file(HTM_NAME);
+      document.head.innerHTML = new DOMParser().parseFromString(
+        htm.toString(),
+        'text/html',
+      ).head.innerHTML;
+      const [replaced, missing] = document.head.querySelectorAll('link');
+
+      expect(replaced).toHaveAttribute('href', blobUrlOfSize(7));
+      expect(replaced).toHaveAttribute('data-original-href', 'defaultLangStyles.css');
+      expect(missing).toHaveAttribute('href', 'missing.css');
+      expect(missing).not.toHaveAttribute('data-original-href');
     });
   });
 

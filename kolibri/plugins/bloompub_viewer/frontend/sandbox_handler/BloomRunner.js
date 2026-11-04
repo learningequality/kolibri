@@ -47,8 +47,22 @@ function replaceAudioFiles(dom, packageFiles) {
   }
 }
 
+function keepOriginalHrefs(dom, packageFiles) {
+  const originalPaths = {};
+  for (const [path, url] of Object.entries(packageFiles)) {
+    originalPaths[url] = path;
+  }
+  for (const link of dom.querySelectorAll('link[href]')) {
+    const originalPath = originalPaths[link.getAttribute('href')];
+    if (originalPath) {
+      link.setAttribute('data-original-href', originalPath);
+    }
+  }
+}
+
 function replaceBloomPaths(fileContents, packageFiles, mimeType) {
   const dom = parse(fileContents, mimeType);
+  keepOriginalHrefs(dom, packageFiles);
   replaceAudioFiles(dom, packageFiles);
   if (mimeType === 'text/html') {
     // Remove the namespace attribute from the root element
