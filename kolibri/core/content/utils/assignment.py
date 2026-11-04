@@ -118,7 +118,8 @@ class ContentAssignmentManager:
         Executes the callable with any downloadable assignments from the model instances
         if they match the filters (if defined).
 
-        :param callable_func: The callable function to be executed with the new assignments.
+        :param callable_func: Called with the dataset_id, the new assignments and the
+            (source_model, source_id) tuples whose requests they supersede.
         :type callable_func: callable
         """
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
@@ -156,6 +157,14 @@ class ContentAssignmentManager:
                 dataset_id, transfer_session_id
             ):
                 yield assignment
+
+    @classmethod
+    def find_all_downloadable_sources(cls, dataset_id=None, transfer_session_id=None):
+        for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
+            for source_id in manager._downloadable_queryset(
+                dataset_id, transfer_session_id
+            ).values_list("id", flat=True):
+                yield manager.model.morango_model_name, source_id
 
     @classmethod
     def find_all_removable_assignments(cls, dataset_id=None, transfer_session_id=None):
@@ -285,7 +294,8 @@ class ContentAssignmentManager:
         Executes the callable with the downloadable assignments from the model instance
         if it matches the filters (if defined).
 
-        :param callable_func: The callable function to be executed with the new assignments.
+        :param callable_func: Called with the dataset_id, the new assignments and the
+            (source_model, source_id) tuples whose requests they supersede.
         :type callable_func: callable
         """
 
@@ -295,7 +305,11 @@ class ContentAssignmentManager:
             queryset = self._matching_filters(self.model.objects.filter(pk=instance.pk))
             if queryset.exists():
                 assignments = self._get_assignments(queryset)
-                callable_func(instance.dataset_id, assignments)
+                callable_func(
+                    instance.dataset_id,
+                    assignments,
+                    [(self.model.morango_model_name, instance.pk)],
+                )
 
     def on_removable_assignment(self, callable_func):
         """
@@ -331,6 +345,11 @@ class ContentAssignmentManager:
         :return: yields ContentAssignment tuples
         :rtype: list of ContentAssignment
         """
+        model_qs = self._downloadable_queryset(dataset_id, transfer_session_id)
+        for assignment in self._get_assignments(model_qs):
+            yield assignment
+
+    def _downloadable_queryset(self, dataset_id, transfer_session_id):
         if (dataset_id is None) == (transfer_session_id is None):
             raise ValueError(
                 "One parameter needs specified: dataset_id and transfer_session_id"
@@ -359,10 +378,7 @@ class ContentAssignmentManager:
         elif dataset_id:
             model_qs = model_qs.filter(dataset_id=dataset_id)
 
-        model_qs = self._matching_filters(model_qs)
-
-        for assignment in self._get_assignments(model_qs):
-            yield assignment
+        return self._matching_filters(model_qs)
 
     def find_removable_assignments(self, dataset_id=None, transfer_session_id=None):
         """

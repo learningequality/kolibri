@@ -10,7 +10,9 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.helpers import receive_single_user_sync
+from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.lessons.models import IndividualSyncableLesson
 from kolibri.core.lessons.models import Lesson
@@ -87,6 +89,44 @@ class UpdateAssignmentsFromIndividualSyncableLessonsTestCase(SingleUserLessonTes
         self._sync_deletion(self._sync_assignment(self.learner, self.classroom))
 
         self._assert_resources_freed()
+
+    def test_resource_removed_from_lesson_deletes_its_failed_download(self):
+        kept_resources = self.lesson.resources
+        removed_node_id = uuid.uuid4().hex
+        self.lesson.resources = [
+            *kept_resources,
+            {
+                "contentnode_id": removed_node_id,
+                "content_id": uuid.uuid4().hex,
+                "channel_id": uuid.uuid4().hex,
+            },
+        ]
+        self.lesson.save()
+        syncable = self._sync_assignment(self.learner, self.classroom)
+        removed_request = ContentDownloadRequest.objects.filter(
+            source_model=Lesson.morango_model_name,
+            contentnode_id=removed_node_id,
+        )
+        self.assertEqual(
+            removed_request.update(status=ContentRequestStatus.Failed, failure_count=1),
+            1,
+        )
+        self.lesson.resources = kept_resources
+        syncable.serialized_lesson = IndividualSyncableLesson.serialize_lesson(
+            self.lesson
+        )
+        syncable.save()
+
+        receive_single_user_sync(self.learner, saved=[syncable])
+
+        self.assertFalse(removed_request.exists())
+        self.assertTrue(
+            ContentDownloadRequest.objects.filter(
+                source_model=Lesson.morango_model_name,
+                source_id=self.lesson.id,
+                contentnode_id=self.node_id,
+            ).exists()
+        )
 
     def test_learner_removed_from_group_frees_its_resources(self):
         group = LearnerGroup.objects.create(name="A", parent=self.classroom)
