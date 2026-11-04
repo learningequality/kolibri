@@ -1,5 +1,6 @@
 import ZipFile from 'kolibri-zip';
 import { DOMMapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
+import playerManifest from '../../bloom_build/bloom_build.json';
 
 const domParser = new DOMParser();
 
@@ -131,7 +132,7 @@ export default class BloomRunner {
     }
     const options = new URLSearchParams(params);
 
-    this.iframe.src = `../bloom/bloomplayer.htm?${options.toString()}`;
+    this.iframe.src = `../bloom/${playerManifest.filename}?${options.toString()}`;
   }
 
   /*

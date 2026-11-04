@@ -195,7 +195,7 @@ jobs:
         if: steps.check-commit.outputs.changed == 'true'
         id: check-build-changes
         run: |
-          git add kolibri/plugins/bloompub_viewer/static/bloom
+          git add kolibri/plugins/bloompub_viewer/static/bloom kolibri/plugins/bloompub_viewer/bloom_build/bloom_build.json
           if git diff --cached --quiet; then
             echo "has_build_changes=false" >> "$GITHUB_OUTPUT"
           else
@@ -206,7 +206,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: bloom-player-build
-          path: kolibri/plugins/bloompub_viewer/static/bloom
+          path: |
+            kolibri/plugins/bloompub_viewer/static/bloom
+            kolibri/plugins/bloompub_viewer/bloom_build/bloom_build.json
           if-no-files-found: error
   update-bloom-player:
     needs: build-bloom-player
@@ -225,7 +227,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: bloom-player-build
-          path: kolibri/plugins/bloompub_viewer/static/bloom
+          path: kolibri/plugins/bloompub_viewer
       - name: Update commit file
         env:
           LATEST_COMMIT: ${{ needs.build-bloom-player.outputs.latest_commit }}
@@ -244,6 +246,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           add-paths: |
             kolibri/plugins/bloompub_viewer/bloom_build/.bloom-player-commit-sha
+            kolibri/plugins/bloompub_viewer/bloom_build/bloom_build.json
             kolibri/plugins/bloompub_viewer/static/bloom
           commit-message: |
             Update Bloom Player to ${{ needs.build-bloom-player.outputs.tag }}
