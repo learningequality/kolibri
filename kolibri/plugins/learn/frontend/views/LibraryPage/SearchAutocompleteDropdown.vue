@@ -34,7 +34,6 @@
           :key="item.id"
           data-testid="history-item"
           class="dropdown-item"
-          :class="$computedClass(hoverStyle)"
           :style="activeStyle(idx)"
           role="option"
           tabindex="-1"
@@ -104,7 +103,6 @@
           :key="'search-' + idx"
           data-testid="recent-search-item"
           class="dropdown-item"
-          :class="$computedClass(hoverStyle)"
           :style="activeStyle(historyItems.length + idx)"
           role="option"
           tabindex="-1"
@@ -136,7 +134,6 @@
           item.type === 'combination' ? 'combination-suggestion' : 'filter-suggestion-pill'
         "
         class="dropdown-item"
-        :class="$computedClass(hoverStyle)"
         :style="activeStyle(idx)"
         role="option"
         tabindex="-1"
@@ -225,7 +222,6 @@
         :key="'content-' + idx"
         data-testid="suggestion-item"
         class="dropdown-item"
-        :class="$computedClass(hoverStyle)"
         :style="activeStyle(filterSuggestions.length + idx)"
         role="option"
         tabindex="-1"
@@ -317,7 +313,6 @@
       // Hover and keyboard-active rows share one theme-aware tint instead of a
       // hard-coded overlay colour.
       const hoverTint = computed(() => themePalette().grey.v_100);
-      const hoverStyle = computed(() => ({ ':hover': { backgroundColor: hoverTint.value } }));
       function activeStyle(index) {
         return isActive(index) ? { backgroundColor: hoverTint.value } : null;
       }
@@ -352,7 +347,6 @@
         coreString,
         optionId,
         ariaSelected,
-        hoverStyle,
         activeStyle,
         searchHistory$,
         recentSearches$,
@@ -429,6 +423,10 @@
     align-items: center;
     padding: 8px 16px;
     cursor: pointer;
+
+    &:hover {
+      background-color: var(--palette-grey-v100);
+    }
   }
 
   .item-icon {

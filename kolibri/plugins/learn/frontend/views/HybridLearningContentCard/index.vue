@@ -4,7 +4,6 @@
     <router-link
       :to="to"
       class="card card-link"
-      :class="[$computedClass({ ':focus': $coreOutline })]"
       :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <div
@@ -155,11 +154,6 @@
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
-
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
-    }
   }
 
   .card-link {
@@ -217,6 +211,11 @@
 
   .learning-activity-label {
     width: 60%;
+  }
+
+  body[modality='keyboard'] .card:focus {
+    outline: 4px solid var(--tokens-focusOutline);
+    outline-offset: 6px;
   }
 
 </style>
