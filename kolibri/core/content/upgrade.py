@@ -35,6 +35,9 @@ from kolibri.core.content.utils.channel_import import FutureSchemaError
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
 from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
+from kolibri.core.content.utils.content_request import (
+    delete_unassigned_incomplete_downloads,
+)
 from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.file_size_migration import drop_legacy_file_size_column
 from kolibri.core.content.utils.file_size_migration import localfile_columns
@@ -237,6 +240,12 @@ def synchronize_content_requests_upgrade():
         synchronize_content_requests(dataset_id, transfer_session=None)
 
     enqueue_automatic_resource_import_if_needed()
+
+
+@version_upgrade(old_version="<0.21.0")
+def delete_unassigned_incomplete_downloads_upgrade():
+    for dataset_id in FacilityDataset.objects.values_list("id", flat=True):
+        delete_unassigned_incomplete_downloads(dataset_id)
 
 
 @version_upgrade(old_version="<0.18.0")
