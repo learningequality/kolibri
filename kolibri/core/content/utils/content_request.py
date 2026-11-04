@@ -1,5 +1,6 @@
 import logging
 import uuid
+from collections import defaultdict
 from collections import deque
 from datetime import timedelta
 from itertools import chain
@@ -644,6 +645,82 @@ def process_content_requests():
         LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
     except NoPeerAvailable:
         logger.warning("No peer available during automated import")
+
+    _delete_unassigned_failed_downloads()
+
+
+def _assigned_descendant_ids(assignments, contentnode_ids):
+    """
+    :return: None while any assigned course node is missing locally or below its assigned
+        channel version
+    """
+    course_assignments = [
+        assignment
+        for assignment in assignments
+        if (assignment.metadata or {}).get("import_descendants", False)
+    ]
+    course_nodes = ContentNode.objects.filter(
+        id__inline_in=[assignment.contentnode_id for assignment in course_assignments]
+    )
+    local_course_versions = dict(
+        course_nodes.annotate(
+            channel_version=Subquery(
+                ChannelMetadata.objects.filter(id=OuterRef("channel_id")).values(
+                    "version"
+                )[:1]
+            )
+        ).values_list("id", "channel_version")
+    )
+    for assignment in course_assignments:
+        local_version = local_course_versions.get(
+            _uuid_to_hex(assignment.contentnode_id)
+        )
+        if local_version is None or local_version < (assignment.channel_version or 0):
+            return None
+    return set(
+        course_nodes.get_descendants(include_self=False)
+        .filter(id__inline_in=contentnode_ids)
+        .values_list("id", flat=True)
+    )
+
+
+def _delete_unassigned_failed_downloads():
+    downloads_by_source = defaultdict(list)
+    for (
+        download_id,
+        source_model,
+        source_id,
+        contentnode_id,
+        channel_version,
+    ) in ContentDownloadRequest.objects.filter(
+        reason=ContentRequestReason.SyncInitiated, failure_count__gt=0
+    ).values_list(
+        "id", "source_model", "source_id", "contentnode_id", "channel_version"
+    ):
+        downloads_by_source[(source_model, source_id)].append(
+            (download_id, _uuid_to_hex(contentnode_id), channel_version or 0)
+        )
+    unassigned_ids = []
+    for (source_model, source_id), source_downloads in downloads_by_source.items():
+        assignments = ContentAssignmentManager.find_source_downloadable_assignments(
+            source_model, source_id
+        )
+        assigned = {
+            (_uuid_to_hex(assignment.contentnode_id), assignment.channel_version or 0)
+            for assignment in assignments
+        }
+        descendant_ids = _assigned_descendant_ids(
+            assignments, [contentnode_id for _, contentnode_id, _ in source_downloads]
+        )
+        if descendant_ids is None:
+            continue
+        unassigned_ids.extend(
+            download_id
+            for download_id, contentnode_id, channel_version in source_downloads
+            if (contentnode_id, channel_version) not in assigned
+            and contentnode_id not in descendant_ids
+        )
+    ContentDownloadRequest.objects.filter(id__inline_in=unassigned_ids).delete()
 
 
 def _merge_import_metadata(metadata_list):
