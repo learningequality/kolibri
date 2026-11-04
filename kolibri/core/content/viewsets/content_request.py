@@ -91,11 +91,19 @@ class ContentDownloadRequestSerializer(KolibriModelSerializer):
         ).first()
 
         if existing_request:
-            return existing_request
-
-        content_request = ContentDownloadRequest.build_for_user(user)
+            if existing_request.status in (
+                ContentRequestStatus.Completed,
+                ContentRequestStatus.InProgress,
+            ):
+                return existing_request
+            content_request = existing_request
+            content_request.status = ContentRequestStatus.Pending
+            content_request.failure_count = 0
+            content_request.retry_after = None
+        else:
+            content_request = ContentDownloadRequest.build_for_user(user)
+            content_request.contentnode_id = validated_data["contentnode_id"]
         content_request.metadata = validated_data["metadata"]
-        content_request.contentnode_id = validated_data["contentnode_id"]
         content_request.source_instance_id = validated_data.get("source_instance_id")
 
         content_request.save()
