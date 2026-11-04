@@ -1,5 +1,6 @@
 import logging
 import uuid
+from collections import defaultdict
 from collections import deque
 from datetime import timedelta
 from itertools import chain
@@ -208,8 +209,8 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     else:
         find_kwargs.update(dataset_id=dataset_id)
 
-    assignments = ContentAssignmentManager.find_all_downloadable_assignments(
-        **find_kwargs
+    assignments = list(
+        ContentAssignmentManager.find_all_downloadable_assignments(**find_kwargs)
     )
     removable_assignments = ContentAssignmentManager.find_all_removable_assignments(
         **find_kwargs
@@ -234,6 +235,99 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     create_content_download_requests(
         facility, assignments, source_instance_id=source_instance_id
     )
+    _delete_unassigned_incomplete_downloads(
+        ContentAssignmentManager.find_all_downloadable_sources(**find_kwargs),
+        assignments,
+    )
+
+
+def _assigned_descendant_ids(assignments, contentnode_ids):
+    """
+    :return: None while any assigned course node is missing locally or below its assigned
+        channel version
+    """
+    course_assignments = [
+        assignment
+        for assignment in assignments
+        if (assignment.metadata or {}).get("import_descendants", False)
+    ]
+    course_nodes = ContentNode.objects.filter(
+        id__inline_in=[assignment.contentnode_id for assignment in course_assignments]
+    )
+    local_course_versions = dict(
+        course_nodes.annotate(
+            channel_version=Subquery(
+                ChannelMetadata.objects.filter(id=OuterRef("channel_id")).values(
+                    "version"
+                )[:1]
+            )
+        ).values_list("id", "channel_version")
+    )
+    for assignment in course_assignments:
+        local_version = local_course_versions.get(
+            _uuid_to_hex(assignment.contentnode_id)
+        )
+        if local_version is None or local_version < (assignment.channel_version or 0):
+            return None
+    return set(
+        course_nodes.get_descendants(include_self=False)
+        .filter(id__inline_in=contentnode_ids)
+        .values_list("id", flat=True)
+    )
+
+
+def _incomplete_sync_downloads(source_model, **source_filters):
+    return ContentDownloadRequest.objects.filter(
+        reason=ContentRequestReason.SyncInitiated,
+        status__in=INCOMPLETE_STATUSES,
+        source_model=source_model,
+        **source_filters,
+    )
+
+
+def _delete_unassigned_incomplete_downloads(sources, assignments):
+    assignments_by_source = defaultdict(list)
+    for assignment in assignments:
+        assignments_by_source[
+            (assignment.source_model, _uuid_to_hex(assignment.source_id))
+        ].append(assignment)
+    source_ids_by_model = defaultdict(list)
+    for source_model, source_id in sources:
+        source_ids_by_model[source_model].append(source_id)
+    downloads_by_source = defaultdict(list)
+    for source_model, source_ids in source_ids_by_model.items():
+        for download_id, source_id, contentnode_id, channel_version in (
+            _incomplete_sync_downloads(source_model, source_id__inline_in=source_ids)
+        ).values_list("id", "source_id", "contentnode_id", "channel_version"):
+            downloads_by_source[(source_model, _uuid_to_hex(source_id))].append(
+                (download_id, _uuid_to_hex(contentnode_id), channel_version)
+            )
+    unassigned_ids = []
+    for source, source_downloads in downloads_by_source.items():
+        source_assignments = assignments_by_source[source]
+        assigned = {
+            (_uuid_to_hex(assignment.contentnode_id), assignment.channel_version or 0)
+            for assignment in source_assignments
+        }
+        candidates = [
+            (download_id, contentnode_id, channel_version)
+            for download_id, contentnode_id, channel_version in source_downloads
+            if (contentnode_id, channel_version or 0) not in assigned
+        ]
+        if not candidates:
+            continue
+        descendant_ids = _assigned_descendant_ids(
+            source_assignments, [contentnode_id for _, contentnode_id, _ in candidates]
+        )
+        for download_id, contentnode_id, channel_version in candidates:
+            possible_descendant = (
+                channel_version is None
+                if descendant_ids is None
+                else contentnode_id in descendant_ids
+            )
+            if not possible_descendant:
+                unassigned_ids.append(download_id)
+    ContentDownloadRequest.objects.filter(id__inline_in=unassigned_ids).delete()
 
 
 class PreferredDevices:
@@ -607,6 +701,20 @@ def _create_related_download_requests_if_needed(incomplete_downloads):
                 derived_assignments,
                 source_instance_id=download_request.source_instance_id,
             )
+            if download_request.reason == ContentRequestReason.SyncInitiated:
+                _delete_removed_course_descendant_downloads(
+                    download_request, course_descendants
+                )
+
+
+def _delete_removed_course_descendant_downloads(course_download, course_descendants):
+    _incomplete_sync_downloads(
+        course_download.source_model,
+        source_id=course_download.source_id,
+        channel_version__isnull=True,
+    ).exclude(contentnode_id=course_download.contentnode_id).exclude(
+        contentnode_id__in=course_descendants.values("id")
+    ).delete()
 
 
 def process_content_requests():

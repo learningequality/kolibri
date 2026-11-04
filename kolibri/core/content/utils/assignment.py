@@ -158,6 +158,14 @@ class ContentAssignmentManager:
                 yield assignment
 
     @classmethod
+    def find_all_downloadable_sources(cls, dataset_id=None, transfer_session_id=None):
+        for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
+            for source_id in manager._downloadable_queryset(
+                dataset_id, transfer_session_id
+            ).values_list("id", flat=True):
+                yield manager.model.morango_model_name, source_id
+
+    @classmethod
     def find_all_removable_assignments(cls, dataset_id=None, transfer_session_id=None):
         """
         :param dataset_id: optional argument to filter assignments by dataset_id
@@ -331,6 +339,11 @@ class ContentAssignmentManager:
         :return: yields ContentAssignment tuples
         :rtype: list of ContentAssignment
         """
+        model_qs = self._downloadable_queryset(dataset_id, transfer_session_id)
+        for assignment in self._get_assignments(model_qs):
+            yield assignment
+
+    def _downloadable_queryset(self, dataset_id, transfer_session_id):
         if (dataset_id is None) == (transfer_session_id is None):
             raise ValueError(
                 "One parameter needs specified: dataset_id and transfer_session_id"
@@ -359,10 +372,7 @@ class ContentAssignmentManager:
         elif dataset_id:
             model_qs = model_qs.filter(dataset_id=dataset_id)
 
-        model_qs = self._matching_filters(model_qs)
-
-        for assignment in self._get_assignments(model_qs):
-            yield assignment
+        return self._matching_filters(model_qs)
 
     def find_removable_assignments(self, dataset_id=None, transfer_session_id=None):
         """
