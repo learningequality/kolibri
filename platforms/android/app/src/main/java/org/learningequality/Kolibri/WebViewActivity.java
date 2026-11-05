@@ -127,18 +127,20 @@ public class WebViewActivity extends AppCompatActivity {
   }
 
   /**
-   * Apply system-bar + display-cutout insets as padding on the root container. Android 15+ (API
-   * 35+) enforces edge-to-edge layout when targetSdk>=35, so without this the WebView and splash
-   * draw under the status/nav bars and the yellow splash color bleeds into those zones.
+   * Android 15+ enforces edge-to-edge for targetSdk>=35. With edge-to-edge, adjustResize
+   * delivers IME insets instead of resizing the window.
    */
   private void applyEdgeToEdgeInsets() {
     View root = findViewById(R.id.root_container);
     ViewCompat.setOnApplyWindowInsetsListener(
         root,
         (v, windowInsets) -> {
-          Insets insets =
-              windowInsets.getInsets(
-                  WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+          int insetTypes =
+              WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout();
+          if (Build.VERSION.SDK_INT >= 35) {
+            insetTypes |= WindowInsetsCompat.Type.ime();
+          }
+          Insets insets = windowInsets.getInsets(insetTypes);
           v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
           return WindowInsetsCompat.CONSUMED;
         });

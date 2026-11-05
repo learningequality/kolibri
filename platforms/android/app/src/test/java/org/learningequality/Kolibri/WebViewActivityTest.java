@@ -10,11 +10,17 @@ import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.os.Looper;
+import android.view.View;
+import android.view.WindowInsets;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +33,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowWebView;
+import org.robolectric.util.ReflectionHelpers;
 
 /**
  * {@code loadIfOriginChanged} is the seam — the observer reaches it through Chaquopy, which has no
@@ -71,6 +78,64 @@ public class WebViewActivityTest {
     // value, so the reset only lands once the main looper runs.
     KolibriServerViewModel.getInstance().resetServerState();
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  @Test
+  public void systemBarsAndCutoutKeepThePageAndSplashClear() {
+    View root = controller.get().findViewById(R.id.root_container);
+    WindowInsetsCompat insets =
+        new WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, 63, 0, 0))
+            .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
+            .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(80, 0, 0, 0))
+            .build();
+
+    ViewCompat.dispatchApplyWindowInsets(root, insets);
+
+    assertEquals(80, root.getPaddingLeft());
+    assertEquals(63, root.getPaddingTop());
+    assertEquals(0, root.getPaddingRight());
+    assertEquals(48, root.getPaddingBottom());
+  }
+
+  @Test
+  public void theKeyboardKeepsThePageClearAndClosingItRestoresNavigationBarPadding() {
+    View root = controller.get().findViewById(R.id.root_container);
+    WindowInsetsCompat bars =
+        new WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
+            .build();
+    WindowInsetsCompat keyboard =
+        new WindowInsetsCompat.Builder(bars)
+            .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, 900))
+            .build();
+
+    ViewCompat.dispatchApplyWindowInsets(root, keyboard);
+
+    assertEquals(900, root.getPaddingBottom());
+
+    ViewCompat.dispatchApplyWindowInsets(root, bars);
+
+    assertEquals(48, root.getPaddingBottom());
+  }
+
+  @Test
+  @Config(sdk = 26)
+  public void aResizedAndroid8WindowDoesNotReserveTheKeyboardHeightAgain() {
+    View root = controller.get().findViewById(R.id.root_container);
+    assertTrue(root.isAttachedToWindow());
+    Object attachInfo = ReflectionHelpers.getField(root, "mAttachInfo");
+    Rect visibleInsets = ReflectionHelpers.getField(attachInfo, "mVisibleInsets");
+    visibleInsets.set(0, 63, 0, 900);
+    WindowInsets consumed =
+        new WindowInsets(new Rect(0, 63, 0, 900)).consumeSystemWindowInsets();
+    WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(consumed, root);
+    assertEquals(900, insets.getInsets(WindowInsetsCompat.Type.ime()).bottom);
+    assertEquals(0, insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
+
+    root.dispatchApplyWindowInsets(consumed);
+
+    assertEquals(0, root.getPaddingBottom());
   }
 
   @Test
