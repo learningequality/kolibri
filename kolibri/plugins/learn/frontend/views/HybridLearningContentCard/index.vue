@@ -214,8 +214,8 @@
   }
 
   body[modality='keyboard'] .card:focus {
-    outline: 4px solid var(--tokens-focusOutline);
-    outline-offset: 6px;
+    outline: 3px solid var(--tokens-focusOutline);
+    outline-offset: 4px;
   }
 
 </style>

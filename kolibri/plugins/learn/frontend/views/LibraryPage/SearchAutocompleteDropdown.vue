@@ -34,7 +34,6 @@
           :key="item.id"
           data-testid="history-item"
           class="dropdown-item"
-          :style="activeStyle(idx)"
           role="option"
           tabindex="-1"
           :aria-selected="ariaSelected(idx)"
@@ -103,7 +102,6 @@
           :key="'search-' + idx"
           data-testid="recent-search-item"
           class="dropdown-item"
-          :style="activeStyle(historyItems.length + idx)"
           role="option"
           tabindex="-1"
           :aria-selected="ariaSelected(historyItems.length + idx)"
@@ -134,7 +132,6 @@
           item.type === 'combination' ? 'combination-suggestion' : 'filter-suggestion-pill'
         "
         class="dropdown-item"
-        :style="activeStyle(idx)"
         role="option"
         tabindex="-1"
         :aria-selected="ariaSelected(idx)"
@@ -222,7 +219,6 @@
         :key="'content-' + idx"
         data-testid="suggestion-item"
         class="dropdown-item"
-        :style="activeStyle(filterSuggestions.length + idx)"
         role="option"
         tabindex="-1"
         :aria-selected="ariaSelected(filterSuggestions.length + idx)"
@@ -278,7 +274,6 @@
 <script>
 
   import { computed } from 'vue';
-  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { LearningActivities } from 'kolibri/constants';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -309,12 +304,6 @@
       // aria-selected state as an explicit string.
       function ariaSelected(index) {
         return isActive(index) ? 'true' : 'false';
-      }
-      // Hover and keyboard-active rows share one theme-aware tint instead of a
-      // hard-coded overlay colour.
-      const hoverTint = computed(() => themePalette().grey.v_100);
-      function activeStyle(index) {
-        return isActive(index) ? { backgroundColor: hoverTint.value } : null;
       }
 
       // Learning activity kind for LearningActivityIcon, or null if the item
@@ -347,7 +336,6 @@
         coreString,
         optionId,
         ariaSelected,
-        activeStyle,
         searchHistory$,
         recentSearches$,
       };
@@ -424,7 +412,8 @@
     padding: 8px 16px;
     cursor: pointer;
 
-    &:hover {
+    &:hover,
+    &[aria-selected='true'] {
       background-color: var(--palette-grey-v100);
     }
   }

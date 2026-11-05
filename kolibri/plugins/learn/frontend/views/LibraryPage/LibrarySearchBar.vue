@@ -491,7 +491,6 @@
     border: 0;
     outline: none;
 
-    /* Remove browser-default search input clear icon */
     // Browsers apply their own ::placeholder colour rather than inheriting the
     // input's, and theirs does not meet contrast requirements.
     &::placeholder {
@@ -499,6 +498,7 @@
       opacity: 1;
     }
 
+    /* Remove browser-default search input clear icon */
     &::-webkit-search-cancel-button {
       display: none;
     }
