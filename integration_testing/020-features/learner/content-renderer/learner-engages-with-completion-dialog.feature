@@ -1,0 +1,24 @@
+Feature: Learner engages with completion dialog
+
+  Given that I have completed a resource
+    And the completion dialog appears on my screen
+
+  Scenario: Learner can choose to stay and practice
+    When I click the *Stay here* button
+    Then the modal dialog closes
+      And I am back on the content page
+
+  Scenario: Learner can choose to move on to the next resource
+    When I click the *Move on* button
+    Then the modal dialog closes
+      And I am on the content page for the next resource in the lesson or topic
+
+  Scenario: Learner can choose to move on to a relevant, related resource
+    When I click one of the resources under the relevant resources section
+    Then the modal dialog closes
+      And I am on the content page for the relevant resource
+
+  Scenario: Learner can choose to exit the dialog
+    When I click the close button on the modal dialog
+    Then the modal dialog closes
+      And I am back on the content page
