@@ -9,6 +9,7 @@ import com.chaquo.python.android.AndroidPlatform;
 import java.io.File;
 import java.util.TimeZone;
 import org.learningequality.Kolibri.util.ContextUtil;
+import org.learningequality.Kolibri.util.CrossProcessLock;
 
 /**
  * Sets up the Kolibri environment: Python startup, environment variables, and Kolibri
@@ -34,6 +35,19 @@ public class KolibriEnvironmentInitializer {
   public void initialize() {
     ContextUtil.init(context);
 
+    // Chaquopy 17.0.0's AndroidPlatform and AssetFinder delete their extracted files on a stale
+    // per-process asset hash, and AssetFinder extracts top-level package data on first import,
+    // with no cross-process lock. Recheck on a Chaquopy upgrade.
+    CrossProcessLock.runExclusively(
+        new File(context.getFilesDir(), "python-startup.lock"), this::startPythonAndImportKolibri);
+
+    // Initialize Kolibri Python modules
+    initializeKolibri();
+
+    Log.i(TAG, "Kolibri environment initialized successfully");
+  }
+
+  private void startPythonAndImportKolibri() {
     // Start Python if not already started
     if (!Python.isStarted()) {
       Log.d(TAG, "Starting Python");
@@ -44,10 +58,9 @@ public class KolibriEnvironmentInitializer {
     // This ensures Python's os.environ sees the variables
     setPythonEnvironmentVariables();
 
-    // Initialize Kolibri Python modules
-    initializeKolibri();
-
-    Log.i(TAG, "Kolibri environment initialized successfully");
+    // Patch zeroconf BEFORE kolibri.main, which binds the unpatched
+    // get_all_addresses at import time (see monkey_patch_zeroconf.py)
+    Python.getInstance().getModule("monkey_patch_zeroconf");
   }
 
   /**
@@ -132,10 +145,6 @@ public class KolibriEnvironmentInitializer {
   private void initializeKolibri() {
     try {
       Python py = Python.getInstance();
-
-      // Patch zeroconf BEFORE kolibri.main, which binds the unpatched
-      // get_all_addresses at import time (see monkey_patch_zeroconf.py)
-      py.getModule("monkey_patch_zeroconf");
 
       // Import Kolibri main module
       PyObject kolibriMain = py.getModule("kolibri.main");
