@@ -142,7 +142,7 @@ jobs:
             target: default
           - api-level: 30
             target: google_apis
-          - api-level: 35
+          - api-level: 36
             target: google_apis
             experimental: true
     steps:
