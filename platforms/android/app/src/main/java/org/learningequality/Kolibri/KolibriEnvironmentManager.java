@@ -1,5 +1,7 @@
 package org.learningequality.Kolibri;
 
+import android.os.Handler;
+import android.os.Looper;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -9,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>Separates initialization coordination (this class) from the initialization work itself ({@link
  * KolibriEnvironmentInitializer}), similar to the BaseTaskWorker/TaskWorkerImpl split. The first
  * caller's initializer runs on a dedicated background thread; later callers get the same future. On
- * failure the stored future is cleared so a subsequent call can retry.
+ * failure the process crashes on its main thread.
  */
 public final class KolibriEnvironmentManager {
   private static final KolibriEnvironmentManager INSTANCE = new KolibriEnvironmentManager();
@@ -44,9 +46,14 @@ public final class KolibriEnvironmentManager {
                     initializer.initialize();
                     candidate.complete(null);
                   } catch (Throwable t) {
-                    // Clear before completing: anyone unblocked by the failure must
-                    // already see a state where a retry can be kicked off
-                    initFuture.compareAndSet(candidate, null);
+                    // Chaquopy 17.0.0's Python.start throws "cannot be retried" on every call in
+                    // a process after one has failed. Recheck on a Chaquopy upgrade.
+                    new Handler(Looper.getMainLooper())
+                        .post(
+                            () -> {
+                              throw new RuntimeException(
+                                  "Kolibri environment failed to initialize", t);
+                            });
                     candidate.completeExceptionally(t);
                   }
                 },

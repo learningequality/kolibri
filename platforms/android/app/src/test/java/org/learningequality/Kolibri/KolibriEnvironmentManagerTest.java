@@ -1,7 +1,7 @@
 package org.learningequality.Kolibri;
 
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doAnswer;
@@ -9,13 +9,20 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
+import android.os.Looper;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.shadows.ShadowLooper;
 
+@RunWith(RobolectricTestRunner.class)
 public class KolibriEnvironmentManagerTest {
 
   private KolibriEnvironmentManager manager;
@@ -75,23 +82,26 @@ public class KolibriEnvironmentManagerTest {
   }
 
   @Test
-  public void initializeAsync_retriesAfterFailure() throws Exception {
+  public void initializeAsync_crashesTheMainThreadOnFailure() throws Exception {
+    RuntimeException failure = new RuntimeException("init failed");
     KolibriEnvironmentInitializer failing = mock(KolibriEnvironmentInitializer.class);
-    doThrow(new RuntimeException("init failed")).when(failing).initialize();
+    doThrow(failure).when(failing).initialize();
 
-    CompletableFuture<Void> first = manager.initializeAsync(failing);
-    try {
-      first.get(5, TimeUnit.SECONDS);
-      fail("Expected initialization failure to propagate");
-    } catch (Exception expected) {
-      // join()/get() surfaces the initializer failure to callers
+    CompletableFuture<Void> future = manager.initializeAsync(failing);
+    ExecutionException surfaced =
+        assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
+    assertSame(failure, surfaced.getCause());
+
+    ShadowLooper mainLooper = shadowOf(Looper.getMainLooper());
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+    while (mainLooper.isIdle() && System.nanoTime() < deadline) {
+      Thread.sleep(10);
     }
-
-    KolibriEnvironmentInitializer succeeding = mock(KolibriEnvironmentInitializer.class);
-    CompletableFuture<Void> second = manager.initializeAsync(succeeding);
-
-    assertNotSame("Failed init must be replaced so a later call can retry", first, second);
-    second.get(5, TimeUnit.SECONDS);
-    verify(succeeding, times(1)).initialize();
+    Throwable crash = assertThrows(Throwable.class, mainLooper::idle);
+    for (Throwable t = crash; t != failure; t = t.getCause()) {
+      if (t == null) {
+        fail("Expected the main-thread crash to be caused by " + failure + ", got " + crash);
+      }
+    }
   }
 }
