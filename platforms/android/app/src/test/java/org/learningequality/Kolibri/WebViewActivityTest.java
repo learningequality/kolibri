@@ -3,11 +3,13 @@ package org.learningequality.Kolibri;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.content.res.Configuration;
 import android.os.Looper;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -69,6 +71,27 @@ public class WebViewActivityTest {
     // value, so the reset only lands once the main looper runs.
     KolibriServerViewModel.getInstance().resetServerState();
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  @Test
+  public void aPageSurvivesRotatingToATabletSizedWindow() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+    WebViewActivity activity = controller.get();
+    Configuration tablet = new Configuration(activity.getResources().getConfiguration());
+    tablet.orientation = Configuration.ORIENTATION_LANDSCAPE;
+    tablet.screenWidthDp = 1280;
+    tablet.screenHeightDp = 800;
+    tablet.smallestScreenWidthDp = 800;
+    tablet.screenLayout =
+        (tablet.screenLayout & ~Configuration.SCREENLAYOUT_SIZE_MASK)
+            | Configuration.SCREENLAYOUT_SIZE_XLARGE;
+
+    controller.configurationChange(tablet);
+
+    assertSame(activity, controller.get());
+    assertSame(webView, controller.get().findViewById(R.id.webview));
+    assertEquals(PAGE_URL, webView.getUrl());
   }
 
   @Test

@@ -13,7 +13,7 @@ else
 endif
 
 # Android configuration
-ANDROID_API := 35
+ANDROID_API := 36
 ANDROIDNDKVER := 28.2.13676358
 SDKMANAGER_VERSION := 13114758
 
@@ -32,7 +32,7 @@ export ANDROIDSDK := $(SDK)
 export ANDROIDNDK := $(SDK)/ndk-bundle
 
 # Emulator configuration
-AVD_NAME := kolibri-test
+AVD_NAME := kolibri-test-api-$(ANDROID_API)
 SYSTEM_IMAGE := system-images;android-$(ANDROID_API);default;x86_64
 
 ADB := adb
@@ -159,7 +159,7 @@ $(SDK)/cmdline-tools/latest/bin/sdkmanager:
 sdk: $(SDK)/cmdline-tools/latest/bin/sdkmanager
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platforms;android-$(ANDROID_API)"
-	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "build-tools;35.0.0"
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "build-tools;36.0.0"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "ndk;$(ANDROIDNDKVER)"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "emulator"
 	ln -sfT ndk/$(ANDROIDNDKVER) $(SDK)/ndk-bundle
@@ -308,7 +308,7 @@ help:
 	@echo "Environment Variables:"
 	@echo "  ANDROID_SDK_ROOT      - Android SDK location (default: ~/Android/Sdk)"
 	@echo "                          (current: $(SDK))"
-	@echo "  AVD_NAME              - Emulator name (default: kolibri-test)"
+	@echo "  AVD_NAME              - Emulator name (default: $(AVD_NAME))"
 	@echo ""
 	@echo "Release Build Variables (required for 'make kolibri.apk'):"
 	@echo "  RELEASE_KEYSTORE      - Path to release keystore (.jks file)"

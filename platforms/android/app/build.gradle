@@ -161,8 +161,8 @@ tasks.configureEach { task ->
 
 android {
 	namespace = 'org.learningequality.Kolibri'
-	compileSdk = 35
-	buildToolsVersion = "35.0.0"
+	compileSdk = 36
+	buildToolsVersion = "36.0.0"
 
 	// Use calculated version from configuration phase
 	def code = calculatedVersionCode
@@ -174,7 +174,7 @@ android {
 	defaultConfig {
 		applicationId = "org.learningequality.Kolibri"
 		minSdk = 24  // Chaquopy requires API 24+
-		targetSdk = 35
+		targetSdk = 36
 		versionCode = code
 		versionName = name
 		multiDexEnabled = true
