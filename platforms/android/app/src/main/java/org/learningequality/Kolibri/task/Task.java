@@ -37,41 +37,7 @@ public class Task {
       Context context = ContextUtil.getApplicationContext();
       RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
 
-      // Build work data
-      Data inputData =
-          new Data.Builder()
-              .putString("job_id", id)
-              .putString("task_id", id)
-              .putString("job_func", jobFunc)
-              .build();
-
-      // Select worker class based on long_running flag
-      Class<? extends androidx.work.Worker> workerClass;
-      if (longRunning) {
-        workerClass = ForegroundWorker.class;
-      } else {
-        workerClass = BackgroundWorker.class;
-      }
-
-      // Build work request with delay and priority
-      OneTimeWorkRequest.Builder requestBuilder =
-          new OneTimeWorkRequest.Builder(workerClass)
-              .setInputData(inputData)
-              .addTag("kolibri:job:" + id);
-
-      // Set initial delay if specified
-      if (delay > 0) {
-        long delayMillis = (long) (delay * 1000);
-        requestBuilder.setInitialDelay(delayMillis, TimeUnit.MILLISECONDS);
-      }
-
-      // Set expedite flag for high priority tasks (only if no delay - can't expedite delayed jobs)
-      if (expedite && delay <= 0) {
-        requestBuilder.setExpedited(
-            androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
-      }
-
-      OneTimeWorkRequest workRequest = requestBuilder.build();
+      OneTimeWorkRequest workRequest = buildWorkRequest(id, delay, expedite, jobFunc, longRunning);
 
       // Use unique work to prevent duplicate task execution
       // REPLACE policy ensures the latest schedule takes effect
@@ -99,6 +65,43 @@ public class Task {
       Log.e(TAG, "Failed to enqueue task " + id, e);
       return null;
     }
+  }
+
+  static OneTimeWorkRequest buildWorkRequest(
+      String id, double delay, boolean expedite, String jobFunc, boolean longRunning) {
+    // Build work data
+    Data inputData =
+        new Data.Builder()
+            .putString("job_id", id)
+            .putString("task_id", id)
+            .putString("job_func", jobFunc)
+            .build();
+
+    Class<? extends androidx.work.Worker> workerClass;
+    if (longRunning || expedite) {
+      workerClass = ForegroundWorker.class;
+    } else {
+      workerClass = BackgroundWorker.class;
+    }
+
+    // Build work request with delay and priority
+    OneTimeWorkRequest.Builder requestBuilder =
+        new OneTimeWorkRequest.Builder(workerClass)
+            .setInputData(inputData)
+            .addTag("kolibri:job:" + id);
+
+    // Set initial delay if specified
+    if (delay > 0) {
+      long delayMillis = (long) (delay * 1000);
+      requestBuilder.setInitialDelay(delayMillis, TimeUnit.MILLISECONDS);
+    }
+
+    // Set expedite flag for high priority tasks (only if no delay - can't expedite delayed jobs)
+    if (expedite && delay <= 0) {
+      requestBuilder.setExpedited(androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
+    }
+
+    return requestBuilder.build();
   }
 
   /**
