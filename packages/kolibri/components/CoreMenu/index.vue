@@ -102,7 +102,9 @@
       });
     },
     destroyed() {
-      window.setTimeout(() => this.lastFocus.focus());
+      if (!document.activeElement || document.activeElement === document.body) {
+        window.setTimeout(() => this.lastFocus.focus());
+      }
     },
     methods: {
       /**
