@@ -81,6 +81,82 @@ public class WebViewActivityTest {
   }
 
   @Test
+  public void theFirstPageLeavesBackToTheSystem() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+  }
+
+  @Test
+  public void backWalksHashHistoryAndThenLeavesBackToTheSystem() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    visitRoute(PAGE_URL);
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+
+    assertEquals(FACILITY_URL, webView.getUrl());
+    webView.getWebViewClient().doUpdateVisitedHistory(webView, FACILITY_URL, false);
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    visitRoute(PAGE_URL);
+
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+    assertEquals(FACILITY_URL, webView.getUrl());
+  }
+
+  @Test
+  public void historyNavigationStillWorksAfterReturningFromTheBackground() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    controller.pause().stop().start().resume();
+    visitRoute(PAGE_URL);
+
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+    assertEquals(FACILITY_URL, webView.getUrl());
+  }
+
+  @Test
+  public void pageFinishedEnablesBackWhenHistoryArrivesAfterTheVisitedHistoryCallback() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    WebViewClient client = webView.getWebViewClient();
+    client.doUpdateVisitedHistory(webView, PAGE_URL, false);
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    shadowWebView.pushEntryToHistory(PAGE_URL);
+
+    client.onPageFinished(webView, PAGE_URL);
+
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+    assertEquals(FACILITY_URL, webView.getUrl());
+  }
+
+  @Test
+  public void aNewOriginClearsBackHistory() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    visitRoute(PAGE_URL);
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    controller.get().loadIfOriginChanged(NEW_ORIGIN_INITIALIZE_URL, PAGE_PATH);
+    reachAPage("http://127.0.0.1:45791" + PAGE_PATH);
+
+    assertFalse(webView.canGoBack());
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+  }
+
+  @Test
   public void systemBarsAndCutoutKeepThePageAndSplashClear() {
     View root = controller.get().findViewById(R.id.root_container);
     WindowInsetsCompat insets =
@@ -306,6 +382,11 @@ public class WebViewActivityTest {
     controller.stop();
     KolibriServerViewModel.getInstance().resetServerState();
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  private void visitRoute(String url) {
+    shadowWebView.pushEntryToHistory(url);
+    webView.getWebViewClient().doUpdateVisitedHistory(webView, url, false);
   }
 
   /** A committed document, as the WebViewClient sees it — what makes the page worth keeping. */

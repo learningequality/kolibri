@@ -58,6 +58,7 @@ public class WebViewActivity extends AppCompatActivity {
   private static final String LOCALHOST = "localhost";
 
   private WebView webView;
+  private OnBackPressedCallback backNavigationCallback;
   private KolibriJavascriptBridge bridge;
   private FrameLayout fullscreenContainer;
   private View splashContainer;
@@ -195,21 +196,14 @@ public class WebViewActivity extends AppCompatActivity {
    * exiting activity.
    */
   private void setupBackNavigation() {
-    getOnBackPressedDispatcher()
-        .addCallback(
-            this,
-            new OnBackPressedCallback(true) {
-              @Override
-              public void handleOnBackPressed() {
-                if (webView != null && webView.canGoBack()) {
-                  webView.goBack();
-                } else {
-                  // Disable this callback and trigger default back behavior
-                  setEnabled(false);
-                  getOnBackPressedDispatcher().onBackPressed();
-                }
-              }
-            });
+    backNavigationCallback =
+        new OnBackPressedCallback(false) {
+          @Override
+          public void handleOnBackPressed() {
+            webView.goBack();
+          }
+        };
+    getOnBackPressedDispatcher().addCallback(this, backNavigationCallback);
   }
 
   private void setupWebView() {
@@ -334,6 +328,7 @@ public class WebViewActivity extends AppCompatActivity {
               view.evaluateJavascript(
                   "if (location.href !== " + quoted + ") location.replace(" + quoted + ");", null);
             }
+            backNavigationCallback.setEnabled(view.canGoBack());
           }
 
           @Override
@@ -349,6 +344,7 @@ public class WebViewActivity extends AppCompatActivity {
             // Kolibri's router is in hash mode: route changes are same-document and never reach
             // onPageFinished.
             WebViewLocation.save(WebViewActivity.this, url);
+            backNavigationCallback.setEnabled(view.canGoBack());
           }
         });
 
