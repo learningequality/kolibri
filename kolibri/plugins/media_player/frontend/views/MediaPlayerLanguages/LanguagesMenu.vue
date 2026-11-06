@@ -32,7 +32,7 @@
 
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
-    /* rtl:ignore */
+    /*! rtl:ignore */
     left: -8em;
     width: 16em;
     // minus 32px max immersive layout padding

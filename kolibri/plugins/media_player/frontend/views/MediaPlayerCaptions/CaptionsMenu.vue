@@ -28,7 +28,7 @@
 
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
-    /* rtl:ignore */
+    /*! rtl:ignore */
     left: -5em;
     width: 15em;
   }
