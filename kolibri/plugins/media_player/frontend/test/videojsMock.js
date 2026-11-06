@@ -120,6 +120,16 @@ export function createFakePlayer(overrides = {}) {
     return undefined;
   };
 
+  // video.js's default player children, in order (with bigPlayButton: false).
+  const children = [
+    'MediaLoader',
+    'PosterImage',
+    'TextTrackDisplay',
+    'LoadingSpinner',
+    'LiveTracker',
+    'ControlBar',
+  ].map(name => ({ name: () => name, getChild: () => undefined }));
+
   const player = {
     on: (event, cb) => {
       (listeners[event] = listeners[event] || []).push(cb);
@@ -166,9 +176,12 @@ export function createFakePlayer(overrides = {}) {
     addClass: jest.fn(),
     removeClass: jest.fn(),
     addChild: jest.fn(),
+    children: jest.fn(() => children),
     // Child lookups return a childless stub: consumers chain getChild and then
     // guard on the missing grandchild (MediaPlayerFullscreen's toggle lookup).
-    getChild: jest.fn(() => ({ getChild: () => undefined })),
+    getChild: jest.fn(
+      name => children.find(child => child.name() === name) ?? { getChild: () => undefined },
+    ),
     controlBar: { getChild: jest.fn() },
     ...overrides.methods,
   };
@@ -243,6 +256,7 @@ export function videojsModuleMock() {
       wrapper.appendChild(el);
     }
     const player = createFakePlayer();
+    player.el = () => wrapper;
     const disposePlayer = player.dispose;
     player.dispose = jest.fn(() => {
       disposePlayer();

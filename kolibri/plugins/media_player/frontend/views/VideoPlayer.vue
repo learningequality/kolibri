@@ -26,6 +26,7 @@
           'wrapper',
           {
             'keyboard-modality': $inputModality === 'keyboard',
+            'keyboard-focus-within': $inputModality === 'keyboard' && focusWithinPlayer,
             'video-loading': loading,
             'transcript-visible': transcriptVisible,
             'transcript-wrap': transcriptWrap,
@@ -79,7 +80,7 @@
 
   import vue, { computed, ref, watch, getCurrentInstance } from 'vue';
   import videojs from 'video.js';
-  import { useThrottleFn, useEventListener } from '@vueuse/core';
+  import { useThrottleFn, useEventListener, useFocusWithin } from '@vueuse/core';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
@@ -148,11 +149,25 @@
           player.value.addChild('ReplayButton', {}, 4);
           player.value.addChild('BigPlayToggle', {}, 5);
           player.value.addChild('ForwardButton', {}, 6);
+          const textTrackDisplay = player.value.getChild('TextTrackDisplay');
+          player.value.addChild(
+            'Component',
+            { className: 'vjs-scrim' },
+            player.value.children().indexOf(textTrackDisplay),
+          );
+
+          // KDS only keeps keyboard modality when focus lands on a link, button,
+          // input or [data-focus=true] element; video.js sliders are divs.
+          wrapper.value
+            .querySelectorAll('[role="slider"]')
+            .forEach(slider => slider.setAttribute('data-focus', 'true'));
 
           updatePlayerSizeClass();
           resizePlayer();
         },
       });
+
+      const { focused: focusWithinPlayer } = useFocusWithin(() => player.value?.el());
 
       // Computed
       const videoSources = computed(() => {
@@ -303,6 +318,7 @@
         playerRef,
         defaultFile,
         isFullscreen,
+        focusWithinPlayer,
         videoSources,
         transcriptVisible,
         transcriptWrap,
@@ -436,9 +452,13 @@
   /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive .vjs-control-bar {
     visibility: hidden;
 
-    /* Always show control bar in keyboard modality */
+    /* Keep the controls in the tab order for keyboard users */
     .keyboard-modality & {
       visibility: visible;
+      opacity: 0;
+    }
+
+    .keyboard-focus-within & {
       opacity: 1;
     }
   }
@@ -503,6 +523,37 @@
               0 1px 0 var(--video-fineline);
           }
         }
+      }
+    }
+
+    .vjs-scrim {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.6) 56px,
+        rgba(0, 0, 0, 0.2) 120px,
+        transparent 200px
+      );
+      transition:
+        visibility 0.1s,
+        opacity 0.1s;
+    }
+
+    &.vjs-has-started.vjs-playing.vjs-user-inactive > .vjs-scrim {
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        visibility 1s,
+        opacity 1s;
+
+      .keyboard-focus-within & {
+        visibility: visible;
+        opacity: 1;
       }
     }
 
