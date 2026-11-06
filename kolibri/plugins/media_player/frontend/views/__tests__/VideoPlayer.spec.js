@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import { ref, nextTick } from 'vue';
 
 // Fake video.js (the hard boundary) so the REAL useMediaPlayer / useCaptions /
@@ -13,9 +13,12 @@ jest.mock('kolibri-design-system/lib/composables/useKResponsiveElement', () => (
 
 /* eslint-disable import-x/first, import-x/named */
 import videojs from 'video.js';
+import globalThemeState from 'kolibri-design-system/lib/styles/globalThemeState';
 import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import VideoPlayer from '../VideoPlayer';
 import mediaStrings from '../../utils/mediaStrings';
+import Settings from '../../utils/settings';
 import { createTrack, flushPlayerReady } from '../../test/videojsMock';
 /* eslint-enable import-x/first, import-x/named */
 
@@ -104,8 +107,16 @@ describe('VideoPlayer', () => {
       expect(config.bigPlayButton).toBe(false);
 
       const player = videojs.mock.results.at(-1).value;
-      const added = player.addChild.mock.calls.map(([name]) => name);
+      const added = player.addChild.mock.calls
+        .map(([name]) => name)
+        .filter(name => name !== 'Component');
       expect(added).toEqual(['ReplayButton', 'BigPlayToggle', 'ForwardButton']);
+    });
+
+    it('adds a scrim beneath the captions to keep the controls legible over light video', async () => {
+      await renderReady();
+      const player = videojs.mock.results.at(-1).value;
+      expect(player.addChild).toHaveBeenCalledWith('Component', { className: 'vjs-scrim' }, 2);
     });
 
     it('builds the control bar with the Kolibri captions and languages buttons', async () => {
@@ -123,6 +134,12 @@ describe('VideoPlayer', () => {
       expect(config.languages[config.language].Play).toBe(mediaStrings.play$());
     });
 
+    it('labels the play button "Start over" once the video has ended', async () => {
+      await renderReady();
+      const [, config] = videojs.mock.calls[0];
+      expect(config.languages[config.language].Replay).toBe(coreStrings.startOverAction$());
+    });
+
     it('leaves the new player attached to the document after a source change', async () => {
       const content = useContentViewerMock({ files: VIDEO_FILES, defaultFile: VIDEO_FILES[0] });
       useContentViewer.mockImplementation(() => content);
@@ -137,6 +154,44 @@ describe('VideoPlayer', () => {
 
       const video = videojs.mock.calls[1][0];
       expect(container.contains(video)).toBe(true);
+    });
+  });
+
+  describe('keyboard focus', () => {
+    afterEach(() => {
+      globalThemeState.inputModality = null;
+    });
+
+    it('shows the controls while a keyboard user is focused in the player', async () => {
+      globalThemeState.inputModality = 'keyboard';
+      const { container } = await renderReady();
+      await fireEvent.focusIn(container.querySelector('video'));
+      expect(container.querySelector('.wrapper')).toHaveClass('keyboard-focus-within');
+    });
+
+    it('does not show the controls while a keyboard user is focused outside the player', async () => {
+      globalThemeState.inputModality = 'keyboard';
+      const { container } = await renderReady();
+      await fireEvent.focusIn(container.querySelector('video'));
+      await fireEvent.focusOut(container.querySelector('video'));
+      expect(container.querySelector('.wrapper')).not.toHaveClass('keyboard-focus-within');
+    });
+
+    it('does not show the controls while a keyboard user is focused in the transcript', async () => {
+      globalThemeState.inputModality = 'keyboard';
+      new Settings().captionTranscript = true;
+      const { container } = await renderReady();
+      bindTracks([createTrack({ language: 'en' })]);
+      await nextTick();
+      await fireEvent.focusIn(screen.getByRole('region', { name: coreStrings.transcript$() }));
+      expect(container.querySelector('.wrapper')).not.toHaveClass('keyboard-focus-within');
+    });
+
+    it('does not show the controls for a pointer user focused in the player', async () => {
+      globalThemeState.inputModality = 'pointer';
+      const { container } = await renderReady();
+      await fireEvent.focusIn(container.querySelector('video'));
+      expect(container.querySelector('.wrapper')).not.toHaveClass('keyboard-focus-within');
     });
   });
 

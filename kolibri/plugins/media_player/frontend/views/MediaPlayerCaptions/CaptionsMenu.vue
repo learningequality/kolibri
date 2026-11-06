@@ -28,8 +28,11 @@
 
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
-    /* rtl:ignore */
-    left: -5em;
+    /*! rtl:begin:ignore */
+    right: 0;
+    left: auto;
+
+    /*! rtl:end:ignore */
     width: 15em;
   }
 

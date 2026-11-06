@@ -32,8 +32,11 @@
 
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
-    /* rtl:ignore */
-    left: -8em;
+    /*! rtl:begin:ignore */
+    right: 0;
+    left: auto;
+
+    /*! rtl:end:ignore */
     width: 16em;
     // minus 32px max immersive layout padding
     max-height: calc(#{$video-player-height-vw} - #{$video-player-control-height} - 32px);
