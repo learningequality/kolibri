@@ -3,16 +3,24 @@ package org.learningequality.Kolibri;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.os.Looper;
+import android.view.View;
+import android.view.WindowInsets;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +33,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowWebView;
+import org.robolectric.util.ReflectionHelpers;
 
 /**
  * {@code loadIfOriginChanged} is the seam — the observer reaches it through Chaquopy, which has no
@@ -69,6 +78,161 @@ public class WebViewActivityTest {
     // value, so the reset only lands once the main looper runs.
     KolibriServerViewModel.getInstance().resetServerState();
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  @Test
+  public void theFirstPageLeavesBackToTheSystem() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+  }
+
+  @Test
+  public void backWalksHashHistoryAndThenLeavesBackToTheSystem() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    visitRoute(PAGE_URL);
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+
+    assertEquals(FACILITY_URL, webView.getUrl());
+    webView.getWebViewClient().doUpdateVisitedHistory(webView, FACILITY_URL, false);
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    visitRoute(PAGE_URL);
+
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+    assertEquals(FACILITY_URL, webView.getUrl());
+  }
+
+  @Test
+  public void historyNavigationStillWorksAfterReturningFromTheBackground() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    controller.pause().stop().start().resume();
+    visitRoute(PAGE_URL);
+
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+    assertEquals(FACILITY_URL, webView.getUrl());
+  }
+
+  @Test
+  public void pageFinishedEnablesBackWhenHistoryArrivesAfterTheVisitedHistoryCallback() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    WebViewClient client = webView.getWebViewClient();
+    client.doUpdateVisitedHistory(webView, PAGE_URL, false);
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    shadowWebView.pushEntryToHistory(PAGE_URL);
+
+    client.onPageFinished(webView, PAGE_URL);
+
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+    controller.get().getOnBackPressedDispatcher().onBackPressed();
+    assertEquals(FACILITY_URL, webView.getUrl());
+  }
+
+  @Test
+  public void aNewOriginClearsBackHistory() {
+    serverComesUp();
+    reachAPage(FACILITY_URL);
+    visitRoute(FACILITY_URL);
+    visitRoute(PAGE_URL);
+    assertTrue(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+
+    controller.get().loadIfOriginChanged(NEW_ORIGIN_INITIALIZE_URL, PAGE_PATH);
+    reachAPage("http://127.0.0.1:45791" + PAGE_PATH);
+
+    assertFalse(webView.canGoBack());
+    assertFalse(controller.get().getOnBackPressedDispatcher().hasEnabledCallbacks());
+  }
+
+  @Test
+  public void systemBarsAndCutoutKeepThePageAndSplashClear() {
+    View root = controller.get().findViewById(R.id.root_container);
+    WindowInsetsCompat insets =
+        new WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, 63, 0, 0))
+            .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
+            .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(80, 0, 0, 0))
+            .build();
+
+    ViewCompat.dispatchApplyWindowInsets(root, insets);
+
+    assertEquals(80, root.getPaddingLeft());
+    assertEquals(63, root.getPaddingTop());
+    assertEquals(0, root.getPaddingRight());
+    assertEquals(48, root.getPaddingBottom());
+  }
+
+  @Test
+  public void theKeyboardKeepsThePageClearAndClosingItRestoresNavigationBarPadding() {
+    View root = controller.get().findViewById(R.id.root_container);
+    WindowInsetsCompat bars =
+        new WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
+            .build();
+    WindowInsetsCompat keyboard =
+        new WindowInsetsCompat.Builder(bars)
+            .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, 900))
+            .build();
+
+    ViewCompat.dispatchApplyWindowInsets(root, keyboard);
+
+    assertEquals(900, root.getPaddingBottom());
+
+    ViewCompat.dispatchApplyWindowInsets(root, bars);
+
+    assertEquals(48, root.getPaddingBottom());
+  }
+
+  @Test
+  @Config(sdk = 26)
+  public void aResizedAndroid8WindowDoesNotReserveTheKeyboardHeightAgain() {
+    View root = controller.get().findViewById(R.id.root_container);
+    assertTrue(root.isAttachedToWindow());
+    Object attachInfo = ReflectionHelpers.getField(root, "mAttachInfo");
+    Rect visibleInsets = ReflectionHelpers.getField(attachInfo, "mVisibleInsets");
+    visibleInsets.set(0, 63, 0, 900);
+    WindowInsets consumed =
+        new WindowInsets(new Rect(0, 63, 0, 900)).consumeSystemWindowInsets();
+    WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(consumed, root);
+    assertEquals(900, insets.getInsets(WindowInsetsCompat.Type.ime()).bottom);
+    assertEquals(0, insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
+
+    root.dispatchApplyWindowInsets(consumed);
+
+    assertEquals(0, root.getPaddingBottom());
+  }
+
+  @Test
+  public void aPageSurvivesRotatingToATabletSizedWindow() {
+    serverComesUp();
+    reachAPage(PAGE_URL);
+    WebViewActivity activity = controller.get();
+    Configuration tablet = new Configuration(activity.getResources().getConfiguration());
+    tablet.orientation = Configuration.ORIENTATION_LANDSCAPE;
+    tablet.screenWidthDp = 1280;
+    tablet.screenHeightDp = 800;
+    tablet.smallestScreenWidthDp = 800;
+    tablet.screenLayout =
+        (tablet.screenLayout & ~Configuration.SCREENLAYOUT_SIZE_MASK)
+            | Configuration.SCREENLAYOUT_SIZE_XLARGE;
+
+    controller.configurationChange(tablet);
+
+    assertSame(activity, controller.get());
+    assertSame(webView, controller.get().findViewById(R.id.webview));
+    assertEquals(PAGE_URL, webView.getUrl());
   }
 
   @Test
@@ -218,6 +382,11 @@ public class WebViewActivityTest {
     controller.stop();
     KolibriServerViewModel.getInstance().resetServerState();
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  private void visitRoute(String url) {
+    shadowWebView.pushEntryToHistory(url);
+    webView.getWebViewClient().doUpdateVisitedHistory(webView, url, false);
   }
 
   /** A committed document, as the WebViewClient sees it — what makes the page worth keeping. */
