@@ -447,3 +447,11 @@ class TestAppInstallationTypes:
         }
         with mock.patch("os.environ", environ):
             assert server.installation_type() == "Flatpak - 1.2.3"
+
+    def test_docker_ignores_installer_version(self):
+        environ = {
+            "KOLIBRI_INSTALLATION_TYPE": installation_types.DOCKER,
+            "KOLIBRI_INSTALLER_VERSION": "1.2.3",
+        }
+        with mock.patch("os.environ", environ):
+            assert server.installation_type() == "docker"
