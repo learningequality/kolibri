@@ -61,6 +61,13 @@ def parse_byte_range(range_header, file_size):
         # Handle negative start values by adding them to file_size
         if start < 0:
             start = file_size + start
+        # A suffix range longer than the file covers the whole file
+        if start < 0:
+            start = 0
+        if end < start:
+            # An inverted range is unsatisfiable; ignore it and serve the
+            # full file, as the beyond-EOF and malformed cases already do.
+            return None
         length = end - start + 1
         return start, length
     except ValueError:
