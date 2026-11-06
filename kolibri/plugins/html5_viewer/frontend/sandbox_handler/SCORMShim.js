@@ -588,6 +588,7 @@ export function setByKeyPath(obj, keyPath, value, localSchema) {
 
 const statusProgressMap = {
   passed: 1,
+  completed: 1,
   failed: 0.5,
   browsed: 0.5,
   'not attempted': 0,

@@ -1,5 +1,6 @@
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import Sandbox from 'kolibri-sandbox';
+import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
 import urls from 'kolibri/urls';
 import { now } from 'kolibri/utils/serverClock';
 import useContentViewer from '../useContentViewer';
@@ -7,6 +8,8 @@ import useContentViewer from '../useContentViewer';
 const PROGRESS_POLLING_INTERVAL = 5000;
 
 const DEFAULT_DURATION = 300;
+
+const TIME_BASED_COMPLETION_MODELS = [CompletionCriteria.TIME, CompletionCriteria.APPROX_TIME];
 
 /**
  * Composable for content viewers that render inside the Kolibri sandbox.
@@ -34,6 +37,14 @@ export default function useSandbox({ emit }, { pollProgress = false, urlBuilder 
     progress,
     extraFields,
   } = useContentViewer({ emit }, { defaultDuration: pollProgress ? DEFAULT_DURATION : null });
+
+  // When the completion criteria is time based, progress reported by the content must not
+  // override it, so that it cannot be completed before the time has been spent.
+  const useDurationBasedProgress = computed(
+    () =>
+      forceDurationBasedProgress.value ||
+      TIME_BASED_COMPLETION_MODELS.includes(contentOptions.value?.completion_criteria?.model),
+  );
 
   const loading = ref(true);
   let sandbox = null;
@@ -81,7 +92,7 @@ export default function useSandbox({ emit }, { pollProgress = false, urlBuilder 
    */
   function emitProgress(sandboxProgress) {
     let currentProgress;
-    if (forceDurationBasedProgress.value) {
+    if (useDurationBasedProgress.value) {
       currentProgress = durationBasedProgress.value;
     } else {
       currentProgress = sandboxProgress !== null ? sandboxProgress : durationBasedProgress.value;
@@ -116,7 +127,7 @@ export default function useSandbox({ emit }, { pollProgress = false, urlBuilder 
     sandbox.onStateUpdate(data => {
       emit('updateContentState', data);
       const currentProgress = sandbox.getProgress();
-      if (currentProgress !== null && !forceDurationBasedProgress.value) {
+      if (currentProgress !== null && !useDurationBasedProgress.value) {
         emitProgress(currentProgress);
       }
     });
