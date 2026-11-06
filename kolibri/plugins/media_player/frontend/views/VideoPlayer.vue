@@ -579,15 +579,37 @@
 
     /* Fixes volume panel appearing on hover. */
     .vjs-volume-vertical {
-      display: none;
+      pointer-events: none;
+      visibility: inherit;
     }
 
-    .vjs-volume-panel-vertical {
-      &:hover {
-        .vjs-volume-vertical {
-          display: block;
-        }
-      }
+    .vjs-volume-panel-vertical:hover .vjs-volume-vertical {
+      pointer-events: auto;
+    }
+
+    .vjs-mute-control:focus-visible ~ .vjs-volume-vertical {
+      pointer-events: auto;
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .vjs-volume-vertical:focus-within {
+      pointer-events: auto;
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .vjs-volume-vertical .vjs-volume-tooltip {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 50%;
+      white-space: nowrap;
+      visibility: hidden;
+      transform: translateX(-50%);
+    }
+
+    .vjs-volume-vertical:hover .vjs-volume-tooltip {
+      visibility: visible;
     }
 
     .vjs-volume-level {
