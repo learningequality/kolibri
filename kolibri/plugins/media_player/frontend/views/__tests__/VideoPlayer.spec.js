@@ -134,6 +134,12 @@ describe('VideoPlayer', () => {
       expect(config.languages[config.language].Play).toBe(mediaStrings.play$());
     });
 
+    it('labels the play button "Start over" once the video has ended', async () => {
+      await renderReady();
+      const [, config] = videojs.mock.calls[0];
+      expect(config.languages[config.language].Replay).toBe(coreStrings.startOverAction$());
+    });
+
     it('leaves the new player attached to the document after a source change', async () => {
       const content = useContentViewerMock({ files: VIDEO_FILES, defaultFile: VIDEO_FILES[0] });
       useContentViewer.mockImplementation(() => content);
