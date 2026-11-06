@@ -1,3 +1,5 @@
+import random
+
 from django.db import models
 
 from kolibri.core.auth.models import FacilityUser
@@ -49,3 +51,38 @@ class PingbackStatus(models.Model):
     @classmethod
     def record_success(cls):
         cls(last_succeeded=local_now()).save()
+
+
+def random_donation_variant():
+    return random.choice(DonationNotificationStatus.VARIANTS)
+
+
+class DonationNotificationStatus(models.Model):
+    VARIANTS = ("a", "b")
+
+    variant = models.CharField(
+        max_length=1,
+        choices=[(v, v) for v in VARIANTS],
+        default=random_donation_variant,
+    )
+    last_dismissed = DateTimeTzField(null=True)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def _read(cls, field):
+        return cls.objects.filter(pk=1).values_list(field, flat=True).first()
+
+    @classmethod
+    def assigned_variant(cls):
+        return cls._read("variant")
+
+    @classmethod
+    def last_dismissed_at(cls):
+        return cls._read("last_dismissed")
+
+    @classmethod
+    def record_dismissal(cls):
+        cls.objects.update_or_create(pk=1, defaults={"last_dismissed": local_now()})

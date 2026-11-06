@@ -7,8 +7,11 @@ from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.utils import conf
 from kolibri.utils.version import version_matches_range
 
+from ..local_notifications import DONATION_KEY
+from ..models import DonationNotificationStatus
 from ..models import LocalNotification
 from ..models import PingbackNotification
 from ..models import PingbackNotificationDismissed
@@ -39,10 +42,18 @@ class LocalNotificationSerializer(serializers.ModelSerializer):
 
     facility_name = serializers.SerializerMethodField()
     learner_count = serializers.SerializerMethodField()
+    variant = serializers.SerializerMethodField()
 
     class Meta:
         model = LocalNotification
-        fields = ("id", "key", "created_at", "facility_name", "learner_count")
+        fields = (
+            "id",
+            "key",
+            "created_at",
+            "facility_name",
+            "learner_count",
+            "variant",
+        )
         read_only_fields = fields
 
     def get_facility_name(self, obj):
@@ -50,6 +61,11 @@ class LocalNotificationSerializer(serializers.ModelSerializer):
 
     def get_learner_count(self, obj):
         return get_learner_count(self.context["request"].user.facility.dataset_id)
+
+    def get_variant(self, obj):
+        if obj.key != DONATION_KEY:
+            return None
+        return DonationNotificationStatus.assigned_variant()
 
 
 class PingbackNotificationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -90,3 +106,14 @@ class LocalNotificationViewSet(
     permission_classes = (IsSuperuser,)
     serializer_class = LocalNotificationSerializer
     queryset = LocalNotification.objects.all().order_by("-created_at")
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not conf.OPTIONS["Deployment"]["DONATION_NOTIFICATIONS_ENABLED"]:
+            queryset = queryset.exclude(key=DONATION_KEY)
+        return queryset
+
+    def perform_destroy(self, instance):
+        if instance.key == DONATION_KEY:
+            DonationNotificationStatus.record_dismissal()
+        super().perform_destroy(instance)
