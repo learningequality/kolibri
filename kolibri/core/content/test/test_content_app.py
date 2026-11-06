@@ -3379,6 +3379,33 @@ class ChannelThumbnailViewTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_channel_thumbnail_view_malformed_header(self):
+        self.channel_metadata.thumbnail = "not-a-data-uri,abcd"
+        self.channel_metadata.save()
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_channel_thumbnail_view_corrupt_base64(self):
+        self.channel_metadata.thumbnail = "data:image/png;base64,abc"
+        self.channel_metadata.save()
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_channel_thumbnail_view_non_image_mimetype(self):
+        self.channel_metadata.thumbnail = (
+            "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=="
+        )
+        self.channel_metadata.save()
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn(b"<script>", response.content)
+
 
 class ShareFileViewTestCase(APITestCase):
     databases = "__all__"
