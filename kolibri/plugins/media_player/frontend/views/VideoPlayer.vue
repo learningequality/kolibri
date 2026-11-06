@@ -81,7 +81,7 @@
   import vue, { computed, ref, watch, getCurrentInstance } from 'vue';
   import videojs from 'video.js';
   import { useThrottleFn, useEventListener, useFocusWithin } from '@vueuse/core';
-  import { coreString } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import useMediaPlayer, { PLAYBACK_RATES } from '../composables/useMediaPlayer';
@@ -275,12 +275,12 @@
             [GlobalLangCode]: {
               Play: mediaStrings.play$(),
               Pause: mediaStrings.pause$(),
-              Replay: mediaStrings.replay$(),
+              Replay: coreStrings.startOverAction$(),
               Forward: mediaStrings.forward$(),
               'Current Time': mediaStrings.currentTime$(),
               'Duration Time': mediaStrings.durationTime$(),
               Loaded: mediaStrings.loaded$(),
-              Progress: coreString('progressLabel'),
+              Progress: coreStrings.progressLabel$(),
               'Progress Bar': mediaStrings.progressBar$(),
               Fullscreen: mediaStrings.fullscreen$(),
               'Non-Fullscreen': mediaStrings.nonFullscreen$(),
@@ -289,7 +289,7 @@
               'Playback Rate': mediaStrings.playbackRate$(),
               Captions: mediaStrings.captions$(),
               'captions off': mediaStrings.captionsOff$(),
-              Transcript: coreString('transcript'),
+              Transcript: coreStrings.transcript$(),
               'Transcript off': mediaStrings.transcriptOff$(),
               Languages: mediaStrings.languages$(),
               'Volume Level': mediaStrings.volumeLevel$(),
