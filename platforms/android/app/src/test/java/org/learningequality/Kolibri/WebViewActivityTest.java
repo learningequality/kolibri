@@ -34,6 +34,7 @@ import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowWebView;
 import org.robolectric.util.ReflectionHelpers;
+import org.robolectric.util.ReflectionHelpers.ClassParameter;
 
 /**
  * {@code loadIfOriginChanged} is the seam — the observer reaches it through Chaquopy, which has no
@@ -204,7 +205,9 @@ public class WebViewActivityTest {
     Rect visibleInsets = ReflectionHelpers.getField(attachInfo, "mVisibleInsets");
     visibleInsets.set(0, 63, 0, 900);
     WindowInsets consumed =
-        new WindowInsets(new Rect(0, 63, 0, 900)).consumeSystemWindowInsets();
+        ReflectionHelpers.callConstructor(
+                WindowInsets.class, ClassParameter.from(Rect.class, new Rect(0, 63, 0, 900)))
+            .consumeSystemWindowInsets();
     WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(consumed, root);
     assertEquals(900, insets.getInsets(WindowInsetsCompat.Type.ime()).bottom);
     assertEquals(0, insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
