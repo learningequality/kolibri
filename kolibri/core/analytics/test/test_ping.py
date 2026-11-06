@@ -8,11 +8,14 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from requests.models import Response
 
+from kolibri.core.analytics.models import PingbackStatus
 from kolibri.core.analytics.tasks import _ping
 from kolibri.core.analytics.tasks import DEFAULT_PING_CHECKRATE
 from kolibri.core.analytics.tasks import DEFAULT_SERVER_URL
 from kolibri.core.analytics.tasks import PingAtStartup
+from kolibri.core.analytics.utils import ping_once
 from kolibri.utils import conf
+from kolibri.utils.time_utils import local_now
 
 from .test_utils import BaseDeviceSetupMixin
 
@@ -43,6 +46,12 @@ def mocked_network_client_post_wrapper(json_data, status_code):
         return MockResponse()
 
     return mocked_network_client_post
+
+
+def mocked_pingback_ok_statistics_error(*args, **kwargs):
+    if args[0].endswith("/statistics"):
+        return mocked_network_client_post_wrapper({}, 500)(*args, **kwargs)
+    return mocked_network_client_post_wrapper({"id": 17}, 200)(*args, **kwargs)
 
 
 DEFAULT_PING_INTERVAL_SECONDS = 24 * 60 * 60
@@ -88,18 +97,46 @@ class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
         side_effect=mocked_network_client_post_wrapper({"id": 17}, 200),
     )
     def test_ping_succeeds(self, post_mock):
+        before = local_now()
         call_command("ping", once=True)
+        after = local_now()
         assert len(post_mock.call_args_list) == 2
         assert post_mock.call_args_list[0][0][0].endswith("/pingback")
         assert post_mock.call_args_list[1][0][0].endswith("/statistics")
         assert load_zipped_json(post_mock.call_args_list[1][1]["data"])["pi"] == 17
+        assert before <= PingbackStatus.objects.get().last_succeeded <= after
+
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.client.NetworkClient.post",
+        side_effect=mocked_network_client_post_wrapper({"id": 17}, 200),
+    )
+    def test_ping_overwrites_earlier_success(self, post_mock):
+        PingbackStatus.objects.create(last_succeeded=local_now() - timedelta(days=2))
+        before = local_now()
+        ping_once((local_now() - timedelta(days=3)).isoformat())
+        after = local_now()
+        assert before <= PingbackStatus.objects.get().last_succeeded <= after
 
     @mock.patch(
         "kolibri.core.discovery.utils.network.client.NetworkClient.post",
         side_effect=mocked_network_client_post_wrapper({}, 400),
     )
     def test_ping_fails(self, post_mock):
+        earlier = local_now() - timedelta(days=2)
+        PingbackStatus.objects.create(last_succeeded=earlier)
         with self.assertRaises(CommandError):
             call_command("ping", once=True)
         assert len(post_mock.call_args_list) == 1
         assert post_mock.call_args_list[0][0][0].endswith("/pingback")
+        assert PingbackStatus.objects.get().last_succeeded == earlier
+
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.client.NetworkClient.post",
+        side_effect=mocked_pingback_ok_statistics_error,
+    )
+    def test_statistics_failure_still_records_last_succeeded(self, post_mock):
+        before = local_now()
+        with self.assertRaises(CommandError):
+            call_command("ping", once=True)
+        after = local_now()
+        assert before <= PingbackStatus.objects.get().last_succeeded <= after
