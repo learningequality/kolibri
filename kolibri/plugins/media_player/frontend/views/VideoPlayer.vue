@@ -598,6 +598,8 @@
 
     /* Buttons */
     .vjs-button {
+      cursor: pointer;
+
       .vjs-icon-placeholder {
         &::before {
           font-size: $button-font-size-normal;
