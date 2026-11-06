@@ -412,7 +412,6 @@
     position: relative;
     left: 0;
     height: #{$transcript-wrap-height};
-    max-height: 200px;
 
     /deep/ .loading-space {
       padding-top: 90px;
