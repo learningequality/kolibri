@@ -561,6 +561,20 @@
       display: flex;
       height: $button-height-normal;
       background-color: transparent;
+
+      > .vjs-button {
+        flex: 0 1 auto;
+        min-width: 32px;
+      }
+
+      > .vjs-captions-button,
+      > .vjs-languages-button {
+        position: static;
+
+        > .vjs-button {
+          position: relative;
+        }
+      }
     }
 
     /* Fixes volume panel appearing on hover. */
