@@ -9,8 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Configuration;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.learningequality.Kolibri.notification.NotificationRef;
@@ -26,14 +24,6 @@ public class App extends Application implements Configuration.Provider {
     // they're ready for anything triggered by Kolibri.
     createNotificationChannels();
     registerActivityLifecycleCallbacks(new KolibriActivityLifecycleCallbacks());
-
-    // Start Python runtime — must happen on main thread before any Python API usage,
-    // and BEFORE waking the work controller: wake() spawns the task_worker process,
-    // whose own Python.start would race this one's asset extraction on first launch.
-    // This is fast on subsequent launches (assets already extracted).
-    if (!Python.isStarted()) {
-      Python.start(new AndroidPlatform(this));
-    }
 
     // Wake the work controller before kicking off Kolibri init so it's ready for any
     // tasks the initialization triggers.
