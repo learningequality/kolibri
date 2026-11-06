@@ -442,7 +442,7 @@
 
   /***** PLAYER OVERRIDES *****/
 
-  /* !!rtl:begin:ignore */
+  /*! rtl:begin:ignore */
   .transcript-visible:not(.transcript-wrap) > .video-js.vjs-fill {
     width: 66.666%;
   }
@@ -889,6 +889,6 @@
     }
   }
 
-  /* !!rtl:end:ignore */
+  /*! rtl:end:ignore */
 
 </style>
