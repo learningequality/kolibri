@@ -304,6 +304,22 @@ export const coursesStrings = createTranslator('CoursesStrings', {
       'All assigned learners can now start the test. You can end the test whenever you want.',
     context: 'Description text on modal confirming start of pre-test or post-test',
   },
+  startPreTestAfterCourseVisibleDescription: {
+    message:
+      'The course is now visible to learners, but they cannot take any actions until you start the pre-test for unit {num, number}. Would you like to start that test now?',
+    context:
+      'Description text on the modal shown after a coach makes a course visible, when learners must wait for the coach to start the next pre-test',
+  },
+  startPreTestAfterCourseVisibleConfirmAction: {
+    message: 'Yes',
+    context:
+      'Button on the modal shown after a coach makes a course visible. Starts the pre-test for the unit.',
+  },
+  startPreTestAfterCourseVisibleDismissAction: {
+    message: 'No',
+    context:
+      'Button on the modal shown after a coach makes a course visible. Closes the modal without starting the pre-test.',
+  },
   endTestForUnitDescription: {
     message:
       "This action cannot be undone. Learners who haven't completed the test will be marked as incomplete.",
