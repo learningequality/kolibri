@@ -1,3 +1,4 @@
+import html
 import logging
 import mimetypes
 import os
@@ -300,8 +301,13 @@ ERROR_TEMPLATE = """
 
 
 def create_error_response(error):
+    # The error string is built from untrusted input at several call sites
+    # (the request path, a peer address from the URL), so escape it before
+    # interpolating it into the HTML template.
     return HttpResponse(
-        ERROR_TEMPLATE.format(error=error), content_type="text/html", status=404
+        ERROR_TEMPLATE.format(error=html.escape(error, quote=True)),
+        content_type="text/html",
+        status=404,
     )
 
 

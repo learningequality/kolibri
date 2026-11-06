@@ -113,6 +113,21 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_error_page_escapes_markup_in_path(self):
+        response = self._get_file('"><script>alert(1)</script>', base_url="/x/")
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn(b"<script>alert(1)</script>", response.content)
+        self.assertIn(b"&lt;script&gt;", response.content)
+
+    def test_error_page_escapes_markup_in_peer_address(self):
+        response = self._get_file(
+            self.test_name_1,
+            base_url='/x"><script>alert(1)</script>/' + self.zip_file_base_url,
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn(b"<script>alert(1)</script>", response.content)
+        self.assertIn(b"&lt;script&gt;", response.content)
+
     def test_not_modified_response_when_if_modified_since_header_set(self):
         response = self._get_file(
             self.test_name_1, HTTP_IF_MODIFIED_SINCE=caching_http_date
