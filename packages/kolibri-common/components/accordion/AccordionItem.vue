@@ -169,9 +169,9 @@
       padding: 10px;
       cursor: pointer;
       user-select: text;
+      outline-offset: 0;
       background: unset;
       border: 0;
-      outline-offset: 0;
 
       .header-content {
         display: flex;

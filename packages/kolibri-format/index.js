@@ -1,12 +1,11 @@
 const { readFile } = require('node:fs/promises');
 
 const fs = require('node:fs');
+const { createRequire } = require('node:module');
 const path = require('node:path');
 const prettier = require('prettier');
 const { ESLint } = require('eslint');
-const stylelint = require('stylelint');
 const chalk = require('chalk');
-const stylelintFormatter = require('stylelint').formatters.string;
 const logger = require('kolibri-logging');
 
 // check for host project's linting configs, otherwise use defaults
@@ -24,6 +23,35 @@ try {
 } catch (e) {
   stylelintConfig = require('./.stylelintrc');
 }
+
+function globFromHostProjectDir(glob) {
+  return glob.startsWith('!')
+    ? `!${path.resolve(hostProjectDir, glob.slice(1))}`
+    : path.resolve(hostProjectDir, glob);
+}
+
+// stylelint also matches each non-negated `overrides[].files` glob, unresolved, against the
+// basename, which is how a glob without a `/` matches in any directory
+function overrideGlobsFromHostProjectDir(glob) {
+  if (glob.startsWith('!') || (glob.includes('/') && !glob.startsWith('**/'))) {
+    return [globFromHostProjectDir(glob)];
+  }
+  return glob.startsWith('**/') ? [glob, globFromHostProjectDir(glob)] : [glob];
+}
+
+// stylelint resolves `ignoreFiles` and `overrides[].files` against `configBasedir`
+stylelintConfig = {
+  ...stylelintConfig,
+  ...(stylelintConfig.ignoreFiles && {
+    ignoreFiles: [stylelintConfig.ignoreFiles].flat().map(globFromHostProjectDir),
+  }),
+  ...(stylelintConfig.overrides && {
+    overrides: stylelintConfig.overrides.map(override => ({
+      ...override,
+      files: [override.files].flat().flatMap(overrideGlobsFromHostProjectDir),
+    })),
+  }),
+};
 
 let prettierConfig;
 try {
@@ -46,6 +74,7 @@ let esLintFormatter;
 // Initialize a stylelint linter for each style file type that we support
 // Create them here so that we can reuse, rather than creating many many objects.
 const styleLangs = ['scss', 'css', 'less', 'vue', 'html'];
+const postcssHtmlLangs = ['vue', 'html'];
 
 const errorOrChange = 1;
 const noChange = 0;
@@ -83,34 +112,55 @@ async function prettierFormat(code, file, messages) {
   return code;
 }
 
+let onePostcssAsserted = false;
+
+// stylelint 17 exempts inline `style` attributes from `no-invalid-position-declaration` with
+// `instanceof` against its own postcss, so a second copy in postcss-html fails every one
+function assertOnePostcss() {
+  if (onePostcssAsserted) {
+    return;
+  }
+  const stylelintRequire = createRequire(require.resolve('stylelint/package.json'));
+  const postcssHtmlRequire = createRequire(stylelintRequire.resolve('postcss-html'));
+  const stylelintPostcss = stylelintRequire.resolve('postcss');
+  const postcssHtmlPostcss = postcssHtmlRequire.resolve('postcss');
+  if (stylelintPostcss !== postcssHtmlPostcss) {
+    throw new Error(
+      `stylelint loads ${stylelintPostcss} but postcss-html loads ${postcssHtmlPostcss}, ` +
+        'so stylelint would reject every inline style declaration. Install one postcss in ' +
+        "stylelint's range: dedupe postcss in your lockfile (`npm dedupe postcss`, `pnpm dedupe`, …), " +
+        'lifting any postcss pin that blocks it.',
+    );
+  }
+  onePostcssAsserted = true;
+}
+
+function usesPostcssHtml(file) {
+  return postcssHtmlLangs.includes(path.extname(file).slice(1));
+}
+
 async function lintStyle(code, file, messages) {
+  if (usesPostcssHtml(file)) {
+    assertOnePostcss();
+  }
+  const { default: stylelint } = await import('stylelint');
   // Stylelint's `lint` method requires an absolute path for the codeFilename arg
   const codeFilename = !path.isAbsolute(file) ? path.join(hostProjectDir, file) : file;
+  const stringFormatter = await stylelint.formatters.string;
   const output = await stylelint.lint({
     code,
     codeFilename,
     config: stylelintConfig,
     fix: true,
-    configBasedir: hostProjectDir,
+    configBasedir: __dirname,
+    // stylelint's string formatter reads `ruleMetadata` to suggest a `--fix` option,
+    // which kolibri-format does not have
+    formatter: (results, returnValue) =>
+      stringFormatter(results, { ...returnValue, ruleMetadata: {} }),
     quietDeprecationWarnings: true,
   });
-  let formatted = code;
-  let errored = false;
-  if (output.results && output.results.length) {
-    messages.push(stylelintFormatter(output.results));
-    // There should only be one result, because we have only
-    // passed it a single file, this seems to be the only way
-    // to check if the `output` property of the output object has been set
-    // to valid style code, as opposed to a serialized copy of the formatted
-    // errors.
-    // We are doing a parallel of the check being done here:
-    // https://github.com/stylelint/stylelint/blob/master/lib/standalone.js#L159
-    if (output.results[0]._postcssResult && !output.results[0]._postcssResult.stylelint.ignored) {
-      formatted = output.output;
-    }
-    errored = output.errored;
-  }
-  return { errored, formatted };
+  messages.push(output.report);
+  return { errored: output.errored, formatted: output.code ?? code };
 }
 
 async function lintSource({ file, source }) {
@@ -192,17 +242,23 @@ async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
 function writeSourceToFile(filePath, fileSource) {
   fs.writeFileSync(filePath, fileSource, { encoding: 'utf-8' });
 
-  lint({
+  return lint({
     file: filePath,
     write: true,
     silent: true,
+  }).catch(error => {
+    logging.error(error);
+    process.exitCode = 1;
   });
 }
 
 module.exports = {
+  assertOnePostcss,
+  errorOrChange,
   lint,
   lintSource,
   logging,
   noChange,
+  usesPostcssHtml,
   writeSourceToFile,
 };

@@ -3,7 +3,7 @@
   <span v-if="isFetched && !isDeviceAvailable">
     <span
       class="inner"
-      style="font-size: 14px"
+      style="font-size: 14px;"
     >
       {{ coreString('disconnected') }}
     </span>

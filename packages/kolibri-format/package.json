@@ -41,15 +41,15 @@
     "postcss-value-parser": "^4.2.0",
     "postcss-scss": "^4.0.9",
     "prettier": "^3.8.4",
-    "stylelint": "^15.11.0",
+    "stylelint": "^17.16.0",
     "stylelint-config-html": "^1.1.0",
-    "stylelint-config-prettier": "9.0.5",
-    "stylelint-config-recess-order": "4.6.0",
-    "stylelint-config-recommended-scss": "14.1.0",
-    "stylelint-config-sass-guidelines": "11.1.0",
-    "stylelint-config-standard": "34.0.0",
-    "stylelint-csstree-validator": "3.0.0",
-    "stylelint-scss": "5.3.2"
+    "stylelint-config-recess-order": "7.8.0",
+    "stylelint-config-recommended-scss": "17.0.1",
+    "stylelint-config-sass-guidelines": "13.0.0",
+    "stylelint-config-standard": "40.0.0",
+    "stylelint-csstree-validator": "4.0.0",
+    "stylelint-order": "^7 || ^8",
+    "stylelint-scss": "7.3.0"
   },
   "engines": {
     "node": ">= 20.19.0",

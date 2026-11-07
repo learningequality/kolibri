@@ -103,7 +103,7 @@
               v-if="contentCardMessage(channel)"
               :text="contentCardMessage(channel)"
               :maxLines="1"
-              style="margin-bottom: 8px"
+              style="margin-bottom: 8px;"
             />
           </template>
         </AccessibleChannelCard>

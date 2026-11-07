@@ -9,7 +9,7 @@
     @shouldFocusFirstEl="() => null"
   >
     <template #header>
-      <div style="display: flex; gap: 8px; align-items: center">
+      <div style="display: flex; gap: 8px; align-items: center;">
         <KIconButton
           v-if="goBack"
           icon="back"
@@ -374,8 +374,8 @@
   .side-panel-title {
     margin: 0;
     overflow: hidden;
-    font-size: 18px;
     text-overflow: ellipsis;
+    font-size: 18px;
     white-space: nowrap;
   }
 
