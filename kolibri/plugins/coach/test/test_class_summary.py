@@ -2,6 +2,7 @@ import datetime
 import uuid
 from typing import ClassVar
 
+from django.db.utils import OperationalError
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -311,6 +312,15 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
             if r["learner_id"] == learner.id and r["content_id"] == node.content_id
         )
         self.assertEqual(status, "HelpNeeded")
+
+    def test_notification_database_error_propagates(self):
+        node = self.content_nodes[0]
+        lesson_data = [{"id": self.lesson.id, "node_ids": [node.id]}]
+        learners_data = [{"id": self.users[0].id}]
+
+        with helpers.failing_first_read_on(LearnerProgressNotification):
+            with self.assertRaises(OperationalError):
+                content_status_serializer(lesson_data, learners_data, self.classroom)
 
 
 class ClassSummaryDiffTestCase(EvaluationMixin, APITestCase):

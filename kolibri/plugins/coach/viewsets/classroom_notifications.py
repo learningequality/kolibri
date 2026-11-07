@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import ClassVar
 
-from django.db.utils import DatabaseError
 from django.utils.functional import cached_property
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DateTimeFilter
@@ -80,7 +79,7 @@ class ClassroomNotificationsFilter(FilterSet):
                 # returns all the notifications 24 hours older than the latest
                 last_24h = last_record.timestamp - timedelta(days=1)
                 queryset = queryset.filter(timestamp__gte=last_24h)
-            except (LearnerProgressNotification.DoesNotExist, DatabaseError):
+            except LearnerProgressNotification.DoesNotExist:
                 return LearnerProgressNotification.objects.none()
         return queryset
 
@@ -219,21 +218,15 @@ class ClassroomNotificationsViewset(ValuesViewset):
         return units_by_quiz_id
 
     def list(self, request, *args, **kwargs):
-        try:
-            queryset = self.filter_queryset(self.get_queryset())
-        except DatabaseError:
-            queryset = LearnerProgressNotification.objects.none()
+        queryset = self.filter_queryset(self.get_queryset())
 
         logging_interval = local_now() - timedelta(minutes=5)
-        try:
-            logged_notifications = (
-                NotificationsLog.objects.filter(timestamp__gte=logging_interval)
-                .values("coach_id")
-                .distinct()
-                .count()
-            )
-        except DatabaseError:
-            logged_notifications = 0
+        logged_notifications = (
+            NotificationsLog.objects.filter(timestamp__gte=logging_interval)
+            .values("coach_id")
+            .distinct()
+            .count()
+        )
         # Throttle writes: only log this coach's poll if fewer than 10 distinct
         # coaches are already recorded in the last 5 minutes, preventing excessive
         # SQLite writes under high coach load.

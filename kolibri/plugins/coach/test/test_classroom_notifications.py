@@ -1,9 +1,8 @@
 import datetime
 import uuid
-from unittest.mock import patch
 
 from django.db import connections
-from django.db.utils import DatabaseError
+from django.db.utils import OperationalError
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from le_utils.constants import content_kinds
@@ -21,6 +20,7 @@ from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.notifications.models import NotificationObjectType
+from kolibri.core.notifications.models import NotificationsLog
 from kolibri.utils.time_utils import local_now
 
 from . import helpers
@@ -125,20 +125,27 @@ class ClassroomNotificationsTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_database_error_does_not_crash(self):
+    def test_notification_query_database_error_propagates(self):
         self.client.login(
             username=self.classroom_coach.username, password=DUMMY_PASSWORD
         )
 
-        with patch(
-            "kolibri.plugins.coach.viewsets.classroom_notifications.ClassroomNotificationsFilter.filter_queryset",
-            side_effect=DatabaseError,
-        ):
-            response = self.client.get(
-                reverse(self.list_name), {"classroom_id": self.classroom.id}
-            )
+        with helpers.failing_first_read_on(LearnerProgressNotification):
+            with self.assertRaises(OperationalError):
+                self.client.get(
+                    reverse(self.list_name), {"classroom_id": self.classroom.id}
+                )
 
-        self.assertEqual(response.status_code, 200)
+    def test_polling_count_database_error_propagates(self):
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+
+        with helpers.failing_first_read_on(NotificationsLog):
+            with self.assertRaises(OperationalError):
+                self.client.get(
+                    reverse(self.list_name), {"classroom_id": self.classroom.id}
+                )
 
     def test_list_response_has_expected_top_level_keys(self):
         self.client.login(

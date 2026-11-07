@@ -1,3 +1,9 @@
+from contextlib import contextmanager
+
+from django.db import connections
+from django.db import router
+from django.db.utils import OperationalError
+
 from kolibri.core.auth.models import FacilityUser
 
 
@@ -53,3 +59,19 @@ def create_facility_admin(username, password, facility):
     facility.add_admin(admin)
 
     return admin
+
+
+@contextmanager
+def failing_first_read_on(model):
+    table = model._meta.db_table
+    failed = False
+
+    def fail(execute, sql, params, many, context):
+        nonlocal failed
+        if not failed and sql.startswith("SELECT") and table in sql:
+            failed = True
+            raise OperationalError("disk I/O error")
+        return execute(sql, params, many, context)
+
+    with connections[router.db_for_read(model)].execute_wrapper(fail):
+        yield
