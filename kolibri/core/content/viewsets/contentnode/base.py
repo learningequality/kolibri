@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.db.models import OuterRef
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -5,7 +7,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
@@ -20,6 +21,8 @@ from kolibri.core.content.utils.cache import remote_metadata_cache
 from kolibri.core.content.utils.cache import REMOTE_URL_PARAM
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
+from kolibri.core.mixins import UUIDValidationError
+from kolibri.core.mixins import validate_uuids
 from kolibri.core.query import SQSum
 from kolibri.core.serializers import KolibriModelSerializer
 from kolibri.core.serializers import SplitTextField
@@ -28,8 +31,13 @@ from kolibri.utils.version import version_matches_range
 from ..remote import RemoteMixin
 from .filters import ContentNodeFilter
 from .filters import ContentNodeSearchFilter
+from .filters import NodeSelectionMixin
 from .filters import OptionalContentNodePagination
 from .filters import PublicContentNodePagination
+from .filters import selected_node_ids
+from .filters import window_ids
+from .virtual import admitted_node_ids
+from .virtual import resolve_virtual_nodes
 
 # A map of fields that did not used to be in the BaseContentNodeMixin
 # but now are - the map gives a default value for these to be filled in with
@@ -120,6 +128,8 @@ class BaseContentNodeSerializer(KolibriModelSerializer):
     learner_needs = SplitTextField()
     learning_activities = SplitTextField()
     resource_types = SplitTextField()
+    virtual = BooleanField(required=False)
+    root_id = CharField(required=False)
 
     class Meta:
         model = models.ContentNode
@@ -154,12 +164,15 @@ class BaseContentNodeSerializer(KolibriModelSerializer):
             "parent",
             "resource_types",
             "rght",
+            "root_id",
             "sort_order",
             "tags",
             "thumbnail",
             "title",
             "tree_id",
+            "virtual",
         )
+        optional_fields = ("root_id", "virtual")
 
     def get_is_leaf(self, obj):
         return obj.kind != content_kinds.TOPIC
@@ -174,7 +187,14 @@ class ContentNodeSerializer(BaseContentNodeSerializer):
         fields = (*BaseContentNodeSerializer.Meta.fields, "admin_imported")
 
 
-class BaseContentNodeMixin:
+def _validate_pk(pk):
+    try:
+        validate_uuids([pk])
+    except UUIDValidationError as e:
+        raise Http404 from e
+
+
+class BaseContentNodeMixin(NodeSelectionMixin):
     """
     A base mixin for viewsets that need to return the same format of data
     serialization for ContentNodes.
@@ -201,6 +221,48 @@ class BaseContentNodeMixin:
                 (f["storage_url"] for f in item["files"] if f["thumbnail"]), None
             )
         return items
+
+    def resolve_nodes(self, node_ids, pool, include_virtual=True):
+        node_ids = list(node_ids)
+        if not node_ids:
+            return {}
+        result = {
+            item["id"]: item
+            for item in self.serialize(pool.filter_by_uuids(node_ids, validate=False))
+        }
+        virtual_ids = [i for i in node_ids if i not in result]
+        if include_virtual and virtual_ids:
+            result.update(resolve_virtual_nodes(self, virtual_ids, roots=pool))
+        return result
+
+    def list_nodes(self, request):
+        pool = self.filter_queryset(self.get_queryset(), narrow_to_selection=False)
+        node_ids = selected_node_ids(request)
+        if node_ids is None:
+            page = self.paginate_queryset(pool)
+            if page is not None:
+                return self.get_paginated_response(self.serialize(page))
+            return Response(self.serialize(pool))
+        window = window_ids(
+            request,
+            admitted_node_ids(node_ids, pool, self.admits_virtual_nodes()),
+        )
+        resolved = self.resolve_nodes(window.page_ids, pool)
+        results = [resolved[i] for i in window.page_ids if i in resolved]
+        if not window.paginated:
+            return Response(results)
+        return Response(OrderedDict([("more", window.more), ("results", results)]))
+
+    def retrieve_node(self, pk):
+        _validate_pk(pk)
+        node = self.resolve_nodes(
+            [pk],
+            self.filter_queryset(self.get_queryset()),
+            self.admits_virtual_nodes(),
+        ).get(pk)
+        if node is None:
+            raise Http404
+        return Response(node)
 
 
 class InternalContentNodeMixin(BaseContentNodeMixin):
@@ -305,17 +367,22 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 # Used in the update method for remote request retrieval
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
-        return super().retrieve(request, pk=pk)
+        return self.retrieve_node(pk)
 
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
             queryset, _ = self._get_list_queryset()
+            node_ids = selected_node_ids(request)
+            if node_ids is not None:
+                queryset = models.ContentNode.objects.filter_by_uuids(
+                    node_ids, validate=False
+                )
             # Used in the update method for remote request retrieval
             self.locally_admin_imported_ids = set(
                 queryset.filter(admin_imported=True).values_list("id", flat=True)
             )
             return self._hande_proxied_request(request)
-        return super().list(request, *args, **kwargs)
+        return self.list_nodes(request)
 
     @action(detail=False)
     def random(self, request, **kwargs):
@@ -360,12 +427,39 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         """
         queryset = self.filter_queryset(self.get_queryset())
         pk = kwargs.get("pk")
-        node = get_object_or_404(queryset, pk=pk)
-        queryset = self.filter_queryset(self.get_queryset())
+        _validate_pk(pk)
+        node = queryset.filter_by_uuids([pk]).first()
+        if node is None:
+            if pk not in self.resolve_nodes(
+                [pk], queryset, self.admits_virtual_nodes()
+            ):
+                raise Http404
+            return Response([])
         queryset = queryset & node.get_siblings(include_self=False).exclude(
             kind=content_kinds.TOPIC
         )
         return Response(self.serialize(queryset))
+
+
+def resolve_content_nodes(node_ids, fields=None):
+    if fields is None:
+        return ContentNodeViewset().resolve_nodes(
+            node_ids, models.ContentNode.objects.all()
+        )
+    node_ids = list(node_ids)
+    result = {
+        node["id"]: node
+        for node in models.ContentNode.objects.filter_by_uuids(
+            node_ids, validate=False
+        ).values("id", *fields)
+    }
+    virtual_ids = [i for i in node_ids if i not in result]
+    if virtual_ids:
+        for node_id, node in resolve_virtual_nodes(
+            ContentNodeViewset(), virtual_ids
+        ).items():
+            result[node_id] = {field: node[field] for field in ("id", *fields)}
+    return result
 
 
 def filter_public_channel_nodes(queryset):
@@ -386,3 +480,9 @@ class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
 
     def get_queryset(self):
         return filter_public_channel_nodes(super().get_queryset())
+
+    def list(self, request, *args, **kwargs):
+        return self.list_nodes(request)
+
+    def retrieve(self, request, pk=None):
+        return self.retrieve_node(pk)

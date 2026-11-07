@@ -1,5 +1,6 @@
 import logging
 from base64 import urlsafe_b64decode
+from types import SimpleNamespace
 
 from django.http import Http404
 from django.http import HttpResponse
@@ -11,6 +12,7 @@ from kolibri.core.content.hooks import ContentNodeDisplayHook
 
 from .models import ChannelMetadata
 from .models import ContentNode
+from .viewsets.contentnode.base import resolve_content_nodes
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,17 @@ def get_by_content_id(content_id):
     return None
 
 
+def get_by_virtual_node_id(node_id):
+    if node_id:
+        try:
+            node = resolve_content_nodes([node_id]).get(node_id)
+        except ValueError:
+            return None
+        if node:
+            return SimpleNamespace(**node)
+    return None
+
+
 class ContentPermalinkRedirect(View):
     def get(self, request, *args, **kwargs):
         # extract the GET parameters
@@ -71,6 +84,8 @@ class ContentPermalinkRedirect(View):
 
         # if it's still not found, see if we can find anything with the content_id across any channel
         node = node or get_by_content_id(content_id)
+
+        node = node or get_by_virtual_node_id(node_id)
 
         # build up the target topic/content page URL
         if node:
