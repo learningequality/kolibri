@@ -113,6 +113,32 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_error_page_escapes_markup_in_path(self):
+        response = self._get_file('"><script>alert(1)</script>', base_url="/x/")
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn(b"<script>alert(1)</script>", response.content)
+        self.assertIn(b"&quot;&gt;&lt;script&gt;", response.content)
+
+    def test_error_page_escapes_markup_in_peer_address(self):
+        # Percent-encode the payload so it matches the base_url group
+        # ([^/]+) and reaches the unknown-peer branch; unquote() decodes
+        # it back to the raw markup there.
+        response = self._get_file(
+            self.test_name_1,
+            base_url="/x%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E"
+            + self.zip_file_base_url,
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(b"is not a known peer", response.content)
+        self.assertNotIn(b"<script>alert(1)</script>", response.content)
+        self.assertIn(b"&quot;&gt;&lt;script&gt;", response.content)
+
+    def test_error_page_escapes_markup_in_embedded_filepath(self):
+        response = self._get_file('"><script>alert(1)</script>')
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn(b"<script>alert(1)</script>", response.content)
+        self.assertIn(b"&quot;&gt;&lt;script&gt;", response.content)
+
     def test_not_modified_response_when_if_modified_since_header_set(self):
         response = self._get_file(
             self.test_name_1, HTTP_IF_MODIFIED_SINCE=caching_http_date
