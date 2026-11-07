@@ -171,7 +171,9 @@ def transfer_channel(
             channel_id, baseurl=baseurl, version=version
         )
         logger.debug("URL to fetch: %s", url)
-        filetransfer = transfer.FileDownload(url, dest, cancel_check=job.is_cancelled)
+        filetransfer = transfer.FileDownload(
+            url, dest, cancel_check=job.is_cancelled, overwrite=True
+        )
     elif method == COPY_METHOD:
         # If there is a new channel version DB, set that as source path.
         srcpath = (
