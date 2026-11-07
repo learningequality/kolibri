@@ -146,9 +146,8 @@ class PicturePasswordsSyncHook(FacilityDataSyncHook):
         facility = Facility.objects.get(dataset_id=dataset_id)
         learners = FacilityUser.objects.filter(
             dataset_id=dataset_id,
-            roles__isnull=True,
             picture_password__isnull=True,
-        ).exclude(devicepermissions__is_superuser=True)
+        ).exclude(FacilityUser.get_is_privileged_q())
 
         for user in learners.iterator():
             try:

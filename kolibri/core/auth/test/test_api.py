@@ -43,6 +43,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
+from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
@@ -2399,6 +2400,23 @@ class PicturePasswordLoginTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["user_id"], self.learner.id)
 
+    @patch("kolibri.core.auth.backends.is_full_facility_import", return_value=False)
+    def test_learner_on_learner_only_device_signs_in_with_picture_password(
+        self, _is_full_facility_import
+    ):
+        provision_single_user_device(self.learner)
+
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "1.2.3",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], self.learner.id)
+
     def test_picture_password_not_enabled(self):
         disable_picture_password(self.facility, passwordless=True)
 
@@ -3266,6 +3284,17 @@ class AssignPicturePasswordsTaskTestCase(APITestCase):
         self.assertNotIn(coach.id, called_user_ids)
         self.assertIn(learner.id, called_user_ids)
 
+    def test_skips_device_permission_holders(self, mock_assign, mock_get_job):
+        superuser = create_superuser(self.facility)
+        content_manager = self._create_learner("content_manager")
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        learner = self._create_learner("just_a_learner")
+        assign_picture_passwords_to_facility(self.facility.id)
+        called_user_ids = {c[0][0].id for c in mock_assign.call_args_list}
+        self.assertNotIn(superuser.id, called_user_ids)
+        self.assertNotIn(content_manager.id, called_user_ids)
+        self.assertIn(learner.id, called_user_ids)
+
     def test_raises_on_no_available_sequences(self, mock_assign, mock_get_job):
         mock_assign.side_effect = NoAvailableSequences("No sequences left")
         self._create_learner("victim")
@@ -3943,8 +3972,9 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
 
         response = self._post_new_password()
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self._assert_password_unchanged()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("newpassword"))
 
 
 class DeleteImportedUserTestCase(APITransactionTestCase):
@@ -4699,6 +4729,91 @@ class RoleDeletePicturePasswordTestCase(APITestCase):
         self.assertIsNone(user.picture_password)
         self.assertTrue(models.Role.objects.filter(pk=role2.pk).exists())
 
+    def test_last_role_deleted_from_content_manager_assigns_no_picture_password(
+        self,
+    ):
+        user, role = self._make_user_with_role("contentmanagerrole")
+        DevicePermissions.objects.create(user=user, can_manage_content=True)
+
+        role.delete()
+
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    def test_device_permissions_deleted_from_former_coach_assigns_picture_password(
+        self,
+    ):
+        user, role = self._make_user_with_role("formercoach", kind=role_kinds.COACH)
+        permissions = DevicePermissions.objects.create(
+            user=user, can_manage_content=True
+        )
+        role.delete()
+
+        permissions.delete()
+
+        user.refresh_from_db()
+        self.assertIsNotNone(user.picture_password)
+
+    def test_device_permissions_revoked_from_former_coach_assigns_picture_password(
+        self,
+    ):
+        user, role = self._make_user_with_role("revokedcoach", kind=role_kinds.COACH)
+        permissions = DevicePermissions.objects.create(
+            user=user, can_manage_content=True
+        )
+        role.delete()
+
+        permissions.can_manage_content = False
+        permissions.save()
+
+        user.refresh_from_db()
+        self.assertIsNotNone(user.picture_password)
+
+    def test_device_permissions_deleted_from_coach_assigns_no_picture_password(
+        self,
+    ):
+        user, _ = self._make_user_with_role("stillcoach", kind=role_kinds.COACH)
+        permissions = DevicePermissions.objects.create(
+            user=user, can_manage_content=True
+        )
+
+        permissions.delete()
+
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    def test_hard_deleting_content_manager_keeps_soft_deleted_learner_sequence(self):
+        small_set = {1: {}, 2: {}, 3: {}}
+        holders = []
+        for i, held in enumerate(sorted(get_all_valid_sequences(small_set))):
+            learner = models.FacilityUser.objects.create_user(
+                username=f"poolholder{i}",
+                password=DUMMY_PASSWORD,
+                facility=self.facility,
+            )
+            learner.picture_password = held
+            learner.save(update_fields=["picture_password"])
+            holders.append(learner)
+        restorable = holders[0]
+        restorable.date_deleted = timezone.now() - timedelta(days=1)
+        restorable.save()
+        restorable_sequence = restorable.picture_password
+        content_manager = models.FacilityUser.objects.create_user(
+            username="expiringmanager",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+
+        with patch(
+            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
+            small_set,
+        ):
+            content_manager.delete()
+
+        restorable.refresh_from_db()
+        self.assertEqual(restorable.picture_password, restorable_sequence)
+
     def test_existing_picture_password_not_overwritten(self):
         """If the user already has a picture_password when their last role is
         deleted, it is not reassigned."""
@@ -4950,6 +5065,20 @@ class RestorePicturePasswordTestCase(APITestCase):
         other_superuser.refresh_from_db()
         self.assertIsNone(other_superuser.date_deleted)
         self.assertIsNone(other_superuser.picture_password)
+
+    def test_restored_content_manager_is_not_assigned_a_picture_password(
+        self, mock_cleanup_task
+    ):
+        content_manager = FacilityUserFactory.create(facility=self.facility)
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        self._soft_delete(content_manager)
+
+        response = self._restore(content_manager)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        content_manager.refresh_from_db()
+        self.assertIsNone(content_manager.date_deleted)
+        self.assertIsNone(content_manager.picture_password)
 
 
 class PicturePasswordPrevalidateTestCase(APITestCase):

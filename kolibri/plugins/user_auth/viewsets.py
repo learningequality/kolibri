@@ -37,15 +37,8 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
             return FacilityUser.objects.all()
         return FacilityUser.objects.filter(
             Q(dataset__learner_can_login_with_no_password=True)
-            | Q(dataset__picture_password_settings__isnull=False),
-            roles=None,
-        ).filter(
-            Q(
-                devicepermissions__is_superuser=False,
-                devicepermissions__can_manage_content=False,
-            )
-            | Q(devicepermissions__isnull=True)
-        )
+            | Q(dataset__picture_password_settings__isnull=False)
+        ).exclude(FacilityUser.get_is_privileged_q())
 
     def list(self, request, *args, **kwargs):
         search = request.query_params.get(filters.SearchFilter.search_param)

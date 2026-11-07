@@ -2,8 +2,8 @@ import logging
 import random
 from itertools import permutations
 
+from django.apps import apps
 from django.db import transaction
-from django.db.models.functions import Coalesce
 from django.db.utils import IntegrityError
 
 from kolibri.core.auth.constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
@@ -11,19 +11,12 @@ from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
 from kolibri.core.auth.constants.picture_passwords import SEQUENCE_LENGTH
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.errors import SequenceAlreadyAssigned
-from kolibri.core.auth.models import Facility
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.utils.cache import process_cache as cache
 
 logger = logging.getLogger(__name__)
 
 
 class LearnerCounterCache(object):
-    """
-    Learner calculation specifically for picture password login since only learners who have no role
-    and are not superusers should be included
-    """
-
     key = "learner_count_{dataset_id}"
     timeout = 300
 
@@ -36,15 +29,10 @@ class LearnerCounterCache(object):
         :return: The number of learners in the facility (associated with the dataset)
         :rtype: int
         """
+        FacilityUser = apps.get_model("kolibriauth", "FacilityUser")
         return (
-            FacilityUser.objects.annotate(
-                is_superuser=Coalesce("devicepermissions__is_superuser", False),
-            )
-            .filter(
-                dataset_id=dataset_id,
-                roles__isnull=True,
-                is_superuser=False,
-            )
+            FacilityUser.objects.filter(dataset_id=dataset_id)
+            .exclude(FacilityUser.get_is_privileged_q())
             .count()
         )
 
@@ -59,9 +47,11 @@ class LearnerCounterCache(object):
         if dataset_id is not None:
             dataset_ids.append(dataset_id)
         else:
-            dataset_ids = Facility.objects.values_list(
-                "dataset_id", flat=True
-            ).distinct()
+            dataset_ids = (
+                apps.get_model("kolibriauth", "Facility")
+                .objects.values_list("dataset_id", flat=True)
+                .distinct()
+            )
 
         for dataset_id in dataset_ids:
             key = self.key.format(dataset_id=dataset_id)
@@ -121,17 +111,20 @@ def get_assigned_sequences(facility):
     (dataset, picture_password) constraint until they are hard-deleted.
     """
     return set(
-        FacilityUser.all_objects.filter(
+        apps.get_model("kolibriauth", "FacilityUser")
+        .all_objects.filter(
             facility=facility,
             roles__isnull=True,
             picture_password__isnull=False,
-        ).values_list("picture_password", flat=True)
+        )
+        .values_list("picture_password", flat=True)
     )
 
 
 def _reclaim_sequence_from_deleted_learner(facility):
     holder = (
-        FacilityUser.all_objects.filter(
+        apps.get_model("kolibriauth", "FacilityUser")
+        .all_objects.filter(
             facility=facility,
             roles__isnull=True,
             picture_password__isnull=False,
@@ -201,6 +194,12 @@ def assign_picture_password(user, facility):
             raise SequenceAlreadyAssigned(
                 "Picture password sequence assignment failed due to repeated collisions."
             ) from e
+
+
+def assign_picture_password_if_unprivileged(user):
+    user.refresh_from_db(fields=["picture_password"])
+    if user.picture_password is None and not user.is_privileged:
+        assign_picture_password_if_enabled(user, user.facility)
 
 
 def assign_picture_password_if_enabled(user, facility):

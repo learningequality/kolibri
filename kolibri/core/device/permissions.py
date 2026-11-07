@@ -2,7 +2,7 @@ from rest_framework.permissions import BasePermission
 
 from kolibri.core.auth.models import Role
 from kolibri.core.auth.permissions.general import DenyAll
-from kolibri.core.device.models import device_permissions_fields
+from kolibri.core.device.constants import DEVICE_PERMISSIONS_FIELDS
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import valid_app_key_on_request
 
@@ -20,7 +20,7 @@ class NotProvisionedHasPermission(BasePermission):
 
 class UserHasAnyDevicePermissions(DenyAll):
     def has_permission(self, request, view):
-        return any(getattr(request.user, field) for field in device_permissions_fields)
+        return any(getattr(request.user, field) for field in DEVICE_PERMISSIONS_FIELDS)
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)
