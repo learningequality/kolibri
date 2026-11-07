@@ -158,7 +158,7 @@
                 <KButton
                   primary
                   :text="unitStatusMessages.buttonLabel"
-                  :class="$computedClass(testButtonStyles)"
+                  :class="{ 'test-active-button': activeTest }"
                   :style="activeUnitButtonStyles"
                   @click="onUnitButtonClick"
                 />
@@ -375,7 +375,6 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -884,16 +883,6 @@
         }
       }
 
-      const testButtonStyles = computed(() => {
-        const color = activeTest.value ? themeTokens().error : '';
-        return {
-          background: color,
-          ':hover': {
-            background: color,
-          },
-        };
-      });
-
       const hasResults = unit =>
         (unitReportInfo.value[unit.id]?.activeTestStatus ?? 'not_activated') !== 'not_activated';
 
@@ -991,7 +980,6 @@
         courseSession,
         completedUnits,
         upcomingUnits,
-        testButtonStyles,
         activeUnitStyles,
         activeUnitTitleStyles,
         activeUnitButtonStyles,
@@ -1197,6 +1185,15 @@
 
   .objective-accordion-item {
     font-size: 14px;
+  }
+
+  /* KButton's own styles use !important (plain aphrodite), so this needs it to win. */
+  .test-active-button {
+    background-color: var(--tokens-error) !important;
+  }
+
+  .test-active-button:hover {
+    background-color: var(--tokens-error) !important;
   }
 
 </style>
