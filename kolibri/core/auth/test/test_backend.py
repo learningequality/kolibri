@@ -551,6 +551,21 @@ class PicturePasswordAuthScopeTestCase(TestCase):
         auth_scope = PicturePasswordAuthScope(self.facility, "2.4.6")
         self.assertFalse(auth_scope.matches_credentials(self._set_has_roles(superuser)))
 
+    def test_matches_credentials__returns_false_for_content_manager_when_full_import(
+        self,
+    ):
+        content_manager = FacilityUser.objects.create(
+            username="content_manager",
+            facility=self.facility,
+            picture_password="2.4.6",
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+
+        auth_scope = PicturePasswordAuthScope(self.facility, "2.4.6")
+        self.assertFalse(
+            auth_scope.matches_credentials(self._set_has_roles(content_manager))
+        )
+
     def test_matches_credentials__returns_true_for_device_superuser_when_single_user_on_device(
         self,
     ):

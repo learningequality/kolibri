@@ -159,7 +159,7 @@ class BasicUserAuthScope(FacilityAuthScope, UsernameAuthScope):
         return (
             user.dataset.learner_can_login_with_no_password
             and not user.has_roles
-            and (not user.can_manage_content or self.is_full_facility_import)
+            and (not user.is_privileged or self.is_full_facility_import)
         )
 
 
@@ -191,7 +191,7 @@ class PicturePasswordAuthScope(FacilityAuthScope):
         return (
             user.dataset.picture_password_settings is not None
             and not user.has_roles
-            and (not user.is_superuser or self.is_full_facility_import)
+            and (not user.is_privileged or self.is_full_facility_import)
         )
 
 

@@ -3,7 +3,6 @@ import random
 from itertools import permutations
 
 from django.db import transaction
-from django.db.models.functions import Coalesce
 from django.db.utils import IntegrityError
 
 from kolibri.core.auth.constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
@@ -19,11 +18,6 @@ logger = logging.getLogger(__name__)
 
 
 class LearnerCounterCache(object):
-    """
-    Learner calculation specifically for picture password login since only learners who have no role
-    and are not superusers should be included
-    """
-
     key = "learner_count_{dataset_id}"
     timeout = 300
 
@@ -37,14 +31,8 @@ class LearnerCounterCache(object):
         :rtype: int
         """
         return (
-            FacilityUser.objects.annotate(
-                is_superuser=Coalesce("devicepermissions__is_superuser", False),
-            )
-            .filter(
-                dataset_id=dataset_id,
-                roles__isnull=True,
-                is_superuser=False,
-            )
+            FacilityUser.objects.filter(dataset_id=dataset_id)
+            .exclude(FacilityUser.get_is_privileged_q())
             .count()
         )
 

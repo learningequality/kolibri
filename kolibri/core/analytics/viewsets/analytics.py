@@ -3,9 +3,9 @@ from rest_framework import serializers
 from rest_framework import viewsets
 
 import kolibri
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
-from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.utils.version import version_matches_range
 
@@ -49,7 +49,14 @@ class LocalNotificationSerializer(serializers.ModelSerializer):
         return self.context["request"].user.facility.name
 
     def get_learner_count(self, obj):
-        return get_learner_count(self.context["request"].user.facility.dataset_id)
+        return (
+            FacilityUser.objects.filter(
+                dataset_id=self.context["request"].user.dataset_id,
+                roles__isnull=True,
+            )
+            .exclude(devicepermissions__is_superuser=True)
+            .count()
+        )
 
 
 class PingbackNotificationViewSet(viewsets.ReadOnlyModelViewSet):

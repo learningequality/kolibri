@@ -7,6 +7,8 @@ from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.kolibri_plugin import PicturePasswordsSyncHook
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.device.models import DevicePermissions
 
 _PICTURE_PASSWORD_SETTINGS = {"icon_style": "standard", "show_icon_text": True}
 
@@ -108,6 +110,17 @@ class PicturePasswordsSyncHookTestCase(TestCase):
         self._call_post_transfer()
         admin.refresh_from_db()
         self.assertIsNone(admin.picture_password)
+
+    def test_skips_device_permission_holders(self):
+        superuser = create_superuser(self.facility)
+        content_manager = FacilityUser.objects.create(
+            username="content_manager", facility=self.facility
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        self._call_post_transfer()
+        for user in (superuser, content_manager):
+            user.refresh_from_db()
+            self.assertIsNone(user.picture_password)
 
     @mock.patch("kolibri.core.auth.kolibri_plugin.assign_picture_password")
     def test_catches_no_available_sequences_and_stops(self, mock_assign):

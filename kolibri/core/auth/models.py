@@ -54,6 +54,7 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.device.constants import DEVICE_PERMISSIONS_FIELDS
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.hooks import os_account_name
 from kolibri.core.device.utils import device_provisioned
@@ -1011,6 +1012,13 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
             q = f"{relation_prefix}__{q}"
         return Q(**{q: True})
 
+    @classmethod
+    def get_is_privileged_q(cls):
+        q = Q(roles__isnull=False)
+        for field in DEVICE_PERMISSIONS_FIELDS:
+            q |= Q(**{f"devicepermissions__{field}": True})
+        return q
+
     def calculate_partition(self):
         return f"{self.dataset_id}:user-ro:{self.ID_PLACEHOLDER}"
 
@@ -1088,7 +1096,13 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
             or self.full_facility_on_my_own_setup
         ):
             return True
-        return not (self.can_manage_content or self.roles.exists())
+        return not self.is_privileged
+
+    @property
+    def is_privileged(self):
+        return self.roles.exists() or any(
+            self.get_permission(field) for field in DEVICE_PERMISSIONS_FIELDS
+        )
 
     @property
     def can_manage_content(self):
@@ -1634,7 +1648,7 @@ class Role(AbstractFacilityDataModel):
             result = super().delete(**kwargs)
             user = self.user
             user.refresh_from_db(fields=["picture_password"])
-            if user.picture_password is None and not user.roles.exists():
+            if user.picture_password is None and not user.is_privileged:
                 # Deferred to avoid circular import: picture_passwords.py imports from models.py
                 from .utils.picture_passwords import assign_picture_password_if_enabled  # noqa: PLC0415
 
