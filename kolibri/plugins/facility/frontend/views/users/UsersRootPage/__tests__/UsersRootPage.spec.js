@@ -1,8 +1,9 @@
-import { computed } from 'vue';
-import { render, screen, waitFor } from '@testing-library/vue';
+import { computed, ref } from 'vue';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import VueRouter from 'vue-router';
+import VueRouter, { isNavigationFailure, NavigationFailureType } from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import { UserKinds } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 // eslint-disable-next-line import-x/named
@@ -13,7 +14,7 @@ import makeStore from '../../../../__tests__/utils/makeStore';
 import UserPage from '../index';
 
 const { usersLabel$, searchForUser$, filter$, optionsLabel$ } = coreStrings;
-const { noUsersMatchSearch$, noUsersMatchFilter$, noUsersMatchFiltersAndSearch$ } =
+const { noUsersMatchSearch$, noUsersMatchFilter$, noUsersMatchFiltersAndSearch$, resetPassword$ } =
   bulkUserManagementStrings;
 
 jest.mock('kolibri/urls');
@@ -46,7 +47,11 @@ async function renderPage({ routeQuery = {}, userManagement = {} } = {}) {
       ...userManagement,
     }),
   );
-  await router.push({ name: 'UserPage', query: routeQuery });
+  await router.push({ name: 'UserPage', query: routeQuery }).catch(error => {
+    if (!isNavigationFailure(error, NavigationFailureType.duplicated)) {
+      throw error;
+    }
+  });
   const UserPageWithStubbedNewUserLink = {
     extends: UserPage,
     computed: {
@@ -147,5 +152,43 @@ describe('UserPage component', () => {
     const headings = screen.queryAllByRole('heading', { level: 1 });
     expect(headings).toHaveLength(1);
     expect(headings[0]).toHaveTextContent(usersLabel$());
+  });
+
+  describe('with picture password sign-in', () => {
+    async function openUserMenu(user) {
+      useFacility.mockImplementation(() =>
+        useFacilityMock({
+          facilityConfig: ref({ picture_password_settings: { icon_style: 'standard' } }),
+        }),
+      );
+      await renderPage({
+        userManagement: { facilityUsers: computed(() => [user]) },
+      });
+      const userRow = screen.getAllByRole('row').at(-1);
+      await fireEvent.click(within(userRow).getAllByRole('button').at(-1));
+      await screen.findByRole('menu');
+    }
+
+    const learner = {
+      id: 'learner-1',
+      full_name: 'Picture Learner',
+      username: 'picturelearner',
+      kind: UserKinds.LEARNER,
+      roles: [],
+      is_superuser: false,
+      date_joined: '2026-01-01T00:00:00Z',
+    };
+
+    it('offers no password reset for a learner who signs in with pictures', async () => {
+      await openUserMenu({ ...learner, picture_password: '1.2.3' });
+
+      expect(screen.queryByText(resetPassword$())).not.toBeInTheDocument();
+    });
+
+    it('offers a password reset for a content manager who still holds a picture password', async () => {
+      await openUserMenu({ ...learner, can_manage_content: true, picture_password: '1.2.3' });
+
+      expect(screen.getByText(resetPassword$())).toBeInTheDocument();
+    });
   });
 });
