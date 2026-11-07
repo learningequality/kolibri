@@ -288,12 +288,30 @@ describe('QTI Value Coercion', () => {
     });
   });
 
-  describe('coerceValueWithBaseType - integer radix', () => {
-    it('should parse integers with explicit radix 10 to avoid octal interpretation', () => {
-      // parseInt without radix could interpret leading-zero strings as octal
-      // in edge cases; ensure we always use base 10
-      expect(coerceValueWithBaseType('010', 'integer')).toBe(10);
-      expect(coerceValueWithBaseType('0100', 'integer')).toBe(100);
+  describe('coerceValueWithBaseType - numeric notation', () => {
+    it.each([
+      ['010', 'integer', 10],
+      ['0100', 'integer', 100],
+      ['1e5', 'integer', 100000],
+      ['1E5', 'integer', 100000],
+      ['1.5', 'integer', 1],
+      ['-1.5', 'integer', -1],
+      [' 5 ', 'integer', 5],
+      ['1e-5', 'float', 0.00001],
+      ['.5', 'float', 0.5],
+    ])('should coerce %s to %s %p', (value, baseType, expected) => {
+      expect(coerceValueWithBaseType(value, baseType)).toBe(expected);
+    });
+
+    it.each([
+      ['0x10', 'integer'],
+      ['0b11', 'integer'],
+      ['0o7', 'float'],
+      ['0x10', 'float'],
+      [' ', 'integer'],
+      [' ', 'float'],
+    ])('should reject %p as %s', (value, baseType) => {
+      expect(() => coerceValueWithBaseType(value, baseType)).toThrow(TypeError);
     });
   });
 

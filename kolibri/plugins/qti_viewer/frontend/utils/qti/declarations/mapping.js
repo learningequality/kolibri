@@ -5,6 +5,7 @@
  * @module declarations/mapping
  */
 import { BASE_TYPE } from '../../../constants';
+import { parseXsdNumber } from '../values.js';
 import ScoringDeclaration from './scoringDeclaration.js';
 
 /** @typedef {import('../values.js').QTIValue} QTIValue */
@@ -52,7 +53,6 @@ export default class Mapping extends ScoringDeclaration {
   }
 
   /**
-   * Normalize a map-key string for compound base types (pair, directedPair, point).
    * QTI map-key values use space-separated format (e.g., "A B"), matching
    * the QTI value representation. For pair baseType, additionally sorts
    * elements so "B A" is stored as "A B" (pairs are unordered).
@@ -60,6 +60,12 @@ export default class Mapping extends ScoringDeclaration {
    * @returns {string} The normalized key
    */
   _normalizeMapKey(mapKey) {
+    if (this.baseType === BASE_TYPE.FLOAT || this.baseType === BASE_TYPE.INTEGER) {
+      const number = parseXsdNumber(mapKey);
+      const isValid =
+        number !== null && (this.baseType === BASE_TYPE.FLOAT || Number.isInteger(number));
+      return isValid ? this._key(number) : mapKey;
+    }
     if (this.baseType === BASE_TYPE.PAIR) {
       const parts = mapKey.split(/[\s,]+/);
       if (parts.length === 2) {

@@ -3,7 +3,7 @@
  * Parses a qti-interpolation-table or qti-match-table XML element
  * and registers a lookup capability on the parent QTIVariable.
  */
-import { coerceValueWithBaseType } from '../values.js';
+import { coerceValueWithBaseType, parseXsdNumber } from '../values.js';
 import { CAPABILITY } from './capabilities.js';
 
 /** @typedef {import('../values.js').QTIValue} QTIValue */
@@ -34,8 +34,12 @@ export default class LookupTable {
 
     if (this.tableType === 'interpolation') {
       for (const entry of xmlNode.querySelectorAll('qti-interpolation-table-entry')) {
+        const sourceValue = parseXsdNumber(entry.getAttribute('source-value'));
+        if (sourceValue === null) {
+          continue;
+        }
         this.entries.push({
-          sourceValue: parseFloat(entry.getAttribute('source-value')),
+          sourceValue,
           targetValue: coerceValueWithBaseType(
             entry.getAttribute('target-value'),
             variable.baseType,
@@ -49,8 +53,12 @@ export default class LookupTable {
       // section 5.90
       //   https://www.imsglobal.org/spec/qti/v3p0/info/#Data_MatchTable
       for (const entry of xmlNode.querySelectorAll('qti-match-table-entry')) {
+        const sourceValue = parseXsdNumber(entry.getAttribute('source-value'));
+        if (sourceValue === null) {
+          continue;
+        }
         this.entries.push({
-          sourceValue: parseInt(entry.getAttribute('source-value'), 10),
+          sourceValue: Math.trunc(sourceValue),
           targetValue: coerceValueWithBaseType(
             entry.getAttribute('target-value'),
             variable.baseType,

@@ -12,7 +12,7 @@ import { localizeNumerals, normalizeNumerals } from './numeralNormalization';
 // xsd:double lexical space without INF and NaN.
 const xsdDoubleRegex = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
 
-function parseXsdDouble(value) {
+export function parseXsdDouble(value) {
   if (!xsdDoubleRegex.test(value)) {
     return null;
   }
