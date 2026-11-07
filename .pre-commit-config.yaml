@@ -80,6 +80,16 @@ repos:
         require_serial: true
   - repo: local
     hooks:
+      - id: perseus-translator
+        name: Regenerate Perseus translator
+        description: Regenerates the Perseus viewer's translator.js from the installed Perseus strings
+        entry: pnpm --filter kolibri-perseus-viewer build-perseus
+        language: system
+        pass_filenames: false
+        files: ^kolibri/plugins/perseus_viewer/(package\.json|buildPerseus\.js|extractPerseusMessages\.js|frontend/(translator|translationUtils)\.js)$
+        require_serial: true
+  - repo: local
+    hooks:
       - id: no-auto-migrations
         name: no auto-named migrations
         entry: We do not allow _auto_ in migration names. Please give the migration a telling name.

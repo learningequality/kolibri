@@ -27,6 +27,14 @@ if (typeof globalThis.structuredClone === 'undefined') {
   globalThis.structuredClone = val => JSON.parse(JSON.stringify(val));
 }
 
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 /* eslint-disable vue/one-component-per-file */
 
 failOnConsole({

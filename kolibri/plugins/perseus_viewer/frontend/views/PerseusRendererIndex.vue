@@ -52,20 +52,19 @@
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
+  import { flushSync } from 'react-dom';
   import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
-  import {
-    getDivideSymbol,
-    parseAndMigratePerseusItem,
-    isFailure,
-  } from '@khanacademy/perseus-core';
-  import { emptyWidgetsFunctional } from '@khanacademy/perseus-score';
+  import { getDivideSymbol, isFailure } from '@khanacademy/perseus-core';
+  import { emptyWidgetsFunctional, isWidgetScoreable } from '@khanacademy/perseus-score';
   import { MathInputI18nContextProvider } from '@khanacademy/math-input';
   import { KeypadContext } from '@khanacademy/keypad-context';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
+  import { migrateItem } from '../itemMigration';
+  import molecule from '../widgets/molecule';
   import { wrapPerseusMessages } from '../translationUtils';
   import { localizeNumericResponses, readUserInput } from '../numericResponses';
   import { scoreItem } from '../scoring';
@@ -76,6 +75,9 @@
   const translator = wrapPerseusMessages(perseusTranslator);
 
   const logging = logger.getLogger(__filename);
+
+  // perseus-score 8.12.26 registers no scorer for these, so isWidgetScoreable rejects them.
+  const GRADED_CONTAINER_TYPES = ['graded-group', 'graded-group-set'];
 
   // No-op stubs for Perseus dependency injection. Perseus requires these
   // but Kolibri doesn't use KA's analytics, video, or URL generation.
@@ -335,6 +337,7 @@
       // Our keypad sends DIVIDE to math-input's field, which writes `:` in Perseus's
       // `localesThatUseColon`.
       const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
+      const locale = computed(() => lang.value?.id || 'en');
       return {
         divideLabel,
         windowBreakpoint,
@@ -348,6 +351,7 @@
         showCorrectAnswer,
         interactive,
         lang,
+        locale,
         registerAssessmentApi,
       };
     },
@@ -441,10 +445,13 @@
         // dependencies in v75 by the Protractor and Grapher widgets (for their
         // own bundled assets), so it must stay defined or those widgets throw.
         staticUrl: url => url,
+        InitialRequestUrl: window.location,
         // Pass our logging object to capture Log messages from Perseus
         Log: logging,
       });
       perseus.init();
+      // init() maps molecule-renderer to the deprecated standin.
+      perseus.Widgets.registerWidget(molecule.name, molecule);
       // Try to load the appropriate directional CSS for the particular content
       this.$options.contentModule.loadDirectionalCSS(this.contentDirection).then(() => {
         if (this.defaultFile) {
@@ -518,8 +525,11 @@
           ref: itemRenderer => {
             this.itemRenderer = itemRenderer;
             if (itemRenderer) {
-              this.$emit('itemRendererUpdated');
-              this.itemRendererUpdating = false;
+              // React ignores flushSync during a commit, and this ref callback runs in one.
+              queueMicrotask(() => {
+                this.itemRendererUpdating = false;
+                this.$emit('itemRendererUpdated');
+              });
             }
           },
           dependencies: perseusNoOpDependencies,
@@ -536,12 +546,12 @@
           keypadElement: this.interactive ? this.keypadAPI : null,
         });
         const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
-          locale: this.lang,
+          locale: this.locale,
           strings: translator,
           children: itemRendererElement,
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
-          locale: this.lang?.id,
+          locale: this.locale,
           strings: translator,
           children: perseusStringsElement,
         });
@@ -659,16 +669,21 @@
             this.item.question.widgets,
             this.lang?.id,
           );
-          // Restore each widget's user input via the Renderer's handleUserInput callback
-          const widgetIds = this.itemRenderer.getWidgetIds();
-          for (const id of widgetIds) {
-            if (userInput[id] !== undefined) {
-              this.itemRenderer.questionRenderer.props.handleUserInput(id, userInput[id], false);
-            }
-          }
+          this.setUserInput(userInput);
         }
         if (answerState.hintsVisible) {
           this.hintsVisible = answerState.hintsVisible;
+        }
+      },
+      setUserInput(userInput) {
+        for (const id of this.itemRenderer.getWidgetIds()) {
+          if (userInput[id] !== undefined) {
+            // Perseus's UserInputManager spreads the input of its last render into each
+            // update, so unflushed updates overwrite one another.
+            flushSync(() =>
+              this.itemRenderer.questionRenderer.props.handleUserInput(id, userInput[id], false),
+            );
+          }
         }
       },
       setAnswer() {
@@ -697,9 +712,13 @@
           // ${☣ LOCALPATH} space, and image-content answers (orderer, sorter, …)
           // only score correct when rubric and userInput share one URL space.
           const rubric = restoreImageUrls(this.item.question, this.perseusFileUrl);
-          const locale = this.lang?.id || 'en';
-          const score = scoreItem(rubric, userInput, locale);
-          const emptyWidgets = emptyWidgetsFunctional(rubric.widgets, widgetIds, userInput, locale);
+          const score = scoreItem(rubric, userInput, this.locale);
+          const emptyWidgets = emptyWidgetsFunctional(
+            rubric.widgets,
+            widgetIds,
+            userInput,
+            this.locale,
+          );
           const empty = emptyWidgets.length > 0;
           const correct = score.type === 'points' && score.earned === score.total;
           const message = score.message || null;
@@ -790,13 +809,11 @@
         }
       },
       setItemData(itemData) {
-        const result = parseAndMigratePerseusItem(itemData);
+        const result = migrateItem(itemData);
         if (isFailure(result)) {
           logging.warn('Failed to migrate Perseus item data', result.detail);
-          // Fall through with original data as graceful degradation
-        } else {
-          itemData = result.value;
         }
+        itemData = result.value;
         if (this.validateItemData(itemData)) {
           this.item = itemData;
           // Don't store blank state for another item.
@@ -821,22 +838,35 @@
         const questionRenderer = this.itemRenderer.questionRenderer;
         const widgetProps = questionRenderer.state.widgetInfo;
 
-        const gradedWidgetIds = questionRenderer.widgetIds.filter(id => {
-          return widgetProps[id].graded == null || widgetProps[id].graded;
-        });
+        const renderedWidgetIds = questionRenderer.widgetIds.filter(
+          id =>
+            (isWidgetScoreable(widgetProps[id]) ||
+              GRADED_CONTAINER_TYPES.includes(widgetProps[id]?.type)) &&
+            questionRenderer.getWidgetInstance(id),
+        );
 
         try {
-          gradedWidgetIds.forEach(id => {
-            const props = widgetProps[id];
-            const widget = questionRenderer.getWidgetInstance(id);
-            if (!widget) {
-              // This can occur if the widget has not yet been rendered
-              return;
-            }
-            widgetSolver(widget, props.type, props.options);
-          });
+          const userInput = Object.fromEntries(
+            renderedWidgetIds.map(id => [
+              id,
+              widgetSolver(widgetProps[id].type, widgetProps[id].options),
+            ]),
+          );
+          this.setUserInput(
+            localizeNumericResponses(userInput, this.item.question.widgets, this.lang?.id),
+          );
         } catch (e) {
+          logging.warn('Failed to show the correct answer', e);
           this.$emit('answerUnavailable');
+          return;
+        }
+        for (const id of renderedWidgetIds) {
+          try {
+            questionRenderer.getWidgetInstance(id).blurInputPath?.('');
+          } catch (e) {
+            // Perseus's table widget throws on blurring an empty path.
+            logging.debug('Failed to blur widget after showing the correct answer', e);
+          }
         }
       },
     },
