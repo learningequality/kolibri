@@ -1,5 +1,4 @@
 import { displayQuestionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-import { coachStrings } from '../views/common/commonCoachStrings';
 
 const ratio = question => {
   return question.correct / question.total;
@@ -37,13 +36,7 @@ export const getDifficultQuestions = questions => {
  */
 export function quizQuestionTitle(question, exercises) {
   const exercise = exercises.find(node => node.id === question.exercise_id);
-  if (exercise) {
-    return displayQuestionTitle(question, exercise.title);
-  }
-  return coachStrings.$tr('nthExerciseName', {
-    name: question.title,
-    number: question.counter_in_exercise,
-  });
+  return displayQuestionTitle(question, exercise?.title ?? '');
 }
 
 /**

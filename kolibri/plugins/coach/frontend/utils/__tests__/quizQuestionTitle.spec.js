@@ -19,4 +19,9 @@ describe('quizQuestionTitle', () => {
     expect(title).toContain('(5)');
     expect(title).not.toContain('undefined');
   });
+
+  it('uses the title the coach set when the exercise is not available', () => {
+    const question = { exercise_id: 'missing', counter_in_exercise: 5, title: 'Warm-up' };
+    expect(quizQuestionTitle(question, EXERCISES)).toBe('Warm-up');
+  });
 });
