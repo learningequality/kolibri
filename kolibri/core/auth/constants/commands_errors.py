@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 # Error messages ###
-# TODO: Consolidate with error constants and messages in bulkimportusers.py
+# TODO: Consolidate with error constants and messages in kolibri/core/auth/utils/bulk_import.py
 INVALID = 2
 NO_FACILITY = 7
 FILE_WRITE_ERROR = 9

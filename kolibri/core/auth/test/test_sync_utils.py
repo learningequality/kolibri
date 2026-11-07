@@ -1,14 +1,20 @@
+import logging
 import uuid
 from unittest.mock import Mock
+from unittest.mock import patch
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
+from morango.models import Certificate
 from morango.models import Filter
 from morango.sync.utils import SyncSignalGroup
 
 from kolibri.core.auth.constants.morango_sync import PARTITION_CLASSROOM
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_COACH_RW
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_LEARNER_RW
-from kolibri.core.auth.management.utils import MorangoSyncCommand
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.auth.management.commands.sync import InteractiveSyncManager
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
@@ -18,6 +24,8 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+from kolibri.core.auth.utils.sync import SyncManager
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -30,7 +38,7 @@ from .helpers import provision_device
 class TestProgressTracking(TestCase):
     def test_transfer_tracker_adapter(self):
         # Create an instance of the class you're testing
-        instance = MorangoSyncCommand()
+        instance = SyncManager()
 
         # Mock the relevant methods
         instance.start_progress = Mock()
@@ -48,7 +56,7 @@ class TestProgressTracking(TestCase):
         transfer_session_mock.bytes_received = 0
 
         # Connect the signal group to _transfer_tracker_adapter for testing
-        instance._transfer_tracker_adapter(signal_group, "message", "sync_state", False)
+        instance._transfer_tracker_adapter(signal_group, "message", "sync_state")
 
         # Check if start_progress hasn't been called yet
         instance.start_progress.assert_not_called()
@@ -61,7 +69,7 @@ class TestProgressTracking(TestCase):
 
     def test_queueing_tracker_adapter(self):
         # Create an instance of the class you're testing
-        instance = MorangoSyncCommand()
+        instance = SyncManager()
 
         # Mock the relevant methods
         instance.start_progress = Mock()
@@ -79,7 +87,7 @@ class TestProgressTracking(TestCase):
         transfer_session_mock.bytes_received = 0
 
         # Connect the signal group to _transfer_tracker_adapter for testing
-        instance._queueing_tracker_adapter(signal_group, "message", "sync_state", False)
+        instance._queueing_tracker_adapter(signal_group, "message", "sync_state")
 
         # Check if start_progress hasn't been called yet
         instance.start_progress.assert_not_called()
@@ -89,6 +97,38 @@ class TestProgressTracking(TestCase):
 
         # Check that start_progress has now been called
         instance.start_progress.assert_called()
+
+    def _logged_progress(self, instance, progressbar):
+        instance.start_progress = Mock()
+        instance.update_progress = Mock()
+        instance.progresstracker = Mock(progressbar=progressbar)
+        queueing = SyncSignalGroup()
+        transfer = SyncSignalGroup()
+        transfer_session = Mock(
+            records_transferred=3, records_total=10, bytes_sent=12, bytes_received=0
+        )
+        instance._queueing_tracker_adapter(queueing, "Remotely preparing data", "Q")
+        instance._transfer_tracker_adapter(
+            transfer, "Receiving data ({records_transferred}/{records_total})", "T"
+        )
+
+        with self.assertLogs("kolibri", level="INFO") as logs:
+            queueing.started.fire(transfer_session=transfer_session)
+            transfer.in_progress.fire(transfer_session=transfer_session)
+            logging.getLogger("kolibri").info("end")
+        return [record.getMessage() for record in logs.records][:-1]
+
+    def test_progress_logging(self):
+        progress_messages = ["Remotely preparing data", "Receiving data (3/10)"]
+        for manager_class, progressbar, expected in (
+            (SyncManager, Mock(), progress_messages),
+            (InteractiveSyncManager, None, progress_messages),
+            (InteractiveSyncManager, Mock(), []),
+        ):
+            with self.subTest(manager=manager_class, progressbar=progressbar):
+                self.assertEqual(
+                    self._logged_progress(manager_class(), progressbar), expected
+                )
 
 
 class CanonicalizeAssignmentsTestCase(TestCase):
@@ -453,4 +493,145 @@ class ClassroomPartitionFilterFactoryTestCase(TestCase):
         )
         self.assertFilterHas(
             test_filter, self.classroom_b.id, expected_suffix=PARTITION_SUFFIX_COACH_RW
+        )
+
+
+class SyncCommandTestCase(TestCase):
+    databases = "__all__"
+
+    @patch(
+        "kolibri.core.auth.utils.sync.NetworkClient.discover_from_address",
+        side_effect=NetworkLocationNotFound(),
+    )
+    def test_unreachable_baseurl_raises_command_error(self, mock_discover):
+        for command, options in (
+            ("sync", {}),
+            ("resumesync", {"id": uuid.uuid4().hex}),
+        ):
+            with self.subTest(command=command):
+                with self.assertRaisesMessage(
+                    CommandError, "Unable to connect to: http://127.0.0.1:1/"
+                ):
+                    call_command(
+                        command,
+                        baseurl="http://127.0.0.1:1/",
+                        noninteractive=True,
+                        **options,
+                    )
+
+    @patch(
+        "kolibri.core.auth.utils.sync.MorangoProfileController.create_network_connection"
+    )
+    @patch("kolibri.core.auth.utils.sync.NetworkClient.discover_from_address")
+    @patch("kolibri.core.auth.management.utils.getpass.getpass", return_value="pw")
+    @patch("builtins.input")
+    def _sync(
+        self,
+        facility,
+        inputs,
+        mock_input,
+        mock_getpass,
+        mock_discover_from_address,
+        mock_create_network_connection,
+        **options,
+    ):
+        client_cert = (
+            facility.dataset.get_owned_certificates()
+            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
+            .first()
+        )
+        Certificate.objects.filter(id=facility.dataset_id).update(_private_key=None)
+        client = mock_discover_from_address.return_value
+        client.base_url = "http://peer.test/"
+        client.get.return_value.json.return_value = [
+            {"id": facility.id, "dataset": facility.dataset_id}
+        ]
+        network_connection = mock_create_network_connection.return_value
+        network_connection.base_url = "http://peer.test/"
+        network_connection.server_info = {"instance_id": uuid.uuid4().hex}
+        network_connection.get_remote_certificates.return_value = [Mock()]
+        network_connection.certificate_signing_request.return_value = client_cert
+        sync_session = network_connection.create_sync_session.return_value.sync_session
+        sync_session.client_certificate = client_cert
+        mock_input.side_effect = inputs
+
+        with self.assertLogs("kolibri", "INFO") as logs:
+            call_command(
+                "sync",
+                baseurl="http://peer.test/",
+                facility=facility.id,
+                no_pull=True,
+                no_push=True,
+                **options,
+            )
+        return mock_input, network_connection, logs.output
+
+    def test_prompted_server_credentials_do_not_pick_superuser(self):
+        facility = Facility.objects.create(name="facility")
+        FacilityUser.objects.create(username="server_admin", facility=facility)
+        learner = FacilityUser.objects.create(username="learner", facility=facility)
+
+        mock_input, network_connection, _ = self._sync(
+            facility, ["server_admin", "learner"]
+        )
+
+        network_connection.get_remote_certificates.assert_called_once()
+        csr_kwargs = network_connection.certificate_signing_request.call_args[1]
+        self.assertEqual(csr_kwargs["userargs"]["username"], "server_admin")
+        self.assertEqual(csr_kwargs["password"], "pw")
+        mock_input.assert_called_with(
+            "Please enter username of account that will become the superuser on this device: "
+        )
+        learner.refresh_from_db()
+        self.assertTrue(learner.is_superuser)
+
+    def test_superuser_prompt_rejects_user_from_another_facility(self):
+        facility = Facility.objects.create(name="facility")
+        other_facility = Facility.objects.create(name="other")
+        FacilityUser.objects.create(username="server_admin", facility=facility)
+        FacilityUser.objects.create(username="outsider", facility=other_facility)
+        learner = FacilityUser.objects.create(username="learner", facility=facility)
+
+        mock_input, _, _ = self._sync(facility, ["server_admin", "outsider", "learner"])
+
+        self.assertEqual(mock_input.call_count, 3)
+        learner.refresh_from_db()
+        self.assertTrue(learner.is_superuser)
+
+    def test_noninteractive_username_from_another_facility_is_not_superuser(self):
+        facility = Facility.objects.create(name="facility")
+        other_facility = Facility.objects.create(name="other")
+        outsider = FacilityUser.objects.create(
+            username="outsider", facility=other_facility
+        )
+
+        self._sync(
+            facility, [], noninteractive=True, username="outsider", password="pw"
+        )
+
+        outsider.refresh_from_db()
+        self.assertFalse(outsider.is_superuser)
+        self.assertTrue(
+            FacilityUser.objects.get(
+                username="superuser", facility=facility
+            ).is_superuser
+        )
+
+    def test_interactive_sync_logs_session_and_completion(self):
+        facility = Facility.objects.create(name="facility")
+        FacilityUser.objects.create(username="server_admin", facility=facility)
+        learner = FacilityUser.objects.create(username="learner", facility=facility)
+
+        _, network_connection, logs = self._sync(
+            facility, ["server_admin", learner.username]
+        )
+
+        sync_session = network_connection.create_sync_session.return_value.sync_session
+        self.assertIn(
+            f"INFO:kolibri.core.auth.management.utils:Session ID: {sync_session.id}",
+            logs,
+        )
+        self.assertIn(
+            "INFO:kolibri.core.auth.management.utils:Syncing has been completed.",
+            logs,
         )

@@ -20,7 +20,6 @@ from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
@@ -213,7 +212,6 @@ def _get_users(dataset_id):
             LearnerDeviceStatus.objects.filter(dataset_id_filter),
             DevicePermissions.objects.filter(user_id_filter),
             PingbackNotificationDismissed.objects.filter(user_id_filter),
-            Collection.objects.filter(Q(parent_id__isnull=True) & dataset_id_filter),
             Role.objects.filter(dataset_id_filter),
             Membership.objects.filter(dataset_id_filter),
             Bookmark.objects.filter(dataset_id_filter),
