@@ -1,14 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main WebView for Kolibri -->
-    <android.webkit.WebView
-        android:id="@+id/webview"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Main WebView for Kolibri -->
+        <android.webkit.WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:theme="@style/ServerChipTheme">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/server_chip"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="@color/server_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- Fullscreen video container (hidden by default) -->
     <FrameLayout

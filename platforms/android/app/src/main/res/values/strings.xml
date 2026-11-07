@@ -15,4 +15,20 @@
     <string name="toast_download_complete">Saved %1$s to Downloads</string>
     <string name="toast_download_failed">Could not download %1$s</string>
     <string name="os_user_name">Learner</string>
+    <string name="server_local">My Kolibri (this device)</string>
+    <string name="server_chip_description">%1$s. Switch Kolibri</string>
+    <string name="server_sheet_title">Choose a Kolibri</string>
+    <string name="server_sheet_searching">Looking for nearby Kolibri servers…</string>
+    <string name="server_sheet_none_found">No nearby Kolibri servers found</string>
+    <plurals name="server_sheet_found">
+        <item quantity="one">Found %d nearby Kolibri server</item>
+        <item quantity="other">Found %d nearby Kolibri servers</item>
+    </plurals>
+    <string name="server_sheet_connect_nearby">Connect to a nearby Kolibri</string>
+    <string name="start_my_own_kolibri">Start my own Kolibri</string>
+    <string name="server_unreachable">Can\'t reach %1$s</string>
+    <string name="server_search_failed">Couldn\'t look for nearby Kolibri servers</string>
+    <string name="server_unreachable_try_again">Try again</string>
+    <string name="server_unreachable_choose_another">Choose another</string>
+    <string name="server_unreachable_use_local">Use my Kolibri</string>
 </resources>
