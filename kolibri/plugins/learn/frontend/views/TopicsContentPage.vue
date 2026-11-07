@@ -20,6 +20,7 @@
       :allowMarkComplete="allowMarkComplete"
       :contentKind="contentKind"
       :showBookmark="allowBookmark"
+      :showResourceList="lessonContext || !content?.virtual"
       :showDownloadButton="showDownloadButton"
       :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
@@ -62,6 +63,7 @@
         {{ pageHeading }}
       </h1>
       <ContentPage
+        :key="viewerKey"
         ref="contentPage"
         class="content"
         data-testid="contentPage"
@@ -72,6 +74,7 @@
         }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
+        @navigateInPlace="navigateInPlace"
         @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
         @error="onError"
       />
@@ -163,7 +166,7 @@
 
   import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
-  import { getCurrentInstance, ref, watch } from 'vue';
+  import { computed, getCurrentInstance, ref, watch } from 'vue';
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri/components/AuthMessage';
@@ -238,10 +241,16 @@
 
       const channel = ref(null);
       const content = ref(null);
+      const inPlaceNodeId = ref(null);
+      const shownByViewer = new Set();
       const loading = ref(false);
       const viewResourcesContents = ref([]);
       const moreResourcesContentAvailable = ref(null);
       const moreResourcesContentLoading = ref(false);
+      const viewerKey = computed(() => {
+        const current = get(content);
+        return current ? current.root_id || current.id : null;
+      });
 
       function _loadTopicsContent(shouldResolve, baseurl) {
         const id = props.id;
@@ -256,6 +265,10 @@
                 router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
                 return;
               }
+              if ((fetchedContent.root_id || fetchedContent.id) !== get(viewerKey)) {
+                shownByViewer.clear();
+              }
+              shownByViewer.add(fetchedContent.id);
               set(channel, currentChannel);
               set(content, fetchedContent);
               set(loading, false);
@@ -271,17 +284,26 @@
       }
 
       function showTopicsContent() {
-        const deviceId = props.deviceId;
-        set(loading, true);
         store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
-        set(channel, null);
-        set(content, null);
         const shouldResolve = samePageCheckGenerator();
+        const current = get(content);
+        const inPlace = Boolean(
+          current &&
+            props.id !== current.id &&
+            (props.id === get(inPlaceNodeId) || shownByViewer.has(props.id)),
+        );
+        set(inPlaceNodeId, null);
+        const deviceId = props.deviceId;
+        if (!inPlace) {
+          set(loading, true);
+          set(channel, null);
+          set(content, null);
+        }
         let promise;
         if (deviceId) {
           promise = setCurrentDevice(deviceId).then(device => {
             const baseurl = device.base_url;
-            if (get(canAddDownloads)) {
+            if (!inPlace && get(canAddDownloads)) {
               pollUserDownloadRequests({ contentnode_id: props.id });
             }
             return _loadTopicsContent(shouldResolve, baseurl);
@@ -328,6 +350,10 @@
           });
       }
 
+      function navigateInPlace(nodeId) {
+        set(inPlaceNodeId, nodeId);
+      }
+
       watch(() => props.id, showTopicsContent);
       showTopicsContent();
 
@@ -346,6 +372,8 @@
         downloadRequestsTranslator,
         deviceFormTranslator,
         content,
+        viewerKey,
+        navigateInPlace,
         loading,
         downloadRequestLoading,
         isUserLoggedIn,
@@ -488,6 +516,7 @@
       },
       showDownloadButton() {
         return (
+          !this.content?.virtual &&
           this.downloadableByLearner &&
           !this.downloadRequestLoading &&
           !this.loading &&

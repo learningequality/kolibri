@@ -1,12 +1,14 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { render, screen } from '@testing-library/vue';
 import flushPromises from 'flush-promises';
+import VueRouter from 'vue-router';
 import client from 'kolibri/client';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import Modalities from 'kolibri-constants/Modalities';
 // eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { virtualNodeId } from 'kolibri/utils/virtualNodeId';
 import makeStore from '../../__tests__/utils/makeStore';
 import TopicsContentPage from '../TopicsContentPage';
 /* eslint-disable import-x/named */
@@ -14,7 +16,10 @@ import useDownloadRequests, {
   useDownloadRequestsMock,
 } from '../../composables/useDownloadRequests';
 import useCoreLearn, { useCoreLearnMock } from '../../composables/useCoreLearn';
+import useContentLink, { useContentLinkMock } from '../../composables/useContentLink';
 /* eslint-enable import-x/named */
+import { setCurrentDevice } from '../../composables/useDevices';
+import { PageNames } from '../../constants';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');
@@ -22,6 +27,7 @@ jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('../../composables/useDownloadRequests');
 jest.mock('kolibri-common/composables/useChannels');
 jest.mock('../../composables/useCoreLearn');
+jest.mock('../../composables/useContentLink');
 jest.mock('../../composables/useDevices');
 jest.mock('vue-router/composables', () => ({
   useRoute: jest.fn(() => ({ params: {}, query: {}, name: null })),
@@ -54,6 +60,7 @@ async function makeWrapper({
   propsData = {},
   isContentAdminImported = false,
   isUserLoggedIn = false,
+  content = {},
 } = {}) {
   const store = makeStore();
   ContentNodeResource.list.mockResolvedValue([]);
@@ -61,6 +68,7 @@ async function makeWrapper({
     id: CONTENT_ID,
     admin_imported: isContentAdminImported,
     channel_id: CHANNEL_ID,
+    ...content,
   });
 
   const wrapper = shallowMount(TopicsContentPage, {
@@ -353,5 +361,221 @@ describe('TopicsContentPage', () => {
       expect(headings[0]).toHaveTextContent(RESOURCE_TITLE);
       expect(headings[0]).toHaveClass('visuallyhidden');
     });
+  });
+
+  describe('for a virtual page', () => {
+    const page = { virtual: true, root_id: 'zim-root' };
+    const activityBar = wrapper => wrapper.findComponent({ name: 'LearningActivityBar' });
+
+    afterEach(() => {
+      useContentLink.mockImplementation(() => useContentLinkMock());
+    });
+
+    it(`instructs 'LearningActivityBar' to not show the download button`, async () => {
+      const wrapper = await makeAuthWrapperWithRemoteContent({ content: page });
+      assertDownloadButtonIsNotDisplayed(wrapper);
+    });
+
+    it(`instructs 'LearningActivityBar' to not show the resource list outside a lesson`, async () => {
+      const wrapper = await makeWrapper({ content: page });
+      expect(activityBar(wrapper).attributes('showresourcelist')).toBeFalsy();
+    });
+
+    it(`instructs 'LearningActivityBar' to show the lesson's resource list`, async () => {
+      useContentLink.mockImplementation(() =>
+        useContentLinkMock({ back: { params: { lessonId: 'lesson-id' } } }),
+      );
+      const wrapper = await makeAuthWrapper({ content: page });
+      expect(activityBar(wrapper).attributes('showresourcelist')).toBeTruthy();
+    });
+  });
+
+  it(`instructs 'LearningActivityBar' to show the resource list for a real node`, async () => {
+    const wrapper = await makeWrapper();
+    expect(
+      wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showresourcelist'),
+    ).toBeTruthy();
+  });
+});
+
+describe('TopicsContentPage same-root keep-alive', () => {
+  const ROOT_ID = '0011223344556677889900aabbccddee';
+  const ROOT_PAGE_ID = virtualNodeId(ROOT_ID, 'C/Index');
+  const OTHER_PAGE_ID = virtualNodeId(ROOT_ID, 'C/Other');
+  const UNRELATED_ID = 'ffffffffffffffffffffffffffffffff';
+
+  beforeEach(() => {
+    useChannels.mockImplementation(() =>
+      useChannelsMock({
+        channelsMap: {
+          [CHANNEL_ID]: {
+            id: CHANNEL_ID,
+            name: 'test channel',
+            root: ROOT_ID,
+            thumbnail: '',
+          },
+        },
+      }),
+    );
+  });
+
+  afterEach(() => {
+    useChannels.mockImplementation(() => useChannelsMock());
+  });
+
+  function mountAtRootPage() {
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: ROOT_PAGE_ID,
+      root_id: ROOT_ID,
+      virtual: true,
+      channel_id: CHANNEL_ID,
+    });
+    const store = makeStore();
+    return shallowMount(TopicsContentPage, {
+      propsData: { id: ROOT_PAGE_ID },
+      store,
+      localVue,
+      stubs: {
+        LearningActivityBar: { name: 'LearningActivityBar', template: '<div></div>' },
+        ContentPage: { name: 'ContentPage', template: '<div data-testid="contentPage"></div>' },
+      },
+    });
+  }
+
+  it('refreshes content without a loading teardown when the viewer navigates to another sub-page', async () => {
+    const wrapper = mountAtRootPage();
+    await flushPromises();
+
+    const elementBefore = wrapper.find('[data-testid="contentPage"]').element;
+    const callCountAfterMount = ContentNodeResource.retrieve.mock.calls.length;
+
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: OTHER_PAGE_ID,
+      root_id: ROOT_ID,
+      virtual: true,
+      channel_id: CHANNEL_ID,
+    });
+    wrapper.findComponent({ name: 'ContentPage' }).vm.$emit('navigateInPlace', OTHER_PAGE_ID);
+    await wrapper.setProps({ id: OTHER_PAGE_ID });
+    expect(wrapper.vm.loading).toBe(false);
+    await flushPromises();
+
+    expect(ContentNodeResource.retrieve.mock.calls.length).toBeGreaterThan(callCountAfterMount);
+    expect(wrapper.find('[data-testid="contentPage"]').element).toBe(elementBefore);
+  });
+
+  it('keeps the viewer alive when going back to a page it has already shown', async () => {
+    const wrapper = mountAtRootPage();
+    await flushPromises();
+    const elementBefore = wrapper.find('[data-testid="contentPage"]').element;
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: OTHER_PAGE_ID,
+      root_id: ROOT_ID,
+      virtual: true,
+      channel_id: CHANNEL_ID,
+    });
+    wrapper.findComponent({ name: 'ContentPage' }).vm.$emit('navigateInPlace', OTHER_PAGE_ID);
+    await wrapper.setProps({ id: OTHER_PAGE_ID });
+    await flushPromises();
+
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: ROOT_PAGE_ID,
+      root_id: ROOT_ID,
+      virtual: true,
+      channel_id: CHANNEL_ID,
+    });
+    await wrapper.setProps({ id: ROOT_PAGE_ID });
+    expect(wrapper.vm.loading).toBe(false);
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="contentPage"]').element).toBe(elementBefore);
+  });
+
+  it('sends a learner to the library when a sub-page of a gone remote device fails to load', async () => {
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: ROOT_PAGE_ID,
+      root_id: ROOT_ID,
+      virtual: true,
+      channel_id: CHANNEL_ID,
+    });
+    const router = new VueRouter();
+    const replace = jest.spyOn(router, 'replace').mockImplementation(() => {});
+    const wrapper = shallowMount(TopicsContentPage, {
+      propsData: { id: ROOT_PAGE_ID, deviceId: 'remote-device-id' },
+      store: makeStore(),
+      localVue,
+      router,
+      stubs: {
+        LearningActivityBar: { name: 'LearningActivityBar', template: '<div></div>' },
+        ContentPage: { name: 'ContentPage', template: '<div data-testid="contentPage"></div>' },
+      },
+    });
+    await flushPromises();
+
+    setCurrentDevice.mockRejectedValueOnce({ response: { status: 410 } });
+    await wrapper.setProps({ id: OTHER_PAGE_ID });
+    await flushPromises();
+
+    expect(replace).toHaveBeenCalledWith({ name: PageNames.LIBRARY });
+  });
+
+  it('keeps the viewer alive when it moves from the ZIM root to one of its pages', async () => {
+    ContentNodeResource.retrieve.mockResolvedValue({ id: ROOT_ID, channel_id: CHANNEL_ID });
+    const wrapper = shallowMount(TopicsContentPage, {
+      propsData: { id: ROOT_ID },
+      store: makeStore(),
+      localVue,
+      stubs: {
+        LearningActivityBar: { name: 'LearningActivityBar', template: '<div></div>' },
+        ContentPage: { name: 'ContentPage', template: '<div data-testid="contentPage"></div>' },
+      },
+    });
+    await flushPromises();
+    const elementBefore = wrapper.find('[data-testid="contentPage"]').element;
+
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: ROOT_PAGE_ID,
+      root_id: ROOT_ID,
+      virtual: true,
+      channel_id: CHANNEL_ID,
+    });
+    wrapper.findComponent({ name: 'ContentPage' }).vm.$emit('navigateInPlace', ROOT_PAGE_ID);
+    await wrapper.setProps({ id: ROOT_PAGE_ID });
+    expect(wrapper.vm.loading).toBe(false);
+    await flushPromises();
+
+    expect(wrapper.vm.content.id).toBe(ROOT_PAGE_ID);
+    expect(wrapper.find('[data-testid="contentPage"]').element).toBe(elementBefore);
+  });
+
+  it('reloads the viewer when the route returns to its content before the page it moved to loads', async () => {
+    const wrapper = mountAtRootPage();
+    await flushPromises();
+    const elementBefore = wrapper.find('[data-testid="contentPage"]').element;
+    ContentNodeResource.retrieve.mockReturnValueOnce(new Promise(() => {}));
+    wrapper.findComponent({ name: 'ContentPage' }).vm.$emit('navigateInPlace', OTHER_PAGE_ID);
+    await wrapper.setProps({ id: OTHER_PAGE_ID });
+
+    await wrapper.setProps({ id: ROOT_PAGE_ID });
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="contentPage"]').element).not.toBe(elementBefore);
+  });
+
+  it('takes the viewer down while loading a resource it has not shown, e.g. the next lesson resource', async () => {
+    const wrapper = mountAtRootPage();
+    await flushPromises();
+
+    const elementBefore = wrapper.find('[data-testid="contentPage"]').element;
+
+    ContentNodeResource.retrieve.mockResolvedValue({
+      id: UNRELATED_ID,
+      channel_id: CHANNEL_ID,
+    });
+    await wrapper.setProps({ id: UNRELATED_ID });
+    expect(wrapper.find('[data-testid="contentPage"]').exists()).toBe(false);
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="contentPage"]').element).not.toBe(elementBefore);
   });
 });
