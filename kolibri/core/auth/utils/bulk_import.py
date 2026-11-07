@@ -17,10 +17,12 @@ from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.errors import BulkUserImportError
+from kolibri.core.auth.errors import FacilityLookupError
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
+from kolibri.core.auth.utils.facility import get_facility
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.csv import open_csv_for_reading
 
@@ -197,7 +199,7 @@ def enumeration(*args):
     def checker(value):
         if value == DEFERRED:
             return checker
-        if value.lower() not in members:
+        if value is None or value.lower() not in members:
             raise ValueError(value)
         return None
 
@@ -225,6 +227,10 @@ def valid_name(username=True, allow_null=False):
         return None
 
     return checker
+
+
+def normalize_uuid(value):
+    return UUID(value).hex if value else ""
 
 
 def reverse_dict(original):
@@ -320,16 +326,18 @@ class Validator:
         """
         for index, row in enumerate(data):
             error_flag = False
-            username = self.get_username(row)
-            if not username:
-                error = {
-                    "row": index + 1,
-                    "message": MESSAGES[DUPLICATED_USERNAME],
-                    "field": "USERNAME",
-                    "value": row.get(self.header_translation["USERNAME"]),
-                }
-                error_flag = True
-                yield error
+            username = None
+            if row.get(self.header_translation["USERNAME"]) is not None:
+                username = self.get_username(row)
+                if not username:
+                    error = {
+                        "row": index + 1,
+                        "message": MESSAGES[DUPLICATED_USERNAME],
+                        "field": "USERNAME",
+                        "value": row.get(self.header_translation["USERNAME"]),
+                    }
+                    error_flag = True
+                    yield error
 
             for header_name, check, message in self._checks:
                 value = row[self.header_translation[header_name]]
@@ -348,7 +356,7 @@ class Validator:
                     error = {
                         "row": index + 1,
                         "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
-                            (e.__class__.__name__, e)
+                            e.__class__.__name__, e
                         ),
                         "field": header_name,
                         "value": value,
@@ -455,8 +463,6 @@ class BulkUserImportManager(JobProgressMixin):
         super().__init__()
 
     def append_error(self, msg):
-        # force translation to str type, to be serialized into json:
-        translation.activate(self.locale)
         self.overall_error.append(str(msg))
 
     def csv_headers_validation(self, local_filepath=None, storage_filepath=None):
@@ -506,7 +512,7 @@ class BulkUserImportManager(JobProgressMixin):
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
 
         return {
-            "uuid": user_row.get(self.header_translation["UUID"], ""),
+            "uuid": normalize_uuid(user_row.get(self.header_translation["UUID"])),
             "username": user_row.get(self.header_translation["USERNAME"], ""),
             "password": password,
             "gender": gender,
@@ -594,7 +600,7 @@ class BulkUserImportManager(JobProgressMixin):
         rejected_ids = set()
         per_line_errors = []
         users_uuid = [
-            u[self.header_translation["UUID"]]
+            normalize_uuid(u[self.header_translation["UUID"]])
             for u in users.values()
             if u[self.header_translation["UUID"]] != ""
         ]
@@ -699,9 +705,11 @@ class BulkUserImportManager(JobProgressMixin):
 
     def get_facility(self):
         if self.facility_id:
-            default_facility = Facility.objects.get(pk=self.facility_id)
-        else:
-            default_facility = Facility.get_default_facility()
+            try:
+                return get_facility(self.facility_id)
+            except FacilityLookupError as e:
+                raise BulkUserImportError(str(e)) from e
+        default_facility = Facility.get_default_facility()
         if not default_facility:
             raise BulkUserImportError(str(MESSAGES[NO_FACILITY]))
 
@@ -743,10 +751,6 @@ class BulkUserImportManager(JobProgressMixin):
     def delete_users(self, users):
         for user in users:
             user.delete(hard_delete=True)
-
-    def clear_classes(self, classes):
-        for classroom in classes:
-            Membership.objects.filter(collection=classroom).delete()
 
     def add_classes_memberships(self, classes, users, db_classes):
         enrolled = classes[0]
@@ -840,7 +844,7 @@ class BulkUserImportManager(JobProgressMixin):
 
     def run(self):
         # set language for the translation of the messages
-        with translation.override(self.locale or settings.LANGUAGE_CODE):
+        with translation.override(self.locale):
             self._run()
 
     def _run(self):

@@ -1,6 +1,9 @@
 import csv
 import tempfile
+from uuid import uuid4
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import override_settings
 from django.test import TestCase
 from django.utils import translation
@@ -149,3 +152,14 @@ class UserExportTestCase(TestCase):
             with self.assertRaises(BulkUserExportError):
                 manager.run()
             self.assertEqual(translation.get_language(), "en")
+
+    def test_unknown_facility_is_a_command_error(self):
+        for facility_id in ("bogus", uuid4().hex):
+            with self.subTest(facility_id=facility_id):
+                with self.assertRaises(CommandError):
+                    call_command(
+                        "bulkexportusers",
+                        output_file=self.filepath,
+                        overwrite=True,
+                        facility=facility_id,
+                    )

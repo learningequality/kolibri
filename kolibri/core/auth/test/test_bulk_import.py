@@ -2,6 +2,7 @@ import ast
 import csv
 import tempfile
 from io import StringIO
+from uuid import UUID
 from uuid import uuid4
 
 import pytest
@@ -70,6 +71,8 @@ def test_enumeration_validator():
     assert check("aDMin") is None
     with pytest.raises(ValueError):
         check("other")
+    with pytest.raises(ValueError):
+        check(None)
     check = b.enumeration("kolibri")
     assert check("b") is None
 
@@ -858,3 +861,70 @@ class ImportTestCase(TestCase):
             with self.assertRaises(BulkUserImportError):
                 manager.run()
             self.assertEqual(translation.get_language(), "en")
+
+    def test_row_errors_are_reported_in_locale(self):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(
+            csv_filename, [["", "bad name", "pass", "", "LEARNER", "", "", "", "", ""]]
+        )
+        errorlines = StringIO()
+        b.BulkUserImportManager(
+            csv_filename,
+            facility_id=self.facility.id,
+            errorlines=errorlines,
+            locale="es-es",
+        ).run()
+        (error,) = [
+            e
+            for e in map(ast.literal_eval, errorlines.getvalue().splitlines())
+            if e["field"] == "USERNAME"
+        ]
+        with translation.override("es-es"):
+            expected = str(b.MESSAGES[b.INVALID_USERNAME])
+        self.assertNotEqual(expected, str(b.MESSAGES[b.INVALID_USERNAME]))
+        self.assertEqual(error["message"], expected)
+
+    def test_short_row_is_a_username_row_error(self):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(csv_filename, [["x"]])
+        errorlines = StringIO()
+        b.BulkUserImportManager(
+            csv_filename, facility_id=self.facility.id, errorlines=errorlines
+        ).run()
+        errors = [ast.literal_eval(line) for line in errorlines.getvalue().splitlines()]
+        self.assertIn(
+            str(b.MESSAGES[b.REQUIRED_COLUMN].format("USERNAME")),
+            [e["message"] for e in errors if e["field"] == "USERNAME"],
+        )
+
+    def test_dashed_uppercase_uuid_keeps_user_on_delete(self):
+        user = FacilityUser.objects.create(
+            username="alice", facility=self.facility, full_name="Alice"
+        )
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [str(UUID(user.id)).upper(), "alice", "*", "Alice", "LEARNER"]
+        self.create_csv(csv_filename, [[*row, "", "", "", "", ""]])
+        b.BulkUserImportManager(
+            csv_filename, facility_id=self.facility.id, delete=True
+        ).run()
+        self.assertTrue(FacilityUser.all_objects.filter(id=user.id).exists())
+
+    def test_unknown_facility_is_a_command_error(self):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(csv_filename, [])
+        for facility_id in ("bogus", uuid4().hex):
+            with self.subTest(facility_id=facility_id):
+                with self.assertRaises(CommandError):
+                    call_command("bulkimportusers", csv_filename, facility=facility_id)
+
+    def test_unexpected_check_exception_is_a_row_error(self):
+        def failing_check(value):
+            raise RuntimeError("boom")
+
+        validator = b.Validator({"USERNAME": "USERNAME", "UUID": "UUID"}, self.facility)
+        validator.add_check("USERNAME", failing_check, "unused")
+        (error,) = validator.validate([{"USERNAME": "alice", "UUID": ""}])
+        self.assertEqual(
+            error["message"],
+            b.MESSAGES[b.UNEXPECTED_EXCEPTION].format("RuntimeError", "boom"),
+        )

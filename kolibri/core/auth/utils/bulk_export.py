@@ -15,6 +15,7 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.errors import BulkUserExportError
+from kolibri.core.auth.errors import FacilityLookupError
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -22,6 +23,7 @@ from kolibri.core.auth.models import Role
 from kolibri.core.auth.utils.bulk_import import FILE_WRITE_ERROR
 from kolibri.core.auth.utils.bulk_import import MESSAGES
 from kolibri.core.auth.utils.bulk_import import NO_FACILITY
+from kolibri.core.auth.utils.facility import get_facility
 from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.csv import open_csv_for_writing
@@ -227,7 +229,10 @@ class BulkUserExportManager(JobProgressMixin):
         local_filepath = None
 
         if self.facility_id:
-            facility = Facility.objects.get(pk=self.facility_id)
+            try:
+                facility = get_facility(self.facility_id)
+            except FacilityLookupError as e:
+                raise BulkUserExportError(str(e)) from e
         else:
             facility = Facility.get_default_facility()
         if not facility:
