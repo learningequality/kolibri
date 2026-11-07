@@ -1638,6 +1638,7 @@ class UserRetrieveTestCase(APITestCase):
             "date_joined": user.date_joined,
             "birth_year": user.birth_year,
             "is_superuser": user.is_superuser,
+            "can_manage_content": False,
             "extra_demographics": None,
             "picture_password": user.picture_password,
         }
@@ -1681,6 +1682,15 @@ class UserRetrieveTestCase(APITestCase):
                 self.superuser_response,
             ],
         )
+
+    def test_user_list_reports_content_manager(self):
+        content_manager = FacilityUserFactory.create(facility=self.facility)
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+
+        response = self._make_request(self.superuser)
+
+        listed = next(u for u in response.data if u["id"] == content_manager.id)
+        self.assertTrue(listed["can_manage_content"])
 
     def test_user_list_self(self):
         response = self._make_request(self.user)
