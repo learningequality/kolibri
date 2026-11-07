@@ -7,7 +7,6 @@ import OverviewBlock from '../OverviewBlock.vue';
 
 const { viewPasswordsAction$ } = picturePasswordStrings;
 
-jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../../composables/fetchClassSyncStatus');
 jest.mock('kolibri/router', () => ({

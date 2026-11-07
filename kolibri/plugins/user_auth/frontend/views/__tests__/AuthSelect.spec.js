@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { nextTick, ref } from 'vue';
 import themeConfig from 'kolibri/styles/themeConfig';
-import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { AuthFlowStore } from '../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import AuthSelect from '../AuthSelect';
 import UserAuthLayout from '../UserAuthLayout';
@@ -15,7 +15,6 @@ import describeAuthPageTitle from './describeAuthPageTitle';
 const { signInLabel$ } = coreStrings;
 
 jest.mock('kolibri/composables/useUser');
-jest.mock('../../composables/useAuthFlow');
 jest.mock('../../composables/useAuthRouter');
 jest.mock('kolibri/router', () => ({
   __esModule: true,
@@ -39,6 +38,8 @@ jest.mock('kolibri-plugin-data', () => ({
   },
 }));
 
+AuthFlowStore.stub();
+
 const routes = [
   { name: 'SignInPage', path: '/signin' },
   { name: 'SignUpPage', path: '/signup' },
@@ -52,12 +53,7 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
 }));
 
 function setupMocks({ canSignUpWithAnyFacility = true } = {}) {
-  useAuthFlow.mockReturnValue(
-    useAuthFlowMock({
-      hasMultipleFacilities: ref(true),
-      canSignUpWithAnyFacility: ref(canSignUpWithAnyFacility),
-    }),
-  );
+  AuthFlowStore.mock({ hasMultipleFacilities: true, canSignUpWithAnyFacility });
   useAuthRouter.mockReturnValue(
     useAuthRouterMock({
       signInRoute: ref({ name: ComponentMap.USERNAME_SIGN_IN, params: {}, query: {} }),

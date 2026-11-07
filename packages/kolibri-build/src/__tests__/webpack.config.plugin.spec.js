@@ -107,6 +107,31 @@ describe('webpackConfigPlugin', function () {
     });
   });
 
+  describe('composable id stamping', function () {
+    function stamps(file) {
+      const rule = webpackConfigPlugin(data).module.rules.find(
+        rule => rule.loader && rule.loader.includes('composableIdLoader'),
+      );
+      return !rule.exclude.test(path.join('/repo', ...file.split('/')));
+    }
+
+    it('stamps kolibri packages installed in node_modules', function () {
+      expect(stamps('node_modules/kolibri-common/composables/useFacilities.js')).toBe(true);
+      expect(
+        stamps(
+          'node_modules/.pnpm/kolibri-common@1.0.0/node_modules/kolibri-common/composables/useFacilities.js',
+        ),
+      ).toBe(true);
+    });
+
+    it('skips other node_modules, including those nested in kolibri packages', function () {
+      expect(stamps('node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.js')).toBe(false);
+      expect(stamps('node_modules/.pnpm/kolibri-common@1.0.0/node_modules/lodash/map.js')).toBe(
+        false,
+      );
+    });
+  });
+
   describe('dev server public path', function () {
     it('should advertise localhost and port 3000 by default', function () {
       expect(webpackConfigPlugin(data, { devServer: true }).output.publicPath).toEqual(
