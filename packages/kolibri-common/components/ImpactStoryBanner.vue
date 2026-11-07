@@ -1,7 +1,6 @@
 <template>
 
   <div
-    v-if="notification"
     class="impact-story-banner"
     :class="{ stacked: windowIsSmall }"
     :style="{ backgroundColor: 'var(--palette-blue-v100)' }"
@@ -40,7 +39,7 @@
       class="dismiss-button"
       :ariaLabel="dismiss$()"
       icon="close"
-      @click="dismiss"
+      @click="$emit('dismiss')"
     />
   </div>
 
@@ -52,9 +51,6 @@
   import { computed, ref } from 'vue';
   import QRCode from 'qrcode';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { currentLanguage } from 'kolibri/utils/i18n';
-  import useUser from 'kolibri/composables/useUser';
-  import LocalNotificationResource from 'kolibri-common/apiResources/LocalNotificationResource';
   import { impactStoryStrings } from 'kolibri-common/strings/impactStoryStrings';
 
   export const WHATSAPP_PATH = '16198972090';
@@ -64,11 +60,9 @@
 
   export default {
     name: 'ImpactStoryBanner',
-    setup() {
-      const { isSuperuser } = useUser();
+    setup(props) {
       const { windowIsSmall } = useKResponsiveWindow();
       const qrSrc = ref(null);
-      const notification = ref(null);
 
       const {
         title$,
@@ -81,47 +75,24 @@
       } = impactStoryStrings;
 
       const whatsappHref = computed(() => {
-        if (!notification.value) {
-          return '';
-        }
         const text = whatsappIntroText$({
-          facilityName: notification.value.facility_name,
-          learnerCount: notification.value.learner_count,
+          facilityName: props.notification.facility_name,
+          learnerCount: props.notification.learner_count,
         });
         return `https://wa.me/${WHATSAPP_PATH}?text=${encodeURIComponent(text)}`;
       });
 
-      // Hard gate: super-admin-only, English-only. Skips the fetch entirely
-      // for non-applicable users.
-      if (isSuperuser.value && currentLanguage === 'en') {
-        LocalNotificationResource.list().then(async rows => {
-          notification.value = rows[0] || null;
-          if (notification.value && !windowIsSmall.value) {
-            qrSrc.value = await QRCode.toDataURL(whatsappHref.value, {
-              margin: 1,
-              width: 320,
-            });
-          }
-        });
-      }
-
-      async function dismiss() {
-        if (!notification.value) {
-          return;
-        }
-        await LocalNotificationResource.delete(notification.value.id);
-        notification.value = null;
-      }
+      QRCode.toDataURL(whatsappHref.value, { margin: 1, width: 320 }).then(src => {
+        qrSrc.value = src;
+      });
 
       return {
-        notification,
         qrSrc,
         windowIsSmall,
         whatsappHref,
         whatsappNumberDisplay: WHATSAPP_NUMBER_DISPLAY,
         storyFormHref: STORY_FORM_HREF,
         storyFormDisplay: STORY_FORM_DISPLAY,
-        dismiss,
         title$,
         message$,
         dismiss$,
@@ -130,6 +101,13 @@
         qrAlt$,
       };
     },
+    props: {
+      notification: {
+        type: Object,
+        required: true,
+      },
+    },
+    emits: ['dismiss'],
   };
 
 </script>
