@@ -1012,9 +1012,6 @@ importers:
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
-      kolibri-plugin-data:
-        specifier: workspace:*
-        version: link:../../../packages/kolibri-plugin-data
       lockr:
         specifier: 0.8.5
         version: 0.8.5

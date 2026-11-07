@@ -7,6 +7,7 @@ import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 
+from kolibri.utils.constants import installation_types
 from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # These Kolibri plugins must be enabled for the application to function.
 # "kolibri_app" is this project's bundled plugin (src/kolibri_app/kolibri_plugin.py),
-# which registers GetOSUserHook + CheckIsMeteredHook. It replaces the
+# which registers CheckIsMeteredHook. It replaces the
 # kolibri.plugins.app interface, which was removed in Kolibri 0.19.
 REQUIRED_PLUGINS = [
     "kolibri_app",
@@ -64,10 +65,8 @@ def kolibri_home_lock() -> Iterator[None]:
 def _init_kolibri_env():
     os.environ["KOLIBRI_PROJECT"] = "kolibri-gnome"
 
-    # Reported as "Flatpak - <version>" in device info. Literal rather than
-    # installation_types.FLATPAK: like globals.py, this avoids importing Kolibri,
-    # whose import has side effects.
-    os.environ["KOLIBRI_INSTALLATION_TYPE"] = "flatpak"
+    # Reported as "Flatpak - <version>" in device info.
+    os.environ["KOLIBRI_INSTALLATION_TYPE"] = installation_types.FLATPAK
     os.environ["KOLIBRI_INSTALLER_VERSION"] = PROJECT_VERSION
 
     # Kolibri defaults to a very large thread pool. Because we expect this

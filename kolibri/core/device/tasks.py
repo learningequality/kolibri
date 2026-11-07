@@ -1,6 +1,9 @@
 import logging
+from typing import ClassVar
 
 from django.db import transaction
+from django.utils import translation
+from django.utils.translation import pgettext
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
@@ -14,6 +17,7 @@ from kolibri.core.auth.viewsets.facility import FacilitySerializer
 from kolibri.core.decorators import warm_cached_views as warm_cached_view_bodies
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import provision_device
@@ -41,23 +45,29 @@ def warm_cached_views():
     warm_cached_view_bodies()
 
 
+class ProvisionFacilitySerializer(FacilitySerializer):
+    class Meta(FacilitySerializer.Meta):
+        extra_kwargs: ClassVar[dict] = {
+            **FacilitySerializer.Meta.extra_kwargs,
+            "name": {"required": False},
+        }
+
+
 class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
-    facility = FacilitySerializer(required=False, allow_null=True)
+    facility = ProvisionFacilitySerializer(required=False, allow_null=True)
     facility_id = serializers.CharField(max_length=50, required=False, allow_null=True)
     preset = serializers.ChoiceField(choices=choices, required=False, allow_null=True)
     superuser = NoFacilityFacilityUserSerializer(required=False)
     language_id = serializers.CharField(max_length=15)
-    device_name = serializers.CharField(max_length=50, allow_null=True)
+    device_name = serializers.CharField(max_length=50, required=False, allow_null=True)
     settings = serializers.JSONField()
     allow_guest_access = serializers.BooleanField(allow_null=True)
     is_provisioned = serializers.BooleanField(default=True)
     is_soud = serializers.BooleanField(default=True)
 
     def validate(self, data):
-        if (
-            GetOSUserHook.is_registered
-            and self.context.get("request") is not None
-            and valid_app_key_on_request(self.context["request"])
+        if self.context.get("request") is not None and valid_app_key_on_request(
+            self.context["request"]
         ):
             data["auth_token"] = self.context["request"].COOKIES.get(
                 APP_AUTH_TOKEN_COOKIE_NAME
@@ -65,7 +75,7 @@ class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
         elif "superuser" not in data:
             raise serializers.ValidationError("Superuser is required for provisioning")
 
-        has_facility = "facility" in data
+        has_facility = data.get("facility") is not None
         has_facility_id = "facility_id" in data
 
         if (has_facility and has_facility_id) or (
@@ -80,7 +90,45 @@ class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
                 "Please provide `preset` if `facility` is specified"
             )
 
+        if (
+            has_facility
+            and not data["facility"].get("name")
+            and not data.get("auth_token")
+        ):
+            raise serializers.ValidationError(
+                "Please provide a `name` in `facility`, or an `auth_token`"
+            )
+
+        if "device_name" not in data and not data.get("auth_token"):
+            raise serializers.ValidationError(
+                "Please provide a `device_name`, or an `auth_token`"
+            )
+
         return super().validate(data)
+
+
+def _retrieve_os_user(auth_token):
+    os_user = GetOSUserHook.retrieve_os_user(auth_token)
+    if os_user is None:
+        raise ParseError("`auth_token` does not identify an OS user")
+    return os_user
+
+
+def _os_user_default_names(os_user):
+    name = os_user.full_name or os_user.account_name
+    return (
+        pgettext(
+            "The default device name for a user installing Kolibri using the personal 'on my own' (formerly Quick Start) flow",
+            "Personal device for {name}",
+        ).format(name=name)[: DeviceSettings._meta.get_field("name").max_length],
+        pgettext(
+            "Default facility name when Kolibri is installed with the 'Quick start' setup option for at home learning, "
+            "outside any type of structure or institution like a school or a library. '{name}' will display the full name "
+            "of the super admin user for their Kolibri server. Note that users can change this default name after the setup, "
+            "and put whatever name they want to use for their home facility.",
+            "Home Facility for {name}",
+        ).format(name=name)[: Facility._meta.get_field("name").max_length],
+    )
 
 
 @register_task(
@@ -99,8 +147,21 @@ def provisiondevice(**data):  # noqa C901
     superuser - the required fields for a facilityuser who will be set as the super user for this device
     """
     with transaction.atomic():
-        if data.get("facility"):
+        auth_token = data.pop("auth_token", None)
+        os_user = _retrieve_os_user(auth_token) if auth_token else None
+
+        if os_user:
+            with translation.override(data["language_id"]):
+                default_device_name, default_facility_name = _os_user_default_names(
+                    os_user
+                )
+            if not data.get("device_name"):
+                data["device_name"] = default_device_name
+
+        if data.get("facility") is not None:
             facility_data = data.pop("facility")
+            if os_user and not facility_data.get("name"):
+                facility_data["name"] = default_facility_name
             facility_id = None
         else:
             facility_id = data.pop("facility_id")
@@ -152,8 +213,6 @@ def provisiondevice(**data):  # noqa C901
                     setattr(facility.dataset, key, value)
             facility.dataset.save()
 
-        auth_token = data.pop("auth_token", None)
-
         superuser_created = False
 
         if "superuser" in data:
@@ -177,22 +236,16 @@ def provisiondevice(**data):  # noqa C901
                     raise ParseError(
                         "`username`, `password`, or `full_name` are missing in `superuser`"
                     ) from e
-            if auth_token:
+            if os_user:
                 # If we have an auth token, we need to create an OSUser for the superuser
                 # so that we can associate the user with the OSUser
-                try:
-                    os_username, _ = GetOSUserHook.retrieve_os_user(auth_token)
-                    OSUser.objects.update_or_create(
-                        os_username=os_username, defaults={"user": superuser}
-                    )
-                except NotImplementedError as e:
-                    raise ParseError(
-                        "Getting the OS user is not supported on this platform"
-                    ) from e
+                OSUser.objects.update_or_create(
+                    os_username=os_user.os_user_id, defaults={"user": superuser}
+                )
 
-        elif auth_token:
-            superuser = FacilityUser.objects.get_or_create_os_user(
-                auth_token, facility=facility
+        elif os_user:
+            superuser = FacilityUser.objects.get_or_create_for_os_user(
+                os_user, facility=facility
             )
         else:
             raise ParseError(
@@ -221,7 +274,7 @@ def provisiondevice(**data):  # noqa C901
             allow_guest_access = preset != "formal"
 
         provisioning_data = {
-            "device_name": data["device_name"],
+            "device_name": data.get("device_name"),
             "is_provisioned": data["is_provisioned"],
             "language_id": language_id,
             "default_facility": facility,
