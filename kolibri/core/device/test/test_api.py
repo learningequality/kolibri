@@ -24,6 +24,8 @@ import kolibri
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import validate_username
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.auth.test.helpers import create_os_user
+from kolibri.core.auth.test.helpers import create_privileged_os_users
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import ClassroomFactory
@@ -39,7 +41,9 @@ from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.models import UserSyncStatus
+from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import app_initialize_url
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -846,14 +850,18 @@ class InitializeEndpointTestCase(APITestCase):
             self.assertEqual(user.os_user.os_username, "test_user")
             self.assertNotEqual(self.superuser.id, user.id)
 
-    def _log_in_os_user(self, os_username):
+    def _launch_as_os_user(self, os_username):
         with mock.patch(
             "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
             return_value=(os_username, False),
         ):
             self.client.logout()
-            self.client.get(app_initialize_url(auth_token="test"))
-        return FacilityUser.objects.get(id=self.client.session.load()[SESSION_KEY])
+            response = self.client.get(app_initialize_url(auth_token="test"))
+        return self.client.session.load().get(SESSION_KEY), response
+
+    def _log_in_os_user(self, os_username):
+        user_id, _ = self._launch_as_os_user(os_username)
+        return FacilityUser.objects.get(id=user_id)
 
     def test_same_named_os_users_in_different_domains_get_different_users(self):
         with mock.patch("sys.platform", "win32"):
@@ -901,6 +909,35 @@ class InitializeEndpointTestCase(APITestCase):
             user = FacilityUser.objects.get(id=user_id)
             self.assertFalse(hasattr(user, "os_user"))
             self.assertEqual(self.superuser.id, user.id)
+
+    def test_privileged_os_user_not_logged_in_on_full_facility_device(self):
+        for user in create_privileged_os_users(self.facility):
+            with self.subTest(username=user.username):
+                user_id, response = self._launch_as_os_user(user.username)
+                self.assertIsNone(user_id)
+                self.assertEqual(
+                    response.cookies[APP_AUTH_TOKEN_COOKIE_NAME].value, "test"
+                )
+
+    def test_os_learner_logged_in_on_full_facility_device(self):
+        learner = create_os_user(self.facility, "os_learner")
+        user_id, _ = self._launch_as_os_user(learner.username)
+        self.assertEqual(user_id, learner.id)
+
+    def _assert_privileged_os_users_logged_in(self):
+        for user in create_privileged_os_users(self.facility):
+            with self.subTest(username=user.username):
+                user_id, _ = self._launch_as_os_user(user.username)
+                self.assertEqual(user_id, user.id)
+
+    def test_privileged_os_user_logged_in_on_my_own_device(self):
+        self.facility.on_my_own_setup = True
+        self._assert_privileged_os_users_logged_in()
+
+    def test_privileged_os_user_logged_in_on_learner_only_device(self):
+        set_device_settings(subset_of_users_device=True)
+        self.addCleanup(clear_process_cache)
+        self._assert_privileged_os_users_logged_in()
 
     def test_redirect_relative_next_url(self):
         """A relative same-host path is accepted."""

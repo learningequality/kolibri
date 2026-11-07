@@ -48,9 +48,12 @@ const connectToTargetKolibri = (context, event) => {
 
 const getUserWPasswordInfo = context => {
   const facility = context.targetFacility;
-  return remoteFacilityUserData(facility.url, facility.id, context.username, null).then(
-    user => user,
-  );
+  return remoteFacilityUserData(facility.url, facility.id, context.username, null).then(user => {
+    if (user === 'error') {
+      throw new Error('Passwordless sign-in refused');
+    }
+    return user;
+  });
 };
 
 const checkExists = assign((context, event) => {
@@ -469,7 +472,7 @@ const states = {
         }),
       },
       onError: {
-        target: 'mergeAccounts',
+        target: 'requireAccountCreds',
       },
     },
   },

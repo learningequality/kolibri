@@ -15,6 +15,7 @@ export function _userState(facilityUser) {
     full_name: facilityUser.full_name,
     kind: UserType(facilityUser),
     is_superuser: facilityUser.is_superuser,
+    can_manage_content: facilityUser.can_manage_content,
     roles: facilityUser.roles,
     gender: facilityUser.gender,
     birth_year: facilityUser.birth_year,

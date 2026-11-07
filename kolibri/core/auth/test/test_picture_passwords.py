@@ -19,6 +19,7 @@ from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
 from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+from kolibri.core.device.models import DevicePermissions
 
 from ..models import Facility
 from ..models import FacilityUser
@@ -331,6 +332,13 @@ class PicturePasswordsExhaustionTestCase(TestCase):
         admin = self._create_user()
         self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
         self.facility.add_role(admin, ADMIN)
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
+
+    def test_get_learner_count__device_permissions_signals(self):
+        self._create_user()
+        content_manager = self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
         self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
 
     @mute_signals(post_save)
