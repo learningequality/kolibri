@@ -59,6 +59,12 @@
       const { isSuperuser } = useUser();
       return { isSuperuser };
     },
+    props: {
+      suppressed: {
+        type: Boolean,
+        default: false,
+      },
+    },
     data() {
       return {
         Options,
@@ -75,7 +81,8 @@
           this.originalSettingDisallows &&
           this.activeConnectionIsMetered &&
           this.isSuperuser &&
-          !this.dismissed
+          !this.dismissed &&
+          !this.suppressed
         );
       },
       settingsUrl() {

@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    ref="page"
     :loading="!quizInitialized"
     :appBarTitle="title"
     icon="close"
@@ -14,7 +15,10 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-    <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
+    <KPageContainer
+      :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }"
+      :inert="modalPanelOpen"
+    >
       <AssignmentDetailsModal
         v-if="quizInitialized"
         ref="detailsModal"
@@ -105,7 +109,10 @@
     </KModal>
 
     <SidePanelTitle v-if="overlayOpen" />
-    <router-view v-if="quizInitialized" />
+    <router-view
+      v-if="quizInitialized"
+      :inert="modalPanelOpen"
+    />
   </CoachImmersivePage>
 
 </template>
@@ -124,6 +131,7 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import usePageTitle from 'kolibri/composables/usePageTitle';
+  import useModalPanelOpen from 'kolibri/composables/useModalPanelOpen';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -155,6 +163,8 @@
     setup() {
       const route = useRoute();
       const closeConfirmationToRoute = ref(null);
+      const page = ref(null);
+      const modalPanelOpen = useModalPanelOpen(page, closeConfirmationToRoute);
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, groups } = useCoreCoach();
 
@@ -205,6 +215,8 @@
         classId,
         groups,
         closeConfirmationToRoute,
+        page,
+        modalPanelOpen,
         showError,
         quiz,
         quizHasChanged,

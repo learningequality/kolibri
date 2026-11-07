@@ -564,7 +564,6 @@
         return disabledConditions.some(Boolean);
       });
 
-      const title = ref('');
       const goBack = ref(null);
       const continueAction = ref(null);
       const sectionTitle = computed(() =>
@@ -673,6 +672,7 @@
         return selectResourcesDescription$({ sectionTitle: sectionTitle.value });
       };
       const defaultTitle = getDefaultTitle();
+      const title = ref(defaultTitle);
 
       const { createSnackbar } = useSnackbar();
       const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } = enhancedQuizManagementStrings;
