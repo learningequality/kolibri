@@ -1,3 +1,5 @@
+from contextlib import ExitStack
+
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
@@ -59,16 +61,23 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        errorlines_path = options["errorlines"]
         try:
-            BulkUserImportManager(
-                options["filepath"],
-                facility_id=options["facility"],
-                userid=options["userid"],
-                locale=options["locale"],
-                dryrun=options["dryrun"],
-                delete=options["delete"],
-                use_storage=options["use_storage"],
-                errorlines=options["errorlines"],
-            ).run()
+            with ExitStack() as stack:
+                errorlines = (
+                    stack.enter_context(open(errorlines_path, "w"))
+                    if errorlines_path
+                    else None
+                )
+                BulkUserImportManager(
+                    options["filepath"],
+                    facility_id=options["facility"],
+                    userid=options["userid"],
+                    locale=options["locale"],
+                    dryrun=options["dryrun"],
+                    delete=options["delete"],
+                    use_storage=options["use_storage"],
+                    errorlines=errorlines,
+                ).run()
         except BulkUserImportError as e:
             raise CommandError(str(e)) from e

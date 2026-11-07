@@ -239,14 +239,16 @@ class ImportTestCase(TestCase):
             per_line_errors[0]["message"]
             == "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
         )
-        out_log = StringIO()
+        _, errorlines = tempfile.mkstemp()
         call_command(
             "bulkimportusers",
             new_filename,
+            "--errorlines",
+            errorlines,
             facility=self.facility.id,
-            errorlines=out_log,
         )
-        result = out_log.getvalue().split("\n")
+        with open(errorlines) as f:
+            result = f.read().split("\n")
         # validation when checking db content should trigger an error for '*'  password for a non-existing user:
         assert "'value': '*'" in result[1]
         assert "new_coach" in result[1]
@@ -636,14 +638,16 @@ class ImportTestCase(TestCase):
         self.create_csv(new_filename, rows[1:])  # remove header
         number_of_rows = len(rows) - 1  # exclude header
         # import exported csv
-        out_log = StringIO()
+        _, errorlines = tempfile.mkstemp()
         call_command(
             "bulkimportusers",
             new_filename,
+            "--errorlines",
+            errorlines,
             facility=self.facility.id,
-            errorlines=out_log,
         )
-        result = out_log.getvalue().strip().split("\n")
+        with open(errorlines) as f:
+            result = f.read().strip().split("\n")
 
         assert len(result) == number_of_rows
 
