@@ -4,13 +4,8 @@ import types
 from collections import OrderedDict
 
 from django.db import transaction
-from django.db.models import Case
 from django.db.models import Exists
-from django.db.models import IntegerField
 from django.db.models import OuterRef
-from django.db.models import Subquery
-from django.db.models import Value
-from django.db.models import When
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import modalities
 from rest_framework.decorators import action
@@ -454,22 +449,7 @@ def _fetch_most_recent_tests(session_ids):
     tests_by_session = {}
     for t in (
         UnitTestAssignment.objects.filter(course_session_id__in=session_ids)
-        .annotate(
-            unit_lft=Subquery(
-                ContentNode.objects.filter(id=OuterRef("unit_contentnode_id")).values(
-                    "lft"
-                )[:1]
-            ),
-            test_type_rank=Case(
-                When(test_type=TestType.Post, then=Value(0)),
-                When(test_type=TestType.Pre, then=Value(1)),
-                default=Value(2),
-                output_field=IntegerField(),
-            ),
-        )
-        # closed=False (open) sorts first; among closed, latest unit (highest lft) wins;
-        # for the same unit, post-test (rank 0) beats pre-test (rank 1).
-        .order_by("course_session_id", "closed", "-unit_lft", "test_type_rank")
+        .most_recent_first("course_session_id")
         .values(
             "course_session_id",
             "unit_contentnode_id",

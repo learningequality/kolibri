@@ -553,7 +553,7 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
 
 
 class UnitTestAssignmentQuerySet(SyncableModelQuerySet):
-    def most_recent_first(self):
+    def most_recent_first(self, *leading_order):
         return self.annotate(
             unit_lft=Subquery(
                 ContentNode.objects.filter(id=OuterRef("unit_contentnode_id")).values(
@@ -566,7 +566,7 @@ class UnitTestAssignmentQuerySet(SyncableModelQuerySet):
                 default=Value(2),
                 output_field=IntegerField(),
             ),
-        ).order_by("closed", "-unit_lft", "test_type_rank")
+        ).order_by(*leading_order, "closed", "-unit_lft", "test_type_rank")
 
 
 class UnitTestAssignment(AbstractFacilityDataModel):
