@@ -2,7 +2,6 @@ import logging
 import re
 import socket
 from collections import namedtuple
-from ipaddress import ip_address
 
 from zeroconf import get_all_addresses
 from zeroconf import InterfaceChoice
@@ -19,6 +18,7 @@ from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.broadcast import SERVICE_TTL
 from kolibri.core.discovery.utils.network.broadcast import SERVICE_TYPE
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.server import get_lan_address
 
 SERVICE_RENAME_ATTEMPTS = 100
 
@@ -60,46 +60,6 @@ def slugify_device_name(device_name):
     """
     slug = re.sub(r"[^a-z0-9-]", "", device_name.lower())
     return slug[:MAX_DEVICE_NAME_LABEL_LENGTH]
-
-
-def filter_lan_addresses(addresses):
-    """
-    Filters `addresses` down to ones reachable from other devices on the
-    same LAN, excluding loopback, link-local, and CGNAT/VPN ranges (e.g.
-    Tailscale's 100.64.0.0/10) that a LAN peer can't reach.
-    """
-    lan_addresses = []
-    for address in addresses:
-        parsed = ip_address(address)
-        if parsed.is_private and not parsed.is_loopback and not parsed.is_link_local:
-            lan_addresses.append(address)
-    return lan_addresses
-
-
-def _packed_lan_address(lan_address):
-    """Converts a LAN address string to the packed bytes Zeroconf wants, or None."""
-    return socket.inet_aton(lan_address) if lan_address else None
-
-
-def get_outgoing_interface_address():
-    """
-    Returns the source address the kernel would use to reach an off-subnet
-    destination — i.e. this host's default-route ("outgoing") interface
-    address — or `None` when there is no default route (e.g. an isolated LAN
-    with no gateway). Connecting a UDP socket sends no packets; it just asks
-    the routing table which local address a datagram to that destination
-    would use.
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        # 203.0.113.0/24 is TEST-NET-3 (RFC 5737): a globally-routed-looking
-        # destination that matches the default route without being contacted.
-        s.connect(("203.0.113.1", 9))
-        return s.getsockname()[0]
-    except OSError:
-        return None
-    finally:
-        s.close()
 
 
 def _drop_event(*args):
@@ -231,8 +191,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         # also does `check_service` internally, but it should pass by this point
         self.zeroconf.register_service(service, ttl=service.ttl)
         self.instance.set_broadcasting(service, is_self=True)
-        self._register_local_names(self._lan_alias_address())
-        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
+        self._claim_local_names(get_lan_address())
 
     def renew(self, do_broadcast=True):
         """
@@ -243,20 +202,10 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         if not self.is_broadcasting:
             return
 
-        logger.info(
-            "Updating ourselves to zeroconf network with id '%s' and port '%s'",
-            self.instance.zeroconf_id,
-            self.instance.port,
-        )
-        service = self.instance.to_service_info()
-        self._announce(service, do_broadcast)
-
-        # even though may not have actually broadcast, we still set that we're broadcasting
-        self.instance.set_broadcasting(service, is_self=True)
-        lan_address = self._lan_alias_address()
-        self._update_device_name_alias(lan_address)
-        self._broadcast_local_names(do_broadcast, lan_address)
-        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
+        lan_address = get_lan_address()
+        self._announce_instance(do_broadcast)
+        self._move_local_names(do_broadcast, lan_address)
+        self._claim_local_names(lan_address)
 
     def update(self, instance, on_rebind):
         """
@@ -267,22 +216,40 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         :param on_rebind: Called before we rebind, so the backend has cycled
             its broadcast id by the time the rebind rediscovers peers
         """
-        # compute first: it decides whether we broadcast the renewal now (we
-        # skip broadcasting if we're about to rebind interfaces anyway)
-        addresses_changed = self._addresses_changed
-
         if instance is not None:
             self.instance = instance
-            self.renew(do_broadcast=not addresses_changed)
 
-        if addresses_changed:
-            logger.info(
-                "List of local addresses has changed since zeroconf was last initialized, updating now"
-            )
-            on_rebind()
-            # `update_interfaces` will broadcast the new instance if it was updated
-            self.zeroconf.update_interfaces(interfaces=self.interfaces)
-            self._rebrowse()
+        if not self._addresses_changed:
+            if instance is not None:
+                self.renew()
+            return
+
+        lan_address = get_lan_address()
+        # skip broadcasting now: `update_interfaces` broadcasts the new instance
+        if instance is not None:
+            self._announce_instance(do_broadcast=False)
+        self._move_local_names(False, lan_address)
+
+        logger.info(
+            "List of local addresses has changed since zeroconf was last initialized, updating now"
+        )
+        on_rebind()
+        self.zeroconf.update_interfaces(interfaces=self.interfaces)
+        # Zeroconf 0.19.17 probes a name only on interfaces joined before `update_interfaces`
+        self._claim_local_names(lan_address)
+        self._rebrowse()
+
+    def _announce_instance(self, do_broadcast):
+        logger.info(
+            "Updating ourselves to zeroconf network with id '%s' and port '%s'",
+            self.instance.zeroconf_id,
+            self.instance.port,
+        )
+        service = self.instance.to_service_info()
+        self._announce(service, do_broadcast)
+
+        # even though may not have actually broadcast, we still set that we're broadcasting
+        self.instance.set_broadcasting(service, is_self=True)
 
     def unregister(self):
         """Stops advertising our instance and drops our `.local` aliases."""
@@ -291,9 +258,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
 
         if self.instance.service_info is not None:
             self.zeroconf.unregister_service(self.instance.service_info)
-        for local_name in self.local_names.values():
-            self.zeroconf.unregister_service(local_name.service)
-        self.local_names = {}
+        self._unregister_local_names()
         self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
         self.instance.reset_broadcasting()
 
@@ -420,36 +385,6 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         else:
             self.zeroconf.services[service.name.lower()] = service
 
-    def _lan_alias_address(self):
-        """
-        Returns a LAN-reachable address to advertise for the `.local` name
-        aliases, or `None` if this host has none.
-
-        Unlike the primary per-instance hostname — which relies on Zeroconf
-        substituting each broadcast interface's own address (including non-LAN
-        ones, e.g. a Tailscale CGNAT address) at send time via
-        `USE_IP_OF_OUTGOING_INTERFACE` — these aliases are unique records that
-        resolve to a single address, so a non-LAN interface address could be
-        handed to a LAN peer that can't reach it.
-
-        On a multi-homed host more than one RFC1918 address can survive the
-        LAN filter (e.g. a real LAN address alongside a Docker/Hyper-V bridge),
-        so we prefer the default-route (outgoing) interface's address — the
-        same "primary interface" the per-instance hostname gets for free — and
-        fall back to any other LAN-reachable address when the outgoing one
-        isn't LAN-reachable (e.g. a VPN default route) or can't be determined
-        (e.g. an isolated LAN with no gateway).
-        """
-        lan_addresses = filter_lan_addresses(get_all_addresses())
-        # The outgoing-interface lookup opens a socket only to disambiguate a
-        # multi-homed host; with 0 or 1 LAN address the result is identical
-        # without it, so skip the syscall in that common case.
-        if len(lan_addresses) > 1:
-            outgoing_address = get_outgoing_interface_address()
-            if outgoing_address in lan_addresses:
-                return outgoing_address
-        return min(lan_addresses, default=None)
-
     def _register_local_name(self, key, type_, label, lan_address):
         """
         Registers `<label>.local` as an A-record alias pointing at
@@ -464,7 +399,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             type_,
             f"{label}.{type_}",
             server=server,
-            address=_packed_lan_address(lan_address),
+            address=socket.inet_aton(lan_address),
             port=self.instance.port or DEFAULT_PORT,
             properties={},
         )
@@ -479,12 +414,38 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             return
         self.local_names[key] = LocalName(label, service)
 
-    def _register_local_names(self, lan_address):
-        """Registers the bare `kolibri.local` name and the device-name alias."""
-        self._register_local_name(
-            LOCAL_NAME_BARE, LOCAL_ALIAS_TYPE_BARE, BARE_LOCAL_LABEL, lan_address
-        )
-        self._update_device_name_alias(lan_address)
+    def _move_local_names(self, do_broadcast, lan_address):
+        """Zeroconf's engine thread dies answering a query for a record whose address is None."""
+        if lan_address is None:
+            self._unregister_local_names()
+        else:
+            self._broadcast_local_names(do_broadcast, lan_address)
+
+    def _claim_local_names(self, lan_address):
+        if lan_address is not None:
+            if LOCAL_NAME_BARE not in self.local_names:
+                self._register_local_name(
+                    LOCAL_NAME_BARE,
+                    LOCAL_ALIAS_TYPE_BARE,
+                    BARE_LOCAL_LABEL,
+                    lan_address,
+                )
+            self._update_device_name_alias(lan_address)
+        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
+
+    def _unregister_local_names(self):
+        for local_name in self.local_names.values():
+            self._unregister_local_name(local_name.service)
+        self.local_names = {}
+
+    def _unregister_local_name(self, service):
+        self.zeroconf.unregister_service(service)
+        # Zeroconf 0.19's `check_service` takes our own looped-back pointer for
+        # a conflict, and the goodbye that expires it is lost on a dropped LAN
+        cache = self.zeroconf.cache
+        for record in list(cache.entries_with_name(service.type)):
+            if getattr(record, "alias", None) == service.name:
+                cache.remove(record)
 
     def _update_device_name_alias(self, lan_address):
         """
@@ -497,7 +458,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         if current is not None:
             if current.label == slug:
                 return
-            self.zeroconf.unregister_service(current.service)
+            self._unregister_local_name(current.service)
             del self.local_names[LOCAL_NAME_DEVICE]
         if slug:
             self._register_local_name(
@@ -505,12 +466,13 @@ class ZeroconfNetworkDiscovery(EventBusHost):
             )
 
     def _broadcast_local_names(self, do_broadcast, lan_address):
-        """Re-announces already-claimed local names, e.g. after a port or LAN address change."""
-        address = _packed_lan_address(lan_address)
+        """Zeroconf's `update_interfaces` only announces services on newly added interfaces."""
+        address = socket.inet_aton(lan_address)
         for local_name in self.local_names.values():
+            moved = local_name.service.address != address
             local_name.service.port = self.instance.port or DEFAULT_PORT
             local_name.service.address = address
-            self._announce(local_name.service, do_broadcast)
+            self._announce(local_name.service, do_broadcast or moved)
 
     def _build_instance(self, service_info):
         """
