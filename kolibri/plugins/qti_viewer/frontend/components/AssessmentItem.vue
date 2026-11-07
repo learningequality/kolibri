@@ -128,14 +128,20 @@
       const { responses, processResponses } = qtiContext;
 
       const lang = inject('lang', ref(null));
+      const showCorrectAnswer = inject('showCorrectAnswer', ref(false));
       // Hosts the shared keypad state
       useKeypad();
 
       function setFromAnswerState() {
         const savedResponses = injectedAnswerState.value.responses ?? {};
-        for (const [id, variable] of Object.entries(responses.value)) {
+        const variables = Object.entries(responses.value);
+        const fillCorrect =
+          showCorrectAnswer.value && !variables.some(([id]) => savedResponses[id] != null);
+        for (const [id, variable] of variables) {
           if (savedResponses[id] != null) {
             variable.value = savedResponses[id];
+          } else if (fillCorrect && variable.correctResponse != null) {
+            variable.value = variable.correctResponse;
           } else {
             variable.reset();
           }
@@ -173,7 +179,7 @@
           setFromAnswerState();
         },
       );
-      watch(() => injectedAnswerState.value, setFromAnswerState);
+      watch([injectedAnswerState, showCorrectAnswer], setFromAnswerState);
       setFromAnswerState();
 
       return {

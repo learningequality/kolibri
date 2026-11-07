@@ -346,7 +346,7 @@
         if (refusal.value) {
           return refusal.value;
         }
-        return atMaxAssociations.value
+        return interactive.value && atMaxAssociations.value
           ? refusedMaxAssociations$({ count: typedProps.maxAssociations.value })
           : null;
       });

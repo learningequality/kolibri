@@ -210,8 +210,13 @@
         return isNumeric.value ? formatLocaleNumber(committed, langId.value) : committed;
       }
 
-      const initialValue = inputDeclaration.value?.value;
-      const lastCommittedRaw = ref(initialValue == null ? '' : String(initialValue));
+      const shownValue = computed(() => {
+        const value = inputDeclaration.value?.value;
+        const shown = Array.isArray(value) ? value[0] : value;
+        return shown == null ? '' : String(shown);
+      });
+
+      const lastCommittedRaw = ref(shownValue.value);
       const rawValue = ref(display(lastCommittedRaw.value));
 
       // A numeric response is stored as a number, whose String() may differ from what was
@@ -225,16 +230,12 @@
       }
 
       // To keep rawValue in sync with the underlying response variable
-      watch(
-        () => inputDeclaration.value?.value,
-        newVal => {
-          const v = newVal == null ? '' : String(newVal);
-          if (!isCommitted(v)) {
-            rawValue.value = display(v);
-            lastCommittedRaw.value = v;
-          }
-        },
-      );
+      watch(shownValue, v => {
+        if (!isCommitted(v)) {
+          rawValue.value = display(v);
+          lastCommittedRaw.value = v;
+        }
+      });
 
       function readCandidate(newRaw) {
         if (!isNumeric.value) {
