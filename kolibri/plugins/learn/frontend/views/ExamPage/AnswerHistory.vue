@@ -72,8 +72,11 @@
                 <button
                   class="clickable"
                   :class="{ 'current-question': question.item === questionItem }"
-                  :disabled="question.item === questionItem"
-                  @click="$emit('goToQuestion', section.startQuestionNumber + qIndex)"
+                  :aria-current="question.item === questionItem ? 'step' : null"
+                  @click="
+                    question.item !== questionItem &&
+                      $emit('goToQuestion', section.startQuestionNumber + qIndex)
+                  "
                 >
                   <KIcon
                     v-if="question.missing"

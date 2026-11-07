@@ -202,6 +202,7 @@
       <BottomAppBar :maxWidth="null">
         <KButtonGroup :class="{ spread: !windowIsLarge }">
           <KButton
+            ref="previousButton"
             :disabled="questionNumber === 0"
             :primary="true"
             :dir="layoutDirReset"
@@ -219,6 +220,7 @@
             <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
           </KButton>
           <KButton
+            ref="nextButton"
             :disabled="questionNumber === exam.question_count - 1"
             :primary="true"
             :dir="layoutDirReset"
@@ -547,6 +549,18 @@
       },
     },
     watch: {
+      questionNumber() {
+        const focused = document.activeElement;
+        this.$nextTick(() => {
+          const previous = this.$refs.previousButton?.$el;
+          const next = this.$refs.nextButton?.$el;
+          if (focused === previous && previous.disabled) {
+            next.focus();
+          } else if (focused === next && next.disabled) {
+            previous.focus();
+          }
+        });
+      },
       attemptLogItemValue(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();
