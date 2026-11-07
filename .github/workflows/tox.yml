@@ -39,6 +39,8 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - 'python_packages/**'
+              - 'kolibri/plugins/bloompub_viewer/static/bloom/**'
+              - 'kolibri/plugins/bloompub_viewer/bloom_build/**'
             android:
               - 'platforms/android/**'
   unit_test_stage1:

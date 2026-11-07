@@ -3,6 +3,9 @@
     "description": "Bloompub Viewer Plugin for Kolibri",
     "private": true,
     "version": "0.0.1",
+    "scripts": {
+        "build-bloom": "node ./bloom_build/buildBloomPlayerVendor.js && webpack --config ./bloom_build/webpack.config.bloom.js --mode=production"
+    },
     "dependencies": {
         "core-js": "catalog:",
         "kolibri": "workspace:*",
@@ -10,5 +13,24 @@
         "kolibri-viewer": "workspace:*",
         "kolibri-zip": "workspace:*",
         "web-streams-polyfill": "catalog:"
-    }
+    },
+    "devDependencies": {
+        "@babel/core": "^8.0.6",
+        "@babel/preset-env": "^8.0.6",
+        "babel-loader": "^10.1.1",
+        "babel-plugin-polyfill-corejs3": "^1.0.0",
+        "browserslist-config-kolibri": "workspace:*",
+        "css-loader": "7.1.2",
+        "css-minimizer-webpack-plugin": "8.0.0",
+        "fflate": "^0.8.3",
+        "html-webpack-plugin": "5.6.5",
+        "mini-css-extract-plugin": "^2.9.4",
+        "terser-webpack-plugin": "^5.3.14",
+        "webpack": "^5.109.2",
+        "webpack-cli": "^7.0.2",
+        "xhr-mock": "catalog:"
+    },
+    "browserslist": [
+        "extends browserslist-config-kolibri"
+    ]
 }

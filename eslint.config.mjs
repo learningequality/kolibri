@@ -23,6 +23,7 @@ export default [
       'packages/kolibri-css-variables/**',
       'packages/build_kolibri_package.js',
       'kolibri/**/h5p_build/**',
+      'kolibri/**/bloom_build/**',
     ],
     rules: CJS_RULES,
   },

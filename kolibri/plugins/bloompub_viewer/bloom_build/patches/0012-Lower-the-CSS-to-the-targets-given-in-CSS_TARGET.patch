@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Wed, 4 Nov 2026 14:26:08 +0000
+Subject: [PATCH] Lower the CSS to the targets given in CSS_TARGET
+
+Vite's default cssTarget emits inset and #RRGGBBAA, which Kolibri's oldest supported browsers ignore.
+---
+ vite.config.ts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/vite.config.ts b/vite.config.ts
+index ec23bb9..df52d36 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -52,6 +52,7 @@ export default defineConfig(({ command, mode }) => {
+         build: {
+             outDir: "dist",
+             copyPublicDir: false, // Disables the copying of public/ directory during build
++            cssTarget: process.env.CSS_TARGET?.split(","),
+             assetsInlineLimit: (filePath) =>
+                 filePath.endsWith(".mp3") || undefined,
+             rollupOptions: {

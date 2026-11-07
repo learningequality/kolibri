@@ -73,8 +73,14 @@ def _free_port():
 # origin actually bound and is serving. That origin is the app-owned part of the
 # 0.19 integration no other assertion covers.
 ZIP_CONTENT_PORT = _free_port()
+BLOOM_HOST_PAGE = json.loads(
+    (
+        Path(__file__).resolve().parents[4]
+        / "kolibri/plugins/bloompub_viewer/bloom_build/bloom_build.json"
+    ).read_text()
+)["filename"]
 ZIP_STATIC_URL = (
-    f"http://127.0.0.1:{ZIP_CONTENT_PORT}/content/static/bloom/bloomplayer.htm"
+    f"http://127.0.0.1:{ZIP_CONTENT_PORT}/content/static/bloom/{BLOOM_HOST_PAGE}"
 )
 
 
