@@ -8,10 +8,20 @@
       />
 
       <ReportsControls @export="exportCSV">
-        <p>
-          <StatusSummary :tally="tally" />
+        <p v-if="!$isPrint">
+          <StatusSummary
+            :tally="tally"
+            data-testid="summary-tally"
+          />
         </p>
       </ReportsControls>
+
+      <p v-if="$isPrint">
+        <StatusSummary
+          :tally="tally"
+          data-testid="summary-tally"
+        />
+      </p>
 
       <ReportsLearnersTable
         :entries="table"
