@@ -1,13 +1,20 @@
+import os
+import tempfile
 import unittest
+from unittest.mock import call
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from windows_stubs import application
 from windows_stubs import taskbar_icon
 from windows_stubs import wx
+from wx import html2
+
+from kolibri_app.webview_location import LastPage
 
 KOLIBRI_URL = "http://localhost:8080/app/api/initialize/token"
 TASKBAR_CREATED = 0xC123
+_STATE_DIR = tempfile.TemporaryDirectory()
 
 
 class _FakeShell:
@@ -84,6 +91,7 @@ def _app(**attributes):
     app.windows = []
     app.kolibri_url = None
     app.tray_only = True
+    app.last_page = LastPage(os.path.join(_STATE_DIR.name, "app_state.json"))
     for name, value in attributes.items():
         setattr(app, name, value)
     return app
@@ -99,9 +107,9 @@ class TestRelaunch(_ShellTestCase):
 
     def test_relaunching_opens_the_kolibri_window(self):
         app = _app(task_bar_icon=self.tray, kolibri_url=KOLIBRI_URL)
-        with patch.object(app, "create_kolibri_window") as create:
-            app.on_relaunch()
-        create.assert_called_once_with(url=KOLIBRI_URL)
+        html2.WebView.New.reset_mock()
+        app.on_relaunch()
+        self.assertEqual(app.view.webview.LoadURL.call_args_list, [call(KOLIBRI_URL)])
 
 
 class TestSecondInstance(unittest.TestCase):
@@ -118,11 +126,9 @@ class TestSecondInstance(unittest.TestCase):
 
 
 class TestOpenFromTray(unittest.TestCase):
-    def test_opens_a_window_on_kolibri_when_none_exists(self):
+    def test_the_window_opened_from_the_tray_loads_kolibri(self):
         app = _app(kolibri_url=KOLIBRI_URL)
-        with (
-            patch.object(app, "create_kolibri_window") as create,
-            patch.object(taskbar_icon, "is_webview2_installed", return_value=True),
-        ):
+        html2.WebView.New.reset_mock()
+        with patch.object(taskbar_icon, "is_webview2_installed", return_value=True):
             _tray(app).on_open_ui(None)
-        create.assert_called_once_with(url=KOLIBRI_URL)
+        self.assertEqual(app.view.webview.LoadURL.call_args_list, [call(KOLIBRI_URL)])

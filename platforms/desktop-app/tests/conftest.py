@@ -28,7 +28,7 @@ sys.modules.setdefault("kolibri_app._version", _version)
 _logger_mock = MagicMock()
 _logger_mock.logging = logging.getLogger("test_kolibri_app")
 sys.modules.setdefault("kolibri_app.logger", _logger_mock)
-sys.modules.setdefault("wx", MagicMock())
+sys.modules.setdefault("wx", MagicMock(App=type("App", (), {})))
 sys.modules.setdefault("wx.adv", MagicMock())
 # dmgbuild only installs on darwin.
 sys.modules.setdefault("dmgbuild", MagicMock())
