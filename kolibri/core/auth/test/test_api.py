@@ -3958,11 +3958,9 @@ class KolibriDataPortalViewSetTestCase(APITestCase):
         self, mock_registerfacility, mock_enqueue_sync
     ):
         mock_registerfacility.return_value.status_code = 200
-        self.client.post(
-            reverse("kolibri:core:portal-register"),
-            {"facility_id": self.facility.id, "token": "test-token"},
-            format="json",
-        )
+        response = self._register()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_registerfacility.assert_called_once_with("test-token", self.facility)
         mock_enqueue_sync.assert_called_once_with(self.facility)
 
     def _register(self):
@@ -4015,43 +4013,20 @@ class KolibriDataPortalViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json(), [{"id": "ALREADY_REGISTERED_FOR_COMMUNITY"}])
 
-    @patch("kolibri.core.api.enqueue_automatic_kdp_sync")
     @patch("kolibri.core.api.registerfacility")
-    def test_register_valid_facility(self, mock_registerfacility, mock_enqueue_sync):
-        mock_registerfacility.return_value.status_code = 200
-        response = self._register()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        mock_registerfacility.assert_called_once_with("test-token", self.facility)
-
-    @patch("kolibri.core.api.registerfacility")
-    def test_register_missing_facility_id(self, mock_registerfacility):
-        response = self.client.post(
-            reverse("kolibri:core:portal-register"),
+    def test_register_invalid_facility_id(self, mock_registerfacility):
+        payloads = [
             {"token": "test-token"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        mock_registerfacility.assert_not_called()
-
-    @patch("kolibri.core.api.registerfacility")
-    def test_register_malformed_facility_id(self, mock_registerfacility):
-        response = self.client.post(
-            reverse("kolibri:core:portal-register"),
             {"facility_id": "abc", "token": "test-token"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        mock_registerfacility.assert_not_called()
-
-    @patch("kolibri.core.api.registerfacility")
-    def test_register_nonexistent_facility_id(self, mock_registerfacility):
-        response = self.client.post(
-            reverse("kolibri:core:portal-register"),
             {"facility_id": uuid.uuid4().hex, "token": "test-token"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        mock_registerfacility.assert_not_called()
+        ]
+        for payload in payloads:
+            with self.subTest(payload=payload):
+                response = self.client.post(
+                    reverse("kolibri:core:portal-register"), payload, format="json"
+                )
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+                mock_registerfacility.assert_not_called()
 
     def _validate_token(self):
         return self.client.get(

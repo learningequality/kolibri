@@ -81,7 +81,6 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
     def register(self, request):
         # DRF's get_object_or_404, not Django's: a malformed facility_id raises
         # ValueError from the UUID field, which only DRF's turns into a 404.
-        # A missing or nonexistent id is a 404 the same way.
         facility = get_object_or_404(Facility, id=request.data.get("facility_id"))
         try:
             response = registerfacility(request.data.get("token"), facility)
