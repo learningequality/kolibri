@@ -191,7 +191,7 @@ class PicturePasswordAuthScope(FacilityAuthScope):
         return (
             user.dataset.picture_password_settings is not None
             and not user.has_roles
-            and (not user.is_superuser or self.is_full_facility_import)
+            and (not user.is_privileged or self.is_full_facility_import)
         )
 
 
