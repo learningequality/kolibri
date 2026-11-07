@@ -463,7 +463,9 @@ class BulkUserImportManager(JobProgressMixin):
         with open_csv_for_reading(
             local_filepath=local_filepath, storage_filepath=storage_filepath
         ) as f:
-            header = next(csv.reader(f, strict=True))
+            header = next(csv.reader(f, strict=True), None)
+            if header is None:
+                return False
             has_header = False
             self.header_translation = {
                 lbl if "(" not in lbl else lbl.partition("(")[2].partition(")")[0]: lbl
@@ -555,9 +557,6 @@ class BulkUserImportManager(JobProgressMixin):
         user_obj = FacilityUser.all_objects.get(
             id=values["uuid"], facility=self.default_facility
         )
-        # If user was soft-deleted, un-delete them
-        if user_obj.date_deleted is not None:
-            user_obj.date_deleted = None
         if user_obj.username != username:
             return user_obj, self._duplicated_username_error(
                 username, user_row, user_obj.id
@@ -616,8 +615,11 @@ class BulkUserImportManager(JobProgressMixin):
                 if error:
                     rejected_ids.add(user_obj.id)
                     per_line_errors.append(error)
-                elif self.compare_fields(user_obj, values):
-                    update_users.append(user_obj)
+                else:
+                    restored = user_obj.date_deleted is not None
+                    user_obj.date_deleted = None
+                    if self.compare_fields(user_obj, values) or restored:
+                        update_users.append(user_obj)
             else:
                 user_obj, error = self._new_user(username, user_row, values)
                 if error:
@@ -629,6 +631,7 @@ class BulkUserImportManager(JobProgressMixin):
 
     def db_validate_list(self, db_list, users=False):
         errors = []
+        valid = []
         # validating the users takes aprox 40% of the time
         if users:
             progress = (
@@ -639,6 +642,7 @@ class BulkUserImportManager(JobProgressMixin):
                 self.progress_update(progress)
             try:
                 obj.full_clean()
+                valid.append(obj)
             except ValidationError as e:
                 for message in e.message_dict:
                     error = {
@@ -649,7 +653,7 @@ class BulkUserImportManager(JobProgressMixin):
                     }
                     errors.append(error)
 
-        return errors
+        return errors, valid
 
     def build_classes_objects(self, classes):
         """
@@ -911,11 +915,20 @@ class BulkUserImportManager(JobProgressMixin):
             users_to_delete, classes_to_clear = self.get_delete(
                 keeping_users, db_update_classes
             )
-            per_line_errors += self.db_validate_list(db_new_users, users=True)
-            per_line_errors += self.db_validate_list(db_update_users, users=True)
+            errors, db_new_users = self.db_validate_list(db_new_users, users=True)
+            per_line_errors += errors
+            errors, valid_update_users = self.db_validate_list(
+                db_update_users, users=True
+            )
+            per_line_errors += errors
+            valid_ids = {u.id for u in valid_update_users}
+            rejected_ids.update(u.id for u in db_update_users if u.id not in valid_ids)
+            db_update_users = valid_update_users
             # progress = 91%
-            per_line_errors += self.db_validate_list(db_new_classes)
-            per_line_errors += self.db_validate_list(db_update_classes)
+            errors, _ = self.db_validate_list(db_new_classes)
+            per_line_errors += errors
+            errors, _ = self.db_validate_list(db_update_classes)
+            per_line_errors += errors
 
             if not self.dryrun:
                 self.delete_users(users_to_delete)

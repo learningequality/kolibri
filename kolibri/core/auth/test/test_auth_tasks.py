@@ -1213,6 +1213,12 @@ class ImportUsersFromCSVTaskTestCase(TestCase):
             importusersfromcsv(self.filepath, facility=self.facility.id)
         self.assertFalse(default_storage.exists(self.filepath))
 
+    def test_deletes_file_on_empty_csv(self):
+        self.filepath = self._save_csv("")
+        with self.assertRaises(BulkUserImportError):
+            importusersfromcsv(self.filepath, facility=self.facility.id)
+        self.assertFalse(default_storage.exists(self.filepath))
+
     def test_deletes_file_when_no_facility_exists(self):
         self.facility.delete()
         with self.assertRaises(BulkUserImportError):

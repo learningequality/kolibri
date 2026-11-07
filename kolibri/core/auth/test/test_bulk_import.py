@@ -683,6 +683,41 @@ class ImportTestCase(TestCase):
         self.assertEqual(imported_user.username, "testuser")
         self.assertTrue(imported_user.check_password("newpassword"))
 
+    def test_import_undeletes_soft_deleted_user_with_unchanged_row(self):
+        user = FacilityUser.objects.create(
+            username="testuser",
+            password=demographics.NOT_SPECIFIED,
+            facility=self.facility,
+        )
+        user.date_deleted = timezone.now()
+        user.save()
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [str(user.id), "testuser", "*", "", "LEARNER", "", "", "", "", ""]
+        self.create_csv(csv_filename, [row])
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+        self.assertTrue(FacilityUser.objects.filter(id=user.id).exists())
+
+    def test_user_failing_model_validation_is_not_saved(self):
+        user = FacilityUser.objects.create(
+            username="alice",
+            full_name="Alice",
+            password=demographics.NOT_SPECIFIED,
+            facility=self.facility,
+        )
+        classroom = Classroom.objects.create(name="C", parent=self.facility)
+        classroom.add_member(user)
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        long_name = "a" * 123
+        rows = [
+            [str(user.id), "alice", "*", long_name, "LEARNER", "", "", "", "", ""],
+            ["", "bob", "pass", long_name, "LEARNER", "", "", "", "C", ""],
+        ]
+        self.create_csv(csv_filename, rows)
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+        self.assertEqual(FacilityUser.objects.get(id=user.id).full_name, "Alice")
+        self.assertTrue(classroom.get_members().filter(id=user.id).exists())
+        self.assertFalse(FacilityUser.objects.filter(username="bob").exists())
+
     def _import_rename(self, user, new_username):
         _, csv_filename = tempfile.mkstemp(suffix=".csv")
         row = [str(user.id), new_username, "*", "", "LEARNER", "", "", "", "", ""]
@@ -691,11 +726,19 @@ class ImportTestCase(TestCase):
         return FacilityUser.objects.get(id=user.id).username
 
     def test_import_renames_user(self):
-        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        user = FacilityUser.objects.create(
+            username="alice",
+            password=demographics.NOT_SPECIFIED,
+            facility=self.facility,
+        )
         self.assertEqual(self._import_rename(user, "alice2"), "alice2")
 
     def test_import_renames_user_case_only(self):
-        user = FacilityUser.objects.create(username="Alice", facility=self.facility)
+        user = FacilityUser.objects.create(
+            username="Alice",
+            password=demographics.NOT_SPECIFIED,
+            facility=self.facility,
+        )
         self.assertEqual(self._import_rename(user, "alice"), "alice")
 
     def _create_users_with_password(self, *usernames):
