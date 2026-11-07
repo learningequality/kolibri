@@ -1,9 +1,9 @@
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import QuizDifficulties from '../../../apiResources/quizDifficulties';
-import { getDifficultQuestions } from '../../../utils';
+import { getDifficultQuestions, quizQuestionTitle } from '../../../utils';
 
-const fetchDifficultQuestions = async exam => {
+const fetchDifficultQuestions = async (exam, exercises) => {
   if (exam.draft) {
     return [];
   }
@@ -23,10 +23,14 @@ const fetchDifficultQuestions = async exam => {
       question.correct = 0;
       question.total = correctnessStats[0]?.total || 0;
     }
-    question.questionNumber = question.counter_in_exercise;
   });
 
-  return getDifficultQuestions(allQuestions);
+  return getDifficultQuestions(
+    allQuestions.map(question => ({
+      ...question,
+      title: quizQuestionTitle(question, exercises),
+    })),
+  );
 };
 
 export async function fetchQuizSummaryPageData(examId) {
@@ -34,7 +38,7 @@ export async function fetchQuizSummaryPageData(examId) {
 
   const { exam, exercises } = await fetchExamWithContent(_exam);
 
-  const difficultQuestions = await fetchDifficultQuestions(exam);
+  const difficultQuestions = await fetchDifficultQuestions(exam, exercises);
 
   return {
     exam,
