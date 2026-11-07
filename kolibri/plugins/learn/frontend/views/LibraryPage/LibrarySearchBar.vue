@@ -22,7 +22,7 @@
         data-skip-nav-target
         :value="keywordsInput"
         type="search"
-        :class="['search-input', $computedClass(placeholderStyle)]"
+        class="search-input"
         :style="{ color: 'var(--tokens-text)' }"
         dir="auto"
         :placeholder="placeholder || findSomethingToLearn$()"
@@ -452,13 +452,6 @@
         default: '',
       },
     },
-    computed: {
-      placeholderStyle() {
-        // Browsers apply their own ::placeholder colour rather than inheriting the
-        // input's, and theirs does not meet contrast requirements.
-        return { '::placeholder': { color: this.$themeTokens.annotation, opacity: 1 } };
-      },
-    },
   };
 
 </script>
@@ -497,6 +490,13 @@
     background: transparent;
     border: 0;
     outline: none;
+
+    // Browsers apply their own ::placeholder colour rather than inheriting the
+    // input's, and theirs does not meet contrast requirements.
+    &::placeholder {
+      color: var(--tokens-annotation);
+      opacity: 1;
+    }
 
     /* Remove browser-default search input clear icon */
     &::-webkit-search-cancel-button {

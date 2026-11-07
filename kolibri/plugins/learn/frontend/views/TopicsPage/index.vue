@@ -224,14 +224,6 @@
             v-for="activity in metadataSidePanelContent.learning_activities"
             :key="activity"
             class="side-panel-chips"
-            :class="
-              $computedClass({
-                '::after': {
-                  content: '',
-                  flex: 'auto',
-                },
-              })
-            "
           >
             <LearningActivityChip
               class="chip"
@@ -932,6 +924,11 @@
     justify-content: flex-start;
     margin-top: 8px;
     margin-left: -8px;
+  }
+
+  .side-panel-chips::after {
+    flex: auto;
+    content: '';
   }
 
   .chip {
