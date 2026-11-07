@@ -782,6 +782,13 @@ base_option_spec = {
                 Boolean Flag to check Whether to enable Zeroconf discovery.
             """,
         },
+        "DONATION_NOTIFICATIONS_ENABLED": {
+            "type": "boolean",
+            "default": True,
+            "description": """
+                Boolean Flag to check whether to show the donation banner to super admins on eligible installs.
+            """,
+        },
         "CSP_HOST_SOURCES": {
             "type": "csp_source_list",
             "description": """
