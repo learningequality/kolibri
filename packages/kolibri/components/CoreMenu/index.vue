@@ -3,6 +3,8 @@
   <div
     role="presentation"
     @keyup.esc="$emit('close')"
+    @focusin="containsFocus = true"
+    @focusout="onFocusout"
   >
     <ul
       role="menu"
@@ -71,6 +73,11 @@
         default: false,
       },
     },
+    data() {
+      return {
+        containsFocus: false,
+      };
+    },
     provide() {
       return {
         showActive: this.showActive,
@@ -102,9 +109,18 @@
       });
     },
     destroyed() {
-      window.setTimeout(() => this.lastFocus.focus());
+      if (this.containsFocus) {
+        window.setTimeout(() => this.lastFocus.focus());
+      }
     },
     methods: {
+      onFocusout() {
+        // Chromium fires focusout with no relatedTarget while removing the focused subtree,
+        // before Vue's destroyed hook runs.
+        Promise.resolve().then(() => {
+          this.containsFocus = this.$el.contains(document.activeElement);
+        });
+      },
       /**
        * Focuses on correct last element for FocusTrap depending on content
        * rendered in CoreMenu.
