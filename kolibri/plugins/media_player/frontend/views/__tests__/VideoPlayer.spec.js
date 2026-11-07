@@ -140,6 +140,20 @@ describe('VideoPlayer', () => {
     });
   });
 
+  describe('load errors', () => {
+    it("reports the player's error message, not the error event", async () => {
+      const { reportLoadingError } = useContentViewerMock();
+      reportLoadingError.mockClear();
+      await renderReady();
+      const player = videojs.mock.results.at(-1).value;
+      player.error = () => ({ code: 4, message: 'No compatible source was found.' });
+
+      player.trigger('error', { type: 'error' });
+
+      expect(reportLoadingError).toHaveBeenCalledWith('No compatible source was found.');
+    });
+  });
+
   describe('player size classes', () => {
     it('adds no size class at full width', async () => {
       await renderReady();

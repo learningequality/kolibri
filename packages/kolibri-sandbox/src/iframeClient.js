@@ -22,10 +22,28 @@ export default class SandboxEnvironment {
     // Initialize the Mediator to listen to send messages on the parent of
     // this window (i.e. the iframe parent)
     this.mediator = new Mediator(window.parent);
+    this.hostMediator = new Mediator(window.parent, { source: window.parent });
 
     // Handler state for pluggable handler system
     this.handler = null;
+    this.handlerReady = false;
+    this.startUrl = null;
     this.iframe = null;
+
+    this.hostMediator.registerMessageHandler({
+      nameSpace,
+      event: events.RETARGET,
+      callback: url => this._retarget(url),
+    });
+    this.hostMediator.registerMessageHandler({
+      nameSpace,
+      event: events.CLOSE_FILE,
+      callback: () => {
+        if (this.handlerReady) {
+          this._commandHandler(() => this.handler.closeFile());
+        }
+      },
+    });
 
     this.mediator.registerMessageHandler({
       nameSpace,
@@ -59,6 +77,26 @@ export default class SandboxEnvironment {
    */
   registerHandler(handler) {
     this.handler = handler;
+  }
+
+  _retarget(url) {
+    this.startUrl = url;
+    if (this.handlerReady) {
+      this._commandHandler(() => this.handler.retarget(url));
+    }
+  }
+
+  async _commandHandler(command) {
+    try {
+      await command();
+    } catch (e) {
+      logging.error('Handler command failed:', e);
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.ERROR,
+        data: { message: String(e?.message ?? e), error: 'HANDLER_ERROR' },
+      });
+    }
   }
 
   /**
@@ -148,6 +186,7 @@ export default class SandboxEnvironment {
       return;
     }
     this.contentNamespace = contentNamespace;
+    this.startUrl = startUrl;
     this.iframe = document.createElement('iframe');
     this.iframe.style.border = 0;
     this.iframe.style.padding = 0;
@@ -196,6 +235,11 @@ export default class SandboxEnvironment {
       // Initialize content via handler - handler is responsible for setting iframe.src
       // and returning a promise that resolves when content is loaded
       await this.handler.init(this.iframe, startUrl);
+
+      this.handlerReady = true;
+      if (this.startUrl !== startUrl) {
+        this._commandHandler(() => this.handler.retarget(this.startUrl));
+      }
 
       // The load listener has already reported an entry point that failed.
       if (!this._loadingError()) {

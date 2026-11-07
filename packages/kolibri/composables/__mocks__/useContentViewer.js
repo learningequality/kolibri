@@ -33,6 +33,7 @@
 import { ref } from 'vue';
 
 const MOCK_DEFAULTS = {
+  contentNode: null,
   files: [],
   options: {},
   lang: null,
