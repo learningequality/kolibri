@@ -550,9 +550,8 @@ class DeletedFacilityUserViewSet(
             FacilityUser.objects.filter(
                 id__in=restored_ids,
                 picture_password__isnull=True,
-                roles__isnull=True,
             )
-            .exclude(devicepermissions__is_superuser=True)
+            .exclude(FacilityUser.get_is_privileged_q())
             .select_related("facility__dataset")
         ):
             assign_picture_password_if_enabled(learner, learner.facility)

@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.notifications.models import LearnerProgressNotification
 
 from .models import FacilityUser
@@ -38,3 +39,8 @@ def facility_user_clear_learner_count(sender, instance=None, *args, **kwargs):
 @receiver([post_save, pre_delete], sender=Role)
 def role_clear_learner_count(sender, instance=None, *args, **kwargs):
     get_learner_count.clear(instance.dataset_id)
+
+
+@receiver([post_save, pre_delete], sender=DevicePermissions)
+def device_permissions_clear_learner_count(sender, instance=None, *args, **kwargs):
+    get_learner_count.clear(instance.user.dataset_id)
