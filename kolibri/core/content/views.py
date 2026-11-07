@@ -91,7 +91,13 @@ class ChannelThumbnailView(View):
         try:
             header, b_64_thumbnail = channel.thumbnail.split(",", 1)
             mimetype = header.split(":")[1].split(";")[0]
-        except ValueError as e:
+            thumbnail = urlsafe_b64decode(b_64_thumbnail)
+        except (ValueError, IndexError) as e:
+            # binascii.Error is a ValueError subclass, so a corrupt base64
+            # payload is covered here too.
             raise Http404("No thumbnail available") from e
-        thumbnail = urlsafe_b64decode(b_64_thumbnail)
+        if not mimetype.startswith("image/"):
+            # The stored string comes from imported channel metadata, so the
+            # MIME type is publisher-controlled; only ever serve image types.
+            raise Http404("No thumbnail available")
         return HttpResponse(thumbnail, content_type=mimetype)
