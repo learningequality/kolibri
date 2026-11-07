@@ -322,9 +322,10 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         )
 
     def serialize_object(self, **filter_kwargs):
+        queryset = self.get_queryset()
         try:
             filter_kwargs = filter_kwargs or self._get_lookup_filter()
-            queryset = self.get_queryset().filter(**filter_kwargs)
+            queryset = queryset.filter(**filter_kwargs)
             return self.serialize(self.filter_queryset(queryset))[0]
         except (IndexError, ValueError, TypeError) as e:
             raise Http404(
