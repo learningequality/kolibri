@@ -385,6 +385,24 @@ importers:
         specifier: 'catalog:'
         version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
 
+  kolibri/plugins/error_reports:
+    dependencies:
+      '@vueuse/core':
+        specifier: 'catalog:'
+        version: 11.3.0(vue@2.7.16)
+      kolibri:
+        specifier: workspace:*
+        version: link:../../../packages/kolibri
+      kolibri-logging:
+        specifier: workspace:*
+        version: link:../../../packages/kolibri-logging
+      uuid:
+        specifier: ^14.0.2
+        version: 14.0.2
+      vue:
+        specifier: 'catalog:'
+        version: 2.7.16
+
   kolibri/plugins/facility:
     dependencies:
       '@vueuse/core':

@@ -3,11 +3,11 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri/urls';
 import { get, set } from '@vueuse/core';
+import useConnection from 'kolibri/composables/useConnection';
 import useUser from 'kolibri/composables/useUser';
 import { DisconnectionErrorCodes, SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri/constants';
 import clientFactory from 'kolibri/utils/baseClient';
 import { browser, os, pageVisible } from 'kolibri/utils/browserInfo';
-import useConnection from './internal/useConnection';
 import {
   createTryingToReconnectSnackbar,
   createDisconnectedSnackbar,
