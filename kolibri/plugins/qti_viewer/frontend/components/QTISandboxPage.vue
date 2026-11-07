@@ -169,9 +169,12 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
-  import items from './__fixtures__/items';
+  import qtiItems from './__fixtures__/items';
+  import mathChoiceItems from './__fixtures__/mathChoices';
   import structure from './__fixtures__/structure';
   import perseusFixtures, { perseusPackageUrl } from './__fixtures__/perseus';
+
+  const items = { ...qtiItems, ...mathChoiceItems };
 
   /**
    * Parse a value typed into an answer-state input back into a seed value.
