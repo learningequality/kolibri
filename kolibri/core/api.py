@@ -20,6 +20,7 @@ from django.http.request import QueryDict
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin as BaseCreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import UpdateModelMixin as BaseUpdateModelMixin
@@ -78,7 +79,9 @@ def _portal_error_response(response):
 class KolibriDataPortalViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"])
     def register(self, request):
-        facility = Facility.objects.get(id=request.data.get("facility_id"))
+        # DRF's get_object_or_404, not Django's: a malformed facility_id raises
+        # ValueError from the UUID field, which only DRF's turns into a 404.
+        facility = get_object_or_404(Facility, id=request.data.get("facility_id"))
         try:
             response = registerfacility(request.data.get("token"), facility)
         except NetworkLocationResponseFailure as e:
