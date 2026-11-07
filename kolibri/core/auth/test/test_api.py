@@ -4737,6 +4737,80 @@ class RoleDeletePicturePasswordTestCase(APITestCase):
         user.refresh_from_db()
         self.assertIsNone(user.picture_password)
 
+    def test_device_permissions_deleted_from_former_coach_assigns_picture_password(
+        self,
+    ):
+        user, role = self._make_user_with_role("formercoach", kind=role_kinds.COACH)
+        permissions = DevicePermissions.objects.create(
+            user=user, can_manage_content=True
+        )
+        role.delete()
+
+        permissions.delete()
+
+        user.refresh_from_db()
+        self.assertIsNotNone(user.picture_password)
+
+    def test_device_permissions_revoked_from_former_coach_assigns_picture_password(
+        self,
+    ):
+        user, role = self._make_user_with_role("revokedcoach", kind=role_kinds.COACH)
+        permissions = DevicePermissions.objects.create(
+            user=user, can_manage_content=True
+        )
+        role.delete()
+
+        permissions.can_manage_content = False
+        permissions.save()
+
+        user.refresh_from_db()
+        self.assertIsNotNone(user.picture_password)
+
+    def test_device_permissions_deleted_from_coach_assigns_no_picture_password(
+        self,
+    ):
+        user, _ = self._make_user_with_role("stillcoach", kind=role_kinds.COACH)
+        permissions = DevicePermissions.objects.create(
+            user=user, can_manage_content=True
+        )
+
+        permissions.delete()
+
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    def test_hard_deleting_content_manager_keeps_soft_deleted_learner_sequence(self):
+        small_set = {1: {}, 2: {}, 3: {}}
+        holders = []
+        for i, held in enumerate(sorted(get_all_valid_sequences(small_set))):
+            learner = models.FacilityUser.objects.create_user(
+                username=f"poolholder{i}",
+                password=DUMMY_PASSWORD,
+                facility=self.facility,
+            )
+            learner.picture_password = held
+            learner.save(update_fields=["picture_password"])
+            holders.append(learner)
+        restorable = holders[0]
+        restorable.date_deleted = timezone.now() - timedelta(days=1)
+        restorable.save()
+        restorable_sequence = restorable.picture_password
+        content_manager = models.FacilityUser.objects.create_user(
+            username="expiringmanager",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+
+        with patch(
+            "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
+            small_set,
+        ):
+            content_manager.delete()
+
+        restorable.refresh_from_db()
+        self.assertEqual(restorable.picture_password, restorable_sequence)
+
     def test_existing_picture_password_not_overwritten(self):
         """If the user already has a picture_password when their last role is
         deleted, it is not reassigned."""

@@ -92,6 +92,7 @@ from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
+from .utils.picture_passwords import assign_picture_password_if_unprivileged
 
 logger = logging.getLogger(__name__)
 
@@ -1646,13 +1647,7 @@ class Role(AbstractFacilityDataModel):
                     kind=role_kinds.COACH,
                 ).delete()
             result = super().delete(**kwargs)
-            user = self.user
-            user.refresh_from_db(fields=["picture_password"])
-            if user.picture_password is None and not user.is_privileged:
-                # Deferred to avoid circular import: picture_passwords.py imports from models.py
-                from .utils.picture_passwords import assign_picture_password_if_enabled  # noqa: PLC0415
-
-                assign_picture_password_if_enabled(user, user.facility)
+            assign_picture_password_if_unprivileged(self.user)
             return result
 
 
