@@ -8,7 +8,7 @@ def get_facility(facility_id=None):
     if facility_id:
         try:
             return Facility.objects.get(id=facility_id)
-        except Facility.DoesNotExist as e:
+        except (Facility.DoesNotExist, ValueError) as e:
             raise FacilityLookupError(
                 f"Facility with ID {facility_id} does not exist"
             ) from e

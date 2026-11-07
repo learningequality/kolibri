@@ -55,6 +55,10 @@ class GetFacilityTestCase(TestCase):
         with self.assertRaisesRegex(CommandError, "does not exist"):
             utils.get_facility(facility_id=uuid.uuid4().hex)
 
+    def test_get_facility_with_malformed_id(self):
+        with self.assertRaisesRegex(CommandError, "does not exist"):
+            utils.get_facility(facility_id="x" * 32, noninteractive=True)
+
     def test_get_facility_with_no_id(self):
         self.assertEqual(self.facility, utils.get_facility())
 
