@@ -52,6 +52,7 @@ ShowLanguageDialog=yes
 [Registry]
 ; This registry key is used to detect the installed version for upgrades/repairs.
 Root: HKLM; Subkey: "Software\Kolibri"; ValueType: string; ValueName: "Version"; ValueData: "{#AppVersion}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Kolibri"; ValueType: string; ValueName: "Language"; ValueData: "{cm:LanguageCode}"
 Root: HKLM; Subkey: "Software\Kolibri"; ValueType: dword; ValueName: "ShowTrayIcon"; ValueData: "1"; Tasks: installservice
 Root: HKLM; Subkey: "Software\Kolibri"; ValueType: dword; ValueName: "ShowTrayIcon"; ValueData: "0"; Tasks: not installservice
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueName: "KolibriTray"; Flags: uninsdeletevalue

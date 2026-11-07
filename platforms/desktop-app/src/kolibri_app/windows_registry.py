@@ -10,11 +10,14 @@ import logging
 import sys
 import winreg
 
+from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import APP_USER_MODEL_ID
 from kolibri_app.constants import WEBVIEW2_RUNTIME_GUID
 
 logger = logging.getLogger(__name__)
+
+REG_KEY_KOLIBRI = r"Software\Kolibri"
 
 # Path for current user's startup programs
 REG_KEY_STARTUP_CURRENT_USER = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -51,6 +54,16 @@ def is_webview2_installed():
         except (FileNotFoundError, OSError):
             continue
     return False
+
+
+def get_installer_language():
+    """Return the Kolibri language code the installer recorded, or None."""
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_KEY_KOLIBRI) as key:
+            language = winreg.QueryValueEx(key, "Language")[0]
+    except OSError:
+        return None
+    return language if language in KOLIBRI_SUPPORTED_LANGUAGES else None
 
 
 def register_app_user_model_id(icon_path):

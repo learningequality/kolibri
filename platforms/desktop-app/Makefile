@@ -85,7 +85,7 @@ dependencies:
 build-mac-app:
 	$(MAKE) pyinstaller
 
-pyinstaller: clean write-version
+pyinstaller: clean write-version compile-mo
 	mkdir -p logs
 	$(PYTHON_EXEC) -OO -m PyInstaller kolibri.spec
 
@@ -134,7 +134,7 @@ update-translations:
 	@echo "Update complete. Commit the changes and upload the new source to Crowdin."
 
 compile-mo:
-	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
+	$(PYTHON_EXEC) -c "import glob, polib; [polib.pofile(po).save_as_mofile(po[:-2] + 'mo') for po in glob.glob('src/kolibri_app/locales/*/LC_MESSAGES/wxapp.po')]"
 
 .PHONY: wxapp-extract-strings
 wxapp-extract-strings:

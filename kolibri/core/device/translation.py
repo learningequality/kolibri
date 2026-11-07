@@ -19,13 +19,14 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
+from kolibri.utils.conf import OPTIONS
 
 
 def get_device_language():
-    if not device_provisioned():
-        return None
-
-    language_id = get_device_setting("language_id")
+    if device_provisioned():
+        language_id = get_device_setting("language_id")
+    else:
+        language_id = OPTIONS["Deployment"]["DEFAULT_LANGUAGE"]
     try:
         return get_supported_language_variant(language_id)
     except LookupError:

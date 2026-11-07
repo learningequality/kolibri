@@ -16,9 +16,6 @@ sys.modules.setdefault("kolibri_app.logger", _logger_mock)
 sys.modules.setdefault("wx", MagicMock())
 sys.modules.setdefault("wx.adv", MagicMock())
 sys.modules.setdefault("wx.html2", MagicMock())
-# Mock only the leaf submodule view.py imports; mocking the top-level "django"
-# package triggers pytest-django's setup path and causes collection errors.
-sys.modules.setdefault("django.utils.translation.trans_real", MagicMock())
 
 view = importlib.import_module("kolibri_app.view")
 

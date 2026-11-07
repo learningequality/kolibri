@@ -96,6 +96,7 @@ def write_lang_options(output_dir):
     for locale_code, definition in LANG_DEFINITIONS.items():
         lines = ["[LangOptions]"]
         lines.extend(f"{key}={value}" for key, value in lang_options(definition))
+        lines.extend(["[CustomMessages]", f"LanguageCode={locale_code}"])
         path = output_dir / f"{locale_code}.isl"
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         print(f"  -> {path.name}")
