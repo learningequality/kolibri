@@ -457,9 +457,10 @@
 
       const getManageUserOptions = user => {
         const options = [{ label: coreStrings.editDetailsAction$(), value: Modals.EDIT_USER }];
-        const hideResetPassword = props.pictureLoginEnabled && user.kind === UserKinds.LEARNER;
+        const signsInWithPictures =
+          props.pictureLoginEnabled && user.kind === UserKinds.LEARNER && !user.can_manage_content;
 
-        if (!hideResetPassword) {
+        if (!signsInWithPictures) {
           options.push({ label: resetPassword$(), value: Modals.RESET_USER_PASSWORD });
         }
 
