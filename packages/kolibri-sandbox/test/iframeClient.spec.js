@@ -451,6 +451,8 @@ describe('Sandbox iframeClient', () => {
   });
 });
 
+const appendedScripts = () => Array.from(document.head.querySelectorAll('script'));
+
 describe('Sandbox _loadHandler', () => {
   let sandbox;
 
@@ -463,8 +465,6 @@ describe('Sandbox _loadHandler', () => {
     sandbox.mediator.destroy();
     jest.useRealTimers();
   });
-
-  const appendedScripts = () => Array.from(document.head.querySelectorAll('script'));
 
   it('resolves once the script it appended has registered a handler', async () => {
     const promise = sandbox._loadHandler('http://example.test/handler.js');
@@ -506,5 +506,74 @@ describe('Sandbox _loadHandler', () => {
     appendedScripts()[0].onerror();
 
     await expect(promise).rejects.toThrow(/Failed to load/);
+  });
+});
+
+describe('Sandbox polyfill loading', () => {
+  const polyfillUrl = 'http://example.test/polyfills.js';
+  const handlerUrl = 'http://example.test/handler.js';
+  let sandbox;
+
+  beforeEach(() => {
+    document.head.innerHTML = '';
+    sandbox = new Sandbox();
+    sandbox.mediator.sendMessage = jest.fn();
+  });
+
+  afterEach(() => {
+    sandbox.iframe?.remove();
+    sandbox.mediator.destroy();
+    jest.restoreAllMocks();
+  });
+
+  const appendedScriptUrls = () => appendedScripts().map(script => script.src);
+
+  describe('when the browser lacks the ES2023 array copy methods', () => {
+    let toSorted;
+
+    beforeEach(() => {
+      toSorted = Array.prototype.toSorted;
+      delete Array.prototype.toSorted;
+    });
+
+    afterEach(() => {
+      Array.prototype.toSorted = toSorted;
+    });
+
+    it('appends the handler script only once the polyfill script has loaded', async () => {
+      sandbox.createIframe({ contentNamespace: 'test', handlerUrl, polyfillUrl });
+      await global.flushPromises();
+      expect(appendedScriptUrls()).toEqual([polyfillUrl]);
+
+      appendedScripts()[0].onload();
+      await global.flushPromises();
+
+      expect(appendedScriptUrls()).toEqual([polyfillUrl, handlerUrl]);
+    });
+
+    it('appends only the handler script when main sends no polyfill url', async () => {
+      sandbox.createIframe({ contentNamespace: 'test', handlerUrl });
+      await global.flushPromises();
+
+      expect(appendedScriptUrls()).toEqual([handlerUrl]);
+    });
+
+    it('still appends the handler script when the polyfill fails to load', async () => {
+      jest.spyOn(console, 'error').mockImplementation();
+      sandbox.createIframe({ contentNamespace: 'test', handlerUrl, polyfillUrl });
+      await global.flushPromises();
+
+      appendedScripts()[0].onerror();
+      await global.flushPromises();
+
+      expect(appendedScriptUrls()).toEqual([polyfillUrl, handlerUrl]);
+    });
+  });
+
+  it('appends only the handler script when the browser has the ES2023 array copy methods', async () => {
+    sandbox.createIframe({ contentNamespace: 'test', handlerUrl, polyfillUrl });
+    await global.flushPromises();
+
+    expect(appendedScriptUrls()).toEqual([handlerUrl]);
   });
 });

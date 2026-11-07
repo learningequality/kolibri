@@ -7,6 +7,7 @@ import os
 
 import django
 
+from kolibri.core.content.sandbox_static import get_sandbox_static_locations
 from kolibri.core.content.utils import paths
 
 os.environ.setdefault(
@@ -19,7 +20,6 @@ def generate_alt_wsgi_application():
 
     # Defer these imports until after django setup has run, as they depend
     # on Django models (via the NetworkClient) or the plugin registry
-    from kolibri.core.content.hooks import SandboxedContentViewerHook  # noqa: PLC0415
     from kolibri.core.content.zip_wsgi import get_application  # noqa: PLC0415
     from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise  # noqa: PLC0415
 
@@ -31,10 +31,9 @@ def generate_alt_wsgi_application():
 
     static_root = paths.zip_content_static_root()
 
-    # Mount all sandbox static directories at the same root
     static_locations = [
-        (static_root, fs_path)
-        for fs_path in SandboxedContentViewerHook.get_sandbox_static_paths()
+        (static_root + prefix, fs_path)
+        for prefix, fs_path in get_sandbox_static_locations()
     ]
 
     # Mount static files
