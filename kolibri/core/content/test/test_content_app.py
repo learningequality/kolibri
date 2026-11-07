@@ -3406,6 +3406,21 @@ class ChannelThumbnailViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
         self.assertNotIn(b"<script>", response.content)
 
+    def test_channel_thumbnail_view_svg_mimetype_is_served(self):
+        # Pins the current behaviour for review: image/svg+xml passes the
+        # image/* filter and is served. (CSP script-src blocks any inline
+        # script if the SVG is opened directly at this URL.)
+        self.channel_metadata.thumbnail = (
+            "data:image/svg+xml;base64,"
+            "PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjwvc3ZnPg=="
+        )
+        self.channel_metadata.save()
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "image/svg+xml")
+
 
 class ShareFileViewTestCase(APITestCase):
     databases = "__all__"

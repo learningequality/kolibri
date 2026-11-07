@@ -95,12 +95,12 @@ class ChannelThumbnailView(View):
         except (ValueError, IndexError) as e:
             # binascii.Error is a ValueError subclass, so a corrupt base64
             # payload is covered here too. A header with no colon raises
-            # IndexError instead, which the previous except ValueError missed.
+            # IndexError instead.
             raise Http404("No thumbnail available") from e
         if not mimetype.startswith("image/"):
             # The stored string comes from imported channel metadata, so the
             # MIME type is publisher-controlled; only ever serve image types.
             raise Http404("No thumbnail available")
-        response = HttpResponse(thumbnail, content_type=mimetype)
-        response["X-Content-Type-Options"] = "nosniff"
-        return response
+        # X-Content-Type-Options: nosniff is already set on every response
+        # by SecurityMiddleware (SECURE_CONTENT_TYPE_NOSNIFF).
+        return HttpResponse(thumbnail, content_type=mimetype)
