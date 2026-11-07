@@ -568,9 +568,9 @@ class BulkUserImportManager(JobProgressMixin):
             return None, self._row_error(
                 username,
                 user_row,
-                MESSAGES[NON_EXISTENT_UUID].format(username),
-                "PASSWORD",
-                "*",
+                MESSAGES[NON_EXISTENT_UUID].format(values["uuid"]),
+                "UUID",
+                values["uuid"],
             )
         # If UUID is not specified, check for a username clash
         error = self._duplicated_username_error(username, user_row)
@@ -748,14 +748,6 @@ class BulkUserImportManager(JobProgressMixin):
         for classroom in classes:
             Membership.objects.filter(collection=classroom).delete()
 
-    def get_user(self, username, users):
-        user = users.get(username, None)
-        if not user:  # the user has not been created nor updated:
-            user = FacilityUser.all_objects.get(
-                username=username, facility=self.default_facility
-            )
-        return user
-
     def add_classes_memberships(self, classes, users, db_classes):
         enrolled = classes[0]
         assigned = classes[1]
@@ -765,24 +757,23 @@ class BulkUserImportManager(JobProgressMixin):
             db_class = classes[classroom]
             for username in enrolled[classroom]:
                 # db validation might have rejected a csv validated user:
-                if username in users:
-                    user = self.get_user(username, users)
-                    if not user.is_member_of(db_class):
-                        db_class.add_member(user)
+                user = users.get(username)
+                if user:
+                    db_class.add_member(user)
         for classroom in assigned:
             db_class = classes[classroom]
             for username in assigned[classroom]:
                 # db validation might have rejected a csv validated user:
-                if username in users:
-                    user = self.get_user(username, users)
+                user = users.get(username)
+                if user:
                     db_class.add_coach(user)
 
     def add_roles(self, users, roles):
         for role in roles:
             for username in roles[role]:
                 # db validation might have rejected a csv validated user:
-                if username in users:
-                    user = self.get_user(username, users)
+                user = users.get(username)
+                if user:
                     self.default_facility.add_role(user, role)
 
     def exit_if_error(self):
@@ -879,15 +870,15 @@ class BulkUserImportManager(JobProgressMixin):
         self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
-            # validate csv headers:
-            has_header = self.csv_headers_validation(
-                local_filepath=local_filepath, storage_filepath=storage_filepath
-            )
-            if not has_header:
-                self.append_error(MESSAGES[INVALID_HEADER])
-            self.exit_if_error()
-            self.progress_update(1)  # state=csv_headers
             try:
+                # validate csv headers:
+                has_header = self.csv_headers_validation(
+                    local_filepath=local_filepath, storage_filepath=storage_filepath
+                )
+                if not has_header:
+                    self.append_error(MESSAGES[INVALID_HEADER])
+                self.exit_if_error()
+                self.progress_update(1)  # state=csv_headers
                 with open_csv_for_reading(
                     local_filepath=local_filepath, storage_filepath=storage_filepath
                 ) as f:
@@ -936,11 +927,11 @@ class BulkUserImportManager(JobProgressMixin):
                 Membership.objects.filter(collection__in=classes_to_clear).delete()
 
                 # bulk_create and bulk_update are not possible with current Morango:
-                db_users = db_new_users + db_update_users
-                for user in db_users:
+                for user in db_new_users + db_update_users:
                     user.save()
+                kept_users = [u for u in keeping_users if u.id not in rejected_ids]
                 # assign roles to users:
-                users_data = {u.username: u for u in db_users}
+                users_data = {u.username: u for u in db_new_users + kept_users}
                 self.add_roles(users_data, roles)
 
                 db_created_classes = []
@@ -956,11 +947,7 @@ class BulkUserImportManager(JobProgressMixin):
                 self.add_classes_memberships(
                     classes, users_data, db_new_classes + db_update_classes
                 )
-                self.remove_memberships(
-                    [u for u in keeping_users if u.id not in rejected_ids],
-                    classes[0],
-                    classes[1],
-                )
+                self.remove_memberships(kept_users, classes[0], classes[1])
             classes_report = {
                 "created": len(db_new_classes),
                 "updated": len(db_update_classes),

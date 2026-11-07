@@ -1,3 +1,4 @@
+import ast
 import csv
 import tempfile
 from io import StringIO
@@ -6,6 +7,7 @@ from uuid import uuid4
 import pytest
 from django.contrib.auth.hashers import make_password
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
@@ -785,6 +787,64 @@ class ImportTestCase(TestCase):
         self._assert_duplicated_username_error(errorlines)
         self.assertTrue(enrolled.get_members().filter(id=user.id).exists())
         self.assertTrue(coached.get_coaches().filter(id=user.id).exists())
+
+    def _reexport_with(self, user, **columns):
+        _, export_filename = tempfile.mkstemp(suffix=".csv")
+        call_command(
+            "bulkexportusers",
+            output_file=export_filename,
+            overwrite=True,
+            facility=self.facility.id,
+        )
+        with open_csv_for_reading(local_filepath=export_filename) as source:
+            rows = list(csv.reader(source, strict=True))[1:]
+        (row,) = [r for r in rows if r[0] == user.id]
+        for column, value in columns.items():
+            row[b.fieldnames.index(column)] = value
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(csv_filename, [row])
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+
+    def test_reimport_of_unchanged_user_updates_enrollments(self):
+        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        old_class = Classroom.objects.create(name="A", parent=self.facility)
+        new_class = Classroom.objects.create(name="C", parent=self.facility)
+        old_class.add_member(user)
+        self._reexport_with(user, ENROLLED_IN="C")
+        self.assertFalse(old_class.get_members().filter(id=user.id).exists())
+        self.assertTrue(new_class.get_members().filter(id=user.id).exists())
+
+    def test_reimport_of_unchanged_user_adds_facility_coach_role(self):
+        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        self._reexport_with(user, USER_TYPE="FACILITY_COACH")
+        self.assertTrue(self.facility.get_coaches().filter(id=user.id).exists())
+
+    def test_reimport_of_unchanged_user_adds_class_assignment(self):
+        user = FacilityUser.objects.create(username="alice", facility=self.facility)
+        classroom = Classroom.objects.create(name="C", parent=self.facility)
+        self._reexport_with(user, USER_TYPE="CLASS_COACH", ASSIGNED_TO="C")
+        self.assertTrue(classroom.get_coaches().filter(id=user.id).exists())
+
+    def test_malformed_header_is_a_command_error(self):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        with open(csv_filename, "w") as f:
+            f.write('"UUID,USERNAME\n')
+        with self.assertRaises(CommandError):
+            call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+
+    def test_non_existing_uuid_error_names_the_uuid(self):
+        missing_id = uuid4().hex
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [missing_id, "alice", "*", "", "LEARNER", "", "", "", "", ""]
+        self.create_csv(csv_filename, [row])
+        errorlines = StringIO()
+        b.BulkUserImportManager(
+            csv_filename, facility_id=self.facility.id, errorlines=errorlines
+        ).run()
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "UUID")
+        self.assertEqual(error["value"], missing_id)
+        self.assertIn(missing_id, error["message"])
 
     def test_failed_import_restores_language(self):
         manager = b.BulkUserImportManager(
