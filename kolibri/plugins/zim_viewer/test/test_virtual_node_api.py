@@ -7,6 +7,7 @@ from unittest import mock
 from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -24,6 +25,7 @@ from kolibri.core.content.utils.virtual_nodes import virtual_node_id
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.csv_export import get_cached_content_data
+from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.plugins.zim_viewer.test.fixtures import build_minimal_zim
 from kolibri.utils.tests.helpers import override_option
 
@@ -375,6 +377,63 @@ class VirtualNodeIdListTestCase(TestCase):
         ids = {node["id"] for node in nodes}
         self.assertIn(self.leaf.id, ids)
         self.assertNotIn(self.page_id, ids)
+
+    def _learner_with_page_progress(self, username="learner", progress=0.5):
+        facility = Facility.objects.first() or Facility.objects.create(name="f")
+        learner = FacilityUser.objects.create(username=username, facility=facility)
+        now = timezone.now()
+        ContentSummaryLog.objects.create(
+            user=learner,
+            content_id=virtual_content_id(self.zim.content_id, "C/Index"),
+            instance_id=self.page_id,
+            channel_id=self.channel_id,
+            kind="document",
+            progress=progress,
+            start_timestamp=now,
+            end_timestamp=now,
+        )
+        return learner
+
+    def _progress(self, **params):
+        return self.client.get(
+            reverse("kolibri:core:contentnodeprogress-list"), params
+        ).json()
+
+    def test_progress_for_page_ids_comes_from_its_instance_logs(self):
+        self.client.force_login(self._learner_with_page_progress())
+        rows = self._progress(ids=self.page_id)
+        self.assertEqual(
+            [(row["content_id"], row["progress"]) for row in rows],
+            [(virtual_content_id(self.zim.content_id, "C/Index"), 0.5)],
+        )
+
+    def test_progress_for_resume_includes_resumed_pages(self):
+        self.client.force_login(self._learner_with_page_progress())
+        rows = self._progress(resume=True)
+        self.assertEqual(
+            [row["content_id"] for row in rows],
+            [virtual_content_id(self.zim.content_id, "C/Index")],
+        )
+
+    def test_progress_for_a_page_excludes_other_learners_logs(self):
+        self._learner_with_page_progress(username="other")
+        facility = Facility.objects.first()
+        learner = FacilityUser.objects.create(username="learner", facility=facility)
+        self.client.force_login(learner)
+        self.assertEqual(self._progress(ids=self.page_id), [])
+
+    def test_progress_tree_of_a_page_is_its_row(self):
+        self.client.force_login(self._learner_with_page_progress())
+        response = self.client.get(
+            reverse(
+                "kolibri:core:contentnodeprogress-tree", kwargs={"pk": self.page_id}
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [row["progress"] for row in response.json()],
+            [0.5],
+        )
 
     def _bookmarking_learner(self):
         facility = Facility.objects.first() or Facility.objects.create(name="f")

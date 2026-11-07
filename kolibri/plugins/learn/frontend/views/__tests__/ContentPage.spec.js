@@ -42,6 +42,7 @@ async function renderPage({ content = node(), routeId = content.id, lessonId = n
       stubs: {
         ContentViewer: {
           name: 'ContentViewer',
+          props: ['loading'],
           template: '<div></div>',
           created() {
             viewer = this;
@@ -176,5 +177,126 @@ describe('ContentPage', () => {
         params: { id: virtualNodeId(ROOT_ID, PATH) },
       });
     });
+  });
+
+  describe('when its content changes to another page', () => {
+    const page = node({ id: virtualNodeId(ROOT_ID, PATH), root_id: ROOT_ID });
+
+    it('restarts tracking with a session for the new page', async () => {
+      const { updateProps } = await renderPage({ lessonId: 'lesson-1' });
+      tracking.initContentSession.mockClear();
+
+      await updateProps({ content: page });
+      await flushPromises();
+
+      expect(tracking.stopTrackingProgress).toHaveBeenCalled();
+      expect(tracking.initContentSession).toHaveBeenCalledWith({
+        node: page,
+        lessonId: 'lesson-1',
+      });
+      expect(tracking.startTrackingProgress).toHaveBeenCalled();
+    });
+
+    it('keeps the same viewer mounted', async () => {
+      const { updateProps } = await renderPage();
+      const before = viewer;
+
+      await updateProps({ content: page });
+      await flushPromises();
+
+      expect(viewer).toBe(before);
+      expect(viewer._isDestroyed).toBe(false);
+    });
+
+    it("saves what the viewer reports only once the new page's session has started", async () => {
+      const { updateProps } = await renderPage();
+      let startSession;
+      tracking.initContentSession.mockReturnValue(new Promise(resolve => (startSession = resolve)));
+
+      await updateProps({ content: page });
+      viewer.$emit('updateProgress', 0.4);
+      viewer.$emit('updateProgress', 1);
+      viewer.$emit('updateContentState', { scroll: 1 });
+      await flushPromises();
+      expect(tracking.updateContentSession).not.toHaveBeenCalled();
+
+      startSession();
+      await flushPromises();
+
+      expect(tracking.updateContentSession).toHaveBeenCalledWith({ contentState: { scroll: 1 } });
+      expect(tracking.updateContentSession).toHaveBeenCalledWith({ progress: 1 });
+    });
+
+    it("keeps the viewer loading from the page change until the new page's session has started", async () => {
+      const { updateProps } = await renderPage();
+      let startSession;
+      tracking.initContentSession.mockReturnValue(new Promise(resolve => (startSession = resolve)));
+      expect(viewer.loading).toBe(false);
+
+      viewer.$emit('nowShowing', PATH);
+      await updateProps({ content: page });
+      await flushPromises();
+      expect(viewer.loading).toBe(true);
+
+      startSession();
+      await flushPromises();
+
+      expect(viewer.loading).toBe(false);
+    });
+
+    it('holds progress deltas until the new page session has started', async () => {
+      const { updateProps } = await renderPage();
+      let startSession;
+      tracking.initContentSession.mockReturnValue(new Promise(resolve => (startSession = resolve)));
+
+      await updateProps({ content: page });
+      viewer.$emit('addProgress', 0.1);
+      viewer.$emit('addProgress', 0.2);
+      await flushPromises();
+      expect(tracking.updateContentSession).not.toHaveBeenCalled();
+
+      startSession();
+      await flushPromises();
+
+      expect(tracking.updateContentSession).toHaveBeenCalledWith({
+        progressDelta: expect.closeTo(0.3),
+      });
+    });
+
+    it('starts one session, for the latest page, when the page changes again mid-switch', async () => {
+      const { updateProps } = await renderPage();
+      const otherPage = node({ id: virtualNodeId(ROOT_ID, 'C/Other'), root_id: ROOT_ID });
+      const starts = [];
+      tracking.initContentSession.mockClear();
+      tracking.initContentSession.mockImplementation(
+        () => new Promise(resolve => starts.push(resolve)),
+      );
+
+      await updateProps({ content: page });
+      await flushPromises();
+      await updateProps({ content: otherPage });
+      viewer.$emit('updateProgress', 0.5);
+      starts[0]();
+      await flushPromises();
+      expect(tracking.updateContentSession).not.toHaveBeenCalled();
+
+      starts[1]();
+      await flushPromises();
+
+      expect(tracking.initContentSession.mock.calls.map(([{ node }]) => node.id)).toEqual([
+        page.id,
+        otherPage.id,
+      ]);
+      expect(tracking.startTrackingProgress).toHaveBeenCalledTimes(1);
+      expect(tracking.updateContentSession).toHaveBeenCalledWith({ progress: 0.5 });
+    });
+  });
+
+  it('saves viewer progress straight away outside a page switch', async () => {
+    await renderPage();
+
+    viewer.$emit('updateProgress', 0.4);
+
+    expect(tracking.updateContentSession).toHaveBeenCalledWith({ progress: 0.4 });
   });
 });
