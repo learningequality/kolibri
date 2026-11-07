@@ -14,7 +14,6 @@ from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
-from django.http import HttpResponseNotFound
 from django.http import HttpResponseNotModified
 from django.http.response import FileResponse
 from django.http.response import StreamingHttpResponse
@@ -218,7 +217,7 @@ def get_embedded_file(
         try:
             info = zf.getinfo(embedded_filepath)
         except KeyError:
-            return HttpResponseNotFound(
+            return create_error_response(
                 f'"{embedded_filepath}" does not exist inside "{zipped_filename}"'
             )
 
