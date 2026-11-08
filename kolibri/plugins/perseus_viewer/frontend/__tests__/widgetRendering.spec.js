@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/vue';
+import { ref } from 'vue';
 import { init } from '@khanacademy/perseus';
 import {
   generateExpressionWidget,
@@ -137,6 +138,220 @@ describe('grapher items rendered as interactive graphs', () => {
     );
     expect(graph).not.toHaveAccessibleDescription(/undefined/);
   });
+
+  it('draws the correct answer when showing it', async () => {
+    const correct = {
+      type: 'absolute_value',
+      coords: [
+        [-3, 2],
+        [-2, 4],
+      ],
+    };
+    await mountRenderer(itemData('grapher', grapherOptions(correct)), { showCorrectAnswer: true });
+
+    expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+      /vertex point at -3 comma 2, arm point at -2 comma 4/,
+    );
+  });
+
+  it('draws a restored answer', async () => {
+    const correct = GRAPHER_ANSWERS.find(answer => answer.type === 'absolute_value');
+    const saved = {
+      type: 'absolute_value',
+      coords: [
+        [1, 1],
+        [2, 3],
+      ],
+    };
+    const { instance } = await mountRenderer(itemData('grapher', grapherOptions(correct)), {
+      answerState: { userInput: { 'grapher 1': saved }, hintsVisible: 0 },
+    });
+    await settle();
+
+    expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+      /vertex point at 1 comma 1, arm point at 2 comma 3/,
+    );
+    expect(
+      screen.getByRole('button', {
+        name: perseusTranslator.srAbsoluteValueVertexPoint$({ x: 1, y: 1 }),
+        hidden: true,
+      }),
+    ).toHaveAttribute('aria-disabled', 'false');
+    expect(instance().getAnswerState().userInput['grapher 1'].coords).toEqual(saved.coords);
+  });
+
+  it.each([
+    [
+      'graded-group',
+      widgets => ({ title: 'Part 1', content: '[[☃ grapher 1]]', images: {}, widgets }),
+    ],
+    [
+      'graded-group-set',
+      widgets => ({
+        gradedGroups: [{ title: 'Part 1', content: '[[☃ grapher 1]]', images: {}, widgets }],
+      }),
+    ],
+  ])('draws a restored answer of a grapher inside a %s', async (type, groupOptions) => {
+    const correct = GRAPHER_ANSWERS.find(answer => answer.type === 'absolute_value');
+    const saved = {
+      type: 'absolute_value',
+      coords: [
+        [1, 1],
+        [2, 3],
+      ],
+    };
+    const groupId = `${type} 1`;
+    await mountRenderer(
+      itemData(
+        type,
+        groupOptions({
+          'grapher 1': { type: 'grapher', graded: true, options: grapherOptions(correct) },
+        }),
+      ),
+      { answerState: { userInput: { [groupId]: { 'grapher 1': saved } }, hintsVisible: 0 } },
+    );
+    await settle();
+
+    expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+      /vertex point at 1 comma 1, arm point at 2 comma 3/,
+    );
+  });
+
+  describe('when the correct answer is hidden again', () => {
+    const correct = {
+      type: 'absolute_value',
+      coords: [
+        [-3, 2],
+        [-2, 4],
+      ],
+    };
+    const DEFAULT_DESCRIPTION = /vertex point at 0 comma 0, arm point at 5 comma 5/;
+
+    it('clears the drawn answer when there is no saved answer', async () => {
+      const showCorrectAnswer = ref(false);
+      const { instance } = await mountRenderer(itemData('grapher', grapherOptions(correct)), {
+        showCorrectAnswer,
+      });
+      showCorrectAnswer.value = true;
+      await settle();
+      showCorrectAnswer.value = false;
+      await settle();
+
+      expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+        DEFAULT_DESCRIPTION,
+      );
+      expect(instance().checkAnswer().correct).toBe(false);
+    });
+
+    it("draws the learner's answer when a report swaps it back in", async () => {
+      const saved = {
+        type: 'absolute_value',
+        coords: [
+          [1, 1],
+          [2, 3],
+        ],
+      };
+      const learnerAnswer = { userInput: { 'grapher 1': saved }, hintsVisible: 0 };
+      const showCorrectAnswer = ref(false);
+      const answerState = ref(learnerAnswer);
+      const { instance } = await mountRenderer(itemData('grapher', grapherOptions(correct)), {
+        interactive: false,
+        showCorrectAnswer,
+        answerState,
+      });
+      answerState.value = null;
+      showCorrectAnswer.value = true;
+      await settle();
+      answerState.value = learnerAnswer;
+      showCorrectAnswer.value = false;
+      await settle();
+
+      expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+        /vertex point at 1 comma 1, arm point at 2 comma 3/,
+      );
+      expect(instance().getAnswerState().userInput['grapher 1'].coords).toEqual(saved.coords);
+    });
+
+    it('clears the drawn answer when a report moves from two answers to a non-answer', async () => {
+      const graphAnswer = coords => ({
+        userInput: { 'grapher 1': { type: 'absolute_value', coords } },
+        hintsVisible: 0,
+      });
+      const answerState = ref(
+        graphAnswer([
+          [1, 1],
+          [2, 3],
+        ]),
+      );
+      await mountRenderer(itemData('grapher', grapherOptions(correct)), {
+        interactive: false,
+        answerState,
+      });
+      await settle();
+      answerState.value = graphAnswer([
+        [4, 4],
+        [5, 6],
+      ]);
+      await settle();
+      answerState.value = null;
+      await settle();
+
+      expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+        DEFAULT_DESCRIPTION,
+      );
+    });
+
+    it('clears the drawn answer in a report with no saved answer', async () => {
+      const showCorrectAnswer = ref(false);
+      await mountRenderer(itemData('grapher', grapherOptions(correct)), {
+        interactive: false,
+        showCorrectAnswer,
+        answerState: null,
+      });
+      showCorrectAnswer.value = true;
+      await settle();
+      showCorrectAnswer.value = false;
+      await settle();
+
+      expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+        DEFAULT_DESCRIPTION,
+      );
+    });
+  });
+
+  it('draws the correct answer of a grapher inside a group', async () => {
+    const correct = {
+      type: 'absolute_value',
+      coords: [
+        [-3, 2],
+        [-2, 4],
+      ],
+    };
+    const answerUnavailable = jest.fn();
+    const { instance } = await mountRenderer(
+      itemData('group', {
+        content: '[[☃ grapher 1]] [[☃ dropdown 1]]',
+        images: {},
+        widgets: {
+          'grapher 1': { type: 'grapher', graded: true, options: grapherOptions(correct) },
+          'dropdown 1': {
+            type: 'dropdown',
+            graded: true,
+            options: dropdownOptions(['Apple', 'Banana'], 'Banana'),
+          },
+        },
+      }),
+      { showCorrectAnswer: true },
+      { answerUnavailable },
+    );
+
+    expect(answerUnavailable).not.toHaveBeenCalled();
+    expect(screen.getByRole('figure', { hidden: true })).toHaveAccessibleDescription(
+      /vertex point at -3 comma 2, arm point at -2 comma 4/,
+    );
+    expect(screen.getByRole('combobox')).toHaveTextContent('Banana');
+    expect(instance().checkAnswer().correct).toBe(true);
+  });
 });
 
 function dropdownOptions(choices, correct) {
@@ -166,7 +381,59 @@ describe('restored answers', () => {
     expect(second).toHaveTextContent('Leek');
   });
 
+  it('keeps the answer when a hint is taken', async () => {
+    const hint = { content: 'Think about fruit', images: {}, widgets: {} };
+    const { api, instance } = await mountRenderer(
+      {
+        perseusItemString: JSON.stringify(
+          rawItem(
+            {
+              'dropdown 1': {
+                type: 'dropdown',
+                graded: true,
+                options: dropdownOptions(['Apple', 'Banana'], 'Banana'),
+              },
+            },
+            [hint],
+          ),
+        ),
+      },
+      { answerState: { userInput: { 'dropdown 1': { value: 2 } }, hintsVisible: 0 } },
+    );
+
+    api().takeHint();
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    expect(instance().getAnswerState().userInput['dropdown 1']).toEqual({ value: 2 });
+    expect(screen.getByRole('combobox')).toHaveTextContent('Banana');
+  });
+
+  it('clears the answer when a report moves from two answers to a non-answer', async () => {
+    const answerState = ref({ userInput: { 'dropdown 1': { value: 1 } }, hintsVisible: 0 });
+    const { instance } = await mountRenderer(
+      itemData('dropdown', dropdownOptions(['Apple', 'Banana'], 'Banana')),
+      { interactive: false, answerState },
+    );
+    answerState.value = { userInput: { 'dropdown 1': { value: 2 } }, hintsVisible: 0 };
+    await global.flushPromises();
+    answerState.value = null;
+    await global.flushPromises();
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('Pick one');
+    expect(instance().getAnswerState().userInput['dropdown 1']).toEqual({ value: 0 });
+  });
 });
+
+// Graphie draws each plotter bar as a closed path of four line segments.
+function barHeights(container) {
+  return [...container.querySelectorAll('path')]
+    .map(path => path.getAttribute('d').match(/L/g)?.length === 4 && path.getAttribute('d'))
+    .filter(Boolean)
+    .map(d => {
+      const ys = d.match(/[\d.]+,([\d.]+)/g).map(point => Number(point.split(',')[1]));
+      return Math.max(...ys) - Math.min(...ys);
+    });
+}
 
 describe('show correct answer', () => {
   it('selects the correct choice in every dropdown', async () => {
@@ -271,6 +538,20 @@ describe('show correct answer', () => {
 
     expect(answerUnavailable).not.toHaveBeenCalled();
     expect(screen.getByRole('combobox')).toHaveTextContent('Banana');
+  });
+
+  it('draws the correct bars when the answer is shown on a mounted plotter', async () => {
+    const showCorrectAnswer = ref(false);
+    const { container } = await mountRenderer(
+      itemData('plotter', { ...LEGACY_ITEMS.plotter, correct: [3, 7] }),
+      { showCorrectAnswer },
+    );
+
+    showCorrectAnswer.value = true;
+    await global.flushPromises();
+
+    const [first, second] = barHeights(container);
+    expect(second / first).toBeCloseTo(7 / 3);
   });
 
   it('writes a decimal answer with the content language decimal separator', async () => {
