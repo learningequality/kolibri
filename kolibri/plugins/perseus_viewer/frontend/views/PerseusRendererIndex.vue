@@ -1092,6 +1092,13 @@
     .svg-image > button {
       display: none;
     }
+
+    // Mafs draws axis tick labels as SVG <text> with an ASCII hyphen, which
+    // the RTL bidi algorithm moves after the digit ("9-").
+    .MafsView {
+      /* rtl:ignore */
+      direction: ltr;
+    }
   }
 
 </style>
