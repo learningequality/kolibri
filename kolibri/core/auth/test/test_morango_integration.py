@@ -34,8 +34,8 @@ from morango.sync.controller import MorangoProfileController
 
 from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
+from kolibri.core.auth.utils.sync import get_client_and_server_certs
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
@@ -315,29 +315,25 @@ class CertificateAuthenticationTestCase(MultipleServerTestCase):
         controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         network_connection = controller.create_network_connection(server.baseurl)
 
-        client_cert, server_cert, username = get_client_and_server_certs(
+        client_cert, server_cert = get_client_and_server_certs(
             superuser_1.username,
             "superuser_1",
             facility_1.dataset_id,
             network_connection,
             facility_id=facility_1.id,
-            noninteractive=True,
         )
         self.assertIsNotNone(client_cert)
         self.assertIsNotNone(server_cert)
-        self.assertIsNotNone(username)
 
-        client_cert, server_cert, username = get_client_and_server_certs(
+        client_cert, server_cert = get_client_and_server_certs(
             superuser_2.username,
             "superuser_2",
             facility_2.dataset_id,
             network_connection,
             facility_id=facility_2.id,
-            noninteractive=True,
         )
         self.assertIsNotNone(client_cert)
         self.assertIsNotNone(server_cert)
-        self.assertIsNotNone(username)
 
     @multiple_kolibri_servers(1)
     def test_learner_passwordless_authentication(self, servers):
@@ -366,18 +362,16 @@ class CertificateAuthenticationTestCase(MultipleServerTestCase):
 
         # if it's not working, this will throw:
         #   requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url
-        client_cert, server_cert, username = get_client_and_server_certs(
+        client_cert, server_cert = get_client_and_server_certs(
             learner.username,
             "NOT_THE_DUMMY_PASSWORD",
             facility.dataset_id,
             network_connection,
             user_id=learner.pk,
             facility_id=facility.id,
-            noninteractive=True,
         )
         self.assertIsNotNone(client_cert)
         self.assertIsNotNone(server_cert)
-        self.assertIsNotNone(username)
 
 
 @unittest.skipIf(
