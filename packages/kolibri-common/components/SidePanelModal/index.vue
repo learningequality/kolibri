@@ -84,6 +84,7 @@
   import Backdrop from 'kolibri/components/Backdrop';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useReturnFocusOnUnmount from 'kolibri-common/composables/useReturnFocusOnUnmount';
 
   export default {
     name: 'SidePanelModal',
@@ -92,6 +93,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      useReturnFocusOnUnmount();
       const { windowBreakpoint } = useKResponsiveWindow();
 
       const isScrolled = ref(false);
@@ -106,7 +108,6 @@
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
         windowBreakpoint,
-        lastFocus: null,
         isScrolled,
         handleScroll,
       };
@@ -210,9 +211,6 @@
           : this.coreString('closeAction');
       },
     },
-    beforeMount() {
-      this.lastFocus = document.activeElement;
-    },
     /* this is the easiest way I could think to avoid having dual scroll bars and to avoid
      strange screen-squeezing behavior noted here:
      https://user-images.githubusercontent.com/79847249/164241012-b161bad7-8a46-4221-a391-a375899ed9a9.mp4 */
@@ -227,9 +225,6 @@
     beforeDestroy() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'auto';
-    },
-    destroyed() {
-      window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
       closePanel() {

@@ -140,7 +140,11 @@
       });
 
       onMounted(() => {
-        nextTick(() => passwordGridRef.value?.focusSentinel());
+        nextTick(() => {
+          if (document.activeElement === document.body) {
+            passwordGridRef.value?.focusSentinel();
+          }
+        });
       });
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
