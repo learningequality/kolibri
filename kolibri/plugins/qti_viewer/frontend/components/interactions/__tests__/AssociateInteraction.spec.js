@@ -5,6 +5,10 @@ import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { slotListboxStrings } from '../../../composables/useSlotListbox';
 import { associateStrings } from '../AssociateInteraction.vue';
 
+// MathML fixtures take SafeHTML's MathJax path in jsdom, which has no layout;
+// its font URL needs plugin URL data that tests lack.
+jest.mock('kolibri/urls');
+
 const {
   responsePoolLabel$,
   firstSlotEmpty$,
@@ -730,5 +734,28 @@ describe('Review mode', () => {
     await waitFor(() => {
       expect(container.querySelector('.qti-associate-readonly')).toBeInTheDocument();
     });
+  });
+});
+
+describe('MathML choices', () => {
+  const MATH_NS = 'http://www.w3.org/1998/Math/MathML';
+  const SQUARE_ALTTEXT = 'x squared';
+  const xml = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      identifier="associate-math" title="Associate math" adaptive="false" time-dependent="false">
+      <qti-response-declaration identifier="RESPONSE" cardinality="multiple" base-type="pair"/>
+      <qti-item-body>
+        <qti-associate-interaction response-identifier="RESPONSE" max-associations="1">
+          <qti-simple-associable-choice identifier="A" match-max="1"><math xmlns="${MATH_NS}" alttext="${SQUARE_ALTTEXT}"><msup><mi>x</mi><mn>2</mn></msup></math></qti-simple-associable-choice>
+          <qti-simple-associable-choice identifier="B" match-max="1">Area</qti-simple-associable-choice>
+        </qti-associate-interaction>
+      </qti-item-body>
+    </qti-assessment-item>`;
+
+  it("names an option and the slot it fills by a response's math alttext", async () => {
+    renderAssessmentItem(xml);
+    await fireEvent.focus(screen.getByLabelText(firstSlotEmpty$({ number: 1 })));
+    const slot = screen.getByLabelText(firstSlotFilled$({ number: 1, response: SQUARE_ALTTEXT }));
+    expect(within(slot).getByRole('option', { name: SQUARE_ALTTEXT })).toBeInTheDocument();
   });
 });

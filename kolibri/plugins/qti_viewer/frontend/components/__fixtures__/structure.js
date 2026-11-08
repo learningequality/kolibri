@@ -346,6 +346,10 @@ export default [
         identifier: 'associate-interaction-images',
         title: 'Associate - Images',
       },
+      {
+        identifier: 'associate-mathml',
+        title: 'Associate - MathML',
+      },
     ],
   },
   {
@@ -370,6 +374,10 @@ export default [
       {
         identifier: 'q13-match-interaction-sv-3',
         title: 'Match - Custom Messages',
+      },
+      {
+        identifier: 'match-mathml',
+        title: 'Match - MathML',
       },
     ],
   },
@@ -453,6 +461,10 @@ export default [
       {
         identifier: 'q15-order-interaction-sv-2',
         title: 'Order - Positioning',
+      },
+      {
+        identifier: 'order-mathml',
+        title: 'Order - MathML',
       },
     ],
   },

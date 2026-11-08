@@ -29,26 +29,41 @@ export function isFixed(vnode) {
   return coerceBoolean(get(vnode, ['componentOptions', 'propsData', 'fixed']));
 }
 
+const ACCESSIBLE_LABEL_ATTRIBUTES = ['alt', 'aria-label', 'alttext'];
+const VISIBLE_LABEL_ATTRIBUTES = ['alt', 'alttext'];
+
 /**
- * Plain text for a vnode's content. Image content contributes its alt text,
- * which is all a choice made of a single image has to identify it by.
+ * Plain text for a vnode's content.
  * @param {object} vnode - Any vnode
+ * @param {object} [options] - How hidden content is treated
+ * @param {boolean} [options.visible] - On-screen text: keep `aria-hidden`, skip `aria-label`
  * @returns {string} The text, or '' when there is none
  */
-export function vnodeToText(vnode) {
+export function vnodeToText(vnode, { visible = false } = {}) {
   if (!vnode) {
     return '';
   }
   if (vnode.text) {
     return vnode.text.trim();
   }
-  const alt = vnode.componentOptions?.propsData?.alt ?? vnode.data?.attrs?.alt;
-  if (alt) {
-    return String(alt).trim();
+  const attrs = vnode.data?.attrs;
+  if (!visible && attrs?.['aria-hidden'] === 'true') {
+    return '';
+  }
+  const props = vnode.componentOptions?.propsData;
+  const labelAttributes = visible ? VISIBLE_LABEL_ATTRIBUTES : ACCESSIBLE_LABEL_ATTRIBUTES;
+  const label = labelAttributes
+    .map(name => String(props?.[name] ?? attrs?.[name] ?? '').trim())
+    .find(Boolean);
+  if (label) {
+    return label;
   }
   const children = vnode.componentOptions?.children ?? vnode.children;
   if (children) {
-    return children.map(vnodeToText).join(' ').trim();
+    return children
+      .map(child => vnodeToText(child, { visible }))
+      .join(' ')
+      .trim();
   }
   return '';
 }
@@ -57,14 +72,19 @@ export function vnodeToText(vnode) {
  * A choice's own content as a single line of text, for accessible names and
  * live-region announcements.
  * @param {object} vnode - A choice vnode
+ * @param {object} [options] - Passed to `vnodeToText`
  * @returns {string} The collapsed text of the choice's children
  */
-export function choiceText(vnode) {
-  return (get(vnode, ['componentOptions', 'children']) || [])
-    .map(vnodeToText)
+export function choiceText(vnode, options = {}) {
+  const text = (get(vnode, ['componentOptions', 'children']) || [])
+    .map(child => vnodeToText(child, options))
     .join(' ')
     .replace(/\s+/g, ' ')
     .trim();
+  if (text || options.visible) {
+    return text;
+  }
+  return choiceText(vnode, { visible: true });
 }
 
 /**
