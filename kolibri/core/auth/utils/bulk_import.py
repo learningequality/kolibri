@@ -502,9 +502,10 @@ class BulkUserImportManager(JobProgressMixin):
         )
         id_number = "" if id_number == DEFERRED else id_number
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
+        uuid = user_row.get(self.header_translation["UUID"], "")
 
         return {
-            "uuid": user_row.get(self.header_translation["UUID"], ""),
+            "uuid": UUID(uuid).hex if uuid else "",
             "username": user_row.get(self.header_translation["USERNAME"], ""),
             "password": password,
             "gender": gender,
@@ -558,12 +559,13 @@ class BulkUserImportManager(JobProgressMixin):
 
     def _new_user(self, username, user_row, values):
         if values["uuid"] != "":
+            uuid = user_row[self.header_translation["UUID"]]
             return None, self._row_error(
                 username,
                 user_row,
-                MESSAGES[NON_EXISTENT_UUID].format(username),
-                "PASSWORD",
-                "*",
+                MESSAGES[NON_EXISTENT_UUID].format(uuid),
+                "UUID",
+                uuid,
             )
         # If UUID is not specified, check for a username clash
         if FacilityUser.all_objects.filter(
@@ -593,9 +595,9 @@ class BulkUserImportManager(JobProgressMixin):
         keeping_users = []
         per_line_errors = []
         users_uuid = [
-            u[self.header_translation["UUID"]]
+            UUID(u[self.header_translation["UUID"]]).hex
             for u in users.values()
-            if u[self.header_translation["UUID"]] != ""
+            if u[self.header_translation["UUID"]]
         ]
         existing_users = (
             FacilityUser.all_objects.filter(facility=self.default_facility)
