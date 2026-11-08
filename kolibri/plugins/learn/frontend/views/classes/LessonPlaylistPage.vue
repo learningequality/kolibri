@@ -68,6 +68,7 @@
 <script>
 
   import { mapMutations, mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
@@ -96,9 +97,14 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
-      usePageTitle(() => store.state.lessonPlaylist.currentLesson.title, {
-        hasVisibleHeading: true,
-      });
+      const route = useRoute();
+      usePageTitle(
+        () => {
+          const { currentLesson } = store.state.lessonPlaylist;
+          return currentLesson.id === route.params.lessonId ? currentLesson.title : '';
+        },
+        { hasVisibleHeading: true },
+      );
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { contentNodeProgressMap } = useContentNodeProgress();
       const { windowIsSmall } = useKResponsiveWindow();
