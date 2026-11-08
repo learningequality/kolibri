@@ -38,6 +38,7 @@ jest.mock('../../../composables/useCoreCoach', () => {
 });
 jest.mock('kolibri/urls');
 jest.mock('kolibri/router', () => ({
+  beforeEach: jest.fn(),
   getRoute: jest.fn((name, params) => ({ name, params })),
   getReactiveRoute: jest.fn(() => ({ params: {} })),
 }));

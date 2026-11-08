@@ -12,6 +12,7 @@ localVue.use(VueRouter);
 enableAutoDestroy(afterEach);
 
 jest.mock('kolibri/router', () => ({
+  beforeEach: jest.fn(),
   getRoute: (name, params, query) => ({ name, params, query }),
 }));
 jest.mock('../../../../composables/fetchClassSyncStatus', () => ({

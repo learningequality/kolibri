@@ -309,6 +309,20 @@ describe('PictureSignInPage', () => {
       });
     });
 
+    it('leaves focus where the page heading put it on mount', async () => {
+      const heading = document.createElement('h1');
+      heading.tabIndex = -1;
+      document.body.appendChild(heading);
+      heading.focus();
+      try {
+        renderComponent();
+        await jest.runAllTimersAsync();
+        expect(heading).toHaveFocus();
+      } finally {
+        heading.remove();
+      }
+    });
+
     it('returns focus to the error sentinel inside the grid after a failed prevalidate', async () => {
       const user = createUser();
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
