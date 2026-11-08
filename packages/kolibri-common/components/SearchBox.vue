@@ -26,9 +26,10 @@
           ref="searchInput"
           v-model.trim="newSearchTerm"
           type="search"
-          :disabled="disabled"
+          :readonly="disabled"
+          :aria-disabled="disabled"
           class="search-input"
-          :class="$computedClass(searchInputStyle)"
+          :class="[$computedClass(searchInputStyle), { unavailable: disabled }]"
           dir="auto"
           :placeholder="computedPlaceholder"
         >
@@ -39,12 +40,15 @@
           :color="$themeTokens.text"
           size="small"
           class="search-clear-button"
-          :class="searchInputValue === '' ? '' : 'search-clear-button-visible'"
+          :class="{ 'search-clear-button-visible': searchInputValue !== '', unavailable: disabled }"
+          :aria-disabled="disabled"
           :ariaLabel="coreString('clearAction')"
           @click="handleClickClear"
         />
         <KButton
-          :disabled="searchBarDisabled"
+          :disabled="searchInputValue === ''"
+          :class="{ unavailable: disabled }"
+          :aria-disabled="disabled"
           :primary="true"
           :appearanceOverrides="{ minWidth: '36px', padding: 0 }"
           :aria-label="coreString('startSearchButtonLabel')"
@@ -125,9 +129,6 @@
       currentSearchTerm() {
         return this.value !== null ? this.value : this.$route.query.keywords;
       },
-      searchBarDisabled() {
-        return this.searchInputValue === '' || this.disabled;
-      },
       searchInputStyle() {
         return {
           '::placeholder': {
@@ -162,6 +163,9 @@
         this.$refs.searchInput.focus();
       },
       clearInput() {
+        if (this.disabled) {
+          return;
+        }
         this.searchInputValue = '';
         this.updateSearchQuery();
       },
@@ -173,10 +177,16 @@
         }
       },
       handleClickClear() {
+        if (this.disabled) {
+          return;
+        }
         this.clearInput();
         this.$refs.searchInput.focus();
       },
       updateSearchQuery() {
+        if (this.disabled) {
+          return;
+        }
         this.$emit('change', this.searchInputValue);
       },
     },
@@ -255,6 +265,11 @@
 
   .search-clear-button-visible {
     visibility: visible;
+  }
+
+  .unavailable {
+    pointer-events: none;
+    opacity: 0.5;
   }
 
   .filter-icon {
