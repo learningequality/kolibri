@@ -44,6 +44,7 @@
 
   import invert from 'lodash/invert';
   import get from 'lodash/get';
+  import mapValues from 'lodash/mapValues';
   import ZipFile from 'kolibri-zip';
   import logger from 'kolibri-logging';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
@@ -77,6 +78,56 @@
 
   // perseus-score 8.12.26 registers no scorer for these, so isWidgetScoreable rejects them.
   const GRADED_CONTAINER_TYPES = ['graded-group', 'graded-group-set'];
+
+  // Perseus 87's interactive graph (which also draws single-type graphers) and plotter draw
+  // userInput only when they mount. Perseus mounts a static widget with options.correct.
+  const MOUNT_INPUT_TYPES = ['grapher', 'interactive-graph', 'plotter'];
+
+  function withRendererMountInput(renderer, input) {
+    const widgets = withMountInput(renderer.widgets, input === undefined ? input : input || {});
+    return widgets === renderer.widgets ? renderer : { ...renderer, widgets };
+  }
+
+  function withWidgetMountInput(widget, input) {
+    if (widget.type === 'group' || widget.type === 'graded-group') {
+      const options = withRendererMountInput(widget.options, input);
+      return options === widget.options ? widget : { ...widget, options };
+    }
+    if (widget.type === 'graded-group-set') {
+      const { gradedGroups } = widget.options;
+      const mapped = gradedGroups.map(group => withRendererMountInput(group, input));
+      return mapped.some((group, i) => group !== gradedGroups[i])
+        ? { ...widget, options: { ...widget.options, gradedGroups: mapped } }
+        : widget;
+    }
+    if (!MOUNT_INPUT_TYPES.includes(widget.type)) {
+      return widget;
+    }
+    if (input === undefined) {
+      return { ...widget, static: true };
+    }
+    if (input != null) {
+      return { ...widget, static: true, options: { ...widget.options, correct: input } };
+    }
+    return widget;
+  }
+
+  /**
+   * Makes the MOUNT_INPUT_TYPES widgets static, mounting with the given input.
+   * @param {object} widgets - Perseus widgets map.
+   * @param {object} [userInput] - Input to mount each widget with; omitted, its options.correct.
+   * @returns {object} The widgets map; the same object when no widget changed.
+   */
+  function withMountInput(widgets, userInput) {
+    const mapped = mapValues(widgets, (widget, id) =>
+      withWidgetMountInput(widget, userInput ? (userInput[id] ?? null) : undefined),
+    );
+    return Object.keys(widgets).some(id => mapped[id] !== widgets[id]) ? mapped : widgets;
+  }
+
+  function withQuestionWidgets(item, widgets) {
+    return { ...item, question: { ...item.question, widgets } };
+  }
 
   // No-op stubs for Perseus dependency injection. Perseus requires these
   // but Kolibri doesn't use KA's analytics, video, or URL generation.
@@ -378,6 +429,18 @@
       totalHints() {
         return get(this.item, 'hints.length', 0);
       },
+      renderedItem() {
+        if (!this.showCorrectAnswer || !this.item.question) {
+          return this.item;
+        }
+        const widgets = withMountInput(this.item.question.widgets);
+        return widgets === this.item.question.widgets
+          ? this.item
+          : withQuestionWidgets(this.item, widgets);
+      },
+      answerDisplay() {
+        return { answerState: this.answerState, showCorrectAnswer: this.showCorrectAnswer };
+      },
     },
     watch: {
       itemId() {
@@ -386,11 +449,19 @@
       itemData(newItemData) {
         this.resolveItemData(newItemData);
       },
-      answerState(newState) {
-        this.resetState(newState);
-      },
-      showCorrectAnswer(newVal) {
-        this.resetState(newVal);
+      answerDisplay({ answerState, showCorrectAnswer }, previous) {
+        const toggled = showCorrectAnswer !== previous.showCorrectAnswer;
+        let remounted = false;
+        if (toggled && this.itemRenderer) {
+          const { widgets } = this.item.question;
+          remounted = withMountInput(widgets) !== widgets;
+          if (remounted) {
+            this.remountItem();
+          } else {
+            this.renderItem();
+          }
+        }
+        this.resetState(!remounted && (!answerState || (toggled && !showCorrectAnswer)));
       },
     },
     beforeDestroy() {
@@ -418,6 +489,8 @@
       this.root = null;
       // React key for the current item; set per new item in renderNewItem.
       this.itemRenderKey = null;
+      this.mountCount = 0;
+      this.problemNum = 0;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
       this.imageUrls = {};
@@ -495,13 +568,13 @@
         );
         /* eslint-enable no-mixed-operators */
       },
-      renderItem() {
+      renderItem(item = this.renderedItem) {
         this.itemRendererUpdating = true;
         // Data formatted in the form expected by the Server Item Renderer
         const itemRenderData = {
           hintsVisible: this.hintsVisible,
-          item: this.item,
-          problemNum: Math.floor(Math.random() * 1000),
+          item,
+          problemNum: this.problemNum,
           reviewMode: this.showCorrectAnswer,
           showSolutions: this.showCorrectAnswer ? 'all' : 'none',
           apiOptions: {
@@ -537,7 +610,7 @@
           // graphie cleanup) on item switch instead of reconciling imperative
           // graphie widget state in place, which crashes mid-swap. Stable
           // across hint re-renders (same key) so those still update in place.
-          key: this.itemRenderKey,
+          key: `${this.itemRenderKey}:${this.mountCount}`,
           ...itemRenderData,
           keypadElement: this.interactive ? this.keypadAPI : null,
         });
@@ -566,6 +639,10 @@
         }
         this.root.render(renderStateRootElement);
       },
+      remountItem(item) {
+        this.mountCount += 1;
+        this.renderItem(item);
+      },
       renderNewItem() {
         // Clear any pending state reset calls
         this.$off('itemRendererUpdated');
@@ -587,23 +664,24 @@
         // rather than reconciling the previous item's graphie state. Prefer the
         // itemId; fall back to a hash of the item when driven by the itemData prop.
         this.itemRenderKey = this.itemId || quickHash(JSON.stringify(this.item));
+        this.problemNum = Math.floor(Math.random() * 1000);
         this.renderItem();
       },
-      _resetState(val) {
-        if (!val) {
+      _resetState(clear) {
+        if (clear) {
           this.restoreAnswerState(this.blankState);
         }
         this.setAnswer();
       },
-      resetState(val) {
+      resetState(clear) {
         // Because resetState is called in response to watching props, we need to ensure
         // that the itemRenderer is available and not in the process of updating before
         // we try to reset the state.
         if (this.itemRenderer && !this.itemRendererUpdating && !this.loading) {
-          this._resetState(val);
+          this._resetState(clear);
         } else {
           this.$once('itemRendererUpdated', () => {
-            this._resetState(val);
+            this._resetState(clear);
           });
         }
       },
@@ -665,11 +743,24 @@
             this.item.question.widgets,
             this.lang?.id,
           );
-          this.setUserInput(userInput);
+          this.restoreUserInput(userInput);
         }
         if (answerState.hintsVisible) {
           this.hintsVisible = answerState.hintsVisible;
         }
+      },
+      restoreUserInput(userInput) {
+        const widgets = this.item.question.widgets;
+        const mountWidgets = this.showCorrectAnswer ? widgets : withMountInput(widgets, userInput);
+        if (mountWidgets === widgets) {
+          this.setUserInput(userInput);
+          return;
+        }
+        this.$once('itemRendererUpdated', () => {
+          flushSync(() => this.renderItem());
+          this.setUserInput(userInput);
+        });
+        this.remountItem(withQuestionWidgets(this.item, mountWidgets));
       },
       setUserInput(userInput) {
         for (const id of this.itemRenderer.getWidgetIds()) {
@@ -683,7 +774,9 @@
         }
       },
       setAnswer() {
-        this.blankState = this.getAnswerState();
+        if (!this.blankState && this.renderedItem === this.item) {
+          this.blankState = this.getAnswerState();
+        }
         // If a passed in answerState has user input or old-format question/hints, restore.
         if (this.answerState && (this.answerState.userInput || this.answerState.question)) {
           this.restoreAnswerState(this.answerState);
