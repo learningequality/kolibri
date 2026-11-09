@@ -72,7 +72,7 @@ async function prettierFormat(code, file, messages) {
     prettierConfig,
   );
   try {
-    return prettier.format(code, options);
+    return await prettier.format(code, options);
   } catch (e) {
     messages.push(
       `${chalk.underline(file)}\n${chalk.red('Parsing error during prettier formatting:')}\n${
