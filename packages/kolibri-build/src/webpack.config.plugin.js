@@ -43,7 +43,6 @@ const { createCssInsert } = require('./createCssInsert');
  * the dev server.
  * @returns {object|undefined} The webpack bundle configuration, or undefined when `data`
  * is missing required parameters.
- * @throws {Error} When a transpiled sandbox handler bundle's plugin does not depend on core-js.
  */
 module.exports = (
   data,
@@ -214,24 +213,7 @@ module.exports = (
     );
   }
 
-  // Sandbox handlers run in the sandbox iframe with no core bundle, so they cannot rely
-  // on its polyfills - inject the ones they actually use into each handler bundle.
-  // core-js must be a dependency of the handler's plugin so the injected imports resolve,
-  // and is the single source of truth for the version we tell swc to target.
-  let coreJs = null;
-  if (isSandboxHandler && transpile) {
-    try {
-      coreJs = require(
-        require.resolve('core-js/package.json', { paths: [data.plugin_path] }),
-      ).version;
-    } catch {
-      throw new Error(
-        `${data.name} sandbox handler bundle requires core-js as a dependency of ${data.plugin_path} so the injected polyfill imports resolve`,
-      );
-    }
-  }
-
-  bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile, coreJs }), webpackConfig);
+  bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
 
   if (devServer) {
     if (setDevServerPublicPath) {

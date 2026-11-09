@@ -5,13 +5,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 
-module.exports = ({
-  mode = 'development',
-  hot = false,
-  cache = false,
-  transpile = false,
-  coreJs = null,
-} = {}) => {
+module.exports = ({ mode = 'development', hot = false, cache = false, transpile = false } = {}) => {
   const production = mode === 'production';
 
   // Have to pass this option to prevent complaints about empty exports:
@@ -100,12 +94,7 @@ module.exports = ({
       options: {
         env: {
           targets: require('browserslist-config-kolibri'),
-          ...(coreJs && { mode: 'usage', coreJs }),
         },
-        // swc's equivalent of babel's sourceType: 'unambiguous' - CommonJS modules in the
-        // graph get require() polyfill imports rather than ESM ones, which would otherwise
-        // make webpack treat them as ES modules and drop their module.exports.
-        ...(coreJs && { isModule: 'unknown' }),
         jsc: {
           parser: {
             syntax: 'ecmascript',
