@@ -87,6 +87,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
     def __init__(self):
         self.zeroconf = None
         self.instance = None
+        self.dns_sd_service = None
         self.local_names = {}
         # our own bus, kept separate from the backend's instance bus so
         # local-name concerns stay in the transport
@@ -191,7 +192,20 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         # also does `check_service` internally, but it should pass by this point
         self.zeroconf.register_service(service, ttl=service.ttl)
         self.instance.set_broadcasting(service, is_self=True)
+        self._register_dns_sd_service()
         self._claim_local_names(get_lan_address())
+
+    def _register_dns_sd_service(self):
+        service = self.instance.to_dns_sd_service_info()
+        try:
+            self.zeroconf.register_service(service, ttl=SERVICE_TTL)
+        except NonUniqueNameException:
+            logger.warning(
+                "Service '%s' is already claimed on the network; not advertising it",
+                service.name,
+            )
+            return
+        self.dns_sd_service = service
 
     def renew(self, do_broadcast=True):
         """
@@ -251,6 +265,10 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         # even though may not have actually broadcast, we still set that we're broadcasting
         self.instance.set_broadcasting(service, is_self=True)
 
+        if self.dns_sd_service is not None:
+            self.dns_sd_service = self.instance.to_dns_sd_service_info()
+            self._announce(self.dns_sd_service, do_broadcast)
+
     def unregister(self):
         """Stops advertising our instance and drops our `.local` aliases."""
         if not self.is_broadcasting:
@@ -258,6 +276,9 @@ class ZeroconfNetworkDiscovery(EventBusHost):
 
         if self.instance.service_info is not None:
             self.zeroconf.unregister_service(self.instance.service_info)
+        if self.dns_sd_service is not None:
+            self.zeroconf.unregister_service(self.dns_sd_service)
+            self.dns_sd_service = None
         self._unregister_local_names()
         self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
         self.instance.reset_broadcasting()
@@ -297,6 +318,7 @@ class ZeroconfNetworkDiscovery(EventBusHost):
         # drop references into the finished backend so this process-lifetime
         # singleton doesn't keep the old backend (and its buses/instance) alive
         self.instance = None
+        self.dns_sd_service = None
         # closing Zeroconf drops the alias registrations too, so this teardown
         # path clears them like `unregister()` does rather than leaving half
         self.local_names = {}
