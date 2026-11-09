@@ -165,6 +165,23 @@ class KolibriInstanceTestCase(SimpleTestCase):
         with self.assertRaises(TypeError):
             instance.to_service_info()
 
+    def test_to_dns_sd_service_info(self):
+        instance = KolibriInstance(
+            MOCK_ID,
+            ip=MOCK_INTERFACE_IP,
+            port=MOCK_PORT,
+            device_info={"instance_id": MOCK_ID, "subset_of_users_device": True},
+            prefix="/kolibri/",
+        )
+        primary = instance.to_service_info("abba-1")
+        dns_sd = instance.to_dns_sd_service_info()
+        self.assertEqual("_kolibri._tcp.local.", dns_sd.type)
+        self.assertEqual("abba-1._kolibri._tcp.local.", dns_sd.name)
+        self.assertEqual(primary.properties, dns_sd.properties)
+        self.assertEqual(primary.server, dns_sd.server)
+        self.assertEqual(primary.address, dns_sd.address)
+        self.assertEqual(primary.port, dns_sd.port)
+
 
 class KolibriTestInstanceListener(KolibriInstanceListener):
     def __init__(self, *args, **kwargs):
