@@ -621,6 +621,24 @@ class BaseExamTest:
 class ExamAPITestCase(BaseExamTest, APITestCase):
     class_object = models.Exam
 
+    def test_exam_section_without_questions_returns_400(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        del exam["question_sources"][0]["questions"]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertExamNotExist(title="Exam")
+
+    def test_exam_all_sections_without_questions_returns_400(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["question_sources"] = self.make_basic_sections(2)
+        for section in exam["question_sources"]:
+            del section["questions"]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertExamNotExist(title="Exam")
+
     @override_settings(DEBUG=True)
     def test_retrieve_serializes_section_missing_optional_fields(self):
         # DEBUG-only output-shape validator regression. section_title, description
