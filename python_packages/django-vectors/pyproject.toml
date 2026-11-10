@@ -75,5 +75,16 @@ zip-safe = false
 [tool.setuptools.packages.find]
 include = ["django_vectors*"]
 
-[tool.uv]
-default-groups = ["dev"]
+[tool.pytest.ini_options]
+testpaths = ["test"]
+norecursedirs = ["dist", "tmp*", ".git", ".*"]
+# The test/ directory is not a package. On sys.path, it makes `settings` and
+# `testapp` top-level modules. A `test.settings` module can be shadowed by the
+# standard library `test` package, which the Ubuntu system Python includes, or
+# by the root `test/` package of Kolibri. pytest-pythonpath reads python_paths
+# for pytest 6. pytest 7 and later read pythonpath, and the lock selects pytest
+# 9 on Python 3.14.
+python_paths = ["test"]
+pythonpath = ["test"]
+DJANGO_SETTINGS_MODULE = "settings"
+django_find_project = false
