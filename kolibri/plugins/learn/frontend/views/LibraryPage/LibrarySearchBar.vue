@@ -22,7 +22,7 @@
         data-skip-nav-target
         :value="keywordsInput"
         type="search"
-        :class="['search-input', $computedClass(placeholderStyle)]"
+        class="search-input"
         :style="{ color: 'var(--tokens-text)' }"
         dir="auto"
         :placeholder="placeholder || findSomethingToLearn$()"
@@ -83,7 +83,6 @@
         </KButton>
       </div>
     </div>
-
     <SearchAutocompleteDropdown
       :show="showDropdown"
       :listboxId="dropdownId"
@@ -146,7 +145,6 @@
       const { searchLabel$, findSomethingToLearn$, clearAction$, startSearchButtonLabel$ } =
         coreStrings;
       const { autocompleteResultsAvailable$ } = searchAndFilterStrings;
-
       const isFocused = ref(false);
       const hoveredFilter = ref(null);
       const searchInput = ref(null);
@@ -157,7 +155,6 @@
       // Set when the user dismisses the open dropdown with Escape, so it stays
       // closed until they type or refocus.
       const dismissed = ref(false);
-
       // Content rows carry the link to follow, generated here rather than on click:
       // the back link records the state to return to, and for a suggestion that is
       // the search for the keyword which produced it — which is only known now, and
@@ -165,7 +162,6 @@
       function _contentLink(id, backLinkQuery) {
         return genContentLinkBackLinkCurrentPage(id, true, undefined, backLinkQuery);
       }
-
       const historyItems = computed(() =>
         (get(resumableContentNodes) || []).slice(0, 5).map(item => ({
           ...item,
@@ -181,7 +177,6 @@
             : suggestion,
         );
       });
-
       const showDropdown = computed(() => {
         if (!get(isFocused) || get(dismissed)) {
           return false;
@@ -193,7 +188,6 @@
         // Focus state (no query): show when we have history or recent searches
         return get(historyItems).length > 0 || get(recentSearchTerms).length > 0;
       });
-
       // Flat, ordered list of the rows the dropdown renders, used to drive
       // keyboard navigation. The order must match the option indices the
       // dropdown assigns: filter suggestions before content when typing,
@@ -216,7 +210,6 @@
           ...get(recentSearchTerms).map(item => ({ kind: 'search', item })),
         ];
       });
-
       // Announce the option count so screen reader users know the dropdown
       // opened and can arrow into it; per-option reading is handled by
       // aria-activedescendant on the input.
@@ -228,7 +221,6 @@
           sendPoliteMessage(autocompleteResultsAvailable$({ count }));
         }
       });
-
       // Keep user in search area after the last filter is cleared
       // so they don't get lost. Only when focus was actually lost, so a
       // pill that keeps its own focus isn't overridden.
@@ -240,14 +232,12 @@
           }
         }
       });
-
       const activeOptionId = computed(() => {
         if (!get(showDropdown) || get(activeIndex) < 0) {
           return null;
         }
         return `${dropdownId}-option-${get(activeIndex)}`;
       });
-
       const highlightSegments = computed(() => {
         const hovered = get(hoveredFilter);
         if (!hovered || !get(keywordsInput)) {
@@ -257,21 +247,18 @@
         const filters = hovered.type === 'combination' ? hovered.filters : hovered;
         return getMatchedWordSegments(get(keywordsInput), filters);
       });
-
       // Clear any keyboard selection and re-open a dropdown the user dismissed —
       // used when the set of rows changes (typing) or the input regains focus.
       function resetActiveOption() {
         set(activeIndex, -1);
         set(dismissed, false);
       }
-
       function handleInput(event) {
         const value = event.target.value;
         set(keywordsInput, value);
         resetActiveOption();
         keyWordAutoCompleteHandler(value);
       }
-
       // Blur the input so the next real focus event re-opens the dropdown —
       // DOM focus otherwise stays on the input and no further `focus` event
       // fires to flip `isFocused` back to true.
@@ -282,7 +269,6 @@
           el.blur();
         }
       }
-
       function handleSubmit() {
         closeDropdown();
         if (get(keywordsInput)) {
@@ -290,7 +276,6 @@
         }
         setKeywords(get(keywordsInput));
       }
-
       function activateItem(navItem) {
         if (navItem.kind === 'content') {
           handleSelectContent(navItem.item);
@@ -302,7 +287,6 @@
           handleSelectFilter(navItem.item);
         }
       }
-
       // Move the text cursor to the end of the input, so returning to it from
       // the option list leaves the user ready to keep typing.
       function moveCaretToEnd() {
@@ -312,7 +296,6 @@
           el.setSelectionRange(end, end);
         }
       }
-
       function handleKeydown(event) {
         const items = get(navigableItems);
         if (event.key === 'ArrowDown') {
@@ -359,12 +342,10 @@
           }
         }
       }
-
       function handleFocus() {
         set(isFocused, true);
         resetActiveOption();
       }
-
       let blurTimer = null;
       function handleBlur() {
         // Delay to allow click on dropdown items to register before hiding
@@ -375,12 +356,10 @@
       onUnmounted(() => {
         clearTimeout(blurTimer);
       });
-
       function handleSelectContent(item) {
         closeDropdown();
         router.push(item.link);
       }
-
       function handleSelectSearch(term) {
         closeDropdown();
         // Re-rank to most-recent, matching handleSubmit, so picking a term from
@@ -388,35 +367,29 @@
         addSearch(term);
         setKeywords(term);
       }
-
       function handleSelectFilter(filter) {
         set(hoveredFilter, null);
         closeDropdown();
         selectFilterSuggestion(filter);
       }
-
       function handleSelectCombination(item) {
         set(hoveredFilter, null);
         closeDropdown();
         selectFilterCombination(item.filters);
       }
-
       function handleHoverFilter(filter) {
         set(hoveredFilter, filter);
       }
-
       // Public: lets the page return focus here when another control goes away
       function focus() {
         get(searchInput).focus();
       }
       expose({ focus });
-
       function handleClear() {
         clearKeywords();
         keyWordAutoCompleteHandler('');
         get(searchInput).focus();
       }
-
       return {
         inputId,
         dropdownId,
@@ -450,13 +423,6 @@
       placeholder: {
         type: String,
         default: '',
-      },
-    },
-    computed: {
-      placeholderStyle() {
-        // Browsers apply their own ::placeholder colour rather than inheriting the
-        // input's, and theirs does not meet contrast requirements.
-        return { '::placeholder': { color: this.$themeTokens.annotation, opacity: 1 } };
       },
     },
   };
@@ -501,6 +467,11 @@
     /* Remove browser-default search input clear icon */
     &::-webkit-search-cancel-button {
       display: none;
+    }
+
+    &::placeholder {
+      color: var(--tokens-annotation);
+      opacity: 1;
     }
   }
 

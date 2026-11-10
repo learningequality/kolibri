@@ -34,7 +34,6 @@
           :key="item.id"
           data-testid="history-item"
           class="dropdown-item"
-          :class="$computedClass(hoverStyle)"
           :style="activeStyle(idx)"
           role="option"
           tabindex="-1"
@@ -82,7 +81,6 @@
           </div>
         </div>
       </div>
-
       <div
         v-if="recentSearches.length"
         data-testid="recent-searches-section"
@@ -104,7 +102,6 @@
           :key="'search-' + idx"
           data-testid="recent-search-item"
           class="dropdown-item"
-          :class="$computedClass(hoverStyle)"
           :style="activeStyle(historyItems.length + idx)"
           role="option"
           tabindex="-1"
@@ -121,7 +118,6 @@
         </div>
       </div>
     </template>
-
     <!-- Typing state: show autocomplete suggestions -->
     <template v-else>
       <!-- Metadata filter suggestions: one pill per row, the combined "apply all"
@@ -136,7 +132,6 @@
           item.type === 'combination' ? 'combination-suggestion' : 'filter-suggestion-pill'
         "
         class="dropdown-item"
-        :class="$computedClass(hoverStyle)"
         :style="activeStyle(idx)"
         role="option"
         tabindex="-1"
@@ -216,7 +211,6 @@
       </div>
       <!-- eslint-enable vuejs-accessibility/click-events-have-key-events -->
       <!-- eslint-enable vuejs-accessibility/mouse-events-have-key-events -->
-
       <!-- Content suggestions as regular list items -->
       <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
       <div
@@ -225,7 +219,6 @@
         :key="'content-' + idx"
         data-testid="suggestion-item"
         class="dropdown-item"
-        :class="$computedClass(hoverStyle)"
         :style="activeStyle(filterSuggestions.length + idx)"
         role="option"
         tabindex="-1"
@@ -299,7 +292,6 @@
       const contentSuggestions = computed(() =>
         props.suggestions.filter(s => s.type === 'content'),
       );
-
       // Each navigable row gets a stable id so the input's aria-activedescendant
       // can point at the keyboard-focused option. The index is the row's
       // position in the parent's flat navigable list (see LibrarySearchBar).
@@ -317,11 +309,9 @@
       // Hover and keyboard-active rows share one theme-aware tint instead of a
       // hard-coded overlay colour.
       const hoverTint = computed(() => themePalette().grey.v_100);
-      const hoverStyle = computed(() => ({ ':hover': { backgroundColor: hoverTint.value } }));
       function activeStyle(index) {
         return isActive(index) ? { backgroundColor: hoverTint.value } : null;
       }
-
       // Learning activity kind for LearningActivityIcon, or null if the item
       // isn't an activity suggestion
       function getActivityKind(item) {
@@ -330,7 +320,6 @@
         }
         return null;
       }
-
       function handleSuggestionClick(item) {
         if (item.type === 'content') {
           emit('selectContent', item);
@@ -340,9 +329,7 @@
           emit('selectFilter', item);
         }
       }
-
       const { searchHistory$, recentSearches$ } = searchAndFilterStrings;
-
       return {
         filterSuggestions,
         contentSuggestions,
@@ -352,7 +339,6 @@
         coreString,
         optionId,
         ariaSelected,
-        hoverStyle,
         activeStyle,
         searchHistory$,
         recentSearches$,
@@ -429,6 +415,10 @@
     align-items: center;
     padding: 8px 16px;
     cursor: pointer;
+
+    &:hover {
+      background-color: var(--palette-grey-v100);
+    }
   }
 
   .item-icon {
@@ -490,7 +480,6 @@
   .pill-separator {
     opacity: 0.5;
   }
-
   // KIcon's SVG uses position: relative; top: 0.125em for inline text flow;
   // undo it inside the flex pill so the icon sits at true centre.
   .filter-pill .pill-icon {

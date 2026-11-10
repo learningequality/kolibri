@@ -3,7 +3,6 @@
   <router-link
     :to="to"
     class="card-link"
-    :class="themeClasses.link"
   >
     <slot></slot>
   </router-link>
@@ -21,18 +20,6 @@
         required: true,
       },
     },
-    computed: {
-      themeClasses() {
-        const { surface, text } = this.$themeTokens;
-        return {
-          link: this.$computedClass({
-            ':focus': this.$coreOutline,
-            color: text,
-            backgroundColor: surface,
-          }),
-        };
-      },
-    },
   };
 
 </script>
@@ -47,12 +34,19 @@
 
     display: inline-block;
     padding: 16px;
+    color: var(--tokens-text);
     text-decoration: none;
+    background-color: var(--tokens-surface);
     border-radius: 8px;
     transition: box-shadow $core-time ease;
 
     &:hover {
       @extend %dropshadow-6dp;
+    }
+
+    &:focus {
+      outline: 4px solid var(--tokens-primary);
+      outline-offset: 2px;
     }
   }
 

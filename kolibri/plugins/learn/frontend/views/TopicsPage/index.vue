@@ -25,12 +25,10 @@
           color="white"
         />
       </template>
-
       <KCircularLoader
         v-if="loading"
         class="page-loader"
       />
-
       <div v-else>
         <!-- Header with thumbail, tagline, and search -->
         <TopicsHeader
@@ -58,13 +56,11 @@
             />
           </div>
         </TopicsHeader>
-
         <!-- mobile tabs (different alignment and interactions) -->
         <TopicsMobileHeader
           v-else
           :topic="topic"
         />
-
         <KBreadcrumbs
           v-if="breadcrumbs.length && windowIsSmall"
           data-testid="mobile-breadcrumbs"
@@ -72,7 +68,6 @@
           :items="breadcrumbs"
           :ariaLabel="learnString('channelAndFoldersLabel')"
         />
-
         <!-- Search header for small screens, where TopicsMobileHeader
              replaces the header that normally contains it -->
         <div
@@ -90,7 +85,6 @@
             @openFilters="showFilterModal = true"
           />
         </div>
-
         <main class="main-content-grid">
           <TopicsPanelModal
             v-if="!!windowIsLarge && topics.length"
@@ -102,7 +96,6 @@
             :width="`${sidePanelWidth}px`"
             @loadMoreTopics="handleLoadMoreInTopic"
           />
-
           <div class="card-grid">
             <!-- Folders button on mobile / non-large screens, only when there are folders -->
             <div
@@ -118,7 +111,6 @@
                 @click="sidePanelIsOpen = true"
               />
             </div>
-
             <!-- default/preview display of nested folder structure, not search -->
             <div
               v-if="!displayingSearchResults"
@@ -153,7 +145,6 @@
                   @toggleInfoPanel="toggleInfoPanel"
                 />
               </template>
-
               <div
                 v-if="topicMore"
                 class="end-button-block"
@@ -168,7 +159,6 @@
                 <KCircularLoader v-else />
               </div>
             </div>
-
             <KCircularLoader v-else-if="searchLoading" />
             <!-- search results -->
             <!-- TODO: Should card preference be permitted in Topics page as well? At least for
@@ -189,7 +179,6 @@
             />
           </div>
         </main>
-
         <!-- Mobile/non-large folders overlay: TopicsPanelModal is itself a
              SidePanelModal at this breakpoint, so render it directly -->
         <TopicsPanelModal
@@ -201,7 +190,6 @@
           @loadMoreTopics="handleLoadMoreInTopic"
           @close="sidePanelIsOpen = false"
         />
-
         <!-- All filters side panel -->
         <SearchFiltersSidePanel
           v-if="showFilterModal"
@@ -209,7 +197,6 @@
           @close="showFilterModal = false"
         />
       </div>
-
       <!-- Side panel for showing the information of selected content with a link to view it -->
       <SidePanelModal
         v-if="metadataSidePanelContent"
@@ -224,14 +211,6 @@
             v-for="activity in metadataSidePanelContent.learning_activities"
             :key="activity"
             class="side-panel-chips"
-            :class="
-              $computedClass({
-                '::after': {
-                  content: '',
-                  flex: 'auto',
-                },
-              })
-            "
           >
             <LearningActivityChip
               class="chip"
@@ -239,7 +218,6 @@
             />
           </div>
         </template>
-
         <BrowseResourceMetadata
           ref="resourcePanel"
           :content="metadataSidePanelContent"
@@ -310,7 +288,6 @@
     }
     return isRoot;
   }
-
   function _getChildren(id, topic, skip) {
     let children = topic?.children?.results || [];
     let skipped = false;
@@ -327,7 +304,6 @@
       id,
     };
   }
-
   export const pageTitleStrings = createTranslator('TopicsPage', {
     documentTitleForChannel: {
       message: 'Folders - { channelTitle }',
@@ -335,7 +311,6 @@
         'A folder is a collection of resources and other subfolders within a channel. This string indicates the folders grouped under a specific channel.',
     },
   });
-
   export default {
     name: 'TopicsPage',
     components: {
@@ -377,15 +352,12 @@
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, hasRole, isLearnerOnlyImport } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
-
       const isRoot = ref(false);
       const channel = ref(null);
       const contents = ref([]);
       const loading = ref(true);
       const sidePanelIsOpen = ref(false);
-
       const channelTitle = computed(() => channel.value?.name || '');
-
       usePageTitle(
         () =>
           isRoot.value
@@ -393,7 +365,6 @@
             : [topic.value?.title, channelTitle.value],
         { hasVisibleHeading: true },
       );
-
       const _getAllDescendantChildren = topic => {
         const contentnode_id__in = [];
         const children = topic.children ? topic.children.results : [];
@@ -406,7 +377,6 @@
         }
         return contentnode_id__in;
       };
-
       const fetchRemoteBrowsingContentNodeUserData = topic => {
         if (get(isUserLoggedIn) && props.deviceId) {
           const contentnode_id__in = _getAllDescendantChildren(topic);
@@ -418,7 +388,6 @@
           }
         }
       };
-
       function _handleTopicRedirect(route, children, id, skipped) {
         if (!children.some(c => !c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
           // if there are no children which are not leaf nodes (i.e. they have children themselves)
@@ -435,7 +404,6 @@
           return true;
         }
       }
-
       function _loadTopicsTopic({ baseurl, shouldResolve } = {}) {
         let id = props.id;
         const route = currentRoute();
@@ -464,40 +432,27 @@
               router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
               return;
             }
-
             const rootTopic = _handleRootTopic(fetchedTopic, currentChannel);
-
             const childrenResults = _getChildren(id, fetchedTopic, skip);
-
             const { children, skipped } = childrenResults;
-
             id = childrenResults.id;
-
             const redirectedToNewTopic = _handleTopicRedirect(route, children, id, skipped);
-
             if (redirectedToNewTopic) {
               // If we have encountered the skip logic, we need to reload the topic
               // with the new id, which will be triggered by our watch statement below
               // so we can just return here
               return;
             }
-
             fetchRemoteBrowsingContentNodeUserData(fetchedTopic);
-
             set(isRoot, rootTopic);
-
             set(contents, children);
-
             set(topic, fetchedTopic);
-
             set(channel, currentChannel);
-
             set(loading, false);
             clearError();
           }
         });
       }
-
       function showTopicsTopic() {
         const route = currentRoute();
         store.commit('SET_PAGE_NAME', route.name);
@@ -531,12 +486,9 @@
           }
         });
       }
-
       watch([() => props.id, () => props.deviceId], showTopicsTopic);
       showTopicsTopic();
-
       const { searchInFolder$ } = searchAndFilterStrings;
-
       return {
         fetchRemoteBrowsingContentNodeUserData,
         canAddDownloads,
@@ -681,10 +633,8 @@
               this.topics.length != 1 &&
               topicChildren.length > this.childrenToDisplay &&
               !this.expandedTopics[c.id];
-
             // viewMore is the 'more' object that will be used to load more items from this topic.
             const viewMore = c.children ? c.children.more : null;
-
             // viewAll is a flag + link object to link to a subpage which shows all initially
             // loaded topics content
             const viewAll =
@@ -932,6 +882,11 @@
     justify-content: flex-start;
     margin-top: 8px;
     margin-left: -8px;
+
+    &::after {
+      flex: auto;
+      content: '';
+    }
   }
 
   .chip {

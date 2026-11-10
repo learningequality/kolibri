@@ -4,7 +4,6 @@
     <router-link
       :to="to"
       class="card card-link"
-      :class="[$computedClass({ ':focus': $coreOutline })]"
       :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <div
@@ -157,7 +156,7 @@
     transition: box-shadow $core-time ease;
 
     &:focus {
-      outline-width: 4px;
+      outline: 4px solid var(--tokens-primary);
       outline-offset: 6px;
     }
   }

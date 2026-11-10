@@ -43,7 +43,6 @@
             ref="searchBar"
             data-testid="library-search-bar"
           />
-
           <HorizontalFilterPills
             v-if="!rootNodesLoading && (!isLocalLibraryEmpty || deviceId)"
             data-testid="horizontal-filter-pills"
@@ -51,7 +50,6 @@
             @focusLost="focusSearchBar"
           />
         </div>
-
         <!--
           - If search is loading, show loader.
           - If there are no search results, show channels and resumable
@@ -85,7 +83,6 @@
             </p>
             <NoResourcePage v-else-if="isLocalLibraryEmpty" />
           </div>
-
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
             data-testid="channel-cards"
@@ -111,7 +108,6 @@
             @isLoadingLibraries="isLoadingLibraries"
           />
         </div>
-
         <div v-else-if="displayingSearchResults">
           <h1 class="visuallyhidden">
             {{ learnString('learnLabel') }}
@@ -130,13 +126,11 @@
           />
         </div>
       </main>
-
       <!-- All filters side panel -->
       <SearchFiltersSidePanel
         v-if="showFilterModal"
         @close="showFilterModal = false"
       />
-
       <!-- Side Panel for metadata -->
       <SidePanelModal
         v-if="metadataSidePanelContent && !rootNodesLoading"
@@ -155,14 +149,6 @@
             v-for="activity in metadataSidePanelContent.learning_activities"
             :key="activity"
             class="side-panel-chips"
-            :class="
-              $computedClass({
-                '::after': {
-                  content: '',
-                  flex: 'auto',
-                },
-              })
-            "
           >
             <LearningActivityChip
               class="chip"
@@ -170,7 +156,6 @@
             />
           </div>
         </template>
-
         <BrowseResourceMetadata
           ref="resourcePanel"
           :content="metadataSidePanelContent"
@@ -192,7 +177,6 @@
 <script>
 
   import { get, set, useSessionStorage } from '@vueuse/core';
-
   import { ref, watch } from 'vue';
   import { useRouter } from 'vue-router/composables';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -242,7 +226,6 @@
   import NoResourcePage from './NoResourcePage';
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
-
   export default {
     name: 'LibraryPage',
     components: {
@@ -287,17 +270,14 @@
       } = useSearch(null, { announceResults: true });
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
-
       const { topBarHeight } = useNav();
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
-
       const rootNodes = ref([]);
       const rootNodesLoading = ref(false);
-
       function _showChannels(channels, baseurl) {
         if (get(isUserLoggedIn) && !baseurl) {
           fetchResumableContentNodes();
@@ -328,7 +308,6 @@
                   })
                   .filter(Boolean),
               );
-
               pageLoading.value = false;
               clearError();
               store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
@@ -344,16 +323,13 @@
           },
         );
       }
-
       function _showLibrary(baseurl) {
         return fetchChannels({ baseurl }).then(channels => {
           if (!channels.length && baseurl) {
             router.replace({ name: PageNames.LIBRARY });
             return;
           }
-
           const query = currentRoute().query;
-
           if (searchKeys.some(key => query[key])) {
             // If currently on a route with search terms
             // just finish early and let the component handle loading
@@ -366,7 +342,6 @@
           return _showChannels(channels, baseurl);
         });
       }
-
       function showLibrary() {
         set(rootNodesLoading, true);
         pageLoading.value = true;
@@ -387,17 +362,13 @@
         }
         return _showLibrary();
       }
-
       watch(() => props.deviceId, showLibrary);
-
       watch(displayingSearchResults, () => {
         if (!displayingSearchResults.value && !rootNodes.value.length) {
           showLibrary();
         }
       });
-
       showLibrary();
-
       return {
         allowDownloadOnMeteredConnection,
         canAddDownloads,
@@ -522,11 +493,9 @@
     },
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
-
       if (window.sessionStorage.getItem(`${welcomeDismissalKey}-${this.userId}`) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
-
       // parallels logic for showOtherLibraries
       if (
         !this.deviceId &&
@@ -605,7 +574,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   @import '../HybridLearningContentCard/card';
-
   $margin: 24px;
 
   .card-main-wrapper {
@@ -655,6 +623,11 @@
     justify-content: flex-start;
     margin-top: 8px;
     margin-left: -8px;
+
+    &::after {
+      flex: auto;
+      content: '';
+    }
   }
 
   .chip {
