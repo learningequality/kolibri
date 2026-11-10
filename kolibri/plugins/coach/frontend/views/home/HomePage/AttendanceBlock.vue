@@ -53,19 +53,35 @@
           </div>
         </div>
         <div class="counts">
-          <span class="count-item">
+          <span
+            class="count-item"
+            data-testid="present-count"
+          >
             <span
               class="dot"
               :style="{ backgroundColor: presentColor }"
             ></span>
-            {{ presentCount$({ count: session.present_count }) }}
+            {{
+              coreString('labelColonThenDetails', {
+                label: presentColumnHeader$(),
+                details: $formatNumber(session.present_count),
+              })
+            }}
           </span>
-          <span class="count-item">
+          <span
+            class="count-item"
+            data-testid="absent-count"
+          >
             <span
               class="dot"
               :style="{ backgroundColor: absentColor }"
             ></span>
-            {{ absentCount$({ count: session.absentCount }) }}
+            {{
+              coreString('labelColonThenDetails', {
+                label: absentColumnHeader$(),
+                details: $formatNumber(session.absentCount),
+              })
+            }}
           </span>
         </div>
       </BlockItem>
@@ -81,6 +97,7 @@
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import { handleApiError } from 'kolibri/utils/appError';
+  import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import store from '../../../store';
   import { useAttendance } from '../../../composables/useAttendance';
   import useCoreCoach from '../../../composables/useCoreCoach';
@@ -104,8 +121,8 @@
         markAttendanceAction$,
         viewHistoryAction$,
         noSessionsMessage$,
-        presentCount$,
-        absentCount$,
+        presentColumnHeader$,
+        absentColumnHeader$,
         noSessionsEnrollMessage$,
       } = attendanceStrings;
 
@@ -148,6 +165,7 @@
       }
 
       return {
+        coreString,
         loading,
         sessions,
         sessionDateTime,
@@ -158,8 +176,8 @@
         markAttendanceAction$,
         viewHistoryAction$,
         noSessionsMessage$,
-        presentCount$,
-        absentCount$,
+        presentColumnHeader$,
+        absentColumnHeader$,
         PageNames,
         learners,
         noSessionsEnrollMessage$,

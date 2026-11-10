@@ -157,9 +157,7 @@
       const iconTokens = computed(() => passwordIcons.value.map(item => item.iconName));
 
       const sequenceAriaLabel = computed(() => {
-        const labels = passwordIcons.value
-          .map(item => picturePasswordStrings[`${item.label}$`]())
-          .join(', ');
+        const labels = passwordIcons.value.map(item => item.label).join(', ');
         return yourPasswordIs$({ labels });
       });
 
