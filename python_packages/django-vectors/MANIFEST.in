@@ -1,0 +1,4 @@
+# By default, setuptools puts test/test*.py in the sdist, but not
+# test/settings.py or test/testapp/. The tests cannot run without them, so the
+# sdist contains no tests.
+prune test
