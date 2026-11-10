@@ -26,6 +26,7 @@
           'wrapper',
           {
             'keyboard-modality': $inputModality === 'keyboard',
+            'keyboard-focus-within': $inputModality === 'keyboard' && focusWithinPlayer,
             'video-loading': loading,
             'transcript-visible': transcriptVisible,
             'transcript-wrap': transcriptWrap,
@@ -79,8 +80,8 @@
 
   import vue, { computed, ref, watch, getCurrentInstance } from 'vue';
   import videojs from 'video.js';
-  import { useThrottleFn, useEventListener } from '@vueuse/core';
-  import { coreString } from 'kolibri/uiText/commonCoreStrings';
+  import { useThrottleFn, useEventListener, useFocusWithin } from '@vueuse/core';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import useMediaPlayer, { PLAYBACK_RATES } from '../composables/useMediaPlayer';
@@ -148,11 +149,25 @@
           player.value.addChild('ReplayButton', {}, 4);
           player.value.addChild('BigPlayToggle', {}, 5);
           player.value.addChild('ForwardButton', {}, 6);
+          const textTrackDisplay = player.value.getChild('TextTrackDisplay');
+          player.value.addChild(
+            'Component',
+            { className: 'vjs-scrim' },
+            player.value.children().indexOf(textTrackDisplay),
+          );
+
+          // KDS only keeps keyboard modality when focus lands on a link, button,
+          // input or [data-focus=true] element; video.js sliders are divs.
+          wrapper.value
+            .querySelectorAll('[role="slider"]')
+            .forEach(slider => slider.setAttribute('data-focus', 'true'));
 
           updatePlayerSizeClass();
           resizePlayer();
         },
       });
+
+      const { focused: focusWithinPlayer } = useFocusWithin(() => player.value?.el());
 
       // Computed
       const videoSources = computed(() => {
@@ -260,12 +275,12 @@
             [GlobalLangCode]: {
               Play: mediaStrings.play$(),
               Pause: mediaStrings.pause$(),
-              Replay: mediaStrings.replay$(),
+              Replay: coreStrings.startOverAction$(),
               Forward: mediaStrings.forward$(),
               'Current Time': mediaStrings.currentTime$(),
               'Duration Time': mediaStrings.durationTime$(),
               Loaded: mediaStrings.loaded$(),
-              Progress: coreString('progressLabel'),
+              Progress: coreStrings.progressLabel$(),
               'Progress Bar': mediaStrings.progressBar$(),
               Fullscreen: mediaStrings.fullscreen$(),
               'Non-Fullscreen': mediaStrings.nonFullscreen$(),
@@ -274,7 +289,7 @@
               'Playback Rate': mediaStrings.playbackRate$(),
               Captions: mediaStrings.captions$(),
               'captions off': mediaStrings.captionsOff$(),
-              Transcript: coreString('transcript'),
+              Transcript: coreStrings.transcript$(),
               'Transcript off': mediaStrings.transcriptOff$(),
               Languages: mediaStrings.languages$(),
               'Volume Level': mediaStrings.volumeLevel$(),
@@ -303,6 +318,7 @@
         playerRef,
         defaultFile,
         isFullscreen,
+        focusWithinPlayer,
         videoSources,
         transcriptVisible,
         transcriptWrap,
@@ -396,7 +412,6 @@
     position: relative;
     left: 0;
     height: #{$transcript-wrap-height};
-    max-height: 200px;
 
     /deep/ .loading-space {
       padding-top: 90px;
@@ -427,7 +442,7 @@
 
   /***** PLAYER OVERRIDES *****/
 
-  /* !!rtl:begin:ignore */
+  /*! rtl:begin:ignore */
   .transcript-visible:not(.transcript-wrap) > .video-js.vjs-fill {
     width: 66.666%;
   }
@@ -436,9 +451,13 @@
   /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive .vjs-control-bar {
     visibility: hidden;
 
-    /* Always show control bar in keyboard modality */
+    /* Keep the controls in the tab order for keyboard users */
     .keyboard-modality & {
       visibility: visible;
+      opacity: 0;
+    }
+
+    .keyboard-focus-within & {
       opacity: 1;
     }
   }
@@ -506,24 +525,107 @@
       }
     }
 
+    .vjs-scrim {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 112px;
+      pointer-events: none;
+      // Height and eased stops from Chromium's native media controls
+      // (blink/renderer/modules/media_controls/resources/mediaControls.css),
+      // scaled to 0.6 alpha so white text over white video stays above 4.5:1
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0,
+        rgba(0, 0, 0, 0.008) 5.8px,
+        rgba(0, 0, 0, 0.029) 11.2px,
+        rgba(0, 0, 0, 0.062) 16.2px,
+        rgba(0, 0, 0, 0.105) 20.9px,
+        rgba(0, 0, 0, 0.155) 25.4px,
+        rgba(0, 0, 0, 0.211) 29.7px,
+        rgba(0, 0, 0, 0.27) 33.9px,
+        rgba(0, 0, 0, 0.33) 38.1px,
+        rgba(0, 0, 0, 0.389) 42.3px,
+        rgba(0, 0, 0, 0.445) 46.6px,
+        rgba(0, 0, 0, 0.495) 51.1px,
+        rgba(0, 0, 0, 0.538) 55.8px,
+        rgba(0, 0, 0, 0.571) 60.8px,
+        rgba(0, 0, 0, 0.592) 66.2px,
+        rgba(0, 0, 0, 0.6) 72px
+      );
+      transition:
+        visibility 0.1s,
+        opacity 0.1s;
+    }
+
+    &.vjs-has-started.vjs-playing.vjs-user-inactive > .vjs-scrim {
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        visibility 1s,
+        opacity 1s;
+
+      .keyboard-focus-within & {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+
     /* Control Bar — transparent so controls float over the video */
     .vjs-control-bar {
       display: flex;
       height: $button-height-normal;
       background-color: transparent;
+
+      > .vjs-button {
+        flex: 0 1 auto;
+        min-width: 32px;
+      }
+
+      > .vjs-captions-button,
+      > .vjs-languages-button {
+        position: static;
+
+        > .vjs-button {
+          position: relative;
+        }
+      }
     }
 
     /* Fixes volume panel appearing on hover. */
     .vjs-volume-vertical {
-      display: none;
+      pointer-events: none;
+      visibility: inherit;
     }
 
-    .vjs-volume-panel-vertical {
-      &:hover {
-        .vjs-volume-vertical {
-          display: block;
-        }
-      }
+    .vjs-volume-panel-vertical:hover .vjs-volume-vertical {
+      pointer-events: auto;
+    }
+
+    .vjs-mute-control:focus-visible ~ .vjs-volume-vertical {
+      pointer-events: auto;
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .vjs-volume-vertical:focus-within {
+      pointer-events: auto;
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .vjs-volume-vertical .vjs-volume-tooltip {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 50%;
+      white-space: nowrap;
+      visibility: hidden;
+      transform: translateX(-50%);
+    }
+
+    .vjs-volume-vertical:hover .vjs-volume-tooltip {
+      visibility: visible;
     }
 
     .vjs-volume-level {
@@ -532,6 +634,8 @@
 
     /* Buttons */
     .vjs-button {
+      cursor: pointer;
+
       .vjs-icon-placeholder {
         &::before {
           font-size: $button-font-size-normal;
@@ -823,6 +927,6 @@
     }
   }
 
-  /* !!rtl:end:ignore */
+  /*! rtl:end:ignore */
 
 </style>
