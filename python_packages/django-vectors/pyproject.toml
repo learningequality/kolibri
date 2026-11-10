@@ -9,9 +9,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "django-vectors"
 version = "0.0.1"
-description = "Embedding storage and K-nearest-neighbour retrieval for Django on SQLite via sqlite-vec"
-# The table form is used because the SPDX string form needs setuptools 77+,
-# which requires Python 3.9.
+description = "Embedding storage and K-nearest-neighbor retrieval for Django on SQLite via sqlite-vec"
+readme = "README.md"
+# This uses the table form because the SPDX string form needs setuptools 77 or
+# later, which requires Python 3.9.
 license = {text = "MIT"}
 # This floor matches root Kolibri, not the supported range in the classifiers
 # below. Kolibri vendors its runtime dependencies with
