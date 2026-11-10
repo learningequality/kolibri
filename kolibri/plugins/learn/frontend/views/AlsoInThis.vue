@@ -16,10 +16,7 @@
             : genContentLinkKeepPreviousBackLink(content.id)
         "
         class="item"
-        :class="[
-          windowIsSmall && 'small',
-          content.id === currentResourceId && $computedClass(currentlyViewedItemStyle),
-        ]"
+        :class="[windowIsSmall && 'small', content.id === currentResourceId && 'currently-viewed']"
         :style="linkStyles"
       >
         <p
@@ -237,21 +234,6 @@
           margin: 'auto',
         };
       },
-      currentlyViewedItemStyle() {
-        return {
-          padding: '15px 0',
-          ':before': {
-            content: "''",
-            backgroundColor: this.$themePalette.grey.v_200,
-            position: 'absolute',
-            top: '0',
-            bottom: '0',
-            width: '200vw',
-            transform: 'translateX(-50%)',
-            zIndex: '-1',
-          },
-        };
-      },
       emptyMessage() {
         return this.isLesson
           ? this.$tr('noOtherLessonResources')
@@ -319,6 +301,21 @@
     width: 100%;
     min-height: 72px;
     padding: 20px 0;
+  }
+
+  .item.currently-viewed {
+    padding: 15px 0;
+
+    &::before {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      z-index: -1;
+      width: 200vw;
+      content: '';
+      background-color: var(--palette-grey-v200);
+      transform: translateX(-50%);
+    }
   }
 
   .view-more-container {

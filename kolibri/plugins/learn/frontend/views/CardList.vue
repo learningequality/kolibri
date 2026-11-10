@@ -7,7 +7,7 @@
     <router-link
       :to="to"
       class="card card-link"
-      :class="[isMobile ? 'mobile-card' : '', $computedClass({ ':focus': $coreOutline })]"
+      :class="{ 'mobile-card': isMobile }"
       :style="{ backgroundColor: 'var(--tokens-surface)' }"
     >
       <div
@@ -270,11 +270,6 @@
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
-
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
-    }
   }
 
   .card-link {
@@ -335,6 +330,11 @@
 
   .text-area {
     margin-bottom: $footer-height;
+  }
+
+  body[modality='keyboard'] .card:focus {
+    outline: 3px solid var(--tokens-focusOutline);
+    outline-offset: 4px;
   }
 
 </style>

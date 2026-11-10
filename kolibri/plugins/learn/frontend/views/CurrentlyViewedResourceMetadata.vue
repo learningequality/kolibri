@@ -8,7 +8,6 @@
       <span
         v-if="forBeginners"
         class="beginners-chip"
-        :class="$computedClass(chipStyle)"
         data-testid="beginners-chip"
       >
         {{ coreString('forBeginners') }}
@@ -222,15 +221,6 @@
           get(this, 'content.license_description', null),
         );
       },
-      chipStyle() {
-        return {
-          backgroundColor: 'var(--brand-primary-v400)',
-          color: 'var(--tokens-textInverted)',
-          '::selection': {
-            color: this.$themeTokens.text,
-          },
-        };
-      },
     },
     mounted() {
       this.calculateDescriptionOverflow();
@@ -353,7 +343,13 @@
     display: inline-block;
     padding: 10px;
     font-weight: bold;
+    color: var(--tokens-textInverted);
+    background-color: var(--brand-primary-v400);
     border-radius: 4px;
+
+    &::selection {
+      color: var(--tokens-text);
+    }
   }
 
   .section {

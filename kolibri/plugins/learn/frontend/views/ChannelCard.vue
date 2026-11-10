@@ -4,7 +4,6 @@
     :to="link"
     class="card-main-wrapper"
     :style="cardStyle"
-    :class="$computedClass({ ':focus': $coreOutline })"
   >
     <div
       v-if="explore"
@@ -263,6 +262,11 @@
     bottom: 0;
     padding: 20px;
     margin: 0;
+  }
+
+  body[modality='keyboard'] .card-main-wrapper:focus {
+    outline: 3px solid var(--tokens-focusOutline);
+    outline-offset: 4px;
   }
 
 </style>
