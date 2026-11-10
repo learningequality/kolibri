@@ -40,11 +40,15 @@
             </div>
           </div>
 
-          <div :style="{ backgroundColor: 'var(--tokens-surface)' }">
+          <div
+            data-testid="attendance-table"
+            :style="{ backgroundColor: 'var(--tokens-surface)' }"
+          >
             <KTable
               :headers="tableHeaders"
               :rows="getTableRows(items)"
               :caption="markAttendanceAction$()"
+              :emptyMessage="coreString('noResultsLabel')"
               :stickyColumns="[]"
             >
               <template #header="{ header }">
@@ -110,11 +114,19 @@
     <BottomAppBar>
       <div class="bottom-bar-content">
         <div :style="{ color: 'var(--tokens-annotation)' }">
-          <span>{{ learnersLabel$() }}</span>
-          {{ ' ' }}
-          <span>{{ presentCount$({ count: presentCount }) }}</span>
+          <span data-testid="present-count">{{
+            coreString('labelColonThenDetails', {
+              label: presentColumnHeader$(),
+              details: $formatNumber(presentCount),
+            })
+          }}</span>
           <span> · </span>
-          <span>{{ absentCount$({ count: absentCount }) }}</span>
+          <span data-testid="absent-count">{{
+            coreString('labelColonThenDetails', {
+              label: absentColumnHeader$(),
+              details: $formatNumber(absentCount),
+            })
+          }}</span>
         </div>
         <KButtonGroup>
           <KButton
@@ -186,9 +198,8 @@
         presentLabel$,
         markAllPresentLabel$,
         markAllModalTitle$,
-        presentCount$,
-        absentCount$,
-        learnersLabel$,
+        presentColumnHeader$,
+        absentColumnHeader$,
         markAttendanceAction$,
         previouslyEnrolledLabel$,
       } = attendanceStrings;
@@ -262,9 +273,8 @@
         presentLabel$,
         markAllPresentLabel$,
         markAllModalTitle$,
-        presentCount$,
-        absentCount$,
-        learnersLabel$,
+        presentColumnHeader$,
+        absentColumnHeader$,
         markAttendanceAction$,
         previouslyEnrolledLabel$,
         tableHeaders,

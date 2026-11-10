@@ -2,11 +2,15 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
 import { handleApiError } from 'kolibri/utils/appError';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
+import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 import store from '../../../../store';
 import makeStore from '../../../../__tests__/utils/makeStore';
 // eslint-disable-next-line import-x/named
 import { useAttendance, useAttendanceMock } from '../../../../composables/useAttendance';
 import AttendanceBlock from '../AttendanceBlock.vue';
+
+const { presentColumnHeader$, absentColumnHeader$ } = attendanceStrings;
 
 jest.mock('../../../../composables/useAttendance');
 jest.mock('kolibri/utils/appError');
@@ -157,12 +161,21 @@ describe('AttendanceBlock', () => {
   it('renders sessions with present and absent counts', async () => {
     const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
     await global.flushPromises();
+    const countText = (label, count) =>
+      coreString('labelColonThenDetails', {
+        label,
+        details: attendanceStrings.$formatNumber(count),
+      });
+    const presentCounts = wrapper.findAll('[data-testid="present-count"]');
+    const absentCounts = wrapper.findAll('[data-testid="absent-count"]');
+    expect(presentCounts.length).toBe(2);
+    expect(absentCounts.length).toBe(2);
     // Session 1: 16 present, 8 absent (24-16)
-    expect(wrapper.text()).toContain('16');
-    expect(wrapper.text()).toContain('8');
+    expect(presentCounts.at(0).text()).toBe(countText(presentColumnHeader$(), 16));
+    expect(absentCounts.at(0).text()).toBe(countText(absentColumnHeader$(), 8));
     // Session 2: 20 present, 0 absent (20-20)
-    expect(wrapper.text()).toContain('20');
-    expect(wrapper.text()).toContain('0');
+    expect(presentCounts.at(1).text()).toBe(countText(presentColumnHeader$(), 20));
+    expect(absentCounts.at(1).text()).toBe(countText(absentColumnHeader$(), 0));
   });
 
   it('marks bar chart as aria-hidden since it is not meaningful to screen readers', async () => {
