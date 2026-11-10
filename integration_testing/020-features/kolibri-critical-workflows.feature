@@ -838,18 +838,18 @@ Feature: Kolibri critical workflows
     Then I am back at the *Learn > Home* page
       And I can see the course card in the *Recent courses* section
 
-  Scenario: Coach can take the class attendance(English only)
+  Scenario: Coach can mark the class attendance
     Given I am signed in to Kolibri as a coach
-    	And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
+    	And the option *Allow coaches to mark attendance* is enabled at *Facility > Settings*
     	And there is a class with enrolled learners in it
       And I am at the *Coach - '<class>' > Class home* page
     When I click the *Mark attendance* button
     Then I am at the attendance page for the current time and date
       And I see a *Search for a learner* field and a *Mark all learners present* toggle button
       And I see a list of all the learners with a *Present* toggle button for each learner
-      And I see a *Cancel* and a *Submit attendance* button
+      And I see a *Cancel* and a *Save* button
     When I mark each learner as either present or absent
-      And I click the *Submit attendance* button
+      And I click the *Save* button
     Then I see the new entry added in the *Attendance history* table
       And I see a snackbar confirmation message
       And I see the correct number of *Present* and *Absent* learners
@@ -933,9 +933,9 @@ Feature: Kolibri critical workflows
     When I click the *View passwords* button
     Then I see the *All passwords* page
     	And I see the *All passwords* table with *Name*, *Username* and *Password* columns
-    	And I see a *Print* button
+    	And I see a *Print passwords* button
     	And I can see the picture passwords of all the learners enrolled in the class
-    When I click the *Print* button
+    When I click the *Print passwords* button
     Then I see the *Print passwords* modal
     	And I see a *Print with images* radio button selected by default
     	And I see a *Print with text only* radio button

@@ -1,9 +1,9 @@
 Feature: Attendance tracking
-  Coaches need to be able to track the attendance (English only).
+  Coaches need to be able to mark the attendance.
 
 	Background:
     Given I am signed in to Kolibri as a super admin, admin or a coach
-      And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
+      And the option *Allow coaches to mark attendance* is enabled at *Facility > Settings*
     	And there is a class with enrolled learners in it
       And I am at the *Coach - '<class>' > Class home* page
 
@@ -17,9 +17,9 @@ Feature: Attendance tracking
     Then I am at the attendance page for the current time and date
       And I see a *Search for a learner* field and a *Mark all learners present* toggle button
       And I see a list of all the learners with a *Present* toggle button for each learner
-      And I see a *Cancel* and a *Submit attendance* button
+      And I see a *Cancel* and a *Save* button
     When I mark each learner as either present or absent
-      And I click the *Submit attendance* button
+      And I click the *Save* button
     Then I see the new entry added in the *Attendance history* table
       And I see a snackbar confirmation message
       And I see the correct number of *Present* and *Absent* learners

@@ -11,12 +11,12 @@ Feature: View picture passwords
     When I click the *View passwords* button
     Then I see the *All passwords* page
     	And I see the *All passwords* table with *Name*, *Username* and *Password* columns
-    	And I see a *Print* button
+    	And I see a *Print passwords* button
     	And I can see the picture passwords of all the learners enrolled in the class
 
   Scenario: Coach can print the *All passwords* table
     Given I am at *Coach > Class home > All passwords*
-    When I click the *Print* button
+    When I click the *Print passwords* button
     Then I see the *Print passwords* modal
     	And I see a *Print with images* radio button selected by default
     	And I see a *Print with text only* radio button
