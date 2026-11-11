@@ -11,6 +11,7 @@ from unittest import mock
 
 import pytest
 
+from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
@@ -381,3 +382,15 @@ def test_lazy_function_import():
         pass
 
     assert "kolibri.utils.tests.do_not_import" in sys.modules
+
+
+def test_thread_pool_leaves_fds_for_every_wal_connection():
+    sqlite_files = 1 + len(ADDITIONAL_SQLITE_DATABASES) + options.CACHE_SHARDS
+    fds_per_wal_connection = 2
+    with mock.patch.object(options, "get_fd_limit", return_value=1024):
+        with mock.patch.object(options, "psutil") as psutil:
+            psutil.virtual_memory.return_value.total = 8 * 10**9
+            pool = options.calculate_thread_pool()
+    assert (
+        pool * sqlite_files * fds_per_wal_connection <= 1024 - options.MIN_RESERVED_FD
+    )

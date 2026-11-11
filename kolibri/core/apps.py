@@ -4,6 +4,7 @@ import os
 from django.apps import AppConfig
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.core.signals import request_finished
 from django.db import connections
 from django.db.backends.signals import connection_created
 from django_filters.filters import UUIDFilter
@@ -29,6 +30,7 @@ class KolibriCoreConfig(AppConfig):
         Sets up PRAGMAs.
         """
         connection_created.connect(self.activate_pragmas_per_connection)
+        request_finished.connect(self.release_sqlite_memory)
         self.activate_pragmas_on_start()
         # Log the settings file that we are running Kolibri with.
         # Do this logging here, as this will be after Django has done its processing of
@@ -52,26 +54,25 @@ class KolibriCoreConfig(AppConfig):
     @staticmethod
     def activate_pragmas_per_connection(sender, connection, **kwargs):
         """
-        Activate SQLite3 PRAGMAs that apply on a per-connection basis. A no-op
-        right now, but kept around as infrastructure if we ever want to add
-        PRAGMAs in the future.
+        Activate SQLite3 PRAGMAs that apply on a per-connection basis.
         """
 
         if connection.vendor == "sqlite":
             cursor = connection.cursor()
 
-            # Shorten the default WAL autocheckpoint from 1000 pages to 500
             cursor.executescript(CONNECTION_PRAGMAS)
 
             # We don't turn on the following pragmas, because they have negligible
             # performance impact. For reference, here's what we've tested:
 
-            # Don't ensure that the OS has fully flushed
-            # our data to disk.
-            # cursor.execute("PRAGMA synchronous=OFF;")
-
             # Store cross-database JOINs in memory.
             # cursor.execute("PRAGMA temp_store=MEMORY;")
+
+    @staticmethod
+    def release_sqlite_memory(sender, **kwargs):
+        for connection in connections.all():
+            if connection.vendor == "sqlite" and connection.connection is not None:
+                connection.connection.execute("PRAGMA shrink_memory;")
 
     @staticmethod
     def activate_pragmas_on_start():
