@@ -1,6 +1,8 @@
+import ast
 import csv
 import tempfile
 from io import StringIO
+from uuid import UUID
 from uuid import uuid4
 
 import pytest
@@ -682,6 +684,73 @@ class ImportTestCase(TestCase):
         self.assertIsNone(imported_user.date_deleted)
         self.assertEqual(imported_user.username, "testuser")
         self.assertTrue(imported_user.check_password("newpassword"))
+
+    def _import_row(self, username, uuid_cell, full_name, *args, **kwargs):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = [uuid_cell, username, "*", full_name, "LEARNER", "", "", "", "", ""]
+        self.create_csv(csv_filename, [row])
+        call_command(
+            "bulkimportusers", csv_filename, *args, facility=self.facility.id, **kwargs
+        )
+
+    def test_dashed_uuid_matches_existing_user_with_delete(self):
+        user = FacilityUser.objects.create(
+            username="bob",
+            full_name="Bob",
+            password=make_password("password"),
+            facility=self.facility,
+        )
+
+        self._import_row("bob", str(UUID(user.id)), "Robert", "--delete")
+
+        self.assertEqual(FacilityUser.objects.get(id=user.id).full_name, "Robert")
+
+    def test_uuid_in_any_valid_form_updates_existing_user(self):
+        user = FacilityUser.objects.create(
+            username="bob",
+            full_name="Bob",
+            password=make_password("password"),
+            facility=self.facility,
+        )
+        user_uuid = UUID(user.id)
+        forms = {
+            "uppercase": user_uuid.hex.upper(),
+            "braced": f"{{{user_uuid}}}",
+            "urn": user_uuid.urn,
+        }
+        for form, uuid_cell in forms.items():
+            with self.subTest(form=form):
+                full_name = f"Bob {form}"
+
+                self._import_row("bob", uuid_cell, full_name)
+
+                self.assertEqual(
+                    FacilityUser.objects.get(id=user.id).full_name, full_name
+                )
+
+    def test_row_shorter_than_header_creates_user(self):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        header = list(labels.values())
+        header.append(header.pop(0))
+        with open_csv_for_writing(local_filepath=csv_filename) as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerow(["alice", "pw", "Alice", "LEARNER", "", "", "", "", ""])
+
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+
+        self.assertTrue(FacilityUser.objects.filter(username="alice").exists())
+
+    def test_unknown_uuid_error_names_uuid(self):
+        unknown_uuid = str(uuid4())
+        errorlines = StringIO()
+
+        self._import_row("bob", unknown_uuid, "Bob", errorlines=errorlines)
+
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "UUID")
+        self.assertEqual(error["value"], unknown_uuid)
+        self.assertIn(unknown_uuid, error["message"])
 
     def test_failed_import_restores_language(self):
         manager = b.BulkUserImportManager(
