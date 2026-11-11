@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.MaterialComponents.Button.TextButton"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:gravity="start|center_vertical"
+    android:textAllCaps="false"
+    android:textAppearance="?attr/textAppearanceSubtitle1"
+    android:textColor="?android:attr/textColorPrimary"
+    app:iconGravity="end"
+    app:iconTint="?attr/colorPrimary" />

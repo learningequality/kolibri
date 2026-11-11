@@ -15,6 +15,9 @@ from kolibri.core.discovery.hooks import NetworkDiscoveryHook
 from kolibri.utils.conf import OPTIONS
 
 SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
+# Android's NsdManager cannot browse a `_sub` subtype, so Kolibri also
+# advertises this standard DNS-SD type with the same TXT records
+DNS_SD_SERVICE_TYPE = "_kolibri._tcp.local."
 LOCAL_DOMAIN = "kolibri.local"
 TRUE = "TRUE"
 FALSE = "FALSE"
@@ -142,6 +145,12 @@ class KolibriInstance:
         :param zeroconf_id: Override ID used to generate name for ServiceInfo
         """
         self.zeroconf_id = zeroconf_id or self.zeroconf_id
+        return self._service_info(SERVICE_TYPE)
+
+    def to_dns_sd_service_info(self):
+        return self._service_info(DNS_SD_SERVICE_TYPE)
+
+    def _service_info(self, service_type):
         properties = {}
 
         for key, val in self.device_info.items():
@@ -165,8 +174,8 @@ class KolibriInstance:
         address = socket.inet_aton(self.ip) if self.ip else None
 
         return ServiceInfo(
-            SERVICE_TYPE,
-            self.name,
+            service_type,
+            f"{self.zeroconf_id}.{service_type}",
             server=self.server,
             address=address,
             port=self.port or DEFAULT_PORT,

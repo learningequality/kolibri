@@ -9,6 +9,7 @@ import pytest
 from django.test import SimpleTestCase
 from django.test import TestCase
 from zeroconf import NonUniqueNameException
+from zeroconf import ServiceBrowser
 from zeroconf import ServiceInfo
 from zeroconf import ServiceStateChange
 from zeroconf import Zeroconf
@@ -339,11 +340,47 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
         # claimed on the network, we skip ours rather than renaming or crashing
         # the whole broadcast.
         self._prepare_register()
-        # primary registers fine; the bare alias is already claimed
-        self.zeroconf.register_service.side_effect = [None, NonUniqueNameException()]
+        self.zeroconf.register_service.side_effect = [
+            None,
+            None,
+            NonUniqueNameException(),
+        ]
         self.transport.register(self.instance)  # must not raise
         self.assertNotIn(LOCAL_NAME_BARE, self.transport.local_names)
         self.assertEqual([], self.transport.local_hostnames)
+
+    def test_register__dns_sd_service(self):
+        self._prepare_register()
+        self.transport.register(self.instance)
+        self.zeroconf.register_service.assert_any_call(
+            self.instance.to_dns_sd_service_info.return_value, ttl=SERVICE_TTL
+        )
+
+    def test_register__dns_sd_conflict_keeps_primary_broadcast(self):
+        self._prepare_register()
+        self.zeroconf.register_service.side_effect = [
+            None,
+            NonUniqueNameException(),
+            None,
+        ]
+        self.transport.register(self.instance)
+        self.instance.set_broadcasting.assert_called_once_with(
+            self.instance.to_service_info.return_value, is_self=True
+        )
+        self.assertIn(LOCAL_NAME_BARE, self.transport.local_names)
+        self.transport.unregister()
+        self.assertNotIn(
+            mock.call(self.instance.to_dns_sd_service_info.return_value),
+            self.zeroconf.unregister_service.call_args_list,
+        )
+
+    def test_unregister__dns_sd_service(self):
+        self._prepare_register()
+        self.transport.register(self.instance)
+        self.transport.unregister()
+        self.zeroconf.unregister_service.assert_any_call(
+            self.instance.to_dns_sd_service_info.return_value
+        )
 
     def test_local_hostnames(self):
         self._register_with_device_name("My Device")
@@ -399,8 +436,9 @@ class ZeroconfNetworkDiscoveryTestCase(SimpleTestCase):
         self.zeroconf.unregister_service.assert_not_called()
         self.zeroconf.register_service.assert_not_called()
         # 1 for the primary instance (pre-existing, unchanged renew() logic)
+        # + 1 for its DNS-SD service
         # + 2 for the bare and device aliases, both re-announced with fresh port/ttl
-        self.assertEqual(3, self.zeroconf.update_service.call_count)
+        self.assertEqual(4, self.zeroconf.update_service.call_count)
 
     def test_unregister(self):
         self.instance.service_info = mock.Mock(spec_set=ServiceInfo)("test")
@@ -785,6 +823,10 @@ class ZeroconfRebindTestCase(TestCase):
         self.service_type = f"Kolibri{uuid.uuid4().hex[:8]}._sub._http._tcp.local."
         for module in (BROADCAST_MODULE, ZEROCONF_MODULE):
             self._patch(module + "SERVICE_TYPE", new=self.service_type)
+        self.dns_sd_service_type = f"_k{uuid.uuid4().hex[:8]}._tcp.local."
+        self._patch(
+            BROADCAST_MODULE + "DNS_SD_SERVICE_TYPE", new=self.dns_sd_service_type
+        )
         self.get_all_addresses = self._patch(
             ZEROCONF_MODULE + "get_all_addresses", return_value=[LOOPBACK_IP]
         )
@@ -868,6 +910,21 @@ class ZeroconfRebindTestCase(TestCase):
     def _rebind(self):
         self.get_all_addresses.return_value = [LOOPBACK_IP, MOCK_LAN_IP]
         self.backend.update_broadcast()
+
+    def test_dns_sd_browser_finds_our_instance_with_its_txt_records(self):
+        browser = Zeroconf(interfaces=[LOOPBACK_IP])
+        self.peers.append(browser)
+        found = queue.Queue()
+        ServiceBrowser(
+            browser,
+            self.dns_sd_service_type,
+            handlers=[lambda name, state_change, **kwargs: found.put(name)],
+        )
+        name = found.get(timeout=DISCOVERY_TIMEOUT)
+        self.assertEqual(f"{MOCK_ID}.{self.dns_sd_service_type}", name)
+        info = browser.get_service_info(self.dns_sd_service_type, name)
+        self.assertEqual(f'"{MOCK_ID}"', info.properties[b"instance_id"].decode())
+        self.assertEqual(MOCK_PORT, info.port)
 
     @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
     def test_rebind_restores_a_peer_still_advertising(self):
