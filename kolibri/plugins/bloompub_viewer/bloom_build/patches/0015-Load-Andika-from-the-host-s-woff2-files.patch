@@ -1,0 +1,113 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Wed, 11 Nov 2026 08:15:49 -0800
+Subject: [PATCH] Load Andika from the host's woff2 files
+
+Kolibri ships Andika as Andika-{Regular,Bold,Italic,BoldItalic}.woff2 under host/fonts/ for both Andika families, so the player never fetches a font from bloomlibrary.org.
+---
+ src/stylesheets.ts | 36 +++++++++---------------------------
+ 1 file changed, 9 insertions(+), 27 deletions(-)
+
+diff --git a/src/stylesheets.ts b/src/stylesheets.ts
+index 9c82460..25bf8fa 100644
+--- a/src/stylesheets.ts
++++ b/src/stylesheets.ts
+@@ -168,17 +168,7 @@ function makeAndikaStylesheet(): void {
+     // (And we ship our hosts with Andika instead of ANB.)
+     //
+     // 1. The font might be found already installed (local).
+-    // 2. Failing that, if we're inside BloomReader, BloomPUB Viewer, or another host we control,
+-    //    we add the fake relative path `./host/fonts/*` so the host can intercept
+-    //    this request and serve the appropriate font file.
+-    //    (RAB doesn't use this stylesheet at all; rather, it modifies fonts.css.)
+-    // 3. If instead we're embedded in a web page like BloomLibrary.org, we need to download from the web.
+-    //
+-    // (Jun 2022) I'm not sure this is (still) true:
+-    // Note that currently that last option will only work when the page origin
+-    // is *bloomlibrary.org. This helps limit our exposure to large charges from
+-    // people using our font arbitrarily. This does include, however, books
+-    // displayed in an iframe using https://bloomlibrary.org/bloom-player/bloomplayer.htm
++    // 2. Failing that, Kolibri serves Andika's woff2 files at `./host/fonts/`.
+     //
+     // Previously, this conditionally included some file:// urls for Android which were
+     // conditionally included because they caused problems for Safari on iOS. That is why
+@@ -192,8 +182,7 @@ function makeAndikaStylesheet(): void {
+                 src:
+                     local("Andika New Basic"),
+                     local("Andika"),
+-                    url("./host/fonts/Andika New Basic"),
+-                    url("https://bloomlibrary.org/fonts/Andika%20New%20Basic/AndikaNewBasic-R.woff")
++                    url("./host/fonts/Andika-Regular.woff2")
+                 ;
+             }
+ 
+@@ -204,8 +193,7 @@ function makeAndikaStylesheet(): void {
+                 src:
+                     local("Andika New Basic Bold"),
+                     local("Andika Bold"),
+-                    url("./host/fonts/Andika New Basic Bold"),
+-                    url("https://bloomlibrary.org/fonts/Andika%20New%20Basic/AndikaNewBasic-B.woff")
++                    url("./host/fonts/Andika-Bold.woff2")
+                 ;
+             }
+ 
+@@ -216,8 +204,7 @@ function makeAndikaStylesheet(): void {
+                 src:
+                     local("Andika New Basic Italic"),
+                     local("Andika Italic"),
+-                    url("./host/fonts/Andika New Basic Italic"),
+-                    url("https://bloomlibrary.org/fonts/Andika%20New%20Basic/AndikaNewBasic-I.woff")
++                    url("./host/fonts/Andika-Italic.woff2")
+                 ;
+             }
+ 
+@@ -228,8 +215,7 @@ function makeAndikaStylesheet(): void {
+                 src:
+                     local("Andika New Basic Bold Italic"),
+                     local("Andika Bold Italic"),
+-                    url("./host/fonts/Andika New Basic Bold Italic"),
+-                    url("https://bloomlibrary.org/fonts/Andika%20New%20Basic/AndikaNewBasic-BI.woff")
++                    url("./host/fonts/Andika-BoldItalic.woff2")
+                 ;
+             }
+ 
+@@ -239,8 +225,7 @@ function makeAndikaStylesheet(): void {
+                 font-style: normal;
+                 src:
+                     local("Andika"),
+-                    url("./host/fonts/Andika"),
+-                    url("https://bloomlibrary.org/fonts/Andika/Andika-Regular.woff")
++                    url("./host/fonts/Andika-Regular.woff2")
+                 ;
+             }
+ 
+@@ -250,8 +235,7 @@ function makeAndikaStylesheet(): void {
+                 font-style: normal;
+                 src:
+                     local("Andika Bold"),
+-                    url("./host/fonts/Andika Bold"),
+-                    url("https://bloomlibrary.org/fonts/Andika/Andika-Bold.woff")
++                    url("./host/fonts/Andika-Bold.woff2")
+                 ;
+             }
+ 
+@@ -261,8 +245,7 @@ function makeAndikaStylesheet(): void {
+                 font-style: italic;
+                 src:
+                     local("Andika Italic"),
+-                    url("./host/fonts/Andika Italic"),
+-                    url("https://bloomlibrary.org/fonts/Andika/Andika-Italic.woff")
++                    url("./host/fonts/Andika-Italic.woff2")
+                 ;
+             }
+ 
+@@ -272,8 +255,7 @@ function makeAndikaStylesheet(): void {
+                 font-style: italic;
+                 src:
+                     local("Andika Bold Italic"),
+-                    url("./host/fonts/Andika Bold Italic"),
+-                    url("https://bloomlibrary.org/fonts/Andika/Andika-BoldItalic.woff")
++                    url("./host/fonts/Andika-BoldItalic.woff2")
+                 ;
+             }
+ 
