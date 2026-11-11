@@ -692,7 +692,12 @@ class BulkUserImportManager(JobProgressMixin):
 
     def get_facility(self):
         if self.facility_id:
-            default_facility = Facility.objects.get(pk=self.facility_id)
+            try:
+                default_facility = Facility.objects.get(pk=self.facility_id)
+            except (Facility.DoesNotExist, ValueError) as e:
+                raise BulkUserImportError(
+                    f"Facility with ID {self.facility_id} does not exist"
+                ) from e
         else:
             default_facility = Facility.get_default_facility()
         if not default_facility:
