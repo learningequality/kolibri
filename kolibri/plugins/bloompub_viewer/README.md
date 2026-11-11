@@ -14,10 +14,10 @@ volta run --node <upstream volta.node> pnpm --filter kolibri-bloompub-viewer-plu
 
 The build has two stages:
 
-1. `bloom_build/buildBloomPlayerVendor.js` fetches the pinned commit into a temporary git repo and applies each patch with `git apply`. It then runs upstream's tests and `build:standalone` with upstream's pinned pnpm, lowering the CSS to Kolibri's browser targets, and copies the built JS and CSS to `bloom_build/vendor/`.
-2. `bloom_build/webpack.config.bloom.js` transpiles that build to Kolibri's browser targets and writes it to `static/bloom/`. The host page comes from `bloom_build/bloomplayer.htm`, not upstream's.
+1. `bloom_build/buildBloomPlayerVendor.js` fetches the pinned commit into a temporary git repo and applies each patch with `git apply`. It then runs upstream's tests and `build:standalone` with upstream's pinned pnpm, lowering the CSS to Kolibri's browser targets, and copies the built JS and CSS to `bloom_build/vendor/`. It also fetches SIL's Andika TTFs and `OFL.txt` from [silnrsi/font-andika](https://github.com/silnrsi/font-andika) at pinned commits, checks each file's SHA-256, and writes the fonts as woff2 to `bloom_build/vendor/fonts/`.
+2. `bloom_build/webpack.config.bloom.js` transpiles that build to Kolibri's browser targets and writes it to `static/bloom/`, with the fonts and their license in `static/bloom/host/fonts/`. The host page comes from `bloom_build/bloomplayer.htm`, not upstream's.
 
-Rebuilding the same pin gives byte-identical output.
+Rebuilding the same pins gives byte-identical output.
 
 `bloomplayer.htm` must keep the `window.parent.sandbox.initializeIframe(window)` script in its `<head>`; `test/test_vendored_player.py` fails without it. Losing it fails silently: books still render, but storage writes go to the sandbox origin instead of the learner's content state.
 

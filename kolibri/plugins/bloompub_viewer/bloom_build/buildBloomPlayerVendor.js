@@ -2,7 +2,9 @@ const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { createHash } = require('node:crypto');
 const kolibriBrowsers = require('browserslist-config-kolibri');
+const wawoff2 = require('wawoff2');
 
 const upstreamUrl = 'https://github.com/BloomBooks/bloom-player';
 
@@ -13,6 +15,25 @@ const bloomCommit = fs
 const patchesFolder = path.resolve(__dirname, './patches');
 
 const targetFolder = path.resolve(__dirname, './vendor');
+
+const fontsFolder = path.join(targetFolder, 'fonts');
+
+const andikaUrl = 'https://raw.githubusercontent.com/silnrsi/font-andika';
+
+// Andika 6.101, the version Bloom Reader ships.
+const andikaFonts = {
+  'Andika-Regular': '202b96b1f174a4a43baefe885b40dacacb81786755efd08ed4b7704e79c45515',
+  'Andika-Bold': '4361126189a2d0e0da66999352db58aaf1b4ca940faf8a8239d725f8303d890d',
+  'Andika-Italic': '6a4a0dd26d28f577b51dd6afb5acf6fd91ab21694e25649c270a32179bb52a62',
+  'Andika-BoldItalic': '2d000f8791a1827c0c4d411e9f4593c4fc2db0fdbb868bb1f863593b3d3968e6',
+};
+
+const andikaFontsPath = 'b12c1cc619674126a53750c91d09dc4b4d27405b/references/v6101';
+
+// Tag v6.101.
+const andikaLicensePath = 'ca568520c61193de89a795ca676b6978fb435759/OFL.txt';
+
+const andikaLicenseSha256 = '854a86b0716d0615b6bbf3f2f0bf7b17289c076dfa36cf1f46469cbc9882fb74';
 
 const logging = console; // eslint-disable-line no-console
 
@@ -145,19 +166,48 @@ function copyBuild(repo, notices) {
   fs.writeFileSync(player, notices + fs.readFileSync(player, 'utf8'));
 }
 
-const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'bloom-player-'));
-try {
-  checkout(repo);
-  const packageJson = JSON.parse(fs.readFileSync(path.join(repo, 'package.json'), 'utf8'));
-  checkNodeVersion(packageJson);
-  applyPatches(repo);
-  fs.rmSync(targetFolder, { recursive: true, force: true });
-  const licenses = buildPlayer(repo, packageJson);
-  copyBuild(repo, licenseNotices(repo, licenses));
-  logging.log(`Built Bloom Player ${bloomCommit} into ${targetFolder}`);
-} catch (err) {
-  logging.error(err.message);
-  process.exitCode = 1;
-} finally {
-  fs.rmSync(repo, { recursive: true, force: true });
+async function fetchPinned(urlPath, sha256) {
+  const response = await fetch(`${andikaUrl}/${urlPath}`).catch(err => {
+    throw new Error(`Fetching ${urlPath} failed: ${err.cause?.code ?? err.message}`);
+  });
+  if (!response.ok) {
+    throw new Error(`Fetching ${urlPath} failed with ${response.status}`);
+  }
+  const data = Buffer.from(await response.arrayBuffer());
+  if (createHash('sha256').update(data).digest('hex') !== sha256) {
+    throw new Error(`${urlPath} does not match its pinned SHA-256`);
+  }
+  return data;
 }
+
+async function vendorAndika() {
+  fs.mkdirSync(fontsFolder, { recursive: true });
+  for (const [name, sha256] of Object.entries(andikaFonts)) {
+    const ttf = await fetchPinned(`${andikaFontsPath}/${name}.ttf`, sha256);
+    fs.writeFileSync(path.join(fontsFolder, `${name}.woff2`), await wawoff2.compress(ttf));
+  }
+  const license = await fetchPinned(andikaLicensePath, andikaLicenseSha256);
+  fs.writeFileSync(path.join(fontsFolder, 'OFL.txt'), license);
+}
+
+async function main() {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'bloom-player-'));
+  try {
+    checkout(repo);
+    const packageJson = JSON.parse(fs.readFileSync(path.join(repo, 'package.json'), 'utf8'));
+    checkNodeVersion(packageJson);
+    applyPatches(repo);
+    fs.rmSync(targetFolder, { recursive: true, force: true });
+    const licenses = buildPlayer(repo, packageJson);
+    copyBuild(repo, licenseNotices(repo, licenses));
+    await vendorAndika();
+    logging.log(`Built Bloom Player ${bloomCommit} into ${targetFolder}`);
+  } catch (err) {
+    logging.error(err.message);
+    process.exitCode = 1;
+  } finally {
+    fs.rmSync(repo, { recursive: true, force: true });
+  }
+}
+
+main();
