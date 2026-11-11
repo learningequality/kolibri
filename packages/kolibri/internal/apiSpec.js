@@ -40,6 +40,7 @@ export default {
   'kolibri/composables/useContentViewer': require('kolibri/composables/useContentViewer'),
   'kolibri/composables/useFetch': require('kolibri/composables/useFetch'),
   'kolibri/composables/useMinimumKolibriVersion': require('kolibri/composables/useMinimumKolibriVersion'),
+  'kolibri/composables/useModalPanelOpen': require('kolibri/composables/useModalPanelOpen'),
   'kolibri/composables/useNav': require('kolibri/composables/useNav'),
   'kolibri/composables/useNow': require('kolibri/composables/useNow'),
   'kolibri/composables/usePageTitle': require('kolibri/composables/usePageTitle'),

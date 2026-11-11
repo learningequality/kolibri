@@ -1,5 +1,6 @@
+import { nextTick } from 'vue';
 import { mount, shallowMount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen, within } from '@testing-library/vue';
 import flushPromises from 'flush-promises';
 import Vuex, { Store } from 'vuex';
 import VueRouter from 'vue-router';
@@ -7,11 +8,20 @@ import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { crossComponentTranslator } from 'kolibri/utils/i18n';
+import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+import pluginData from 'kolibri-plugin-data';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 // eslint-disable-next-line import-x/named
 import useUser, { useUserMock } from 'kolibri/composables/useUser';
 /* eslint-disable import-x/named */
-import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
+import useBaseSearch, {
+  injectBaseSearch,
+  useBaseSearchMock,
+} from 'kolibri-common/composables/useBaseSearch';
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
+import WelcomeModal from '../../../../device/frontend/views/WelcomeModal';
 /* eslint-enable import-x/named */
 import { PageNames } from '../../constants';
 import { learnStrings } from '../commonLearnStrings';
@@ -19,6 +29,7 @@ import { pageTitleStrings } from '../LibraryPage/NoResourcePage';
 import LibraryPage from '../LibraryPage';
 import SearchFiltersSidePanel from '../SearchFiltersSidePanel';
 import OtherLibraries from '../LibraryPage/OtherLibraries';
+import MeteredConnectionNotificationModal from '../LibraryPage/MeteredConnectionNotificationModal';
 /* eslint-disable import-x/named */
 import usePinnedDevices, { usePinnedDevicesMock } from '../../composables/usePinnedDevices';
 import useDevices, { useDevicesMock } from '../../composables/useDevices';
@@ -59,10 +70,12 @@ jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () 
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('kolibri/urls');
+jest.mock('kolibri-plugin-data', () => ({ __esModule: true, default: {} }));
+jest.mock('kolibri/client');
 
 function makeStore() {
   return new Store({
-    state: { core: {} },
+    state: { core: {}, welcomeModalVisible: false },
     getters: {},
     mutations: {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
@@ -80,6 +93,28 @@ async function makeWrapper({ options, fullMount = false } = {}) {
   }
   await flushPromises();
   return wrapper;
+}
+
+const RESULT = {
+  id: 'result-id',
+  title: 'Result title',
+  is_leaf: true,
+  channel_id: CHANNEL_ID,
+  ancestors: [],
+  learning_activities: [],
+  accessibility_labels: [],
+  learner_needs: [],
+};
+
+async function openFiltersPanel() {
+  const allFilters = searchAndFilterStrings.allFilters$();
+  await fireEvent.click(screen.getByRole('button', { name: allFilters }));
+  return screen.getByRole('dialog', { name: allFilters });
+}
+
+async function openInformationPanel() {
+  await fireEvent.click(screen.getByRole('button', { name: coreStrings.viewInformation$() }));
+  return screen.getByRole('dialog', { name: RESULT.title });
 }
 
 describe('LibraryPage', () => {
@@ -386,6 +421,103 @@ describe('LibraryPage', () => {
       const wrapper = await makeWrapper();
       await wrapper.setData({ metadataSidePanelContent: { learning_activities: [] } });
       expect(wrapper.find('[data-testid="side-panel-modal"').element).toBeTruthy();
+    });
+  });
+
+  describe.each([
+    { panel: 'filters', openPanel: openFiltersPanel },
+    { panel: 'information', openPanel: openInformationPanel },
+  ])('with the $panel side panel open', ({ openPanel }) => {
+    const injectBaseSearchDefault = injectBaseSearch.getMockImplementation();
+
+    beforeEach(() => {
+      injectBaseSearch.mockImplementation(() => ({
+        ...injectBaseSearchDefault(),
+        searchableLabels: null,
+      }));
+      useBaseSearch.mockImplementation(() =>
+        useBaseSearchMock({ displayingSearchResults: true, results: [RESULT] }),
+      );
+      ContentNodeResource.fetchRecommendationsFor.mockResolvedValue([]);
+      ContentNodeResource.list.mockResolvedValue([
+        { id: 'test', title: 'test', channel_id: CHANNEL_ID, ancestors: [CHANNEL] },
+      ]);
+    });
+
+    afterEach(() => {
+      injectBaseSearch.mockImplementation(injectBaseSearchDefault);
+      delete pluginData.canCheckMeteredConnection;
+      client.__reset();
+      urls.__setUrl('test');
+    });
+
+    async function closePanel(panel) {
+      await fireEvent.click(
+        within(panel).getByRole('button', { name: coreStrings.closeAction$() }),
+      );
+    }
+
+    it('holds the welcome modal until the panel closes', async () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      const store = makeStore();
+      render(LibraryPage, { store, router });
+      await flushPromises();
+      const panel = await openPanel();
+
+      store.state.welcomeModalVisible = true;
+      await nextTick();
+      const welcomeTitle = crossComponentTranslator(WelcomeModal).$tr('welcomeModalHeader');
+      expect(screen.queryByRole('dialog', { name: welcomeTitle })).not.toBeInTheDocument();
+
+      await closePanel(panel);
+      expect(screen.getByRole('dialog', { name: welcomeTitle })).toBeInTheDocument();
+    });
+
+    it('keeps the metered connection check across panel open and close', async () => {
+      pluginData.canCheckMeteredConnection = true;
+      urls.__echoUrls();
+      client.mockImplementation(() => new Promise(() => {}));
+      const meteredChecks = () =>
+        client.mock.calls.filter(([{ url }]) => url === '/kolibri:core:check_metered_connection')
+          .length;
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true, isSuperuser: true }));
+      render(LibraryPage, { store: makeStore(), router });
+      await flushPromises();
+      const checks = meteredChecks();
+      expect(checks).toBeGreaterThan(0);
+
+      await closePanel(await openPanel());
+
+      expect(meteredChecks()).toBe(checks);
+    });
+
+    it('holds the metered connection modal until the panel closes', async () => {
+      pluginData.canCheckMeteredConnection = true;
+      urls.__echoUrls();
+      let releaseRequests;
+      const requestsReleased = new Promise(resolve => (releaseRequests = resolve));
+      client.mockImplementation(({ url }) =>
+        requestsReleased.then(() => ({
+          data:
+            url === '/kolibri:core:check_metered_connection'
+              ? true
+              : { extra_settings: { allow_download_on_metered_connection: false } },
+        })),
+      );
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true, isSuperuser: true }));
+      render(LibraryPage, { store: makeStore(), router });
+      await flushPromises();
+      const panel = await openPanel();
+
+      releaseRequests();
+      await flushPromises();
+      const meteredTitle = crossComponentTranslator(MeteredConnectionNotificationModal).$tr(
+        'modalTitle',
+      );
+      expect(screen.queryByRole('dialog', { name: meteredTitle })).not.toBeInTheDocument();
+
+      await closePanel(panel);
+      expect(screen.getByRole('dialog', { name: meteredTitle })).toBeInTheDocument();
     });
   });
 
