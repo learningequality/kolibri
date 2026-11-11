@@ -299,10 +299,11 @@ export default class ZipFile {
    * @param {Function} filterPredicate - Called with `{name, filename}` for each entry;
    * return truthy to include
    * @param {object} [visitedPaths={}] - Paths already visited (for cycle detection)
+   * @param {boolean} [replacePaths=true] - Replace internal file references with URLs
    * @returns {Promise<ExtractedFile[]>} Matching extracted files
    * @private
    */
-  async _getFiles(filterPredicate, visitedPaths = {}) {
+  async _getFiles(filterPredicate, visitedPaths = {}, replacePaths = true) {
     await this._fileLoadingPromise;
 
     if (this._loadingError) {
@@ -320,7 +321,7 @@ export default class ZipFile {
 
     // Extract all matching files
     const files = await Promise.all(
-      matchingEntries.map(entry => this._extractFile(entry, visitedPaths)),
+      matchingEntries.map(entry => this._extractFile(entry, visitedPaths, replacePaths)),
     );
 
     return files;
@@ -369,13 +370,16 @@ export default class ZipFile {
   /**
    * Extract all files with the given extension.
    * @param {string} extension - Extension to match, including dot (e.g. '.css')
+   * @param {object} [options] - Extraction options
+   * @param {boolean} [options.replacePaths=true] - Replace references to other files
+   * in the archive with URLs serving them. Pass false to read the files as stored.
    * @returns {Promise<ExtractedFile[]>} Matching extracted files
    */
-  async filesFromExtension(extension) {
+  async filesFromExtension(extension, { replacePaths = true } = {}) {
     if (this._loadingError) {
       throw this._loadingError;
     }
-    return this._getFiles(entry => entry.filename.endsWith(extension));
+    return this._getFiles(entry => entry.filename.endsWith(extension), {}, replacePaths);
   }
 
   /**
