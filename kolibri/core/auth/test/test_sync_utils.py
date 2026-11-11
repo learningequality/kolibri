@@ -14,6 +14,9 @@ from kolibri.core.auth.constants.morango_sync import PARTITION_CLASSROOM
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_COACH_RW
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_LEARNER_RW
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.auth.management.commands.fullfacilitysync import (
+    Command as FullFacilitySyncCommand,
+)
 from kolibri.core.auth.management.commands.sync import InteractiveSyncManager
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -23,8 +26,10 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
+from kolibri.core.auth.utils.sync import create_superuser_and_provision_device
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
 from kolibri.core.auth.utils.sync import SyncManager
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
@@ -590,4 +595,60 @@ class SyncCommandTestCase(TestCase):
         self.assertIn(
             "INFO:kolibri.core.auth.management.utils:Syncing has been completed.",
             logs,
+        )
+
+    def test_superuser_prompt_rejects_username_from_other_facility(self):
+        synced = Facility.objects.create(name="Synced")
+        other = Facility.objects.create(name="Other")
+        FacilityUser.objects.create(username="server_admin", facility=synced)
+        FacilityUser.objects.create(username="elsewhere", facility=other)
+        FacilityUser.objects.create(username="here", facility=synced)
+
+        _, _, logs = self._sync(synced, ["server_admin", "elsewhere", "here"])
+
+        self.assertEqual(
+            DevicePermissions.objects.get(is_superuser=True).user.username, "here"
+        )
+        self.assertIn(
+            "ERROR:kolibri.core.auth.management.utils:User with username `elsewhere` does not exist in the synced facility",
+            logs,
+        )
+
+
+class CreateSuperuserAndProvisionDeviceTestCase(TestCase):
+    databases = "__all__"
+
+    def test_username_from_other_facility_creates_temporary_superuser(self):
+        synced = Facility.objects.create(name="Synced")
+        other = Facility.objects.create(name="Other")
+        FacilityUser.objects.create(username="elsewhere", facility=other)
+
+        with self.assertLogs("kolibri", "ERROR") as logs:
+            create_superuser_and_provision_device("elsewhere", synced.dataset_id)
+
+        superuser = DevicePermissions.objects.get(is_superuser=True).user
+        self.assertEqual(superuser.username, "superuser")
+        self.assertEqual(superuser.dataset_id, synced.dataset_id)
+        self.assertIn(
+            "ERROR:kolibri.core.auth.utils.sync:User with username `elsewhere` does not exist in the synced facility",
+            logs.output,
+        )
+
+
+class FullFacilitySyncSuperuserPromptTestCase(TestCase):
+    databases = "__all__"
+
+    def test_username_from_other_facility_reprompts(self):
+        synced = Facility.objects.create(name="Synced")
+        other = Facility.objects.create(name="Other")
+        FacilityUser.objects.create(username="elsewhere", facility=other)
+        FacilityUser.objects.create(username="here", facility=synced)
+
+        with patch("builtins.input", side_effect=["here"]):
+            FullFacilitySyncCommand().create_superuser_and_provision_device(
+                "elsewhere", synced.dataset_id
+            )
+
+        self.assertEqual(
+            DevicePermissions.objects.get(is_superuser=True).user.username, "here"
         )
