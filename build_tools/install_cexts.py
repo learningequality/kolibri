@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.6"
-# dependencies = ["requests==2.27.1", "pip>=20"]
+# dependencies = ["requests==2.27.1", "urllib3", "pip>=20"]
 # ///
 """
 This module defines functions to install c extensions for all the platforms into
@@ -33,11 +33,13 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from html.parser import HTMLParser
 from urllib.parse import unquote
 from urllib.parse import urlparse
 
 import requests
+import urllib3
 
 DIST_CEXT = os.path.join(
     os.path.dirname(os.path.realpath(os.path.dirname(__file__))),
@@ -125,6 +127,10 @@ def run_pip_install(
 
 
 DEFAULT_MAX_WORKERS = 8
+INDEX_ATTEMPTS = 6
+INDEX_TIMEOUT = 30
+# requests 2.27.1 does not wrap urllib3's SSLError raised while reading a body.
+INDEX_ERRORS = (requests.RequestException, urllib3.exceptions.HTTPError)
 
 
 def build_install_tasks(package_name, package_version, index_url, info, cache_path):
@@ -303,6 +309,30 @@ def parse_package_page(files, pk_version, index_url, cache_path):
     return build_install_tasks(package_name, pk_version, index_url, result, cache_path)
 
 
+def _get_index_page(session, url):
+    r = session.get(url, timeout=INDEX_TIMEOUT)
+    r.raise_for_status()
+    return r
+
+
+def _fetch_index_page(session, url):
+    for attempt in range(1, INDEX_ATTEMPTS):
+        try:
+            return _get_index_page(session, url)
+        except INDEX_ERRORS as e:
+            delay = 2**attempt
+            logger.warning(
+                "Error retrieving %s (attempt %d/%d): %s; retrying in %ds...",
+                url,
+                attempt,
+                INDEX_ATTEMPTS,
+                e,
+                delay,
+            )
+            time.sleep(delay)
+    return _get_index_page(session, url)
+
+
 def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
     """
     Collect the install tasks from the pypi and piwheels pages of the package.
@@ -310,31 +340,13 @@ def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
     tasks = []
     links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
     for link in links:
-        url = link + name
-        for _ in range(5):
-            try:
-                r = session.get(url)
-                r.raise_for_status()
-            except Exception as e:
-                logger.info("Error retrieving %s: %s", url, e)
-            else:
-                if r.status_code == 200:
-                    # Got a valid response
-                    break
-
-                logger.info(
-                    "Unexpected response from %s: %s %s", url, r.status_code, r.reason
-                )
-
-            # Clear the response in case this is the last iteration
-            r = None
-
-        if r:
-            parser = PackagePageParser()
-            parser.feed(r.content.decode("utf-8"))
-            tasks.extend(parse_package_page(parser.links, pk_version, link, cache_path))
-        else:
-            sys.exit(f"\nUnable to find package {name} on {link}.\n")
+        try:
+            r = _fetch_index_page(session, link + name)
+        except INDEX_ERRORS as e:
+            sys.exit(f"\nUnable to find package {name} on {link}: {e}\n")
+        parser = PackagePageParser()
+        parser.feed(r.content.decode("utf-8"))
+        tasks.extend(parse_package_page(parser.links, pk_version, link, cache_path))
     return tasks
 
 

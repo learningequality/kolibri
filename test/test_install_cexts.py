@@ -9,11 +9,15 @@ is tolerated (the site is flaky by design).
 """
 
 import importlib.util
+import io
 import os
+import ssl
 import threading
 import time
 
 import pytest
+import requests
+import urllib3
 
 _MODULE_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
@@ -168,3 +172,108 @@ def test_parse_package_page_extracts_wheel_links_from_index_page():
             "cache_path": "/tmp/cext_cache",
         },
     ]
+
+
+class _StubAdapter(requests.adapters.HTTPAdapter):
+    def __init__(self, outcomes):
+        super().__init__()
+        self.outcomes = outcomes
+        self.timeouts = []
+
+    def send(self, request, timeout=None, **kwargs):
+        self.timeouts.append(timeout)
+        outcome = self.outcomes.pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return self.build_response(request, outcome)
+
+
+class _BadRecordMacBody(io.RawIOBase):
+    def readinto(self, b):
+        raise ssl.SSLError("[SSL: DECRYPTION_FAILED_OR_BAD_RECORD_MAC]")
+
+
+def _response(status, body=b""):
+    if isinstance(body, bytes):
+        body = io.BytesIO(body)
+    return urllib3.HTTPResponse(body=body, status=status, preload_content=False)
+
+
+def _session(outcomes_by_url):
+    session = requests.Session()
+    adapters = {}
+    for url, outcomes in outcomes_by_url.items():
+        adapters[url] = _StubAdapter(outcomes)
+        session.mount(url, adapters[url])
+    return session, adapters
+
+
+PAGE = SAMPLE_INDEX_PAGE.encode("utf-8")
+PYPI_CFFI = install_cexts.PYPI_DOWNLOAD + "cffi"
+PIWHEELS_CFFI = install_cexts.PIWHEEL_DOWNLOAD + "cffi"
+
+
+def test_parse_pypi_and_piwheels_backs_off_until_index_page_loads(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(install_cexts.time, "sleep", sleeps.append)
+    session, adapters = _session(
+        {
+            PYPI_CFFI: [_response(200, PAGE)],
+            PIWHEELS_CFFI: [
+                requests.ConnectionError("connection reset"),
+                _response(503),
+                _response(200, PAGE),
+            ],
+        }
+    )
+
+    tasks = install_cexts.parse_pypi_and_piwheels(
+        "cffi", "1.17.1", "/tmp/cext_cache", session
+    )
+
+    assert [t["index_url"] for t in tasks] == [install_cexts.PYPI_DOWNLOAD] * 2 + [
+        install_cexts.PIWHEEL_DOWNLOAD
+    ] * 2
+    assert sleeps == [2, 4]
+    assert adapters[PIWHEELS_CFFI].timeouts == [install_cexts.INDEX_TIMEOUT] * 3
+
+
+def test_parse_pypi_and_piwheels_retries_tls_error_in_body(monkeypatch):
+    monkeypatch.setattr(install_cexts.time, "sleep", lambda delay: None)
+    session, _ = _session(
+        {
+            PYPI_CFFI: [_response(200, _BadRecordMacBody()), _response(200, PAGE)],
+            PIWHEELS_CFFI: [_response(200, PAGE)],
+        }
+    )
+
+    tasks = install_cexts.parse_pypi_and_piwheels(
+        "cffi", "1.17.1", "/tmp/cext_cache", session
+    )
+
+    assert len(tasks) == 4
+
+
+def test_parse_pypi_and_piwheels_exits_naming_last_error(monkeypatch, caplog):
+    sleeps = []
+    monkeypatch.setattr(install_cexts.time, "sleep", sleeps.append)
+    failures = [
+        requests.ConnectionError(f"failure {n}")
+        for n in range(install_cexts.INDEX_ATTEMPTS)
+    ]
+    session, adapters = _session({PYPI_CFFI: failures})
+
+    with caplog.at_level("WARNING"), pytest.raises(SystemExit) as excinfo:
+        install_cexts.parse_pypi_and_piwheels(
+            "cffi", "1.17.1", "/tmp/cext_cache", session
+        )
+
+    last = f"failure {install_cexts.INDEX_ATTEMPTS - 1}"
+    assert last in str(excinfo.value.code)
+    assert sleeps == [2, 4, 8, 16, 32]
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == install_cexts.INDEX_ATTEMPTS - 1
+    assert (
+        adapters[PYPI_CFFI].timeouts
+        == [install_cexts.INDEX_TIMEOUT] * install_cexts.INDEX_ATTEMPTS
+    )
