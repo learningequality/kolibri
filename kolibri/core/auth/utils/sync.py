@@ -265,9 +265,8 @@ def create_superuser_and_provision_device(username, dataset_id):
     if DevicePermissions.objects.filter(is_superuser=True).exists():
         return
 
-    if FacilityUser.objects.filter(username=username).exists():
-        # make the user with the given credentials, a superuser for this device
-        user = FacilityUser.objects.get(username=username, dataset_id=dataset_id)
+    user = FacilityUser.objects.filter(username=username, dataset_id=dataset_id).first()
+    if user:
         # create permissions for the authorized user
         DevicePermissions.objects.update_or_create(
             user=user, defaults={"is_superuser": True, "can_manage_content": True}
@@ -275,7 +274,9 @@ def create_superuser_and_provision_device(username, dataset_id):
         return
 
     if username:
-        logger.error("User with username `%s` does not exist on this device", username)
+        logger.error(
+            "User with username `%s` does not exist in the synced facility", username
+        )
 
     # we don't want to setup a device without a superuser, so create a temporary one
     superuser = FacilityUser.objects.create(username="superuser", facility=facility)
@@ -701,7 +702,7 @@ class MorangoSyncManagerBase(JobProgressMixin, metaclass=ABCMeta):
     def report_progress(self, message):
         logger.info(message)
 
-    def get_superuser_username(self, username):
+    def get_superuser_username(self, username, dataset_id):
         return username
 
     def _provision(self, dataset_id):
@@ -714,7 +715,7 @@ class MorangoSyncManagerBase(JobProgressMixin, metaclass=ABCMeta):
                 provision_single_user_device(user)
             else:
                 create_superuser_and_provision_device(
-                    self.get_superuser_username(self.username), dataset_id
+                    self.get_superuser_username(self.username, dataset_id), dataset_id
                 )
 
     @contextmanager
