@@ -873,9 +873,8 @@ def assign_picture_passwords_to_facility(facility_id):
     facility = Facility.objects.get(id=facility_id)
     learners = FacilityUser.objects.filter(
         facility=facility,
-        roles__isnull=True,
         picture_password__isnull=True,
-    ).exclude(devicepermissions__is_superuser=True)
+    ).exclude(FacilityUser.get_is_privileged_q())
 
     total = get_learner_count.count(facility.dataset_id)
     job = get_current_job()

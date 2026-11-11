@@ -239,6 +239,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
     is_superuser = serializers.BooleanField(
         source="devicepermissions.is_superuser", default=False, read_only=True
     )
+    can_manage_content = serializers.BooleanField(
+        source="devicepermissions.can_manage_content", default=False, read_only=True
+    )
     facility = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(),
         default=Facility.get_default_facility,
@@ -258,6 +261,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "facility",
             "roles",
             "is_superuser",
+            "can_manage_content",
             "id_number",
             "gender",
             "birth_year",
@@ -265,7 +269,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "picture_password",
             "date_joined",
         )
-        read_only_fields = ("is_superuser", "picture_password")
+        read_only_fields = ("is_superuser", "can_manage_content", "picture_password")
 
     def save(self, **kwargs):
         instance = super().save(**kwargs)
@@ -550,9 +554,8 @@ class DeletedFacilityUserViewSet(
             FacilityUser.objects.filter(
                 id__in=restored_ids,
                 picture_password__isnull=True,
-                roles__isnull=True,
             )
-            .exclude(devicepermissions__is_superuser=True)
+            .exclude(FacilityUser.get_is_privileged_q())
             .select_related("facility__dataset")
         ):
             assign_picture_password_if_enabled(learner, learner.facility)

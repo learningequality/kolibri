@@ -31,11 +31,11 @@ class InitializeAppView(APIView):
             # If we are in app context, then login as the automatically created OS User
             try:
                 user = FacilityUser.objects.get_or_create_os_user(auth_token)
-                if user is not None:
-                    login(request, user)
-                else:
+                if user is None:
                     # If the user is not found, then we should not persist the auth_token
                     auth_token = None
+                elif user.can_sign_in_as_os_user:
+                    login(request, user)
             except ValidationError as e:
                 logger.error(e)
         redirect_url = "/"

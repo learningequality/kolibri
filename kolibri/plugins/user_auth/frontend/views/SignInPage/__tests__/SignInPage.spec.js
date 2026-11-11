@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
 import { ref } from 'vue';
+import VueRouter from 'vue-router';
 import client from 'kolibri/client';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import { LoginErrors } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import { MAX_USERS_FOR_LISTING_VIEW } from '../../../constants';
+import { ComponentMap, MAX_USERS_FOR_LISTING_VIEW } from '../../../constants';
 import SignInPage from '../index.vue';
 import UserAuthLayout from '../../UserAuthLayout';
 import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
@@ -36,7 +38,7 @@ jest.mock('vue-router/composables', () => ({
   useRoute: () => ({ query: {}, params: {} }),
 }));
 
-const { usernameLabel$ } = coreStrings;
+const { passwordLabel$, usernameLabel$ } = coreStrings;
 const { signInPageTitle$ } = pageTitleStrings;
 
 const TEST_FACILITY = { id: 'fac-1', name: 'Test Facility' };
@@ -44,8 +46,8 @@ const SUGGESTED_USERNAME = 'alice';
 const SEARCHED_TERM = SUGGESTED_USERNAME.slice(0, 3);
 
 // created() dereferences selectedFacility.id, and useAuthFlowMock defaults it to ref(null).
-function setupMocks({ isAppContext = false, facilityConfig = {} } = {}) {
-  useUser.mockReturnValue(useUserMock({ isAppContext, login: jest.fn() }));
+function setupMocks({ isAppContext = false, facilityConfig = {}, login = jest.fn() } = {}) {
+  useUser.mockReturnValue(useUserMock({ isAppContext, login }));
   useAuthFlow.mockReturnValue(
     useAuthFlowMock({
       selectedFacility: ref(TEST_FACILITY),
@@ -111,6 +113,35 @@ describe('SignInPage – FacilityUsername reads', () => {
       client.mockRejectedValue(new Error('network'));
       const { queryByTestId } = render(SignInPage);
       await waitFor(() => expect(queryByTestId('users-list')).not.toBeInTheDocument());
+    });
+
+    function renderUsersListWithLoginError(error) {
+      setupMocks({ isAppContext: true, login: jest.fn().mockResolvedValue({ error }) });
+      client.__setPayload({ results: [{ username: SUGGESTED_USERNAME }], more: null });
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [
+          { name: 'SignInPage', path: '/' },
+          { name: ComponentMap.NEW_PASSWORD, path: '/create_password' },
+        ],
+      });
+      return { router, ...render(SignInPage, { router }) };
+    }
+
+    it('asks for a password when the selected user needs one', async () => {
+      renderUsersListWithLoginError(LoginErrors.PASSWORD_MISSING);
+      await fireEvent.click(await screen.findByRole('button', { name: SUGGESTED_USERNAME }));
+
+      expect(await screen.findByLabelText(passwordLabel$())).toBeInTheDocument();
+      expect(screen.queryByTestId('users-list')).not.toBeInTheDocument();
+    });
+
+    it('sends the selected user to set a password when theirs is not specified', async () => {
+      const { router } = renderUsersListWithLoginError(LoginErrors.PASSWORD_NOT_SPECIFIED);
+      await fireEvent.click(await screen.findByRole('button', { name: SUGGESTED_USERNAME }));
+
+      await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
+      expect(router.currentRoute.query.username).toBe(SUGGESTED_USERNAME);
     });
   });
 
