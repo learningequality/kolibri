@@ -43,7 +43,8 @@ class UserInfo(typing.NamedTuple):
         return cls(
             user_id=user.pw_uid,
             user_name=user.pw_name,
-            full_name=user.pw_gecos,
+            # gecos fields are comma-separated; adduser writes "Jane Doe,,,"
+            full_name=user.pw_gecos.split(",", 1)[0],
             is_admin=is_admin,
         )
 

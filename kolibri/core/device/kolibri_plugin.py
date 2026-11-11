@@ -9,6 +9,8 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.sync_event_hook_utils import get_dataset_id
 from kolibri.core.auth.sync_event_hook_utils import get_user_id_for_single_user_sync
 from kolibri.core.auth.sync_operations import KolibriVersionedSyncOperation
+from kolibri.core.device.hooks import GetOSUserHook
+from kolibri.core.device.login_tokens import login_tokens
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import SyncQueueStatus
@@ -117,3 +119,9 @@ class LearnerDeviceStatusOperation(KolibriVersionedSyncOperation):
 @register_hook
 class LearnerDeviceStatusHook(FacilityDataSyncHook):
     initializing_operations: ClassVar[list] = [LearnerDeviceStatusOperation()]
+
+
+@register_hook(as_default=True)
+class LoginTokenGetOSUserHook(GetOSUserHook):
+    def get_os_user(self, auth_token):
+        return login_tokens.get_os_user(auth_token)

@@ -7,6 +7,7 @@ from magicbus.plugins.tasks import Autoreloader
 from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.device.hooks import GetOSUserHook
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import log_status
@@ -25,7 +26,7 @@ class ExampleAppPlugin(KolibriPluginBase):
 @register_hook
 class ExampleAppGetOSUserHook(GetOSUserHook):
     def get_os_user(self, auth_token):
-        return "os_user", True
+        return OSUserInfo("os_user", "os_user", "os_user", True)
 
 
 @register_hook
