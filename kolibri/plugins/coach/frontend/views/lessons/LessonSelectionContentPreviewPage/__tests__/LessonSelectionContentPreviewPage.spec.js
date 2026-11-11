@@ -8,6 +8,7 @@ import LessonSelectionContentPreviewPage from '../index.vue';
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/router', () => ({
+  beforeEach: jest.fn(),
   getRoute: jest.fn((name, params) => ({ name, params })),
   getReactiveRoute: jest.fn(() => ({ params: {} })),
 }));

@@ -18,6 +18,7 @@ enableAutoDestroy(afterEach);
 // commonCoach mixin imports kolibri customized router and uses getRoute method
 jest.mock('kolibri/router', () => {
   return {
+    beforeEach: jest.fn(),
     getRoute: (name, params, query) => {
       return { name, params, query };
     },

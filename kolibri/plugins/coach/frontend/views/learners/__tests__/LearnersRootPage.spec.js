@@ -18,6 +18,7 @@ jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/fetchClassSyncStatus');
 jest.mock('kolibri/urls');
 jest.mock('kolibri/router', () => ({
+  beforeEach: jest.fn(),
   getRoute: jest.fn((name, params) => ({ name, params })),
   getReactiveRoute: jest.fn(() => ({ params: {} })),
 }));

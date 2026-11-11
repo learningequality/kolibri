@@ -202,6 +202,7 @@
       <BottomAppBar :maxWidth="null">
         <KButtonGroup :class="{ spread: !windowIsLarge }">
           <KButton
+            ref="previousButton"
             :disabled="questionNumber === 0"
             :primary="true"
             :dir="layoutDirReset"
@@ -219,6 +220,7 @@
             <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
           </KButton>
           <KButton
+            ref="nextButton"
             :disabled="questionNumber === exam.question_count - 1"
             :primary="true"
             :dir="layoutDirReset"
@@ -310,6 +312,7 @@
 
   import { ref } from 'vue';
   import { mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
   import { handleApiError } from 'kolibri/utils/appError';
   import isEqual from 'lodash/isEqual';
   import {
@@ -342,7 +345,11 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      usePageTitle(() => store.state.examViewer.exam.title);
+      const route = useRoute();
+      usePageTitle(() => {
+        const { exam } = store.state.examViewer;
+        return exam.id === route.params.examId ? exam.title : '';
+      });
       const {
         pastattempts,
         time_spent,
@@ -542,6 +549,18 @@
       },
     },
     watch: {
+      questionNumber() {
+        const focused = document.activeElement;
+        this.$nextTick(() => {
+          const previous = this.$refs.previousButton?.$el;
+          const next = this.$refs.nextButton?.$el;
+          if (focused === previous && previous.disabled) {
+            next.focus();
+          } else if (focused === next && next.disabled) {
+            previous.focus();
+          }
+        });
+      },
       attemptLogItemValue(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();

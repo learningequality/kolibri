@@ -15,32 +15,23 @@
         "
         :style="accordionItemStyles"
       >
-        <template
-          v-if="searchLoading"
-          #content
-        >
-          <KCircularLoader />
-        </template>
-        <template
-          v-else
-          #content
-        >
+        <template #content>
           <KButton
             v-for="(category, key) in availableLibraryCategories"
             :key="'cat-' + key"
+            :ref="'cat-' + key"
             appearance="flat-button"
             class="category-button"
-            :class="$computedClass({ ':hover': { background: selectedHighlightColor } })"
+            :class="[
+              $computedClass({ ':hover': { background: selectedHighlightColor } }),
+              { inert: isCategoryInert(category.value) },
+            ]"
             :style="{
               background: isCategoryActive(category.value) ? selectedHighlightColor : '',
             }"
             :text="coreString(category.value)"
-            :disabled="
-              availableRootCategories &&
-                !availableRootCategories[category.value] &&
-                !isCategoryActive(category.value)
-            "
-            @click="handleCategory(key)"
+            :aria-disabled="isCategoryInert(category.value)"
+            @click="!isCategoryInert(category.value) && handleCategory(key)"
           >
             <template #icon>
               <KIcon
@@ -302,7 +293,23 @@
         // Takes the dot separated category value and checks if it is active
         return this.activeCategories.some(k => k.includes(categoryValue));
       },
+      isCategoryInert(categoryValue) {
+        return (
+          this.searchLoading ||
+          (this.availableRootCategories &&
+            !this.availableRootCategories[categoryValue] &&
+            !this.isCategoryActive(categoryValue))
+        );
+      },
       categoryIcon: getCategoryIcon,
+      /**
+       * Focuses a top-level category's button.
+       * @param {string} key - A key of `availableLibraryCategories`.
+       * @public
+       */
+      focusCategory(key) {
+        this.$refs['cat-' + key][0].$el.focus();
+      },
     },
     $trs: {
       categoryLabel: {
@@ -394,6 +401,11 @@
 
   .category-button:not(:last-child) {
     margin-bottom: 0.5em;
+  }
+
+  .category-button.inert {
+    pointer-events: none;
+    opacity: 0.5;
   }
 
 </style>

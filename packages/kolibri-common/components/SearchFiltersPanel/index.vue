@@ -34,15 +34,16 @@
         class="section"
         @input="handleActivity"
       />
-
-      <AccordionSelectGroup
-        v-model="inputValue"
-        :showChannels="showChannels"
-        :activeCategories="activeCategories"
-        :handleCategory="handleCategory"
-        style="margin-top: 1em"
-      />
     </div>
+    <AccordionSelectGroup
+      v-show="!currentCategory"
+      ref="accordionSelectGroup"
+      v-model="inputValue"
+      :showChannels="showChannels"
+      :activeCategories="activeCategories"
+      :handleCategory="handleCategory"
+      style="margin-top: 1em"
+    />
     <div v-if="currentCategory">
       <CategorySearchModal
         ref="searchModal"
@@ -185,9 +186,12 @@
           this.setCategory(this.availableLibraryCategories[category].value);
         }
       },
-      selectCategory(category) {
+      async selectCategory(category) {
+        const key = this.currentCategory;
         this.setCategory(category);
         this.currentCategory = null;
+        await this.$nextTick();
+        this.$refs.accordionSelectGroup?.focusCategory(key);
       },
       /**
        * Focuses on correct first element for FocusTrap depending on content

@@ -20,6 +20,7 @@ jest.mock('../../composables/useAuthRouter');
 jest.mock('kolibri/router', () => ({
   __esModule: true,
   default: {
+    beforeEach: jest.fn(),
     getRoute: jest.fn(routeName => {
       if (routeName === 'FacilitySelect') {
         return { name: routeName, path: '/facilities' };
