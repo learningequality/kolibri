@@ -1,10 +1,8 @@
 import atexit
-import json
 import os
 import webbrowser
 from urllib.parse import urlencode
 from urllib.parse import urlsplit
-from urllib.parse import urlunsplit
 
 import wx
 
@@ -14,6 +12,9 @@ from kolibri_app.constants import APP_USER_SUFFIX
 from kolibri_app.constants import WINDOWS
 from kolibri_app.logger import logging
 from kolibri_app.view import KolibriView
+from kolibri_app.webview_location import LastPage
+from kolibri_app.webview_location import LOOPBACK_IP
+from kolibri_app.webview_location import loopback_origin
 
 if WINDOWS:
     import ctypes
@@ -29,9 +30,6 @@ else:
     from kolibri_app.server_manager_posix import PosixKolibriProcess as ServerManager
 
 STATE_FILE = f"app_state{APP_USER_SUFFIX}.json"
-
-# State keys
-URL = "URL"
 
 # Custom Windows message for showing UI
 WM_SHOW_KOLIBRI_UI = win32con.WM_USER + 1 if WINDOWS else None
@@ -73,8 +71,8 @@ class KolibriApp(wx.App):
             self.create_hidden_window()
 
         self.windows = []
-        self.kolibri_origin = None
         self.kolibri_url = None
+        self.last_page = LastPage(os.path.join(KOLIBRI_HOME, STATE_FILE))
 
         self.server_manager = ServerManager(self)
 
@@ -214,51 +212,22 @@ class KolibriApp(wx.App):
         if (
             url is not None
             and url.startswith("http")
-            and not url.startswith("http://localhost")
+            and urlsplit(url).hostname != LOOPBACK_IP
         ):
             webbrowser.open(url)
             return False
 
         return True
 
-    def get_state(self):
-        try:
-            with open(os.path.join(KOLIBRI_HOME, STATE_FILE), encoding="utf-8") as f:
-                return json.load(f)
-        except (OSError, PermissionError, ValueError):
-            return {}
-
-    def save_state(self, view=None):
-        try:
-            state = {}
-            if view and view.get_url():
-                state[URL] = view.get_url()
-            with open(
-                os.path.join(KOLIBRI_HOME, STATE_FILE), "w", encoding="utf-8"
-            ) as f:
-                return json.dump(state, f)
-        except (OSError, ValueError):
-            return {}
-
     def load_kolibri(self, listen_port, root_url=None):
-        self.kolibri_origin = f"http://localhost:{listen_port}"
+        kolibri_origin = loopback_origin(listen_port)
 
         if self.server_start_timer:
             self.server_start_timer.Stop()
             self.server_start_timer = None
 
-        # Check for saved URL, which exists when the app was put to sleep last time it ran
-        saved_state = self.get_state()
-        logging.debug(f"Persisted State: {saved_state}")
-
         # activate app mode
-        next_url = None
-        # Match the path only: the Windows service binds a new port on every start.
-        saved_url = urlsplit(saved_state.get(URL, ""))
-        if saved_url.hostname == "localhost" and saved_url.path:
-            next_url = urlunsplit(
-                ("", "", saved_url.path, saved_url.query, saved_url.fragment)
-            )
+        next_url = self.last_page.next_url
 
         if root_url:
             # On Windows, root_url is provided by the server process, and
@@ -268,11 +237,12 @@ class KolibriApp(wx.App):
             )
         else:
             # On other platforms, we construct the URL ourselves
-            final_url = self.kolibri_origin + app_initialize_url(
+            final_url = kolibri_origin + app_initialize_url(
                 auth_token=self.server_manager.auth_token, next_url=next_url
             )
         self.kolibri_url = final_url
-        logging.info(f"Loading Kolibri at: {self.kolibri_origin}")
+        self.last_page.served_at(final_url)
+        logging.info(f"Loading Kolibri at: {kolibri_origin}")
 
         # Show notification that server is ready
         if WINDOWS:

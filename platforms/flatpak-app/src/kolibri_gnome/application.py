@@ -7,6 +7,7 @@ import typing
 from functools import partial
 from gettext import gettext as _
 from pathlib import Path
+from urllib.parse import urldefrag
 from urllib.parse import urlsplit
 
 from gi.repository import Adw
@@ -46,6 +47,9 @@ def _bytestring(value: str) -> bytes:
 class Application(Adw.Application):
     __context: KolibriContext
     __setup_dialog: typing.Optional[KolibriSetupDialog] = None
+    __saved_location: typing.Optional[str] = None
+    __saved_location_path: Path
+    __writing_saved_location: bool = False
     __updated_marker: Gio.File
     __updated_marker_monitor: Gio.FileMonitor
 
@@ -145,10 +149,28 @@ class Application(Adw.Application):
         )
         self.__update_restart_action()
 
+        # Flatpak before 1.13 does not set XDG_STATE_HOME, so the state dir
+        # would fall outside the app's persisted ~/.var/app directory.
+        self.__saved_location_path = Path(
+            GLib.get_user_data_dir(), f"{self.get_application_id()}.location"
+        )
+        self.__saved_location_path.parent.mkdir(parents=True, exist_ok=True)
+        self.__saved_location = self.__read_saved_location()
+
     def do_activate(self):
         Adw.Application.do_activate(self)
 
-        if not self.get_windows():
+        if self.get_windows():
+            return
+
+        if self.__saved_location:
+            self.open_kolibri_window(
+                self.__context.url_to_x_kolibri_app(
+                    urldefrag(self.__saved_location).url
+                ),
+                restore_location=self.__saved_location,
+            )
+        else:
             self.open_kolibri_window()
 
     def do_open(self, files: typing.List[Gio.File], files_count: int, hint: str):
@@ -161,6 +183,49 @@ class Application(Adw.Application):
         self.__context.shutdown()
 
         self.__updated_marker_monitor.cancel()
+
+    def __read_saved_location(self) -> typing.Optional[str]:
+        try:
+            return self.__saved_location_path.read_text() or None
+        except FileNotFoundError:
+            return None
+
+    def __main_webview_on_kolibri_location_changed(
+        self, webview: KolibriWebView, url: str
+    ):
+        location = self.__context.parse_x_kolibri_app_url_tuple(urlsplit(url))
+
+        if location == self.__saved_location:
+            return
+
+        self.__saved_location = location
+        if not self.__writing_saved_location:
+            self.__write_saved_location()
+
+    def __write_saved_location(self):
+        self.__writing_saved_location = True
+        self.hold()
+        written = self.__saved_location
+        Gio.File.new_for_path(
+            self.__saved_location_path.as_posix()
+        ).replace_contents_bytes_async(
+            GLib.Bytes.new(written.encode()),
+            None,
+            False,
+            Gio.FileCreateFlags.PRIVATE,
+            None,
+            self.__on_saved_location_written,
+            written,
+        )
+
+    def __on_saved_location_written(
+        self, file: Gio.File, result: Gio.AsyncResult, written: str
+    ):
+        self.__writing_saved_location = False
+        if self.__saved_location != written:
+            self.__write_saved_location()
+        self.release()
+        file.replace_contents_finish(result)
 
     def __update_restart_action(self):
         self.lookup_action("restart").set_enabled(
@@ -290,7 +355,10 @@ class Application(Adw.Application):
         file_launcher.launch(None, None, None)
 
     def open_kolibri_window(
-        self, target_url: typing.Optional[str] = None, **kwargs
+        self,
+        target_url: typing.Optional[str] = None,
+        restore_location: typing.Optional[str] = None,
+        **kwargs,
     ) -> typing.Optional[KolibriWindow]:
         target_url = target_url or self.__context.default_url
 
@@ -306,7 +374,12 @@ class Application(Adw.Application):
 
         window.connect("open-in-browser", self.__window_on_open_in_browser)
         window.connect("open-new-window", self.__window_on_open_new_window)
-        window.load_kolibri_url(target_url, present=True)
+        window.get_main_webview().connect(
+            "kolibri-location-changed", self.__main_webview_on_kolibri_location_changed
+        )
+        window.load_kolibri_url(
+            target_url, present=True, restore_location=restore_location
+        )
 
         # Maximize windows on Endless OS. Typically $XDG_CURRENT_DESKTOP will be
         # `endless:GNOME` or `Endless:GNOME`.

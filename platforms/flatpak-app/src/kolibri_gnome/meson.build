@@ -8,7 +8,9 @@ python_installation.install_sources(
         'kolibri_webview.py',
         'kolibri_window.py',
         'main.py',
+        'restore.js',
         'utils.py',
+        'webview_location.py',
     ],
     subdir: 'kolibri_gnome'
 )
