@@ -1,3 +1,7 @@
+import os
+from contextlib import ExitStack
+
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
@@ -60,15 +64,36 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            BulkUserImportManager(
-                options["filepath"],
-                facility_id=options["facility"],
-                userid=options["userid"],
-                locale=options["locale"],
-                dryrun=options["dryrun"],
-                delete=options["delete"],
-                use_storage=options["use_storage"],
-                errorlines=options["errorlines"],
-            ).run()
-        except BulkUserImportError as e:
+            output = options["errorlines"]
+            with ExitStack() as stack:
+                errorlines = output
+                if isinstance(output, str):
+                    input_path = options["filepath"]
+                    if options["use_storage"]:
+                        try:
+                            input_path = default_storage.path(input_path)
+                        except NotImplementedError:
+                            input_path = None
+                    if (
+                        input_path is not None
+                        and os.path.exists(output)
+                        and os.path.samefile(input_path, output)
+                    ):
+                        raise CommandError(
+                            "The error output must differ from the input file."
+                        )
+                    errorlines = stack.enter_context(
+                        open(output, "w", encoding="utf-8")
+                    )
+                BulkUserImportManager(
+                    options["filepath"],
+                    facility_id=options["facility"],
+                    userid=options["userid"],
+                    locale=options["locale"],
+                    dryrun=options["dryrun"],
+                    delete=options["delete"],
+                    use_storage=options["use_storage"],
+                    errorlines=errorlines,
+                ).run()
+        except (BulkUserImportError, OSError) as e:
             raise CommandError(str(e)) from e
