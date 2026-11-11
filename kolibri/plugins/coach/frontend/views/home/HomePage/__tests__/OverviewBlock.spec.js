@@ -11,7 +11,6 @@ import OverviewBlock from '../OverviewBlock.vue';
 const { viewPasswordsAction$ } = picturePasswordStrings;
 const { title$ } = connectDevicesStrings;
 
-jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../../composables/fetchClassSyncStatus');
 jest.mock('qrcode', () => ({

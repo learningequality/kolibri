@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { currentLanguage } from 'kolibri/utils/i18n';
-import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { selectKSelectOption } from 'testUtils';
 import ExtraDemographicField from '../ExtraDemographicField.vue';
 
 const DESCRIPTION = 'Age';
