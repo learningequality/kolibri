@@ -869,18 +869,21 @@ class BulkUserImportManager(JobProgressMixin):
         self.number_lines = self.get_number_lines(
             storage_filepath=storage_filepath, local_filepath=local_filepath
         )
+        if self.number_lines == 0:
+            self.append_error(
+                "The selected file is empty. Select a CSV file that contains users."
+            )
         self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
-            # validate csv headers:
-            has_header = self.csv_headers_validation(
-                local_filepath=local_filepath, storage_filepath=storage_filepath
-            )
-            if not has_header:
-                self.append_error(MESSAGES[INVALID_HEADER])
-            self.exit_if_error()
-            self.progress_update(1)  # state=csv_headers
             try:
+                has_header = self.csv_headers_validation(
+                    local_filepath=local_filepath, storage_filepath=storage_filepath
+                )
+                if not has_header:
+                    self.append_error(MESSAGES[INVALID_HEADER])
+                self.exit_if_error()
+                self.progress_update(1)
                 with open_csv_for_reading(
                     local_filepath=local_filepath, storage_filepath=storage_filepath
                 ) as f:
