@@ -8,6 +8,7 @@ from uuid import UUID
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -253,6 +254,7 @@ class Validator:
         self.classrooms = {}
         self.coach_classrooms = {}
         self.users = {}
+        self.rejected_users = []
         self.header_translation = header_translation
         self.roles = {r: [] for r in roles_map.values() if r is not None}
         self.facility = facility
@@ -314,12 +316,35 @@ class Validator:
             append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
             self.roles[roles_map[user_role]].append(username)
 
+    def protect_rejected_user(self, row):
+        uuid = row.get(self.header_translation["UUID"])
+        username = row.get(self.header_translation["USERNAME"])
+        identities = Q(username__iexact=username) if username else Q(pk__in=[])
+        try:
+            identities |= Q(pk=UUID(uuid).hex)
+        except (ValueError, TypeError, AttributeError):
+            pass
+        self.rejected_users.extend(
+            FacilityUser.all_objects.filter(identities, facility=self.facility)
+        )
+
     def validate(self, data):
         """
         Validate `data` and return an iterator over errors found.
         """
         for index, row in enumerate(data):
             error_flag = False
+            missing = [name for name, value in row.items() if value is None]
+            if missing:
+                self.protect_rejected_user(row)
+                for name in missing:
+                    yield {
+                        "row": index + 1,
+                        "message": MESSAGES[REQUIRED_COLUMN].format(name),
+                        "field": name,
+                        "value": None,
+                    }
+                continue
             username = self.get_username(row)
             if not username:
                 error = {
@@ -348,7 +373,7 @@ class Validator:
                     error = {
                         "row": index + 1,
                         "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
-                            (e.__class__.__name__, e)
+                            e.__class__.__name__, e
                         ),
                         "field": header_name,
                         "value": value,
@@ -362,7 +387,7 @@ class Validator:
                 self.users[username] = row
 
 
-def csv_values_validation(reader, header_translation, facility):
+def csv_values_validation(reader, header_translation, facility, rejected_users=None):
     per_line_errors = []
     validator = Validator(header_translation, facility)
     validator.add_check("UUID", valid_uuid(), MESSAGES[INVALID_UUID])
@@ -424,6 +449,8 @@ def csv_values_validation(reader, header_translation, facility):
                 validator.coach_classrooms[real_name] = validator.coach_classrooms.pop(
                     classroom
                 )
+    if rejected_users is not None:
+        rejected_users.extend(validator.rejected_users)
     return (
         per_line_errors,
         (validator.classrooms, validator.coach_classrooms),
@@ -893,8 +920,12 @@ class BulkUserImportManager(JobProgressMixin):
                     local_filepath=local_filepath, storage_filepath=storage_filepath
                 ) as f:
                     reader = csv.DictReader(f, strict=True)
+                    rejected_users = []
                     per_line_errors, classes, users, roles = csv_values_validation(
-                        reader, self.header_translation, self.default_facility
+                        reader,
+                        self.header_translation,
+                        self.default_facility,
+                        rejected_users,
                     )
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.append_error(MESSAGES[FILE_READ_ERROR].format(e))
@@ -913,7 +944,7 @@ class BulkUserImportManager(JobProgressMixin):
             ) = self.build_classes_objects(classes)
             classes = fixed_classes
             users_to_delete, classes_to_clear = self.get_delete(
-                keeping_users, db_update_classes
+                keeping_users + rejected_users, db_update_classes
             )
             per_line_errors += self.db_validate_list(db_new_users, users=True)
             per_line_errors += self.db_validate_list(db_update_users, users=True)
@@ -924,7 +955,9 @@ class BulkUserImportManager(JobProgressMixin):
             if not self.dryrun:
                 self.delete_users(users_to_delete)
                 # clear users from classes not included in the csv:
-                Membership.objects.filter(collection__in=classes_to_clear).delete()
+                Membership.objects.filter(collection__in=classes_to_clear).exclude(
+                    user__in=rejected_users
+                ).delete()
 
                 # bulk_create and bulk_update are not possible with current Morango:
                 db_users = db_new_users + db_update_users

@@ -532,6 +532,7 @@ class ImportTestCase(TestCase):
                 "2001",
                 "FEMALE",
                 "classroom1,classroom0",
+                None,
             ],
             [
                 None,
