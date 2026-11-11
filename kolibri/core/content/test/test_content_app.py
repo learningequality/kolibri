@@ -1949,6 +1949,18 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(len(response.data), len(unfiltered.data))
 
+    def test_contentnode_list_resource_types_param_is_ignored(self):
+        # resource_types has no metadata bitmasks, so it is not a filter;
+        # passing it must not error and must not narrow the results.
+        unfiltered = self.client.get(reverse("kolibri:core:contentnode-list"))
+        self.assertGreater(len(unfiltered.data), 0)
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"resource_types": "tutorial"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(unfiltered.data))
+
     def test_publiccontentnode_list(self):
         # The public payload is the internal one minus admin_imported, which is
         # device-local state a peer has no business seeing.

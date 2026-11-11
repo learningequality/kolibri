@@ -54,7 +54,6 @@ contentnode_filter_fields = [
     "kind_in",
     "contains_quiz",
     "grade_levels",
-    "resource_types",
     "learning_activities",
     "accessibility_labels",
     "categories",
@@ -81,7 +80,6 @@ class ContentNodeFilter(FilterSet):
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = BooleanFilter(method="filter_contains_quiz")
     grade_levels = CharFilter(method="bitmask_contains_and")
-    resource_types = CharFilter(method="bitmask_contains_and")
     learning_activities = CharFilter(method="bitmask_contains_and")
     accessibility_labels = CharFilter(method="bitmask_contains_and")
     categories = CharFilter(method="bitmask_contains_and")
