@@ -137,7 +137,7 @@ export default function useSandbox({ emit }, { pollProgress = false, urlBuilder 
       userData.value,
       urlBuilder ? urlBuilder(file, { options: contentOptions.value }) : file.storage_url,
       file.checksum,
-      { handlerUrl: sandboxHandlerUrl.value },
+      { handlerUrl: sandboxHandlerUrl.value, polyfillUrl: urls.sandboxPolyfills() },
     );
 
     if (pollProgress) {

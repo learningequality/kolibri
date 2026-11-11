@@ -570,9 +570,6 @@ importers:
 
   kolibri/plugins/html5_viewer:
     dependencies:
-      core-js:
-        specifier: 'catalog:'
-        version: 3.49.0
       kolibri:
         specifier: workspace:*
         version: link:../../../packages/kolibri

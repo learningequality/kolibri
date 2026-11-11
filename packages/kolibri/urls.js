@@ -137,6 +137,10 @@ class UrlResolver {
     return this._getPluginData('__sandboxUrl');
   }
 
+  get __sandboxPolyfillUrl() {
+    return this._getPluginData('__sandboxPolyfillUrl');
+  }
+
   get __staticUrl() {
     return this._getPluginData('__staticUrl');
   }
@@ -169,6 +173,9 @@ class UrlResolver {
       origin: this.__zipContentOrigin,
       port: this.__zipContentPort,
     });
+  }
+  sandboxPolyfills() {
+    return this.__sandboxPolyfillUrl || null;
   }
   zipContentOrigin() {
     return new URL(
