@@ -1,7 +1,7 @@
 import { createTranslator } from 'kolibri/utils/i18n';
 import { get } from '@vueuse/core';
+import useConnection from 'kolibri/composables/useConnection';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import useConnection from './useConnection';
 
 export const trs = createTranslator('DisconnectionSnackbars', {
   disconnected: {

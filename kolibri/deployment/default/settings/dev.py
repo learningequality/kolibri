@@ -4,6 +4,7 @@ from .base import *  # noqa isort:skip @UnusedWildImport
 from .base import CSP_DEFAULT_SRC
 from .base import CSP_SCRIPT_SRC
 from .base import CSP_STYLE_SRC
+from .base import REST_FRAMEWORK
 
 DEBUG = True
 
@@ -49,6 +50,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "kolibri.deployment.default.renderers.LightBrowsableAPIRenderer",
     ),
+    "DEFAULT_PARSER_CLASSES": REST_FRAMEWORK["DEFAULT_PARSER_CLASSES"],
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
 
