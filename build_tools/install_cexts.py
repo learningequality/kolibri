@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.6"
-# dependencies = ["requests==2.27.1", "pip>=20"]
+# dependencies = ["requests==2.27.1", "urllib3", "pip>=20"]
 # ///
 """
 This module defines functions to install c extensions for all the platforms into

@@ -235,7 +235,7 @@ def test_parse_pypi_and_piwheels_backs_off_until_index_page_loads(monkeypatch):
         install_cexts.PIWHEEL_DOWNLOAD
     ] * 2
     assert sleeps == [2, 4]
-    assert None not in adapters[PIWHEELS_CFFI].timeouts
+    assert adapters[PIWHEELS_CFFI].timeouts == [install_cexts.INDEX_TIMEOUT] * 3
 
 
 def test_parse_pypi_and_piwheels_retries_tls_error_in_body(monkeypatch):
@@ -273,4 +273,7 @@ def test_parse_pypi_and_piwheels_exits_naming_last_error(monkeypatch, caplog):
     assert sleeps == [2, 4, 8, 16, 32]
     warnings = [r for r in caplog.records if r.levelname == "WARNING"]
     assert len(warnings) == install_cexts.INDEX_ATTEMPTS - 1
-    assert None not in adapters[PYPI_CFFI].timeouts
+    assert (
+        adapters[PYPI_CFFI].timeouts
+        == [install_cexts.INDEX_TIMEOUT] * install_cexts.INDEX_ATTEMPTS
+    )
