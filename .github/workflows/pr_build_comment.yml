@@ -43,4 +43,4 @@ jobs:
             const utils = require('./.github/githubUtils.js')
             const prNumber = Number(process.env.PR_NUMBER)
             const body = await utils.generateAssetComment(github, context)
-            await utils.upsertComment(github, context, prNumber, '**Build Artifacts**', body)
+            await utils.upsertComment(github, context, prNumber, ['**Build Artifacts**'], body)
