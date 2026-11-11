@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.utils import translation
 
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.utils.bulk_import import fieldnames
 
 
 class BulkInputErrorsTest(TestCase):
@@ -31,3 +32,31 @@ class BulkInputErrorsTest(TestCase):
     def test_unparseable_header_reports_error(self):
         with self.assertRaisesRegex(CommandError, "unexpected end of data"):
             self.run_import('"UUID,USERNAME')
+
+    def test_invalid_csv_preserves_existing_report(self):
+        output = self.path.with_name("errors.txt")
+        output.write_text("previous report", encoding="utf-8")
+        for content in ('"UUID,USERNAME', HEADER + '"unclosed'):
+            with self.subTest(content=content), self.assertRaisesRegex(
+                CommandError, "unexpected end of data"
+            ):
+                self.run_import(content, errorlines=str(output))
+            self.assertEqual(output.read_text(encoding="utf-8"), "previous report")
+
+    def check_facility_error(self, command, facility):
+        self.path.write_text(",".join(fieldnames), encoding="utf-8")
+        args = [str(self.path)] if command == "bulkimportusers" else []
+        with self.assertRaises(CommandError):
+            call_command(command, *args, facility=facility)
+
+    def test_unknown_facility_import_reports_error(self):
+        self.check_facility_error("bulkimportusers", "f" * 32)
+
+    def test_malformed_facility_import_reports_error(self):
+        self.check_facility_error("bulkimportusers", "notauuid")
+
+    def test_unknown_facility_export_reports_error(self):
+        self.check_facility_error("bulkexportusers", "f" * 32)
+
+    def test_malformed_facility_export_reports_error(self):
+        self.check_facility_error("bulkexportusers", "notauuid")

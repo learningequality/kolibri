@@ -19,6 +19,7 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
+from kolibri.core.auth.utils.bulk_import import FACILITY_NOT_FOUND
 from kolibri.core.auth.utils.bulk_import import FILE_WRITE_ERROR
 from kolibri.core.auth.utils.bulk_import import MESSAGES
 from kolibri.core.auth.utils.bulk_import import NO_FACILITY
@@ -220,14 +221,23 @@ class BulkUserExportManager(JobProgressMixin):
     def run(self):
         # set language for the translation of the messages
         with translation.override(self.locale or settings.LANGUAGE_CODE):
-            self._run()
+            try:
+                self._run()
+            except BulkUserExportError as error:
+                self.update_job_metadata(overall_error=[str(error)])
+                raise
 
     def _run(self):
         storage_filepath = None
         local_filepath = None
 
-        if self.facility_id:
-            facility = Facility.objects.get(pk=self.facility_id)
+        if self.facility_id is not None:
+            try:
+                facility = Facility.objects.get(pk=self.facility_id)
+            except (Facility.DoesNotExist, ValueError) as e:
+                raise BulkUserExportError(
+                    FACILITY_NOT_FOUND.format(facility_id=self.facility_id)
+                ) from e
         else:
             facility = Facility.get_default_facility()
         if not facility:
