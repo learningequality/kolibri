@@ -227,7 +227,10 @@ def get_embedded_file(
         )
         zipped_file_object = zf.open(info)
 
-        is_html = embedded_filepath.lower().endswith(("html", "htm"))
+        is_html = (
+            content_type == "text/html"
+            and not mimetypes.guess_type(embedded_filepath)[1]
+        )
 
         if is_html:
             content = zipped_file_object.read()
@@ -322,8 +325,8 @@ def _zip_content_from_request(request):  # noqa: C901
 
     if request.method == "OPTIONS":
         response = HttpResponse()
-        # If path ends with html/htm, set Accept-Ranges to none
-        if embedded_filepath.lower().endswith(("html", "htm")):
+        content_type, encoding = mimetypes.guess_type(embedded_filepath)
+        if content_type == "text/html" and not encoding:
             response.headers["Accept-Ranges"] = "none"
         else:
             response.headers["Accept-Ranges"] = "bytes"
