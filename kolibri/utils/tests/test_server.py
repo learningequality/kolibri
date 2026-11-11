@@ -19,6 +19,7 @@ from kolibri.core.tasks.worker import WorkerSupervisor
 from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
+from kolibri.utils.tests.helpers import running_pid_file
 
 
 class TestServerInstallation:
@@ -244,6 +245,18 @@ class TestZeroConfPlugin:
 
         zeroconf_plugin.STOP()
 
+    @pytest.mark.django_db(databases="__all__", transaction=True)
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
+    )
+    def test_broadcasts_advertised_port(self, mock_backend):
+        zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 8080)
+        with mock.patch.dict(OPTIONS["Deployment"], {"ADVERTISED_HTTP_PORT": 9000}):
+            zeroconf_plugin.SERVING(8080)
+            zeroconf_plugin.RUN()
+        (instance,), _kwargs = mock_backend.call_args
+        assert instance.port == 9000
+
     @mock.patch(
         "kolibri.core.discovery.utils.network.broadcast.NetworkDiscoveryBackend"
     )
@@ -286,7 +299,9 @@ class TestGetLocalHostnames:
         }
 
 
-class GetUrlsTestCase(TestCase):
+class GetUrlsTestCase(DjangoTestCase):
+    databases = "__all__"
+
     @mock.patch.object(server, "get_local_hostnames")
     @mock.patch.object(server, "_get_local_ips")
     def test_get_urls__includes_local_hostnames(self, mock_ips, mock_hostnames):
@@ -298,6 +313,36 @@ class GetUrlsTestCase(TestCase):
         self.assertIn("http://10.0.0.5:1234/", urls)
         self.assertIn("http://kolibri.local:1234/", urls)
         self.assertIn("http://tonyslaptop.local:1234/", urls)
+
+    def test_get_urls__port_80_omitted(self):
+        LocalHostname.objects.create(hostname="kolibri.local")
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "10.0.0.5"}):
+            _status, urls = server.get_urls(listen_port=80)
+        self.assertEqual(["http://10.0.0.5/", "http://kolibri.local/"], urls)
+
+    def test_get_urls__advertised_port(self):
+        with running_pid_file(8080), mock.patch.dict(
+            OPTIONS["Deployment"],
+            {"LISTEN_ADDRESS": "10.0.0.5", "ADVERTISED_HTTP_PORT": 80},
+        ):
+            _status, urls = server.get_urls()
+        self.assertEqual(["http://10.0.0.5/"], urls)
+
+    def test_get_urls__listen_port_uses_advertised_port(self):
+        with mock.patch.dict(
+            OPTIONS["Deployment"],
+            {"LISTEN_ADDRESS": "10.0.0.5", "ADVERTISED_HTTP_PORT": 80},
+        ):
+            _status, urls = server.get_urls(listen_port=8080)
+        self.assertEqual(["http://10.0.0.5/"], urls)
+
+    def test_get_urls__not_advertised_keeps_listen_port(self):
+        with mock.patch.dict(
+            OPTIONS["Deployment"],
+            {"LISTEN_ADDRESS": "10.0.0.5", "ADVERTISED_HTTP_PORT": 80},
+        ):
+            _status, urls = server.get_urls(listen_port=8081, advertise=False)
+        self.assertEqual(["http://10.0.0.5:8081/"], urls)
 
     @mock.patch.object(server, "get_local_hostnames")
     @mock.patch.object(server, "_get_local_ips")

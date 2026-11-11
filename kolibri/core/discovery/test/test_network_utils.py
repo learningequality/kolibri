@@ -4,8 +4,11 @@ import requests
 from django.test import TestCase
 
 import kolibri
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.tests.helpers import running_pid_file
 
 from ..models import ConnectionStatus
+from ..models import LocalHostname
 from ..models import LocationTypes
 from ..models import NetworkLocation
 from ..utils.network import errors
@@ -181,6 +184,18 @@ class NetworkClientTestCase(TestCase):
     def test_discover_from_address__not_found__request_failure(self):
         with self.assertRaises(errors.NetworkLocationNotFound):
             NetworkClient.discover_from_address("sadurl.qqq")
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("http://kolibri.local:8080/")
+    )
+    def test_discover_from_address__excludes_own_bound_port_when_advertising(self):
+        LocalHostname.objects.create(hostname="kolibri.local")
+        with running_pid_file(8080), mock.patch.dict(
+            OPTIONS["Deployment"],
+            {"LISTEN_ADDRESS": "10.0.0.5", "ADVERTISED_HTTP_PORT": 80},
+        ):
+            with self.assertRaises(errors.NetworkLocationNotFound):
+                NetworkClient.discover_from_address("kolibri.local")
 
     @mock.patch.object(requests.Session, "request", mock_not_found())
     def test_discover_from_address__not_found(self):

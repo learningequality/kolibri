@@ -123,7 +123,7 @@ class _DBusPlugin(SimplePlugin):
         self.__update_state(base_url=base_urls[0], status=KolibriStatus.STARTED)
 
     def ZIP_SERVING(self, zip_port: int):
-        _, zip_urls = get_urls(listen_port=zip_port)
+        _, zip_urls = get_urls(listen_port=zip_port, advertise=False)
         self.__update_state(extra_url=zip_urls[0])
 
     def __on_start_error(self, error_class, error, traceback):
