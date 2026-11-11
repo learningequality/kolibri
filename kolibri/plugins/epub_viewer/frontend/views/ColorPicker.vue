@@ -96,4 +96,48 @@
     justify-content: center;
   }
 
+  // alwan 2.3.1 spaces its rows with physical margin-right; recheck on upgrade.
+  // stylelint-disable-next-line selector-pseudo-element-no-unknown
+  .picker-box ::v-deep {
+    .alwan__preview {
+      margin-inline-start: 0;
+      margin-inline-end: 15px;
+    }
+
+    .alwan__inputs > label {
+      margin-inline-start: 0;
+      margin-inline-end: 4px;
+    }
+
+    // alwan 2.3.1 lays out its hue slider, saturation gradient, cursor and
+    // hex input for an LTR context; recheck on upgrade.
+    .alwan__input {
+      /*! rtl:ignore */
+      direction: ltr;
+    }
+
+    .alwan__hue {
+      /*! rtl:ignore */
+      direction: rtl;
+    }
+
+    .alwan__selector {
+      /*! rtl:ignore */
+      direction: ltr;
+
+      /*! rtl:ignore */
+      background:
+        linear-gradient(to bottom, transparent, #000000),
+        linear-gradient(to right, #ffffff, hsl(var(--h, 0), 100%, 50%));
+    }
+
+    .alwan__cursor {
+      /*! rtl:ignore */
+      right: auto;
+
+      /*! rtl:ignore */
+      left: -8px;
+    }
+  }
+
 </style>

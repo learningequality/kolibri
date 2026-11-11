@@ -1,6 +1,7 @@
 <template>
 
   <KModal
+    :dir="languageDirection"
     :title="titleDeleteTheme$()"
     :submitText="coreString('deleteAction')"
     :cancelText="coreString('cancelAction')"
@@ -18,6 +19,7 @@
 
 <script>
 
+  import { languageDirection } from 'kolibri/utils/i18n';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { customThemeStrings } from './customThemeStrings';
 
@@ -26,6 +28,7 @@
     setup() {
       const { confirmationQuestion$, titleDeleteTheme$ } = customThemeStrings;
       return {
+        languageDirection,
         coreString,
         confirmationQuestion$,
         titleDeleteTheme$,

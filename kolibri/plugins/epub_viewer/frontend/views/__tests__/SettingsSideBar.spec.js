@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import Lockr from 'lockr';
+import { languageDirections } from 'kolibri/utils/i18n';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import SettingsSideBar from '../SettingsSideBar';
 import { THEMES, CUSTOM_THEMES_STORAGE_KEY } from '../EpubConstants';
@@ -18,6 +19,15 @@ jest.mock('alwan', () => ({
 }));
 
 jest.mock('alwan/css', () => {});
+
+let mockLanguageDirection = languageDirections.LTR;
+
+jest.mock('kolibri/utils/i18n', () => ({
+  ...jest.requireActual('kolibri/utils/i18n'),
+  get languageDirection() {
+    return mockLanguageDirection;
+  },
+}));
 
 const {
   decrease$,
@@ -42,8 +52,9 @@ const customTheme = {
   linkColor: '#90caf9',
 };
 
-function renderSettingsSideBar(props = {}) {
+function renderSettingsSideBar(props = {}, options = {}) {
   return render(SettingsSideBar, {
+    ...options,
     props: {
       theme: THEMES.BEIGE,
       ...props,
@@ -178,5 +189,41 @@ describe('Settings side bar', () => {
     ).not.toBeInTheDocument();
     // Focus returns to the add-theme button after the row is removed.
     expect(screen.getByRole('button', { name: addNewTheme$() })).toHaveFocus();
+  });
+
+  describe('inside content laid out in the other direction', () => {
+    const { LTR, RTL } = languageDirections;
+
+    function renderInsideOppositeDirection(uiDirection) {
+      mockLanguageDirection = uiDirection;
+      const container = document.createElement('div');
+      container.setAttribute('dir', uiDirection === RTL ? LTR : RTL);
+      document.body.appendChild(container);
+      return renderSettingsSideBar({}, { container });
+    }
+
+    const openDeleteModal = () =>
+      fireEvent.click(
+        screen.getByRole('button', { name: deleteCustomTheme$({ themeName: 'Night' }) }),
+      );
+    const openAddModal = () =>
+      fireEvent.click(screen.getByRole('button', { name: addNewTheme$() }));
+
+    afterEach(() => {
+      mockLanguageDirection = LTR;
+    });
+
+    it.each([
+      ['delete', RTL, openDeleteModal],
+      ['delete', LTR, openDeleteModal],
+      ['add-theme', RTL, openAddModal],
+    ])('lays out the %s modal in the %s UI direction', async (_, uiDirection, openModal) => {
+      seedCustomThemes({ abc: customTheme });
+      renderInsideOppositeDirection(uiDirection);
+
+      await openModal();
+
+      expect(screen.getByRole('dialog').closest('[dir]')).toHaveAttribute('dir', uiDirection);
+    });
   });
 });
