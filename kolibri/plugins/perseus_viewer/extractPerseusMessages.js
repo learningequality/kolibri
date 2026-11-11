@@ -22,6 +22,15 @@ function normalizeString(string) {
   return replacePiText(string.replace(gettextRegex, '{ $1 }')).replace(/\\/g, '\\\\');
 }
 
+function normalizePluralForm(string) {
+  return normalizeString(string).replace(/\{ (\w+) \}/g, '{ $1, number }').trim();
+}
+
+// Perseus's own fallback strings choose the plural form by `num` when the message has one.
+function pluralVariable(string) {
+  return string.includes('%(num)s') ? 'num' : string.match(/%\(([\w_]+)\)s/)[1];
+}
+
 function normalizeStringObject(stringObject) {
   const normalizedObject = {};
   for (const key in stringObject) {
@@ -29,12 +38,12 @@ function normalizeStringObject(stringObject) {
       if (stringObject[key].message) {
         normalizedObject[key] = {
           message: normalizeString(stringObject[key].message),
-          context: stringObject[key].context,
+          context: stringObject[key].context?.replace(gettextRegex, '{ $1 }'),
         };
       } else if (stringObject[key].one && stringObject[key].other) {
-        const oneMessage = normalizeString(stringObject[key].one).trim();
-        const otherMessage = normalizeString(stringObject[key].other).trim();
-        const varName = gettextRegex.exec(stringObject[key].one)[1];
+        const oneMessage = normalizePluralForm(stringObject[key].one);
+        const otherMessage = normalizePluralForm(stringObject[key].other);
+        const varName = pluralVariable(stringObject[key].one);
         normalizedObject[key] = `{${varName}, plural, one {${oneMessage}} other {${otherMessage}}}`;
       } else {
         console.error('Unrecognized string object:', stringObject[key]);
