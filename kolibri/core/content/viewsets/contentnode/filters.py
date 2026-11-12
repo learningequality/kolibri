@@ -42,7 +42,7 @@ def selected_node_ids(request):
     return getattr(request, "_selected_node_ids", None)
 
 
-_ID_SELECTING_FILTERS = frozenset({"ids", "lesson"})
+_ID_SELECTING_FILTERS = frozenset({"ids", "lesson", "resume", "popular"})
 _VISIBILITY_FILTERS = frozenset({"include_coach_content", "exclude_course_ancestry"})
 _SEARCH_PARAMS = frozenset({"search", "question", "keywords"})
 

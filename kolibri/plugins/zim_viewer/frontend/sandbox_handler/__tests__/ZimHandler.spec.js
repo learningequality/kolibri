@@ -186,7 +186,7 @@ describe('ZimHandler', () => {
       });
       await settle(iframe, handler._loadAndAttach('I/Doc.pdf'));
       expect(sentEvents(handler, events.RENDER_FILE).map(m => m.data)).toEqual([
-        { ...file, hasPrevious: false },
+        { ...file, hasPrevious: false, isPage: true },
       ]);
       expect(sentEvents(handler, events.NOW_SHOWING).map(m => m.data)).toEqual(['I/Doc.pdf']);
     });
@@ -205,7 +205,7 @@ describe('ZimHandler', () => {
       await settle(iframe, handler._loadAndAttach('C/Doc.pdf'));
 
       expect(sentEvents(handler, events.RENDER_FILE).map(m => m.data)).toEqual([
-        { ...file, hasPrevious: true },
+        { ...file, hasPrevious: true, isPage: true },
       ]);
     });
 
@@ -222,7 +222,7 @@ describe('ZimHandler', () => {
       await settle(iframe, handler._loadAndAttach('I/Pic.png'));
 
       expect(sentEvents(handler, events.RENDER_FILE).map(m => m.data)).toEqual([
-        { ...image, hasPrevious: false },
+        { ...image, hasPrevious: false, isPage: false },
       ]);
     });
 
@@ -296,7 +296,7 @@ describe('ZimHandler', () => {
       await settle(iframe, handler._loadAndAttach('I/Pic.png'));
 
       expect(sentEvents(handler, events.RENDER_FILE).map(m => m.data)).toEqual([
-        { ...image, hasPrevious: true },
+        { ...image, hasPrevious: true, isPage: false },
       ]);
       expect(sentEvents(handler, events.NOW_SHOWING)).toEqual([]);
       expect(handler._currentPath).toBe('C/Index');
@@ -316,7 +316,7 @@ describe('ZimHandler', () => {
       loadArticleIntoIframe.mockResolvedValueOnce(html('C/Index'));
       await settle(iframe, handler._loadAndAttach('C/Index'));
       expect(sentEvents(handler, events.RENDER_FILE).map(m => m.data)).toEqual([
-        { ...file, hasPrevious: false },
+        { ...file, hasPrevious: false, isPage: true },
         null,
       ]);
     });
@@ -395,7 +395,7 @@ describe('ZimHandler', () => {
       handler.retarget(startUrlFor('C/Index'));
 
       expect(sentEvents(handler, events.RENDER_FILE).map(m => m.data)).toEqual([
-        { ...file, hasPrevious: false },
+        { ...file, hasPrevious: false, isPage: true },
         null,
       ]);
     });

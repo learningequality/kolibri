@@ -18,16 +18,17 @@
         :userId="currentUserId"
         :userFullName="fullName"
         :timeSpent="time_spent"
+        :loading="switchingPage"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @addProgress="addProgress"
-        @updateContentState="updateContentState"
+        @updateProgress="onViewerProgress"
+        @addProgress="onViewerAddProgress"
+        @updateContentState="onViewerContentState"
         @navigateTo="navigateTo"
         @nowShowing="nowShowing"
         @goBack="goBack"
         @error="onError"
-        @finished="onFinished"
+        @finished="onViewerFinished"
       />
       <QuizRenderer
         v-else-if="practiceQuiz || survey"
@@ -259,6 +260,13 @@
         wasComplete: false,
         sessionReady: false,
         fullName: this.full_name,
+        switchingPage: false,
+        pendingProgress: null,
+        pendingProgressDelta: 0,
+        pendingContentState: null,
+        pendingFinished: false,
+        sessionGeneration: 0,
+        sessionSwitch: Promise.resolve(),
       };
     },
     computed: {
@@ -271,6 +279,11 @@
       progress() {
         // Ensure that our cached progress and tracked progress always stay up to date
         this.cacheProgress();
+      },
+      'content.id'(newId, oldId) {
+        if (this.sessionReady && newId !== oldId) {
+          this.startNodeSession();
+        }
       },
     },
     created() {
@@ -336,9 +349,38 @@
         if (syntheticId === this.$route.params.id) {
           return;
         }
+        this.switchingPage = true;
         this.$emit('navigateInPlace', syntheticId);
         const route = this.genContentLinkKeepCurrentBackLink(syntheticId, true);
         return this.content.virtual ? router.push(route) : router.replace(route);
+      },
+      onViewerProgress(progress) {
+        if (this.switchingPage) {
+          this.pendingProgress = Math.max(this.pendingProgress || 0, progress);
+          return;
+        }
+        return this.updateProgress(progress);
+      },
+      onViewerAddProgress(progressDelta) {
+        if (this.switchingPage) {
+          this.pendingProgressDelta += progressDelta;
+          return;
+        }
+        this.addProgress(progressDelta);
+      },
+      onViewerContentState(contentState) {
+        if (this.switchingPage) {
+          this.pendingContentState = contentState;
+          return;
+        }
+        this.updateContentState(contentState);
+      },
+      onViewerFinished() {
+        if (this.switchingPage) {
+          this.pendingFinished = true;
+          return;
+        }
+        this.onFinished();
       },
       onFinished() {
         if (this.errored) {
@@ -375,6 +417,54 @@
       onError(error) {
         this.errored = true;
         this.$emit('error', error);
+      },
+      startNodeSession() {
+        const generation = ++this.sessionGeneration;
+        this.switchingPage = true;
+        this.sessionSwitch = this.sessionSwitch
+          .then(() => this.switchNodeSession(generation))
+          .catch(error => {
+            this.$emit('error', error);
+          });
+        return this.sessionSwitch;
+      },
+      async switchNodeSession(generation) {
+        const isCurrent = () => generation === this.sessionGeneration;
+        if (!isCurrent()) {
+          return;
+        }
+        await this.stopTracking();
+        if (!isCurrent()) {
+          return;
+        }
+        await this.initContentSession({ node: this.content, lessonId: this.lessonId });
+        if (!isCurrent()) {
+          return;
+        }
+        this.wasComplete = this.progress >= 1;
+        this.cacheProgress();
+        this.startTracking();
+        this.switchingPage = false;
+        const progress = this.pendingProgress;
+        const progressDelta = this.pendingProgressDelta;
+        const contentState = this.pendingContentState;
+        const finished = this.pendingFinished;
+        this.pendingProgress = null;
+        this.pendingProgressDelta = 0;
+        this.pendingContentState = null;
+        this.pendingFinished = false;
+        if (contentState) {
+          this.updateContentState(contentState);
+        }
+        if (progress !== null) {
+          this.updateProgress(progress);
+        }
+        if (progressDelta) {
+          this.addProgress(progressDelta);
+        }
+        if (finished) {
+          this.onFinished();
+        }
       },
       initSession(repeat = false) {
         /* Always be sure that this is hidden before the component renders */
