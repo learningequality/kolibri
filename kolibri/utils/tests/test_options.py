@@ -332,6 +332,31 @@ def test_option_writing():
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
 
 
+def test_option_writing_non_ascii_value():
+    """
+    Checks that a value with non-ASCII characters can be written to a dummy options.ini file, and then read back.
+    """
+    if sys.platform == "win32":
+        _NEW_CONTENT_DIR = "C:\\contenido_educación"
+    else:
+        _NEW_CONTENT_DIR = "/contenido_educación"
+
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        options.update_options_file(
+            "Paths",
+            "CONTENT_DIR",
+            _NEW_CONTENT_DIR,
+            ini_filename=tmp_ini_path,
+        )
+
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
+
+
 def test_path_expansion():
     """
     Checks that options under [Path] have "~" expanded, and are relativized to the KOLIBRI_HOME directory.
