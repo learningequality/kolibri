@@ -143,6 +143,15 @@ def test_mime_list_that_is_not_utf8_raises_corrupt():
         reader.mime_list()
 
 
+def test_iter_entries_skips_an_entry_with_a_non_ascii_namespace():
+    data = bytearray(build_minimal_zim())
+    reader = ZimReader(io.BytesIO(bytes(data)))
+    entry_offset = reader._read_url_ptr(0)
+    data[entry_offset + 3] = 0xC3
+    reader = ZimReader(io.BytesIO(bytes(data)))
+    assert list(reader.iter_entries({"text/html"})) == []
+
+
 def test_find_entry_on_truncated_body_raises_corrupt():
     data = build_minimal_zim()[: HEADER_SIZE + 5]
     reader = ZimReader(io.BytesIO(data))
@@ -170,3 +179,35 @@ def test_blob_range_rejects_a_blob_past_the_file_despite_a_corrupt_checksum_pos(
     reader = ZimReader(io.BytesIO(bytes(data)))
     with pytest.raises(CorruptZimError):
         reader.blob_range(reader.find_entry("C/Index"))
+
+
+def test_iter_entries_yields_matching_articles():
+    reader = open_minimal()
+    assert list(reader.iter_entries({"text/html"})) == [
+        ("C/Index", "Index", "text/html")
+    ]
+
+
+def test_iter_entries_skips_redirects():
+    reader = ZimReader(io.BytesIO(build_zim_with_redirect()))
+    assert [path for path, _t, _m in reader.iter_entries({"text/html"})] == ["C/Index"]
+
+
+def test_iter_entries_skips_unrequested_mimetypes():
+    reader = open_minimal()
+    assert list(reader.iter_entries({"application/pdf"})) == []
+
+
+def test_iter_entries_skips_malformed_entries():
+    data = build_minimal_zim()[: HEADER_SIZE + 5]
+    reader = ZimReader(io.BytesIO(data))
+    assert list(reader.iter_entries({"text/html"})) == []
+
+
+def test_iter_entries_warns_once_when_the_url_pointer_list_is_unreadable(caplog):
+    data = bytearray(build_minimal_zim())
+    struct.pack_into("<I", data, 24, 1000)
+    struct.pack_into("<Q", data, 32, len(data))
+    reader = ZimReader(io.BytesIO(bytes(data)))
+    assert list(reader.iter_entries({"text/html"})) == []
+    assert len(caplog.records) == 1

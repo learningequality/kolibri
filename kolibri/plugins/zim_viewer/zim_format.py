@@ -1,10 +1,14 @@
+import logging
 import os
 import struct
 from collections import namedtuple
 
+logger = logging.getLogger(__name__)
+
 ZIM_MAGIC = 0x044D495A
 # libzim 7 moved all content into the C namespace and marks it as format 6.1.
 NEW_NAMESPACE_VERSION = (6, 1)
+CONTENT_NAMESPACE = b"C"
 HEADER_FORMAT = "<IHH16sIIQQQQIIQ"
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
@@ -208,6 +212,35 @@ class ZimReader:
         self._seek(self.header.url_ptr_pos + URL_PTR_SIZE * index)
         (offset,) = struct.unpack(URL_PTR_FORMAT, self._read(URL_PTR_SIZE))
         return offset
+
+    def iter_entries(self, mimetypes):
+        for index in range(self.header.article_count):
+            try:
+                offset = self._read_url_ptr(index)
+            except (struct.error, CorruptZimError):
+                logger.warning(
+                    "Malformed ZIM URL pointer list at entry %d; stopping",
+                    index,
+                    exc_info=True,
+                )
+                return
+            try:
+                ns_char, _rev, is_redirect, mime_idx, _tail = self._read_entry_head(
+                    offset
+                )
+                if is_redirect or ns_char != CONTENT_NAMESPACE:
+                    continue
+                mimetype = self._mimetype_for_index(mime_idx)
+                if mimetype not in mimetypes:
+                    continue
+                url = _read_zt_string(self._stream)
+                title = _read_zt_string(self._stream) or url
+            except (struct.error, UnicodeDecodeError, CorruptZimError):
+                logger.warning(
+                    "Malformed ZIM directory entry %d; skipping", index, exc_info=True
+                )
+                continue
+            yield f"C/{url}", title, mimetype
 
     def _read_entry_url(self, offset):
         ns_char, _rev, _is_redir, _mime, _tail = self._read_entry_head(offset)
