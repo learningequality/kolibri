@@ -4,7 +4,12 @@
     "private": true,
     "version": "0.0.1",
     "dependencies": {
+        "core-js": "catalog:",
         "fzstd": "^0.1.1",
+        "kolibri": "workspace:*",
+        "kolibri-sandbox": "workspace:*",
+        "kolibri-viewer": "workspace:*",
+        "kolibri-zip": "workspace:*",
         "lru-cache": "^11.5.3"
     }
 }

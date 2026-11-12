@@ -15,6 +15,7 @@ describe('UrlResolver', () => {
       __mediaUrl: '/media/',
       __contentUrl: '/content/',
       __zipContentUrl: '/zipcontent/',
+      __zipContentStorageUrl: '/zip/content/storage/',
       __sandboxUrl: '/sandbox/',
       __zipContentOrigin: 'http://localhost',
       __zipContentPort: '8000',
@@ -161,6 +162,12 @@ describe('UrlResolver', () => {
 
     it('generates storage URLs', () => {
       expect(Urls.storageUrl('abc123', 'mp4')).toBe('http://kolibri.time/content/a/b/abc123.mp4');
+    });
+
+    it('generates storage URLs on the zip content origin', () => {
+      expect(Urls.zipContentStorageUrl('abc123', 'zim')).toBe(
+        'http://localhost:8000/zip/content/storage/a/b/abc123.zim',
+      );
     });
 
     it('throws error when special URLs are not defined', () => {
