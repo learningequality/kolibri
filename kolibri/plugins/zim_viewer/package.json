@@ -1,0 +1,10 @@
+{
+    "name": "kolibri-zim-viewer-plugin",
+    "description": "ZIM Viewer Plugin for Kolibri",
+    "private": true,
+    "version": "0.0.1",
+    "dependencies": {
+        "fzstd": "^0.1.1",
+        "lru-cache": "^11.5.3"
+    }
+}
