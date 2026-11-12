@@ -16,7 +16,7 @@
       >
         <template #header="{ header, colIndex }">
           <template v-if="colIndex === 0">
-            <span class="screen-reader-only">{{ selectLabel$() }}</span>
+            <span class="visuallyhidden">{{ selectLabel$() }}</span>
             <KCheckbox
               :label="selectAllLabel$()"
               :checked="selectAllState.checked"
@@ -573,18 +573,6 @@
 
   .user-type-icon {
     width: auto;
-  }
-
-  .screen-reader-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
   .flex-column {

@@ -6,7 +6,7 @@
     :style="{ background: 'var(--tokens-surface)' }"
   >
     <div class="banner-inner">
-      <h1 style="display: none">
+      <h1 style="display: none;">
         {{ $tr('bannerHeading') }}
       </h1>
       <KGrid>
@@ -278,6 +278,7 @@
       min-height: 60px;
     }
   }
+
   @media (max-width: 509px) {
     .button-style {
       margin-bottom: 10px;

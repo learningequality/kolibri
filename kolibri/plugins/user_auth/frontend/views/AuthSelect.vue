@@ -10,7 +10,7 @@
           :text="coreString('signInLabel')"
           :to="signInRoute"
           appearance="raised-button"
-          style="width: 100%"
+          style="width: 100%;"
           :primary="true"
         />
       </div>
@@ -25,7 +25,7 @@
           :text="userString('createAccountAction')"
           :to="signUpRoute"
           :primary="false"
-          style="width: 100%"
+          style="width: 100%;"
           appearance="raised-button"
         />
       </div>

@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer style="padding-top: 24px">
+  <KPageContainer style="padding-top: 24px;">
     <BackLink
       :to="backlink"
       :text="backlinkLabel"

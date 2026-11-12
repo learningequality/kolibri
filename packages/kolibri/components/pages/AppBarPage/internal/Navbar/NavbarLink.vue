@@ -98,8 +98,8 @@
 
   .list-item-navigation {
     display: inline-block;
-    text-align: center;
     visibility: hidden;
+    text-align: center;
   }
 
   .visible {
@@ -158,13 +158,13 @@
 
   div.dimmable.tab-title::before {
     display: block;
+    visibility: hidden;
     height: 0;
     overflow: hidden;
     font-weight: bold;
     pointer-events: none;
-    visibility: hidden;
-    content: attr(title);
     user-select: none;
+    content: attr(title);
   }
 
 </style>

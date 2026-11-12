@@ -4,10 +4,10 @@
     class="alert"
     :style="{ backgroundColor: 'var(--palette-red-v100)', display: displayBanner }"
   >
-    <h1 style="display: none">
+    <h1 style="display: none;">
       {{ $tr('insufficientStorageHeader') }}
     </h1>
-    <div style="display: flex">
+    <div style="display: flex;">
       <div>
         <KIcon
           icon="error"

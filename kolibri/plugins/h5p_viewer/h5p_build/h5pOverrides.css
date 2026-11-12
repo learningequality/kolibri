@@ -10,7 +10,6 @@
  * Upstream hides these labels with display: none, which leaves the cancel
  * button, having no aria-label, without an accessible name.
  */
-/* stylelint-disable-next-line csstree/validator -- csstree 3.0.0 predates @container */
 @container (max-width: 400px) {
   .h5p-theme .h5p-confirmation-dialog-buttons span {
     position: absolute;
@@ -18,8 +17,8 @@
     width: 1px;
     height: 1px;
     overflow: hidden;
-    clip: rect(0 0 0 0);
     white-space: nowrap;
+    clip-path: inset(50%);
   }
 }
 

@@ -34,7 +34,7 @@
               </KButton>
               <KButton
                 :text="$tr('import')"
-                style="margin-top: 16px; margin-bottom: -16px"
+                style="margin-top: 16px; margin-bottom: -16px;"
                 :primary="true"
                 @click="startImportWorkflow()"
               />

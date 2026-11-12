@@ -487,9 +487,9 @@
     height: 100%;
     padding: 0 12px;
     font-size: 16px;
+    outline: none;
     background: transparent;
     border: 0;
-    outline: none;
 
     // Browsers apply their own ::placeholder colour rather than inheriting the
     // input's, and theirs does not meet contrast requirements.
