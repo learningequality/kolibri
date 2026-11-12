@@ -227,7 +227,12 @@ class BulkUserExportManager(JobProgressMixin):
         local_filepath = None
 
         if self.facility_id:
-            facility = Facility.objects.get(pk=self.facility_id)
+            try:
+                facility = Facility.objects.get(pk=self.facility_id)
+            except (Facility.DoesNotExist, ValueError) as e:
+                raise BulkUserExportError(
+                    f"Facility with ID {self.facility_id} does not exist"
+                ) from e
         else:
             facility = Facility.get_default_facility()
         if not facility:
