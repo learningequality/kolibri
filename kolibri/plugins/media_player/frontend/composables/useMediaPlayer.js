@@ -199,7 +199,7 @@ export default function useMediaPlayer(
       isBuffering.value = false;
     });
     vjsPlayer.on('seeking', handleSeek);
-    vjsPlayer.on('error', reportLoadingError);
+    vjsPlayer.on('error', () => reportLoadingError(vjsPlayer.error()?.message));
   }
 
   // ---- Playback actions ----

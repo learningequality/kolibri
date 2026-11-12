@@ -14,6 +14,7 @@
       <KButtonGroup class="toolbar-right">
         <slot name="right"></slot>
         <KIconButton
+          v-if="showFullscreenToggle"
           :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
           :ariaLabel="isInFullscreen ? exitFullscreen$() : enterFullscreen$()"
           :tooltip="isInFullscreen ? exitFullscreen$() : enterFullscreen$()"
@@ -55,6 +56,10 @@
       isInFullscreen: {
         type: Boolean,
         required: true,
+      },
+      showFullscreenToggle: {
+        type: Boolean,
+        default: true,
       },
     },
   };
