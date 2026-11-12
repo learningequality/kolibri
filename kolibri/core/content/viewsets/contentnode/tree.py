@@ -159,7 +159,10 @@ class BaseContentNodeTreeViewset(
         :return: an object representing the parent with a pagination object as "children"
         """
 
-        queryset = self.get_tree_queryset(request, pk)
+        try:
+            queryset = self.get_tree_queryset(request, pk)
+        except Http404:
+            return self.retrieve_node(pk)
 
         # We explicitly order by lft here, so that the nodes are in tree traversal order, so we can iterate over them and build
         # out our nested representation, being sure that any ancestors have already been processed.

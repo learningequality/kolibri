@@ -1,5 +1,7 @@
 import re
 from collections import OrderedDict
+from typing import NamedTuple
+from typing import Optional
 
 from django.db.models import Exists
 from django.db.models import OuterRef
@@ -15,6 +17,7 @@ from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 from rest_framework import filters
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import CharField
 
@@ -24,6 +27,71 @@ from kolibri.core.content.utils.cache import get_course_ids
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
+
+
+def select_node_ids(request, node_ids):
+    node_ids = list(dict.fromkeys(getattr(i, "hex", i) for i in node_ids))
+    selected = selected_node_ids(request)
+    if selected is not None:
+        wanted = set(node_ids)
+        node_ids = [i for i in selected if i in wanted]
+    request._selected_node_ids = node_ids
+
+
+def selected_node_ids(request):
+    return getattr(request, "_selected_node_ids", None)
+
+
+_ID_SELECTING_FILTERS = frozenset({"ids", "lesson"})
+_VISIBILITY_FILTERS = frozenset({"include_coach_content", "exclude_course_ancestry"})
+_SEARCH_PARAMS = frozenset({"search", "question", "keywords"})
+
+
+class NodeSelectionMixin:
+    def filter_queryset(self, queryset, narrow_to_selection=True):
+        queryset = super().filter_queryset(queryset)
+        node_ids = selected_node_ids(self.request)
+        if narrow_to_selection and node_ids is not None:
+            queryset = queryset.filter_by_uuids(node_ids, validate=False)
+        return queryset
+
+    def admits_virtual_nodes(self):
+        metadata_filters = (set(self.filterset_class.base_filters) | _SEARCH_PARAMS) - (
+            _ID_SELECTING_FILTERS | _VISIBILITY_FILTERS
+        )
+        return not any(self.request.query_params.get(name) for name in metadata_filters)
+
+
+IDS_OFFSET_PARAM = "ids_offset"
+
+
+class Window(NamedTuple):
+    page_ids: list
+    more: Optional[dict]
+    paginated: bool
+
+
+def _non_negative_int(request, param):
+    try:
+        value = int(request.query_params.get(param) or 0)
+    except ValueError:
+        value = -1
+    if value < 0:
+        raise ValidationError({param: "Must be a non-negative integer."})
+    return value
+
+
+def window_ids(request, node_ids):
+    page_size_param = OptionalPagination.page_size_query_param
+    if not request.query_params.get(page_size_param):
+        return Window(node_ids, None, False)
+    limit = _non_negative_int(request, page_size_param)
+    offset = _non_negative_int(request, IDS_OFFSET_PARAM)
+    more = None
+    if offset + limit < len(node_ids):
+        more = request.query_params.copy()
+        more[IDS_OFFSET_PARAM] = str(offset + limit)
+    return Window(node_ids[offset : offset + limit], more, True)
 
 
 class UUIDInFilter(BaseInFilter, UUIDFilter):
@@ -121,7 +189,8 @@ class ContentNodeFilter(FilterSet):
         return queryset.exclude(Exists(has_course_ancestor))
 
     def filter_ids(self, queryset, name, value):
-        return queryset.filter_by_uuids(value)
+        select_node_ids(self.request, value)
+        return queryset
 
     def filter_by_authors(self, queryset, name, value):
         """

@@ -1,5 +1,6 @@
 from typing import ClassVar
 
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
@@ -11,6 +12,8 @@ from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import VirtualContentNode
+from kolibri.core.content.viewsets.contentnode.base import resolve_content_nodes
 
 
 class BookmarksSerializer(ModelSerializer):
@@ -31,17 +34,17 @@ class BookmarksSerializer(ModelSerializer):
         }
 
     def validate(self, data):
-        try:
-            contentnode = ContentNode.objects.get(pk=data["contentnode_id"])
-        except ContentNode.DoesNotExist as e:
+        node_id = data["contentnode_id"]
+        contentnode = resolve_content_nodes(
+            [node_id], fields=("channel_id", "content_id")
+        ).get(node_id)
+        if contentnode is None:
             raise ValidationError(
-                "ContentNode for contentnode_id {} does not exist".format(
-                    data["contentnode_id"]
-                )
-            ) from e
+                f"ContentNode for contentnode_id {node_id} does not exist"
+            )
 
-        data.setdefault("channel_id", contentnode.channel_id)
-        data.setdefault("content_id", contentnode.content_id)
+        data.setdefault("channel_id", contentnode["channel_id"])
+        data.setdefault("content_id", contentnode["content_id"])
 
         return data
 
@@ -54,16 +57,30 @@ class BookmarksFilterset(FilterSet):
         fields: ClassVar[list] = ["contentnode_id"]
 
     def filter_descendant_of(self, queryset, name, value):
-        try:
-            contentnode = ContentNode.objects.get(pk=value)
-        except ContentNode.DoesNotExist as e:
+        node_id = value.hex
+        if node_id not in resolve_content_nodes([node_id], fields=()):
             raise ValidationError(
                 f"ContentNode for contentnode_id {value} does not exist"
-            ) from e
-        descendant_ids = contentnode.get_descendants(include_self=True).values_list(
-            "id", flat=True
+            )
+        descendants = ContentNode.objects.filter(pk=node_id).get_descendants(
+            include_self=True
         )
-        return queryset.filter(contentnode_id__in=descendant_ids)
+        root_of = dict(
+            VirtualContentNode.objects.filter(
+                id__inline_in=list(queryset.values_list("contentnode_id", flat=True))
+            ).values_list("id", "root_id")
+        )
+        roots_below = set(
+            descendants.filter(id__inline_in=set(root_of.values())).values_list(
+                "id", flat=True
+            )
+        )
+        page_ids = [page for page, root in root_of.items() if root in roots_below]
+        return queryset.filter(
+            Q(contentnode_id=node_id)
+            | Q(contentnode_id__in=descendants.values_list("id", flat=True))
+            | Q(contentnode_id__inline_in=page_ids)
+        )
 
 
 class BookmarksViewSet(ValuesViewset):
