@@ -93,13 +93,15 @@ class Command(AsyncCommand):
                 username = input(
                     "Please enter username of account that will become the superuser on this device: "
                 )
-            if not FacilityUser.objects.filter(username=username).exists():
-                self.stderr.write(f"User with username {username} does not exist")
+            user = FacilityUser.objects.filter(
+                username=username, dataset_id=dataset_id
+            ).first()
+            if user is None:
+                self.stderr.write(
+                    f"User with username {username} does not exist in the synced facility"
+                )
                 username = None
                 continue
-
-            # make the user with the given credentials, a superuser for this device
-            user = FacilityUser.objects.get(username=username, dataset_id=dataset_id)
 
             # create permissions for the authorized user
             DevicePermissions.objects.update_or_create(
