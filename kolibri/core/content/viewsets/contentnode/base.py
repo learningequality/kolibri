@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
@@ -320,7 +321,12 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
     @action(detail=False)
     def random(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        max_results = int(self.request.query_params.get("max_results", 10))
+        try:
+            max_results = IntegerField(min_value=0).run_validation(
+                self.request.query_params.get("max_results", 10)
+            )
+        except ValidationError as e:
+            raise ValidationError({"max_results": e.detail}) from e
         ids = list(queryset.order_by("?")[:max_results].values_list("id", flat=True))
         queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
