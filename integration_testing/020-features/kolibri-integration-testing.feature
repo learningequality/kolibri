@@ -44,6 +44,53 @@ Feature: Kolibri integration testing scenarios
     	And I see the *Kolibri* app running
     	And I see the *How are you using Kolibri?* step of the setup wizard
 
+  Scenario: Upgrade Kolibri from a previous version to Kolibri 0.20
+    Given that a previous version of Kolibri is installed on Windows
+      And existing user data and channels are present on the device #by default available at C:\Users\<username>\.kolibri
+      And the Kolibri server process is stopped
+    When I run the Kolibri 0.20 installer file as an administrator user
+      And I proceed through the *Kolibri Setup Wizard* using default settings
+    Then I see that the installation completes successfully
+    	And I see *Setup has finished installing Kolibri on your computer. The application may be launched by selecting the installed shortcuts. Click Finish to exit Setup.*
+    	And I see that the checkbox *Launch Kolibri* is selected by default
+    When I click the *Finish* button
+    Then Kolibri starts without an error
+      And all existing user accounts, class data, and content channels are preserved and available at *C:\ProgramData\kolibri*
+
+  Scenario: Uninstall Kolibri while retaining user data
+    Given that Kolibri is installed and currently running
+    When I go to *Control Panel\Programs\Programs and Features*
+      And I select Kolibri and click *Uninstall*
+      And I confirm the uninstall prompt
+      And I click *No* when prompted to remove the user data
+      And I click *Yes* at the *Are you sure you want to completely remove Kolibri and all of its components* modal
+    Then the Kolibri service and app processes terminate cleanly
+      And the application binaries in the installation directory are removed
+      And I see a *Kolibri was successfully removed from your computer* message
+      And the user data at *C:\ProgramData\kolibri* remains on disk
+
+  Scenario: Automatic OS-user sign-in and role assignment
+    Given that Kolibri is installed
+      And the initial setup wizard has been completed
+      And a Windows administrator user <kadmin> and a standard Windows user <klearner> exist on the device
+    When I sign in to Windows as <kadmin>
+      And I open the Kolibri app
+    Then I am automatically signed in to Kolibri as <kadmin> without seeing a login prompt
+      And my Kolibri account has *Super admin* privileges
+    When I sign out of Windows and sign in as <klearner>
+      And I open the Kolibri app
+    Then I am automatically signed in to Kolibri as <klearner>
+      And my Kolibri account has *Learner* privileges and cannot access *Device*, *Facility* and *Coach* pages
+
+  Scenario: Local network users can access Kolibri when the service is running and no user is signed in to Windows
+    Given that Kolibri is installed with *Run Kolibri Service on Windows startup* checked
+      And the Kolibri service is *Running* in *services.msc*
+      And I have noted the external *Server URL* (e.g., http://<host-ip>:<port>) from *Device > Info*
+    When I sign out of my Windows user account so the device is at the Windows lock/sign-in screen
+      And a user on a separate client device on the same local network opens a browser and navigates to the *Server URL*
+    Then the Kolibri sign in page loads on the client device
+      And the client user can sign in and interact with learning resources while no Windows user is signed in on the host
+
   Scenario: Mac app installation
   	Given that the kolibri app is not installed and running (not intended for use as a server).
   	When I download the .dmg installer for Kolibri
@@ -1760,17 +1807,6 @@ Feature: Kolibri integration testing scenarios
 			And I see an indeterminate spinner
 		When the facility is done syncing
 			Then I see a message under the facility: *Last synced: just now*
-
-  Scenario: Admin can reset the password of a user
-  	Given I am signed in to Kolibri as an admin
-      And I am at *Facility > Users* page
-    When I click on the *Options* drop-down next to a user
-      And I select the *Reset password* option
-    Then I see the *Reset user password* modal
-    When I fill in the *Password* and *Re-enter password* fields
-      And I click the *Save* button
-    Then the modal closes
-      And I see the *Password reset* snackbar message
 
   Scenario: Admin can reset the password of a user
   	Given I am signed in to Kolibri as an admin
