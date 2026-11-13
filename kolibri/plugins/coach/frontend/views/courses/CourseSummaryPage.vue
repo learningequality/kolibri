@@ -61,7 +61,7 @@
                 ariaLabelledBy="course-visibility-label"
                 :value="courseSession.active"
                 :disabled="contentMissing"
-                @change="onCourseVisibilityChange"
+                @change="toggleCourseActive"
               />
             </div>
             <div class="status-item">
@@ -459,9 +459,6 @@
         endPreTest$,
         endPostTest$,
         startTestForUnitDescription$,
-        startPreTestAfterCourseVisibleDescription$,
-        startPreTestAfterCourseVisibleConfirmAction$,
-        startPreTestAfterCourseVisibleDismissAction$,
         endTestForUnitDescription$,
         startPreTestForUnitConfirmation$,
         startPostTestForUnitConfirmation$,
@@ -831,27 +828,6 @@
         windowIsSmall.value ? { alignSelf: 'flex-end' } : {},
       );
 
-      async function onCourseVisibilityChange() {
-        const result = await toggleCourseActive();
-        const learnersWaitForPreTest =
-          unitPhase.value === UnitPhase.PRE_TEST_PENDING && Boolean(activeUnit.value);
-        if (!result?.active || !learnersWaitForPreTest) {
-          return;
-        }
-        const num = activeUnitIndex.value + 1;
-        activeModal.value = {
-          title: startPreTestForUnitConfirmation$({ num }),
-          text: startPreTestAfterCourseVisibleDescription$({ num }),
-          submitText: startPreTestAfterCourseVisibleConfirmAction$(),
-          cancelText: startPreTestAfterCourseVisibleDismissAction$(),
-          submit: () => {
-            activateTest(TestType.PRE);
-            activeModal.value = null;
-          },
-          cancel: () => (activeModal.value = null),
-        };
-      }
-
       // Phase-based button click handler
       function onUnitButtonClick() {
         const unitNum = activeUnitIndex.value + 1;
@@ -1003,7 +979,7 @@
         dataLoading,
         pageLoading,
         course,
-        onCourseVisibilityChange,
+        toggleCourseActive,
 
         tabs,
         TABS,
