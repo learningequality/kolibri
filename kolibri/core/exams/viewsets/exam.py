@@ -221,7 +221,8 @@ class ExamSerializer(ModelSerializer):
                         code=error_constants.INVALID,
                     )
                 if all(
-                    not section["questions"] for section in attrs["question_sources"]
+                    not section.get("questions")
+                    for section in attrs["question_sources"]
                 ):
                     raise ValidationError(
                         "Cannot create an Exam without any questions",
