@@ -231,6 +231,29 @@ describe('CourseWelcomePage', () => {
     expect(wrapper.queryByRole('link', { name: resumeCourseAction$() })).not.toBeInTheDocument();
   });
 
+  it('navigates to the first unit when the Review link is clicked', async () => {
+    // resume_position points at the last unit once the course is completed,
+    // but reviewing should start from the beginning of the course.
+    useResources({
+      started: true,
+      completed: true,
+      resume_position: { unit_id: 'unit-2', lesson_id: null, resource_id: null },
+    });
+    const wrapper = renderComponent();
+
+    const link = await wrapper.findByRole('link', { name: reviewCourseAction$() });
+    link.click();
+
+    await waitFor(() => {
+      expect(router.push.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          name: PageNames.COURSE_CONTENT__UNIT,
+          params: expect.objectContaining({ unitId: 'unit-1' }),
+        }),
+      );
+    });
+  });
+
   it('labels the action Resume when the last unit is done but the course is not', async () => {
     // The post-test the learner is waiting on is coach-activated, so this
     // state is indistinguishable from completion in resume_position alone.
