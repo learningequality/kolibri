@@ -745,6 +745,20 @@ describe('useCourseSession', () => {
       expect(courseSession.value.active).toBe(true);
     });
 
+    it('should not start a test when the course becomes visible', async () => {
+      CourseSessionResource.update.mockResolvedValue({ active: true });
+
+      const { toggleCourseActive, courseSession } = useCourseSession(ref(mockCourseSessionId));
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      courseSession.value = { ...courseSession.value, active: false };
+
+      await toggleCourseActive();
+
+      expect(CourseSessionResource.activateTest).not.toHaveBeenCalled();
+    });
+
     it('should return the result from update', async () => {
       const mockResult = { id: mockCourseSessionId.value, active: true, title: 'Test' };
       CourseSessionResource.update.mockResolvedValue(mockResult);
