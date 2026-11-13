@@ -563,6 +563,20 @@ class ContentNodeAPIBase:
         )
         self._recurse_and_assert([response.data], [root])
 
+    def test_contentnode_tree_invalid_depth_returns_400(self):
+        root = content.ContentNode.objects.get(title="root")
+        url = reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        for depth in ("abc", "1.5", 0, 3):
+            response = self.client.get(url, {"depth": depth})
+            self.assertEqual(response.status_code, 400)
+
+    def test_contentnode_tree_invalid_next_gt_returns_400(self):
+        root = content.ContentNode.objects.get(title="root")
+        url = reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        for next__gt in ("abc", "1.5", 0, -1):
+            response = self.client.get(url, {"next__gt": next__gt})
+            self.assertEqual(response.status_code, 400)
+
     @unittest.skipIf(
         settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
