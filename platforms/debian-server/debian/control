@@ -2,7 +2,7 @@ Source: kolibri-server
 Section: education
 Priority: extra
 Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
-Uploaders: José L. Redrejo Rodríguez <jredrejo@debian.org>
+Uploaders: José L. Redrejo Rodríguez <jredrejo@debian.org>,
            Benjamin Bach <benjamin@learningequality.org>
 Build-Depends: debhelper (>=10), unzip, kolibri (>=0.16)
 Standards-Version: 4.3.0.1

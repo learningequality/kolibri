@@ -1,3 +1,4 @@
+import gzip
 import hashlib
 import os
 import tempfile
@@ -86,6 +87,57 @@ class ZipContentTestCase(TestCase):
         self.environ["PATH_INFO"] = base_url + file_name
         self.environ.update(kwargs)
         return generate_zip_content_response(self.environ)
+
+    def test_compressed_html_preserves_bytes(self):
+        content = gzip.compress(self.index_str.encode())
+        with zipfile.ZipFile(self.zip_path, "a") as archive:
+            archive.writestr("page.html.gz", content)
+        response = self._get_file("page.html.gz")
+        body = (
+            b"".join(response.streaming_content)
+            if response.streaming
+            else response.content
+        )
+        self.assertEqual(gzip.decompress(body), self.index_str.encode())
+
+    def test_shtml_initializes_sandbox(self):
+        with zipfile.ZipFile(self.zip_path, "a") as archive:
+            archive.writestr("page.shtml", self.index_str)
+        response = self._get_file("page.shtml")
+        self.assertEqual(response["Content-Type"], "text/html")
+        body = (
+            b"".join(response.streaming_content)
+            if response.streaming
+            else response.content
+        )
+        self.assertIn(sandbox_injection.encode(), body)
+
+    def test_shtml_range_classification(self):
+        with zipfile.ZipFile(self.zip_path, "a") as archive:
+            archive.writestr("page.shtml", self.index_str)
+        for method in ("GET", "OPTIONS"):
+            response = self._get_file(
+                "page.shtml", REQUEST_METHOD=method, HTTP_RANGE="bytes=0-9"
+            )
+            self.assertEqual(response["Accept-Ranges"], "none")
+            self.assertEqual(response.status_code, 200)
+
+    def test_xhtml_activity_preserves_xml(self):
+        content = (
+            b'<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Activity</title>'
+            b"</head><body><p>Slide</p></body></html>"
+        )
+        with zipfile.ZipFile(self.zip_path, "a") as archive:
+            archive.writestr("activity.xhtml", content)
+        response = self._get_file("activity.xhtml")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/xhtml+xml")
+        body = (
+            b"".join(response.streaming_content)
+            if response.streaming
+            else response.content
+        )
+        self.assertEqual(body, content)
 
     def test_zip_file_internal_file_access(self):
         # test reading the data from file #1 inside the zip
