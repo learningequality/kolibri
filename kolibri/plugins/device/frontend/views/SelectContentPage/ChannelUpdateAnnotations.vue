@@ -1,6 +1,6 @@
 <template>
 
-  <span :class="[styleClass, $computedClass(style)]">
+  <span :class="styleClass">
     {{ label }}
   </span>
 
@@ -34,23 +34,9 @@
       },
       styleClass() {
         if (this.new) {
-          // Doing this separately from the dynamic styling below
-          // to ensure things get properly RTL transpiled in CSS
           return ['new-label'];
         }
         return [];
-      },
-      style() {
-        if (this.new) {
-          return {
-            color: 'var(--tokens-textInverted)',
-            backgroundColor: 'var(--tokens-success)',
-            '::selection': {
-              color: this.$themeTokens.text,
-            },
-          };
-        }
-        return {};
       },
       label() {
         if (this.new && this.isTopic === false) {
@@ -89,7 +75,13 @@
     margin-left: 8px;
     font-size: 14px;
     font-weight: bold;
+    color: var(--tokens-textInverted);
+    background-color: var(--tokens-success);
     border-radius: 2px;
+
+    &::selection {
+      color: var(--tokens-text);
+    }
   }
 
 </style>
