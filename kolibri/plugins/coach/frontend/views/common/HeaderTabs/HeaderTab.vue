@@ -91,8 +91,7 @@
     }
   }
 
-  // Like $coreOutline, only shown for keyboard navigation. The inset offset
-  // is kept from before because the tab has overflow: hidden.
+  // Like $coreOutline, shown only for keyboard navigation, but inset (-2px).
   body[modality='keyboard'] .header-tab:focus {
     outline: 3px solid var(--tokens-focusOutline);
     outline-offset: -2px;

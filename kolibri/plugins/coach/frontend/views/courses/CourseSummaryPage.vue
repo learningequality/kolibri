@@ -1188,10 +1188,7 @@
   }
 
   /* KButton's own styles use !important (plain aphrodite), so this needs it to win. */
-  .test-active-button {
-    background-color: var(--tokens-error) !important;
-  }
-
+  .test-active-button,
   .test-active-button:hover {
     background-color: var(--tokens-error) !important;
   }

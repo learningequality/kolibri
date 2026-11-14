@@ -576,7 +576,7 @@
         if (this.notEnoughFreeSpace) {
           return '0%';
         }
-        return `${((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100}%`;
+        return `${(this.limitForAutodownload / this.freeSpace) * 100}%`;
       },
       canCheckMeteredConnection() {
         return pluginData.canCheckMeteredConnection;
