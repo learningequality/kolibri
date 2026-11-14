@@ -1,7 +1,6 @@
 from collections import defaultdict
 from uuid import UUID
 
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -42,7 +41,7 @@ class TreeQueryMixin:
             if depth < 1 or depth > 2:
                 raise ValueError
         except ValueError as e:
-            raise ValidationError(
+            raise serializers.ValidationError(
                 "Depth query parameter must have the value 1 or 2"
             ) from e
 
@@ -52,7 +51,7 @@ class TreeQueryMixin:
                 if next__gt < 1:
                     raise ValueError
             except ValueError as e:
-                raise ValidationError(
+                raise serializers.ValidationError(
                     "next__gt query parameter must be a positive integer if specified"
                 ) from e
 
