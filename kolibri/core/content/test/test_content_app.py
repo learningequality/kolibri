@@ -540,6 +540,38 @@ class ContentNodeAPIBase:
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["error"], "Invalid UUID format.")
 
+    def test_contentnode_tree_invalid_depth(self):
+        root = content.ContentNode.objects.get(title="root")
+        for depth in ("abc", "1.5", "0", "3"):
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:contentnode_tree-detail",
+                    kwargs={"pk": root.id},
+                )
+                + f"?depth={depth}"
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertIn(
+                "Depth query parameter must have the value 1 or 2",
+                str(response.data),
+            )
+
+    def test_contentnode_tree_invalid_next__gt(self):
+        root = content.ContentNode.objects.get(title="root")
+        for next__gt in ("abc", "1.5", "0", "-1"):
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:contentnode_tree-detail",
+                    kwargs={"pk": root.id},
+                )
+                + f"?next__gt={next__gt}"
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertIn(
+                "next__gt query parameter must be a positive integer if specified",
+                str(response.data),
+            )
+
     @unittest.skipIf(
         settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
