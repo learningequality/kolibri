@@ -1,7 +1,7 @@
 import json
 import logging
 
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.files.storage import default_storage
 from django.http import Http404
 from django.http import HttpResponse
@@ -56,7 +56,10 @@ def _get_facility_check_permissions(request, facility_id):
         raise PermissionDenied("You must be logged in to download this file")
 
     if facility_id:
-        facility = get_object_or_404(Facility, pk=facility_id)
+        try:
+            facility = get_object_or_404(Facility, pk=facility_id)
+        except (ValueError, ValidationError):
+            raise Http404("Invalid facility ID")
     else:
         facility = request.user.facility
 
@@ -188,6 +191,7 @@ def download_csv_file(request, csv_type, facility_id):
         ).replace("-", "_"),
     }
 
+    filename = None
     if csv_type in CSV_EXPORT_FILENAMES:
         if csv_type == "user":
             filename = CSV_EXPORT_FILENAMES[csv_type].format(
@@ -201,14 +205,13 @@ def download_csv_file(request, csv_type, facility_id):
                 filename = CSV_EXPORT_FILENAMES[csv_type].format(
                     facility.name, facility.id[:4], start[:10], end[:10]
                 )
-    else:
-        filename = None
 
-    logger.info("Downloading CSV file: %s", filename)
-    logger.info("%s exists: %s", filename, default_storage.exists(filename))
     # if the file does not exist on disk, return a 404
     if filename is None or not default_storage.exists(filename):
         raise Http404(f"There is no csv export file for {csv_type} available")
+
+    logger.info("Downloading CSV file: %s", filename)
+    logger.info("%s exists: %s", filename, default_storage.exists(filename))
 
     # generate a file response
     response = FileResponse(default_storage.open(filename, "rb"))

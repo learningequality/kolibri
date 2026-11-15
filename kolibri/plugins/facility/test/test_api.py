@@ -264,3 +264,46 @@ class UserCSVExportTestCase(APITestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_csv_download_malformed_facility_id_returns_404(self):
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.facility:download_csv_file",
+                kwargs={"csv_type": "user", "facility_id": "not-a-valid-uuid"},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_csv_download_unknown_csv_type_returns_404(self):
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.facility:download_csv_file",
+                kwargs={"csv_type": "unknown_type", "facility_id": self.facility.id},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_csv_download_summary_without_export_returns_404(self):
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.facility:download_csv_file",
+                kwargs={"csv_type": "summary", "facility_id": self.facility.id},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
