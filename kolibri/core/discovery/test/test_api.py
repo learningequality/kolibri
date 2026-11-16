@@ -140,6 +140,31 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_patch_without_base_url_updates_only_nickname(self):
+        self.login(self.superuser)
+        # last_accessed is auto_now, so every save updates it
+        fields = [
+            f.name
+            for f in models.NetworkLocation._meta.concrete_fields
+            if f.name != "last_accessed"
+        ]
+        before = models.NetworkLocation.objects.filter(
+            pk=self.existing_happy_netloc.pk
+        ).values(*fields)[0]
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": self.existing_happy_netloc.pk},
+            ),
+            data={"nickname": "x"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        after = models.NetworkLocation.objects.filter(
+            pk=self.existing_happy_netloc.pk
+        ).values(*fields)[0]
+        self.assertEqual(after, {**before, "nickname": "x"})
+
     def test_reading_network_location_list(self):
         self.login(self.superuser)
         response = self.client.get(reverse("kolibri:core:staticnetworklocation-list"))

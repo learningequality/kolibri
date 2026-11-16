@@ -67,6 +67,8 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
+        if "base_url" not in data:
+            return super().validate(data)
         try:
             client = NetworkClient.discover_from_address(data["base_url"])
         except (errors.NetworkClientError, errors.URLParseError) as e:
