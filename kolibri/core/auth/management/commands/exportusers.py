@@ -37,7 +37,7 @@ class Command(AsyncCommand):
             help="Include demographic data in exported CSV",
         )
 
-    def handle_async(self):
+    def handle_async(self, *args, **options):
         raise CommandError(
             """
             exportusers command has been removed. Please use the bulkexportusers command.

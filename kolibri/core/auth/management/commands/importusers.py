@@ -12,7 +12,7 @@ class Command(BaseCommand):
             help="Facility id to import the users into",
         )
 
-    def handle(self):
+    def handle(self, *args, **options):
         raise CommandError(
             "importusers command has been removed. Please use the bulkimportusers command. \
             You may need to update your spreadsheet. \
