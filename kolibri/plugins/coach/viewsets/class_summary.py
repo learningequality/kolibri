@@ -32,11 +32,6 @@ HELP_NEEDED = "HelpNeeded"
 COMPLETED = "Completed"
 
 
-# Instantiate the viewsets here so that we can use their serialize_list methods
-exam_viewset = ExamViewset()
-lesson_viewset = LessonViewset()
-
-
 def _get_quiz_status(queryset):
     queryset = queryset.filter(
         mastery_level__lt=0,
@@ -260,7 +255,7 @@ def _map_lesson(item):
 
 
 def serialize_lessons(request, pk):
-    data = lesson_viewset.serialize_list(request, {"collection": pk})
+    data = LessonViewset.serialize_list(request, {"collection": pk})
     return list(
         map(
             _map_lesson,
@@ -288,7 +283,7 @@ def _map_exam(item):
 
 
 def serialize_exams(request, classroom_id):
-    data = exam_viewset.serialize_list(request, {"collection": classroom_id})
+    data = ExamViewset.serialize_list(request, {"collection": classroom_id})
     return list(
         map(
             _map_exam,

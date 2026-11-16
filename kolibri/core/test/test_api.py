@@ -11,6 +11,8 @@ from django.test import override_settings
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from rest_framework import serializers
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
@@ -2630,3 +2632,30 @@ class TestAuxiliaryAPIs(TestCase):
 
         with self.assertRaises(ValueError):
             viewset.serialize_queryset(Author.objects.none(), "somepath")
+
+    def test_overlapping_serialize_list_calls_on_one_viewset_keep_their_own_request(
+        self,
+    ):
+        Author.objects.create(name="Alice")
+        Author.objects.create(name="Bob")
+        Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
+        request = Request(APIRequestFactory().get("/"))
+        pending_names = ["Bob"]
+        overlapping_results = []
+
+        class V(BaseValuesViewset, ListModelMixin):
+            serializer_class = Ser
+
+            def get_queryset(self):
+                if pending_names:
+                    name = pending_names.pop()
+                    overlapping_results.append(
+                        viewset.serialize_list(request, {"name": name})
+                    )
+                return Author.objects.filter(name=self.request.query_params["name"])
+
+        viewset = V()
+        result = viewset.serialize_list(request, {"name": "Alice"})
+
+        self.assertEqual([author["name"] for author in result], ["Alice"])
+        self.assertEqual([author["name"] for author in overlapping_results[0]], ["Bob"])
