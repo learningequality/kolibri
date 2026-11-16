@@ -1011,8 +1011,9 @@ def _set_from_deprecated_aliases(conf):
 
 
 def _load_options_file(ini_path):
+    configspec = get_configspec()
     try:
-        return ConfigObj(ini_path, configspec=get_configspec(), encoding="utf-8")
+        return ConfigObj(ini_path, configspec=configspec, encoding="utf-8")
     except ConfigObjError as e:
         errors = e.errors
     except (UnicodeError, LookupError):

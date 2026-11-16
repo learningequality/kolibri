@@ -222,6 +222,18 @@ def test_options_file_with_utf8_bom_is_read():
     assert OPTIONS["Deployment"]["PROJECT"] == "café"
 
 
+def test_invalid_option_spec_is_not_reported_as_an_encoding_error(monkeypatch):
+    spec = copy.deepcopy(options.option_spec)
+    spec["Plugin"] = {"X": {"default": "a"}}
+    monkeypatch.setattr(options, "option_spec", spec)
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(KeyError):
+            options.read_options_file(ini_filename=tmp_ini_path)
+
+
 def test_validator_args_enforce_bounds(monkeypatch, caplog):
     """
     Checks that validator_args on an option spec are passed through to the
