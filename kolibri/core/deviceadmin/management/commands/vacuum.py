@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.db import DEFAULT_DB_ALIAS
 
-from kolibri.core.deviceadmin.utils import perform_vacuum
+from kolibri.core.deviceadmin.tasks import perform_vacuum
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +21,8 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--full",
-            type=bool,
+            action="store_true",
             dest="full",
-            default=False,
             help="If set, in a Postgresql database a full vacuum will be done on the morango_recordmaxcounterbuffer and morango_buffer tables",
         )
 
