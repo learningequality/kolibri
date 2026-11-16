@@ -3,13 +3,14 @@ import logging
 import os
 
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Model
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.viewsets.facility_user import FacilityUserSerializer
-from kolibri.core.device.models import DevicePermissions
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +22,29 @@ class Command(BaseCommand):
         parser.add_argument(
             "username", action="store", type=str, help="Username of user for data dump"
         )
+        parser.add_argument(
+            "--facility",
+            action="store",
+            type=str,
+            help="Facility ID that user is associated with",
+        )
 
     def handle(self, *args, **options):
+        users = FacilityUser.objects.filter(username=options["username"])
+        if options["facility"]:
+            users = users.filter(facility_id=options["facility"])
         try:
-            user = FacilityUser.objects.get(username=options["username"])
+            user = users.get()
         except FacilityUser.DoesNotExist as e:
             raise CommandError(
                 "User with username `{username}` does not exist.".format(
+                    username=options["username"]
+                )
+            ) from e
+        except FacilityUser.MultipleObjectsReturned as e:
+            raise CommandError(
+                "There is more than one user on this device with the username `{username}`. "
+                "Please specify the facility ID for this user with --facility.".format(
                     username=options["username"]
                 )
             ) from e
@@ -44,15 +61,15 @@ class Command(BaseCommand):
         data = FacilityUserSerializer(user).data
         logger.info("Writing user data to %s...", file_location)
         with open(file_location, "w") as outfile:
-            json.dump(data, outfile, sort_keys=True, indent=4)
+            json.dump(data, outfile, sort_keys=True, indent=4, cls=DjangoJSONEncoder)
 
         # get related managers for user model
         managers = []
         for related_object in user._meta.related_objects:
             try:
                 managers.append(getattr(user, related_object.get_accessor_name()))
-            # regular users do not have device permissions
-            except DevicePermissions.DoesNotExist:
+            # regular users do not have device permissions or a sync status
+            except ObjectDoesNotExist:
                 pass
 
         # write data for each model to a file
