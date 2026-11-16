@@ -687,22 +687,157 @@ class ProgressTrackingPrePostTestSessionTestCase(APITestCase):
             self.user, channel_id=self.channel_id, content_id=self.content_id
         )
         self.unit_id = uuid.uuid4().hex
+        self.unit_test_assignments = {
+            test_type: UnitTestAssignment.objects.create(
+                course_session=self.course_session,
+                unit_contentnode_id=self.unit_id,
+                collection=self.course_session.collection,
+                test_type=test_type,
+                activated_by=self.course_session.created_by,
+            )
+            for test_type in ("pre", "post")
+        }
         self.client.login(
             username=self.user.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
 
-    def _start_pre_post_session(self, test_type="pre", unit_id=None):
+    def _start_pre_post_session(self, test_type="pre", unit_id=None, **data):
         return self.client.post(
             reverse("kolibri:core:trackprogress-list"),
             data={
                 "unit_id": unit_id or self.unit_id,
                 "test_type": test_type,
                 "course_session_id": self.course_session.id,
+                **data,
             },
             format="json",
         )
+
+    def _update_session(self, start_response, data):
+        return self.client.put(
+            reverse(
+                "kolibri:core:trackprogress-detail",
+                kwargs={"pk": start_response.json()["session_id"]},
+            ),
+            data=data,
+            format="json",
+        )
+
+    def _answer(self, correct, replace=False):
+        return {
+            "item": "question_1",
+            "answer": {"response": str(correct)},
+            "correct": correct,
+            "complete": True,
+            "time_spent": 5,
+            "replace": replace,
+        }
+
+    def _close_test(self, test_type):
+        unit_test_assignment = self.unit_test_assignments[test_type]
+        unit_test_assignment.closed = True
+        unit_test_assignment.save()
+
+    def test_start_session_test_not_open_fails(self):
+        UnitTestAssignment.objects.all().delete()
+
+        response = self._start_pre_post_session("pre")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(ContentSummaryLog.objects.filter(user=self.user).exists())
+
+    def test_start_session_closed_test_fails(self):
+        self._close_test("pre")
+
+        response = self._start_pre_post_session("pre")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(ContentSummaryLog.objects.filter(user=self.user).exists())
+
+    def test_start_session_other_test_type_open_fails(self):
+        self.unit_test_assignments["post"].delete()
+
+        response = self._start_pre_post_session("post")
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_start_session_course_session_no_longer_assigned_fails(self):
+        self.course_session.assignments.all().delete()
+
+        response = self._start_pre_post_session("pre")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(ContentSummaryLog.objects.filter(user=self.user).exists())
+
+    def test_update_session_course_session_no_longer_assigned_fails(self):
+        start_response = self._start_pre_post_session("post")
+        self.course_session.assignments.all().delete()
+
+        response = self._update_session(
+            start_response, {"interactions": [self._answer(1)]}
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(AttemptLog.objects.exists())
+
+    def test_start_session_other_unit_open_fails(self):
+        response = self._start_pre_post_session("pre", unit_id=uuid.uuid4().hex)
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_start_session_submitted_test_returns_complete(self):
+        start_response = self._start_pre_post_session("post")
+        self._update_session(start_response, {"progress": 1})
+
+        response = self._start_pre_post_session("post")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["complete"])
+
+    def test_start_session_repeat_submitted_test_fails(self):
+        start_response = self._start_pre_post_session("post")
+        self._update_session(start_response, {"progress": 1})
+
+        response = self._start_pre_post_session("post", repeat=True)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(MasteryLog.objects.count(), 1)
+
+    def test_update_session_open_test_succeeds(self):
+        start_response = self._start_pre_post_session("post")
+
+        response = self._update_session(
+            start_response, {"interactions": [self._answer(0)]}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AttemptLog.objects.get().correct, 0)
+
+    def test_update_session_closed_test_fails(self):
+        start_response = self._start_pre_post_session("post")
+        self._close_test("post")
+
+        response = self._update_session(
+            start_response, {"interactions": [self._answer(1)]}
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(AttemptLog.objects.exists())
+
+    def test_update_session_submitted_test_answer_fails(self):
+        start_response = self._start_pre_post_session("post")
+        self._update_session(
+            start_response, {"progress": 1, "interactions": [self._answer(0)]}
+        )
+
+        response = self._update_session(
+            start_response, {"interactions": [self._answer(1, replace=True)]}
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(AttemptLog.objects.get().correct, 0)
 
     def test_start_pre_test_session_succeeds(self):
         response = self._start_pre_post_session("pre")

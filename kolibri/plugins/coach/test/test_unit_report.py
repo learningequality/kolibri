@@ -1210,6 +1210,14 @@ class UnitReportStartedTests(UnitReportAPIBase):
         self.assertEqual(unit["post_test"]["started"], [])
 
     def test_blank_submission_through_logger_api_is_scored(self):
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type="post",
+            closed=False,
+            activated_by=self.facility_coach,
+        )
         self.client.login(username=self.learner1.username, password=DUMMY_PASSWORD)
         session = self.client.post(
             reverse("kolibri:core:trackprogress-list"),
