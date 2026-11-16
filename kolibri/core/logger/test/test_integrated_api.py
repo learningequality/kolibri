@@ -24,11 +24,13 @@ from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.constants import interaction_types
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_summarylog
@@ -1456,6 +1458,179 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             number, item = attempt["item"].split(":")
             self.assertEqual(item, "test_item_id")
             self.assertTrue(0 <= int(number) < 15)
+
+    def tearDown(self):
+        self.client.logout()
+
+
+class ProgressTrackingViewSetStartSessionNodeTestContentTestCase(APITestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.channel_id = uuid.uuid4().hex
+        self.course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=uuid.uuid4().hex
+        )
+        self.unit_id = uuid.uuid4().hex
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _start_node_session(self, content_id, **data):
+        return self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "node_id": uuid.uuid4().hex,
+                "content_id": content_id,
+                "channel_id": uuid.uuid4().hex,
+                "kind": content_kinds.EXERCISE,
+                "mastery_model": {"type": exercises.QUIZ},
+                **data,
+            },
+            format="json",
+        )
+
+    def test_start_session_closed_quiz_content_id_fails(self):
+        quiz = create_assigned_quiz_for_user(self.user)
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={"quiz_id": quiz.id},
+            format="json",
+        )
+        self.client.put(
+            reverse(
+                "kolibri:core:trackprogress-detail",
+                kwargs={"pk": response.json()["session_id"]},
+            ),
+            data={"progress": 1},
+            format="json",
+        )
+        quiz.active = False
+        quiz.archive = True
+        quiz.save()
+
+        response = self._start_node_session(quiz.id, repeat=True)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            MasteryLog.objects.filter(summarylog__content_id=quiz.id).count(), 1
+        )
+        self.assertEqual(ContentSummaryLog.objects.get(content_id=quiz.id).progress, 1)
+
+    def test_start_session_pre_post_test_mastery_model_fails(self):
+        content_id = get_synthetic_content_id(
+            self.course_session.id, self.unit_id, "pre"
+        )
+
+        response = self._start_node_session(
+            content_id, mastery_model={"type": exercises.PRE_POST_TEST}
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            ContentSummaryLog.objects.filter(content_id=content_id).exists()
+        )
+
+    def test_unit_session_does_not_resume_node_session_attempt(self):
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_id,
+            collection=self.course_session.collection,
+            test_type="pre",
+            activated_by=self.course_session.created_by,
+        )
+        content_id = get_synthetic_content_id(
+            self.course_session.id, self.unit_id, "pre"
+        )
+        response = self._start_node_session(content_id)
+        self.client.put(
+            reverse(
+                "kolibri:core:trackprogress-detail",
+                kwargs={"pk": response.json()["session_id"]},
+            ),
+            data={"progress": 1},
+            format="json",
+        )
+
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": self.unit_id,
+                "test_type": "pre",
+                "course_session_id": self.course_session.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["mastery_criterion"]["type"], exercises.PRE_POST_TEST
+        )
+        self.assertFalse(response.json()["complete"])
+
+    def test_node_session_does_not_complete_closed_unit_test_attempt(self):
+        unit_test_assignment = UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_id,
+            collection=self.course_session.collection,
+            test_type="pre",
+            activated_by=self.course_session.created_by,
+        )
+        self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": self.unit_id,
+                "test_type": "pre",
+                "course_session_id": self.course_session.id,
+            },
+            format="json",
+        )
+        unit_test_assignment.closed = True
+        unit_test_assignment.save()
+        content_id = get_synthetic_content_id(
+            self.course_session.id, self.unit_id, "pre"
+        )
+
+        response = self._start_node_session(content_id)
+        self.client.put(
+            reverse(
+                "kolibri:core:trackprogress-detail",
+                kwargs={"pk": response.json()["session_id"]},
+            ),
+            data={
+                "progress": 1,
+                "interactions": [
+                    {
+                        "item": "question_1",
+                        "answer": {"response": "1"},
+                        "correct": 1,
+                        "complete": True,
+                        "time_spent": 5,
+                    }
+                ],
+            },
+            format="json",
+        )
+
+        pre_test_log = MasteryLog.objects.get(
+            mastery_criterion__contains=exercises.PRE_POST_TEST
+        )
+        self.assertFalse(pre_test_log.complete)
+        self.assertFalse(pre_test_log.attemptlogs.exists())
+
+    def test_start_session_practice_quiz_in_course_succeeds(self):
+        response = self._start_node_session(
+            uuid.uuid4().hex, course_session_id=self.course_session.id
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["mastery_criterion"], {"type": exercises.QUIZ})
 
     def tearDown(self):
         self.client.logout()

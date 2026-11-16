@@ -61,7 +61,13 @@ class HexStringUUIDField(serializers.UUIDField):
 
 
 class MasteryModelSerializer(serializers.Serializer):
-    type = serializers.ChoiceField(choices=exercises.MASTERY_MODELS)
+    type = serializers.ChoiceField(
+        choices=[
+            choice
+            for choice in exercises.MASTERY_MODELS
+            if choice[0] != exercises.PRE_POST_TEST
+        ]
+    )
     m = serializers.IntegerField(required=False)
     n = serializers.IntegerField(required=False)
 
@@ -324,6 +330,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         ).exists():
             raise ValidationError("Invalid course_session_id")
 
+    def _check_node_content_id(self, user, content_id):
+        if user.is_anonymous:
+            return
+        if Exam.objects.filter(id=content_id).exists():
+            raise PermissionDenied("content_id must not identify a quiz")
+
     def _get_context(self, user, validated_data):
         node_id = validated_data.get("node_id")
         quiz_id = validated_data.get("quiz_id")
@@ -337,6 +349,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             content_id = validated_data.get("content_id")
             channel_id = validated_data.get("channel_id")
             kind = validated_data.get("kind")
+            self._check_node_content_id(user, content_id)
             context["node_id"] = node_id
             if lesson_id:
                 self._check_lesson_permissions(user, lesson_id)
@@ -593,6 +606,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             masterylogs = masterylogs.filter(mastery_level__lt=0)
         else:
             masterylogs = masterylogs.filter(mastery_level__gt=0)
+        if mastery_model["type"] == exercises.PRE_POST_TEST:
+            masterylogs = masterylogs.pre_post_tests()
+        else:
+            masterylogs = masterylogs.exclude_pre_post_tests()
         # complete ascending (False < True) puts incomplete logs first, so we
         # resume an in-progress attempt before a completed one. Within each
         # group, most recent timestamp wins. Previously ordered by "-complete"

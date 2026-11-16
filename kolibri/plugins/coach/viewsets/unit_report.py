@@ -95,6 +95,7 @@ def _fetch_mastery_logs(learner_ids, content_id_map):
             summarylog__content_id__inline_in=list(content_id_map),
             summarylog__user_id__inline_in=learner_ids,
         )
+        .pre_post_tests()
         .order_by("-end_timestamp")
         .values(
             "id",
