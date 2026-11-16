@@ -179,6 +179,19 @@ class DevicePermissionsTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_creating_duplicate_device_permissions(self):
+        response = self.client.post(
+            reverse("kolibri:core:devicepermissions-list"),
+            {"user": self.superuser.pk, "is_superuser": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+        permissions = self.superuser.devicepermissions
+        permissions.refresh_from_db()
+        self.assertTrue(permissions.is_superuser)
+
 
 @override_option("Deployment", "MINIMUM_DISK_SPACE", 0)
 class FreeSpaceTestCase(APITestCase):
