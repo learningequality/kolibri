@@ -1,7 +1,7 @@
 import logging
 
 from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
 

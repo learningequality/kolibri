@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import CommandError
 
 from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 
 from ...utils import paths
 

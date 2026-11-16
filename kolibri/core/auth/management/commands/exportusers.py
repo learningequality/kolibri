@@ -1,6 +1,6 @@
 from django.core.management.base import CommandError
 
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 
 
 class Command(AsyncCommand):

@@ -18,7 +18,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 from kolibri.core.utils.urls import reverse_path
 
 

@@ -11,7 +11,7 @@ from morango.models import TransferSession
 
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.utils.delete import GroupDeletion
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
 

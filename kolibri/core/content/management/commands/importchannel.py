@@ -12,7 +12,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectio
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 from kolibri.utils import conf
 from kolibri.utils.uuids import is_valid_uuid
 

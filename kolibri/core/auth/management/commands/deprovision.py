@@ -4,7 +4,7 @@ import sys
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.utils.deprovision import deprovision
 from kolibri.core.auth.utils.deprovision import get_deprovision_progress_total
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 from kolibri.utils.cli import server
 
 logger = logging.getLogger(__name__)

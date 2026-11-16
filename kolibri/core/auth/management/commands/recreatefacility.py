@@ -5,7 +5,7 @@ from django.db import transaction
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.utils.migrate import migrate_facility
-from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.management.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
 
