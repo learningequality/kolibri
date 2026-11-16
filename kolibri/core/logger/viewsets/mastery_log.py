@@ -25,6 +25,9 @@ from .attempt_log import AttemptLogDiffSerializer
 from .attempt_log import AttemptLogViewSet
 from .filters import BaseLogFilter
 
+# Sane maximum index for positional slicing, bounded by 64-bit signed int
+MAX_DIFF_INDEX = 2**63 - 1
+
 
 class _AttemptLogDiffViewSet(AttemptLogViewSet):
     serializer_class = AttemptLogDiffSerializer
@@ -90,6 +93,9 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
             back = int(pk)
         except ValueError:
             return Response("Parameter must be an integer", status=404)
+
+        if back < 0 or back > MAX_DIFF_INDEX:
+            return Response("Parameter must be a non-negative integer", status=404)
 
         tries = list(
             self.annotate_queryset(self.filter_queryset(self.get_queryset())).values(

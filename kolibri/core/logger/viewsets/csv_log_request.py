@@ -4,17 +4,17 @@ from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
-from rest_framework import serializers
 from rest_framework import viewsets
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.serializers import KolibriModelSerializer
 
 from ..models import GenerateCSVLogRequest
 
 
-class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
+class GenerateCSVLogRequestSerializer(KolibriModelSerializer):
     class Meta:
         model = GenerateCSVLogRequest
         fields: ClassVar[list] = [

@@ -555,6 +555,51 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["diff"], {"correct": 0.0, "time_spent": None})
 
+    def test_diff_malformed_index_negative(self):
+        user_tries = self.user_tries[2]
+        self.client.force_login(self.users[2])
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": -1}),
+            data={
+                "content": user_tries[0].summarylog.content_id,
+                "user": user_tries[0].user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_diff_malformed_index_overflow(self):
+        user_tries = self.user_tries[2]
+        self.client.force_login(self.users[2])
+        response = self.client.get(
+            reverse(
+                "kolibri:core:masterylog-diff",
+                kwargs={"pk": "99999999999999999999"},
+            ),
+            data={
+                "content": user_tries[0].summarylog.content_id,
+                "user": user_tries[0].user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_diff_malformed_index_non_integer(self):
+        user_tries = self.user_tries[2]
+        self.client.force_login(self.users[2])
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": "abc"}),
+            data={
+                "content": user_tries[0].summarylog.content_id,
+                "user": user_tries[0].user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        self.assertEqual(response.status_code, 404)
+
 
 class TotalContentProgressViewSetTest(APITestCase):
     databases = "__all__"
@@ -679,3 +724,119 @@ class TotalContentProgressViewSetTest(APITestCase):
             reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
         )
         self.assertEqual(response.data["progress"], 5)
+
+
+class GenerateCSVLogRequestViewSetTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        provision_device()
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+        self.url = reverse("kolibri:core:generatecsvlogrequest-list")
+
+    def test_valid_request_with_dates(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_start_date": "2020-01-01T00:00:00Z",
+                "selected_end_date": "2020-01-02T00:00:00Z",
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_valid_request_omitted_dates(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_valid_request_null_dates(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_start_date": None,
+                "selected_end_date": None,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_malformed_selected_start_date_garbage(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_start_date": "garbage",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_start_date_integer(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_start_date": 5,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_start_date_invalid_timezone(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_start_date": "2020-01-01 00:00:00(Mars/Base)",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_end_date_garbage(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_end_date": "garbage",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_end_date_integer(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_end_date": 5,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_end_date_invalid_timezone(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_end_date": "2020-01-01 00:00:00(Mars/Base)",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
