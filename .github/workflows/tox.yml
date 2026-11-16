@@ -368,6 +368,107 @@ jobs:
         env:
           KOLIBRI_HOME: .kolibri
         run: uv run python -O -m pytest --reuse-db
+  # django-vectors must run without Kolibri. Unlike the plugin jobs above, these
+  # jobs install only the dependencies of the member.
+  django_vectors_tests:
+    name: django-vectors tests (Python ${{ matrix.python-version }})
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+    defaults:
+      run:
+        working-directory: python_packages/django-vectors
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: false
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install dependencies
+        # This sync does not use --all-packages. A sync from the member directory
+        # installs only django-vectors and its dependencies, so the venv does not
+        # contain kolibri. The `uv run` steps use --no-sync, because a sync
+        # adds the default `dev` group again.
+        run: uv sync --no-default-groups --group test --python ${{ matrix.python-version }}
+      - name: Check kolibri is not importable
+        run: uv run --no-sync python -c "import importlib.util, sys; sys.exit(importlib.util.find_spec('kolibri') is not None)"
+      - name: Run tests
+        run: uv run --no-sync python -O -m pytest
+  django_vectors_tests_no_uv:
+    name: django-vectors tests (Python ${{ matrix.python-version }}, container)
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+    container:
+      image: python:${{ matrix.python-version }}-buster
+    # Unlike unit_test_no_uv, this job has no env block. The PYTHONPATH of that
+    # job makes kolibri importable, and pytest-django uses a
+    # DJANGO_SETTINGS_MODULE variable before the ini value.
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: false
+      - name: Install dependencies
+        # No setuptools release that reads [project] metadata supports Python
+        # 3.6, so this step does not build the package. The tests import the
+        # package from the member directory, which `python -m` adds to sys.path.
+        run: uv pip install --system -r python_packages/django-vectors/pyproject.toml --group python_packages/django-vectors/pyproject.toml:test
+      - name: Check kolibri is not importable
+        working-directory: python_packages/django-vectors
+        run: python -c "import importlib.util, sys; sys.exit(importlib.util.find_spec('kolibri') is not None)"
+      - name: Run tests
+        working-directory: python_packages/django-vectors
+        run: python -O -m pytest
+  django_vectors_packaging:
+    name: django-vectors packaging checks
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.python == 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: false
+      - name: Install Python 3.11
+        run: uv python install 3.11
+      - name: Check wheel metadata declares only Django
+        run: |
+          uv build --package django-vectors --wheel -o "$RUNNER_TEMP/dist"
+          uv run --no-project --python 3.11 python - "$RUNNER_TEMP/dist" <<'EOF'
+          import glob, re, sys, zipfile
+          wheel = zipfile.ZipFile(glob.glob(sys.argv[1] + "/*.whl")[0])
+          metadata = next(n for n in wheel.namelist() if n.endswith(".dist-info/METADATA"))
+          requires = [
+              line.split(":", 1)[1].strip().lower()
+              for line in wheel.read(metadata).decode().splitlines()
+              if line.startswith("Requires-Dist:")
+          ]
+          print("Requires-Dist:", requires)
+          names = [re.split(r"[\s;<>=!~\[]", r, maxsplit=1)[0] for r in requires]
+          sys.exit(names != ["django"])
+          EOF
+      - name: Check install for Python 3.6 pulls in no sqlite-vec
+        # Kolibri vendors runtime dependencies with --python-version 3.6.
+        run: |
+          target="$RUNNER_TEMP/dv36"
+          uv pip install --python 3.11 --python-version 3.6 --target "$target" ./python_packages/django-vectors
+          test -f "$target/django_vectors/__init__.py"
+          leftovers=$(find "$target" -maxdepth 1 \( -name '*.pth' -o -name '__editable__*' -o -iname 'sqlite_vec*' \))
+          if [ -n "$leftovers" ]; then echo "Unexpected entries: $leftovers"; exit 1; fi
   # Tests for platforms/ members with their own suites, each pinned to Python
   # 3.10; android's websockets test dep requires >= 3.10.
   platform_tests:
@@ -494,6 +595,9 @@ jobs:
       - windows
       - sync_extras_plugin_tests
       - opensearch_plugin_tests
+      - django_vectors_tests
+      - django_vectors_tests_no_uv
+      - django_vectors_packaging
       - platform_tests
       - android_platform_tests
       - android_jvm_tests
