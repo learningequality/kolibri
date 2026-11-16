@@ -773,6 +773,19 @@ class FacilityAPITestCase(APITestCase):
             ),
         )
 
+    def test_public_facilityuser_malformed_facility_id_fails_authentication(self):
+        credentials = base64.b64encode(
+            str.encode(
+                f"username={self.user1.username}&{FACILITY_CREDENTIAL_KEY}=bad:{DUMMY_PASSWORD}"
+            )
+        ).decode("ascii")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Basic {credentials}")
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_public_facilityuser_roles_are_flat_strings(self):
         """Roles must be a flat list of kind strings, not nested objects.
 
