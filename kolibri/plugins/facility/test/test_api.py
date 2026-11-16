@@ -264,3 +264,67 @@ class UserCSVExportTestCase(APITestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
+
+
+class FacilityCSVViewsInputValidationTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        provision_device()
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+
+    def _login(self, user):
+        self.client.login(
+            username=user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _get(self, url_name, **kwargs):
+        return self.client.get(
+            reverse("kolibri:kolibri.plugins.facility:" + url_name, kwargs=kwargs)
+        )
+
+    def test_malformed_facility_id_returns_404(self):
+        requests = [
+            ("firstlogdate", {"facility_id": "abc"}),
+            ("exportedcsvinfo", {"facility_id": "abc"}),
+            ("download_csv_file", {"csv_type": "user", "facility_id": "abc"}),
+        ]
+        for user in [self.admin, self.learner]:
+            self._login(user)
+            for url_name, kwargs in requests:
+                with self.subTest(user=user.username, url_name=url_name):
+                    response = self._get(url_name, **kwargs)
+                    self.assertEqual(response.status_code, 404)
+
+    def test_log_download_without_export_returns_404(self):
+        self._login(self.admin)
+        for csv_type in ["summary", "session"]:
+            with self.subTest(csv_type=csv_type):
+                response = self._get(
+                    "download_csv_file",
+                    csv_type=csv_type,
+                    facility_id=self.facility.id,
+                )
+                self.assertEqual(response.status_code, 404)
+
+    def test_unknown_csv_type_returns_404(self):
+        self._login(self.admin)
+        response = self._get(
+            "download_csv_file", csv_type="unknown", facility_id=self.facility.id
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_exported_csv_info_empty_facility_id_uses_own_facility(self):
+        self._login(self.admin)
+        response = self._get("exportedcsvinfo", facility_id="")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            self._get("exportedcsvinfo", facility_id=self.facility.id).json(),
+        )
