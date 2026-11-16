@@ -814,24 +814,25 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             except AttemptLog.DoesNotExist as e:
                 raise ValidationError("Invalid attemptlog id specified") from e
         elif interaction.get("replace", False):
-            try:
-                if user:
-                    return AttemptLog.objects.get(
-                        masterylog_id=masterylog_id,
-                        user=user,
-                        item=interaction["item"],
-                    )
+            if user:
+                attemptlogs = AttemptLog.objects.filter(
+                    masterylog_id=masterylog_id,
+                    user=user,
+                    item=interaction["item"],
+                )
+            else:
                 # If this is an anonymous user, then the best we can do is
                 # try to update any previous attempt from this session.
                 # In this case, both the user and masterylog_id will be null.
-                return AttemptLog.objects.get(
+                attemptlogs = AttemptLog.objects.filter(
                     masterylog_id__isnull=True,
                     sessionlog_id=session_id,
                     user__isnull=True,
                     item=interaction["item"],
                 )
-            except AttemptLog.DoesNotExist:
-                pass
+            # An item can have more than one attempt, for example when an
+            # exercise repeats it, so replace the most recent one.
+            return attemptlogs.order_by("-end_timestamp").first()
         return None
 
     def _update_or_create_attempts(
