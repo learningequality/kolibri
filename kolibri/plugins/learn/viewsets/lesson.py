@@ -45,7 +45,7 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
         return Lesson.objects.filter(
             lesson_assignments__collection__membership__user=self.request.user,
             is_active=True,
-        )
+        ).distinct()
 
     def consolidate(self, items, queryset):
         if not items:

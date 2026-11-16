@@ -108,6 +108,11 @@ class LearnerLessonTestCase(APITestCase):
         )
         self.assertEqual(get_request.status_code, 200)
 
+        list_request = self.client.get(reverse(self.basename + "-list"))
+        self.assertEqual(list_request.status_code, 200)
+        self.assertEqual(len(list_request.data), 1)
+        self.assertEqual(list_request.data[0]["id"], own_lesson.id)
+
     def test_response_shape_includes_classroom_nested_object(self):
         # Lesson.resources has default=[] so it doesn't need to be specified here.
         own_lesson = Lesson.objects.create(
