@@ -551,9 +551,9 @@ class ContentNodeAPIBase:
                 + f"?depth={depth}"
             )
             self.assertEqual(response.status_code, 400)
-            self.assertIn(
-                "Depth query parameter must have the value 1 or 2",
-                str(response.data),
+            self.assertEqual(
+                response.json(),
+                ["Depth query parameter must have the value 1 or 2"],
             )
 
     def test_contentnode_tree_invalid_next__gt(self):
@@ -567,9 +567,9 @@ class ContentNodeAPIBase:
                 + f"?next__gt={next__gt}"
             )
             self.assertEqual(response.status_code, 400)
-            self.assertIn(
-                "next__gt query parameter must be a positive integer if specified",
-                str(response.data),
+            self.assertEqual(
+                response.json(),
+                ["next__gt query parameter must be a positive integer if specified"],
             )
 
     @unittest.skipIf(
