@@ -236,6 +236,48 @@ class ClassroomNotificationsTestCase(APITestCase):
         self.assertEqual(len(data["results"]), 1)
         self.assertTrue(data["more_results"])
 
+    def test_invalid_limit_returns_400(self):
+        LearnerProgressNotification.objects.create(
+            user_id=self.learner.id,
+            classroom_id=self.classroom.id,
+            notification_object="Resource",
+            notification_event="Started",
+            timestamp=local_now(),
+        )
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+        for limit in ("-1", "0", "101", "abc"):
+            with self.subTest(limit=limit):
+                response = self.client.get(
+                    reverse(self.list_name),
+                    {"classroom_id": self.classroom.id, "limit": limit},
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.data[0]["metadata"]["field"], "limit")
+        self.assertFalse(NotificationsLog.objects.exists())
+
+    def test_limit_of_100_is_accepted(self):
+        for i in range(101):
+            LearnerProgressNotification.objects.create(
+                user_id=self.learner.id,
+                classroom_id=self.classroom.id,
+                notification_object="Resource",
+                notification_event="Started",
+                timestamp=local_now() - datetime.timedelta(seconds=i),
+            )
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+        response = self.client.get(
+            reverse(self.list_name),
+            {"classroom_id": self.classroom.id, "limit": "100"},
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data["results"]), 100)
+        self.assertTrue(data["more_results"])
+
     def test_notification_includes_course_session_id(self):
         session_id = uuid.uuid4()
         LearnerProgressNotification.objects.create(

@@ -118,6 +118,10 @@ class ClassroomNotificationsSerializer(serializers.ModelSerializer):
         )
 
 
+class ClassroomNotificationsQuerySerializer(serializers.Serializer):
+    limit = serializers.IntegerField(min_value=1, max_value=100, required=False)
+
+
 @query_params_required(classroom_id=str)
 class ClassroomNotificationsViewset(ValuesViewset):
     permission_classes = (ClassroomNotificationsPermissions,)
@@ -129,10 +133,9 @@ class ClassroomNotificationsViewset(ValuesViewset):
 
     @cached_property
     def _limit(self):
-        try:
-            return int(self.request.query_params["limit"])
-        except (KeyError, ValueError):
-            return None
+        query = ClassroomNotificationsQuerySerializer(data=self.request.query_params)
+        query.is_valid(raise_exception=True)
+        return query.validated_data.get("limit")
 
     def get_queryset(self):
         return LearnerProgressNotification.objects.all()
@@ -218,6 +221,8 @@ class ClassroomNotificationsViewset(ValuesViewset):
         return units_by_quiz_id
 
     def list(self, request, *args, **kwargs):
+        # Validate limit before logging this coach's poll.
+        limit = self._limit
         queryset = self.filter_queryset(self.get_queryset())
 
         logging_interval = local_now() - timedelta(minutes=5)
@@ -234,7 +239,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             NotificationsLog.objects.create(coach_id=request.user.id)
             NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
 
-        more_results = bool(self._limit) and queryset[self._limit :].exists()
+        more_results = bool(limit) and queryset[limit:].exists()
 
         return Response(
             {
