@@ -105,6 +105,10 @@ class StartSessionSerializer(serializers.Serializer):
     def _validate_context_exclusivity(self, data):
         if "quiz_id" in data and ("lesson_id" in data or "node_id" in data):
             raise ValidationError("quiz_id must not be mixed with other context")
+        if "quiz_id" in data and data["repeat"]:
+            raise ValidationError(
+                {"repeat": "repeat must not be combined with quiz_id"}
+            )
         if "course_session_id" in data and "lesson_id" in data:
             raise ValidationError(
                 "The course_session_id and lesson_id are mutually exclusive identifiers"

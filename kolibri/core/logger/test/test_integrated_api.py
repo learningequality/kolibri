@@ -1543,7 +1543,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_start_assessment_session_logged_in_completed_repeat_new(self):
+    def test_start_assessment_session_logged_in_completed_repeat_fails(self):
         self.mastery_log.complete = True
         self.mastery_log.save()
         response = self._make_request(
@@ -1553,8 +1553,8 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(MasteryLog.objects.all().count(), 2)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(MasteryLog.objects.all().count(), 1)
 
     def test_start_assessment_session_logged_in_with_history_assigned_quiz(self):
         timestamp = local_now()
