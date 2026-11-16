@@ -65,7 +65,7 @@ def open_csv_for_reading(storage_filepath=None, local_filepath=None):
 
 
 negative_number_regex = re.compile("^-?[0-9,\\.]+$")
-csv_injection_chars = {"@", "+", "-", "=", "|", "%"}
+csv_injection_chars = {"@", "+", "-", "=", "|", "%", "\t", "\r"}
 
 
 def sanitize(value):
