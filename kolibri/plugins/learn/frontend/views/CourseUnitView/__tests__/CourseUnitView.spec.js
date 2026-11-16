@@ -9,7 +9,7 @@ import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
 
-const { previousLabel$, nextLabel$ } = coursesStrings;
+const { previousLabel$, nextLabel$, preTestTitle$ } = coursesStrings;
 const { goBackAction$ } = coreStrings;
 
 const mockPreviousRouteRef = { value: null };
@@ -118,6 +118,7 @@ describe('CourseUnitView', () => {
   const R3_TITLE = 'Resource 3';
   const R4_TITLE = 'Resource 4';
   const R5_TITLE = 'Resource 5';
+  const PRE_TEST_TITLE = preTestTitle$({ unitNumber: 1, unitTitle: UNIT_1_TITLE });
 
   beforeEach(() => {
     router = { replace: jest.fn(), back: jest.fn() };
@@ -233,6 +234,30 @@ describe('CourseUnitView', () => {
         expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
       });
       expect(router.replace).not.toHaveBeenCalled();
+    });
+
+    it('shows the test once resume data confirms it is open', async () => {
+      mockResumeData({ active_test: { unit_id: UNIT_1, test_type: 'pre' } });
+
+      renderComponent({ unitId: UNIT_1, testType: 'pre' });
+
+      expect(await screen.findByRole('heading', { name: PRE_TEST_TITLE })).toBeVisible();
+    });
+
+    it('sends a link to a closed test back to its unit without showing the test', async () => {
+      mockResumeData({
+        resume_position: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+      });
+
+      renderComponent({ unitId: UNIT_1, testType: 'pre' });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__UNIT,
+          params: { courseId: COURSE_ID, unitId: UNIT_1 },
+        });
+      });
+      expect(screen.queryByRole('heading', { name: PRE_TEST_TITLE })).not.toBeInTheDocument();
     });
 
     // All these cases land at the same resume position — the common behavior is

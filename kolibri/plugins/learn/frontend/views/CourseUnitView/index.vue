@@ -722,6 +722,17 @@
           return true;
         }
 
+        if (props.testType) {
+          router.replace({
+            name: PageNames.COURSE_CONTENT__UNIT,
+            params: {
+              courseId: props.courseId,
+              unitId: props.unitId,
+            },
+          });
+          return true;
+        }
+
         if (resumeData.value.resume_position) {
           if (shouldRedirectToResumePosition()) {
             return redirectToResumePosition();
@@ -924,7 +935,8 @@
       });
 
       const activeTest = computed(() => {
-        if (!props.testType || !props.unitId) {
+        const test = resumeData.value?.active_test;
+        if (!test || test.unit_id !== props.unitId || test.test_type !== props.testType) {
           return null;
         }
         return {
