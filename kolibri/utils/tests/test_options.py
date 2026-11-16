@@ -2,6 +2,7 @@
 Tests for `kolibri.utils.options` module.
 """
 
+import codecs
 import copy
 import logging
 import os
@@ -162,6 +163,63 @@ def test_improper_settings_display_errors_and_exit(caplog):
         with pytest.raises(SystemExit):
             options.read_options_file(ini_filename=tmp_ini_path)
         assert 'value "maybe" is unacceptable' in caplog.messages[-2]
+
+
+@pytest.mark.parametrize(
+    "contents,expected_error",
+    [
+        (b"garbage line\n", "Invalid line ('garbage line')"),
+        (
+            b"[Paths]\nCONTENT_DIR = /a\nCONTENT_DIR = /b\n",
+            "Duplicate keyword name at line 3",
+        ),
+        (
+            b"[Paths]\nCONTENT_DIR = /a\n[Paths]\nCONTENT_DIR = /b\n",
+            "Duplicate section name at line 3",
+        ),
+        ("[Deployment]\nPROJECT = café\n".encode("cp1252"), "not UTF-8 encoded"),
+        ("[Deployment]\nPROJECT = café\n".encode("utf-16"), "not UTF-8 encoded"),
+        (
+            codecs.BOM_UTF16_BE + "[Deployment]\nPROJECT = café\n".encode("utf-16-be"),
+            "not UTF-8 encoded",
+        ),
+        ("[Deployment]\nPROJECT = cafe\n".encode("utf-16-le"), "Invalid line"),
+    ],
+    ids=[
+        "stray-line",
+        "duplicate-key",
+        "duplicate-section",
+        "windows-1252",
+        "utf-16-bom",
+        "utf-16-be-bom",
+        "utf-16-no-bom",
+    ],
+)
+def test_unparseable_options_file_display_errors_and_exit(
+    contents, expected_error, caplog
+):
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "wb") as f:
+        f.write(contents)
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        with pytest.raises(SystemExit):
+            options.read_options_file(ini_filename=tmp_ini_path)
+    errors = [r.getMessage() for r in caplog.records if r.levelno == logging.ERROR]
+    assert any(tmp_ini_path in e and expected_error in e for e in errors)
+    assert caplog.records[-1].levelno == logging.CRITICAL
+
+
+def test_options_file_with_utf8_bom_is_read():
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+    with open(tmp_ini_path, "wb") as f:
+        f.write(codecs.BOM_UTF8 + "[Deployment]\nPROJECT = café\n".encode("utf-8"))
+    with mock.patch.dict(
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+    ):
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+    assert OPTIONS["Deployment"]["PROJECT"] == "café"
 
 
 def test_validator_args_enforce_bounds(monkeypatch, caplog):

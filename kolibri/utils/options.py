@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
 from configobj import ConfigObj
+from configobj import ConfigObjError
 from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
@@ -1009,13 +1010,28 @@ def _set_from_deprecated_aliases(conf):
     return using_deprecated_alias
 
 
+def _load_options_file(ini_path):
+    try:
+        return ConfigObj(ini_path, configspec=get_configspec(), encoding="utf-8")
+    except ConfigObjError as e:
+        errors = e.errors
+    except (UnicodeError, LookupError):
+        errors = ["the file is not UTF-8 encoded, save it as UTF-8"]
+    for error in errors:
+        logger.error("Error processing %s: %s", ini_path, error)
+    logger.critical(
+        "Aborting: Could not process options config (see errors above for more details)"
+    )
+    raise SystemExit(1)
+
+
 def read_options_file(ini_filename="options.ini"):
     # Cycle: conf imports this module.
     from kolibri.utils.conf import KOLIBRI_HOME  # noqa: PLC0415
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
-    conf = ConfigObj(ini_path, configspec=get_configspec(), encoding="utf-8")
+    conf = _load_options_file(ini_path)
 
     # Check for use of deprecated options
     for section, opts in option_spec.items():
