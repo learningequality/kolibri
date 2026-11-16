@@ -706,6 +706,25 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
 
+    def test_contentnode_random_max_results_above_limit(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-random"), data={"max_results": 101}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
+
+    def test_contentnode_random_huge_max_results(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-random"),
+            data={"max_results": "99999999999999999999"},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
+
+    def test_contentnode_random_default_max_results(self):
+        response = self.client.get(reverse("kolibri:core:contentnode-random"))
+        self.assertEqual(response.status_code, 200)
+
     def test_related_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(
