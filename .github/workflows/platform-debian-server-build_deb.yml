@@ -1,6 +1,12 @@
 name: Build kolibri-server DEB file
 on:
   workflow_call:
+    inputs:
+      source-package:
+        description: 'Build and check the source package instead of the .deb'
+        required: false
+        type: boolean
+        default: false
     outputs:
       deb-file-name:
         description: "kolibri-server .deb file name"
@@ -30,7 +36,20 @@ jobs:
       - name: Install Debian build tooling
         working-directory: platforms/debian-server
         run: make install-build-deps
+      - name: Generate the source package changelog
+        if: ${{ inputs.source-package }}
+        working-directory: platforms/debian-server
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run make changelog
+      - name: Build the source package
+        if: ${{ inputs.source-package }}
+        working-directory: platforms/debian-server
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run make dist DPKG_BUILDPACKAGE_FLAGS=-d
       - name: Build the .deb
+        if: ${{ !inputs.source-package }}
         working-directory: platforms/debian-server
         # uv run: error-pages and the changelog generator use the workspace kolibri.
         # -d: skip the Debian build-dep check, since that kolibri isn't apt-installed.
@@ -38,10 +57,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: uv run make deb DPKG_BUILDPACKAGE_FLAGS=-d
       - name: Identify the built .deb
+        if: ${{ !inputs.source-package }}
         id: get-deb-filename
         working-directory: platforms
         run: echo "deb-file-name=$(basename kolibri-server_*.deb)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
+        if: ${{ !inputs.source-package }}
         with:
           name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
           path: platforms/${{ steps.get-deb-filename.outputs.deb-file-name }}
