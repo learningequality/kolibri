@@ -17,6 +17,9 @@ from django.core.management import call_command
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.constants import user_kinds
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.utils.bulk_export import (
@@ -24,6 +27,7 @@ from kolibri.core.auth.utils.bulk_export import (
 )
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.logger.csv_export import labels
 from kolibri.core.logger.tasks import get_filepath
 from kolibri.core.logger.tasks import log_exports_cleanup
@@ -386,6 +390,90 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         assert os.path.basename(expected_file_path) in files_uploaded
         assert os.path.basename(expected_users_csv_file_path) in files_uploaded
         assert mock_enqueue.call_count == 2
+
+
+class CSVExportUserTypeTestCase(APITestCase):
+    """
+    Each log must appear once in the export, whatever roles its user holds.
+    """
+
+    databases = "__all__"
+
+    fixtures: ClassVar[list] = ["content_test.json"]
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        provision_device()
+        classroom_a = Classroom.objects.create(name="A", parent=cls.facility)
+        classroom_b = Classroom.objects.create(name="B", parent=cls.facility)
+
+        learner = FacilityUserFactory.create(facility=cls.facility)
+        admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(admin)
+        # add_coach on a classroom gives a facility-level assignable coach role
+        # plus a coach role for the classroom, so this user has three roles.
+        coach = FacilityUserFactory.create(facility=cls.facility)
+        classroom_a.add_coach(coach)
+        classroom_b.add_coach(coach)
+        admin_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(admin_coach)
+        classroom_a.add_coach(admin_coach)
+        superuser = FacilityUserFactory.create(facility=cls.facility)
+        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+
+        cls.users = [learner, admin, coach, admin_coach, superuser]
+        cls.expected_user_types = {
+            learner.username: user_kinds.labels[user_kinds.LEARNER],
+            admin.username: user_kinds.labels[user_kinds.ADMIN],
+            coach.username: user_kinds.labels[role_kinds.ASSIGNABLE_COACH],
+            superuser.username: user_kinds.labels[user_kinds.SUPERUSER],
+        }
+        for user in cls.users:
+            ContentSummaryLogFactory.create(
+                user=user,
+                content_id=uuid.uuid4().hex,
+                channel_id="6199dde695db4ee4ab392222d5af1e5c",
+            )
+            ContentSessionLogFactory.create(
+                user=user,
+                content_id=uuid.uuid4().hex,
+                channel_id="6199dde695db4ee4ab392222d5af1e5c",
+            )
+        cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
+        cls.end_date = local_now().isoformat()
+
+    def _export(self, log_type):
+        _, filepath = tempfile.mkstemp(suffix=".csv")
+        call_command(
+            "exportlogs",
+            output_file=filepath,
+            log_type=log_type,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
+        )
+        with open_csv_for_reading(local_filepath=filepath) as f:
+            return list(csv.DictReader(f))
+
+    def _assert_one_row_per_log(self, log_type):
+        rows = self._export(log_type)
+        usernames = [row[str(labels["user__username"])] for row in rows]
+        self.assertEqual(
+            sorted(usernames), sorted(user.username for user in self.users)
+        )
+        user_types = {
+            row[str(labels["user__username"])]: row[str(labels["user_type"])]
+            for row in rows
+        }
+        for username, user_type in self.expected_user_types.items():
+            self.assertEqual(user_types[username], user_type)
+
+    def test_summary_logs_not_duplicated_per_role(self):
+        self._assert_one_row_per_log("summary")
+
+    def test_session_logs_not_duplicated_per_role(self):
+        self._assert_one_row_per_log("session")
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
