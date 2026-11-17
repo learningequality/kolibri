@@ -83,6 +83,8 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
                 )
         if group_id is not None:
             queryset = queryset.filter(user__memberships__collection_id=group_id)
+        elif lesson_id is None:
+            queryset = queryset.filter(user__memberships__collection_id=classroom_id)
 
         data = (
             # Use a subquery to prevent duplication of attempt logs due to the double JOIN
@@ -195,6 +197,10 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
         if group_id is not None:
             masterylog_queryset = masterylog_queryset.filter(
                 user__memberships__collection_id=group_id
+            )
+        elif lesson_id is None:
+            masterylog_queryset = masterylog_queryset.filter(
+                user__memberships__collection_id=classroom_id
             )
 
         masterylog_queryset = masterylog_queryset.filter(

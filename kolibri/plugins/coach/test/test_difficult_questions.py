@@ -143,6 +143,20 @@ class ClassroomCoachCollectionAccessMixin:
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_classroom_id_excludes_other_classroom_learners(self):
+        other_group = create_other_classroom_group(self.facility)
+        other_learner = helpers.create_learner(
+            username="other_classroom_learner",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=other_group.parent,
+            learner_group=other_group,
+        )
+        self._set_one_difficult(other_learner)
+        response = self._get_as_classroom_coach(classroom_id=self.classroom.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
 
 class ExerciseDifficultQuestionTestCase(
     ClassroomCoachCollectionAccessMixin, APITestCase
