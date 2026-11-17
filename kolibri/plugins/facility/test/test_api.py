@@ -9,6 +9,8 @@ from typing import ClassVar
 from unittest import mock
 
 import pytz
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.urls import reverse
@@ -17,6 +19,8 @@ from rest_framework.test import APITestCase
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
+from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.logger.tasks import log_exports_cleanup
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
@@ -321,10 +325,22 @@ class FacilityCSVViewsInputValidationTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_exported_csv_info_empty_facility_id_uses_own_facility(self):
+        log_request = GenerateCSVLogRequest.objects.create(
+            facility=self.facility,
+            log_type="summary",
+            selected_start_date=utc_now(),
+            selected_end_date=utc_now(),
+        )
+        filename = CSV_EXPORT_FILENAMES["summary"].format(
+            self.facility.name,
+            self.facility.id[:4],
+            log_request.selected_start_date.isoformat()[:10],
+            log_request.selected_end_date.isoformat()[:10],
+        )
+        saved_filename = default_storage.save(filename, ContentFile(b""))
+        self.addCleanup(default_storage.delete, saved_filename)
+
         self._login(self.admin)
         response = self._get("exportedcsvinfo", facility_id="")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json(),
-            self._get("exportedcsvinfo", facility_id=self.facility.id).json(),
-        )
+        self.assertIsNotNone(response.json()["summary"])
