@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import uuid
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.core.exceptions import MultipleObjectsReturned
@@ -2046,6 +2047,54 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
             {
                 "type": interaction_types.ERROR,
             },
+        )
+
+    def test_update_assessment_session_replace_multiple_attempts_updates_latest(self):
+        attempt_ids = []
+        for answer in ("first", "second"):
+            response = self._make_request(
+                {
+                    "interactions": [
+                        {
+                            "item": self.item,
+                            "answer": {"response": answer},
+                            "correct": 0.0,
+                            "time_spent": 10,
+                        }
+                    ],
+                }
+            )
+            self.assertEqual(response.status_code, 200)
+            attempt_ids.append(response.json()["attempts"][0]["id"])
+        first_id, second_id = attempt_ids
+        self.assertNotEqual(first_id, second_id)
+        # Make the first attempt clearly older, so the order does not depend
+        # on the two requests getting different clock readings.
+        AttemptLog.objects.filter(id=first_id).update(
+            end_timestamp=local_now() - timedelta(minutes=1)
+        )
+
+        response = self._make_request(
+            {
+                "interactions": [
+                    {
+                        "item": self.item,
+                        "answer": {"response": "replaced"},
+                        "correct": 1.0,
+                        "time_spent": 20,
+                        "replace": True,
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AttemptLog.objects.filter(item=self.item).count(), 2)
+        self.assertEqual(
+            AttemptLog.objects.get(id=second_id).answer, {"response": "replaced"}
+        )
+        self.assertEqual(
+            AttemptLog.objects.get(id=first_id).answer, {"response": "first"}
         )
 
     def test_update_assessment_session_update_attempt_succeeds(self):
