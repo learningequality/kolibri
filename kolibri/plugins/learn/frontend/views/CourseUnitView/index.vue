@@ -39,6 +39,7 @@
         @next="handleNext"
         @prev="handlePrev"
         @finished="onResourceFinished"
+        @saveRejected="onSaveRejected"
       />
     </template>
     <template
@@ -743,6 +744,11 @@
         return false;
       };
 
+      const onSaveRejected = async () => {
+        await fetchResumeData();
+        checkRedirect();
+      };
+
       const onSidePanelNavigation = () => {
         if (resourceLayoutRef.value) {
           resourceLayoutRef.value.onSidePanelNavigation();
@@ -1026,6 +1032,7 @@
         handlePrev,
         handleNext,
         onResourceFinished,
+        onSaveRejected,
         goToNextUnit,
         handleNavigateToResource,
         goBack,

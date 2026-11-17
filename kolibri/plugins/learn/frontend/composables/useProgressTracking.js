@@ -165,6 +165,7 @@ export default function useProgressTracking() {
       );
       set(totalattempts, valOrNull(session.totalattempts));
       set(unsaved_interactions, []);
+      discardFailedSave();
     });
   }
 
@@ -404,6 +405,10 @@ export default function useProgressTracking() {
   // Start the savingPromise as a resolved promise
   // so we can always just chain from this promise for subsequent saves.
   let savingPromise = Promise.resolve();
+
+  function discardFailedSave() {
+    savingPromise = savingPromise.catch(() => {});
+  }
 
   const updateContentSessionDeferredStack = [];
   let updateContentSessionTimeout;

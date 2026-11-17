@@ -52,9 +52,9 @@ const ContentViewerMock = {
 const CourseContentViewerStub = {
   name: 'CourseContentViewer',
   template:
-    '<div data-testid="course-content-viewer"><button data-testid="finish-btn" @click="$emit(\'finished\')">Finish</button><div data-testid="content-viewer">{{ contentNode && contentNode.title }}</div></div>',
+    '<div data-testid="course-content-viewer"><button data-testid="finish-btn" @click="$emit(\'finished\')">Finish</button><button data-testid="save-rejected-btn" @click="$emit(\'saveRejected\')">Refuse save</button><div data-testid="content-viewer">{{ contentNode && contentNode.title }}</div></div>',
   props: ['contentNode', 'nextResource', 'previousResource'],
-  emits: ['finished', 'next', 'prev'],
+  emits: ['finished', 'next', 'prev', 'saveRejected'],
 };
 
 const createResource = (id, title, parent, lft = 1) => ({
@@ -258,6 +258,24 @@ describe('CourseUnitView', () => {
         });
       });
       expect(screen.queryByRole('heading', { name: PRE_TEST_TITLE })).not.toBeInTheDocument();
+    });
+
+    it('sends the learner back to the unit when the coach closes the test mid-attempt', async () => {
+      mockResumeData({ active_test: { unit_id: UNIT_1, test_type: 'pre' } });
+      renderComponent({ unitId: UNIT_1, testType: 'pre' }, { stubCourseContentViewer: true });
+      await screen.findByTestId('course-content-viewer');
+      mockResumeData({
+        resume_position: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+      });
+
+      await fireEvent.click(screen.getByTestId('save-rejected-btn'));
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__UNIT,
+          params: { courseId: COURSE_ID, unitId: UNIT_1 },
+        });
+      });
     });
 
     // All these cases land at the same resume position — the common behavior is

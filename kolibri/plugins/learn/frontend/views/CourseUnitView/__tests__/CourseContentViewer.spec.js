@@ -1,17 +1,27 @@
-import { render, screen } from '@testing-library/vue';
+import { computed } from 'vue';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 import Modalities from 'kolibri-constants/Modalities';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import CourseContentViewer from '../CourseContentViewer.vue';
+import {
+  injectCourseContentProgress,
+  // eslint-disable-next-line import-x/named
+  injectCourseContentProgressMock,
+} from '../useCourseContentProgressTracking';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../useCourseContentProgressTracking');
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 
-const { nextResourceLabel$, previousResourceLabel$, footerNavigationAccessibleLabel$ } =
-  coursesStrings;
+const {
+  nextResourceLabel$,
+  previousResourceLabel$,
+  footerNavigationAccessibleLabel$,
+  submitTestAction$,
+} = coursesStrings;
 
 const NEXT_ITEM_TITLE = 'Next item';
 const PREVIOUS_ITEM_TITLE = 'Previous item';
@@ -22,6 +32,11 @@ const ContentViewerStub = {
   name: 'ContentViewer',
   template: '<div data-testid="content-viewer">{{ contentNode && contentNode.title }}</div>',
   props: ['contentNode'],
+  methods: {
+    checkAnswer() {
+      return null;
+    },
+  },
 };
 
 describe('CourseContentViewer', () => {
@@ -85,5 +100,37 @@ describe('CourseContentViewer', () => {
       });
       expect(await screen.findByRole('button', { name: expectedName })).toBeInTheDocument();
     });
+  });
+
+  it('reports a refused save on a pre/post test', async () => {
+    injectCourseContentProgress.mockImplementationOnce(() =>
+      injectCourseContentProgressMock({
+        mastery_criterion: computed(() => ({
+          type: 'pre_post_test',
+          version: 'A',
+          test_type: 'pre',
+        })),
+        updateContentSession: jest.fn().mockRejectedValue({ response: { status: 403 } }),
+      }),
+    );
+    const unit = {
+      id: 'u1',
+      title: 'Unit 1',
+      options: {
+        completion_criteria: { threshold: { pre_post_test: { version_a_item_ids: ['item-1'] } } },
+      },
+    };
+    const { emitted } = render(CourseContentViewer, {
+      props: { contentNode: unit },
+      // eslint-disable-next-line kolibri/tests-no-stubs
+      stubs: { ContentViewer: ContentViewerStub },
+    });
+
+    await fireEvent.click(screen.getByRole('button', { name: submitTestAction$() }));
+    await fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: submitTestAction$() }),
+    );
+
+    await waitFor(() => expect(emitted().saveRejected).toHaveLength(1));
   });
 });
