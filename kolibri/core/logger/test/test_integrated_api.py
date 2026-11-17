@@ -1532,6 +1532,17 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    def test_start_assessment_session_logged_in_quiz_archived_fails(self):
+        self.quiz.archive = True
+        self.quiz.save()
+        response = self._make_request(
+            {
+                "quiz_id": self.content_id,
+            }
+        )
+
+        self.assertEqual(response.status_code, 403)
+
     def test_start_assessment_session_logged_in_quiz_complete_fails(self):
         self.mastery_log.complete = True
         self.mastery_log.save()
@@ -3255,6 +3266,38 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         )
 
         self.assertEqual(response.status_code, 403)
+
+    def test_update_assessment_session_update_attempt_archived_quiz_fails(self):
+        timestamp = local_now()
+        self.quiz.archive = True
+        self.quiz.save()
+
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item=self.item,
+            user=self.user,
+        )
+        response = self._make_request(
+            {
+                "interactions": [
+                    {
+                        "id": attemptlog.id,
+                        "item": self.item,
+                        "answer": {"response": "test"},
+                        "correct": 1,
+                        "time_spent": 10,
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(response.status_code, 403)
+        attemptlog.refresh_from_db()
+        self.assertEqual(attemptlog.correct, 0)
 
     def test_update_assessment_session_update_attempt_no_id_updates_not_creates(self):
         """

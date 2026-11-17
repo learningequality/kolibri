@@ -328,6 +328,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             raise PermissionDenied("Cannot access a quiz if not logged in")
         if not Exam.objects.filter(
             active=True,
+            archive=False,
             assignments__collection_id__in=user.memberships.all().values(
                 "collection_id"
             ),
