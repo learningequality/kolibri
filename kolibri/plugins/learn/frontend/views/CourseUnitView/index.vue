@@ -39,7 +39,7 @@
         @next="handleNext"
         @prev="handlePrev"
         @finished="onResourceFinished"
-        @saveRejected="onSaveRejected"
+        @saveRejected="onTestRefused"
       />
     </template>
     <template
@@ -744,7 +744,7 @@
         return false;
       };
 
-      const onSaveRejected = async () => {
+      const onTestRefused = async () => {
         await fetchResumeData();
         checkRedirect();
       };
@@ -964,6 +964,7 @@
         // route courseId refers to courseSessionId
         courseSessionId: toRef(props, 'courseId'),
         activeTest,
+        onTestRefused,
       });
 
       const { contentNodeProgressMap, fetchContentNodeProgress } = useContentNodeProgress();
@@ -1032,7 +1033,7 @@
         handlePrev,
         handleNext,
         onResourceFinished,
-        onSaveRejected,
+        onTestRefused,
         goToNextUnit,
         handleNavigateToResource,
         goBack,

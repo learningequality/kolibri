@@ -6,6 +6,8 @@ import Modalities from 'kolibri-constants/Modalities';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { LearnerCourseResource } from '../../../apiResources';
+import useProgressTracking from '../../../composables/useProgressTracking';
+import useCourseContentProgress from '../useCourseContentProgressTracking';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
 
@@ -269,6 +271,31 @@ describe('CourseUnitView', () => {
       });
 
       await fireEvent.click(screen.getByTestId('save-rejected-btn'));
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__UNIT,
+          params: { courseId: COURSE_ID, unitId: UNIT_1 },
+        });
+      });
+    });
+
+    it('sends the learner back to the unit when starting a test the coach has since closed', async () => {
+      useCourseContentProgress.mockImplementationOnce(
+        jest.requireActual('../useCourseContentProgressTracking').default,
+      );
+      useProgressTracking.mockReturnValueOnce({
+        ...useProgressTracking(),
+        initContentSession: jest.fn(() => {
+          mockResumeData({
+            resume_position: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+          });
+          return Promise.reject({ response: { status: 403 } });
+        }),
+      });
+      mockResumeData({ active_test: { unit_id: UNIT_1, test_type: 'pre' } });
+
+      renderComponent({ unitId: UNIT_1, testType: 'pre' }, { stubCourseContentViewer: true });
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({

@@ -34,8 +34,15 @@ const MasteryCriterionKey = Symbol('MasteryCriterion');
  * course session ID.
  * @param {import('vue').Ref<object>} options.activeTest - **Optional** Reactive ref to the
  * active test information, if applicable.
+ * @param {() => void} options.onTestRefused - **Optional** Called instead of the error page when
+ * the server refuses to start a session on the active test.
  */
-export default function useCourseContentProgress({ contentNode, courseSessionId, activeTest }) {
+export default function useCourseContentProgress({
+  contentNode,
+  courseSessionId,
+  activeTest,
+  onTestRefused,
+}) {
   const {
     progress,
     time_spent,
@@ -134,7 +141,11 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
       // Set progress into the content node progress store
       cacheProgress();
     } catch (error) {
-      handleApiError({ error });
+      if (test && onTestRefused && error?.response?.status === 403) {
+        onTestRefused();
+      } else {
+        handleApiError({ error });
+      }
     }
   };
 
