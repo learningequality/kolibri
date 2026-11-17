@@ -43,6 +43,7 @@
     "./components/pages/ImmersivePage": "./components/pages/ImmersivePage",
     "./components/pages/NotificationsRoot": "./components/pages/NotificationsRoot",
     "./components/pages/ScrollingHeader": "./components/pages/ScrollingHeader",
+    "./composables/useConnection": "./composables/useConnection",
     "./composables/useContentViewer": "./composables/useContentViewer",
     "./composables/useFetch": "./composables/useFetch",
     "./composables/useMinimumKolibriVersion": "./composables/useMinimumKolibriVersion",

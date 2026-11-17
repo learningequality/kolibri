@@ -44,6 +44,7 @@ from kolibri.utils.server import installation_type
 from kolibri.utils.time_utils import local_now
 
 from .constants import nutrition_endpoints
+from .hooks import PingbackHook
 from .models import PingbackNotification
 
 logger = logging.getLogger(__name__)
@@ -469,3 +470,8 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
     if "id" in data:
         stat_data = perform_statistics(server, data["id"])
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+        for hook in PingbackHook.registered_hooks:
+            try:
+                hook.pingback(server, data["id"])
+            except Exception:
+                logger.exception("Error in pingback hook.")

@@ -139,7 +139,7 @@ kolibri/
 
 ## Key Conventions
 
-**Python:** F-strings preferred. One import per line. `DateTimeTzField` for timestamps (not Django's `DateTimeField`). `UUIDField` from morango for syncable models. Descriptive migration names (no `_auto_`). All imports at file top — inline imports are only permitted to prevent circular imports.
+**Python:** F-strings preferred. One import per line. `DateTimeTzField` for timestamps (not Django's `DateTimeField`). `UUIDField` from morango for syncable models. Descriptive migration names (no `_auto_`). All imports at file top — inline imports are only permitted to prevent circular imports. Never pass the exception itself as the log message (`logger.error(e)`, `logger.error(str(e))`); log a static message, with `logger.exception()` when the traceback matters.
 
 **Vue:** PascalCase filenames. Component `name` must match filename. Use `computed()` for derived values.
 
