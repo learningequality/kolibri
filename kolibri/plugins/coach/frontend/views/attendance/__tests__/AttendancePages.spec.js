@@ -174,6 +174,33 @@ function renderEditPage({
   return { ...result, fetchSession, fetchRecords, bulkUpdateRecords, createSnackbar, router };
 }
 
+function presentCountText(count) {
+  return coreString('labelColonThenDetails', {
+    label: attendanceStrings.presentColumnHeader$(),
+    details: attendanceStrings.$formatNumber(count),
+  });
+}
+
+function absentCountText(count) {
+  return coreString('labelColonThenDetails', {
+    label: attendanceStrings.absentColumnHeader$(),
+    details: attendanceStrings.$formatNumber(count),
+  });
+}
+
+/**
+ * Asserts the present/absent counts shown in the given container.
+ * @param {number} present - Expected present count.
+ * @param {number} absent - Expected absent count.
+ * @param {HTMLElement} [container] - Element to search in. Defaults to the whole document.
+ */
+function expectCounts(present, absent, container = document.body) {
+  expect(within(container).getByTestId('present-count')).toHaveTextContent(
+    presentCountText(present),
+  );
+  expect(within(container).getByTestId('absent-count')).toHaveTextContent(absentCountText(absent));
+}
+
 /**
  * Gets an input element by its name attribute.
  * @param {string} name - The name attribute of the input element.
@@ -248,18 +275,32 @@ describe('AttendanceNewPage', () => {
     });
   });
 
+  it('shows a translated empty message when search matches no learners', async () => {
+    renderNewPage();
+    await waitFor(() => {
+      expect(getLearnerSwitch('learner-a')).toBeInTheDocument();
+    });
+
+    const filterInput = screen.getByPlaceholderText(attendanceStrings.searchPlaceholder$());
+    await fireEvent.update(filterInput, 'no learner has this name');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('attendance-table')).toHaveTextContent(
+        coreString('noResultsLabel'),
+      );
+    });
+  });
+
   it('updates present/absent counts when toggling a learner', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.presentCount$({ count: 0 }))).toBeInTheDocument();
-      expect(screen.getByText(attendanceStrings.absentCount$({ count: 3 }))).toBeInTheDocument();
+      expectCounts(0, 3);
     });
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
 
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.presentCount$({ count: 1 }))).toBeInTheDocument();
-      expect(screen.getByText(attendanceStrings.absentCount$({ count: 2 }))).toBeInTheDocument();
+      expectCounts(1, 2);
     });
   });
 
@@ -337,7 +378,7 @@ describe('AttendanceNewPage', () => {
   it('marks all learners present after confirming modal', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
+      expect(getLearnerSwitch('learner-a')).toBeInTheDocument();
     });
 
     await fireEvent.click(getMarkAllSwitch());
@@ -348,8 +389,7 @@ describe('AttendanceNewPage', () => {
     await fireEvent.click(screen.getByRole('button', { name: coreString('confirmAction') }));
 
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
-      expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
+      expectCounts(3, 0);
     });
   });
 
@@ -474,16 +514,14 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.presentCount$({ count: 2 }))).toBeInTheDocument();
-      expect(screen.getByText(attendanceStrings.absentCount$({ count: 1 }))).toBeInTheDocument();
+      expectCounts(2, 1);
     });
 
     // Toggle Bob from absent to present — 1 change
     await fireEvent.click(getLearnerSwitch('learner-b'));
 
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
-      expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
+      expectCounts(3, 0);
     });
   });
 
@@ -501,7 +539,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText(LEARNER_BOB.name)).toBeInTheDocument();
+      expect(getLearnerSwitch('learner-b')).toBeInTheDocument();
     });
 
     // Toggle Bob from absent to present (1 change)
@@ -511,11 +549,10 @@ describe('AttendanceEditPage', () => {
     await fireEvent.click(screen.getByRole('button', { name: coreString('saveAction') }));
 
     await waitFor(() => {
-      const modal = screen.getByRole('dialog');
-      expect(modal).toBeInTheDocument();
-      expect(modal).toHaveTextContent('1');
-      expect(modal).toHaveTextContent(attendanceStrings.presentCount$({ count: 3 }));
-      expect(modal).toHaveTextContent(attendanceStrings.absentCount$({ count: 0 }));
+      const modal = screen.getByRole('dialog', {
+        name: attendanceStrings.saveConfirmationTitle$({ count: 1 }),
+      });
+      expectCounts(3, 0, modal);
     });
   });
 
@@ -730,8 +767,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText(attendanceStrings.presentCount$({ count: 2 }))).toBeInTheDocument();
-      expect(screen.getByText(attendanceStrings.absentCount$({ count: 1 }))).toBeInTheDocument();
+      expectCounts(2, 1);
     });
   });
 
@@ -747,12 +783,11 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
+      expect(getLearnerSwitch('learner-a')).toBeInTheDocument();
     });
 
     // 3 total present (Alice current + Bob and Charlie previously enrolled), 0 absent.
-    expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
-    expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
+    expectCounts(3, 0);
   });
 
   it('Cancel button navigates to ATTENDANCE_HISTORY without passing the click event as query', async () => {
