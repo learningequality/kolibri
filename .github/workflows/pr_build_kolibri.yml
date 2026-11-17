@@ -47,6 +47,11 @@ jobs:
     uses: ./.github/workflows/platform-debian-install_test.yml
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+  server_deb_source:
+    name: Build kolibri-server DEB source package
+    uses: ./.github/workflows/platform-debian-server-build_deb.yml
+    with:
+      source-package: true
   server_deb:
     name: Build kolibri-server DEB file
     uses: ./.github/workflows/platform-debian-server-build_deb.yml
