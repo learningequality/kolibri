@@ -53,13 +53,10 @@ jobs:
       - name: Install Python 3.11
         run: uv python install 3.11
       - name: Install dependencies
-        run: |
-          uv sync --group base --python 3.11
-          uv pip install -r requirements/cext.txt
+        run: uv sync --python 3.11 --no-default-groups
       - name: Check proper shutdown
         run: |
           # ensure kolibri stops within 20 seconds 10 times in a row
-          # --no-sync: don't re-resolve the env (would drop the cext deps installed above)
           uv run --no-sync ./test/ensure_kolibri_stops_within_time.sh 20 10 8082 8083
           uv run --no-sync ./test/ensure_no_kolibris_running_on_port.sh 8082
           uv run --no-sync ./test/ensure_no_kolibris_running_on_port.sh 8083
