@@ -4,6 +4,7 @@ Also tests whether the users with permissions can create logs.
 """
 
 import uuid
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.core.exceptions import MultipleObjectsReturned
@@ -2067,6 +2068,11 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
             attempt_ids.append(response.json()["attempts"][0]["id"])
         first_id, second_id = attempt_ids
         self.assertNotEqual(first_id, second_id)
+        # Make the first attempt clearly older, so the order does not depend
+        # on the two requests getting different clock readings.
+        AttemptLog.objects.filter(id=first_id).update(
+            end_timestamp=local_now() - timedelta(minutes=1)
+        )
 
         response = self._make_request(
             {
