@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import ClassVar
 from unittest import mock
@@ -5,6 +6,7 @@ from unittest import mock
 import requests
 from django.db.utils import IntegrityError
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_201_CREATED
@@ -25,8 +27,24 @@ from kolibri.core.discovery.well_known import DATA_PORTAL_SYNCING_BASE_URL
 
 from .. import models
 from ..utils.network import connections
+from .helpers import info
 from .helpers import mock_happy_no_os_request
 from .helpers import mock_request
+from .helpers import mock_response
+
+# Differs from the dynamic location's instance_id in the test case setup, so no
+# location has an `id` equal to it.
+SHARED_INSTANCE_ID = "c" * 32
+
+
+def mock_peer_request(instance_id):
+    def request(session, method, url, *args, **kwargs):
+        response = mock_response(200)
+        response.json.return_value = {**info, "instance_id": instance_id}
+        response.url = url
+        return response
+
+    return request
 
 
 @mock.patch.object(requests.Session, "request", mock_request)
@@ -108,6 +126,203 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data["base_url"], self.existing_happy_netloc.base_url)
+
+    def _create_static_locations_sharing_instance_id(self):
+        """
+        Creates two static locations for the same peer, as happens when it is added
+        by both IP address and hostname. The older one deliberately has the higher
+        `id`, so that selecting by oldest `added` differs from selecting by lowest `id`.
+        """
+        older = models.StaticNetworkLocation.objects.create(
+            id="f" * 32,
+            base_url="http://older-address.qqq/",
+            instance_id=SHARED_INSTANCE_ID,
+        )
+        newer = models.StaticNetworkLocation.objects.create(
+            id="1" * 32,
+            base_url="http://newer-address.qqq/",
+            instance_id=SHARED_INSTANCE_ID,
+        )
+        models.NetworkLocation.objects.filter(pk=older.pk).update(
+            added=timezone.now() - datetime.timedelta(days=1)
+        )
+        return older, newer
+
+    def _get_shared_instance_id_location(
+        self, viewname="kolibri:core:staticnetworklocation-detail"
+    ):
+        return self.client.get(reverse(viewname, kwargs={"pk": SHARED_INSTANCE_ID}))
+
+    def _update_connection_status(self, pk, peer_instance_id=SHARED_INSTANCE_ID):
+        with mock.patch.object(
+            requests.Session,
+            "request",
+            mock_peer_request(peer_instance_id),
+        ):
+            return self.client.post(
+                reverse(
+                    "kolibri:core:networklocation-update-connection-status",
+                    args=[pk],
+                ),
+            )
+
+    def _update_shared_instance_id_connection_status(self):
+        return self._update_connection_status(SHARED_INSTANCE_ID)
+
+    def test_get__instance_id_shared_by_multiple_locations(self):
+        self.login(self.superuser)
+        older, _ = self._create_static_locations_sharing_instance_id()
+
+        response = self._get_shared_instance_id_location()
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], older.id)
+
+    def test_get__generic_endpoint__instance_id_shared_by_multiple_locations(self):
+        self.login(self.superuser)
+        older, _ = self._create_static_locations_sharing_instance_id()
+
+        response = self._get_shared_instance_id_location(
+            "kolibri:core:networklocation-detail"
+        )
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], older.id)
+
+    def test_get__shared_instance_id_selection_is_repeatable(self):
+        self.login(self.superuser)
+        older, newer = self._create_static_locations_sharing_instance_id()
+
+        selected_ids = []
+        for _ in range(3):
+            selected_ids.append(self._get_shared_instance_id_location().data["id"])
+            # Saving the other record bumps its `last_accessed` (auto_now); that
+            # must not influence which record is selected.
+            last_accessed_before = models.NetworkLocation.objects.get(
+                pk=newer.pk
+            ).last_accessed
+            newer.save()
+            self.assertGreater(
+                models.NetworkLocation.objects.get(pk=newer.pk).last_accessed,
+                last_accessed_before,
+            )
+
+        self.assertEqual(selected_ids, [older.id] * 3)
+
+    def test_get__shared_instance_id_ties_on_added_broken_by_id(self):
+        self.login(self.superuser)
+        higher_id, lower_id = self._create_static_locations_sharing_instance_id()
+        models.NetworkLocation.objects.filter(
+            pk__in=[higher_id.pk, lower_id.pk]
+        ).update(added=timezone.now())
+
+        response = self._get_shared_instance_id_location()
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], lower_id.id)
+
+    def test_get__pk_of_location_sharing_instance_id_returns_that_location(self):
+        self.login(self.superuser)
+        _, newer = self._create_static_locations_sharing_instance_id()
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": newer.pk},
+            )
+        )
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], newer.id)
+
+    def test_get__id_match_takes_priority_over_instance_id_match(self):
+        self.login(self.superuser)
+        self._create_static_locations_sharing_instance_id()
+        # Newest of all, and its instance_id differs, but its id is what is requested.
+        id_match = models.StaticNetworkLocation.objects.create(
+            id=SHARED_INSTANCE_ID,
+            base_url="http://id-match.qqq/",
+            instance_id="d" * 32,
+        )
+
+        response = self._get_shared_instance_id_location()
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], id_match.id)
+
+    def test_get__dynamic_location_is_selected_over_static_with_same_instance_id(self):
+        self.login(self.superuser)
+        static_duplicate = models.StaticNetworkLocation.objects.create(
+            base_url="http://static-duplicate.qqq/",
+            instance_id=self.dynamic_location.instance_id,
+        )
+        models.NetworkLocation.objects.filter(pk=static_duplicate.pk).update(
+            added=self.dynamic_location.added - datetime.timedelta(days=1)
+        )
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:networklocation-detail",
+                kwargs={"pk": self.dynamic_location.instance_id},
+            )
+        )
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.dynamic_location.id)
+
+    def test_update_connection_status__dynamic_location_with_static_duplicate(self):
+        self.login(self.superuser)
+        static_duplicate = models.StaticNetworkLocation.objects.create(
+            base_url="http://static-duplicate.qqq/",
+            instance_id=self.dynamic_location.instance_id,
+        )
+
+        response = self._update_connection_status(
+            self.dynamic_location.instance_id,
+            peer_instance_id=self.dynamic_location.instance_id,
+        )
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.dynamic_location.id)
+        self.dynamic_location.refresh_from_db()
+        static_duplicate.refresh_from_db()
+        self.assertEqual(
+            self.dynamic_location.connection_status, models.ConnectionStatus.Okay
+        )
+        self.assertEqual(
+            static_duplicate.connection_status, models.ConnectionStatus.Unknown
+        )
+
+    def test_update_connection_status__instance_id_shared_by_multiple_locations(self):
+        self.login(self.superuser)
+        older, newer = self._create_static_locations_sharing_instance_id()
+
+        response = self._update_shared_instance_id_connection_status()
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["id"], older.id)
+        self.assertEqual(
+            response.data["connection_status"], models.ConnectionStatus.Okay
+        )
+        older.refresh_from_db()
+        newer.refresh_from_db()
+        self.assertEqual(older.connection_status, models.ConnectionStatus.Okay)
+        self.assertEqual(newer.connection_status, models.ConnectionStatus.Unknown)
+        self.assertEqual(newer.base_url, "http://newer-address.qqq/")
+
+    def test_update_connection_status__shared_instance_id_selection_is_repeatable(
+        self,
+    ):
+        self.login(self.superuser)
+        older, _ = self._create_static_locations_sharing_instance_id()
+
+        first = self._update_shared_instance_id_connection_status()
+        # The first update changed the selected record's status; it must still be
+        # the one selected next time.
+        second = self._update_shared_instance_id_connection_status()
+
+        self.assertEqual(first.data["id"], older.id)
+        self.assertEqual(second.data["id"], older.id)
 
     def test_creating_good_address(self):
         self.login(self.superuser)
