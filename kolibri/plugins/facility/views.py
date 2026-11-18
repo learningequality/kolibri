@@ -6,13 +6,13 @@ from django.core.files.storage import default_storage
 from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
-from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import translation
 from django.utils.translation import get_language_from_request
 from django.utils.translation import pgettext
 from django.views.generic.base import TemplateView
 from le_utils.constants import content_kinds
+from rest_framework.generics import get_object_or_404
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
@@ -100,7 +100,7 @@ def exported_csv_info(request, facility_id):
 
     for log_type in CSV_EXPORT_FILENAMES:
         if log_type in ("summary", "session"):
-            log_request = _get_log_request(log_type, facility_id)
+            log_request = _get_log_request(log_type, facility.id)
             if log_request is not None:
                 start = log_request.selected_start_date.isoformat()
                 end = log_request.selected_end_date.isoformat()
@@ -188,24 +188,22 @@ def download_csv_file(request, csv_type, facility_id):
         ).replace("-", "_"),
     }
 
+    filename = None
     if csv_type in CSV_EXPORT_FILENAMES:
         if csv_type == "user":
             filename = CSV_EXPORT_FILENAMES[csv_type].format(
                 facility.name, facility.id[:4]
             )
         else:
-            log_request = _get_log_request(csv_type, facility_id)
+            log_request = _get_log_request(csv_type, facility.id)
             if log_request:
                 start = log_request.selected_start_date.isoformat()
                 end = log_request.selected_end_date.isoformat()
                 filename = CSV_EXPORT_FILENAMES[csv_type].format(
                     facility.name, facility.id[:4], start[:10], end[:10]
                 )
-    else:
-        filename = None
 
     logger.info("Downloading CSV file: %s", filename)
-    logger.info("%s exists: %s", filename, default_storage.exists(filename))
     # if the file does not exist on disk, return a 404
     if filename is None or not default_storage.exists(filename):
         raise Http404(f"There is no csv export file for {csv_type} available")
