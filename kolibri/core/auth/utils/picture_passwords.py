@@ -212,3 +212,12 @@ def assign_picture_password_if_enabled(user, facility):
         assign_picture_password(user, facility)
     except NoAvailableSequences:
         pass
+
+
+def assign_picture_passwords_to_learners_without_one(users):
+    for learner in (
+        users.filter(picture_password__isnull=True, roles__isnull=True)
+        .exclude(devicepermissions__is_superuser=True)
+        .select_related("facility__dataset")
+    ):
+        assign_picture_password_if_enabled(learner, learner.facility)
