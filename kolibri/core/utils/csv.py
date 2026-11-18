@@ -1,3 +1,4 @@
+import codecs
 import io
 import logging
 import re
@@ -44,23 +45,48 @@ def open_csv_for_writing(storage_filepath=None, local_filepath=None):
         logger.info("CSV file %s saved", local_filepath)
 
 
+def detect_csv_encoding(raw):
+    """
+    Return the name of the encoding used by the CSV file contents ``raw`` (bytes).
+    Raises ValueError if the encoding is not one of UTF-8, UTF-16 or Windows-1252.
+    """
+    if raw.startswith(codecs.BOM_UTF8):
+        return "utf-8-sig"
+    if raw.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
+        return "utf-16"
+    for encoding in ("utf-8", "cp1252"):
+        try:
+            raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+        return encoding
+    raise ValueError(
+        "Unable to detect the file encoding. "
+        "Supported encodings are UTF-8, UTF-16 and Windows-1252."
+    )
+
+
 @contextmanager
 def open_csv_for_reading(storage_filepath=None, local_filepath=None):
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if storage_filepath:
         with default_storage.open(storage_filepath, "rb") as f:
+            encoding = detect_csv_encoding(f.read())
+            f.seek(0)
             encoded_fh = io.TextIOWrapper(
                 f,
                 newline="",
-                encoding="utf-8-sig",
+                encoding=encoding,
                 write_through=True,
                 line_buffering=True,
             )
             yield encoded_fh
             encoded_fh.flush()
     else:
-        with open(local_filepath, newline="", encoding="utf-8-sig") as local_fh:
+        with open(local_filepath, "rb") as raw_fh:
+            encoding = detect_csv_encoding(raw_fh.read())
+        with open(local_filepath, newline="", encoding=encoding) as local_fh:
             yield local_fh
 
 
