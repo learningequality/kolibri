@@ -3,8 +3,10 @@
 import socket
 from contextlib import contextmanager
 from unittest import mock
+from urllib.parse import urlsplit
 
 import main
+import pytest
 
 from kolibri.utils import conf
 
@@ -49,3 +51,23 @@ def test_bus_with_no_port_ends_up_on_the_http_port_option():
     ):
         bus = main.AndroidKolibriProcessBus(port=main._resolve_server_port(0))
     assert bus.port == 4321
+
+
+def _initialize_url_host(listen_address):
+    with (
+        mock.patch.dict(
+            conf.OPTIONS["Deployment"], {"LISTEN_ADDRESS": listen_address}
+        ),
+        mock.patch.object(main, "_server_bus", mock.Mock(port=46655)),
+    ):
+        return urlsplit(main.get_initialize_url()).netloc
+
+
+@pytest.mark.django_db
+def test_initialize_url_is_on_loopback_when_listening_on_every_address():
+    assert _initialize_url_host("0.0.0.0") == "127.0.0.1:46655"
+
+
+@pytest.mark.django_db
+def test_initialize_url_is_on_a_single_listen_address():
+    assert _initialize_url_host("192.168.1.5") == "192.168.1.5:46655"

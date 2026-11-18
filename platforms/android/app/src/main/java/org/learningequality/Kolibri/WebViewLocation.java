@@ -9,7 +9,6 @@ import android.net.Uri;
  * loaded on so a restarted server can come back on it.
  */
 final class WebViewLocation {
-  private static final String LOOPBACK_IP = "127.0.0.1";
   private static final String PREFS_NAME = "kolibri_webview";
   private static final String PREF_LAST_PATH = "last_path";
 
@@ -18,6 +17,8 @@ final class WebViewLocation {
 
   private static volatile String initializePath;
 
+  private static volatile String servedHost;
+
   private WebViewLocation() {}
 
   /**
@@ -25,15 +26,22 @@ final class WebViewLocation {
    * would nest a spent auth_token and a stale next inside the next one.
    */
   static void noteInitializeUrl(String url) {
-    initializePath = Uri.parse(url).getPath();
+    Uri uri = Uri.parse(url);
+    initializePath = uri.getPath();
+    servedHost = uri.getHost();
+  }
+
+  /** Whether {@code host} is the one the initialize URL was served on. */
+  static boolean isServedHost(String host) {
+    return host != null && host.equals(servedHost);
   }
 
   /**
    * Record a URL as the page to come back to. Skips anything that is not a page served by our own
-   * loopback server.
+   * server.
    *
-   * <p>Main-frame URLs only: a {@code zipcontent} subframe URL passes the loopback host check but
-   * carries the ZIP server's port, which would then be tried as the main server port.
+   * <p>Main-frame URLs only: a {@code zipcontent} subframe URL passes the host check but carries
+   * the ZIP server's port, which would then be tried as the main server port.
    */
   static void save(Context context, String url) {
     if (url == null) {
@@ -42,7 +50,7 @@ final class WebViewLocation {
     Uri uri = Uri.parse(url);
     int port = uri.getPort();
     String origin = origin(uri);
-    if (!LOOPBACK_IP.equals(uri.getHost()) || port <= 0 || origin == null) {
+    if (!isServedHost(uri.getHost()) || port <= 0 || origin == null) {
       return;
     }
     if (initializePath != null && initializePath.equals(uri.getPath())) {
