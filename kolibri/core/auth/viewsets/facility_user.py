@@ -547,8 +547,6 @@ class DeletedFacilityUserViewSet(
 
         restored_ids = list(users.values_list("id", flat=True))
         users.update(date_deleted=None)
-        assign_picture_passwords_to_learners_without_one(
-            FacilityUser.objects.filter(id__in=restored_ids)
-        )
+        assign_picture_passwords_to_learners_without_one(restored_ids)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
