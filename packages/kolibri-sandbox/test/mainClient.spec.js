@@ -104,6 +104,23 @@ describe('Sandbox mainClient', () => {
         });
       });
     });
+    it('should send the latest retargeted start URL when iframe ready fires', () => {
+      sandbox.initialize({}, {}, 'http://start.url', 'testns');
+      sandbox.retarget('http://start.url/new');
+      sandbox.mediator.sendMessage = jest.fn();
+      return new Promise(resolve => {
+        sandbox.on(events.IFRAMEREADY, () => {
+          resolve();
+        });
+        fromIframe({ nameSpace, event: events.IFRAMEREADY, data: true });
+      }).then(() => {
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+          nameSpace,
+          event: events.MAINREADY,
+          data: expect.objectContaining({ startUrl: 'http://start.url/new' }),
+        });
+      });
+    });
     it('should call mediator sendMessage with the readycheck event', () => {
       const data = {};
       const userData = {};
@@ -149,6 +166,30 @@ describe('Sandbox mainClient', () => {
       );
     });
   });
+  describe('commands to the handler', () => {
+    let posted;
+    beforeEach(() => {
+      posted = jest.spyOn(window, 'postMessage').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      posted.mockRestore();
+    });
+
+    it('retarget posts RETARGET with the new start URL to the iframe', () => {
+      sandbox.retarget('http://start.url/new');
+
+      expect(posted).toHaveBeenCalledWith(
+        { nameSpace, event: events.RETARGET, data: 'http://start.url/new' },
+        '*',
+      );
+    });
+    it('closeFile posts CLOSE_FILE to the iframe', () => {
+      sandbox.closeFile();
+
+      expect(posted).toHaveBeenCalledWith({ nameSpace, event: events.CLOSE_FILE }, '*');
+    });
+  });
+
   describe('data getter', () => {
     it('should return a deep copy (not the same reference)', () => {
       sandbox.initialize({ myShim: { key: 'value' } }, {});
@@ -344,6 +385,56 @@ describe('Sandbox mainClient', () => {
         other.destroy();
         otherIframe.remove();
       }
+    });
+  });
+
+  describe('answer method', () => {
+    function requestFromIframe(data) {
+      const { port1, port2 } = new MessageChannel();
+      const reply = new Promise(resolve => {
+        port1.onmessage = ({ data }) => {
+          port1.close();
+          resolve(data);
+        };
+      });
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: { nameSpace, event: events.HANDLER_REQUESTED, data },
+          source: window,
+          ports: [port2],
+        }),
+      );
+      return reply;
+    }
+
+    it('should answer a request with the result of the responder', async () => {
+      sandbox.answer(events.HANDLER_REQUESTED, async ({ paths }) => ({ count: paths.length }));
+
+      await expect(requestFromIframe({ paths: ['A/One', 'A/Two'] })).resolves.toEqual({
+        result: { count: 2 },
+      });
+    });
+    it('should answer a request with the error the responder failed with', async () => {
+      sandbox.answer(events.HANDLER_REQUESTED, () => {
+        throw new Error('Resolver returned 500');
+      });
+
+      await expect(requestFromIframe({})).resolves.toEqual({ error: 'Resolver returned 500' });
+    });
+    it('should answer with what the responder threw when it is not an Error', async () => {
+      sandbox.answer(events.HANDLER_REQUESTED, () => {
+        throw 'Resolver returned 500';
+      });
+
+      await expect(requestFromIframe({})).resolves.toEqual({ error: 'Resolver returned 500' });
+    });
+    it('should not respond to a matching message with no port to answer on', () => {
+      const respond = jest.fn();
+      sandbox.answer(events.HANDLER_REQUESTED, respond);
+
+      fromIframe({ nameSpace, event: events.HANDLER_REQUESTED, data: {} });
+
+      expect(respond).not.toHaveBeenCalled();
     });
   });
 

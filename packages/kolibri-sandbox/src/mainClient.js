@@ -29,6 +29,7 @@ export default class MainClient {
     this.mediator = new Mediator(iframe.contentWindow, { source: iframe.contentWindow });
     this.now = now;
     this._shimData = {};
+    this._startUrl = null;
     this._userData = null;
     this._iframeProgress = null;
   }
@@ -55,6 +56,7 @@ export default class MainClient {
      */
     this._userData = userData ? JSON.parse(JSON.stringify(userData)) : {};
     this._shimData = contentState ? JSON.parse(JSON.stringify(contentState)) : {};
+    this._startUrl = startUrl;
 
     this.iframe.style.width = '100%';
 
@@ -70,7 +72,7 @@ export default class MainClient {
         event: events.MAINREADY,
         data: {
           contentNamespace,
-          startUrl,
+          startUrl: this._startUrl,
           handlerUrl,
           // Send current accumulated state, not the original contentState
           contentState: this._shimData,
@@ -107,6 +109,15 @@ export default class MainClient {
     this.mediator.sendMessage({ nameSpace, event: events.USERDATAUPDATE, data: this._userData });
   }
 
+  retarget(startUrl) {
+    this._startUrl = startUrl;
+    this.mediator.sendMessage({ nameSpace, event: events.RETARGET, data: startUrl });
+  }
+
+  closeFile() {
+    this.mediator.sendMessage({ nameSpace, event: events.CLOSE_FILE });
+  }
+
   getProgress() {
     return this._iframeProgress;
   }
@@ -121,6 +132,19 @@ export default class MainClient {
       throw ReferenceError(`${event} is not a valid event name for ${nameSpace}`);
     }
     this.mediator.registerMessageHandler({ nameSpace, event, callback });
+  }
+
+  answer(event, respond) {
+    this.on(event, async (data, port) => {
+      if (!port) {
+        return;
+      }
+      try {
+        port.postMessage({ result: await respond(data) });
+      } catch (e) {
+        port.postMessage({ error: String(e?.message ?? e) });
+      }
+    });
   }
 
   onStateUpdate(callback) {

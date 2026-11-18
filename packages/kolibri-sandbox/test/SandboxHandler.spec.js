@@ -1,5 +1,6 @@
 import SandboxHandler from '../src/SandboxHandler';
 import SandboxShim from '../src/SandboxShim';
+import { events, nameSpace } from '../src/base';
 import { createMediator, destroyMediators } from './__fixtures__/mediators';
 
 class TestShim extends SandboxShim {
@@ -230,6 +231,40 @@ describe('SandboxHandler', () => {
       expect(() => handler._initializeShims(contentWindow)).not.toThrow();
       expect(contentWindow).toHaveProperty('namespacedShim');
       expect(error).toHaveBeenCalledWith('Failed to initialize shim indexedDB:', expect.any(Error));
+    });
+  });
+
+  describe('requestFromHost', () => {
+    it('should resolve with what the host answers to a handler request', async () => {
+      const host = {
+        postMessage: jest.fn((message, origin, [port]) => port.postMessage({ result: 'answer' })),
+      };
+      const handler = new BaseShimsHandler({ mediator: createMediator(host) });
+
+      await expect(handler.requestFromHost({ paths: ['A/One'] })).resolves.toBe('answer');
+      expect(host.postMessage.mock.calls[0][0]).toEqual({
+        nameSpace,
+        event: events.HANDLER_REQUESTED,
+        data: { paths: ['A/One'] },
+      });
+    });
+  });
+
+  describe('messages to the host', () => {
+    const file = { data: new Uint8Array([1]), mimetype: 'application/pdf', hasPrevious: true };
+
+    it.each([
+      ['reportShowing', ['A/Page'], events.NOW_SHOWING, 'A/Page'],
+      ['renderFile', [file], events.RENDER_FILE, file],
+      ['renderFile', [null], events.RENDER_FILE, null],
+      ['setFileOverlay', [true], events.FILE_OVERLAY, true],
+    ])('%s(%j) should post %s to the host', (method, args, event, data) => {
+      const host = { postMessage: jest.fn() };
+      const handler = new BaseShimsHandler({ mediator: createMediator(host) });
+
+      handler[method](...args);
+
+      expect(host.postMessage).toHaveBeenCalledWith({ nameSpace, event, data }, '*');
     });
   });
 });

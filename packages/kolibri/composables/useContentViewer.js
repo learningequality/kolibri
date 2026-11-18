@@ -11,6 +11,7 @@ import { CONTENT_VIEWER_CONTEXT_KEY } from '../components/internal/ContentViewer
 
 /**
  * @typedef {object} ContentViewerApi
+ * @property {Ref<object|null>} contentNode - The content node being viewed, if any
  * @property {Ref<Array>} files - All available files for this content
  * @property {Ref<object|null>} defaultFile - Primary file selected for viewing
  * @property {Ref<string|null>} defaultItemPreset - Preset of the default file
@@ -139,6 +140,7 @@ export default function useContentViewer(
   }
 
   const {
+    contentNode,
     files,
     defaultItemPreset,
     itemData,
@@ -206,6 +208,7 @@ export default function useContentViewer(
   };
 
   return {
+    contentNode,
     files,
     options,
     lang,

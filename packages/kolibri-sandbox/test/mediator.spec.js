@@ -117,6 +117,66 @@ describe('Mediator', () => {
       expect(remote.postMessage).toHaveBeenCalledWith(message, '*');
       expect(posted).not.toHaveBeenCalled();
     });
+    describe('request method', () => {
+      const replyPort = () => remote.postMessage.mock.calls[0][2][0];
+
+      it('should post the request to the remote with a port to answer on', () => {
+        withRemote.request(message);
+        expect(remote.postMessage).toHaveBeenCalledWith(message, '*', [expect.any(MessagePort)]);
+        replyPort().close();
+      });
+      it('should resolve with the result answered on the port', async () => {
+        const reply = withRemote.request(message);
+        replyPort().postMessage({ result: { found: true } });
+        await expect(reply).resolves.toEqual({ found: true });
+      });
+      it('should reject with the error answered on the port', async () => {
+        const reply = withRemote.request(message);
+        replyPort().postMessage({ error: 'Resolver returned 500' });
+        await expect(reply).rejects.toThrow('Resolver returned 500');
+      });
+    });
+  });
+  describe('handling a message that carries a port', () => {
+    it('should hand the port to the callback with the data', () => {
+      const callback = jest.fn();
+      const { port1, port2 } = new MessageChannel();
+      mediator.registerMessageHandler({ event: 'e', nameSpace: 'n', callback });
+
+      mediator.handleMessage({ data: { event: 'e', nameSpace: 'n', data: 1 }, ports: [port2] });
+
+      expect(callback).toHaveBeenCalledWith(1, port2);
+      port1.close();
+    });
+    it('should answer with an error when no callback on a mediator for one source handles it', async () => {
+      const sourced = new Mediator(window, { source: window });
+      const { port1, port2 } = new MessageChannel();
+      const answer = new Promise(resolve => {
+        port1.onmessage = ({ data }) => {
+          port1.close();
+          resolve(data);
+        };
+      });
+
+      sourced.handleMessage({
+        source: window,
+        data: { event: 'unanswered', nameSpace: 'n', data: 1 },
+        ports: [port2],
+      });
+      sourced.destroy();
+
+      await expect(answer).resolves.toEqual({ error: 'No handler for n unanswered' });
+    });
+    it('should leave answering to another mediator when it hears every source', () => {
+      const port = { postMessage: jest.fn() };
+
+      mediator.handleMessage({
+        data: { event: 'unanswered', nameSpace: 'n', data: 1 },
+        ports: [port],
+      });
+
+      expect(port.postMessage).not.toHaveBeenCalled();
+    });
   });
   describe('registerMessageHandler method', () => {
     it('should add a callback to the array of callbacks for that nameSpace and event', () => {

@@ -43,6 +43,7 @@ describe('Sandbox iframeClient', () => {
     // Remove this instance's window message listener so leftover mediators from
     // earlier tests don't receive messages and re-trigger createIframe.
     sandbox.mediator.destroy();
+    sandbox.hostMediator.destroy();
     jest.restoreAllMocks();
   });
   describe('constructor method', () => {
@@ -377,6 +378,158 @@ describe('Sandbox iframeClient', () => {
     });
   });
 
+  describe('host commands to the handler', () => {
+    class CommandedHandler extends TestHandler {
+      retarget = jest.fn();
+      closeFile = jest.fn();
+    }
+
+    async function withLoadingHandler() {
+      let finishInit;
+      const handler = new CommandedHandler(sandbox);
+      handler.init = jest.fn(() => new Promise(resolve => (finishInit = resolve)));
+      loadHandlerRegistering(() => handler);
+      sandbox.mediator.sendMessage = jest.fn();
+      const created = sandbox.createIframe({
+        contentNamespace: 'test',
+        startUrl: 'http://test.com',
+        handlerUrl: 'http://handler.js',
+      });
+      await new Promise(resolve => setTimeout(resolve, 0));
+      const finishLoading = () => {
+        finishInit();
+        return created;
+      };
+      return { handler, finishLoading };
+    }
+
+    async function withHandler() {
+      const { handler, finishLoading } = await withLoadingHandler();
+      await finishLoading();
+      return handler;
+    }
+
+    function post(source, event, data) {
+      window.dispatchEvent(
+        new MessageEvent('message', { source, data: { nameSpace, event, data } }),
+      );
+    }
+
+    it('should retarget the handler when the host sends a new start url', async () => {
+      const handler = await withHandler();
+
+      post(window.parent, events.RETARGET, 'http://test.com/other');
+
+      expect(handler.retarget).toHaveBeenCalledWith('http://test.com/other');
+    });
+
+    it('should retarget the handler, once it has loaded, to the last url sent while it loaded', async () => {
+      const { handler, finishLoading } = await withLoadingHandler();
+
+      post(window.parent, events.RETARGET, 'http://test.com/second');
+      post(window.parent, events.RETARGET, 'http://test.com/third');
+      expect(handler.retarget).not.toHaveBeenCalled();
+      await finishLoading();
+
+      expect(handler.retarget).toHaveBeenCalledTimes(1);
+      expect(handler.retarget).toHaveBeenCalledWith('http://test.com/third');
+    });
+
+    it('should not retarget the handler to the url it loaded', async () => {
+      const { handler, finishLoading } = await withLoadingHandler();
+
+      post(window.parent, events.RETARGET, 'http://test.com/second');
+      post(window.parent, events.RETARGET, 'http://test.com');
+      await finishLoading();
+
+      expect(handler.retarget).not.toHaveBeenCalled();
+    });
+
+    const handlerError = {
+      nameSpace,
+      event: events.ERROR,
+      data: { message: 'No such page', error: 'HANDLER_ERROR' },
+    };
+    const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    const failures = [
+      [
+        'throws',
+        () => {
+          throw new Error('No such page');
+        },
+      ],
+      ['rejects', () => Promise.reject(new Error('No such page'))],
+    ];
+
+    it.each(failures)(
+      'should report an error when a retarget the host sends %s',
+      async (_, fail) => {
+        jest.spyOn(console, 'error').mockImplementation();
+        const handler = await withHandler();
+        handler.retarget.mockImplementation(fail);
+
+        post(window.parent, events.RETARGET, 'http://test.com/other');
+        await flush();
+
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith(handlerError);
+      },
+    );
+
+    it.each(failures)(
+      'should report an error when a close the host asks for %s',
+      async (_, fail) => {
+        jest.spyOn(console, 'error').mockImplementation();
+        const handler = await withHandler();
+        handler.closeFile.mockImplementation(fail);
+
+        post(window.parent, events.CLOSE_FILE);
+        await flush();
+
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith(handlerError);
+      },
+    );
+
+    it('should report an error when the retarget after loading rejects', async () => {
+      jest.spyOn(console, 'error').mockImplementation();
+      const { handler, finishLoading } = await withLoadingHandler();
+      handler.retarget.mockImplementation(() => Promise.reject(new Error('No such page')));
+
+      post(window.parent, events.RETARGET, 'http://test.com/other');
+      await finishLoading();
+      await flush();
+
+      expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith(handlerError);
+    });
+
+    it('should close the handler file when the host asks', async () => {
+      const handler = await withHandler();
+
+      post(window.parent, events.CLOSE_FILE);
+
+      expect(handler.closeFile).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not ask a handler that is still loading to close a file', async () => {
+      const { handler, finishLoading } = await withLoadingHandler();
+
+      post(window.parent, events.CLOSE_FILE);
+      await finishLoading();
+
+      expect(handler.closeFile).not.toHaveBeenCalled();
+    });
+
+    it('should ignore commands the content frame posts', async () => {
+      const handler = await withHandler();
+
+      post(sandbox.iframe.contentWindow, events.RETARGET, 'http://evil.test/');
+      post(sandbox.iframe.contentWindow, events.CLOSE_FILE);
+
+      expect(handler.retarget).not.toHaveBeenCalled();
+      expect(handler.closeFile).not.toHaveBeenCalled();
+    });
+  });
+
   describe('initializeIframe', () => {
     // The content document calls this from its own <head>, before any of its
     // scripts run. Shimming only happens here - see the comment on the method.
@@ -461,6 +614,7 @@ describe('Sandbox _loadHandler', () => {
 
   afterEach(() => {
     sandbox.mediator.destroy();
+    sandbox.hostMediator.destroy();
     jest.useRealTimers();
   });
 

@@ -10,14 +10,24 @@ const sandboxInstances = [];
 
 jest.mock('kolibri-sandbox', () =>
   jest.fn().mockImplementation(function () {
-    this.events = { LOADING: 'loading', ERROR: 'error', NAVIGATETO: 'navigateTo' };
+    this.events = {
+      LOADING: 'loading',
+      ERROR: 'error',
+      NAVIGATETO: 'navigateTo',
+      NOW_SHOWING: 'nowshowing',
+      RENDER_FILE: 'renderfile',
+      FILE_OVERLAY: 'fileoverlay',
+      HANDLER_REQUESTED: 'handlerrequested',
+    };
     this.progress = null;
     this.stateUpdateCallback = null;
     this.initialize = jest.fn();
     this.updateData = jest.fn();
+    this.retarget = jest.fn();
     this.destroy = jest.fn();
     this.getProgress = () => this.progress;
     this.on = jest.fn();
+    this.answer = jest.fn();
     this.onStateUpdate = callback => {
       this.stateUpdateCallback = callback;
     };
@@ -34,6 +44,8 @@ jest.mock('kolibri', () => ({
   default: {
     getSandboxHandlerUrl: preset => (preset === 'html5_zip' ? mockHandlerUrl : null),
     presetViewerComponent: () => ({ name: 'StubViewer', render: h => h('div') }),
+    canHandleElement: () => false,
+    objectViewerMimetypes: () => ['application/pdf'],
   },
 }));
 
@@ -57,11 +69,18 @@ function renderSandbox({
   lang = null,
   file = FILE,
   extraFields = {},
+  contentNode = null,
   sandboxOptions = {},
 } = {}) {
   const emitted = [];
   let api;
-  const session = { progress: ref(0), timeSpent: ref(timeSpent), lang: ref(lang) };
+  const session = {
+    progress: ref(0),
+    timeSpent: ref(timeSpent),
+    lang: ref(lang),
+    options: ref(options),
+    file: ref(file),
+  };
   const iframe = document.createElement('iframe');
 
   const Child = defineComponent({
@@ -79,8 +98,9 @@ function renderSandbox({
       components: { Child },
       setup() {
         provide(CONTENT_VIEWER_CONTEXT_KEY, {
-          files: computed(() => (file ? [file] : [])),
-          defaultFile: computed(() => file),
+          contentNode: computed(() => contentNode),
+          files: computed(() => (session.file.value ? [session.file.value] : [])),
+          defaultFile: computed(() => session.file.value),
           defaultItemPreset: computed(() => 'html5_zip'),
           itemData: computed(() => null),
           itemId: computed(() => null),
@@ -88,7 +108,7 @@ function renderSandbox({
           showCorrectAnswer: computed(() => false),
           interactive: computed(() => true),
           lang: computed(() => session.lang.value),
-          options: computed(() => options),
+          options: computed(() => session.options.value),
           extraFields: computed(() => extraFields),
           userId: computed(() => 'user-id'),
           allowHints: computed(() => true),
@@ -273,14 +293,68 @@ describe('useSandbox', () => {
 
     it('builds the content url with urlBuilder when the viewer supplies one', () => {
       const urlBuilder = jest.fn(() => '/zipcontent/abc123/index.html');
+      const contentNode = { id: 'node-id' };
       const { init, sandbox } = renderSandbox({
         options: { entry: 'index.html' },
+        contentNode,
         sandboxOptions: { urlBuilder },
       });
       init();
 
-      expect(urlBuilder).toHaveBeenCalledWith(FILE, { options: { entry: 'index.html' } });
+      expect(urlBuilder).toHaveBeenCalledWith(FILE, {
+        options: { entry: 'index.html' },
+        contentNode,
+      });
       expect(sandbox().initialize.mock.calls[0][2]).toBe('/zipcontent/abc123/index.html');
+    });
+
+    it('retargets the sandbox when the content url changes', async () => {
+      const urlBuilder = (file, { options }) => `/zim#entry=${options.entry}`;
+      const { init, sandbox, session } = renderSandbox({
+        options: { entry: 'C/First' },
+        sandboxOptions: { urlBuilder },
+      });
+      init();
+
+      session.options.value = { entry: 'C/Second' };
+      await nextTick();
+
+      expect(sandbox().retarget).toHaveBeenCalledTimes(1);
+      expect(sandbox().retarget).toHaveBeenCalledWith('/zim#entry=C/Second');
+    });
+
+    it('does not retarget the sandbox to a different file', async () => {
+      const urlBuilder = file => file.storage_url;
+      const { init, sandbox, session } = renderSandbox({ sandboxOptions: { urlBuilder } });
+      init();
+
+      session.file.value = { ...FILE, storage_url: '/content/other.zip', checksum: 'def456' };
+      await nextTick();
+
+      expect(sandbox().retarget).not.toHaveBeenCalled();
+    });
+
+    it('does not retarget the sandbox to the page it already shows', async () => {
+      const urlBuilder = (file, { options }) => `${file.storage_url}#entry=${options.entry}`;
+      const { init, sandbox, session } = renderSandbox({
+        options: { entry: 'C/First' },
+        sandboxOptions: { urlBuilder },
+      });
+      init();
+
+      session.file.value = { ...FILE, checksum: 'def456' };
+      await nextTick();
+      session.file.value = FILE;
+      await nextTick();
+      expect(sandbox().retarget).not.toHaveBeenCalled();
+
+      session.options.value = { entry: 'C/Second' };
+      await nextTick();
+      session.file.value = { ...FILE, checksum: 'def456' };
+      await nextTick();
+      session.file.value = FILE;
+      await nextTick();
+      expect(sandbox().retarget.mock.calls).toEqual([['/content/file.zip#entry=C/Second']]);
     });
 
     it('starts tracking once the content is handed to the sandbox', () => {
@@ -307,6 +381,62 @@ describe('useSandbox', () => {
 
       expect(loadingErrors(emitted)).toHaveLength(1);
       expect(emitted).not.toContainEqual(['startTracking', undefined]);
+    });
+
+    it('reports a loading failure when the url builder throws', () => {
+      const urlBuilder = () => {
+        throw new Error('No entry to show');
+      };
+      const { init, api, emitted } = renderSandbox({ sandboxOptions: { urlBuilder } });
+      init();
+
+      expect(loadingErrors(emitted)).toEqual([
+        ['error', { message: 'No entry to show', error: ContentErrorConstants.LOADING_ERROR }],
+      ]);
+      expect(api.loading.value).toBe(false);
+    });
+
+    it('reports a loading failure, without retargeting, when the url builder later throws', async () => {
+      const urlBuilder = (file, { options }) => {
+        if (!options.entry) {
+          throw new Error('No entry to show');
+        }
+        return `/zim#entry=${options.entry}`;
+      };
+      const { init, sandbox, session, emitted } = renderSandbox({
+        options: { entry: 'C/First' },
+        sandboxOptions: { urlBuilder },
+      });
+      init();
+
+      session.options.value = {};
+      await nextTick();
+
+      expect(loadingErrors(emitted)).toEqual([
+        ['error', { message: 'No entry to show', error: ContentErrorConstants.LOADING_ERROR }],
+      ]);
+      expect(sandbox().retarget).not.toHaveBeenCalled();
+
+      session.options.value = { entry: 'C/Third' };
+      await nextTick();
+
+      expect(sandbox().retarget).toHaveBeenCalledWith('/zim#entry=C/Third');
+    });
+
+    it('stops retargeting once unmounted', async () => {
+      const urlBuilder = (file, { options }) => `/zim#entry=${options.entry}`;
+      const { init, sandbox, session, utils } = renderSandbox({
+        options: { entry: 'C/First' },
+        sandboxOptions: { urlBuilder },
+      });
+      init();
+      const client = sandbox();
+
+      utils.unmount();
+      session.options.value = { entry: 'C/Second' };
+      await nextTick();
+
+      expect(client.retarget).not.toHaveBeenCalled();
     });
   });
 
@@ -338,6 +468,105 @@ describe('useSandbox', () => {
       sandbox().on.mock.calls.find(([name]) => name === 'navigateTo')[1]({ nodeId: 'abc' });
 
       expect(emitted).toContainEqual(['navigateTo', { nodeId: 'abc' }]);
+    });
+
+    it('relays the entry the content reports it is now showing', () => {
+      const { init, emitted, sandbox } = renderSandbox();
+      init();
+
+      sandbox().on.mock.calls.find(([name]) => name === 'nowshowing')[1]('C/Page');
+
+      expect(emitted).toContainEqual(['nowShowing', 'C/Page']);
+    });
+
+    it("answers the handler's requests with the viewer's onHandlerRequest, given the file", async () => {
+      const onHandlerRequest = jest.fn(async ({ paths }) => ({ resolved: paths }));
+      const { init, sandbox } = renderSandbox({ sandboxOptions: { onHandlerRequest } });
+      init();
+
+      const [event, respond] = sandbox().answer.mock.calls[0];
+
+      expect(event).toBe('handlerrequested');
+      await expect(respond({ paths: ['C/Page'] })).resolves.toEqual({ resolved: ['C/Page'] });
+      expect(onHandlerRequest).toHaveBeenCalledWith({ paths: ['C/Page'] }, { file: FILE });
+    });
+
+    it('answers no handler requests when the viewer takes none', () => {
+      const { init, sandbox } = renderSandbox();
+      init();
+
+      expect(sandbox().answer).not.toHaveBeenCalled();
+    });
+
+    describe('rendering a file for the content', () => {
+      let created;
+      beforeEach(() => {
+        created = 0;
+        URL.createObjectURL = jest.fn(() => `blob:main/${created++}`);
+        URL.revokeObjectURL = jest.fn();
+      });
+
+      const renderFile = (sandbox, file) =>
+        sandbox.on.mock.calls.find(([name]) => name === 'renderfile')[1](file);
+
+      it('holds the file on this origin for a viewer to render', () => {
+        const { init, api, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+
+        renderFile(sandbox(), {
+          mimetype: 'application/pdf',
+          data: new Uint8Array([1]),
+          name: 'Doc.pdf',
+          hasPrevious: true,
+        });
+
+        expect(api.renderedFile.value).toEqual({
+          url: 'blob:main/0',
+          mimetype: 'application/pdf',
+          name: 'Doc.pdf',
+          hasPrevious: true,
+        });
+      });
+
+      it('frees the previous file once the swap has rendered', async () => {
+        const { init, api, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+        const file = { mimetype: 'application/pdf', data: new Uint8Array([1]) };
+
+        renderFile(sandbox(), file);
+        renderFile(sandbox(), file);
+        renderFile(sandbox(), null);
+
+        expect(api.renderedFile.value).toBeNull();
+        expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+        await nextTick();
+        expect(URL.revokeObjectURL.mock.calls.map(c => c[0])).toEqual([
+          'blob:main/0',
+          'blob:main/1',
+        ]);
+      });
+
+      it('frees the file on unmount', async () => {
+        const { init, utils, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+        renderFile(sandbox(), { mimetype: 'application/pdf', data: new Uint8Array([1]) });
+
+        utils.unmount();
+        await nextTick();
+
+        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:main/0');
+      });
+
+      it('holds whether the content shows a file over itself as a boolean', () => {
+        const { init, api, sandbox } = renderSandbox({ sandboxOptions: { renderFiles: true } });
+        init();
+        const reportOverlay = sandbox().on.mock.calls.find(([name]) => name === 'fileoverlay')[1];
+
+        reportOverlay('yes');
+        expect(api.fileOverlayOpen.value).toBe(true);
+        reportOverlay(undefined);
+        expect(api.fileOverlayOpen.value).toBe(false);
+      });
     });
   });
 
