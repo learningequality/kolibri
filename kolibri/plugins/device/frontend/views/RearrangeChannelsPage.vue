@@ -25,11 +25,7 @@
               :key="channel.id"
             >
               <DraggableHandle>
-                <div
-                  :class="$computedClass(itemClass)"
-                  class="item"
-                  :style="{ backgroundColor: 'var(--tokens-surface)' }"
-                >
+                <div class="item">
                   <DragSortWidget
                     class="sort-widget"
                     :itemLabel="channel.name"
@@ -113,13 +109,6 @@
     computed: {
       backRoute() {
         return { name: PageNames.MANAGE_CONTENT_PAGE };
-      },
-      itemClass() {
-        return {
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_300,
-          },
-        };
       },
     },
     beforeMount() {
@@ -220,7 +209,12 @@
     padding: 8px;
     cursor: grab;
     user-select: none;
+    background-color: var(--tokens-surface);
     border-radius: $radius;
+
+    &:hover {
+      background-color: var(--palette-grey-v300);
+    }
   }
 
   .title {
