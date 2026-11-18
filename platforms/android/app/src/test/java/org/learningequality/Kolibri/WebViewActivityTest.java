@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.net.Uri;
 import android.os.Looper;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -50,6 +51,9 @@ public class WebViewActivityTest {
       ORIGIN + "/api/device/initialize/abc?auth_token=t";
   private static final String NEW_ORIGIN_INITIALIZE_URL =
       "http://127.0.0.1:45791/api/device/initialize/abc?auth_token=t";
+  private static final String LAN_ORIGIN = "http://192.168.1.5:46655";
+  private static final String LAN_INITIALIZE_URL =
+      LAN_ORIGIN + "/api/device/initialize/abc?auth_token=t";
 
   private ActivityController<WebViewActivity> controller;
   private WebView webView;
@@ -60,6 +64,7 @@ public class WebViewActivityTest {
     controller = Robolectric.buildActivity(WebViewActivity.class).setup();
     webView = controller.get().findViewById(R.id.webview);
     shadowWebView = (FreezeTrackingWebView) shadowOf(webView);
+    WebViewLocation.noteInitializeUrl(SAME_ORIGIN_INITIALIZE_URL);
   }
 
   @After
@@ -148,6 +153,7 @@ public class WebViewActivityTest {
   @Test
   public void aSignedOutFragmentDoesNotFollowTheRedirectOntoTheNextPage() {
     serverComesUp();
+    controller.get().loadIfOriginChanged(SAME_ORIGIN_INITIALIZE_URL, null);
     // Signing out leaves the WebView on the sign-in route.
     reachAPage(AUTH_URL);
     assertEquals(AUTH_PATH, WebViewLocation.getLastPath(controller.get()));
@@ -160,6 +166,17 @@ public class WebViewActivityTest {
 
     assertNull(injectedRestore());
     assertEquals(DEVICE_PATH, WebViewLocation.getLastPath(controller.get()));
+  }
+
+  @Test
+  public void pagesOnASingleListenAddressStayInTheApp() {
+    serverComesUp();
+    controller.get().loadIfOriginChanged(LAN_INITIALIZE_URL, null);
+    WebViewClient client = webView.getWebViewClient();
+
+    assertFalse(client.shouldOverrideUrlLoading(webView, requestFor(LAN_ORIGIN + DEVICE_PATH)));
+    assertTrue(
+        client.shouldOverrideUrlLoading(webView, requestFor("https://learningequality.org/")));
   }
 
   /** A restore that outlives its load would yank a later navigation back to the fragment. */
@@ -218,6 +235,12 @@ public class WebViewActivityTest {
     controller.stop();
     KolibriServerViewModel.getInstance().resetServerState();
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  private static WebResourceRequest requestFor(String url) {
+    WebResourceRequest request = mock(WebResourceRequest.class);
+    when(request.getUrl()).thenReturn(Uri.parse(url));
+    return request;
   }
 
   /** A committed document, as the WebViewClient sees it — what makes the page worth keeping. */

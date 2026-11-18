@@ -274,7 +274,9 @@ public class WebViewActivity extends AppCompatActivity {
           public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
             String host = uri.getHost();
-            if (LOOPBACK_IP.equals(host) || LOCALHOST.equals(host)) {
+            if (LOOPBACK_IP.equals(host)
+                || LOCALHOST.equals(host)
+                || WebViewLocation.isServedHost(host)) {
               return false;
             }
             try {

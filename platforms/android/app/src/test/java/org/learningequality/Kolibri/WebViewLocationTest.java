@@ -23,11 +23,23 @@ public class WebViewLocationTest {
   @Before
   public void setUp() {
     context = RuntimeEnvironment.getApplication();
+    WebViewLocation.noteInitializeUrl("http://127.0.0.1:46655/api/device/initialize/abc");
   }
 
   @Test
   public void save_recordsThePathAndPortOfALoopbackPage() {
     WebViewLocation.save(context, PAGE_URL);
+
+    assertEquals(PAGE_PATH, WebViewLocation.getLastPath(context));
+    assertEquals(46655, WebViewLocation.getLastPort());
+  }
+
+  @Test
+  public void save_recordsAPageOnASingleListenAddress() {
+    WebViewLocation.noteInitializeUrl("http://192.168.1.5:46655/api/device/initialize/abc");
+
+    WebViewLocation.save(context, "http://192.168.1.5:46655/en/facility/?token=x#/data/import");
+    WebViewLocation.save(context, "http://127.0.0.1:46656/zipcontent/abc.zip/index.html");
 
     assertEquals(PAGE_PATH, WebViewLocation.getLastPath(context));
     assertEquals(46655, WebViewLocation.getLastPort());
