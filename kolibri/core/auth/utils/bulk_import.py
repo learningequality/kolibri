@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.utils import translation
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -21,6 +22,10 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
+from kolibri.core.auth.models import Role
+from kolibri.core.auth.utils.picture_passwords import (
+    assign_picture_passwords_to_learners_without_one,
+)
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.csv import open_csv_for_reading
 
@@ -446,7 +451,7 @@ class BulkUserImportManager(JobProgressMixin):
     ):
         self.filepath = filepath
         self.facility_id = facility_id
-        self.userid = userid
+        self.userid = UUID(userid).hex if userid else None
         self.locale = locale or settings.LANGUAGE_CODE
         self.dryrun = dryrun
         self.delete = delete
@@ -589,9 +594,27 @@ class BulkUserImportManager(JobProgressMixin):
                 setattr(user_obj, field, values[field])
         return user_obj, None
 
-    def build_users_objects(self, users):
+    @cached_property
+    def _users_keeping_facility_roles(self):
+        user_ids = set(
+            FacilityUser.objects.filter(
+                facility=self.default_facility, devicepermissions__is_superuser=True
+            ).values_list("id", flat=True)
+        )
+        if self.userid:
+            user_ids.add(self.userid)
+        return user_ids
+
+    def _facility_roles_change(self, user_obj, csv_kinds, db_kinds):
+        return (
+            user_obj.id not in self._users_keeping_facility_roles
+            and set(csv_kinds) != db_kinds
+        )
+
+    def build_users_objects(self, users, users_roles):
         new_users = []
         update_users = []
+        unchanged_users = []
         keeping_users = []
         per_line_errors = []
         users_uuid = [
@@ -604,6 +627,11 @@ class BulkUserImportManager(JobProgressMixin):
             .filter(id__in=users_uuid)
             .values_list("id", flat=True)
         )
+        existing_kinds = {}
+        for user_id, kind in Role.objects.filter(
+            collection=self.default_facility, user_id__inline_in=users_uuid
+        ).values_list("user_id", "kind"):
+            existing_kinds.setdefault(user_id, set()).add(kind)
 
         # creating the users takes half of the time
         progress = (100 / self.number_lines) * 0.5
@@ -615,8 +643,16 @@ class BulkUserImportManager(JobProgressMixin):
                 keeping_users.append(user_obj)
                 if error:
                     per_line_errors.append(error)
-                elif self.compare_fields(user_obj, values):
+                elif self.compare_fields(
+                    user_obj, values
+                ) or self._facility_roles_change(
+                    user_obj,
+                    users_roles.get(username, []),
+                    existing_kinds.get(user_obj.id, set()),
+                ):
                     update_users.append(user_obj)
+                else:
+                    unchanged_users.append(user_obj)
             else:
                 user_obj, error = self._new_user(username, user_row, values)
                 if error:
@@ -624,7 +660,13 @@ class BulkUserImportManager(JobProgressMixin):
                 else:
                     new_users.append(user_obj)
 
-        return (new_users, update_users, keeping_users, per_line_errors)
+        return (
+            new_users,
+            update_users,
+            unchanged_users,
+            keeping_users,
+            per_line_errors,
+        )
 
     def db_validate_list(self, db_list, users=False):
         errors = []
@@ -772,13 +814,16 @@ class BulkUserImportManager(JobProgressMixin):
                     user = self.get_user(username, users)
                     db_class.add_coach(user)
 
-    def add_roles(self, users, roles):
-        for role in roles:
-            for username in roles[role]:
-                # db validation might have rejected a csv validated user:
-                if username in users:
-                    user = self.get_user(username, users)
-                    self.default_facility.add_role(user, role)
+    def set_facility_roles(self, users, users_roles):
+        for user in users:
+            if user.id in self._users_keeping_facility_roles:
+                continue
+            kinds = users_roles.get(user.username, [])
+            user.roles.filter(collection=self.default_facility).exclude(
+                kind__in=kinds
+            ).delete()
+            for kind in kinds:
+                self.default_facility.add_role(user, kind)
 
     def exit_if_error(self):
         if self.overall_error:
@@ -893,12 +938,14 @@ class BulkUserImportManager(JobProgressMixin):
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.append_error(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
+            users_roles = reverse_dict(roles)
             (
                 db_new_users,
                 db_update_users,
+                unchanged_users,
                 keeping_users,
                 more_line_errors,
-            ) = self.build_users_objects(users)
+            ) = self.build_users_objects(users, users_roles)
             per_line_errors += more_line_errors
             (
                 db_new_classes,
@@ -925,8 +972,7 @@ class BulkUserImportManager(JobProgressMixin):
                 for user in db_users:
                     user.save()
                 # assign roles to users:
-                users_data = {u.username: u for u in db_users}
-                self.add_roles(users_data, roles)
+                self.set_facility_roles(db_users, users_roles)
 
                 db_created_classes = []
                 for classroom in db_new_classes:
@@ -938,10 +984,14 @@ class BulkUserImportManager(JobProgressMixin):
                 # hack to get ids created by Morango:
                 db_new_classes = db_created_classes
 
+                users_data = {u.username: u for u in db_users}
                 self.add_classes_memberships(
                     classes, users_data, db_new_classes + db_update_classes
                 )
                 self.remove_memberships(keeping_users, classes[0], classes[1])
+                assign_picture_passwords_to_learners_without_one(
+                    [user.id for user in db_users + unchanged_users]
+                )
             classes_report = {
                 "created": len(db_new_classes),
                 "updated": len(db_update_classes),
