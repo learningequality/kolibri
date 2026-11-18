@@ -1015,7 +1015,7 @@ def read_options_file(ini_filename="options.ini"):
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
-    conf = ConfigObj(ini_path, configspec=get_configspec())
+    conf = ConfigObj(ini_path, configspec=get_configspec(), encoding="utf-8")
 
     # Check for use of deprecated options
     for section, opts in option_spec.items():
