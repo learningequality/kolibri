@@ -624,7 +624,7 @@ class BulkUserImportManager(JobProgressMixin):
         ]
         existing_users = (
             FacilityUser.all_objects.filter(facility=self.default_facility)
-            .filter(id__in=users_uuid)
+            .filter(id__inline_in=users_uuid)
             .values_list("id", flat=True)
         )
         existing_kinds = {}
@@ -765,13 +765,13 @@ class BulkUserImportManager(JobProgressMixin):
             users_not_to_delete.append(self.userid)
         users_to_delete = FacilityUser.all_objects.filter(
             facility=self.default_facility
-        ).exclude(id__in=users_not_to_delete)
+        ).exclude(id__inline_in=users_not_to_delete)
         # Classes not included in the csv will be cleared of users,
         # but not deleted to keep possible lessons and quizzes created for them:
         classes_not_to_clear = [c.id for c in update_classes]
         classes_to_clear = (
             Classroom.objects.filter(parent=self.default_facility)
-            .exclude(id__in=classes_not_to_clear)
+            .exclude(id__inline_in=classes_not_to_clear)
             .values_list("id", flat=True)
         )
 
