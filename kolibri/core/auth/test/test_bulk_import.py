@@ -693,6 +693,189 @@ class ImportTestCase(TestCase):
             "bulkimportusers", csv_filename, *args, facility=self.facility.id, **kwargs
         )
 
+    def _create_bob(self, **kwargs):
+        return FacilityUser.objects.create(
+            username="bob",
+            full_name="Bob",
+            password=make_password("password"),
+            facility=self.facility,
+            **kwargs,
+        )
+
+    def test_rename_to_unused_username_saves_it(self):
+        user = self._create_bob()
+        errorlines = StringIO()
+
+        self._import_row("robert", user.id, user.full_name, errorlines=errorlines)
+
+        self.assertEqual(errorlines.getvalue(), "")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "robert")
+
+    def test_case_only_rename_saves_it(self):
+        user = self._create_bob()
+        errorlines = StringIO()
+
+        self._import_row("Bob", user.id, user.full_name, errorlines=errorlines)
+
+        self.assertEqual(errorlines.getvalue(), "")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "Bob")
+
+    def test_case_only_rename_past_soft_deleted_namesake_saves_it(self):
+        user = self._create_bob()
+        self._create_bob(date_deleted=timezone.now())
+        errorlines = StringIO()
+
+        self._import_row("Bob", user.id, user.full_name, errorlines=errorlines)
+
+        self.assertEqual(errorlines.getvalue(), "")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "Bob")
+
+    def test_case_only_rename_to_live_users_username_is_rejected(self):
+        user = self._create_bob()
+        FacilityUser.objects.create(username="BOB", facility=self.facility)
+        errorlines = StringIO()
+
+        self._import_row("BOB", user.id, user.full_name, errorlines=errorlines)
+
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "USERNAME")
+        self.assertEqual(error["message"], "Username is duplicated")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "bob")
+
+    def test_rename_to_soft_deleted_users_username_is_rejected(self):
+        user = self._create_bob()
+        FacilityUser.objects.create(
+            username="robert", facility=self.facility, date_deleted=timezone.now()
+        )
+        errorlines = StringIO()
+
+        self._import_row("robert", user.id, user.full_name, errorlines=errorlines)
+
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "USERNAME")
+        self.assertEqual(error["message"], "Username is duplicated")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "bob")
+
+    def test_rename_to_another_users_username_is_rejected(self):
+        user = self._create_bob()
+        FacilityUser.objects.create(username="ROBERT", facility=self.facility)
+        FacilityUser.objects.create(
+            username="robert", facility=self.facility, date_deleted=timezone.now()
+        )
+        errorlines = StringIO()
+
+        self._import_row("robert", user.id, user.full_name, errorlines=errorlines)
+
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "USERNAME")
+        self.assertEqual(error["message"], "Username is duplicated")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "bob")
+
+    def test_restoring_user_whose_username_is_now_taken_is_rejected(self):
+        user = self._create_bob(date_deleted=timezone.now())
+        FacilityUser.objects.create(username="bob", facility=self.facility)
+        errorlines = StringIO()
+
+        self._import_row("bob", user.id, "Bobby", errorlines=errorlines)
+
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual(error["field"], "USERNAME")
+        self.assertEqual(error["message"], "Username is duplicated")
+        self.assertEqual(
+            FacilityUser.objects.filter(
+                username__iexact="bob", facility=self.facility
+            ).count(),
+            1,
+        )
+
+    def test_restoring_user_past_soft_deleted_namesake_saves_it(self):
+        user = self._create_bob(date_deleted=timezone.now())
+        self._create_bob(date_deleted=timezone.now())
+        errorlines = StringIO()
+
+        self._import_row("bob", user.id, "Bobby", errorlines=errorlines)
+
+        self.assertEqual(errorlines.getvalue(), "")
+        restored = FacilityUser.objects.get(id=user.id)
+        self.assertEqual(restored.full_name, "Bobby")
+
+    def test_rename_preserves_current_enrollment(self):
+        user = self._create_bob()
+        classroom = Classroom.objects.create(name="Bobs class", parent=self.facility)
+        classroom.add_member(user)
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(
+            csv_filename,
+            [
+                [
+                    user.id,
+                    "robert",
+                    "*",
+                    user.full_name,
+                    "LEARNER",
+                    "",
+                    "",
+                    "",
+                    classroom.name,
+                    "",
+                ]
+            ],
+        )
+
+        errorlines = StringIO()
+
+        call_command(
+            "bulkimportusers",
+            csv_filename,
+            facility=self.facility.id,
+            errorlines=errorlines,
+        )
+
+        self.assertEqual(errorlines.getvalue(), "")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "robert")
+        self.assertIn(user, classroom.get_members())
+
+    def test_repeated_uuid_is_a_row_error(self):
+        user = self._create_bob()
+        dashed_uuid = str(UUID(user.id))
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(
+            csv_filename,
+            [
+                [user.id, "bob", "*", "Robert", "LEARNER", "", "", "", "", ""],
+                [dashed_uuid, "bob2", "*", "Bob", "LEARNER", "", "", "", "", ""],
+                ["", "carol", "passwd", "Carol", "LEARNER", "", "", "", "", ""],
+            ],
+        )
+        errorlines = StringIO()
+
+        call_command(
+            "bulkimportusers",
+            csv_filename,
+            facility=self.facility.id,
+            errorlines=errorlines,
+        )
+
+        errors = [
+            ast.literal_eval(line) for line in errorlines.getvalue().strip().split("\n")
+        ]
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0]["row"], 2)
+        self.assertEqual(errors[0]["field"], "UUID")
+        self.assertEqual(errors[0]["message"], "Database ID is duplicated")
+        self.assertEqual(errors[0]["value"], dashed_uuid)
+        user.refresh_from_db()
+        self.assertEqual(user.username, "bob")
+        self.assertEqual(user.full_name, "Robert")
+        self.assertTrue(FacilityUser.objects.filter(username="carol").exists())
+
     def test_dashed_uuid_matches_existing_user_with_delete(self):
         user = FacilityUser.objects.create(
             username="bob",
