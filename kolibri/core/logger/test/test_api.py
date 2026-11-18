@@ -751,6 +751,17 @@ class GenerateCSVLogRequestViewSetTestCase(APITestCase):
             },
         )
         self.assertEqual(response.status_code, 201)
+        log_request = GenerateCSVLogRequest.objects.get(
+            log_type="summary", facility=self.facility
+        )
+        self.assertEqual(
+            log_request.selected_start_date,
+            datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc),
+        )
+        self.assertEqual(
+            log_request.selected_end_date,
+            datetime.datetime(2020, 1, 2, tzinfo=datetime.timezone.utc),
+        )
 
     def test_valid_request_omitted_dates(self):
         response = self.client.post(
@@ -794,6 +805,7 @@ class GenerateCSVLogRequestViewSetTestCase(APITestCase):
                 "log_type": "summary",
                 "selected_start_date": 5,
             },
+            format="json",
         )
         self.assertEqual(response.status_code, 400)
 
@@ -804,6 +816,17 @@ class GenerateCSVLogRequestViewSetTestCase(APITestCase):
                 "facility": self.facility.id,
                 "log_type": "summary",
                 "selected_start_date": "2020-01-01 00:00:00(Mars/Base)",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_start_date_date_only(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_start_date": "2020-01-01",
             },
         )
         self.assertEqual(response.status_code, 400)
@@ -827,6 +850,7 @@ class GenerateCSVLogRequestViewSetTestCase(APITestCase):
                 "log_type": "summary",
                 "selected_end_date": 5,
             },
+            format="json",
         )
         self.assertEqual(response.status_code, 400)
 
@@ -837,6 +861,17 @@ class GenerateCSVLogRequestViewSetTestCase(APITestCase):
                 "facility": self.facility.id,
                 "log_type": "summary",
                 "selected_end_date": "2020-01-01 00:00:00(Mars/Base)",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_malformed_selected_end_date_date_only(self):
+        response = self.client.post(
+            self.url,
+            data={
+                "facility": self.facility.id,
+                "log_type": "summary",
+                "selected_end_date": "2020-01-01",
             },
         )
         self.assertEqual(response.status_code, 400)

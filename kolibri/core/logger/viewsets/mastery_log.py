@@ -25,7 +25,7 @@ from .attempt_log import AttemptLogDiffSerializer
 from .attempt_log import AttemptLogViewSet
 from .filters import BaseLogFilter
 
-# Sane maximum index for positional slicing, bounded by 64-bit signed int
+# Prevent database errors and 500s caused by OFFSET values exceeding 64-bit signed int
 MAX_DIFF_INDEX = 2**63 - 1
 
 
