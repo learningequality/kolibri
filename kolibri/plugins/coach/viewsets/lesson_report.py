@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.http import Http404
 from rest_framework import permissions
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -65,7 +66,10 @@ class LessonReportPermissions(permissions.BasePermission):
         if report_pk is None:
             collection_id = request.user.facility_id
         else:
-            collection_id = Lesson.objects.get(pk=report_pk).collection.id
+            try:
+                collection_id = Lesson.objects.get(pk=report_pk).collection.id
+            except (Lesson.DoesNotExist, ValueError) as e:
+                raise Http404 from e
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
 
