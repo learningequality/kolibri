@@ -12,6 +12,7 @@ on: # zizmor: ignore[dangerous-triggers]
   issues:
     types:
       - assigned
+      - edited
       - labeled
       - opened
       - reopened
