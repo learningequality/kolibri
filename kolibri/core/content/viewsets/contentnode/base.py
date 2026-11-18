@@ -11,6 +11,7 @@ from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
 from rest_framework.serializers import IntegerField
 from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import Serializer
 
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesMethodField
@@ -289,6 +290,10 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
         return node
 
 
+class RandomContentNodeParamsSerializer(Serializer):
+    max_results = IntegerField(min_value=0, max_value=100, default=10)
+
+
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
@@ -320,7 +325,9 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
     @action(detail=False)
     def random(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        max_results = int(self.request.query_params.get("max_results", 10))
+        params = RandomContentNodeParamsSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        max_results = params.validated_data["max_results"]
         ids = list(queryset.order_by("?")[:max_results].values_list("id", flat=True))
         queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
