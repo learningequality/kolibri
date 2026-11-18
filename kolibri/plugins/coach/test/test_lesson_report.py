@@ -211,6 +211,29 @@ class LessonReportTestCase(APITestCase):
 
         self.assertEqual(get_response.status_code, 200)
 
+    def test_malformed_id_returns_404(self):
+        self.client.login(
+            username=self.facility_admin.username, password=DUMMY_PASSWORD
+        )
+        get_response = self.client.get(
+            reverse(self.lessonreport_basename + "-detail", kwargs={"pk": "abc"})
+        )
+
+        self.assertEqual(get_response.status_code, 404)
+
+    def test_unknown_id_returns_404(self):
+        self.client.login(
+            username=self.facility_admin.username, password=DUMMY_PASSWORD
+        )
+        get_response = self.client.get(
+            reverse(
+                self.lessonreport_basename + "-detail",
+                kwargs={"pk": "15f32edcec565396a1840c5413c92459"},
+            )
+        )
+
+        self.assertEqual(get_response.status_code, 404)
+
     def test_no_progress_logged(self):
         self.client.login(
             username=self.facility_admin.username, password=DUMMY_PASSWORD
