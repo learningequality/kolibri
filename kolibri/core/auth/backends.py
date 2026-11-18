@@ -117,7 +117,7 @@ class FacilityAuthScope(AuthScope, abc.ABC):
             return Facility.objects.values_list("dataset_id", flat=True).get(
                 pk=self.facility_or_id
             )
-        except Facility.DoesNotExist as e:
+        except (Facility.DoesNotExist, ValueError) as e:
             # if we cannot find the requested facility, we'll just fail fast
             raise PermissionDenied("Invalid credentials") from e
 
