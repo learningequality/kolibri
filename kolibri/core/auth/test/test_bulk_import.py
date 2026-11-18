@@ -25,6 +25,8 @@ from ..utils import bulk_import as b
 from ..utils.bulk_export import labels
 from .helpers import create_dummy_facility_data
 from .helpers import enable_picture_password
+from .helpers import limit_sqlite_variables
+from .helpers import skip_unless_sqlite_setlimit
 
 CLASSROOMS = 2
 
@@ -869,6 +871,39 @@ class ImportTestCase(TestCase):
                 self._import_user_type(admin, "FACILITY_COACH", userid=userid)
 
                 self.assertEqual(self._facility_role_kinds(admin), [role_kinds.ADMIN])
+
+    @skip_unless_sqlite_setlimit
+    def test_delete_with_more_classes_than_sqlite_allows_query_variables(self):
+        variable_limit = 400
+        rows = []
+        for i in range(variable_limit + 1):
+            learner = self._create_user(f"learner{i}")
+            Classroom.objects.create(
+                name=f"Class {i}", parent=self.facility
+            ).add_member(learner)
+            rows.append(
+                [
+                    learner.id,
+                    learner.username,
+                    "*",
+                    learner.full_name,
+                    "LEARNER",
+                    "",
+                    "",
+                    "",
+                    f"Class {i}",
+                    "",
+                ]
+            )
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(csv_filename, rows)
+        limit_sqlite_variables(self, variable_limit)
+
+        call_command(
+            "bulkimportusers", csv_filename, "--delete", facility=self.facility.id
+        )
+
+        self.assertEqual(Classroom.objects.get(name="Class 0").get_members().count(), 1)
 
     def test_dryrun_changes_no_role(self):
         user = self._create_user("bob", role_kinds.COACH)
