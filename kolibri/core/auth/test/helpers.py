@@ -3,10 +3,13 @@ Helper functions for use across the user/auth/permission-related tests.
 """
 
 import json
+import sqlite3
+import unittest
 import uuid
 
 from django.core.cache import caches
 from django.core.cache.backends.base import InvalidCacheBackendError
+from django.db import connection
 from django.utils import timezone
 from morango.constants import transfer_stages
 from morango.models.certificates import Certificate
@@ -35,6 +38,23 @@ from ..models import FacilityUser
 from ..models import LearnerGroup
 
 DUMMY_PASSWORD = "password"
+
+skip_unless_sqlite_setlimit = unittest.skipUnless(
+    connection.vendor == "sqlite" and hasattr(sqlite3.Connection, "setlimit"),
+    "Needs SQLite and Python 3.11's Connection.setlimit",
+)
+
+
+def limit_sqlite_variables(testcase, variable_limit):
+    connection.ensure_connection()
+    default_limit = connection.connection.setlimit(
+        sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, variable_limit
+    )
+    testcase.addCleanup(
+        connection.connection.setlimit,
+        sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER,
+        default_limit,
+    )
 
 
 def clear_process_cache():
