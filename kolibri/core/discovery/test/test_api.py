@@ -558,3 +558,17 @@ class PinnedDeviceAPITestCase(APITestCase):
             ).count(),
             1,
         )
+
+    def test_update_pinned_device_with_own_instance_id_returns_200(self):
+        pin = models.PinnedDevice.objects.create(
+            user=self.user, instance_id=self.network_location.id
+        )
+        response = self.client.put(
+            reverse(
+                "kolibri:core:pinned_devices-detail",
+                kwargs={"pk": pin.id},
+            ),
+            data={"instance_id": self.network_location.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
