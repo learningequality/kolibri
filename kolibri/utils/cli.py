@@ -55,7 +55,7 @@ def validate_module(ctx, param, value):
         with _patch_python_path(ctx.params.get("pythonpath")):
             if not module_exists(value):
                 raise click.BadParameter(
-                    "{param} must be a valid python module import path"
+                    f"{param.name} must be a valid python module import path"
                 )
     return value
 

@@ -444,3 +444,12 @@ def test_status_rejects_skip_update():
     with pytest.raises(SystemExit) as excinfo:
         cli.main(["status", "--skip-update"], prog_name="kolibri")
     assert excinfo.value.code == 2
+
+
+def test_status_invalid_settings_error_names_the_option(capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["status", "--settings", "bogus.module"], prog_name="kolibri")
+    assert excinfo.value.code == 2
+    assert (
+        "settings must be a valid python module import path" in capsys.readouterr().err
+    )
