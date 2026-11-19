@@ -44,8 +44,21 @@ function wrapPerseusMessages(translatorObject) {
   return new PerseusMessageWrapper(translatorObject);
 }
 
+// @khanacademy/kas, which scores expression answers, parses only these names, not translations
+// such as `sen` or `tg`.
+const MATH_INPUT_FUNCTION_NAMES = ['sin', 'cos', 'tan'];
+
+function wrapMathInputMessages(messages) {
+  return new Proxy(messages, {
+    get: function (target, prop) {
+      return MATH_INPUT_FUNCTION_NAMES.includes(prop) ? prop : target[prop];
+    },
+  });
+}
+
 module.exports = {
   replacePiText,
   revertPiText,
+  wrapMathInputMessages,
   wrapPerseusMessages,
 };

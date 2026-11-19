@@ -29,8 +29,9 @@
             :class="{ 'expression-grid': isExpression }"
           >
             <!--
-              Numbers first in DOM for tab order, then operators. Each key
-              carries its own grid placement in key.gridStyle (see keys.js).
+              The item's rows first in DOM for tab order, then numbers, then
+              operators. Each key carries its own grid placement in
+              key.gridStyle (see keys.js).
 
               @mousedown.native.prevent stops the button from stealing focus
               from the math input on press. Without it the input blurs, which
@@ -38,28 +39,16 @@
               never land in the field.
             -->
             <KButton
-              v-for="key in primaryKeys"
+              v-for="key in keysInTabOrder"
               :key="key.id"
               :text="key.label"
               :aria-label="key.ariaLabel()"
               class="key-btn"
+              :class="{ secondary: key.secondary }"
               :style="key.gridStyle"
               :primary="false"
               appearance="flat-button"
-              :appearanceOverrides="keyStyles"
-              @click="onPress(key.id)"
-              @mousedown.native.prevent
-            />
-            <KButton
-              v-for="key in secondaryKeys"
-              :key="key.id"
-              :text="key.label"
-              :aria-label="key.ariaLabel()"
-              class="key-btn secondary"
-              :style="key.gridStyle"
-              :primary="false"
-              appearance="flat-button"
-              :appearanceOverrides="keyStyles"
+              :appearanceOverrides="key.itemRow && key.label.length > 1 ? wordKeyStyles : keyStyles"
               @click="onPress(key.id)"
               @mousedown.native.prevent
             />
@@ -214,6 +203,8 @@
         backgroundColor: 'var(--palette-grey-v100)',
       };
 
+      const wordKeyStyles = { ...keyStyles, fontSize: '14px' };
+
       const { upArrow$, downArrow$, leftArrow$, rightArrow$ } = translator;
 
       const { closeAction$ } = coreStrings;
@@ -228,16 +219,25 @@
 
       const visibleKeys = computed(() => {
         const layout = isExpression.value
-          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel)
+          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel, {
+            buttonSets: props.buttonSets,
+            extraKeys: keypad.keypadConfig.value?.extraKeys || [],
+            keyLabels: props.keyLabels,
+          })
           : fractionLayout(symbols.value);
         return excludeKeys.value.length
           ? layout.filter(k => !excludeKeys.value.includes(k.id))
           : layout;
       });
 
-      const primaryKeys = computed(() => visibleKeys.value.filter(k => !k.secondary));
-
-      const secondaryKeys = computed(() => visibleKeys.value.filter(k => k.secondary));
+      const keysInTabOrder = computed(() => {
+        const keys = visibleKeys.value;
+        return [
+          ...keys.filter(k => k.itemRow),
+          ...keys.filter(k => !k.itemRow && !k.secondary),
+          ...keys.filter(k => !k.itemRow && k.secondary),
+        ];
+      });
 
       function onPress(keyId) {
         if (keyId === 'DISMISS') {
@@ -255,10 +255,10 @@
         dismiss: keypad.dismiss,
         isExpression,
         showVerticalNav,
-        primaryKeys,
-        secondaryKeys,
+        keysInTabOrder,
         onPress,
         keyStyles,
+        wordKeyStyles,
         upArrow$,
         downArrow$,
         leftArrow$,
@@ -276,6 +276,16 @@
       divideLabel: {
         type: String,
         default: '÷',
+      },
+      // The `buttonSets` of the host's expression fields, e.g. `trig` for sin, cos and tan
+      buttonSets: {
+        type: Array,
+        default: () => [],
+      },
+      // `{ label, ariaLabel }` for the function, relation and Greek letter keys, by key id
+      keyLabels: {
+        type: Object,
+        default: () => ({}),
       },
     },
   };
@@ -331,7 +341,9 @@
   }
 
   .keypad-grid.expression-grid {
+    grid-template-rows: none;
     grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 1fr;
   }
 
   /* Navigation pad: 3×3 cross layout */

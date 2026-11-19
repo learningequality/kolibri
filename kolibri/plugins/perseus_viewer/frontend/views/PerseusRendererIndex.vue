@@ -28,6 +28,8 @@
     <NumericKeypad
       :lang="lang"
       :divideLabel="divideLabel"
+      :buttonSets="keypadButtonSets"
+      :keyLabels="keypadKeyLabels"
     />
   </div>
 
@@ -68,7 +70,8 @@
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
-  import { wrapPerseusMessages } from '../translationUtils';
+  import expressionButtonSets from '../expressionButtonSets';
+  import { wrapMathInputMessages, wrapPerseusMessages } from '../translationUtils';
   import { localizeNumericResponses, readUserInput } from '../numericResponses';
   import { scoreItem } from '../scoring';
   import perseusTranslator from '../translator';
@@ -76,6 +79,7 @@
   import TeX from './Tex';
 
   const translator = wrapPerseusMessages(perseusTranslator);
+  const mathInputStrings = wrapMathInputMessages(translator);
 
   const logging = logger.getLogger(__filename);
 
@@ -338,6 +342,20 @@
       // `localesThatUseColon`.
       const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
 
+      const keypadKeyLabels = {
+        SIN: { label: mathInputStrings.sin, ariaLabel: perseusTranslator.sine$() },
+        COS: { label: mathInputStrings.cos, ariaLabel: perseusTranslator.cosine$() },
+        TAN: { label: mathInputStrings.tan, ariaLabel: perseusTranslator.tangent$() },
+        LN: { label: 'ln', ariaLabel: perseusTranslator.naturalLog$() },
+        LOG: { label: 'log', ariaLabel: perseusTranslator.logBase10$() },
+        LT: { label: '<', ariaLabel: perseusTranslator.lessThanSign$() },
+        GT: { label: '>', ariaLabel: perseusTranslator.greaterThanSign$() },
+        NEQ: { label: '≠', ariaLabel: perseusTranslator.notEqualsSign$() },
+        LEQ: { label: '≤', ariaLabel: perseusTranslator.lessThanOrEqualSign$() },
+        GEQ: { label: '≥', ariaLabel: perseusTranslator.greaterThanOrEqualToSign$() },
+        THETA: { label: 'θ', ariaLabel: perseusTranslator.theta$() },
+      };
+
       function handleMathFieldKey(event) {
         if (!event.target.closest('.keypad-input')) {
           return;
@@ -359,6 +377,7 @@
         contentDirection,
         keypadAPI,
         keypadContextValue,
+        keypadKeyLabels,
         handleMathFieldKey,
         itemData,
         itemId,
@@ -392,6 +411,9 @@
       },
       totalHints() {
         return get(this.item, 'hints.length', 0);
+      },
+      keypadButtonSets() {
+        return expressionButtonSets(get(this.item, 'question.widgets'));
       },
     },
     watch: {
@@ -560,7 +582,7 @@
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
           locale: this.lang?.id,
-          strings: translator,
+          strings: mathInputStrings,
           children: perseusStringsElement,
         });
         const dependencyContextElement = e(perseus.Dependencies.DependenciesContext.Provider, {
