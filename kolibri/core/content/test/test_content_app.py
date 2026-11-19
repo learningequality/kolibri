@@ -47,8 +47,10 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.utils.tests.helpers import override_option
 from kolibri.utils.time_utils import local_now
 
@@ -1909,6 +1911,58 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "total_questions",
             },
         )
+
+    def _get_contentnode_question_counts(self, attempts):
+        facility, _root, _c1, _c2, c2c1, _c2c3 = self._setup_contentnode_progress()
+        summarylog = ContentSummaryLog.objects.get(content_id=c2c1.content_id)
+        sessionlog = ContentSessionLog.objects.create(
+            user=summarylog.user,
+            content_id=c2c1.content_id,
+            channel_id=self.the_channel_id,
+            kind=content_kinds.EXERCISE,
+            start_timestamp=summarylog.start_timestamp,
+        )
+        try_log = MasteryLog.objects.create(
+            user=summarylog.user,
+            summarylog=summarylog,
+            start_timestamp=summarylog.start_timestamp,
+            end_timestamp=summarylog.start_timestamp + datetime.timedelta(hours=1),
+            mastery_level=-1,
+        )
+        for attempt_index, (item, correct) in enumerate(attempts):
+            end_timestamp = try_log.start_timestamp + datetime.timedelta(
+                minutes=attempt_index
+            )
+            AttemptLog.objects.create(
+                masterylog=try_log,
+                sessionlog=sessionlog,
+                user=summarylog.user,
+                item=item,
+                start_timestamp=end_timestamp,
+                end_timestamp=end_timestamp,
+                completion_timestamp=end_timestamp,
+                correct=correct,
+            )
+        self.client.login(username="learner", password="pass", facility=facility)
+        response = self.client.get(reverse("kolibri:core:contentnodeprogress-list"))
+        progress = next(
+            log for log in response.data if log["content_id"] == c2c1.content_id
+        )
+        return (
+            progress["num_question_answered"],
+            progress["num_question_answered_correctly"],
+        )
+
+    def test_contentnode_progress_counts_each_item_once(self):
+        self.assertEqual(
+            (3, 2),
+            self._get_contentnode_question_counts(
+                [("a", 1), ("a", 0), ("b", 1), ("c", 1), ("c", 1)]
+            ),
+        )
+
+    def test_contentnode_progress_try_without_attempts_counts_zero(self):
+        self.assertEqual((0, 0), self._get_contentnode_question_counts([]))
 
     def test_filtering_coach_content_anon(self):
         response = self.client.get(
