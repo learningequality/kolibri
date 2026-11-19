@@ -44,9 +44,9 @@ _windows_modules = {
     "win32file": MagicMock(),
     "win32job": MagicMock(),
     "win32pipe": MagicMock(),
+    "win32security": MagicMock(),
     "winerror": MagicMock(),
     "kolibri_app.windows_registry": MagicMock(),
-    "kolibri_app.server_process_windows": MagicMock(),
 }
 
 wx = sys.modules["wx"]
@@ -58,6 +58,9 @@ try:
         patch.object(kolibri_app.constants, "WINDOWS", True),
         patch.object(wx, "App", _App),
     ):
+        server_process_windows = importlib.import_module(
+            "kolibri_app.server_process_windows"
+        )
         server_manager_windows = importlib.import_module(
             "kolibri_app.server_manager_windows"
         )
