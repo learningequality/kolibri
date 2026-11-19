@@ -26,6 +26,10 @@ from .attempt_log import AttemptLogViewSet
 from .filters import BaseLogFilter
 
 
+class DiffIndexSerializer(serializers.Serializer):
+    index = serializers.IntegerField(min_value=0, max_value=2147483647)
+
+
 class _AttemptLogDiffViewSet(AttemptLogViewSet):
     serializer_class = AttemptLogDiffSerializer
 
@@ -85,16 +89,16 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         )
 
     @action(detail=True)
-    def diff(self, request, pk=0):
-        try:
-            back = int(pk)
-        except ValueError:
-            return Response("Parameter must be an integer", status=404)
+    def diff(self, request, **kwargs):
+        serializer = DiffIndexSerializer(data={"index": kwargs["pk"]})
+        if not serializer.is_valid():
+            return Response(status=404)
+        index = serializer.validated_data["index"]
 
         tries = list(
             self.annotate_queryset(self.filter_queryset(self.get_queryset())).values(
                 *self.values
-            )[back : back + 2]
+            )[index : index + 2]
         )
 
         if not tries:
