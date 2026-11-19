@@ -273,6 +273,7 @@ class WindowsServerManager:
 
         env = os.environ.copy()
         env["KOLIBRI_HOME"] = os.environ.get("KOLIBRI_HOME", KOLIBRI_HOME)
+        env["KOLIBRI_RESTART_HOOKS"] = "kolibri.utils.server.signal_stop"
 
         return cmd, env
 
@@ -536,9 +537,7 @@ class WindowsServerManager:
     def _handle_local_pipe_error(self):
         """Handle pipe error in local mode with process restart logic."""
         if self.server_process and self.server_process.poll() is not None:
-            logging.error(
-                "Local server process terminated unexpectedly. Attempting to restart."
-            )
+            logging.info("Local server process has exited. Starting it again.")
             self._quiet_retries = False
             wx.CallAfter(self._launch_server_process)
         elif not self._quiet_retries:

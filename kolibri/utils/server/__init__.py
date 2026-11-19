@@ -937,13 +937,21 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
     bus.run()
 
 
-def signal_restart():
+def _signal_process(command):
     try:
         with open(PROCESS_CONTROL_FLAG, "w") as f:
-            f.write(RESTART)
+            f.write(command)
     except OSError:
         return False
     return True
+
+
+def signal_restart():
+    return _signal_process(RESTART)
+
+
+def signal_stop():
+    return _signal_process(STOP)
 
 
 def restart():
