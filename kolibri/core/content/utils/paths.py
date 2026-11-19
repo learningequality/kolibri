@@ -1,5 +1,6 @@
 import os
 import re
+from urllib.parse import quote
 
 from django.conf import settings
 from django.utils.http import urlencode
@@ -232,7 +233,7 @@ def get_info_url(baseurl=None):
 def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=None):
     content_server_path = f"/api/public/v{version}/channels"
     if identifier:
-        content_server_path += f"/lookup/{identifier}"
+        content_server_path += f"/lookup/{quote(identifier, safe='')}"
     query_params = {"channel_versions": "true"}
     if keyword:
         query_params["keyword"] = keyword

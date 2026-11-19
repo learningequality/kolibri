@@ -3,6 +3,7 @@ import hashlib
 from django.test import TestCase
 
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_url
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.utils.conf import OPTIONS
@@ -58,3 +59,22 @@ class GetContentDatabaseFileUrlTest(TestCase):
             self.channel_id, baseurl="https://studio.example.com", version="next"
         )
         self.assertTrue(url.endswith(f"{self.channel_id}-next.sqlite3"))
+
+
+class GetChannelLookupUrlTest(TestCase):
+    def test_plain_identifier_is_unchanged(self):
+        url = get_channel_lookup_url(identifier="abc123")
+        self.assertEqual(
+            url,
+            "/api/public/v1/channels/lookup/abc123?channel_versions=true",
+        )
+
+    def test_identifier_with_slash_question_and_hash_is_one_path_segment(self):
+        self.assertEqual(
+            get_channel_lookup_url(identifier="../x"),
+            "/api/public/v1/channels/lookup/..%2Fx?channel_versions=true",
+        )
+        self.assertEqual(
+            get_channel_lookup_url(identifier="abc?keyword=y#"),
+            "/api/public/v1/channels/lookup/abc%3Fkeyword%3Dy%23?channel_versions=true",
+        )
