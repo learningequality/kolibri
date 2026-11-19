@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-28 00:05\n"
+"PO-Revision-Date: 2026-11-19 20:56\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Khmer\n"
 "Language: km\n"
@@ -157,15 +157,15 @@ msgstr "Kolibri កំពុងជួបបញ្ហា"
 
 #: src/kolibri_app/windows/taskbar_icon.py:346
 msgid "Open Kolibri App"
-msgstr "បើកអេប Kolibri"
+msgstr "បើកកម្មវិធី Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:354
 msgid "Open Kolibri App after sign in"
-msgstr "បើកអេប Kolibri បន្ទាប់ពីចូលគណនីរួច"
+msgstr "បើកកម្មវិធី Kolibri បន្ទាប់ពីចូលគណនីរួច"
 
 #: src/kolibri_app/windows/taskbar_icon.py:361
 msgid "Run Kolibri service on Windows startup"
-msgstr "ដំណើរការសេវាកម្ម Kolibri នៅពេលចាប់ផ្ដើម Windows"
+msgstr "ដំណើរការសេវាកម្ម Kolibri នៅពេលចាប់ផ្តើមប្រព័ន្ធ Windows"
 
 #: src/kolibri_app/windows/taskbar_icon.py:369
 msgid "Run Kolibri service on Windows startup (Unavailable)"

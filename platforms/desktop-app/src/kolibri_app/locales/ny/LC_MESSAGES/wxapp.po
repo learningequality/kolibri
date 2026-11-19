@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-28 00:05\n"
+"PO-Revision-Date: 2026-11-19 20:55\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Chewa\n"
 "Language: ny\n"
@@ -37,7 +37,7 @@ msgstr "Zolembalemba"
 
 #: src/kolibri_app/about_dialog.py:47
 msgid "Community Forum"
-msgstr "Gulu lam'mudzi"
+msgstr "Gulu la m'mudzi"
 
 #: src/kolibri_app/about_dialog.py:60
 #, python-format
@@ -50,7 +50,7 @@ msgstr "Tsekani"
 
 #: src/kolibri_app/view.py:217
 msgid "Open Kolibri in Browser"
-msgstr "Tsekulani Kolibri mu bulawuza"
+msgstr "Tsekulani Kolibri mubulawuze"
 
 #: src/kolibri_app/view.py:223
 msgid "Open Kolibri Home Folder"
@@ -58,7 +58,7 @@ msgstr "Tsekulani foda yoyamba ya Kolibri"
 
 #: src/kolibri_app/view.py:231 src/kolibri_app/view.py:302
 msgid "About Kolibri…"
-msgstr "Zokhudza kolibri"
+msgstr "Zokhudza Kolibri"
 
 #: src/kolibri_app/view.py:241
 msgid "Cut\tCtrl+X"
@@ -70,7 +70,7 @@ msgstr "Koperani Ctrl+C"
 
 #: src/kolibri_app/view.py:243
 msgid "Paste\tCtrl+V"
-msgstr "Kuika zomwe mwakopera\tCtrl+V"
+msgstr "Kuyika zomwe mwakopera\tCtrl+V"
 
 #: src/kolibri_app/view.py:245
 msgid "Select All\tCtrl+A"
@@ -106,7 +106,7 @@ msgstr "Onani"
 
 #: src/kolibri_app/view.py:284
 msgid "Community Forums"
-msgstr "Magulu am'mudzi"
+msgstr "Magulu a m'mudzi"
 
 #: src/kolibri_app/view.py:290
 msgid "Show Logs"
@@ -122,7 +122,7 @@ msgstr "Kufufuza zolakwika"
 
 #: src/kolibri_app/view.py:305
 msgid "Help"
-msgstr "Thandizani"
+msgstr "Thandizo"
 
 #: src/kolibri_app/view.py:402
 msgid "Save file"
@@ -177,7 +177,7 @@ msgstr "Tulukani"
 
 #: src/kolibri_app/windows/taskbar_icon.py:387
 msgid "Kolibri service is not ready yet"
-msgstr "Pulogalamu ya Kolibri siinakonzeke"
+msgstr "Pulogalamu ya Kolibri siyinakonzeke"
 
 #: src/kolibri_app/windows/taskbar_icon.py:388
 msgid "Info"

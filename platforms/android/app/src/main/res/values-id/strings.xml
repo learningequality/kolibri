@@ -5,7 +5,7 @@
     <string name="notification_service_channel_title">Menjalankan Tugas Penting</string>
     <string name="notification_service_channel_content">Dalam kemajuan</string>
     <string name="notification_service_channel_action">Lihat pengelola tugas</string>
-    <string name="notification_default_channel_title">Latihan-latihan</string>
+    <string name="notification_default_channel_title">Tugas-tugas</string>
     <string name="notification_task_title">Menjalankan Tugas Kolibri</string>
     <string name="notification_task_text">Memproses tugas di latar belakang…</string>
     <string name="notification_download_complete_title">Unduhan selesai</string>
