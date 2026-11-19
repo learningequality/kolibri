@@ -8,6 +8,7 @@ from uuid import UUID
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -314,33 +315,46 @@ class Validator:
             append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
             self.roles[roles_map[user_role]].append(username)
 
+    def _field_errors(self, row, position):
+        for header_name, check, message in self._checks:
+            value = row[self.header_translation[header_name]]
+            try:
+                check(value)
+            except ValueError:
+                pass
+            except Exception as error:
+                message = MESSAGES[UNEXPECTED_EXCEPTION].format(
+                    error.__class__.__name__, error
+                )
+            else:
+                continue
+            yield {
+                "row": position,
+                "message": message,
+                "field": header_name,
+                "value": None if header_name == "PASSWORD" else value,
+            }
+
     def validate(self, data):
-        """
-        Validate `data` and return an iterator over errors found.
-        """
-        for index, row in enumerate(data):
-            error_flag = False
+        for position, row in enumerate(data, start=1):
+            missing = [name for name, value in row.items() if value is None]
+            if missing:
+                for name in missing:
+                    yield {
+                        "row": position,
+                        "message": MESSAGES[REQUIRED_COLUMN].format(name),
+                        "field": name,
+                        "value": None,
+                    }
+                continue
             username = self.get_username(row)
             if not username:
-                error = {
-                    "row": index + 1,
-                    "message": MESSAGES[DUPLICATED_USERNAME],
-                    "field": "USERNAME",
-                    "value": row.get(self.header_translation["USERNAME"]),
-                }
-                error_flag = True
-                yield error
-
-            for header_name, check, message in self._checks:
-                value = row[self.header_translation[header_name]]
-                try:
-                    check(value)
-                except ValueError:
-                    error = {
-                        "row": index + 1,
-                        "message": message,
-                        "field": header_name,
-                        "value": value,
+                errors.append(
+                    {
+                        "row": position,
+                        "message": MESSAGES[DUPLICATED_USERNAME],
+                        "field": "USERNAME",
+                        "value": row.get(self.header_translation["USERNAME"]),
                     }
                     error_flag = True
                     yield error
@@ -363,7 +377,6 @@ class Validator:
 
 
 def csv_values_validation(reader, header_translation, facility):
-    per_line_errors = []
     validator = Validator(header_translation, facility)
     validator.add_check("UUID", valid_uuid(), MESSAGES[INVALID_UUID])
     validator.add_check(
@@ -916,9 +929,6 @@ class BulkUserImportManager(JobProgressMixin):
                 fixed_classes,
             ) = self.build_classes_objects(classes)
             classes = fixed_classes
-            users_to_delete, classes_to_clear = self.get_delete(
-                keeping_users, db_update_classes
-            )
             per_line_errors += self.db_validate_list(db_new_users, users=True)
             per_line_errors += self.db_validate_list(db_update_users, users=True)
             # progress = 91%
@@ -927,7 +937,6 @@ class BulkUserImportManager(JobProgressMixin):
 
             if not self.dryrun:
                 self.delete_users(users_to_delete)
-                # clear users from classes not included in the csv:
                 Membership.objects.filter(collection__in=classes_to_clear).delete()
 
                 # bulk_create and bulk_update are not possible with current Morango:

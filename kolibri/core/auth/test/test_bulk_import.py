@@ -534,6 +534,7 @@ class ImportTestCase(TestCase):
                 "2001",
                 "FEMALE",
                 "classroom1,classroom0",
+                None,
             ],
             [
                 None,
@@ -728,7 +729,7 @@ class ImportTestCase(TestCase):
                     FacilityUser.objects.get(id=user.id).full_name, full_name
                 )
 
-    def test_row_shorter_than_header_creates_user(self):
+    def test_row_shorter_than_header_reports_row_error(self):
         _, csv_filename = tempfile.mkstemp(suffix=".csv")
         header = list(labels.values())
         header.append(header.pop(0))
@@ -736,10 +737,18 @@ class ImportTestCase(TestCase):
             writer = csv.writer(f)
             writer.writerow(header)
             writer.writerow(["alice", "pw", "Alice", "LEARNER", "", "", "", "", ""])
+        errorlines = StringIO()
 
-        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+        call_command(
+            "bulkimportusers",
+            csv_filename,
+            facility=self.facility.id,
+            errorlines=errorlines,
+        )
 
-        self.assertTrue(FacilityUser.objects.filter(username="alice").exists())
+        error = ast.literal_eval(errorlines.getvalue().strip())
+        self.assertEqual((error["row"], error["field"]), (1, header[-1]))
+        self.assertFalse(FacilityUser.objects.filter(username="alice").exists())
 
     def test_unknown_uuid_error_names_uuid(self):
         unknown_uuid = str(uuid4())
