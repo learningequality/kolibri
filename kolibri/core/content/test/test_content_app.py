@@ -49,10 +49,23 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.utils.test.helpers import encode_cursor
 from kolibri.utils.tests.helpers import override_option
 from kolibri.utils.time_utils import local_now
 
 DUMMY_PASSWORD = "password"
+
+
+def follow_more(test, url, max_pages, **params):
+    ids = []
+    for _ in range(max_pages):
+        response = test.client.get(url, data=params)
+        test.assertEqual(response.status_code, 200)
+        ids.extend(node["id"] for node in response.data["results"])
+        params = response.data["more"]
+        if params is None:
+            return ids
+    raise test.failureException(f"more did not end within {max_pages} pages")
 
 
 class ContentNodeTestBase:
@@ -724,6 +737,55 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     def test_contentnode_random_default_max_results(self):
         response = self.client.get(reverse("kolibri:core:contentnode-random"))
         self.assertEqual(response.status_code, 200)
+
+    def test_contentnode_list_invalid_max_results(self):
+        for max_results in ("99999999999999999999", "101", "0", "abc", "-1"):
+            with self.subTest(max_results=max_results):
+                response = self.client.get(
+                    reverse("kolibri:core:contentnode-list"),
+                    data={"max_results": max_results},
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
+
+    def test_contentnode_list_max_results_at_maximum(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"max_results": 100}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_contentnode_list_invalid_cursor_position(self):
+        for position in ("abc", "", "99999999999999999999", "2147483648", "-1"):
+            with self.subTest(position=position):
+                response = self.client.get(
+                    reverse("kolibri:core:contentnode-list"),
+                    data={"max_results": 2, "cursor": encode_cursor(p=position)},
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.data[0]["metadata"]["field"], "cursor")
+
+    def test_contentnode_list_invalid_cursor_without_max_results(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"cursor": encode_cursor(p="abc")},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.data, list)
+
+    def test_contentnode_list_follows_more_to_last_page(self):
+        expected_ids = set(
+            content.ContentNode.objects.filter(available=True).values_list(
+                "id", flat=True
+            )
+        )
+        seen_ids = follow_more(
+            self,
+            reverse("kolibri:core:contentnode-list"),
+            len(expected_ids) + 1,
+            max_results=3,
+        )
+        self.assertEqual(len(seen_ids), len(set(seen_ids)))
+        self.assertSetEqual(set(seen_ids), expected_ids)
 
     def test_related_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -2235,6 +2297,101 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(response.headers["Cache-Control"], "max-age=0")
 
+    def _create_resumable_logs(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        content_ids = list(
+            content.ContentNode.objects.filter(available=True)
+            .exclude(kind=content_kinds.TOPIC)
+            .order_by("content_id")
+            .values_list("content_id", flat=True)
+            .distinct()[:3]
+        )
+        now = local_now()
+        for index, content_id in enumerate(content_ids):
+            ContentSummaryLog.objects.create(
+                channel_id=self.the_channel_id,
+                content_id=content_id,
+                user_id=user.id,
+                start_timestamp=now,
+                end_timestamp=now - datetime.timedelta(minutes=index),
+                kind="audio",
+                progress=0.5,
+            )
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        return set(
+            content.ContentNode.objects.filter(
+                available=True, content_id__in=content_ids
+            ).values_list("id", flat=True)
+        )
+
+    RESUME_PARAMS: ClassVar[dict] = {
+        "resume": True,
+        "ordering": "-last_interacted",
+        "max_results": 1,
+    }
+
+    def test_resume_follows_more_to_last_page(self):
+        with timezone.override(pytz.utc):
+            expected_ids = self._create_resumable_logs()
+            seen_ids = follow_more(
+                self,
+                reverse("kolibri:core:usercontentnode-list"),
+                len(expected_ids) + 1,
+                **self.RESUME_PARAMS,
+            )
+        self.assertEqual(len(seen_ids), len(set(seen_ids)))
+        self.assertSetEqual(set(seen_ids), expected_ids)
+
+    def test_resume_follows_more_to_last_page_outside_utc(self):
+        with timezone.override(pytz.timezone("Africa/Nairobi")):
+            expected_ids = self._create_resumable_logs()
+            seen_ids = follow_more(
+                self,
+                reverse("kolibri:core:usercontentnode-list"),
+                len(expected_ids) + 1,
+                **self.RESUME_PARAMS,
+            )
+        self.assertEqual(len(seen_ids), len(set(seen_ids)))
+        self.assertSetEqual(set(seen_ids), expected_ids)
+
+    def test_resume_invalid_cursor_position(self):
+        self._create_resumable_logs()
+        for position in ("abc", "", "5", "None", "0001-01-01 00:00:00+14:00"):
+            with self.subTest(position=position):
+                response = self.client.get(
+                    reverse("kolibri:core:usercontentnode-list"),
+                    data={**self.RESUME_PARAMS, "cursor": encode_cursor(p=position)},
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.data[0]["metadata"]["field"], "cursor")
+
+    def test_resume_out_of_range_cursor_position_outside_utc(self):
+        self._create_resumable_logs()
+        for zone, position in (
+            ("Africa/Nairobi", "0001-01-01 00:00:00"),
+            ("Africa/Nairobi", "0001-01-01T00:00:00"),
+            ("Asia/Kolkata", "0001-01-01 00:00:00"),
+            ("America/Los_Angeles", "9999-12-31 23:59:59"),
+            ("Etc/GMT-3", "0001-01-01 00:00:00"),
+            ("Etc/GMT+12", "9999-12-31 23:59:59"),
+        ):
+            for url_name in ("usercontentnode-list", "contentnodeprogress-list"):
+                with self.subTest(
+                    zone=zone, position=position, url_name=url_name
+                ), timezone.override(pytz.timezone(zone)):
+                    response = self.client.get(
+                        reverse(f"kolibri:core:{url_name}"),
+                        data={
+                            **self.RESUME_PARAMS,
+                            "cursor": encode_cursor(p=position),
+                        },
+                    )
+                    self.assertEqual(response.status_code, 400)
+                    self.assertEqual(response.data[0]["metadata"]["field"], "cursor")
+
     def test_next_steps_prereq(self):
         facility = Facility.objects.create(name="MyFac")
         user = FacilityUser.objects.create(username="user", facility=facility)
@@ -2930,6 +3087,24 @@ class ContentNodeBookmarksAPITestCase(APITestCase):
         self.assertEqual(result["id"], self.node.id)
         self.assertEqual(set(result["bookmark"]), {"id", "contentnode_id", "created"})
         self.assertEqual(result["bookmark"]["id"], self.bookmark.id)
+
+    def test_bookmarks_list_limit_above_maximum(self):
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        for limit in ("99999999999999999999", "101"):
+            with self.subTest(limit=limit):
+                response = self.client.get(
+                    reverse("kolibri:core:contentnode_bookmarks-list"),
+                    data={"limit": limit},
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.data[0]["metadata"]["field"], "limit")
+
+    def test_bookmarks_list_limit_at_maximum(self):
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_bookmarks-list"), data={"limit": 100}
+        )
+        self.assertEqual(response.status_code, 200)
 
 
 class V2ChannelLookupUrlTestCase(TestCase):

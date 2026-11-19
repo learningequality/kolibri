@@ -5,17 +5,27 @@ from urllib.parse import urlencode
 
 from django.core.cache import cache
 from django.core.exceptions import EmptyResultSet
+from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import InvalidPage
 from django.core.paginator import Page
 from django.core.paginator import Paginator
+from django.db.backends.base.operations import BaseDatabaseOperations
 from django.db.models import QuerySet
 from django.utils.functional import cached_property
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import _reverse_ordering
 from rest_framework.pagination import CursorPagination
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.serializers import CharField
+from rest_framework.serializers import IntegerField
+from rest_framework.serializers import ModelField
+from rest_framework.serializers import Serializer
+from rest_framework.utils.field_mapping import ClassLookupDict
+
+from kolibri.core.serializers import KolibriModelSerializer
 
 
 class ValuesPage(Page):
@@ -64,8 +74,32 @@ class CachedValuesViewsetPaginator(ValuesViewsetPaginator):
         return value
 
 
+class _PageSizeSerializer(Serializer):
+    def __init__(self, *args, query_param, maximum, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[query_param] = IntegerField(
+            min_value=1, max_value=maximum, required=False
+        )
+
+
+def _validated_page_size(request, query_param, maximum, default):
+    if not query_param:
+        return default
+    serializer = _PageSizeSerializer(
+        data=request.query_params, query_param=query_param, maximum=maximum
+    )
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data.get(query_param, default)
+
+
 class ValuesViewsetPageNumberPagination(PageNumberPagination):
     django_paginator_class = ValuesViewsetPaginator
+    max_page_size = 100
+
+    def get_page_size(self, request):
+        return _validated_page_size(
+            request, self.page_size_query_param, self.max_page_size, self.page_size
+        )
 
     def paginate_queryset(self, queryset, request, view=None):
         """
@@ -148,6 +182,13 @@ class CachedListPagination(ValuesViewsetPageNumberPagination):
 
 
 class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
+    max_limit = 100
+
+    def get_limit(self, request):
+        return _validated_page_size(
+            request, self.limit_query_param, self.max_limit, self.default_limit
+        )
+
     def paginate_queryset(self, queryset, request, view=None):
         """
         Paginate a queryset if required, either returning a
@@ -219,8 +260,57 @@ class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
         }
 
 
+def _cursor_position_field_kwargs(field_class, model_field):
+    if issubclass(field_class, CharField):
+        return {"allow_blank": True, "trim_whitespace": False}
+    if issubclass(field_class, IntegerField):
+        # SQLite's backend reports no integer range, so take the documented
+        # column ranges every backend shares.
+        min_value, max_value = BaseDatabaseOperations.integer_field_ranges[
+            model_field.get_internal_type()
+        ]
+        return {"min_value": min_value, "max_value": max_value}
+    return {}
+
+
+def _cursor_position_field(queryset, order):
+    name = order.lstrip("-")
+    if name in queryset.query.annotations:
+        model_field = queryset.query.annotations[name].output_field
+    else:
+        model_field = queryset.model._meta.get_field(name)
+    field_class = ClassLookupDict(KolibriModelSerializer.serializer_field_mapping)[
+        model_field
+    ]
+    if field_class is ModelField:
+        raise ImproperlyConfigured(
+            f"Cursor pagination cannot order by {name}: "
+            f"{type(model_field).__name__} has no typed serializer field"
+        )
+    return field_class(**_cursor_position_field_kwargs(field_class, model_field))
+
+
 class ValuesViewsetCursorPagination(CursorPagination):
+    max_page_size = 100
+
+    def decode_cursor(self, request):
+        position_field = _cursor_position_field(self.queryset, self.ordering[0])
+        cursor = super().decode_cursor(request)
+        if cursor is None or cursor.position is None:
+            return cursor
+        try:
+            position = position_field.run_validation(cursor.position)
+        except ValidationError as e:
+            raise ValidationError({self.cursor_query_param: e.detail}) from e
+        return cursor._replace(position=position)
+
+    def get_page_size(self, request):
+        return _validated_page_size(
+            request, self.page_size_query_param, self.max_page_size, self.page_size
+        )
+
     def paginate_queryset(self, queryset, request, view=None):
+        self.queryset = queryset
         pks_queryset = super().paginate_queryset(queryset, request, view=view)
         if pks_queryset is None:
             return None

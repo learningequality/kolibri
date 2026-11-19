@@ -4,6 +4,7 @@ from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.utils.test.helpers import encode_cursor
 
 
 class FacilityUsernameViewSetTestCase(APITestCase):
@@ -46,15 +47,40 @@ class FacilityUsernameViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 10)
 
-    def test_max_results_clamped_to_20(self):
+    def test_max_results_above_maximum(self):
         response = self.client.get(
             self.url(),
-            {"facility": self.facility.id, "max_results": 100},
+            {"facility": self.facility.id, "max_results": 21},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
+
+    def test_max_results_at_maximum(self):
+        response = self.client.get(
+            self.url(),
+            {"facility": self.facility.id, "max_results": 20},
             format="json",
         )
         self.assertEqual(response.status_code, 200)
-        # 25 users in setUp; requesting 100, clamped to 20 — must get exactly 20
         self.assertEqual(len(response.data["results"]), 20)
+
+    def _list_with_cursor_position(self, position):
+        return self.client.get(
+            self.url(),
+            {"facility": self.facility.id, "cursor": encode_cursor(p=position)},
+            format="json",
+        )
+
+    def test_cursor_position_resumes_after_username(self):
+        response = self._list_with_cursor_position("testuser04")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["results"][0]["username"], "testuser05")
+
+    def test_null_character_cursor_position_returns_400(self):
+        response = self._list_with_cursor_position("\x00")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], "cursor")
 
     def test_short_search_returns_400(self):
         for search in ("a", "te"):
