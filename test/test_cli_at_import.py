@@ -25,7 +25,7 @@ def test_stop_no_db_access():
             cli.stop.callback()
         except SystemExit:
             pass
-    connect_mock.assert_not_called()
+    assert not connect_mock.called
 
 
 @patch("kolibri.utils.conf.OPTIONS")
@@ -35,4 +35,4 @@ def test_import_no_options_evaluation(options_mock):
         # Evict the module-level import so the module body runs again.
         del sys.modules["kolibri.utils.cli"]
         importlib.import_module("kolibri.utils.cli")
-    options_mock.__getitem__.assert_not_called()
+    assert not options_mock.__getitem__.called
