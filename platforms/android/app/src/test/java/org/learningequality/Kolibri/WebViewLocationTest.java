@@ -2,6 +2,7 @@ package org.learningequality.Kolibri;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -104,6 +105,15 @@ public class WebViewLocationTest {
     assertNull(
         WebViewLocation.restoreUrlFor("http://127.0.0.1:46655/en/learn/#/home", "/en/learn/"));
     assertNull(WebViewLocation.restoreUrlFor(null, PAGE_PATH));
+  }
+
+  @Test
+  public void restoreScript_isFullySubstitutedWithAFreshTokenEachTime() {
+    String first = WebViewLocation.restoreScript(context, "http://127.0.0.1:46655", PAGE_PATH);
+
+    assertFalse(first.matches("(?s).*__[A-Z]+__.*"));
+    assertNotEquals(
+        first, WebViewLocation.restoreScript(context, "http://127.0.0.1:46655", PAGE_PATH));
   }
 
   @Test

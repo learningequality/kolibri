@@ -3,6 +3,12 @@ package org.learningequality.Kolibri;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.UUID;
+import org.json.JSONObject;
 
 /**
  * Where the WebView last was: the path to restore on a cold start, and the port the live page is
@@ -107,6 +113,33 @@ final class WebViewLocation {
     // The landed page's router may have set the saved route before the load finished, leaving
     // nothing to put back.
     return restoreUrl.equals(loadedUrl) ? null : restoreUrl;
+  }
+
+  /**
+   * {@code assets/restore.js} bound to {@code origin} and {@code savedLocation}, for injecting at
+   * document start.
+   */
+  static String restoreScript(Context context, String origin, String savedLocation) {
+    String source;
+    try (InputStream in = context.getAssets().open("restore.js")) {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      byte[] buffer = new byte[4096];
+      for (int n; (n = in.read(buffer)) > 0; ) {
+        out.write(buffer, 0, n);
+      }
+      source = out.toString("UTF-8");
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return source
+        .replace("__ORIGIN__", JSONObject.quote(origin))
+        .replace("__TOKEN__", JSONObject.quote(UUID.randomUUID().toString()))
+        .replace("__LOCATION__", JSONObject.quote(savedLocation));
+  }
+
+  /** {@code url}'s scheme and authority, or {@code null} if it lacks one. */
+  static String originOf(String url) {
+    return url == null ? null : origin(Uri.parse(url));
   }
 
   /** The port the live page is loaded on, or {@code 0} if this process has not loaded one yet. */
