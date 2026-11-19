@@ -2526,9 +2526,6 @@ describe('contains as subset test (multiset semantics)', () => {
 });
 
 describe('contains with ordered containers (strict sub-sequence)', () => {
-  // For ordered containers the second sub-expression must be a strict
-  // sub-sequence within the first: [A,B,C] does not contain [C,A] but it
-  // does contain [B,C]
   //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpContains
   it.each([
     ['[A,B,C] contains [B,C]', ['A', 'B', 'C'], ['B', 'C'], true],

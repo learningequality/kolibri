@@ -670,7 +670,8 @@ export function evaluateNode(node, variables, declarations = {}, testStore = nul
       const containsBaseType = inferBaseType(node, declarations);
       // Ordered containment: sub must appear as a run of consecutive values,
       // in the same order, within container. [A,B,C] contains [B,C] but not
-      // [C,A] or [A,C].
+      // [C,A] or [A,C]. Only the sub's cardinality is checked: the spec
+      // requires both operands to share a cardinality.
       if (subCardinality === CARDINALITY.ORDERED) {
         for (let start = 0; start + sub.length <= container.length; start++) {
           if (sub.every((v, i) => qtiValuesEqual(container[start + i], v, containsBaseType))) {
