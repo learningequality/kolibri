@@ -1,3 +1,4 @@
+import ctypes
 import logging
 import os
 import sys
@@ -44,3 +45,25 @@ def winreg():
     with mock.patch.dict(sys.modules, {"winreg": MagicMock()}) as modules:
         modules.pop("kolibri_app.windows_registry", None)
         yield modules["winreg"]
+
+
+class _FakeUILanguages:
+    def __init__(self):
+        self.languages = []
+        self.failing_call = None
+        self.windll = mock.MagicMock()
+        self.windll.kernel32.GetUserPreferredUILanguages.side_effect = self._get
+
+    def _get(self, flags, count_ref, buffer, size_ref):
+        multi_string = "".join(f"{lang}\0" for lang in self.languages) + "\0"
+        size_ref._obj.value = len(multi_string)
+        if buffer is not None:
+            buffer[: len(multi_string)] = multi_string
+        return ("size" if buffer is None else "fill") != self.failing_call
+
+
+@pytest.fixture
+def display_languages():
+    fake = _FakeUILanguages()
+    with mock.patch.object(ctypes, "windll", fake.windll, create=True):
+        yield fake

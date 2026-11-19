@@ -9,6 +9,7 @@ from urllib.parse import urlunsplit
 import wx
 
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.conf import OPTIONS
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import APP_USER_SUFFIX
 from kolibri_app.constants import WINDOWS
@@ -21,8 +22,10 @@ if WINDOWS:
     import win32con
     import win32gui
 
+    from kolibri_app.i18n import kolibri_language
     from kolibri_app.server_manager_windows import WindowsServerManager as ServerManager
     from kolibri_app.windows.taskbar_icon import KolibriTaskBarIcon
+    from kolibri_app.windows_registry import get_installer_language
     from kolibri_app.windows_registry import is_webview2_installed
 else:
     from kolibri.core.device.utils import app_initialize_url
@@ -259,6 +262,12 @@ class KolibriApp(wx.App):
             next_url = urlunsplit(
                 ("", "", saved_url.path, saved_url.query, saved_url.fragment)
             )
+        elif WINDOWS:
+            language = kolibri_language(
+                OPTIONS["Deployment"]["LANGUAGES"], get_installer_language()
+            )
+            if language:
+                next_url = f"/{language}/"
 
         if root_url:
             # On Windows, root_url is provided by the server process, and

@@ -73,6 +73,18 @@ def _catalogue_for(display_language, catalogues, installer_locale):
     return next(iter(matches), None)
 
 
+def kolibri_language(enabled_languages, installer_language):
+    display_language = next(iter(_windows_ui_languages()), None)
+    if not display_language:
+        return None
+    match = _catalogue_for(
+        display_language,
+        [to_locale(lang) for lang in enabled_languages],
+        to_locale(installer_language) if installer_language else "",
+    )
+    return to_language(match) if match else None
+
+
 try:
     languages = [
         loc for loc in (locale.getlocale()[0], locale.getdefaultlocale()[0]) if loc
