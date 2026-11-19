@@ -335,8 +335,9 @@ def _zip_content_from_request(request):  # noqa: C901
         if NetworkClient.known_location_for_address(remote_baseurl) is None:
             return create_error_response(f"{remote_baseurl} is not a known peer")
 
+    local_zip_exists = os.path.exists(zipped_path)
     # if the zipfile does not exist on disk, return a 404
-    if not os.path.exists(zipped_path):
+    if not local_zip_exists:
         if not remote_baseurl:
             return create_error_response(f"{zipped_filename} is not a valid zip file")
         try:
@@ -392,7 +393,7 @@ def _zip_content_from_request(request):  # noqa: C901
 
     patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
 
-    if not isinstance(response, StreamingHttpResponse):
+    if local_zip_exists and not isinstance(response, StreamingHttpResponse):
         cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
 
     return response
