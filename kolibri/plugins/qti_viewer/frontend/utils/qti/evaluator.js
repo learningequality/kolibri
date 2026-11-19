@@ -837,13 +837,13 @@ export function evaluateNode(node, variables, declarations = {}, testStore = nul
       return container[n - 1] ?? null;
     }
     case 'delete': {
-      const [container, ...toDelete] = evalChildren();
-      if (!Array.isArray(container)) return null;
-      // qti-delete returns NULL if either sub-expression is NULL
+      // The first sub-expression is the value to remove, the second is the
+      // container it is removed from. NULL if either sub-expression is NULL.
       //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpDelete
-      if (toDelete.some(d => d == null)) return null;
+      const [value, container] = evalChildren();
+      if (value == null || !Array.isArray(container)) return null;
       const deleteBaseType = inferBaseType(node, declarations);
-      return container.filter(item => !toDelete.some(d => qtiValuesEqual(item, d, deleteBaseType)));
+      return container.filter(item => !qtiValuesEqual(item, value, deleteBaseType));
     }
     // qti-multiple / qti-ordered: each accepts 0+ sub-expressions of single
     // or multiple (or for ordered, single or ordered) cardinality
