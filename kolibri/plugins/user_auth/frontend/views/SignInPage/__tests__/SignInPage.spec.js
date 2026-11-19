@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
 import { ref } from 'vue';
 import VueRouter from 'vue-router';
 import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { LoginErrors } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -142,6 +143,109 @@ describe('SignInPage – FacilityUsername reads', () => {
 
       await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
       expect(router.currentRoute.query.username).toBe(SUGGESTED_USERNAME);
+    });
+  });
+
+  describe('signed-out OS user', () => {
+    const OTHER_USERNAME = 'bob';
+
+    function renderWithOSUser({ osUser, loginError }) {
+      const login = jest.fn().mockResolvedValue({ error: loginError });
+      setupMocks({ isAppContext: true, login });
+      urls.__echoUrls();
+      client.mockImplementation(({ url }) => {
+        if (url.endsWith('facilityusername_osuser')) {
+          return osUser
+            ? Promise.resolve(osUser).then(data => ({ data }))
+            : Promise.reject(new Error('404'));
+        }
+        return Promise.resolve({
+          data: { results: [{ username: SUGGESTED_USERNAME }, { username: OTHER_USERNAME }] },
+        });
+      });
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [
+          { name: 'SignInPage', path: '/' },
+          { name: ComponentMap.NEW_PASSWORD, path: '/create_password' },
+        ],
+      });
+      return { login, router, ...render(SignInPage, { router }) };
+    }
+
+    afterEach(() => {
+      urls.__setUrl('test');
+    });
+
+    it("opens the OS user's password form", async () => {
+      const { login } = renderWithOSUser({
+        osUser: { username: SUGGESTED_USERNAME, facility: TEST_FACILITY.id },
+        loginError: LoginErrors.PASSWORD_MISSING,
+      });
+
+      expect(await screen.findByLabelText(passwordLabel$())).toBeInTheDocument();
+      expect(login).toHaveBeenCalledWith(
+        expect.objectContaining({ username: SUGGESTED_USERNAME, facility: TEST_FACILITY.id }),
+      );
+      expect(screen.queryByTestId('users-list')).not.toBeInTheDocument();
+    });
+
+    it('sends the OS user to set a password when theirs is not specified', async () => {
+      const { router } = renderWithOSUser({
+        osUser: { username: SUGGESTED_USERNAME, facility: TEST_FACILITY.id },
+        loginError: LoginErrors.PASSWORD_NOT_SPECIFIED,
+      });
+
+      await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
+      expect(router.currentRoute.query.username).toBe(SUGGESTED_USERNAME);
+    });
+
+    it('shows the users list on returning from setting a password', async () => {
+      const { login, router, unmount } = renderWithOSUser({
+        osUser: { username: SUGGESTED_USERNAME, facility: TEST_FACILITY.id },
+        loginError: LoginErrors.PASSWORD_NOT_SPECIFIED,
+      });
+      await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
+      unmount();
+
+      await router.push({ name: 'SignInPage' });
+      render(SignInPage, { router });
+
+      expect(await screen.findByTestId('users-list')).toBeInTheDocument();
+      expect(router.currentRoute.name).toBe('SignInPage');
+      expect(login).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps a user picked before the OS user arrives', async () => {
+      let resolveOSUser;
+      const { login } = renderWithOSUser({
+        osUser: new Promise(resolve => (resolveOSUser = resolve)),
+        loginError: LoginErrors.PASSWORD_MISSING,
+      });
+      await fireEvent.click(await screen.findByRole('button', { name: OTHER_USERNAME }));
+      await screen.findByLabelText(passwordLabel$());
+
+      resolveOSUser({ username: SUGGESTED_USERNAME, facility: TEST_FACILITY.id });
+      await new Promise(resolve => setTimeout(resolve));
+
+      expect(login).toHaveBeenCalledTimes(1);
+      expect(login).toHaveBeenCalledWith(expect.objectContaining({ username: OTHER_USERNAME }));
+    });
+
+    it('shows the users list when there is no OS user to sign in', async () => {
+      const { login } = renderWithOSUser({ osUser: null });
+
+      expect(await screen.findByTestId('users-list')).toBeInTheDocument();
+      expect(login).not.toHaveBeenCalled();
+    });
+
+    it('shows the users list when the OS user belongs to another facility', async () => {
+      const { login } = renderWithOSUser({
+        osUser: { username: SUGGESTED_USERNAME, facility: 'fac-2' },
+      });
+
+      expect(await screen.findByTestId('users-list')).toBeInTheDocument();
+      expect(login).not.toHaveBeenCalled();
     });
   });
 

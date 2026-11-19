@@ -132,6 +132,8 @@ const picturePasswordShowIconText = computed(() => {
   return picturePasswordSettings.value?.show_icon_text;
 });
 
+const osUserFormOpened = ref(false);
+
 /**
  * Set the active facility ID
  * @param {import('vue').Ref<string>|string} _facilityId - The facility ID to activate.
@@ -200,6 +202,7 @@ export default function useAuthFlow() {
     canSignUpWithFacility,
     picturePasswordStyle,
     picturePasswordShowIconText,
+    osUserFormOpened,
     initializeFlow,
     setFacilityId,
   };

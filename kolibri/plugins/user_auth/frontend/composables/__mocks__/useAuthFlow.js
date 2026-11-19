@@ -22,6 +22,7 @@ const MOCK_DEFAULTS = {
 export function useAuthFlowMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,
+    osUserFormOpened: ref(false),
     ...overrides,
   };
 }

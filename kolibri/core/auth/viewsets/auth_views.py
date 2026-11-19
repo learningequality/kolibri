@@ -136,20 +136,35 @@ def _can_sign_in_without_password(user):
     )
 
 
+def _get_request_os_username(request):
+    if not valid_app_key_on_request(request):
+        return None
+    os_user = GetOSUserHook.retrieve_os_user(
+        request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
+    )
+    return os_user.os_user_id if os_user else None
+
+
+def get_request_os_user(request):
+    os_username = _get_request_os_username(request)
+    if not os_username:
+        return None
+    return (
+        FacilityUser.objects.select_related("os_user")
+        .filter(os_user__os_username=os_username)
+        .first()
+    )
+
+
 def can_set_unspecified_password(request, user):
     if user.password != NOT_SPECIFIED:
         return False
     if not hasattr(user, "os_user"):
         return not _can_sign_in_without_password(user)
-    if not valid_app_key_on_request(request) or user.can_sign_in_as_os_user:
-        return False
-    try:
-        os_username, _ = GetOSUserHook.retrieve_os_user(
-            request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
-        )
-    except NotImplementedError:
-        return False
-    return os_username == user.os_user.os_username
+    return (
+        _get_request_os_username(request) == user.os_user.os_username
+        and not user.can_sign_in_as_os_user
+    )
 
 
 class SetNonSpecifiedPasswordView(views.APIView):
