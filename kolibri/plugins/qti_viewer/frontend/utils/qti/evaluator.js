@@ -667,9 +667,20 @@ export function evaluateNode(node, variables, declarations = {}, testStore = nul
         const containsBaseType = inferBaseType(node, declarations);
         return container.some(item => qtiValuesEqual(item, sub, containsBaseType));
       }
+      const containsBaseType = inferBaseType(node, declarations);
+      // Ordered containment: sub must appear as a run of consecutive values,
+      // in the same order, within container. [A,B,C] contains [B,C] but not
+      // [C,A] or [A,C].
+      if (subCardinality === CARDINALITY.ORDERED) {
+        for (let start = 0; start + sub.length <= container.length; start++) {
+          if (sub.every((v, i) => qtiValuesEqual(container[start + i], v, containsBaseType))) {
+            return true;
+          }
+        }
+        return false;
+      }
       // Multiset containment: every value in sub must be present in
       // container with at least the same multiplicity.
-      const containsBaseType = inferBaseType(node, declarations);
       const counts = new Map();
       for (const v of container) {
         const k = qtiValueKey(v, containsBaseType);
