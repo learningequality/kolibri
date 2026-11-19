@@ -25,8 +25,9 @@ from .attempt_log import AttemptLogDiffSerializer
 from .attempt_log import AttemptLogViewSet
 from .filters import BaseLogFilter
 
-# Prevent database errors and 500s caused by OFFSET values exceeding 64-bit signed int
-MAX_DIFF_INDEX = 2**63 - 1
+
+class DiffIndexSerializer(serializers.Serializer):
+    index = serializers.IntegerField(min_value=0, max_value=2147483647)
 
 
 class _AttemptLogDiffViewSet(AttemptLogViewSet):
@@ -88,19 +89,16 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         )
 
     @action(detail=True)
-    def diff(self, request, pk=0):
-        try:
-            back = int(pk)
-        except ValueError:
-            return Response("Parameter must be an integer", status=404)
-
-        if back < 0 or back > MAX_DIFF_INDEX:
-            return Response("Parameter must be a non-negative integer", status=404)
+    def diff(self, request, **kwargs):
+        serializer = DiffIndexSerializer(data={"index": kwargs["pk"]})
+        if not serializer.is_valid():
+            return Response(status=404)
+        index = serializer.validated_data["index"]
 
         tries = list(
             self.annotate_queryset(self.filter_queryset(self.get_queryset())).values(
                 *self.values
-            )[back : back + 2]
+            )[index : index + 2]
         )
 
         if not tries:
