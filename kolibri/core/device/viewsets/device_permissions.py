@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework import viewsets
+from rest_framework.validators import UniqueValidator
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
@@ -8,7 +9,15 @@ from kolibri.core.device.models import DevicePermissions
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=FacilityUser.objects.all())
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=FacilityUser.objects.all(),
+        validators=[
+            UniqueValidator(
+                queryset=DevicePermissions.objects.all(),
+                message="This user already has device permissions.",
+            )
+        ],
+    )
 
     class Meta:
         model = DevicePermissions
