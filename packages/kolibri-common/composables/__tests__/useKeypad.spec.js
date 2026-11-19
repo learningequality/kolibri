@@ -2,7 +2,7 @@ import { h } from 'vue';
 import { render } from '@testing-library/vue';
 import useKeypad from '../useKeypad';
 
-function setUpKeypad() {
+function setUpKeypad(keypadType = 'FRACTION') {
   let keypad;
   render({
     setup() {
@@ -11,6 +11,7 @@ function setUpKeypad() {
     },
   });
   const keyHandler = jest.fn();
+  keypad.keypadAPI.configure({ keypadType });
   keypad.keypadAPI.setKeyHandler(keyHandler);
   return { handleKeyboardEvent: keypad.handleKeyboardEvent, keyHandler };
 }
@@ -73,10 +74,29 @@ describe('useKeypad handleKeyboardEvent', () => {
   });
 
   it.each([
+    ['en', '(', 'LEFT_PAREN'],
+    ['en', ')', 'RIGHT_PAREN'],
+    ['en', 'x', 'x'],
+    ['fr', 'e', 'e'],
+    ['en', 'X', 'X'],
+  ])('in an expression field on %s content presses %s as %s', (language, key, keyId) => {
+    const { handleKeyboardEvent, keyHandler } = setUpKeypad('EXPRESSION');
+    expect(handleKeyboardEvent(keyup(key), language)).toBe(true);
+    expect(keyHandler).toHaveBeenCalledWith(keyId);
+  });
+
+  it.each(['x', '('])('in a number field leaves %s to Perseus', key => {
+    const { handleKeyboardEvent, keyHandler } = setUpKeypad();
+    expect(handleKeyboardEvent(keyup(key), 'en')).toBe(false);
+    expect(keyHandler).not.toHaveBeenCalled();
+  });
+
+  it.each([
     ['en', ','],
     ['en', '،'],
     ['fr', '،'],
-    ['en', 'a'],
+    ['fr', 'é'],
+    ['en', 'Shift'],
     ['en', 'Enter'],
   ])('on %s content leaves %s to Perseus', (language, key) => {
     const { handleKeyboardEvent, keyHandler } = setUpKeypad();

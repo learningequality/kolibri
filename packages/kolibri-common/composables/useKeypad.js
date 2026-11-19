@@ -26,12 +26,23 @@ const KEYPAD_KEYS = {
   ArrowRight: 'RIGHT',
 };
 
-function keypadKeyForKeyboardKey(key, language) {
+const EXPRESSION_KEYS = {
+  '(': 'LEFT_PAREN',
+  ')': 'RIGHT_PAREN',
+};
+
+function keypadKeyForKeyboardKey(key, language, isExpression) {
   if (KEYPAD_KEYS[key]) {
     return KEYPAD_KEYS[key];
   }
   if (/^\p{Nd}$/u.test(key)) {
     return `NUM_${normalizeNumerals(key)}`;
+  }
+  if (isExpression && EXPRESSION_KEYS[key]) {
+    return EXPRESSION_KEYS[key];
+  }
+  if (isExpression && /^[a-zA-Z]$/.test(key)) {
+    return key;
   }
   const { digits, decimal } = getLocaleNumberSymbols(language);
   const decimalKeys = /[٠-٩۰-۹]/.test(digits[0]) ? [decimal, ...ARABIC_DECIMAL_KEYS] : [decimal];
@@ -101,7 +112,11 @@ export default function useKeypad() {
     if (event.metaKey || (event.ctrlKey && !event.getModifierState('AltGraph'))) {
       return true;
     }
-    const keyId = keypadKeyForKeyboardKey(event.key, language);
+    const keyId = keypadKeyForKeyboardKey(
+      event.key,
+      language,
+      keypadConfig.value?.keypadType === 'EXPRESSION',
+    );
     if (keyId && keyHandler.value) {
       handleKeyPress(keyId);
       return true;
