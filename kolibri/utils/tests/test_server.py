@@ -131,6 +131,19 @@ class TestProcessHookWiring:
         plugin.subscribe.assert_called_once_with()
 
 
+class TestSignalStop:
+    def test_running_server_exits(self, tmp_path):
+        bus = mock.MagicMock()
+        with mock.patch.object(
+            server, "PROCESS_CONTROL_FLAG", str(tmp_path / "process_control.flag")
+        ):
+            plugin = server.ProcessControlPlugin(bus)
+            plugin.thread = mock.MagicMock()
+            assert server.signal_stop()
+            plugin.run()
+        bus.transition.assert_called_once_with("EXITED")
+
+
 class TestPIDPluginSetPidFile:
     @pytest.fixture
     def bus(self, tmp_path):
