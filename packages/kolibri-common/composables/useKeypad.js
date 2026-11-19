@@ -25,18 +25,30 @@ const KEYPAD_KEYS = {
   ArrowDown: 'DOWN',
 };
 
+const EXPRESSION_KEYS = {
+  '(': 'LEFT_PAREN',
+  ')': 'RIGHT_PAREN',
+};
+
 // Covers every key in @khanacademy/math-input's `domKeyToMathQuillKey`, digits included. When
 // MathInput presses one of those itself, it resets its content, which moves the cursor out of any
 // fraction or exponent.
-function keypadKeyForKeyboardKey(key, language, useTimes) {
+function keypadKeyForKeyboardKey(key, language, keypadConfig) {
   if (key === '*') {
-    return useTimes ? 'TIMES' : 'CDOT';
+    return keypadConfig?.times ? 'TIMES' : 'CDOT';
   }
+  const isExpression = keypadConfig?.keypadType === 'EXPRESSION';
   if (KEYPAD_KEYS[key]) {
     return KEYPAD_KEYS[key];
   }
   if (/^\p{Nd}$/u.test(key)) {
     return `NUM_${normalizeNumerals(key)}`;
+  }
+  if (isExpression && EXPRESSION_KEYS[key]) {
+    return EXPRESSION_KEYS[key];
+  }
+  if (isExpression && /^[a-zA-Z]$/.test(key)) {
+    return key;
   }
   const { digits, decimal } = getLocaleNumberSymbols(language);
   const decimalKeys = /[٠-٩۰-۹]/.test(digits[0]) ? [decimal, ...ARABIC_DECIMAL_KEYS] : [decimal];
@@ -108,7 +120,7 @@ export default function useKeypad() {
     // Windows reports AltGr as Ctrl+Alt.
     const isShortcut = event.metaKey || (event.ctrlKey && !event.getModifierState('AltGraph'));
     const keyId = keyHandler.value
-      ? keypadKeyForKeyboardKey(event.key, language, keypadConfig.value?.times)
+      ? keypadKeyForKeyboardKey(event.key, language, keypadConfig.value)
       : null;
     if (event.type === 'keydown') {
       keydownWasShortcut.set(event.code, isShortcut);
