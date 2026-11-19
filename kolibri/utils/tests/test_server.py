@@ -9,6 +9,9 @@ from unittest import mock
 from unittest import TestCase
 
 import pytest
+from django.db import connections
+from django.db import DatabaseError
+from django.db import router
 
 from kolibri.core.discovery.models import LocalHostname
 from kolibri.core.tasks.worker import WorkerSupervisor
@@ -280,6 +283,30 @@ class TestGetLocalHostnames:
             "kolibri.local",
             "tonyslaptop.local",
         }
+
+    def test_no_hostnames_when_table_missing(self):
+        connection = connections[router.db_for_read(LocalHostname)]
+        with connection.schema_editor() as editor:
+            editor.delete_model(LocalHostname)
+        try:
+            assert server.get_local_hostnames() == []
+        finally:
+            with connection.schema_editor() as editor:
+                editor.create_model(LocalHostname)
+
+    def test_other_database_errors_propagate(self):
+        connection = connections[router.db_for_read(LocalHostname)]
+        table = connection.ops.quote_name(LocalHostname._meta.db_table)
+        with connection.schema_editor() as editor:
+            editor.delete_model(LocalHostname)
+            editor.execute(f"CREATE TABLE {table} (id integer)")
+        try:
+            with pytest.raises(DatabaseError):
+                server.get_local_hostnames()
+        finally:
+            with connection.schema_editor() as editor:
+                editor.execute(f"DROP TABLE {table}")
+                editor.create_model(LocalHostname)
 
 
 class GetUrlsTestCase(TestCase):
