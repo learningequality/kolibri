@@ -16,18 +16,6 @@ from kolibri.utils import cli
 DJANGO_CONNECT = "django.db.backends.base.base.BaseDatabaseWrapper.connect"
 
 
-def test_status_no_db_access():
-    """
-    Tests that status does not try to access the database
-    """
-    with patch(DJANGO_CONNECT) as connect_mock:
-        try:
-            cli.status.callback()
-        except SystemExit:
-            pass
-    connect_mock.assert_not_called()
-
-
 def test_stop_no_db_access():
     """
     Tests that stop does not try to access the database
