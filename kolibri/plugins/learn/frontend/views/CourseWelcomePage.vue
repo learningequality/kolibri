@@ -412,6 +412,14 @@
           });
         }
 
+        // A completed course's resume_position is its last unit; reviewing
+        // starts from the beginning instead.
+        if (courseProgress.value?.completed) {
+          return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
+            unitId: units.value[0].id,
+          });
+        }
+
         const { unit_id, lesson_id, resource_id } = courseProgress.value?.resume_position ?? {};
 
         if (unit_id) {
