@@ -2573,6 +2573,32 @@ describe('contains with ordered containers (strict sub-sequence)', () => {
     expect(evaluateNode(exprNode, variables, declarations)).toBe(expected);
   });
 
+  // qti-delete has the cardinality of its container (the second
+  // sub-expression), so deleting from an ordered container is still ordered
+  //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpDelete
+  it.each([
+    [['B', 'X', 'C'], true],
+    [['C', 'X', 'A'], false],
+  ])(
+    'should treat a qti-delete of an ordered container as ordered (%j minus X)',
+    (sub, expected) => {
+      const { declarations, variables, exprNode } = assessmentExpr(
+        [
+          responseDecl('CONTAINER', 'identifier', 'ordered'),
+          responseDecl('SUB', 'identifier', 'ordered'),
+        ],
+        op(
+          'contains',
+          variable('CONTAINER'),
+          op('delete', baseValue('identifier', 'X'), variable('SUB')),
+        ),
+      );
+      variables.CONTAINER = ['A', 'B', 'C'];
+      variables.SUB = sub;
+      expect(evaluateNode(exprNode, variables, declarations)).toBe(expected);
+    },
+  );
+
   it('should compare pairs in an ordered sub-sequence regardless of their internal order', () => {
     const { declarations, variables, exprNode } = assessmentExpr(
       [responseDecl('CONTAINER', 'pair', 'ordered'), responseDecl('SUB', 'pair', 'ordered')],
