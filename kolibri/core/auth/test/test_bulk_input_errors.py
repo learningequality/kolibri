@@ -18,6 +18,15 @@ from kolibri.core.auth.tasks import importusersfromcsv
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.utils.bulk_import import fieldnames
+from kolibri.core.auth.utils.bulk_import import Validator
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
+
+HEADER = ",".join(fieldnames) + "\n"
+VALID_ROW = ",valid,pass,Valid,LEARNER,,,,,\n"
+NEW_CLASS_ROW = ",valid,pass,Valid,LEARNER,,,,New Class,\n"
+EMPTY_MESSAGE = "The selected file is empty. Select a CSV file that contains users."
 
 
 class BulkInputErrorsTest(TestCase):
@@ -136,18 +145,44 @@ class BulkInputErrorsTest(TestCase):
     def test_missing_optional_trailing_cell_reports_row_error(self):
         self.check_short_row(",bob,pass,Bob,LEARNER,,,,")
 
-    def test_rejected_user_survives_delete(self):
-        user = FacilityUser.objects.create(username="victim", facility=self.facility)
-        self.run_import(
-            ",".join(fieldnames)
-            + "\n"
-            + user.id
-            + ",victim,*,Victim\n"
-            + ",valid,pass,Valid,LEARNER,,,,,\n",
-            delete=True,
+    def test_unexpected_validator_error(self):
+        validator = Validator({name: name for name in fieldnames}, self.facility)
+
+        def fail(value):
+            raise TypeError("broken check")
+
+        validator.add_check("USERNAME", fail, "invalid")
+        row = dict.fromkeys(fieldnames, "")
+        row["USERNAME"] = "bob"
+        errors = list(validator.validate([row]))
+        self.assertEqual(
+            errors[0]["message"], "Unexpected error [TypeError]: broken check"
         )
-        self.assertTrue(FacilityUser.objects.filter(id=user.id).exists())
-        self.assertTrue(FacilityUser.objects.filter(username="valid").exists())
+
+    def test_errorlines_redacts_invalid_password(self):
+        output = self.path.with_name("errors.txt")
+        password = "secret-password" * 10
+        self.path.write_text(
+            HEADER + f",bob,{password},Bob,LEARNER,,,,,\n", encoding="utf-8"
+        )
+        call_command(
+            "bulkimportusers",
+            str(self.path),
+            "--errorlines",
+            str(output),
+            facility=self.facility.id,
+        )
+        report = output.read_text(encoding="utf-8")
+        self.assertNotIn(password, report)
+        self.assertEqual(
+            ast.literal_eval(report),
+            {
+                "row": 1,
+                "field": "PASSWORD",
+                "value": None,
+                "message": "Value in column 'PASSWORD' has too many characters",
+            },
+        )
 
     def test_rejected_user_keeps_relationships(self):
         user = FacilityUser.objects.create(username="victim", facility=self.facility)

@@ -356,21 +356,11 @@ class Validator:
                         "field": "USERNAME",
                         "value": row.get(self.header_translation["USERNAME"]),
                     }
-                    error_flag = True
-                    yield error
-                except Exception as e:
-                    error = {
-                        "row": index + 1,
-                        "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
-                            (e.__class__.__name__, e)
-                        ),
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
-            # if there aren't any errors, let's add the user and classes
-            if not error_flag:
+                )
+            errors.extend(self._field_errors(row, position))
+            if errors:
+                yield from errors
+            else:
                 self.check_classroom(row, username)
                 row["position"] = index + 1
                 self.users[username] = row
