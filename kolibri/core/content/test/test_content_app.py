@@ -662,35 +662,61 @@ class ContentNodeAPIBase:
         self.assertEqual(max_depth, 3)
 
 
-class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
-    """
-    Testcase for content API methods
-    """
+class ContentNodeGranularAPITestCase(APITestCase):
+    fixtures: ClassVar[list] = ["content_test.json"]
 
     databases = "__all__"
 
     maxDiff = None
 
-    def test_prerequisite_for_filter(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"prerequisite_for": c1_id}
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="facility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+        cls.content_manager = FacilityUser.objects.create(
+            username="content_manager", facility=cls.facility
         )
-        self.assertEqual(response.data[0]["title"], "root")
+        cls.content_manager.set_password(DUMMY_PASSWORD)
+        cls.content_manager.save()
+        DevicePermissions.objects.create(
+            user=cls.content_manager, can_manage_content=True
+        )
 
-    def test_has_prerequisite_filter(self):
+    def setUp(self):
+        self.client.login(
+            username=self.content_manager.username, password=DUMMY_PASSWORD
+        )
+
+    def _granular_url(self):
         root_id = content.ContentNode.objects.get(title="root").id
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"has_prerequisite": root_id}
+        return reverse(
+            "kolibri:core:contentnode_granular-detail", kwargs={"pk": root_id}
         )
-        self.assertEqual(response.data[0]["title"], "c1")
 
-    def test_related_filter(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"related": c1_id}
-        )
-        self.assertEqual(response.data[0]["title"], "c2")
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_studio"
+    )
+    def test_contentnode_granular_anonymous_forbidden(self, stats_mock):
+        stats_mock.return_value = {}
+        self.client.logout()
+        response = self.client.get(self._granular_url())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        stats_mock.assert_not_called()
+
+    @mock.patch(
+        "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_studio"
+    )
+    def test_contentnode_granular_facility_admin_forbidden(self, stats_mock):
+        stats_mock.return_value = {}
+        self.client.logout()
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._granular_url())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        stats_mock.assert_not_called()
 
     @mock.patch(
         "kolibri.core.content.viewsets.contentnode.granular.get_channel_stats_from_studio"
@@ -1031,6 +1057,37 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             {"importing_from_peer_id": "4d17b9f3d5a34c8f9e9ad1d9a4d4b4d1"},
         )
         self.assertEqual(response.status_code, 400)
+
+
+class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
+    """
+    Testcase for content API methods
+    """
+
+    databases = "__all__"
+
+    maxDiff = None
+
+    def test_prerequisite_for_filter(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"prerequisite_for": c1_id}
+        )
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_has_prerequisite_filter(self):
+        root_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"has_prerequisite": root_id}
+        )
+        self.assertEqual(response.data[0]["title"], "c1")
+
+    def test_related_filter(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"related": c1_id}
+        )
+        self.assertEqual(response.data[0]["title"], "c2")
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
