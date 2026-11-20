@@ -4,7 +4,6 @@ from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -31,6 +30,7 @@ from kolibri.core.auth.permissions import _ensure_raw_dict
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.auth.serializers import AssignableCollectionField
+from kolibri.core.auth.serializers import consolidate_assignments
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
@@ -39,7 +39,6 @@ from kolibri.core.exams.models import DraftExam
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.logger.models import MasteryLog
-from kolibri.core.query import annotate_array_aggregate
 
 logger = logging.getLogger(__name__)
 
@@ -606,32 +605,8 @@ class ExamViewset(ValuesViewset):
 
     def consolidate(self, items, queryset):
         if items:
-            exam_ids = [e["id"] for e in items]
-            all_assignments_qs = ExamAssignment.objects.filter(exam_id__in=exam_ids)
-            all_assignments = annotate_array_aggregate(
-                all_assignments_qs,
-                learner_ids="collection__membership__user_id",
-                filter=Q(collection__kind=ADHOCLEARNERSGROUP)
-                & FacilityUser.get_is_active_q("collection__membership"),
-            )
-            exam_regular = {}
-            exam_adhoc = {}
-            for a in all_assignments.values(
-                "collection", "exam", "collection__kind", "learner_ids"
-            ):
-                if a["collection__kind"] == ADHOCLEARNERSGROUP:
-                    exam_adhoc[a["exam"]] = a
-                else:
-                    exam_regular.setdefault(a["exam"], []).append(a["collection"])
-
+            consolidate_assignments(items, ExamAssignment, "exam")
             for item in items:
-                exam_id = item["id"]
-                item["assignments"] = exam_regular.get(exam_id, [])
-                item["learner_ids"] = (
-                    (exam_adhoc[exam_id]["learner_ids"] or [])
-                    if exam_id in exam_adhoc
-                    else []
-                )
                 item["draft"] = False
                 # Map NULL instant_report_visibility to True (NULL means unrestricted)
                 if item["instant_report_visibility"] is None:

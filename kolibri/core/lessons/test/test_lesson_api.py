@@ -1,3 +1,5 @@
+import uuid
+
 from django.urls import reverse
 from rest_framework import status
 
@@ -391,6 +393,29 @@ class LessonAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 200)
+
+    def assert_lesson_update_rejects_resources(self, resources, error_field):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {"resources": resources},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], error_field)
+        self.lesson.refresh_from_db()
+        self.assertEqual(self.lesson.resources, [])
+
+    def test_logged_in_admin_lesson_update_with_non_list_resources(self):
+        self.assert_lesson_update_rejects_resources(
+            {"contentnode_id": uuid.uuid4().hex}, "resources"
+        )
+
+    def test_logged_in_admin_lesson_update_with_resource_missing_contentnode_id(self):
+        self.assert_lesson_update_rejects_resources(
+            [{"content_id": uuid.uuid4().hex, "channel_id": uuid.uuid4().hex}],
+            "resources.contentnode_id",
+        )
 
     def test_logged_in_user_lesson_no_update(self):
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
