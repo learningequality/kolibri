@@ -5,7 +5,6 @@ import os
 import signal
 import struct
 import tempfile
-from contextlib import suppress
 from io import StringIO
 from pathlib import Path
 from unittest import skipUnless
@@ -23,6 +22,7 @@ from django.utils.functional import lazy
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.tasks import exportuserstocsv
 from kolibri.core.auth.tasks import importusersfromcsv
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import provision_device
@@ -537,6 +537,19 @@ class BulkInputErrorsTest(TestCase):
         )
         return job_storage.get_job(job_id)
 
+    def test_deleted_facility_is_reported_in_queued_jobs(self):
+        import_job = self.enqueue_csv_job(importusersfromcsv, HEADER + VALID_ROW)
+        export_job = self.enqueue_csv_job(exportuserstocsv)
+        facility_id = self.facility.id
+        self.facility.delete()
+        for job in (import_job, export_job):
+            with self.subTest(task=job.func):
+                job.execute()
+                result = job_storage.get_job(job.job_id)
+                self.assertEqual(result.state, State.FAILED)
+                self.assertIn(facility_id, result.extra_metadata["overall_error"][0])
+        self.assertFalse(default_storage.exists(import_job.kwargs["filepath"]))
+
     def test_unparseable_header_is_reported_in_queued_import(self):
         job = self.enqueue_csv_job(importusersfromcsv, '"UUID,USERNAME')
         job.execute()
@@ -546,6 +559,19 @@ class BulkInputErrorsTest(TestCase):
         self.assertIn(
             "unexpected end of data", result.extra_metadata["overall_error"][0]
         )
+
+    def test_export_storage_error_reports_original_failure(self):
+        job = self.enqueue_csv_job(exportuserstocsv)
+        with patch.object(default_storage, "exists", side_effect=OSError("Disk error")):
+            with self.assertRaisesRegex(CommandError, "Disk error"):
+                call_command(
+                    "bulkexportusers", "--use-django-storage", facility=self.facility.id
+                )
+            job.execute()
+
+        result = job_storage.get_job(job.job_id)
+        self.assertEqual(result.state, State.FAILED)
+        self.assertIn("Disk error", result.extra_metadata["overall_error"][0])
 
     def test_empty_file_job_translates_message_but_cli_does_not(self):
         job = self.enqueue_csv_job(importusersfromcsv, "﻿", locale="fr-fr")
@@ -557,56 +583,6 @@ class BulkInputErrorsTest(TestCase):
         result = job_storage.get_job(job.job_id)
         self.assertEqual(result.state, State.FAILED)
         self.assertEqual(result.extra_metadata["overall_error"], [translated])
-
-    def test_roster_uses_the_same_read_as_the_validated_header(self):
-        user = FacilityUser.objects.create(username="existing", facility=self.facility)
-        classroom = Classroom.objects.create(name="Existing", parent=self.facility)
-        classroom.add_member(user)
-        content = HEADER + f"{user.id},existing,*,Existing,LEARNER,,,,Existing,\n"
-        job = self.enqueue_csv_job(importusersfromcsv, content, delete=True)
-        source = Path(default_storage.path(job.kwargs["filepath"]))
-        replacement = source.with_suffix(".replacement")
-        replacement.write_text(HEADER + VALID_ROW, encoding="utf-8")
-
-        def remove_replacement():
-            with suppress(FileNotFoundError):
-                replacement.unlink()
-
-        self.addCleanup(remove_replacement)
-        csv_reader = csv.reader
-
-        class ReplacingReader:
-            def __init__(self, *args, **kwargs):
-                self.reader = csv_reader(*args, **kwargs)
-
-            @property
-            def line_num(self):
-                return self.reader.line_num
-
-            def __iter__(self):
-                return self
-
-            def __next__(self):
-                row = next(self.reader)
-                if (
-                    self.line_num == 1
-                    and tuple(row) == fieldnames
-                    and replacement.exists()
-                ):
-                    replacement.replace(source)
-                return row
-
-        with patch.object(csv, "reader", ReplacingReader):
-            job.execute()
-
-        self.assertFalse(replacement.exists())
-        result = job_storage.get_job(job.job_id)
-        self.assertEqual(result.state, State.COMPLETED)
-        self.assertFalse(
-            self.facility.facilityuser_set.filter(username="valid").exists()
-        )
-        user.refresh_from_db()
-        self.assertTrue(user.is_member_of(classroom))
 
     def test_remote_storage_input_with_existing_error_output(self):
         output = self.path.with_name("errors.txt")

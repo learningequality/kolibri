@@ -1,5 +1,5 @@
-import { set } from 'vue';
-import { CSVGenerationStatuses, UsersExportStatuses } from '../../constants';
+import { del, set } from 'vue';
+import { CSVGenerationStatuses } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -15,15 +15,43 @@ function defaultState() {
     firstLogDate: null,
     facilities: [],
     facilityTaskId: '',
-    exportUsersTaskId: '',
-    exportUsersStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
-    exportUsersDateCreated: null,
   };
+}
+
+function defaultUserExportState() {
+  return {
+    exportUsersTaskId: '',
+    exportUsersTaskMissing: false,
+    exportUsersTaskFileFound: false,
+    exportUsersDateCreated: null,
+    exportUsersError: null,
+    exportUsersFailureCount: 0,
+    exportUsersCompleted: false,
+  };
+}
+
+function reconcileMissingUserExport(state) {
+  if (state.exportUsersTaskMissing && state.exportUsersTaskFileFound) {
+    state.exportUsersTaskId = '';
+  }
+}
+
+function settleUserExport(state) {
+  if (state.exportUsersTaskId) {
+    if (state.exportUsersEnqueues.pending) {
+      state.exportUsersEnqueues.settledTaskIds.push(state.exportUsersTaskId);
+    }
+    state.exportUsersTaskId = '';
+  }
 }
 
 export default {
   namespaced: true,
-  state: defaultState(),
+  state: () => ({
+    ...defaultState(),
+    ...defaultUserExportState(),
+    exportUsersEnqueues: { pending: 0, settledTaskIds: [], latestTokens: {} },
+  }),
   getters: {
     inSummaryCSVCreation(state) {
       return state.summaryLogStatus === CSVGenerationStatuses.GENERATING;
@@ -50,10 +78,10 @@ export default {
       return state.summaryLogStatus === CSVGenerationStatuses.AVAILABLE;
     },
     exportingUsers(state) {
-      return state.exportUsersStatus === UsersExportStatuses.EXPORTING;
+      return Boolean(state.exportUsersTaskId);
     },
     exported(state) {
-      return state.exportUsersStatus !== CSVGenerationStatuses.NO_LOGS_CREATED;
+      return state.exportUsersDateCreated !== null;
     },
     summaryLogRequest(state) {
       return state.summaryLogRequest;
@@ -70,7 +98,7 @@ export default {
       Object.assign(state, payload);
     },
     RESET_STATE(state) {
-      Object.assign(state, defaultState());
+      Object.assign(state, defaultState(), defaultUserExportState());
     },
     /*State for CSV tasks*/
     START_SUMMARY_CSV_EXPORT(state, payload) {
@@ -99,14 +127,47 @@ export default {
       }
     },
     /*State for export users tasks*/
-    START_EXPORT_USERS(state, payload) {
-      state.exportUsersStatus = UsersExportStatuses.EXPORTING;
-      state.exportUsersTaskId = payload.id;
+    BEGIN_EXPORT_USERS_ENQUEUE(state, { facility, enqueueToken }) {
+      set(state.exportUsersEnqueues.latestTokens, facility, enqueueToken);
+      state.exportUsersEnqueues.pending += 1;
     },
-    SET_FINISH_EXPORT_USERS(state, payload) {
-      state.exportUsersDateCreated = payload;
-      state.exportUsersStatus = UsersExportStatuses.FINISHED;
-      state.exportUsersTaskId = '';
+    END_EXPORT_USERS_ENQUEUE(state, { facility, enqueueToken }) {
+      state.exportUsersEnqueues.pending -= 1;
+      if (state.exportUsersEnqueues.latestTokens[facility] === enqueueToken) {
+        del(state.exportUsersEnqueues.latestTokens, facility);
+      }
+      if (state.exportUsersEnqueues.pending === 0) {
+        state.exportUsersEnqueues.settledTaskIds = [];
+      }
+    },
+    START_EXPORT_USERS(state, payload) {
+      del(state.exportUsersEnqueues.latestTokens, payload.facility_id);
+      state.exportUsersTaskId = payload.id;
+      state.exportUsersTaskMissing = false;
+      state.exportUsersTaskFileFound = false;
+      state.exportUsersError = null;
+      state.exportUsersCompleted = false;
+    },
+    SET_EXPORT_USERS_TASK_MISSING(state, missing) {
+      state.exportUsersTaskMissing = missing;
+      reconcileMissingUserExport(state);
+    },
+    SET_EXPORT_USERS_FILE_INFO(state, { dateCreated, taskId }) {
+      state.exportUsersDateCreated = dateCreated;
+      if (taskId && state.exportUsersTaskId === taskId) {
+        state.exportUsersTaskFileFound = true;
+        reconcileMissingUserExport(state);
+      }
+    },
+    SET_FINISH_EXPORT_USERS(state, dateCreated) {
+      state.exportUsersCompleted = true;
+      state.exportUsersDateCreated = dateCreated;
+      settleUserExport(state);
+    },
+    SET_FAILED_EXPORT_USERS(state, error) {
+      settleUserExport(state);
+      state.exportUsersError = error;
+      state.exportUsersFailureCount += 1;
     },
     /*State for First Log Date*/
     SET_FIRST_LOG_DATE(state, payload) {

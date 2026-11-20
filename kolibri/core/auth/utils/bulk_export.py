@@ -219,7 +219,11 @@ class BulkUserExportManager(JobProgressMixin):
     def run(self):
         # set language for the translation of the messages
         with translation.override(self.locale or settings.LANGUAGE_CODE):
-            self._run()
+            try:
+                self._run()
+            except BulkUserExportError as error:
+                self.update_job_metadata(overall_error=[str(error)])
+                raise
 
     def _run(self):
         storage_filepath = None
