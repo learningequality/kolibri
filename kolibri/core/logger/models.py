@@ -125,6 +125,17 @@ class ContentSessionLog(BaseLogModel):
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
     kind = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     extra_fields = JSONField(default={}, blank=True)
+    instance_id = UUIDField(blank=True, null=True)
+
+    class Meta(BaseLogModel.Meta):
+        abstract = False
+        indexes: ClassVar[list] = [
+            models.Index(
+                fields=["instance_id"],
+                name="sessionlog_instance_id_idx",
+                condition=models.Q(instance_id__isnull=False),
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         if self.progress < 0:
@@ -156,6 +167,17 @@ class ContentSummaryLog(BaseLogModel):
     )
     kind = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     extra_fields = JSONField(default={}, blank=True)
+    instance_id = UUIDField(blank=True, null=True)
+
+    class Meta(BaseLogModel.Meta):
+        abstract = False
+        indexes: ClassVar[list] = [
+            models.Index(
+                fields=["instance_id"],
+                name="summarylog_instance_id_idx",
+                condition=models.Q(instance_id__isnull=False),
+            ),
+        ]
 
     def calculate_source_id(self):
         return self.content_id

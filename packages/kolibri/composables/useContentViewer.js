@@ -40,6 +40,7 @@ import { CONTENT_VIEWER_CONTEXT_KEY } from '../components/internal/ContentViewer
  * @property {Ref<string>} userFullName - Full name of the interacting or reviewed user
  * @property {Ref<number>} timeSpent - Seconds spent on this content
  * @property {Ref<number>} progress - Completion fraction from 0 to 1
+ * @property {Ref<boolean>} loading - True while the host is switching the viewer's content
  */
 
 /**
@@ -158,6 +159,7 @@ export default function useContentViewer(
     userFullName,
     progress,
     embedded,
+    loading,
     setCustomExtractors,
     registerAssessmentApi,
   } = injectedContext;
@@ -236,5 +238,6 @@ export default function useContentViewer(
     userFullName,
     progress,
     embedded,
+    loading,
   };
 }
