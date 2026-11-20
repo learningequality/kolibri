@@ -22,6 +22,7 @@
     "core-js": "catalog:",
     "intl": "^1.2.4",
     "kolibri": "workspace:*",
+    "kolibri-build": "workspace:*",
     "kolibri-design-system": "catalog:",
     "kolibri-logging": "workspace:*",
     "regenerator-runtime": "^0.14.1",

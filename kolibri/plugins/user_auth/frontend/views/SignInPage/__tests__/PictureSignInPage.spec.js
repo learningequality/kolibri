@@ -7,7 +7,7 @@ import { LoginErrors } from 'kolibri/constants';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import { useRoute, useRouter } from 'vue-router/composables';
-import useAuthFlow from '../../../composables/useAuthFlow';
+import { AuthFlowStore } from '../../../composables/useAuthFlow';
 import useAuthWatcher from '../../../composables/useAuthWatcher';
 import useAuthRouter from '../../../composables/useAuthRouter';
 import PictureSignInPage from '../PictureSignInPage.vue';
@@ -32,10 +32,10 @@ jest.mock('kolibri-plugin-data', () => ({
 const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
 
-jest.mock('../../../composables/useAuthFlow');
 jest.mock('../../../composables/useAuthRouter');
 jest.mock('../../../composables/useAuthWatcher');
 jest.mock('vue-router/composables');
+AuthFlowStore.stub();
 const bee = () => picturePasswordStrings.bee$();
 const star = () => picturePasswordStrings.star$();
 const moon = () => picturePasswordStrings.moon$();
@@ -71,15 +71,15 @@ function renderComponent({ inLayout = false } = {}) {
       isSuperuser: false,
     }),
   );
-  useAuthFlow.mockReturnValue({
-    hasMultipleFacilities: ref(false),
-    facilityId: ref('facility_1'),
-    selectedFacility: ref({ id: 'facility_1', name: 'Facility 1' }),
-    signInOptions: ref([OptionsForSignIn.PICTURE_PASSWORD]),
-    signInMethod: ref(OptionsForSignIn.PICTURE_PASSWORD),
-    picturePasswordStyle: ref('colorful'),
-    picturePasswordShowIconText: ref(true),
-    canSignUp: ref(false),
+  AuthFlowStore.mock({
+    hasMultipleFacilities: false,
+    facilityId: 'facility_1',
+    selectedFacility: { id: 'facility_1', name: 'Facility 1' },
+    signInOptions: [OptionsForSignIn.PICTURE_PASSWORD],
+    signInMethod: OptionsForSignIn.PICTURE_PASSWORD,
+    picturePasswordStyle: 'colorful',
+    picturePasswordShowIconText: true,
+    canSignUp: false,
   });
   useAuthWatcher.mockReturnValue({
     watchForFacilityChange: jest.fn(),

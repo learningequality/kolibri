@@ -334,6 +334,7 @@ export default [
             { pattern: 'kolibri/**', group: 'external' },
             { pattern: 'kolibri-*', group: 'external' },
             { pattern: 'kolibri-*/**', group: 'external' },
+            { pattern: 'testUtils', group: 'external' },
           ],
           pathGroupsExcludedImportTypes: [],
         },
@@ -409,6 +410,10 @@ export default [
       globals: {
         ...globals.jest,
       },
+    },
+    settings: {
+      // Jest moduleNameMapper alias defined in kolibri-jest-config
+      'import-x/core-modules': ['testUtils'],
     },
     rules: {
       'kolibri/tests-no-hardcoded-strings': ERROR,
