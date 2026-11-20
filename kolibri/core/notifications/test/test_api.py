@@ -308,6 +308,7 @@ class NotificationsAPITestCase(APITestCase):
             completion_timestamp=self.summarylog1.completion_timestamp,
             end_timestamp=self.summarylog1.end_timestamp,
             user=self.user1,
+            mastery_level=1,
             complete=True,
         )
         parse_summarylog(self.summarylog1)
@@ -319,6 +320,7 @@ class NotificationsAPITestCase(APITestCase):
             summarylog=self.summarylog1,
             start_timestamp=self.summarylog1.start_timestamp,
             user=self.user1,
+            mastery_level=2,
             complete=False,
         )
         self.summarylog1.save()
@@ -353,6 +355,7 @@ class NotificationsAPITestCase(APITestCase):
             completion_timestamp=self.summarylog1.completion_timestamp,
             end_timestamp=self.summarylog1.end_timestamp,
             user=self.user1,
+            mastery_level=1,
             complete=True,
         )
 
@@ -369,6 +372,7 @@ class NotificationsAPITestCase(APITestCase):
             completion_timestamp=self.summarylog1.completion_timestamp,
             end_timestamp=self.summarylog1.end_timestamp,
             user=self.user1,
+            mastery_level=2,
             complete=True,
         )
 
