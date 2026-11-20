@@ -5,7 +5,7 @@ It uses a MagicBus plugin (`WindowsIpcPlugin`) integrated with `KolibriProcess`
 to manage Inter-Process Communication (IPC) with the main UI process via a named pipe.
 
 Architecture Overview:
-- The main UI process spawns this module as a subprocess with the --run-as-server flag.
+- The main UI process or the Kolibri service spawns this module as a subprocess with the --run-as-server flag.
 - `run_windows_server()` creates a `KolibriProcess` and adds the Windows IPC plugin.
 - The `WindowsIpcPlugin` is subscribed to the bus. On its `START` event, it creates
   a named pipe and accepts UI process connections in a background thread, serving
@@ -47,7 +47,6 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
-from kolibri_app.windows.stop_window import StopWindowPlugin
 from kolibri_app.windows_users import pipe_client_user_info
 
 # Named pipe for IPC between UI process and server subprocess
@@ -310,6 +309,22 @@ class WindowsIpcPlugin(SimplePlugin):
                 self.client_threads.discard(current_thread())
 
 
+class StdinStopPlugin(SimplePlugin):
+    def START(self):
+        Thread(target=self._exit_when_stdin_closes, daemon=True).start()
+
+    def _exit_when_stdin_closes(self):
+        stdin = win32api.GetStdHandle(win32api.STD_INPUT_HANDLE)
+        try:
+            while True:
+                win32file.ReadFile(stdin, 4096)
+        except pywintypes.error as e:
+            if e.winerror != winerror.ERROR_BROKEN_PIPE:
+                raise
+        logging.info("Stdin closed, shutting down Kolibri.")
+        self.bus.transition("EXITED")
+
+
 class WindowsKolibriProcess(KolibriProcess):
     """
     Windows-specific Kolibri process with IPC plugin for named pipe communication.
@@ -319,10 +334,11 @@ class WindowsKolibriProcess(KolibriProcess):
     with the main UI process via named pipes.
     """
 
-    def __init__(self):
+    def __init__(self, stop_when_stdin_closes=False):
         super().__init__()
 
         self.ipc_plugin = WindowsIpcPlugin(self)
         self.ipc_plugin.subscribe()
 
-        StopWindowPlugin(self).subscribe()
+        if stop_when_stdin_closes:
+            StdinStopPlugin(self).subscribe()

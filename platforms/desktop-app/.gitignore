@@ -141,7 +141,6 @@ package
 kolibrisrc
 hooks/kolibri_plugins_entrypoints_hook.py
 installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
-installer/nssm.exe
 installer/dist-installer/
 installer/translations/langoptions/
 installer/translations/languages.iss

@@ -18,9 +18,7 @@ Architecture Overview:
 
 import ctypes.wintypes
 import json
-import os
 import subprocess
-import sys
 import time
 from threading import Event
 from threading import Thread
@@ -36,10 +34,10 @@ import win32service
 import winerror
 import wx
 
-from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.server import stop as kolibri_stop
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
+from kolibri_app.windows.server_command import server_command_and_environment
 
 # Named pipe for IPC between UI process and server subprocess
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
@@ -258,25 +256,6 @@ class WindowsServerManager:
             )
             self.job_handle = None
 
-    def _build_server_command_and_environment(self):
-        """
-        Build command line and environment for the server subprocess.
-        Detects PyInstaller bundle vs development mode.
-        """
-        # Build command line - detect PyInstaller bundle vs development mode
-        if getattr(sys, "frozen", False):
-            # PyInstaller bundle mode - use current executable with server flag
-            cmd = [sys.executable, "--run-as-server"]
-        else:
-            # Development mode - run as Python module
-            cmd = [sys.executable, "-m", "kolibri_app", "--run-as-server"]
-
-        env = os.environ.copy()
-        env["KOLIBRI_HOME"] = os.environ.get("KOLIBRI_HOME", KOLIBRI_HOME)
-        env["KOLIBRI_RESTART_HOOKS"] = "kolibri.utils.server.signal_stop"
-
-        return cmd, env
-
     def _configure_subprocess_startup(self):
         """
         Configure subprocess startup information for hidden console window.
@@ -331,7 +310,7 @@ class WindowsServerManager:
 
         # Launch the server subprocess
         try:
-            cmd, env = self._build_server_command_and_environment()
+            cmd, env = server_command_and_environment()
             startupinfo = self._configure_subprocess_startup()
 
             logging.info(f"Launching server subprocess: {' '.join(cmd)}")
