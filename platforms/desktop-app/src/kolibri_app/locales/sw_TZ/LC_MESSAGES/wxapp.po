@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-28 00:05\n"
+"PO-Revision-Date: 2026-11-19 20:56\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "Language: sw_TZ\n"
@@ -24,12 +24,12 @@ msgstr "Kuhusu Kolibri"
 #: src/kolibri_app/about_dialog.py:40
 #, python-format
 msgid "App version: %(version)s"
-msgstr "Nakala ya programu: %(version)s"
+msgstr "Toleo la programu: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:42
 #, python-format
 msgid "Kolibri version: %(version)s"
-msgstr "Nakala ya Kolibri: %(version)s"
+msgstr "Toleo la Kolibri: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:45 src/kolibri_app/view.py:278
 msgid "Documentation"
@@ -70,11 +70,11 @@ msgstr "Nakili\tCtrl+C"
 
 #: src/kolibri_app/view.py:243
 msgid "Paste\tCtrl+V"
-msgstr "Nakilisha\tCtrl+V"
+msgstr "Bandika\tCtrl+V"
 
 #: src/kolibri_app/view.py:245
 msgid "Select All\tCtrl+A"
-msgstr "Chagua Yote\tCtrl+A"
+msgstr "Chagua Zote\tCtrl+A"
 
 #: src/kolibri_app/view.py:247
 msgid "Edit"
@@ -122,7 +122,7 @@ msgstr "Utatuzi wa matatizo"
 
 #: src/kolibri_app/view.py:305
 msgid "Help"
-msgstr "Msaada"
+msgstr "Usaidizi"
 
 #: src/kolibri_app/view.py:402
 msgid "Save file"
@@ -165,7 +165,7 @@ msgstr "Fungua Programu ya Kolibri baada ya kuingia"
 
 #: src/kolibri_app/windows/taskbar_icon.py:361
 msgid "Run Kolibri service on Windows startup"
-msgstr "Endesha huduma ya Kolibri wakati wa kuanzisha Windows"
+msgstr "Sakinisha huduma ya Kolibri wakati wa kuanzisha Windows"
 
 #: src/kolibri_app/windows/taskbar_icon.py:369
 msgid "Run Kolibri service on Windows startup (Unavailable)"
@@ -187,7 +187,7 @@ msgstr "Maelezo"
 #: src/kolibri_app/windows/taskbar_icon.py:411
 #: src/kolibri_app/windows/taskbar_icon.py:484
 msgid "enabled"
-msgstr "imewezeshwa"
+msgstr "imewashwa"
 
 #. i18n: Status of a setting. Fills the {} in "Opening Kolibri App after sign in has been {}" and "Automatic startup has been {}."
 #: src/kolibri_app/windows/taskbar_icon.py:414
@@ -202,7 +202,7 @@ msgstr "Mipangilio ya Programu ya Kolibri imesasishwa"
 #: src/kolibri_app/windows/taskbar_icon.py:418
 #, python-brace-format
 msgid "Opening Kolibri App after sign in has been {}"
-msgstr "Kufungua Programu ya Kolibri baada ya kuingia kumekuwa {}"
+msgstr "Kufungua Programu ya Kolibri baada ya kuingia {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:426
 msgid "Kolibri App Setting Error"
@@ -214,7 +214,7 @@ msgstr "Imeshindwa kubadilisha mpangilio wa kuanzisha wa Programu ya Kolibri"
 
 #: src/kolibri_app/windows/taskbar_icon.py:454
 msgid "Administrator rights are required to change this setting."
-msgstr "Haki za msimamizi zinahitajika ili kubadilisha mpangilio huu."
+msgstr "Haki za msimamizi zinahitajika ili kubadilisha mipangilio hii."
 
 #: src/kolibri_app/windows/taskbar_icon.py:455
 #: src/kolibri_app/windows/taskbar_icon.py:472
@@ -224,7 +224,7 @@ msgstr "Hitilafu"
 #: src/kolibri_app/windows/taskbar_icon.py:471
 #, python-brace-format
 msgid "An error occurred while changing the service setting: {}"
-msgstr "Hitilafu imetokea wakati wa kubadilisha mpangilio wa huduma: {}"
+msgstr "Hitilafu imetokea wakati wa kubadilisha mipangilio ya huduma: {}"
 
 #: src/kolibri_app/windows/taskbar_icon.py:486
 msgid "Kolibri Service Updated"

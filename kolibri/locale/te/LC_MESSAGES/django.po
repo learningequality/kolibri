@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 20:35+0000\n"
-"PO-Revision-Date: 2026-10-28 00:05\n"
+"PO-Revision-Date: 2026-11-19 20:56\n"
 "Last-Translator: \n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: core/auth/constants/commands_errors.py:13
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "'{}' సెల్ కంటెంట్ చెల్లుబాటు కాదు"
+msgstr "'{}' సెల్ యొక్క కంటెంట్ చెల్లుబాటు కాదు"
 
 #: core/auth/constants/commands_errors.py:16
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"

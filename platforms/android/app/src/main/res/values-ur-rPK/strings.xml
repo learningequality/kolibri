@@ -9,9 +9,9 @@
     <string name="notification_task_title">کولیبری کا کام چل رہا ہے</string>
     <string name="notification_task_text">پس منظر میں عمل درآمد جاری ہے۔۔۔</string>
     <string name="notification_download_complete_title">ڈاؤن لوڈ مکمل ہوچکا ہے</string>
-    <string name="notification_download_failed_title">ڈاؤن لوڈ کی کوشش نام رہی</string>
-    <string name="toast_download_started">ڈاؤن لوڈنگ کی جارہی ہے</string>
-    <string name="toast_download_complete">کو ڈاؤن لوڈز میں محفوظ کرلیا گیا</string>
-    <string name="toast_download_failed">ڈاؤن لوڈ نہیں کیا جاسکا</string>
+    <string name="notification_download_failed_title">ڈاؤن لوڈ کی کوشش ناکام رہی</string>
+    <string name="toast_download_started">ڈاؤن لوڈنگ کی جارہی ہے %1$s…</string>
+    <string name="toast_download_complete">%1$s کو ڈاؤن لوڈز میں محفوظ کرلیا گیا</string>
+    <string name="toast_download_failed">%1$s کو ڈاؤن لوڈ نہیں کیا جاسکا</string>
     <string name="os_user_name">طالب علم</string>
 </resources>

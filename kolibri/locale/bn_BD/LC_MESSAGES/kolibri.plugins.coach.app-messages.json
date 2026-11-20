@@ -25,7 +25,7 @@
   "AttendanceStrings.editPageHeading": "উপস্থিতি সম্পাদনা করুন: {date} ({time})",
   "AttendanceStrings.endDateLabel": "শেষ তারিখ",
   "AttendanceStrings.learnersLabel": "শিক্ষার্থীগণ:",
-  "AttendanceStrings.markAllModalTitle": "{count, plural, one {Mark # learner as present?} other {Mark all # learners as present?}}",
+  "AttendanceStrings.markAllModalTitle": "{count, plural, one {আপনি কি # জন শিক্ষার্থীকে উপস্থিত হিসেবে চিহ্নিত করতে চান?} other {আপনি কি সকল # জন শিক্ষার্থীকে উপস্থিত হিসেবে চিহ্নিত করতে চান?}}",
   "AttendanceStrings.markAllPresentLabel": "সকল শিক্ষার্থীকে উপস্থিত হিসেবে চিহ্নিত করুন",
   "AttendanceStrings.markAttendanceAction": "উপস্থিতি চিহ্নিত করুন",
   "AttendanceStrings.nextMonthLabel": "পরের মাস",

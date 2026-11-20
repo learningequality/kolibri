@@ -342,6 +342,7 @@
   "CoursesStrings.submitTestAction": "Submit test",
   "CoursesStrings.supportNeededLabel": "Support needed",
   "CoursesStrings.testAveragesLabel": "Test averages",
+  "CoursesStrings.testNotSubmittedLabel": "The learner hasn't submitted the test yet",
   "CoursesStrings.unitCompleted": "Unit completed!",
   "CoursesStrings.unitCompletedDescription": "You have completed all resources in this unit. You may review resources until the next unit is opened.",
   "CoursesStrings.unitInProgressLabel": "Unit {num, number} in progress",
