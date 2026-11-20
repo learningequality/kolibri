@@ -903,8 +903,18 @@ class BulkUserImportManager(JobProgressMixin):
         with translation.override(self.locale):
             self._run()
 
-    def _run(self):
-        self.overall_error = []
+    def validate_options(self):
+        if self.userid is not None:
+            try:
+                self.userid = UUID(str(self.userid)).hex
+            except ValueError:
+                self.append_error(
+                    translation.gettext("Invalid user ID: {user_id!r}").format(
+                        user_id=self.userid
+                    )
+                )
+                self.exit_if_error()
+
         try:
             self.default_facility = get_bulk_user_facility(
                 self.facility_id, BulkUserImportError
@@ -912,6 +922,10 @@ class BulkUserImportManager(JobProgressMixin):
         except BulkUserImportError as error:
             self.append_error(error)
             self.exit_if_error()
+
+    def _run(self):
+        self.overall_error = []
+        self.validate_options()
 
         storage_filepath = None
         local_filepath = None

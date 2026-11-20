@@ -158,6 +158,32 @@ class BulkInputErrorsTest(TestCase):
                 output.unlink()
                 self.facility.facilityuser_set.filter(username="valid").delete()
 
+    def test_malformed_user_id_leaves_users_and_classes_unchanged(self):
+        user = FacilityUser.objects.create(username="existing", facility=self.facility)
+        classroom = Classroom.objects.create(name="Existing", parent=self.facility)
+        classroom.add_member(user)
+        self.path.write_text(HEADER + NEW_CLASS_ROW, encoding="utf-8")
+        for flags in ([], ["--delete"]):
+            with self.subTest(flags=flags), self.assertRaisesRegex(
+                CommandError, "notauuid"
+            ):
+                call_command(
+                    "bulkimportusers",
+                    str(self.path),
+                    "--userid",
+                    "notauuid",
+                    *flags,
+                    facility=self.facility.id,
+                )
+            self.assertEqual(
+                list(self.facility.facilityuser_set.values_list("id", flat=True)),
+                [user.id],
+            )
+            self.assertEqual(
+                list(Classroom.objects.filter(parent=self.facility)), [classroom]
+            )
+            self.assertTrue(user.is_member_of(classroom))
+
     def check_short_row(self, short, columns, message, header=HEADER):
         output = StringIO()
         self.run_import(header + short + "\n" + VALID_ROW, errorlines=output)
@@ -244,6 +270,21 @@ class BulkInputErrorsTest(TestCase):
         self.assertTrue(learner.is_member_of(classroom))
         self.assertFalse(FacilityUser.all_objects.filter(id=absent.id).exists())
         self.assertTrue(FacilityUser.objects.filter(username="valid").exists())
+
+    def test_cli_localizes_option_errors(self):
+        translations = {
+            "Invalid user ID: {user_id!r}": "Identifiant incorrect : {user_id!r}",
+            "The error output must differ from the input file.": "Choisir un autre fichier.",
+        }
+        with self.french_catalog(translations):
+            with self.assertRaisesRegex(
+                CommandError, "Identifiant incorrect : 'notauuid'"
+            ):
+                self.run_import(HEADER + VALID_ROW, locale="fr-fr", userid="notauuid")
+            with self.assertRaisesRegex(CommandError, "Choisir un autre fichier"):
+                self.run_import(
+                    HEADER + VALID_ROW, locale="fr-fr", errorlines=self.path
+                )
 
     def test_unexpected_validator_error(self):
         validator = Validator({name: name for name in fieldnames}, self.facility)
