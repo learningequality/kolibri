@@ -99,6 +99,8 @@ const
   TASKKILL_ERR_NOT_FOUND = 128;
   ICACLS_EXE_PATH = '{sys}\icacls.exe';
   SC_EXE_PATH = '{sys}\sc.exe';
+  NET_EXE_PATH = '{sys}\net.exe';
+  POWERSHELL_EXE_PATH = '{sys}\WindowsPowerShell\v1.0\powershell.exe';
 
 procedure TerminateLegacyApp();
 var
@@ -358,11 +360,12 @@ var
   ResultCode: Integer;
 begin
   Log('Setup is preparing to install. Attempting to stop the Kolibri service if it exists...');
-  Exec(ExpandConstant(SC_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  // Unlike sc stop, net stop waits for the service to reach STOPPED.
+  Exec(ExpandConstant(NET_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   if ResultCode = 0 then
     Log('Service "{#ServiceName}" stopped successfully.')
   else
-    Log(Format('Command "sc stop" finished with exit code %d. This is normal if the service was not running.', [ResultCode]));
+    Log(Format('Command "net stop" finished with exit code %d. This is normal if the service was not running.', [ResultCode]));
 
   // Force-kill any running UI processes
   Exec(ExpandConstant('{#TaskkillExePath}'),
@@ -379,6 +382,14 @@ begin
   begin
     Log(Format('Unexpected taskkill exit code: %d', [ResultCode]));
   end;
+
+  // taskkill returns before the processes exit, and Restart Manager aborts a
+  // silent install while any of them still holds a file.
+  Exec(ExpandConstant(POWERSHELL_EXE_PATH),
+       '-NoProfile -Command "Wait-Process -Name ' + ChangeFileExt('{#AppExeName}', '') + ' -Timeout 30 -ErrorAction SilentlyContinue"',
+       '',
+       SW_HIDE, ewWaitUntilTerminated,
+       ResultCode);
 
   Result := '';
 end;
