@@ -5,6 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 from le_utils.constants import format_presets
 
+from kolibri.core.content.hooks import ContentViewerHook
 from kolibri.core.content.hooks import SandboxedContentViewerHook
 from kolibri.core.content.utils.paths import zip_content_static_root
 from kolibri.core.webpack.hooks import WebpackError
@@ -151,3 +152,29 @@ class SandboxedContentViewerHookTestCase(TestCase):
         self.assertEqual(data["presets"], (format_presets.HTML5_ZIP,))
         self.assertEqual(data["css_selectors"], ("iframe[data-sandbox]",))
         self.assertTrue(data["sandboxHandlerUrl"].endswith("handler.js"))
+
+
+class MediaHook(ContentViewerHook):
+    _not_abstract = True
+
+    bundle_id = "main"
+    presets = (format_presets.AUDIO,)
+    css_selectors = ("video", 'object[type="application/x-custom"]')
+
+
+class RendersMimetypeTestCase(TestCase):
+    def setUp(self):
+        hook = MediaHook()
+        patcher = patch.object(
+            ContentViewerHook, "_registered_hooks", {hook.unique_id: hook}
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_media_family_is_rendered_by_a_viewer_claiming_its_element(self):
+        self.assertTrue(ContentViewerHook.renders_mimetype("video/webm"))
+        self.assertFalse(ContentViewerHook.renders_mimetype("audio/mpeg"))
+
+    def test_other_types_need_a_viewer_claiming_their_object_type(self):
+        self.assertTrue(ContentViewerHook.renders_mimetype("application/x-custom"))
+        self.assertFalse(ContentViewerHook.renders_mimetype("application/pdf"))

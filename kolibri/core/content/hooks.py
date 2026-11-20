@@ -6,6 +6,7 @@ Hooks for managing the display and viewing of content.
 """
 
 import json
+import re
 from abc import abstractmethod
 
 from django.conf import settings
@@ -21,6 +22,12 @@ from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.core.webpack.hooks import WebpackInclusionMixin
 from kolibri.plugins.hooks import define_hook
 from kolibri.plugins.hooks import KolibriHook
+
+# MIME families SafeHTML shows as their own element rather than as an <object>.
+MEDIA_ELEMENT_FAMILIES = ("video", "audio")
+
+# Mirrors the pattern objectViewerMimetypes() reads in the frontend plugin mediator.
+_OBJECT_TYPE_SELECTOR = re.compile(r"""^object\[type=["']?([^"'\]]+)["']?\]$""")
 
 
 @define_hook
@@ -59,6 +66,18 @@ class ContentViewerHook(WebpackBundleHook, WebpackInclusionMixin):
 
             cls._cached_css_selectors = tuple(sorted(set(selectors)))
         return cls._cached_css_selectors
+
+    @classmethod
+    def renders_mimetype(cls, mimetype):
+        """Backend mirror of ``canHandleElement`` in packages/kolibri/internal/pluginMediator.js."""
+        selectors = set()
+        for hook in cls.registered_hooks:
+            selectors.update(hook.all_css_selectors())
+        family = mimetype.split("/")[0]
+        if family in MEDIA_ELEMENT_FAMILIES:
+            return family in selectors
+        matches = (_OBJECT_TYPE_SELECTOR.match(selector) for selector in selectors)
+        return any(match and match.group(1) == mimetype for match in matches)
 
     @classmethod
     def html(cls):
@@ -224,3 +243,18 @@ class ShareFileHook(KolibriHook):
     def execute_file_share(cls, filename, message):
         for hook in cls.registered_hooks:
             hook.share_file(filename, message)
+
+
+class VirtualRootUnreadable(Exception):
+    pass
+
+
+@define_hook
+class ContentNodeEnumeratorHook(KolibriHook):
+    @abstractmethod
+    def virtual_roots(self, channel_id):
+        """Return {root_id: local_file_id} for available roots this provider owns."""
+
+    @abstractmethod
+    def enumerate_virtual_nodes(self, root_id, local_file_id):
+        """Yield {path, title, kind, options}; raise VirtualRootUnreadable if unreadable."""

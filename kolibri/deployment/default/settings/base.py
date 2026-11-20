@@ -197,6 +197,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
         "kolibri.core.tasks.models.KolibriTasksRouter",
+        "kolibri.core.content.models.VirtualContentNodeRouter",
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":

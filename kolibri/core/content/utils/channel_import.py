@@ -67,6 +67,8 @@ no_schema_models = [
     apps.get_model(CONTENT_APP_NAME, "ContentRequest"),
     apps.get_model(CONTENT_APP_NAME, "ContentDownloadRequest"),
     apps.get_model(CONTENT_APP_NAME, "ContentRemovalRequest"),
+    apps.get_model(CONTENT_APP_NAME, "VirtualContentNode"),
+    apps.get_model(CONTENT_APP_NAME, "VirtualContentRoot"),
 ]
 
 models_to_exclude = [
