@@ -352,6 +352,7 @@
       },
       displayCompletionModal() {
         this.showCompletionModal = true;
+        this.$emit('completionModalShown');
       },
       hideCompletionModal() {
         this.showCompletionModal = false;

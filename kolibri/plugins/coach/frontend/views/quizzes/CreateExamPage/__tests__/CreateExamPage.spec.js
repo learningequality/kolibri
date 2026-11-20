@@ -1,7 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import OverlayHeading from '../../../common/OverlayHeading';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import { PageNames } from '../../../../constants';
@@ -46,9 +48,17 @@ const PanelStub = {
   render: h => h('h1', { attrs: { 'data-testid': 'panel' } }, [h(OverlayHeading)]),
 };
 
+const ROUTED_PANEL_NAME = 'Routed panel';
+const RoutedPanel = {
+  render: h => h(SidePanelModal, { props: { alignment: 'right', ariaLabel: ROUTED_PANEL_NAME } }),
+};
+
 const CLASS_ID = 'c'.repeat(32);
 
-async function renderCreateExamPage(routeName = PageNames.EXAM_CREATION_ROOT) {
+async function renderCreateExamPage(
+  routeName = PageNames.EXAM_CREATION_ROOT,
+  panelComponent = PanelStub,
+) {
   const store = makeStore();
   store.state.classSummary.id = CLASS_ID;
   store.state.classSummary.learnerMap = { l1: { id: 'l1', name: 'Learner 1' } };
@@ -58,7 +68,9 @@ async function renderCreateExamPage(routeName = PageNames.EXAM_CREATION_ROOT) {
         path: '/:classId/quizzes/:quizId/edit/:sectionIndex',
         name: PageNames.EXAM_CREATION_ROOT,
         component: CreateExamPage,
-        children: [{ path: 'details', name: PageNames.QUIZ_SECTION_EDITOR, component: PanelStub }],
+        children: [
+          { path: 'details', name: PageNames.QUIZ_SECTION_EDITOR, component: panelComponent },
+        ],
       },
       { path: '/:classId/quizzes', name: PageNames.EXAMS_ROOT },
     ],
@@ -84,6 +96,18 @@ async function leavePage(router) {
   await global.flushPromises();
 }
 
+function expectConfirmationIsTheOnlyActiveModal() {
+  const confirmation = screen.getByRole('dialog', {
+    name: coachStrings.closeConfirmationTitle$(),
+  });
+  const activeModals = [...document.querySelectorAll('[aria-modal="true"]')].filter(
+    modal => !modal.closest('[inert]'),
+  );
+  expect(confirmation.closest('[inert]')).toBeNull();
+  expect(activeModals.every(modal => modal.contains(confirmation))).toBe(true);
+  return confirmation;
+}
+
 describe('CreateExamPage', () => {
   beforeEach(() => {
     useUser.mockImplementation(() => useUserMock({ isCoach: true }));
@@ -95,6 +119,37 @@ describe('CreateExamPage', () => {
     expect(headings).toHaveLength(1);
     expect(headings[0]).toHaveAttribute('data-testid', 'panel');
     expect(document.title).toBe('Create new quiz - Kolibri');
+  });
+
+  it('keeps the close confirmation out from behind the open recipients panel', async () => {
+    const router = await renderCreateExamPage();
+    await openRecipientsPanel();
+    expect(
+      screen.getByRole('dialog', {
+        name: LearnersSelectorSidePanel.$trs.selectGroupsAndIndividualLearnersTitle.message,
+      }),
+    ).toBeInTheDocument();
+    await leavePage(router);
+    const confirmation = expectConfirmationIsTheOnlyActiveModal();
+    await fireEvent.click(
+      within(confirmation).getByRole('button', { name: coreStrings.cancelAction$() }),
+    );
+    expect(document.querySelector('[inert]')).toBeNull();
+  });
+
+  it('keeps the close confirmation out from behind a routed side panel', async () => {
+    const router = await renderCreateExamPage(PageNames.QUIZ_SECTION_EDITOR, RoutedPanel);
+    expect(screen.getByRole('dialog', { name: ROUTED_PANEL_NAME })).toBeInTheDocument();
+    await leavePage(router);
+    expectConfirmationIsTheOnlyActiveModal();
+  });
+
+  it('leaves the page reachable behind the close confirmation with no panel open', async () => {
+    await leavePage(await renderCreateExamPage());
+    expect(
+      screen.getByRole('dialog', { name: coachStrings.closeConfirmationTitle$() }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('[inert]')).toBeNull();
   });
 
   describe('without a title conflict', () => {
