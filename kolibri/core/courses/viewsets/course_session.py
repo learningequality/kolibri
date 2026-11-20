@@ -29,7 +29,6 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_404_NOT_FOUND
 
 from kolibri.core import error_constants
-from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
@@ -37,12 +36,13 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.serializers import AssignableCollectionField
+from kolibri.core.auth.serializers import consolidate_assignments
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
-from kolibri.core.query import annotate_array_aggregate
 
 from ..models import CourseSession
 from ..models import CourseSessionAssignment
@@ -101,8 +101,7 @@ class CourseSessionSerializer(ModelSerializer):
     # UUIDField not PrimaryKeyRelatedField: .to_representation does .pk on raw UUIDs from .values(), failing. ContentNode validation is in to_internal_value.
     course = UUIDField(format="hex", required=True)
     classroom = CourseSessionClassroomSerializer(source="collection", read_only=True)
-    # Read-only at field level; write-path validation (Collection PKs, ADHOCLEARNERSGROUP exclusion) is in to_internal_value.
-    assignments = ValuesMethodField(sources=("course_session_assignment_collections",))
+    assignments = ListField(child=AssignableCollectionField(), required=False)
     learner_ids = ListField(
         child=PrimaryKeyRelatedField(
             read_only=False, queryset=FacilityUser.objects.all()
@@ -123,9 +122,6 @@ class CourseSessionSerializer(ModelSerializer):
     test_learner_progress = TestLearnerProgressSerializer(
         read_only=True, required=False
     )
-
-    def get_assignments(self, obj):
-        return obj.course_session_assignment_collections
 
     class Meta:
         model = CourseSession
@@ -166,32 +162,11 @@ class CourseSessionSerializer(ModelSerializer):
 
         return attrs
 
-    def _validate_list_field(self, field_name, child_field, raw_value):
-        field = ListField(child=child_field)
-        field.bind(field_name, self)
-        try:
-            return field.run_validation(raw_value)
-        except ValidationError as exc:
-            raise ValidationError({field_name: exc.detail}) from exc
-
     def to_internal_value(self, data):
         data = OrderedDict(data)
         data["created_by"] = self.context["request"].user.id
 
-        # ValuesMethodField is read-only; pop assignments before super() so
-        # client-supplied values aren't silently discarded without validation.
-        assignment_ids = data.pop("assignments", None)
-
         instance = super().to_internal_value(data)
-
-        if assignment_ids is not None:
-            instance["assignments"] = self._validate_list_field(
-                "assignments",
-                PrimaryKeyRelatedField(
-                    queryset=Collection.objects.exclude(kind=ADHOCLEARNERSGROUP)
-                ),
-                assignment_ids,
-            )
 
         # course is a UUIDField on the model (not a FK); validate and resolve
         # the ContentNode manually to extract title, description, and channel version.
@@ -607,6 +582,7 @@ class CourseSessionViewset(ValuesViewset):
     serializer_class = CourseSessionSerializer
     # These fields are populated by consolidate(), not annotated by the queryset.
     deferred_fields = (
+        "assignments",
         "learner_ids",
         "unit_phase",
         "active_unit_number",
@@ -624,33 +600,7 @@ class CourseSessionViewset(ValuesViewset):
 
         course_session_ids = [item["id"] for item in items]
 
-        adhoc_assignments = CourseSessionAssignment.objects.filter(
-            course_session_id__in=course_session_ids,
-            collection__kind=ADHOCLEARNERSGROUP,
-        )
-        adhoc_assignments = annotate_array_aggregate(
-            adhoc_assignments,
-            # filter to active members only — deactivated users must not appear in learner_ids
-            filter=FacilityUser.get_is_active_q("collection__membership"),
-            learner_ids="collection__membership__user_id",
-        )
-        adhoc_assignments = {
-            a["course_session"]: a
-            for a in adhoc_assignments.values(
-                "collection", "course_session", "learner_ids"
-            )
-        }
-        for item in items:
-            if item["id"] in adhoc_assignments:
-                adhoc_assignment = adhoc_assignments[item["id"]]
-                item["learner_ids"] = adhoc_assignment["learner_ids"]
-                item["assignments"] = [
-                    i
-                    for i in item["assignments"]
-                    if i != adhoc_assignment["collection"]
-                ]
-            else:
-                item["learner_ids"] = []
+        consolidate_assignments(items, CourseSessionAssignment, "course_session")
 
         tests_by_session = _fetch_most_recent_tests(course_session_ids)
         course_ids = {str(item["course"]) for item in items}
@@ -679,10 +629,6 @@ class CourseSessionViewset(ValuesViewset):
         return items
 
     def annotate_queryset(self, queryset):
-        queryset = annotate_array_aggregate(
-            queryset, course_session_assignment_collections="assignments__collection"
-        )
-
         return queryset.annotate(
             missing_resource=~Exists(
                 ContentNode.objects.filter(

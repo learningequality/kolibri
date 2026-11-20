@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
+from rest_framework.serializers import JSONField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -11,7 +12,6 @@ from rest_framework.serializers import ValidationError
 
 from kolibri.core import error_constants
 from kolibri.core.api import HexUUIDField
-from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
@@ -20,18 +20,35 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions import _ensure_raw_dict
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.serializers import AssignableCollectionField
+from kolibri.core.auth.serializers import consolidate_assignments
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
-from kolibri.core.query import annotate_array_aggregate
 
 
 class ResourceSerializer(Serializer):
     content_id = HexUUIDField()
     channel_id = HexUUIDField()
     contentnode_id = HexUUIDField()
+
+
+class ResourcesField(JSONField):
+    def to_internal_value(self, data):
+        # DRF's ListSerializer reports non-list input as a nested dict, which
+        # Kolibri's 400 handler doesn't flatten.
+        if not isinstance(data, list):
+            raise ValidationError(
+                ListField.default_error_messages["not_a_list"].format(
+                    input_type=type(data).__name__
+                ),
+                code="not_a_list",
+            )
+        serializer = ResourceSerializer(many=True, data=data)
+        serializer.is_valid(raise_exception=True)
+        return serializer.validated_data
 
 
 class ClassroomSerializer(ModelSerializer):
@@ -48,14 +65,13 @@ class LessonSerializer(ModelSerializer):
     created_by = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    resources = ValuesMethodField(sources=("resources",))
+    resources = ResourcesField(required=False)
     active = BooleanField(source="is_active", required=False)
-    # Read path: list of assignment collection IDs from the lesson_assignment_collections
-    # annotation added by LessonViewset.annotate_queryset().
-    assignments = ValuesMethodField(sources=("lesson_assignment_collections",))
-    # Read path: default [] overwritten by consolidate() with adhoc-group member IDs.
-    # Write path: popped in to_internal_value and validated with a temporary field.
-    learner_ids = ValuesMethodField(sources=())
+    assignments = ListField(child=AssignableCollectionField(), required=False)
+    learner_ids = ListField(
+        child=PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
+        required=False,
+    )
     classroom = ClassroomSerializer(source="collection", read_only=True)
 
     class Meta:
@@ -73,20 +89,6 @@ class LessonSerializer(ModelSerializer):
             "created_by",
             "date_created",
         )
-
-    def get_assignments(self, obj):
-        # obj is a _SourcesProxy over the values() row;
-        # obj.lesson_assignment_collections returns the annotation value.
-        return obj.lesson_assignment_collections or []
-
-    def get_resources(self, obj):
-        # Resources are stored in the DB as pre-serialized HexUUID dicts.
-        # Returning the raw value avoids per-row ResourceSerializer.to_representation overhead.
-        return obj.resources or []
-
-    def get_learner_ids(self, obj):
-        # consolidate() overwrites this default with actual adhoc-group member IDs.
-        return []
 
     def validate(self, attrs):
         title = attrs.get("title")
@@ -116,41 +118,10 @@ class LessonSerializer(ModelSerializer):
             code=error_constants.UNIQUE,
         )
 
-    def _validate_list_field(self, field_name, child_field, raw_value):
-        field = ListField(child=child_field)
-        field.bind(field_name, self)
-        try:
-            return field.run_validation(raw_value)
-        except ValidationError as exc:
-            raise ValidationError({field_name: exc.detail}) from exc
-
     def to_internal_value(self, data):
         data = dict(data)
         data["created_by"] = self.context["request"].user.id
-        # 'assignments', 'learner_ids', and 'resources' are ValuesMethodFields
-        # (read-only), so DRF's to_internal_value skips them. Extract and validate
-        # manually here.
-        raw_assignments = data.pop("assignments", None)
-        raw_learner_ids = data.pop("learner_ids", None)
-        raw_resources = data.pop("resources", None)
-        result = super().to_internal_value(data)
-        if raw_assignments is not None:
-            result["assignments"] = self._validate_list_field(
-                "assignments",
-                PrimaryKeyRelatedField(queryset=Collection.objects.all()),
-                raw_assignments,
-            )
-        if raw_learner_ids is not None:
-            result["learner_ids"] = self._validate_list_field(
-                "learner_ids",
-                PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
-                raw_learner_ids,
-            )
-        if raw_resources is not None:
-            result["resources"] = self._validate_list_field(
-                "resources", ResourceSerializer(), raw_resources
-            )
-        return result
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
         """
@@ -187,11 +158,7 @@ class LessonSerializer(ModelSerializer):
         instance.resources = validated_data.get("resources", instance.resources)
 
         if "assignments" in validated_data:
-            collections = [
-                c
-                for c in validated_data.pop("assignments")
-                if c.kind != ADHOCLEARNERSGROUP
-            ]
+            collections = validated_data.pop("assignments")
             current_group_ids = set(
                 instance.lesson_assignments.exclude(
                     collection__kind=ADHOCLEARNERSGROUP
@@ -285,42 +252,15 @@ class LessonViewset(ValuesViewset):
     filterset_fields = ("collection", "id")
     permission_classes = (LessonPermissions,)
     queryset = Lesson.objects.all().order_by("-date_created")
+    deferred_fields = ("assignments", "learner_ids")
 
     def consolidate(self, items, queryset):
         if not items:
             return items
-        adhoc_assignments = LessonAssignment.objects.filter(
-            lesson_id__in=[item["id"] for item in items],
-            collection__kind=ADHOCLEARNERSGROUP,
-        )
-        adhoc_assignments = annotate_array_aggregate(
-            adhoc_assignments,
-            # Filter excludes soft-deleted users from learner_ids (#444f7abf).
-            filter=FacilityUser.get_is_active_q("collection__membership"),
-            learner_ids="collection__membership__user_id",
-        )
-        adhoc_by_lesson = {
-            a["lesson"]: a
-            for a in adhoc_assignments.values("collection", "lesson", "learner_ids")
-        }
+        consolidate_assignments(items, LessonAssignment, "lesson")
         for item in items:
-            if item["id"] in adhoc_by_lesson:
-                adhoc_assignment = adhoc_by_lesson[item["id"]]
-                item["learner_ids"] = adhoc_assignment["learner_ids"]
-                item["assignments"] = [
-                    i
-                    for i in item["assignments"]
-                    if i != adhoc_assignment["collection"]
-                ]
-            else:
-                item["learner_ids"] = []
             item["resources"] = item["resources"] or []
         return items
-
-    def annotate_queryset(self, queryset):
-        return annotate_array_aggregate(
-            queryset, lesson_assignment_collections="lesson_assignments__collection"
-        )
 
     @action(detail=False)
     def size(self, request, **kwargs):
