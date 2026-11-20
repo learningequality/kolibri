@@ -97,7 +97,7 @@ The app runs Kolibri as an HTTP server in Python, with a WebView displaying the 
 ### Key Components
 
 - **KolibriServerService** - Starts Python HTTP server in background
-- **WebViewActivity** - Displays Kolibri UI, requests notification permission
+- **WebViewActivity** - Displays Kolibri UI, requests notification permission and, where Play makes sharing mandatory, the Play age signal (discarded)
 - **WorkManager** - Runs background tasks (imports, syncs) in separate process
 - **Task Reconciler** - Syncs WorkManager state with Kolibri's job database
 

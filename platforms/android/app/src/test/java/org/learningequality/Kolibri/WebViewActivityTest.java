@@ -41,7 +41,11 @@ import org.robolectric.util.ReflectionHelpers.ClassParameter;
  * JVM implementation, so the tests call it with the URL Python would have returned.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(shadows = WebViewActivityTest.FreezeTrackingWebView.class)
+@Config(
+    shadows = {
+      WebViewActivityTest.FreezeTrackingWebView.class,
+      WebViewActivityAgeSignalsTest.FakeAgeSignalsManagerFactory.class
+    })
 public class WebViewActivityTest {
   private static final String ORIGIN = "http://127.0.0.1:46655";
   private static final String PAGE_PATH = "/en/facility/#/data/import";

@@ -35,6 +35,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.play.agesignals.AgeSignalsAccessRequest;
+import com.google.android.play.agesignals.AgeSignalsAccessResult;
+import com.google.android.play.agesignals.AgeSignalsManager;
+import com.google.android.play.agesignals.AgeSignalsManagerFactory;
+import com.google.android.play.agesignals.AgeSignalsRequest;
+import com.google.android.play.agesignals.AgeSignalsResult;
+import com.google.android.play.agesignals.ApplicableAgeFeaturesRequest;
+import com.google.android.play.agesignals.model.AgeSignalsStatus;
+import com.google.android.play.agesignals.model.ApplicableAgeFeature;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
@@ -87,6 +98,7 @@ public class WebViewActivity extends AppCompatActivity {
     setupWebView();
     setupBackNavigation();
     loadKolibri();
+    requestAgeSignals();
   }
 
   @Override
@@ -175,6 +187,33 @@ public class WebViewActivity extends AppCompatActivity {
           new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
           REQUEST_STORAGE_PERMISSION);
     }
+  }
+
+  private void requestAgeSignals() {
+    try {
+      AgeSignalsManager manager = AgeSignalsManagerFactory.create(getApplicationContext());
+      manager
+          .getApplicableAgeFeatures(ApplicableAgeFeaturesRequest.builder().build())
+          .onSuccessTask(
+              applicable ->
+                  !isDestroyed()
+                          && applicable.features().contains(ApplicableAgeFeature.MANDATORY_SHARING)
+                      ? manager.requestAgeSignalsAccess(
+                          AgeSignalsAccessRequest.builder().setActivity(this).build())
+                      : Tasks.<AgeSignalsAccessResult>forCanceled())
+          .onSuccessTask(
+              access ->
+                  Objects.equals(access.ageSignalsStatus(), AgeSignalsStatus.SHARED)
+                      ? manager.checkAgeSignals(AgeSignalsRequest.builder().build())
+                      : Tasks.<AgeSignalsResult>forCanceled())
+          .addOnFailureListener(WebViewActivity::logAgeSignalsFailure);
+    } catch (RuntimeException e) {
+      logAgeSignalsFailure(e);
+    }
+  }
+
+  private static void logAgeSignalsFailure(Exception e) {
+    Log.d(TAG, "Age signals request failed", e);
   }
 
   /** Start the animated splash screen and set version text. */
