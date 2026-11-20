@@ -13,6 +13,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
+from rest_framework.serializers import CreateOnlyDefault
+from rest_framework.serializers import CurrentUserDefault
+from rest_framework.serializers import HiddenField
 from rest_framework.serializers import IntegerField
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ListField
@@ -88,6 +91,14 @@ class QuestionSourcesField(JSONField):
         return serializer.validated_data
 
 
+class ExamAssignmentSerializer(ModelSerializer):
+    assigned_by = HiddenField(default=CurrentUserDefault())
+
+    class Meta:
+        model = ExamAssignment
+        fields = ("assigned_by",)
+
+
 class ExamSerializer(ModelSerializer):
     """
     Serializer for Exam and DraftExam. Used with ValuesViewset: read-path fields
@@ -95,6 +106,7 @@ class ExamSerializer(ModelSerializer):
     uses to_internal_value as usual.
     """
 
+    creator = HiddenField(default=CreateOnlyDefault(CurrentUserDefault()))
     # assignments, learner_ids, and draft are excluded from the DB values() query
     # via deferred_fields on ExamViewset. They are populated post-query by
     # consolidate() (for Exam) and serialize_draft() (for DraftExam).
@@ -133,7 +145,6 @@ class ExamSerializer(ModelSerializer):
         extra_kwargs: ClassVar[dict] = {
             "seed": {"read_only": True},
             "question_count": {"read_only": True},
-            "creator": {"read_only": True},
             "data_model_version": {"read_only": True},
             "date_created": {"read_only": True},
             "date_archived": {"read_only": True},
@@ -202,10 +213,6 @@ class ExamSerializer(ModelSerializer):
         if title is not None:
             self._validate_title_unique_in_collection(title, collection)
 
-        if not self.instance and "request" in self.context:
-            # If we are creating a new exam, then we need to set the creator to the current user
-            attrs["creator"] = self.context["request"].user
-
         is_non_draft_exam = self.instance and isinstance(self.instance, Exam)
 
         if "question_sources" in attrs:
@@ -270,9 +277,9 @@ class ExamSerializer(ModelSerializer):
         return new_exam
 
     def _create_exam_assignment(self, **params):
-        return ExamAssignment.objects.create(
-            assigned_by=self.context["request"].user, **params
-        )
+        serializer = ExamAssignmentSerializer(data={}, context=self.context)
+        serializer.is_valid(raise_exception=True)
+        return serializer.save(**params)
 
     def update(self, instance, validated_data):
         # Out of an abundance of caution, handle the saving of the new instance and deletion of the old instance
@@ -453,6 +460,8 @@ class ExamPermissions(KolibriAuthPermissions):
     # Overrides the default validator to sanitize the Exam POST Payload
     # before validation
     def validator(self, request, view, datum):
+        if request.user.is_anonymous:
+            return False
         model = view.get_serializer_class().Meta.model
         validated_data = view.get_serializer().to_internal_value(
             _ensure_raw_dict(datum)
@@ -463,9 +472,7 @@ class ExamPermissions(KolibriAuthPermissions):
         validated_data.pop("learner_ids", [])
         # Handle data that comes from the serializer but that we don't want to set
         validated_data.pop("draft", False)
-        # Handle data that doesn't come from the serializer but that we need to set
-        # in order to instantiate the model for the can_create method
-        validated_data["creator"] = request.user
+        # Add computed fields needed to instantiate the model for can_create.
         validated_data["question_count"] = len(
             validated_data.get("question_sources", [])
         )

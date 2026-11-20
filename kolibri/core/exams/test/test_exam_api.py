@@ -474,13 +474,14 @@ class BaseExamTest:
             "seed",
             "collection",
             "question_count",
-            "creator",
             "data_model_version",
             "learners_see_fixed_order",
             "instant_report_visibility",
             "date_created",
         ]:
             self.assertIn(field, response.data)
+
+        self.assertNotIn("creator", response.data)
 
     def test_anonymous_user_retrieve_exam_not_found(self):
         response = self.get_exam_detail(self.exam.id)
