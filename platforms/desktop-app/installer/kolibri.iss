@@ -40,6 +40,7 @@ WizardStyle=modern
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\{#AppExeName}
+SetupIconFile=..\src\kolibri_app\icons\kolibri.ico
 SetupLogging=yes
 CloseApplicationsFilter={#AppExeName}
 ShowLanguageDialog=yes
