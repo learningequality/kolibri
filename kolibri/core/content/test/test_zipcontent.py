@@ -326,6 +326,23 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.status_code, 200)  # Should return full file
         self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
 
+    def test_range_request_suffix_longer_than_file(self):
+        """Suffix range longer than the file returns the whole file"""
+        response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=-100")
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
+        self.assertEqual(
+            response.headers["Content-Range"],
+            f"bytes 0-{len(self.test_str_1) - 1}/{len(self.test_str_1)}",
+        )
+        self.assertEqual(response.headers["Content-Length"], str(len(self.test_str_1)))
+
+    def test_range_request_inverted(self):
+        """Inverted range returns the full file, like other invalid ranges"""
+        response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=5-2")
+        self.assertEqual(response.status_code, 200)  # Should return full file
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
+
     def test_range_request_malformed(self):
         """Test malformed range header"""
         response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=invalid")
