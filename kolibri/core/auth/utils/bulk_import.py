@@ -10,6 +10,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 from django.utils.translation import pgettext_lazy
 
 from kolibri.core.auth.constants import role_kinds
@@ -63,6 +64,9 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 NON_EXISTENT_UUID = 11
 INVALID_UUID = 12
+EMPTY_FILE_MESSAGE = gettext_noop(
+    "The selected file is empty. Select a CSV file that contains users."
+)
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: pgettext_lazy(
@@ -459,30 +463,26 @@ class BulkUserImportManager(JobProgressMixin):
         translation.activate(self.locale)
         self.overall_error.append(str(msg))
 
-    def csv_headers_validation(self, local_filepath=None, storage_filepath=None):
-        with open_csv_for_reading(
-            local_filepath=local_filepath, storage_filepath=storage_filepath
-        ) as f:
-            header = next(csv.reader(f, strict=True))
-            has_header = False
-            self.header_translation = {
-                lbl if "(" not in lbl else lbl.partition("(")[2].partition(")")[0]: lbl
-                for lbl in header
-            }
-            neutral_header = self.header_translation.keys()
-            # If every item in the first row matches an item in the fieldnames, consider it a header row
-            if all(col in fieldnames for col in neutral_header):
-                has_header = True
-
-                # If any col is missing from the header, it's an error
-                for col in fieldnames:
-                    if col not in neutral_header:
-                        self.append_error(MESSAGES[REQUIRED_COLUMN].format(col))
-
-            elif any(col in fieldnames for col in neutral_header):
-                self.append_error(MESSAGES[INVALID_HEADER])
-
-        return has_header
+    def validate_csv_header(self, header):
+        if header is None:
+            self.append_error(
+                translation.gettext(EMPTY_FILE_MESSAGE)
+                if self.job
+                else EMPTY_FILE_MESSAGE
+            )
+            return
+        self.header_translation = {
+            label
+            if "(" not in label
+            else label.partition("(")[2].partition(")")[0]: label
+            for label in header
+        }
+        if self.header_translation.keys() - fieldnames:
+            self.append_error(MESSAGES[INVALID_HEADER])
+            return
+        for column in fieldnames:
+            if column not in self.header_translation:
+                self.append_error(MESSAGES[REQUIRED_COLUMN].format(column))
 
     def get_field_values(self, user_row):
         password = user_row.get(self.header_translation["PASSWORD"], None)
@@ -871,22 +871,19 @@ class BulkUserImportManager(JobProgressMixin):
         self.number_lines = self.get_number_lines(
             storage_filepath=storage_filepath, local_filepath=local_filepath
         )
+        if self.number_lines == 0:
+            self.validate_csv_header(None)
         self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
-            # validate csv headers:
-            has_header = self.csv_headers_validation(
-                local_filepath=local_filepath, storage_filepath=storage_filepath
-            )
-            if not has_header:
-                self.append_error(MESSAGES[INVALID_HEADER])
-            self.exit_if_error()
-            self.progress_update(1)  # state=csv_headers
             try:
                 with open_csv_for_reading(
                     local_filepath=local_filepath, storage_filepath=storage_filepath
                 ) as f:
                     reader = csv.DictReader(f, strict=True)
+                    self.validate_csv_header(reader.fieldnames)
+                    self.exit_if_error()
+                    self.progress_update(1)
                     per_line_errors, classes, users, roles = csv_values_validation(
                         reader, self.header_translation, self.default_facility
                     )
