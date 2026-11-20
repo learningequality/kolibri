@@ -23,6 +23,7 @@ from django.core.validators import MinValueValidator
 from django.db import IntegrityError
 from django.db import models
 from django.utils import timezone
+from le_utils.constants import exercises
 from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
 
@@ -57,6 +58,15 @@ class BaseLogQuerySet(SyncableModelQuerySet):
         Filter a set of logs by content_id, using content_ids from the provided list or queryset.
         """
         return self.filter(**{content_id_lookup + "__in": content_ids})
+
+
+class MasteryLogQuerySet(BaseLogQuerySet):
+    # jsonfield stores mastery_criterion as text, so __contains is a substring match.
+    def pre_post_tests(self):
+        return self.filter(mastery_criterion__contains=exercises.PRE_POST_TEST)
+
+    def exclude_pre_post_tests(self):
+        return self.exclude(mastery_criterion__contains=exercises.PRE_POST_TEST)
 
 
 def log_permissions(user_field):
@@ -263,6 +273,8 @@ class MasteryLog(BaseLogModel):
         default=0.0,
         validators=[MinValueValidator(0)],
     )
+
+    objects = MasteryLogQuerySet.as_manager()
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("user")

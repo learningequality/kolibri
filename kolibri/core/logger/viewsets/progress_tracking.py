@@ -27,6 +27,7 @@ from rest_framework.serializers import Serializer
 
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.constants import interaction_types
@@ -61,7 +62,13 @@ class HexStringUUIDField(serializers.UUIDField):
 
 
 class MasteryModelSerializer(serializers.Serializer):
-    type = serializers.ChoiceField(choices=exercises.MASTERY_MODELS)
+    type = serializers.ChoiceField(
+        choices=[
+            choice
+            for choice in exercises.MASTERY_MODELS
+            if choice[0] != exercises.PRE_POST_TEST
+        ]
+    )
     m = serializers.IntegerField(required=False)
     n = serializers.IntegerField(required=False)
 
@@ -98,6 +105,10 @@ class StartSessionSerializer(serializers.Serializer):
     def _validate_context_exclusivity(self, data):
         if "quiz_id" in data and ("lesson_id" in data or "node_id" in data):
             raise ValidationError("quiz_id must not be mixed with other context")
+        if "quiz_id" in data and data["repeat"]:
+            raise ValidationError(
+                {"repeat": "repeat must not be combined with quiz_id"}
+            )
         if "course_session_id" in data and "lesson_id" in data:
             raise ValidationError(
                 "The course_session_id and lesson_id are mutually exclusive identifiers"
@@ -149,6 +160,10 @@ class StartSessionSerializer(serializers.Serializer):
         if "course_session_id" not in data:
             errors["course_session_id"] = ValidationError(
                 "course_session_id is required when unit_id is provided"
+            )
+        if data["repeat"]:
+            errors["repeat"] = ValidationError(
+                "repeat must not be combined with unit_id"
             )
         if errors:
             raise ValidationError(errors)
@@ -224,6 +239,7 @@ class LogContext:
     course_session_id - represents the id of the CourseSession model object that this
     session is regarding (if any).
     unit_id - represents the id of the unit ContentNode for pre/post test sessions.
+    test_type - represents whether a pre/post test session is the pre or the post test.
     This is used to encode the values that are sent when initializing a session
     (see its use in the _get_context method below)
     and then also used to hold the values from an existing sessionlog when
@@ -236,6 +252,7 @@ class LogContext:
         "mastery_level",
         "node_id",
         "quiz_id",
+        "test_type",
         "unit_id",
     )
 
@@ -268,6 +285,22 @@ class LogContext:
         return output
 
 
+def _is_finished_coach_quiz(masterylog):
+    criterion = masterylog.mastery_criterion
+    return (
+        masterylog.complete
+        and criterion.get("type") == exercises.QUIZ
+        and criterion.get("coach_assigned")
+    )
+
+
+def _is_finished_pre_post_test(masterylog):
+    return (
+        masterylog.complete
+        and masterylog.mastery_criterion.get("type") == exercises.PRE_POST_TEST
+    )
+
+
 @method_decorator(csrf_protect, name="dispatch")
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def get_serializer_class(self):
@@ -295,6 +328,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             raise PermissionDenied("Cannot access a quiz if not logged in")
         if not Exam.objects.filter(
             active=True,
+            archive=False,
             assignments__collection_id__in=user.memberships.all().values(
                 "collection_id"
             ),
@@ -324,6 +358,26 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         ).exists():
             raise ValidationError("Invalid course_session_id")
 
+    def _check_unit_test_permissions(self, user, course_session_id, unit_id, test_type):
+        if user.is_anonymous:
+            raise PermissionDenied("Cannot access a course if not logged in")
+        user_collection_ids = user.memberships.all().values("collection_id")
+        if not UnitTestAssignment.objects.filter(
+            course_session_id=course_session_id,
+            course_session__assignments__collection_id__in=user_collection_ids,
+            unit_contentnode_id=unit_id,
+            test_type=test_type,
+            closed=False,
+            collection_id__in=user_collection_ids,
+        ).exists():
+            raise PermissionDenied("User does not have access to this test")
+
+    def _check_node_content_id(self, user, content_id):
+        if user.is_anonymous:
+            return
+        if Exam.objects.filter(id=content_id).exists():
+            raise PermissionDenied("content_id must not identify a quiz")
+
     def _get_context(self, user, validated_data):
         node_id = validated_data.get("node_id")
         quiz_id = validated_data.get("quiz_id")
@@ -337,6 +391,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             content_id = validated_data.get("content_id")
             channel_id = validated_data.get("channel_id")
             kind = validated_data.get("kind")
+            self._check_node_content_id(user, content_id)
             context["node_id"] = node_id
             if lesson_id:
                 self._check_lesson_permissions(user, lesson_id)
@@ -355,7 +410,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             # Pre/post test branch — unit_id is guaranteed present by validation
             unit_id = validated_data["unit_id"]
             test_type = validated_data["test_type"]
-            self._check_course_session_permissions(user, course_session_id)
+            self._check_unit_test_permissions(
+                user, course_session_id, unit_id, test_type
+            )
 
             # Deterministic hash for A/B split: same user always gets the same version
             # per unit, but pre and post tests get opposite versions so learners don't
@@ -383,6 +440,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             kind = content_kinds.QUIZ
 
             context["unit_id"] = unit_id
+            context["test_type"] = test_type
             context["course_session_id"] = course_session_id
         return content_id, channel_id, kind, mastery_model, context
 
@@ -561,15 +619,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 context["course_session_id"],
             )
 
-    def _check_quiz_log_permissions(self, masterylog):
-        if (
-            masterylog
-            and masterylog.complete
-            and masterylog.mastery_criterion.get("type") == exercises.QUIZ
-            and masterylog.mastery_criterion.get("coach_assigned")
-        ):
-            raise PermissionDenied("Cannot update a finished coach assigned quiz")
-
     def _get_or_create_masterylog(
         self,
         user,
@@ -593,6 +642,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             masterylogs = masterylogs.filter(mastery_level__lt=0)
         else:
             masterylogs = masterylogs.filter(mastery_level__gt=0)
+        if mastery_model["type"] == exercises.PRE_POST_TEST:
+            masterylogs = masterylogs.pre_post_tests()
+        else:
+            masterylogs = masterylogs.exclude_pre_post_tests()
         # complete ascending (False < True) puts incomplete logs first, so we
         # resume an in-progress attempt before a completed one. Within each
         # group, most recent timestamp wins. Previously ordered by "-complete"
@@ -643,8 +696,8 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 mastery_level=mastery_level,
             )
             self._process_masterylog_created_notification(masterylog, context)
-        else:
-            self._check_quiz_log_permissions(masterylog)
+        elif _is_finished_coach_quiz(masterylog):
+            raise PermissionDenied("Cannot update a finished coach assigned quiz")
         return masterylog
 
     def _start_assessment_session(
@@ -736,8 +789,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                         "completion_timestamp",
                     )
                     self._process_masterylog_completed_notification(masterylog, context)
-                else:
-                    self._check_quiz_log_permissions(masterylog)
+                elif _is_finished_coach_quiz(masterylog) or _is_finished_pre_post_test(
+                    masterylog
+                ):
+                    raise PermissionDenied(
+                        "Cannot update a finished coach assigned quiz or test"
+                    )
                 if update_fields:
                     if end_timestamp:
                         masterylog.end_timestamp = end_timestamp
@@ -974,6 +1031,14 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         if "quiz_id" in context:
             self._check_quiz_permissions(user, context["quiz_id"])
+
+        if "unit_id" in context:
+            self._check_unit_test_permissions(
+                user,
+                context["course_session_id"],
+                context["unit_id"],
+                context["test_type"],
+            )
 
         update_fields = self._update_content_log(
             sessionlog, end_timestamp, validated_data

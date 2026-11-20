@@ -3,6 +3,7 @@ import uuid
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from le_utils.constants import exercises
 from le_utils.constants import modalities
 from rest_framework import status
 
@@ -945,7 +946,9 @@ class CourseSessionProgressAPITestCase(APITestCase):
             closed=closed,
         )
 
-    def _make_learner_log(self, user, content_id, complete):
+    def _make_learner_log(
+        self, user, content_id, complete, mastery_type=exercises.PRE_POST_TEST
+    ):
         sl = ContentSummaryLog.objects.create(
             user=user,
             content_id=content_id,
@@ -958,6 +961,7 @@ class CourseSessionProgressAPITestCase(APITestCase):
             summarylog=sl,
             complete=complete,
             mastery_level=-1,
+            mastery_criterion={"type": mastery_type},
             start_timestamp=timezone.now(),
         )
 
@@ -989,6 +993,20 @@ class CourseSessionProgressAPITestCase(APITestCase):
         self.assertEqual(progress["started"], 1)
         self.assertEqual(progress["notStarted"], 0)
         self.assertEqual(progress["total"], 2)
+
+    def test_log_without_pre_post_test_criterion_not_counted(self):
+        self._create_test_assignment(TestType.Pre, closed=False)
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session.id), str(self.unit.id), TestType.Pre
+        )
+        self._make_learner_log(
+            self.learner1, synthetic_cid, True, mastery_type=exercises.QUIZ
+        )
+
+        progress = self._get_session_data()["test_learner_progress"]
+        self.assertEqual(progress["completed"], 0)
+        self.assertEqual(progress["started"], 0)
+        self.assertEqual(progress["notStarted"], 2)
 
     def test_post_test_active_returns_correct_progress(self):
         self._create_test_assignment(TestType.Pre, closed=True)
@@ -1084,6 +1102,7 @@ class CourseSessionProgressAPITestCase(APITestCase):
             summarylog=sl,
             complete=False,
             mastery_level=-1,
+            mastery_criterion={"type": exercises.PRE_POST_TEST},
             start_timestamp=timezone.now(),
         )
         MasteryLog.objects.create(
@@ -1091,6 +1110,7 @@ class CourseSessionProgressAPITestCase(APITestCase):
             summarylog=sl,
             complete=True,
             mastery_level=-2,
+            mastery_criterion={"type": exercises.PRE_POST_TEST},
             start_timestamp=timezone.now(),
         )
         # learner2: not started

@@ -39,6 +39,7 @@
         @next="handleNext"
         @prev="handlePrev"
         @finished="onResourceFinished"
+        @saveRejected="onTestRefused"
       />
     </template>
     <template
@@ -722,6 +723,17 @@
           return true;
         }
 
+        if (props.testType) {
+          router.replace({
+            name: PageNames.COURSE_CONTENT__UNIT,
+            params: {
+              courseId: props.courseId,
+              unitId: props.unitId,
+            },
+          });
+          return true;
+        }
+
         if (resumeData.value.resume_position) {
           if (shouldRedirectToResumePosition()) {
             return redirectToResumePosition();
@@ -730,6 +742,11 @@
         }
 
         return false;
+      };
+
+      const onTestRefused = async () => {
+        await fetchResumeData();
+        checkRedirect();
       };
 
       const onSidePanelNavigation = () => {
@@ -924,7 +941,8 @@
       });
 
       const activeTest = computed(() => {
-        if (!props.testType || !props.unitId) {
+        const test = resumeData.value?.active_test;
+        if (!test || test.unit_id !== props.unitId || test.test_type !== props.testType) {
           return null;
         }
         return {
@@ -946,6 +964,7 @@
         // route courseId refers to courseSessionId
         courseSessionId: toRef(props, 'courseId'),
         activeTest,
+        onTestRefused,
       });
 
       const { contentNodeProgressMap, fetchContentNodeProgress } = useContentNodeProgress();
@@ -1014,6 +1033,7 @@
         handlePrev,
         handleNext,
         onResourceFinished,
+        onTestRefused,
         goToNextUnit,
         handleNavigateToResource,
         goBack,

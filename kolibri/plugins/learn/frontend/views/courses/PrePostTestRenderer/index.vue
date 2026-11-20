@@ -379,12 +379,21 @@
           this.submitting = true;
         }
 
-        return this.updateContentSession(data).then(() => {
-          if (close) {
+        return this.updateContentSession(data).then(
+          () => {
+            if (close) {
+              this.stopTracking();
+              this.submitting = false;
+              this.submitModalOpen = false;
+              this.$emit('finished');
+            }
+          },
+          () => {
             this.stopTracking();
             this.submitting = false;
-          }
-        });
+            this.$emit('saveRejected');
+          },
+        );
       },
       checkAnswer() {
         if (this.$refs.contentViewer) {
@@ -434,10 +443,7 @@
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.saveAnswer(true).then(() => {
-          this.submitModalOpen = false;
-          this.$emit('finished');
-        });
+        this.saveAnswer(true);
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);

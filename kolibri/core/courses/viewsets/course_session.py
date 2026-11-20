@@ -546,10 +546,14 @@ def _fetch_mastery_logs_batch(items, tests_by_session, learners_by_session):
         return {}
 
     mastery_by_content = {}
-    for ml in MasteryLog.objects.filter(
-        summarylog__content_id__in=content_ids,
-        summarylog__user_id__in=all_learner_ids,
-    ).values("summarylog__content_id", "summarylog__user_id", "complete"):
+    for ml in (
+        MasteryLog.objects.filter(
+            summarylog__content_id__in=content_ids,
+            summarylog__user_id__in=all_learner_ids,
+        )
+        .pre_post_tests()
+        .values("summarylog__content_id", "summarylog__user_id", "complete")
+    ):
         cid = ml["summarylog__content_id"]
         uid = ml["summarylog__user_id"]
         if uid not in mastery_by_content.setdefault(cid, {}) or ml["complete"]:

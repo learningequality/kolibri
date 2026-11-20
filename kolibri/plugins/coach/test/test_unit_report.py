@@ -8,6 +8,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from le_utils.constants import exercises
 from le_utils.constants import modalities
 
 from kolibri.core.auth.models import Classroom
@@ -149,7 +150,7 @@ def _create_attempt(
     mastery_log = MasteryLog.objects.create(
         user=learner,
         summarylog=summary_log,
-        mastery_criterion={"type": "quiz"},
+        mastery_criterion={"type": exercises.PRE_POST_TEST},
         start_timestamp=now - datetime.timedelta(minutes=30),
         end_timestamp=now,
         completion_timestamp=now,
@@ -196,7 +197,7 @@ def _start_attempt(learner, course_session_id, unit_id, test_type):
     return MasteryLog.objects.create(
         user=learner,
         summarylog=summary_log,
-        mastery_criterion={"type": "quiz"},
+        mastery_criterion={"type": exercises.PRE_POST_TEST},
         start_timestamp=now,
         end_timestamp=now,
         mastery_level=-2,
@@ -263,6 +264,21 @@ class ComputeTestScoresTests(TestCase):
         self.assertEqual(result[lid].get(LO1_ID, 0), 2)
         self.assertEqual(result[lid].get(LO2_ID, 0), 0)
 
+    def test_attempt_without_pre_post_test_criterion_absent_from_scores(self):
+        mastery_log = _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "post",
+            items_correct=[ITEM_A1, ITEM_A2],
+        )
+        mastery_log.mastery_criterion = {"type": exercises.QUIZ}
+        mastery_log.save()
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["post"]
+        self.assertNotIn(str(self.learner_a.id), result)
+
     def test_attempted_with_zero_correct_included_as_empty_dict(self):
         _create_attempt(
             self.learner_b,
@@ -306,7 +322,7 @@ class ComputeTestScoresTests(TestCase):
         incomplete_mastery = MasteryLog.objects.create(
             user=self.learner_a,
             summarylog=summary_log,
-            mastery_criterion={"type": "quiz"},
+            mastery_criterion={"type": exercises.PRE_POST_TEST},
             start_timestamp=now - datetime.timedelta(minutes=10),
             end_timestamp=now,  # has end_timestamp but complete=False
             mastery_level=-2,
@@ -353,7 +369,7 @@ class ComputeTestScoresTests(TestCase):
         mastery_no_end = MasteryLog.objects.create(
             user=self.learner_a,
             summarylog=summary_log,
-            mastery_criterion={"type": "quiz"},
+            mastery_criterion={"type": exercises.PRE_POST_TEST},
             start_timestamp=now - datetime.timedelta(minutes=10),
             # end_timestamp intentionally omitted — must be excluded
             mastery_level=-2,
@@ -505,7 +521,7 @@ class ComputeTestScoresTests(TestCase):
         mastery_log1 = MasteryLog.objects.create(
             user=self.learner_b,
             summarylog=shared_summary_log,
-            mastery_criterion={"type": "quiz"},
+            mastery_criterion={"type": exercises.PRE_POST_TEST},
             start_timestamp=now - datetime.timedelta(minutes=30),
             end_timestamp=now,
             completion_timestamp=now,
@@ -531,7 +547,7 @@ class ComputeTestScoresTests(TestCase):
         mastery_log2 = MasteryLog.objects.create(
             user=self.learner_b,
             summarylog=shared_summary_log,
-            mastery_criterion={"type": "quiz"},
+            mastery_criterion={"type": exercises.PRE_POST_TEST},
             start_timestamp=later - datetime.timedelta(minutes=30),
             end_timestamp=later,
             completion_timestamp=later,
@@ -1194,6 +1210,14 @@ class UnitReportStartedTests(UnitReportAPIBase):
         self.assertEqual(unit["post_test"]["started"], [])
 
     def test_blank_submission_through_logger_api_is_scored(self):
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type="post",
+            closed=False,
+            activated_by=self.facility_coach,
+        )
         self.client.login(username=self.learner1.username, password=DUMMY_PASSWORD)
         session = self.client.post(
             reverse("kolibri:core:trackprogress-list"),
