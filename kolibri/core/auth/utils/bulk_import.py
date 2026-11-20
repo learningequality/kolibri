@@ -64,6 +64,7 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 NON_EXISTENT_UUID = 11
 INVALID_UUID = 12
+MISSING_ROW_COLUMNS = 13
 FACILITY_NOT_FOUND = _("Facility with ID {facility_id!r} does not exist")
 EMPTY_FILE_MESSAGE = gettext_noop(
     "The selected file is empty. Select a CSV file that contains users."
@@ -87,6 +88,7 @@ MESSAGES = {
         "Error message indicating that the CSV file selected for import is missing a required column",
         "The column '{}' is required",
     ),
+    MISSING_ROW_COLUMNS: _("This row is missing cells for these columns: {columns}"),
     INVALID_HEADER: pgettext_lazy(
         "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
         "Incorrect header label found in the first row",
@@ -319,56 +321,79 @@ class Validator:
             append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
             self.roles[roles_map[user_role]].append(username)
 
+    def _field_errors(self, row, position):
+        for header_name, check, message in self._checks:
+            value = row[self.header_translation[header_name]]
+            is_password = header_name == "PASSWORD"
+            try:
+                check(value)
+            except ValueError:
+                pass
+            except Exception as error:
+                message = (
+                    MESSAGES[INVALID].format(header_name)
+                    if is_password
+                    else MESSAGES[UNEXPECTED_EXCEPTION].format(
+                        error.__class__.__name__, error
+                    )
+                )
+            else:
+                continue
+            yield {
+                "row": position,
+                "message": message,
+                "field": header_name,
+                "value": value,
+            }
+
     def validate(self, data):
         """
         Validate `data` and return an iterator over errors found.
         """
-        for index, row in enumerate(data):
-            error_flag = False
+        optional_columns = {
+            self.header_translation[name]
+            for name in ("UUID", "ENROLLED_IN", "ASSIGNED_TO")
+        }
+        for position, row in enumerate(data, start=1):
+            missing = [
+                name
+                for name, value in row.items()
+                if value is None and name not in optional_columns
+            ]
+            if missing:
+                columns = ", ".join(missing)
+                yield {
+                    "row": position,
+                    "message": (
+                        MESSAGES[REQUIRED_COLUMN].format(columns)
+                        if len(missing) == 1
+                        else MESSAGES[MISSING_ROW_COLUMNS].format(columns=columns)
+                    ),
+                    "field": columns,
+                    "value": None,
+                }
+                continue
             username = self.get_username(row)
-            if not username:
-                error = {
-                    "row": index + 1,
+            valid = bool(username)
+            if not valid:
+                yield {
+                    "row": position,
                     "message": MESSAGES[DUPLICATED_USERNAME],
                     "field": "USERNAME",
                     "value": row.get(self.header_translation["USERNAME"]),
                 }
-                error_flag = True
+            for error in self._field_errors(row, position):
+                valid = False
                 yield error
-
-            for header_name, check, message in self._checks:
-                value = row[self.header_translation[header_name]]
-                try:
-                    check(value)
-                except ValueError:
-                    error = {
-                        "row": index + 1,
-                        "message": message,
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
-                except Exception as e:
-                    error = {
-                        "row": index + 1,
-                        "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
-                            (e.__class__.__name__, e)
-                        ),
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
+            if not valid:
+                continue
             # if there aren't any errors, let's add the user and classes
-            if not error_flag:
-                self.check_classroom(row, username)
-                row["position"] = index + 1
-                self.users[username] = row
+            self.check_classroom(row, username)
+            row["position"] = position
+            self.users[username] = row
 
 
 def csv_values_validation(reader, header_translation, facility):
-    per_line_errors = []
     validator = Validator(header_translation, facility)
     validator.add_check("UUID", valid_uuid(), MESSAGES[INVALID_UUID])
     validator.add_check(
@@ -415,9 +440,7 @@ def csv_values_validation(reader, header_translation, facility):
         MESSAGES[TOO_LONG].format("Class name"),
     )
 
-    row_errors = validator.validate(reader)
-    for err in row_errors:
-        per_line_errors.append(err)
+    per_line_errors = list(validator.validate(reader))
     # cleaning classes names:
     normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
     coach_classrooms = list(validator.coach_classrooms)

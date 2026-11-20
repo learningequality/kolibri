@@ -1,3 +1,4 @@
+import ast
 import csv
 import struct
 import tempfile
@@ -22,6 +23,7 @@ from kolibri.core.auth.tasks import importusersfromcsv
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.utils.bulk_import import fieldnames
+from kolibri.core.auth.utils.bulk_import import Validator
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
@@ -150,6 +152,121 @@ class BulkInputErrorsTest(TestCase):
                 self.assertTrue(output.is_file())
                 output.unlink()
                 self.facility.facilityuser_set.filter(username="valid").delete()
+
+    def check_short_row(self, short, columns, message, header=HEADER):
+        output = StringIO()
+        self.run_import(header + short + "\n" + VALID_ROW, errorlines=output)
+        errors = [ast.literal_eval(line) for line in output.getvalue().splitlines()]
+        self.assertEqual(
+            errors, [{"row": 1, "field": columns, "message": message, "value": None}]
+        )
+        self.assertSequenceEqual(
+            self.facility.facilityuser_set.values_list("username", flat=True), ["valid"]
+        )
+
+    def test_row_without_username_cell_reports_row_error(self):
+        self.assertIn(
+            "row", self.run_import_with_report(self.write_csv([["only-uuid-cell"]]))
+        )
+
+    def test_short_row_with_valid_row_reports_missing_columns(self):
+        columns = (
+            "USERNAME, PASSWORD, FULL_NAME, USER_TYPE, IDENTIFIER, BIRTH_YEAR, GENDER"
+        )
+        self.check_short_row(
+            '""', columns, f"This row is missing cells for these columns: {columns}"
+        )
+
+    def test_row_without_user_type_cell_reports_row_error(self):
+        self.assertIn(
+            "row",
+            self.run_import_with_report(self.write_csv([["", "bob", "pass", "Bob"]])),
+        )
+
+    def test_partial_row_with_valid_row_reports_missing_columns(self):
+        columns = "USER_TYPE, IDENTIFIER, BIRTH_YEAR, GENDER"
+        self.check_short_row(
+            ",bob,pass,Bob",
+            columns,
+            f"This row is missing cells for these columns: {columns}",
+        )
+
+    def test_row_missing_only_gender_reports_row_error(self):
+        columns = [name for name in fieldnames if name != "GENDER"] + ["GENDER"]
+        self.check_short_row(
+            ",short,*,Short,LEARNER,,,,",
+            "GENDER",
+            "The column 'GENDER' is required",
+            header=",".join(columns) + "\n",
+        )
+
+    def test_missing_optional_trailing_cell_creates_user(self):
+        values = next(csv.reader([VALID_ROW]))
+        for field in ("UUID", "ENROLLED_IN", "ASSIGNED_TO"):
+            with self.subTest(field=field):
+                columns = [name for name in fieldnames if name != field]
+                row = [values[fieldnames.index(name)] for name in columns]
+                row[columns.index("USERNAME")] = field.lower()
+                report = StringIO()
+                self.run_import(
+                    ",".join([*columns, field]) + "\n" + ",".join(row) + "\n",
+                    errorlines=report,
+                )
+                self.assertEqual(report.getvalue(), "")
+                self.assertTrue(
+                    FacilityUser.objects.filter(username=field.lower()).exists()
+                )
+
+    def test_delete_applies_row_missing_optional_trailing_cell(self):
+        learner = FacilityUser.objects.create_user(
+            username="learner", password="test", facility=self.facility
+        )
+        absent = FacilityUser.objects.create(username="absent", facility=self.facility)
+        classroom = Classroom.objects.create(name="Room", parent=self.facility)
+        classroom.add_member(learner)
+        classroom.add_member(absent)
+        report = StringIO()
+
+        self.run_import(
+            HEADER + f"{learner.id},learner,*,Updated,LEARNER,,,,Room\n" + VALID_ROW,
+            delete=True,
+            errorlines=report,
+        )
+
+        self.assertEqual(report.getvalue(), "")
+        learner.refresh_from_db()
+        self.assertEqual(learner.full_name, "Updated")
+        self.assertTrue(learner.is_member_of(classroom))
+        self.assertFalse(FacilityUser.all_objects.filter(id=absent.id).exists())
+        self.assertTrue(FacilityUser.objects.filter(username="valid").exists())
+
+    def test_unexpected_validator_error(self):
+        validator = Validator({name: name for name in fieldnames}, self.facility)
+
+        def fail(value):
+            raise TypeError("broken check")
+
+        validator.add_check("USERNAME", fail, "invalid")
+        row = dict.fromkeys(fieldnames, "")
+        row["USERNAME"] = "bob"
+        errors = list(validator.validate([row]))
+        self.assertEqual(
+            errors[0]["message"], "Unexpected error [TypeError]: broken check"
+        )
+
+    def test_unexpected_password_validation_error_redacts_input(self):
+        validator = Validator({name: name for name in fieldnames}, self.facility)
+        candidate = "private-test-value"
+
+        def broken_check(value):
+            raise TypeError(value)
+
+        validator.add_check("PASSWORD", broken_check, "Invalid password")
+        row = dict.fromkeys(fieldnames, "")
+        row.update(USERNAME="bob", PASSWORD=candidate)
+        (error,) = validator.validate([row])
+        self.assertNotIn(candidate, error["message"])
+        self.assertEqual(error["field"], "PASSWORD")
 
     def enqueue_csv_job(self, task, content=None, **kwargs):
         if content is not None:
