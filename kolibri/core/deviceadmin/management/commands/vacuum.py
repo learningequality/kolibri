@@ -17,7 +17,7 @@ class Command(BaseCommand):
             action="store",
             dest="database",
             default=DEFAULT_DB_ALIAS,
-            help='Specifies the database to vacuum. Defaults to the "default" database.',
+            help='Specifies the database to vacuum, or "all" for every configured database. Defaults to the "default" database.',
         )
         parser.add_argument(
             "--full",
@@ -28,4 +28,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         database = options["database"]
-        perform_vacuum(database, options["full"])
+        perform_vacuum(None if database == "all" else database, options["full"])

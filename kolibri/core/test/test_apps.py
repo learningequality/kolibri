@@ -1,11 +1,23 @@
 import functools
+import os
+import sqlite3
+import time
+import unittest
 from unittest import mock
 
+from django.core.signals import request_finished
+from django.db import close_old_connections
+from django.db import connection
+from django.db import connections
+from django.db import transaction
 from django.test.testcases import TestCase
+from django.test.testcases import TransactionTestCase
 from redis import Redis
 
 from kolibri.core.apps import KolibriCoreConfig
 from kolibri.core.apps import RedisSettingsHelper
+from kolibri.core.sqlite.pragmas import JOURNAL_SIZE_LIMIT
+from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 
 DEFAULT_CACHE_OPTS = {
     "CACHE_BACKEND": "redis",
@@ -158,3 +170,55 @@ class KolibriCoreConfigTestCase(TestCase):
 
         self.helper.save.assert_not_called()
         logger.warning.assert_not_called()
+
+
+@unittest.skipUnless(connection.vendor == "sqlite", "SQLite-specific behaviour")
+class ConnectionPragmasTestCase(TransactionTestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.connection = connections[JOB_STORAGE]
+
+    def execute(self, sql, params=None):
+        with self.connection.cursor() as cursor:
+            cursor.execute(sql, params)
+
+    def test_wal_shrinks_after_a_large_write_while_another_connection_is_open(self):
+        path = self.connection.settings_dict["NAME"]
+        self.execute("PRAGMA journal_mode=WAL")
+        self.addCleanup(self.execute, "PRAGMA journal_mode=DELETE")
+        other = sqlite3.connect(path)
+        self.addCleanup(other.close)
+        other.execute("SELECT 1 FROM sqlite_master").fetchall()
+        self.execute("CREATE TABLE wal_probe (data BLOB)")
+        self.addCleanup(self.execute, "DROP TABLE wal_probe")
+        with transaction.atomic(using=JOB_STORAGE):
+            for _ in range(1000):
+                self.execute("INSERT INTO wal_probe (data) VALUES (%s)", [b"\0" * 8192])
+        self.execute("INSERT INTO wal_probe (data) VALUES (%s)", [b"\0"])
+        self.assertLessEqual(os.path.getsize(f"{path}-wal"), JOURNAL_SIZE_LIMIT)
+
+    def close_old_connections_at(self, seconds_from_now):
+        later = time.monotonic() + seconds_from_now
+        with mock.patch("time.monotonic", return_value=later):
+            close_old_connections()
+
+    def test_connection_is_recycled_once_a_day_old(self):
+        self.connection.close()
+        self.connection.ensure_connection()
+        self.close_old_connections_at(60 * 60)
+        self.assertIsNotNone(self.connection.connection)
+        self.close_old_connections_at(24 * 60 * 60 + 1)
+        self.assertIsNone(self.connection.connection)
+
+    def test_finished_request_releases_connection_memory_and_keeps_it_open(self):
+        self.connection.ensure_connection()
+        raw_connection = self.connection.connection
+        statements = []
+        raw_connection.set_trace_callback(
+            lambda statement: statements.append(statement)
+        )
+        self.addCleanup(raw_connection.set_trace_callback, None)
+        request_finished.send(sender=self.__class__)
+        self.assertIn("PRAGMA shrink_memory;", statements)
+        self.assertIs(self.connection.connection, raw_connection)
