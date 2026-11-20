@@ -3,6 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
+from rest_framework.serializers import CreateOnlyDefault
+from rest_framework.serializers import CurrentUserDefault
+from rest_framework.serializers import HiddenField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -44,10 +47,16 @@ class ClassroomSerializer(ModelSerializer):
         fields = ("id", "name", "parent")
 
 
+class LessonAssignmentSerializer(ModelSerializer):
+    assigned_by = HiddenField(default=CurrentUserDefault())
+
+    class Meta:
+        model = LessonAssignment
+        fields = ("assigned_by",)
+
+
 class LessonSerializer(ModelSerializer):
-    created_by = PrimaryKeyRelatedField(
-        read_only=False, queryset=FacilityUser.objects.all()
-    )
+    created_by = HiddenField(default=CreateOnlyDefault(CurrentUserDefault()))
     resources = ValuesMethodField(sources=("resources",))
     active = BooleanField(source="is_active", required=False)
     # Read path: list of assignment collection IDs from the lesson_assignment_collections
@@ -126,7 +135,6 @@ class LessonSerializer(ModelSerializer):
 
     def to_internal_value(self, data):
         data = dict(data)
-        data["created_by"] = self.context["request"].user.id
         # 'assignments', 'learner_ids', and 'resources' are ValuesMethodFields
         # (read-only), so DRF's to_internal_value skips them. Extract and validate
         # manually here.
@@ -259,15 +267,17 @@ class LessonSerializer(ModelSerializer):
                     )
 
     def _create_lesson_assignment(self, **params):
-        return LessonAssignment.objects.create(
-            assigned_by=self.context["request"].user, **params
-        )
+        serializer = LessonAssignmentSerializer(data={}, context=self.context)
+        serializer.is_valid(raise_exception=True)
+        return serializer.save(**params)
 
 
 class LessonPermissions(KolibriAuthPermissions):
     # Overrides the default validator to sanitize the Lesson POST Payload
     # before validation
     def validator(self, request, view, datum):
+        if request.user.is_anonymous:
+            return False
         model = view.get_serializer_class().Meta.model
         validated_data = view.get_serializer().to_internal_value(
             _ensure_raw_dict(datum)

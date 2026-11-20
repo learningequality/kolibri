@@ -13,6 +13,9 @@ from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
 from rest_framework.serializers import ChoiceField
+from rest_framework.serializers import CreateOnlyDefault
+from rest_framework.serializers import CurrentUserDefault
+from rest_framework.serializers import HiddenField
 from rest_framework.serializers import IntegerField as SerializerIntegerField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
@@ -92,7 +95,16 @@ class CourseSessionClassroomSerializer(ModelSerializer):
         fields = ("id", "name", "parent")
 
 
+class CourseSessionAssignmentSerializer(ModelSerializer):
+    assigned_by = HiddenField(default=CurrentUserDefault())
+
+    class Meta:
+        model = CourseSessionAssignment
+        fields = ("assigned_by",)
+
+
 class CourseSessionSerializer(ModelSerializer):
+    created_by = HiddenField(default=CreateOnlyDefault(CurrentUserDefault()))
     # UUIDField not PrimaryKeyRelatedField: .to_representation does .pk on raw UUIDs from .values(), failing. ContentNode validation is in to_internal_value.
     course = UUIDField(format="hex", required=True)
     classroom = CourseSessionClassroomSerializer(source="collection", read_only=True)
@@ -171,7 +183,6 @@ class CourseSessionSerializer(ModelSerializer):
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
-        data["created_by"] = self.context["request"].user.id
 
         # ValuesMethodField is read-only; pop assignments before super() so
         # client-supplied values aren't silently discarded without validation.
@@ -278,12 +289,14 @@ class CourseSessionSerializer(ModelSerializer):
         except Collection.DoesNotExist:
             pass
 
+        serializer = CourseSessionAssignmentSerializer(data={}, context=self.context)
+        serializer.is_valid(raise_exception=True)
         new_assignments = []
         for collection in collections:
             assignment, _created = CourseSessionAssignment.objects.get_or_create(
                 course_session=instance,
                 collection=collection,
-                defaults={"assigned_by": self.context["request"].user},
+                defaults=serializer.validated_data,
             )
             new_assignments.append(assignment)
         # Delete any assignments that are not in new_assignments
@@ -323,9 +336,9 @@ class CourseSessionSerializer(ModelSerializer):
                 )
 
     def _create_course_session_assignment(self, **params):
-        return CourseSessionAssignment.objects.create(
-            assigned_by=self.context["request"].user, **params
-        )
+        serializer = CourseSessionAssignmentSerializer(data={}, context=self.context)
+        serializer.is_valid(raise_exception=True)
+        return serializer.save(**params)
 
 
 def _ensure_raw_dict(d):
@@ -355,6 +368,8 @@ class CourseSessionPermissions(KolibriAuthPermissions):
         if view.action in ["activate_test", "close_test"]:
             return True
 
+        if request.user.is_anonymous:
+            return False
         model = view.get_serializer_class().Meta.model
         validated_data = view.get_serializer().to_internal_value(
             _ensure_raw_dict(datum)

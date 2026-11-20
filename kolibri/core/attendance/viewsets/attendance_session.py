@@ -10,6 +10,9 @@ from django_filters.rest_framework import IsoDateTimeFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
+from rest_framework.serializers import CreateOnlyDefault
+from rest_framework.serializers import CurrentUserDefault
+from rest_framework.serializers import HiddenField
 from rest_framework.serializers import IntegerField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -39,6 +42,7 @@ class AttendanceRecordSerializer(ModelSerializer):
 
 
 class AttendanceSessionSerializer(ModelSerializer):
+    created_by = HiddenField(default=CreateOnlyDefault(CurrentUserDefault()))
     attendance_records = AttendanceRecordSerializer(
         many=True, required=False, write_only=True
     )
@@ -60,11 +64,9 @@ class AttendanceSessionSerializer(ModelSerializer):
             "present_count",
             "total_count",
         )
-        read_only_fields = ("created_by", "date_created", "date_modified")
+        read_only_fields = ("date_created", "date_modified")
 
     def validate(self, attrs):
-        if not self.instance and "request" in self.context:
-            attrs["created_by"] = self.context["request"].user
         collection = attrs.get("collection") or self.instance.collection
         if any(
             record["user"].dataset_id != collection.dataset_id
@@ -117,7 +119,6 @@ class AttendanceSessionPermissions(KolibriAuthPermissions):
         datum = _ensure_raw_dict(datum)
         validated_data = view.get_serializer().to_internal_value(datum)
         validated_data.pop("attendance_records", None)
-        validated_data["created_by"] = request.user
         return request.user.can_create(model, validated_data)
 
 
