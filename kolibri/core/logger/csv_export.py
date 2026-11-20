@@ -9,6 +9,7 @@ from dateutil import parser
 from django.core.cache import cache
 from django.db.models import Case
 from django.db.models import CharField
+from django.db.models import Exists
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import OuterRef
@@ -216,10 +217,16 @@ user_type_annotations = {
         When(
             user__devicepermissions__is_superuser=True, then=Value(user_kinds.SUPERUSER)
         ),
-        When(user__roles__isnull=True, then=Value(user_kinds.LEARNER)),
+        # Use Exists subqueries rather than filtering on user__roles: a join
+        # through roles returns one row per role, duplicating log rows.
+        When(
+            ~Exists(Role.objects.filter(user=OuterRef("user"))),
+            then=Value(user_kinds.LEARNER),
+        ),
         When(user_facility_role_kind__isnull=False, then=F("user_facility_role_kind")),
         When(
-            user__roles__kind=user_kinds.COACH, then=Value(user_kinds.ASSIGNABLE_COACH)
+            Exists(Role.objects.filter(user=OuterRef("user"), kind=user_kinds.COACH)),
+            then=Value(user_kinds.ASSIGNABLE_COACH),
         ),
         default=Value(user_kinds.LEARNER),
         output_field=CharField(),
