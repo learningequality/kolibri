@@ -1,6 +1,7 @@
 import { nextTick } from 'vue';
 import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { ERROR_CONSTANTS } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { emulatePrintMedia, selectKSelectOption } from 'testUtils'; // eslint-disable-line
 import { coachStrings } from '../../common/commonCoachStrings';
@@ -72,6 +73,40 @@ describe('LessonsRootPage', () => {
       const headings = screen.queryAllByRole('heading', { level: 1 });
       expect(headings).toHaveLength(1);
       expect(headings[0]).toHaveTextContent(lessonsLabel$());
+    });
+  });
+
+  describe('lesson creation errors', () => {
+    it.each([
+      { description: 'blank title', errorCode: 'BLANK' },
+      { description: 'duplicate title', errorCode: ERROR_CONSTANTS.UNIQUE },
+    ])('shows the title error for a $description response', async ({ errorCode }) => {
+      const handleSubmitTitleFailure = jest.fn();
+      const handleSubmitFailure = jest.fn();
+      const createLesson = jest.fn(() =>
+        Promise.reject({ response: { data: [{ id: errorCode }] } }),
+      );
+      const payload = { title: '' };
+
+      LessonsRootPage.methods.handleDetailsModalContinue.call(
+        {
+          classId: 'class-id',
+          createLesson,
+          detailsModalIsDisabled: false,
+          $refs: {
+            detailsModal: {
+              handleSubmitTitleFailure,
+              handleSubmitFailure,
+            },
+          },
+        },
+        payload,
+      );
+      await global.flushPromises();
+
+      expect(createLesson).toHaveBeenCalledWith({ classId: 'class-id', payload });
+      expect(handleSubmitTitleFailure).toHaveBeenCalledTimes(1);
+      expect(handleSubmitFailure).not.toHaveBeenCalled();
     });
   });
 
