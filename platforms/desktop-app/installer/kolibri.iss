@@ -203,13 +203,15 @@ begin
 
   Log('Legacy user data found at "' + SourcePath + '". Migrating to "' + DestPath + '".');
 
-  // Use robocopy to move files with correct permissions.
-  // /E       - Copies subdirectories, including empty ones.
-  // /COPYALL - Copies all file info, including permissions (ACLs). CRITICAL for ProgramData.
-  // /MOVE    - Moves files and directories (deletes from source after copying).
-  // /NJH     - No Job Header.
-  // /NJS     - No Job Summary.
-  Params := '"' + SourcePath + '" "' + DestPath + '" /E /COPYALL /MOVE /NJH /NJS';
+  // Use robocopy to move files.
+  // /E        - Copies subdirectories, including empty ones.
+  // /COPY:DAT - Copies data, attributes and timestamps, so files inherit the data folder's ACLs.
+  //             /COPYALL would copy the profile's ACLs as explicit, inheritance-blocking entries
+  //             that only grant the installing user, locking out the service and other users.
+  // /MOVE     - Moves files and directories (deletes from source after copying).
+  // /NJH      - No Job Header.
+  // /NJS      - No Job Summary.
+  Params := '"' + SourcePath + '" "' + DestPath + '" /E /COPY:DAT /MOVE /NJH /NJS';
 
   if Exec('robocopy.exe', Params, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
   begin
