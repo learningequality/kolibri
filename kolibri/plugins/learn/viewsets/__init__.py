@@ -14,10 +14,6 @@ from kolibri.core.content.viewsets.contentnode.progress import (
 from kolibri.core.content.viewsets.contentnode.user import UserContentNodeViewset
 from kolibri.core.logger.models import ContentSummaryLog
 
-contentnode_progress_viewset = ContentNodeProgressViewset()
-contentnode_viewset = ContentNodeViewset()
-user_contentnode_viewset = UserContentNodeViewset()
-
 
 class LearnStateView(APIView):
     def get(self, request, format=None):
@@ -49,7 +45,7 @@ class LearnStateView(APIView):
 
 def _map_contentnodes(request, content_ids):
     contentnodes = (
-        contentnode_viewset.serialize_list(request, {"ids": content_ids})
+        ContentNodeViewset.serialize_list(request, {"ids": content_ids})
         if content_ids
         else []
     )
@@ -64,7 +60,7 @@ def _consolidate_lessons_data(request, lessons):
         }
 
     contentnode_progress = (
-        contentnode_progress_viewset.serialize_list(
+        ContentNodeProgressViewset.serialize_list(
             request, {"ids": lesson_contentnode_ids}
         )
         if lesson_contentnode_ids
@@ -179,20 +175,19 @@ class LearnHomePageHydrationView(APIView):
         # from this package, and Python would see a partial __init__ module).
         from kolibri.plugins.learn.viewsets.classroom import LearnerClassroomViewset  # noqa: PLC0415
 
-        learner_classroom_viewset = LearnerClassroomViewset()
         classrooms = []
         courses = []
         resumable_resources = []
         resumable_resources_progress = []
         if not request.user.is_anonymous:
-            classrooms = learner_classroom_viewset.serialize_list(request)
+            classrooms = LearnerClassroomViewset.serialize_list(request)
             for classroom in classrooms:
                 courses.extend(classroom.get("courses", []))
             # Show out-of-course resumable content only when no classroom lesson
             # resource is actively in-progress (0 < progress < 1); suppressed when
             # the user has in-progress classroom work to focus on (b6d46e2822).
             if not classrooms or not any(_resumable_resources(classrooms)):
-                resumable_resources = user_contentnode_viewset.serialize_list(
+                resumable_resources = UserContentNodeViewset.serialize_list(
                     request,
                     {
                         "resume": True,
@@ -202,7 +197,7 @@ class LearnHomePageHydrationView(APIView):
                     },
                 )
                 resumable_resources_progress = (
-                    contentnode_progress_viewset.serialize_list(
+                    ContentNodeProgressViewset.serialize_list(
                         request,
                         {
                             "resume": True,
