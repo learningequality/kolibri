@@ -4,7 +4,11 @@ Tests for `kolibri.utils.cli` module.
 
 import logging
 import os
+import sqlite3
+import subprocess
+import sys
 import tempfile
+from contextlib import closing
 from unittest.mock import patch
 
 import pytest
@@ -20,6 +24,41 @@ logger = logging.getLogger(__name__)
 
 
 LOG_LOGGER = []
+
+SEED_LOCAL_HOSTNAME = """\
+import sys
+from django.core.management import call_command
+from django.db import router
+from kolibri.utils.main import initialize
+initialize(skip_update=True)
+from kolibri.core.discovery.models import LocalHostname
+call_command("migrate", "discovery", database=router.db_for_write(LocalHostname))
+LocalHostname.objects.create(hostname=sys.argv[1])
+"""
+
+STATUS_OF_RUNNING_SERVER = """\
+import os
+from unittest.mock import Mock
+from unittest.mock import patch
+from kolibri.utils import cli
+from kolibri.utils import server
+with open(server.PID_FILE, "w") as f:
+    f.write(f"{os.getpid()}\\n8765\\n\\n{server.STATUS_RUNNING}\\n")
+with patch("requests.get", return_value=Mock(status_code=200)):
+    cli.main(["status"], prog_name="kolibri")
+"""
+
+STATUS_AS_ANOTHER_DEBIAN_USER = """\
+from unittest.mock import mock_open
+from unittest.mock import patch
+from kolibri.utils import cli
+with patch(
+    "kolibri.utils.debian_check.open", mock_open(read_data="kolibri\\n"), create=True
+), patch("getpass.getuser", return_value="admin"), patch(
+    "kolibri.utils.debian_check.input", return_value="n"
+):
+    cli.main(["status"], prog_name="kolibri")
+"""
 
 
 def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
@@ -308,3 +347,109 @@ def test_plugin_create_invalid_mode_errors(scaffold_mock, tmp_path):
         )
     assert excinfo.value.code != 0
     assert not scaffold_mock.called
+
+
+def _run_in_home(home, *args, **extra_env):
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if not key.startswith("KOLIBRI_DATABASE_")
+    }
+    return subprocess.run(
+        [sys.executable, *args],
+        env={
+            **env,
+            "KOLIBRI_HOME": str(home),
+            "KOLIBRI_LISTEN_ADDRESS": "127.0.0.1",
+            **extra_env,
+        },
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        timeout=300,
+    )
+
+
+def _listed_urls(output):
+    return [line.strip() for line in output.splitlines() if line.startswith("\t")]
+
+
+def test_status_of_running_server_lists_ip_and_local_hostname_urls(tmp_path):
+    seed = _run_in_home(tmp_path, "-c", SEED_LOCAL_HOSTNAME, "tonyslaptop.local")
+    assert seed.returncode == 0, seed.stdout
+    (tmp_path / ".data_version").write_text(kolibri.__version__)
+
+    result = _run_in_home(tmp_path, "-c", STATUS_OF_RUNNING_SERVER)
+
+    assert result.returncode == server.STATUS_RUNNING, result.stdout
+    assert "OK, running (0)" in result.stdout
+    assert _listed_urls(result.stdout) == [
+        "http://127.0.0.1:8765/",
+        "http://tonyslaptop.local:8765/",
+    ]
+
+
+def test_status_of_running_server_from_an_older_version(tmp_path):
+    (tmp_path / ".data_version").write_text("0.19.5")
+
+    result = _run_in_home(tmp_path, "-c", STATUS_OF_RUNNING_SERVER)
+
+    assert result.returncode == server.STATUS_RUNNING, result.stdout
+    assert "OK, running (0)" in result.stdout
+    assert _listed_urls(result.stdout) == ["http://127.0.0.1:8765/"]
+
+
+def test_status_of_stopped_server_after_version_change_updates_nothing(tmp_path):
+    version_file = tmp_path / ".data_version"
+    version_file.write_text("0.19.5")
+
+    result = _run_in_home(tmp_path, "-m", "kolibri", "status")
+
+    assert result.returncode == server.STATUS_STOPPED, result.stdout
+    assert "Stopped (1)" in result.stdout
+    assert version_file.read_text() == "0.19.5"
+    with closing(sqlite3.connect(str(tmp_path / "db.sqlite3"))) as db:
+        tables = db.execute(
+            "SELECT name FROM sqlite_master WHERE name = 'django_migrations'"
+        ).fetchall()
+    assert tables == []
+
+
+def test_status_on_fresh_home_creates_no_databases(tmp_path):
+    result = _run_in_home(tmp_path, "-m", "kolibri", "status")
+
+    assert result.returncode == server.STATUS_STOPPED, result.stdout
+    assert "Stopped (1)" in result.stdout
+    assert list(tmp_path.rglob("*.sqlite3")) == []
+
+
+def test_status_on_fresh_home_warns_another_debian_user(tmp_path):
+    result = _run_in_home(
+        tmp_path,
+        "-c",
+        STATUS_AS_ANOTHER_DEBIAN_USER,
+        KOLIBRI_INSTALLATION_TYPE="apt",
+    )
+
+    assert result.returncode == 0, result.stdout
+    assert (
+        "You are running this command as the user 'admin', but Kolibri was "
+        "originally installed to run as the user 'kolibri'" in result.stdout
+    )
+    assert "Stopped (1)" not in result.stdout
+    assert not tmp_path.exists()
+
+
+def test_status_rejects_skip_update():
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["status", "--skip-update"], prog_name="kolibri")
+    assert excinfo.value.code == 2
+
+
+def test_status_invalid_settings_error_names_the_option(capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["status", "--settings", "bogus.module"], prog_name="kolibri")
+    assert excinfo.value.code == 2
+    assert (
+        "settings must be a valid python module import path" in capsys.readouterr().err
+    )
