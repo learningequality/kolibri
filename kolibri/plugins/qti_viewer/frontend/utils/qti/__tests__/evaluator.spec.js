@@ -2536,6 +2536,61 @@ describe('contains as subset test (multiset semantics)', () => {
   });
 });
 
+describe('contains with ordered containers (strict sub-sequence)', () => {
+  //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpContains
+  it.each([
+    ['[A,B,C] contains [B,C]', ['A', 'B', 'C'], ['B', 'C'], true],
+    ['[A,B,C] does not contain [C,A]', ['A', 'B', 'C'], ['C', 'A'], false],
+    ['[A,B,C] does not contain [A,C] (not consecutive)', ['A', 'B', 'C'], ['A', 'C'], false],
+    ['[A,B,A,B,C] contains [A,B,C]', ['A', 'B', 'A', 'B', 'C'], ['A', 'B', 'C'], true],
+    ['[A,B] does not contain [A,B,C]', ['A', 'B'], ['A', 'B', 'C'], false],
+  ])('%s', (_, container, sub, expected) => {
+    const { declarations, variables, exprNode } = assessmentExpr(
+      [
+        responseDecl('CONTAINER', 'identifier', 'ordered'),
+        responseDecl('SUB', 'identifier', 'ordered'),
+      ],
+      op('contains', variable('CONTAINER'), variable('SUB')),
+    );
+    variables.CONTAINER = container;
+    variables.SUB = sub;
+    expect(evaluateNode(exprNode, variables, declarations)).toBe(expected);
+  });
+
+  it.each([
+    ['B', 'C', true],
+    ['C', 'B', false],
+  ])('should treat a qti-ordered sub-expression [%s,%s] as ordered', (first, second, expected) => {
+    const { declarations, variables, exprNode } = assessmentExpr(
+      responseDecl('CONTAINER', 'identifier', 'ordered'),
+      op(
+        'contains',
+        variable('CONTAINER'),
+        op('ordered', baseValue('identifier', first), baseValue('identifier', second)),
+      ),
+    );
+    variables.CONTAINER = ['A', 'B', 'C'];
+    expect(evaluateNode(exprNode, variables, declarations)).toBe(expected);
+  });
+
+  it('should compare pairs in an ordered sub-sequence regardless of their internal order', () => {
+    const { declarations, variables, exprNode } = assessmentExpr(
+      [responseDecl('CONTAINER', 'pair', 'ordered'), responseDecl('SUB', 'pair', 'ordered')],
+      op('contains', variable('CONTAINER'), variable('SUB')),
+    );
+    variables.CONTAINER = [
+      ['A', 'B'],
+      ['C', 'D'],
+      ['E', 'F'],
+    ];
+    variables.SUB = [
+      ['D', 'C'],
+      ['F', 'E'],
+    ];
+    expect(evaluateNode(exprNode, variables, declarations)).toBe(true);
+  });
+});
+
 describe('substring case-sensitive attribute', () => {
   it('should be case-sensitive by default', () => {
     const evaluator = parseQTIExpression(
