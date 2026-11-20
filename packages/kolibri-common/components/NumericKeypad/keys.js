@@ -1,10 +1,12 @@
 /**
  * Static key definitions for the NumericKeypad.
  *
- * Only three things are dynamic at runtime:
+ * Only four things are dynamic at runtime:
  * 1. Digit and decimal labels — the content language's symbols
  * 2. The multiplication key in expression mode — × vs · based on Perseus config
  * 3. The divide key's label in expression mode — ÷ vs : based on the host
+ * 4. The item's row in expression mode — its button sets' keys and letters,
+ *    labelled by the host
  *
  * Everything else (operator keys, grid positions, aria labels) is defined here
  * as module-level constants.
@@ -193,12 +195,48 @@ export function fractionLayout(symbols) {
   ];
 }
 
-// EXPRESSION layout: 6 columns × 4 rows
-// Row 0: 7 8 9 ×/· + (
-// Row 1: 4 5 6 ÷  − )
-// Row 2: 1 2 3 =  ^ √
-// Row 3: 0 . (−) ⁄  π %
-export function expressionLayout(symbols, useTimes, divideLabel) {
+const BUTTON_SET_KEYS = {
+  trig: ['SIN', 'COS', 'TAN'],
+  logarithms: ['LN', 'LOG'],
+  'basic relations': ['LT', 'GT'],
+  'advanced relations': ['NEQ', 'LEQ', 'GEQ'],
+};
+
+const ITEM_KEYS_PER_ROW = 5;
+
+function itemKey(id, keyLabels) {
+  const { label, ariaLabel } = keyLabels[id] || { label: id, ariaLabel: id };
+  return { id, label, ariaLabel: () => ariaLabel, secondary: true };
+}
+
+function itemRows(buttonSets, extraKeys, keyLabels) {
+  const ids = [
+    ...Object.keys(BUTTON_SET_KEYS)
+      .filter(buttonSet => buttonSets.includes(buttonSet))
+      .flatMap(buttonSet => BUTTON_SET_KEYS[buttonSet]),
+    ...extraKeys.filter(id => id !== PI.id),
+  ];
+  const keys = ids.map((id, i) =>
+    at(itemKey(id, keyLabels), i % ITEM_KEYS_PER_ROW, Math.floor(i / ITEM_KEYS_PER_ROW)),
+  );
+  return {
+    rows: Math.max(1, Math.ceil(ids.length / ITEM_KEYS_PER_ROW)),
+    keys: [...keys, at(BACKSPACE, ITEM_KEYS_PER_ROW, 0)],
+  };
+}
+
+// EXPRESSION layout: 6 columns × 4 rows, below the item's rows
+// Row 0: the item's keys ⌫
+// Row 1: 7 8 9 ×/· + (
+// Row 2: 4 5 6 ÷  − )
+// Row 3: 1 2 3 =  ^ √
+// Row 4: 0 . (−) ⁄  π %
+export function expressionLayout(
+  symbols,
+  useTimes,
+  divideLabel,
+  { buttonSets = [], extraKeys = [], keyLabels = {} } = {},
+) {
   const timesKey = {
     id: useTimes ? 'TIMES' : 'CDOT',
     label: useTimes ? '×' : '·',
@@ -206,7 +244,8 @@ export function expressionLayout(symbols, useTimes, divideLabel) {
     secondary: true,
   };
 
-  return [
+  const item = itemRows(buttonSets, extraKeys, keyLabels);
+  const grid = [
     ...digitRow0(symbols),
     at(timesKey, 3, 0),
     at(PLUS, 4, 0),
@@ -228,5 +267,13 @@ export function expressionLayout(symbols, useTimes, divideLabel) {
     at(FRAC, 3, 3),
     at(PI, 4, 3),
     at(PERCENT, 5, 3),
+  ];
+
+  return [
+    ...item.keys,
+    ...grid.map(key => ({
+      ...key,
+      gridStyle: { ...key.gridStyle, gridRow: key.gridStyle.gridRow + item.rows },
+    })),
   ];
 }

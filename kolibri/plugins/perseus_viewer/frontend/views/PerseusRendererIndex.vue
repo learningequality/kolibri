@@ -6,6 +6,7 @@
     :class="{ 'perseus-mobile': isMobile }"
     role="presentation"
     @keydown.enter.prevent="answerGiven"
+    @keyup.capture="pressKeyboardKey"
   >
     <div
       class="framework-perseus"
@@ -26,6 +27,8 @@
     <NumericKeypad
       :lang="lang"
       :divideLabel="divideLabel"
+      :buttonSets="keypadButtonSets"
+      :keyLabels="keypadKeyLabels"
     />
   </div>
 
@@ -66,6 +69,7 @@
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
+  import expressionButtonSets from '../expressionButtonSets';
   import { wrapPerseusMessages } from '../translationUtils';
   import { localizeNumericResponses, readUserInput } from '../numericResponses';
   import { scoreItem } from '../scoring';
@@ -331,10 +335,37 @@
         registerAssessmentApi,
       } = useContentViewer(context);
 
-      const { keypadAPI, keypadContextValue } = useKeypad();
+      const { keypadAPI, keypadContextValue, handleKeyboardEvent } = useKeypad();
       // Our keypad sends DIVIDE to math-input's field, which writes `:` in Perseus's
       // `localesThatUseColon`.
       const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
+
+      const keypadKeyLabels = {
+        SIN: { label: perseusTranslator.sin$(), ariaLabel: perseusTranslator.sine$() },
+        COS: { label: perseusTranslator.cos$(), ariaLabel: perseusTranslator.cosine$() },
+        TAN: { label: perseusTranslator.tan$(), ariaLabel: perseusTranslator.tangent$() },
+        LN: { label: 'ln', ariaLabel: perseusTranslator.naturalLog$() },
+        LOG: { label: 'log', ariaLabel: perseusTranslator.logBase10$() },
+        LT: { label: '<', ariaLabel: perseusTranslator.lessThanSign$() },
+        GT: { label: '>', ariaLabel: perseusTranslator.greaterThanSign$() },
+        NEQ: { label: '≠', ariaLabel: perseusTranslator.notEqualsSign$() },
+        LEQ: { label: '≤', ariaLabel: perseusTranslator.lessThanOrEqualSign$() },
+        GEQ: { label: '≥', ariaLabel: perseusTranslator.greaterThanOrEqualToSign$() },
+        THETA: { label: 'θ', ariaLabel: perseusTranslator.theta$() },
+      };
+
+      function pressKeyboardKey(event) {
+        // MathInput also presses physical keys on keyup. Stopping the event before React's root
+        // listener keeps it from pressing the same key a second time.
+        if (
+          interactive.value &&
+          event.target.closest('.keypad-input') &&
+          handleKeyboardEvent(event, lang.value?.id)
+        ) {
+          event.stopPropagation();
+        }
+      }
+
       return {
         divideLabel,
         windowBreakpoint,
@@ -342,6 +373,8 @@
         contentDirection,
         keypadAPI,
         keypadContextValue,
+        keypadKeyLabels,
+        pressKeyboardKey,
         itemData,
         itemId,
         answerState,
@@ -374,6 +407,9 @@
       },
       totalHints() {
         return get(this.item, 'hints.length', 0);
+      },
+      keypadButtonSets() {
+        return expressionButtonSets(get(this.item, 'question.widgets'));
       },
     },
     watch: {

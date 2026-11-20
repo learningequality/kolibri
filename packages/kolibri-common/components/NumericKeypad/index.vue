@@ -228,7 +228,11 @@
 
       const visibleKeys = computed(() => {
         const layout = isExpression.value
-          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel)
+          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel, {
+            buttonSets: props.buttonSets,
+            extraKeys: keypad.keypadConfig.value?.extraKeys || [],
+            keyLabels: props.keyLabels,
+          })
           : fractionLayout(symbols.value);
         return excludeKeys.value.length
           ? layout.filter(k => !excludeKeys.value.includes(k.id))
@@ -276,6 +280,16 @@
       divideLabel: {
         type: String,
         default: '÷',
+      },
+      // The `buttonSets` of the host's expression fields, e.g. `trig` for sin, cos and tan
+      buttonSets: {
+        type: Array,
+        default: () => [],
+      },
+      // `{ label, ariaLabel }` for the function, relation and Greek letter keys, by key id
+      keyLabels: {
+        type: Object,
+        default: () => ({}),
       },
     },
   };
@@ -331,7 +345,9 @@
   }
 
   .keypad-grid.expression-grid {
+    grid-template-rows: none;
     grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 1fr;
   }
 
   /* Navigation pad: 3×3 cross layout */
