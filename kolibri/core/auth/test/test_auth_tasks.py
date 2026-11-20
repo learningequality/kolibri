@@ -6,7 +6,6 @@ from uuid import uuid4
 
 import pytz
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
@@ -41,6 +40,7 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+from kolibri.core.storage import private_storage
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -500,8 +500,8 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
     def test_importusersfromcsv_validator_rejects_csvfilename_outside_temp(self):
-        target = default_storage.save("log_export/users.csv", ContentFile(b""))
-        self.addCleanup(default_storage.delete, target)
+        target = private_storage.save("log_export/users.csv", ContentFile(b""))
+        self.addCleanup(private_storage.delete, target)
         for csvfilename in (f"../{target}", "..", "."):
             with self.subTest(csvfilename=csvfilename):
                 validator = ImportUsersFromCSVValidator(
@@ -516,8 +516,8 @@ class FacilityTaskHelperTestCase(TestCase):
                 self.assertIn("csvfilename", validator.errors)
 
     def test_importusersfromcsv_validator_reads_csvfilename_from_temp(self):
-        filepath = default_storage.save("temp/users.csv", ContentFile(b""))
-        self.addCleanup(default_storage.delete, filepath)
+        filepath = private_storage.save("temp/users.csv", ContentFile(b""))
+        self.addCleanup(private_storage.delete, filepath)
         validator = ImportUsersFromCSVValidator(
             data={
                 "type": "kolibri.core.auth.tasks.importusersfromcsv",

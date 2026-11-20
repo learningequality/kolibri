@@ -2,7 +2,6 @@ import json
 import logging
 
 from django.core.exceptions import PermissionDenied
-from django.core.files.storage import default_storage
 from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
@@ -25,6 +24,7 @@ from kolibri.core.logger.csv_export import (
 )
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import GenerateCSVLogRequest
+from kolibri.core.storage import private_storage
 from kolibri.utils.time_utils import utc_now
 
 CSV_EXPORT_FILENAMES = {}
@@ -118,8 +118,8 @@ def exported_csv_info(request, facility_id):
                 facility.name, facility.id[:4]
             )
 
-        if default_storage.exists(filename):
-            csv_statuses[log_type] = default_storage.get_modified_time(
+        if private_storage.exists(filename):
+            csv_statuses[log_type] = private_storage.get_modified_time(
                 filename
             ).isoformat()
         else:
@@ -205,13 +205,13 @@ def download_csv_file(request, csv_type, facility_id):
         filename = None
 
     logger.info("Downloading CSV file: %s", filename)
-    logger.info("%s exists: %s", filename, default_storage.exists(filename))
+    logger.info("%s exists: %s", filename, private_storage.exists(filename))
     # if the file does not exist on disk, return a 404
-    if filename is None or not default_storage.exists(filename):
+    if filename is None or not private_storage.exists(filename):
         raise Http404(f"There is no csv export file for {csv_type} available")
 
     # generate a file response
-    response = FileResponse(default_storage.open(filename, "rb"))
+    response = FileResponse(private_storage.open(filename, "rb"))
     # set the content-type by guessing from the filename
     response.headers["Content-Type"] = "text/csv"
 
@@ -231,7 +231,7 @@ def download_csv_file(request, csv_type, facility_id):
     translation.deactivate()
 
     # set the content-length to the file size
-    response.headers["Content-Length"] = default_storage.size(filename)
+    response.headers["Content-Length"] = private_storage.size(filename)
 
     logger.info("Downloaded CSV file and responding")
     return response

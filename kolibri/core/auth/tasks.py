@@ -4,7 +4,6 @@ import ntpath
 import os
 
 from django.conf import settings
-from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db.utils import OperationalError
@@ -41,6 +40,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.error_constants import DEVICE_LIMITATIONS
 from kolibri.core.serializers import HexOnlyUUIDField
+from kolibri.core.storage import private_storage
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobRunning
@@ -154,10 +154,10 @@ class ImportUsersFromCSVValidator(JobValidator):
         if "csvfile" in data:
             tmp_path = data["csvfile"].temporary_file_path()
             filename = ntpath.basename(tmp_path)
-            filepath = default_storage.save(f"temp/{filename}", data["csvfile"])
+            filepath = private_storage.save(f"temp/{filename}", data["csvfile"])
         else:
             filepath = "temp/{}".format(data["csvfilename"])
-            if not default_storage.exists(filepath):
+            if not private_storage.exists(filepath):
                 raise serializers.ValidationError("Supplied csvfilename does not exist")
 
         args = [filepath]
@@ -208,12 +208,12 @@ def importusersfromcsv(
     except (CommandError, serializers.ValidationError):
         # There was an error in the command so we need to delete the file since they
         # need to fix and re-upload.
-        default_storage.delete(filepath)
+        private_storage.delete(filepath)
         raise
 
-    if not dryrun and default_storage.exists(filepath):
+    if not dryrun and private_storage.exists(filepath):
         # We remove the file on a wetrun, since it is no longer needed
-        default_storage.delete(filepath)
+        private_storage.delete(filepath)
 
 
 class ExportUsersToCSVValidator(JobValidator):

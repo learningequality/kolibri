@@ -7,13 +7,16 @@ import datetime
 import uuid
 from typing import ClassVar
 from unittest import mock
+from wsgiref.util import setup_testing_defaults
 
 import pytz
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.management.commands.bulkexportusers import CSV_EXPORT_FILENAMES
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
@@ -21,7 +24,19 @@ from kolibri.core.logger.tasks import log_exports_cleanup
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
+from kolibri.deployment.default.wsgi import application
 from kolibri.utils.time_utils import utc_now
+
+
+def wsgi_get_status(path):
+    environ = {"PATH_INFO": path}
+    setup_testing_defaults(environ)
+    statuses = []
+    response = application(
+        environ, lambda status, headers, exc_info=None: statuses.append(status)
+    )
+    response.close()
+    return int(statuses[0].split()[0])
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
@@ -264,3 +279,23 @@ class UserCSVExportTestCase(APITestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_csv_not_served_as_media(self):
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        download = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.facility:download_csv_file",
+                kwargs={"csv_type": "user", "facility_id": self.facility.id},
+            )
+        )
+        self.assertEqual(download.status_code, 200)
+
+        filename = CSV_EXPORT_FILENAMES["user"].format(
+            self.facility.name, self.facility.id[:4]
+        )
+        status = wsgi_get_status(settings.MEDIA_URL + filename)
+        self.assertEqual(status, 404)

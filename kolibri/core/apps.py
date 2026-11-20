@@ -3,7 +3,6 @@ import os
 
 from django.apps import AppConfig
 from django.conf import settings
-from django.core.files.storage import default_storage
 from django.db import connections
 from django.db.backends.signals import connection_created
 from django_filters.filters import UUIDFilter
@@ -12,6 +11,7 @@ from django_filters.rest_framework.filterset import FilterSet
 from kolibri.core.errors import RedisConnectionError
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
+from kolibri.core.storage import private_storage
 from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.plugins.registry import registered_plugins
@@ -100,7 +100,7 @@ class KolibriCoreConfig(AppConfig):
         # TODO This should be a bonus sanity check
         # Options per https://django-storages.readthedocs.io/en/latest/backends/gcloud.html
         if OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
-            default_storage.get_available_name("kolibri")
+            private_storage.get_available_name("kolibri")
 
     @staticmethod
     def check_redis_settings():
