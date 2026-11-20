@@ -17,33 +17,28 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 
+_ALLOWED_ROLES = [role_kinds.ADMIN, role_kinds.COACH]
+
+
+def _has_coach_role_for(user, group_id, **collection_filters):
+    if group_id:
+        collection_filters["children__id"] = group_id
+    try:
+        collection = Collection.objects.filter(**collection_filters).first()
+    except ValueError:
+        return False
+    return collection is not None and user.has_role_for(_ALLOWED_ROLES, collection)
+
 
 class ExerciseDifficultiesPermissions(permissions.BasePermission):
-    # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        classroom_id = request.GET.get("classroom_id", None)
-        group_id = request.GET.get("group_id", None)
-        collection_id = group_id or classroom_id
-        lesson_id = request.GET.get("lesson_id", None)
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        collection_filters = {"id": request.GET.get("classroom_id")}
+        lesson_id = request.GET.get("lesson_id")
         if lesson_id:
-            try:
-                lesson = Lesson.objects.get(id=lesson_id)
-                classroom = lesson.collection
-                return request.user.has_role_for(allowed_roles, classroom)
-            except (
-                FacilityUser.DoesNotExist,
-                Collection.DoesNotExist,
-                Lesson.DoesNotExist,
-                ValueError,
-            ):
-                return False
-        try:
-            return request.user.has_role_for(
-                allowed_roles, Collection.objects.get(pk=collection_id)
-            )
-        except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
-            return False
+            collection_filters["lessons__id"] = lesson_id
+        return _has_coach_role_for(
+            request.user, request.GET.get("group_id"), **collection_filters
+        )
 
 
 # Define a base class so that the inherited class is properly introspectable,
@@ -88,6 +83,8 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
                 )
         if group_id is not None:
             queryset = queryset.filter(user__memberships__collection_id=group_id)
+        elif lesson_id is None:
+            queryset = queryset.filter(user__memberships__collection_id=classroom_id)
 
         data = (
             # Use a subquery to prevent duplication of attempt logs due to the double JOIN
@@ -105,20 +102,13 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
 
 
 class QuizDifficultiesPermissions(permissions.BasePermission):
-    # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        exam_id = view.kwargs.get("pk", None)
+        exam_id = view.kwargs.get("pk")
         if exam_id is None:
             return False
-        try:
-            collection = Exam.objects.get(id=exam_id).collection
-        except (Exam.DoesNotExist, ValueError):
-            return False
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-        try:
-            return request.user.has_role_for(allowed_roles, collection)
-        except (FacilityUser.DoesNotExist, ValueError):
-            return False
+        return _has_coach_role_for(
+            request.user, request.GET.get("group_id"), exams__id=exam_id
+        )
 
 
 class QuizDifficultQuestionsViewset(viewsets.ViewSet):
@@ -207,6 +197,10 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
         if group_id is not None:
             masterylog_queryset = masterylog_queryset.filter(
                 user__memberships__collection_id=group_id
+            )
+        elif lesson_id is None:
+            masterylog_queryset = masterylog_queryset.filter(
+                user__memberships__collection_id=classroom_id
             )
 
         masterylog_queryset = masterylog_queryset.filter(
