@@ -53,7 +53,9 @@ def get_initialize_url(next_url=None):
         raise RuntimeError("Server is not running")
     auth_token = get_os_user_auth_token()
     path = app_initialize_url(auth_token=auth_token, next_url=next_url)
-    return f"http://127.0.0.1:{_server_bus.port}" + path
+    address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    host = "127.0.0.1" if address == "0.0.0.0" else address
+    return f"http://{host}:{_server_bus.port}" + path
 
 
 def _resolve_server_port(port):

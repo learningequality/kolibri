@@ -2,6 +2,7 @@ package org.learningequality.Kolibri;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -23,11 +24,23 @@ public class WebViewLocationTest {
   @Before
   public void setUp() {
     context = RuntimeEnvironment.getApplication();
+    WebViewLocation.noteInitializeUrl("http://127.0.0.1:46655/api/device/initialize/abc");
   }
 
   @Test
   public void save_recordsThePathAndPortOfALoopbackPage() {
     WebViewLocation.save(context, PAGE_URL);
+
+    assertEquals(PAGE_PATH, WebViewLocation.getLastPath(context));
+    assertEquals(46655, WebViewLocation.getLastPort());
+  }
+
+  @Test
+  public void save_recordsAPageOnASingleListenAddress() {
+    WebViewLocation.noteInitializeUrl("http://192.168.1.5:46655/api/device/initialize/abc");
+
+    WebViewLocation.save(context, "http://192.168.1.5:46655/en/facility/?token=x#/data/import");
+    WebViewLocation.save(context, "http://127.0.0.1:46656/zipcontent/abc.zip/index.html");
 
     assertEquals(PAGE_PATH, WebViewLocation.getLastPath(context));
     assertEquals(46655, WebViewLocation.getLastPort());
@@ -92,6 +105,15 @@ public class WebViewLocationTest {
     assertNull(
         WebViewLocation.restoreUrlFor("http://127.0.0.1:46655/en/learn/#/home", "/en/learn/"));
     assertNull(WebViewLocation.restoreUrlFor(null, PAGE_PATH));
+  }
+
+  @Test
+  public void restoreScript_isFullySubstitutedWithAFreshTokenEachTime() {
+    String first = WebViewLocation.restoreScript(context, "http://127.0.0.1:46655", PAGE_PATH);
+
+    assertFalse(first.matches("(?s).*__[A-Z]+__.*"));
+    assertNotEquals(
+        first, WebViewLocation.restoreScript(context, "http://127.0.0.1:46655", PAGE_PATH));
   }
 
   @Test

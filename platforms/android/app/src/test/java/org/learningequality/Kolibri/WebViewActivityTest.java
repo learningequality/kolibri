@@ -8,11 +8,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.net.Uri;
 import android.os.Looper;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.webkit.ScriptHandler;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
+import java.util.Collections;
+import java.util.Set;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +37,13 @@ import org.robolectric.shadows.ShadowWebView;
  * JVM implementation, so the tests call it with the URL Python would have returned.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(shadows = WebViewActivityTest.FreezeTrackingWebView.class)
+@Config(
+    shadows = {
+      WebViewActivityTest.FreezeTrackingWebView.class,
+      WebViewActivityTest.DocumentStartWebViewFeature.class,
+      WebViewActivityTest.DocumentStartWebViewCompat.class
+    },
+    instrumentedPackages = "androidx.webkit")
 public class WebViewActivityTest {
   private static final String ORIGIN = "http://127.0.0.1:46655";
   private static final String PAGE_PATH = "/en/facility/#/data/import";
@@ -50,6 +62,9 @@ public class WebViewActivityTest {
       ORIGIN + "/api/device/initialize/abc?auth_token=t";
   private static final String NEW_ORIGIN_INITIALIZE_URL =
       "http://127.0.0.1:45791/api/device/initialize/abc?auth_token=t";
+  private static final String LAN_ORIGIN = "http://192.168.1.5:46655";
+  private static final String LAN_INITIALIZE_URL =
+      LAN_ORIGIN + "/api/device/initialize/abc?auth_token=t";
 
   private ActivityController<WebViewActivity> controller;
   private WebView webView;
@@ -60,11 +75,14 @@ public class WebViewActivityTest {
     controller = Robolectric.buildActivity(WebViewActivity.class).setup();
     webView = controller.get().findViewById(R.id.webview);
     shadowWebView = (FreezeTrackingWebView) shadowOf(webView);
+    WebViewLocation.noteInitializeUrl(SAME_ORIGIN_INITIALIZE_URL);
   }
 
   @After
   public void tearDown() {
     controller.close();
+    DocumentStartWebViewFeature.supported = false;
+    DocumentStartWebViewCompat.script = null;
     // The singleton is shared across test methods in a Robolectric sandbox, and it posts its
     // value, so the reset only lands once the main looper runs.
     KolibriServerViewModel.getInstance().resetServerState();
@@ -148,6 +166,7 @@ public class WebViewActivityTest {
   @Test
   public void aSignedOutFragmentDoesNotFollowTheRedirectOntoTheNextPage() {
     serverComesUp();
+    controller.get().loadIfOriginChanged(SAME_ORIGIN_INITIALIZE_URL, null);
     // Signing out leaves the WebView on the sign-in route.
     reachAPage(AUTH_URL);
     assertEquals(AUTH_PATH, WebViewLocation.getLastPath(controller.get()));
@@ -162,6 +181,17 @@ public class WebViewActivityTest {
     assertEquals(DEVICE_PATH, WebViewLocation.getLastPath(controller.get()));
   }
 
+  @Test
+  public void pagesOnASingleListenAddressStayInTheApp() {
+    serverComesUp();
+    controller.get().loadIfOriginChanged(LAN_INITIALIZE_URL, null);
+    WebViewClient client = webView.getWebViewClient();
+
+    assertFalse(client.shouldOverrideUrlLoading(webView, requestFor(LAN_ORIGIN + DEVICE_PATH)));
+    assertTrue(
+        client.shouldOverrideUrlLoading(webView, requestFor("https://learningequality.org/")));
+  }
+
   /** A restore that outlives its load would yank a later navigation back to the fragment. */
   @Test
   public void aRestoreIsSpentOnTheLoadThatArmedIt() {
@@ -174,6 +204,22 @@ public class WebViewActivityTest {
 
     assertNull(injectedRestore());
     assertEquals(FACILITY_PATH, WebViewLocation.getLastPath(controller.get()));
+  }
+
+  @Test
+  public void theSavedLocationIsRestoredAtDocumentStartOnTheServedOrigin() {
+    DocumentStartWebViewFeature.supported = true;
+    serverComesUp();
+    controller.get().loadIfOriginChanged(SAME_ORIGIN_INITIALIZE_URL, PAGE_PATH);
+
+    assertTrue(DocumentStartWebViewCompat.script.contains(JSONObject.quote(PAGE_PATH)));
+    assertTrue(DocumentStartWebViewCompat.script.contains(JSONObject.quote(ORIGIN)));
+    assertEquals(Collections.singleton(ORIGIN), DocumentStartWebViewCompat.origins);
+
+    reachAPage(FACILITY_URL);
+
+    assertNull(injectedRestore());
+    assertNull(DocumentStartWebViewCompat.script);
   }
 
   /** The restore the last finished load injected, or {@code null} when it injected none. */
@@ -220,6 +266,12 @@ public class WebViewActivityTest {
     shadowOf(Looper.getMainLooper()).idle();
   }
 
+  private static WebResourceRequest requestFor(String url) {
+    WebResourceRequest request = mock(WebResourceRequest.class);
+    when(request.getUrl()).thenReturn(Uri.parse(url));
+    return request;
+  }
+
   /** A committed document, as the WebViewClient sees it — what makes the page worth keeping. */
   private void reachAPage(String url) {
     webView.loadUrl(url);
@@ -237,6 +289,32 @@ public class WebViewActivityTest {
     client.onPageStarted(webView, PAGE_URL, null);
     client.onReceivedError(webView, request, mock(WebResourceError.class));
     client.onPageFinished(webView, PAGE_URL);
+  }
+
+  /** The WebView provider decides this, and Robolectric has none. */
+  @Implements(WebViewFeature.class)
+  public static class DocumentStartWebViewFeature {
+    static boolean supported;
+
+    @Implementation
+    public static boolean isFeatureSupported(String feature) {
+      return supported && WebViewFeature.DOCUMENT_START_SCRIPT.equals(feature);
+    }
+  }
+
+  /** Holds the one document-start script the activity has added and not yet removed. */
+  @Implements(WebViewCompat.class)
+  public static class DocumentStartWebViewCompat {
+    static String script;
+    static Set<String> origins;
+
+    @Implementation
+    public static ScriptHandler addDocumentStartJavaScript(
+        WebView webView, String script, Set<String> allowedOriginRules) {
+      DocumentStartWebViewCompat.script = script;
+      origins = allowedOriginRules;
+      return () -> DocumentStartWebViewCompat.script = null;
+    }
   }
 
   /**
