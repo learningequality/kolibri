@@ -143,6 +143,35 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             ).exists()
         )
 
+    def test_csv_download_escapes_folder_titles(self):
+        node = ContentNode.objects.filter(level=2).first()
+        root, folder = node.get_ancestors()
+        ContentNode.objects.filter(pk=node.pk).update(
+            ancestors=[
+                {"id": root.id, "title": root.title},
+                {"id": folder.id, "title": "=1+1"},
+            ]
+        )
+        ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=node.content_id,
+            channel_id=node.channel_id,
+        )
+        _, filepath = tempfile.mkstemp(suffix=".csv")
+        call_command(
+            "exportlogs",
+            log_type="summary",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
+        )
+        with open_csv_for_reading(local_filepath=filepath) as f:
+            rows = list(csv.DictReader(f))
+
+        row = next(r for r in rows if r[str(labels["content_id"])] == node.content_id)
+        self.assertEqual(row["Folder level 1"], "'=1+1")
+
     @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
     def test_csv_cleanup(self, mock_enqueue):
         # generate summary csv
