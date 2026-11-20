@@ -861,6 +861,33 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
 
+    def test_non_draft_exam_section_missing_questions_fails(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["draft"] = False
+        del exam["question_sources"][0]["questions"]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]["metadata"]["message"],
+            "Cannot create an Exam without any questions",
+        )
+
+    def test_non_draft_exam_leading_section_missing_questions_succeeds(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["draft"] = False
+        exam["question_sources"].insert(
+            0,
+            {
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "learners_see_fixed_order": False,
+            },
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 201)
+
     def test_instant_report_visibility_null_returns_true(self):
         """A NULL instant_report_visibility in the DB should come back as True."""
         self.login_as_admin()

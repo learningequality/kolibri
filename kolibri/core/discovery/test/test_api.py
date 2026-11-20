@@ -701,3 +701,36 @@ class PinnedDeviceAPITestCase(APITestCase):
         item = response.data[0]
         self.assertIn("id", item)
         self.assertEqual(item["id"], my_pin.id)
+
+    def test_adding_duplicate_pinned_device_returns_400(self):
+        response = self.client.post(
+            reverse("kolibri:core:pinned_devices-list"),
+            data={"user": self.user.id, "instance_id": self.network_location.id},
+        )
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        response = self.client.post(
+            reverse("kolibri:core:pinned_devices-list"),
+            data={"user": self.user.id, "instance_id": self.network_location.id},
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            models.PinnedDevice.objects.filter(
+                user=self.user, instance_id=self.network_location.id
+            ).count(),
+            1,
+        )
+
+    def test_update_pinned_device_with_own_instance_id_returns_200(self):
+        pin = models.PinnedDevice.objects.create(
+            user=self.user, instance_id=self.network_location.id
+        )
+        response = self.client.put(
+            reverse(
+                "kolibri:core:pinned_devices-detail",
+                kwargs={"pk": pin.id},
+            ),
+            data={"instance_id": self.network_location.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

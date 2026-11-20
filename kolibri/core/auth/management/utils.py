@@ -123,14 +123,17 @@ class InteractiveSyncMixin:
         if self.progresstracker.progressbar is None:
             super().report_progress(message)
 
-    def get_superuser_username(self, username):
+    def get_superuser_username(self, username, dataset_id):
         if DevicePermissions.objects.filter(is_superuser=True).exists():
             return username
         # Prompt user to pick a superuser if one does not currently exist
-        while not FacilityUser.objects.filter(username=username).exists():
+        while not FacilityUser.objects.filter(
+            username=username, dataset_id=dataset_id
+        ).exists():
             if username:
                 logger.error(
-                    "User with username `%s` does not exist on this device", username
+                    "User with username `%s` does not exist in the synced facility",
+                    username,
                 )
             # specify username of account that will become a superuser
             username = input(

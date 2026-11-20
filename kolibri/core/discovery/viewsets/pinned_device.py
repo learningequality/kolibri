@@ -13,18 +13,11 @@ class PinnedDeviceSerializer(serializers.ModelSerializer):
     """
 
     instance_id = HexOnlyUUIDField()
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = PinnedDevice
-        fields = ("instance_id", "id")
-
-    def create(self, validated_data):
-        if "request" in self.context and self.context["request"].user is not None:
-            user = self.context["request"].user
-        else:
-            raise serializers.ValidationError("User must be defined")
-        validated_data["user"] = user
-        return super().create(validated_data)
+        fields = ("instance_id", "id", "user")
 
 
 class PinnedDeviceViewSet(ValuesViewset):

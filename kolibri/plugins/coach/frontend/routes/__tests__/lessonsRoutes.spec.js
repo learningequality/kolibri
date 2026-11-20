@@ -21,7 +21,7 @@ jest.mock('../../modules/resourceDetail/handlers', () => ({
 }));
 jest.mock('../../modules/exerciseDetail/handlers', () => ({
   exerciseRootRedirectHandler: jest.fn(),
-  generateExerciseDetailHandler: jest.fn(),
+  exerciseDetailHandler: jest.fn(),
 }));
 jest.mock('../../modules/questionList/handlers', () => ({
   generateQuestionListHandler: jest.fn(),

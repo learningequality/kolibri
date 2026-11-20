@@ -44,6 +44,7 @@
 
   import invert from 'lodash/invert';
   import get from 'lodash/get';
+  import mapValues from 'lodash/mapValues';
   import ZipFile from 'kolibri-zip';
   import logger from 'kolibri-logging';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
@@ -52,20 +53,18 @@
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
+  import { flushSync } from 'react-dom';
   import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
-  import {
-    getDivideSymbol,
-    parseAndMigratePerseusItem,
-    isFailure,
-  } from '@khanacademy/perseus-core';
-  import { emptyWidgetsFunctional } from '@khanacademy/perseus-score';
+  import { getDivideSymbol, isFailure } from '@khanacademy/perseus-core';
+  import { emptyWidgetsFunctional, isWidgetScoreable } from '@khanacademy/perseus-score';
   import { MathInputI18nContextProvider } from '@khanacademy/math-input';
   import { KeypadContext } from '@khanacademy/keypad-context';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
+  import { migrateItem } from '../itemMigration';
   import { wrapPerseusMessages } from '../translationUtils';
   import { localizeNumericResponses, readUserInput } from '../numericResponses';
   import { scoreItem } from '../scoring';
@@ -76,6 +75,59 @@
   const translator = wrapPerseusMessages(perseusTranslator);
 
   const logging = logger.getLogger(__filename);
+
+  // perseus-score 8.12.26 registers no scorer for these, so isWidgetScoreable rejects them.
+  const GRADED_CONTAINER_TYPES = ['graded-group', 'graded-group-set'];
+
+  // Perseus 87's interactive graph (which also draws single-type graphers) and plotter draw
+  // userInput only when they mount. Perseus mounts a static widget with options.correct.
+  const MOUNT_INPUT_TYPES = ['grapher', 'interactive-graph', 'plotter'];
+
+  function withRendererMountInput(renderer, input) {
+    const widgets = withMountInput(renderer.widgets, input === undefined ? input : input || {});
+    return widgets === renderer.widgets ? renderer : { ...renderer, widgets };
+  }
+
+  function withWidgetMountInput(widget, input) {
+    if (widget.type === 'group' || widget.type === 'graded-group') {
+      const options = withRendererMountInput(widget.options, input);
+      return options === widget.options ? widget : { ...widget, options };
+    }
+    if (widget.type === 'graded-group-set') {
+      const { gradedGroups } = widget.options;
+      const mapped = gradedGroups.map(group => withRendererMountInput(group, input));
+      return mapped.some((group, i) => group !== gradedGroups[i])
+        ? { ...widget, options: { ...widget.options, gradedGroups: mapped } }
+        : widget;
+    }
+    if (!MOUNT_INPUT_TYPES.includes(widget.type)) {
+      return widget;
+    }
+    if (input === undefined) {
+      return { ...widget, static: true };
+    }
+    if (input != null) {
+      return { ...widget, static: true, options: { ...widget.options, correct: input } };
+    }
+    return widget;
+  }
+
+  /**
+   * Makes the MOUNT_INPUT_TYPES widgets static, mounting with the given input.
+   * @param {object} widgets - Perseus widgets map.
+   * @param {object} [userInput] - Input to mount each widget with; omitted, its options.correct.
+   * @returns {object} The widgets map; the same object when no widget changed.
+   */
+  function withMountInput(widgets, userInput) {
+    const mapped = mapValues(widgets, (widget, id) =>
+      withWidgetMountInput(widget, userInput ? (userInput[id] ?? null) : undefined),
+    );
+    return Object.keys(widgets).some(id => mapped[id] !== widgets[id]) ? mapped : widgets;
+  }
+
+  function withQuestionWidgets(item, widgets) {
+    return { ...item, question: { ...item.question, widgets } };
+  }
 
   // No-op stubs for Perseus dependency injection. Perseus requires these
   // but Kolibri doesn't use KA's analytics, video, or URL generation.
@@ -335,6 +387,7 @@
       // Our keypad sends DIVIDE to math-input's field, which writes `:` in Perseus's
       // `localesThatUseColon`.
       const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
+      const locale = computed(() => lang.value?.id || 'en');
       return {
         divideLabel,
         windowBreakpoint,
@@ -348,6 +401,7 @@
         showCorrectAnswer,
         interactive,
         lang,
+        locale,
         registerAssessmentApi,
       };
     },
@@ -375,6 +429,18 @@
       totalHints() {
         return get(this.item, 'hints.length', 0);
       },
+      renderedItem() {
+        if (!this.showCorrectAnswer || !this.item.question) {
+          return this.item;
+        }
+        const widgets = withMountInput(this.item.question.widgets);
+        return widgets === this.item.question.widgets
+          ? this.item
+          : withQuestionWidgets(this.item, widgets);
+      },
+      answerDisplay() {
+        return { answerState: this.answerState, showCorrectAnswer: this.showCorrectAnswer };
+      },
     },
     watch: {
       itemId() {
@@ -383,11 +449,19 @@
       itemData(newItemData) {
         this.resolveItemData(newItemData);
       },
-      answerState(newState) {
-        this.resetState(newState);
-      },
-      showCorrectAnswer(newVal) {
-        this.resetState(newVal);
+      answerDisplay({ answerState, showCorrectAnswer }, previous) {
+        const toggled = showCorrectAnswer !== previous.showCorrectAnswer;
+        let remounted = false;
+        if (toggled && this.itemRenderer) {
+          const { widgets } = this.item.question;
+          remounted = withMountInput(widgets) !== widgets;
+          if (remounted) {
+            this.remountItem();
+          } else {
+            this.renderItem();
+          }
+        }
+        this.resetState(!remounted && (!answerState || (toggled && !showCorrectAnswer)));
       },
     },
     beforeDestroy() {
@@ -415,6 +489,8 @@
       this.root = null;
       // React key for the current item; set per new item in renderNewItem.
       this.itemRenderKey = null;
+      this.mountCount = 0;
+      this.problemNum = 0;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
       this.imageUrls = {};
@@ -492,13 +568,13 @@
         );
         /* eslint-enable no-mixed-operators */
       },
-      renderItem() {
+      renderItem(item = this.renderedItem) {
         this.itemRendererUpdating = true;
         // Data formatted in the form expected by the Server Item Renderer
         const itemRenderData = {
           hintsVisible: this.hintsVisible,
-          item: this.item,
-          problemNum: Math.floor(Math.random() * 1000),
+          item,
+          problemNum: this.problemNum,
           reviewMode: this.showCorrectAnswer,
           showSolutions: this.showCorrectAnswer ? 'all' : 'none',
           apiOptions: {
@@ -518,8 +594,11 @@
           ref: itemRenderer => {
             this.itemRenderer = itemRenderer;
             if (itemRenderer) {
-              this.$emit('itemRendererUpdated');
-              this.itemRendererUpdating = false;
+              // React ignores flushSync during a commit, and this ref callback runs in one.
+              queueMicrotask(() => {
+                this.itemRendererUpdating = false;
+                this.$emit('itemRendererUpdated');
+              });
             }
           },
           dependencies: perseusNoOpDependencies,
@@ -531,17 +610,17 @@
           // graphie cleanup) on item switch instead of reconciling imperative
           // graphie widget state in place, which crashes mid-swap. Stable
           // across hint re-renders (same key) so those still update in place.
-          key: this.itemRenderKey,
+          key: `${this.itemRenderKey}:${this.mountCount}`,
           ...itemRenderData,
           keypadElement: this.interactive ? this.keypadAPI : null,
         });
         const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
-          locale: this.lang,
+          locale: this.locale,
           strings: translator,
           children: itemRendererElement,
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
-          locale: this.lang?.id,
+          locale: this.locale,
           strings: translator,
           children: perseusStringsElement,
         });
@@ -559,6 +638,10 @@
           this.$refs.perseus.addEventListener('pointerdown', this.reshowKeypadOnInput);
         }
         this.root.render(renderStateRootElement);
+      },
+      remountItem(item) {
+        this.mountCount += 1;
+        this.renderItem(item);
       },
       renderNewItem() {
         // Clear any pending state reset calls
@@ -581,23 +664,24 @@
         // rather than reconciling the previous item's graphie state. Prefer the
         // itemId; fall back to a hash of the item when driven by the itemData prop.
         this.itemRenderKey = this.itemId || quickHash(JSON.stringify(this.item));
+        this.problemNum = Math.floor(Math.random() * 1000);
         this.renderItem();
       },
-      _resetState(val) {
-        if (!val) {
+      _resetState(clear) {
+        if (clear) {
           this.restoreAnswerState(this.blankState);
         }
         this.setAnswer();
       },
-      resetState(val) {
+      resetState(clear) {
         // Because resetState is called in response to watching props, we need to ensure
         // that the itemRenderer is available and not in the process of updating before
         // we try to reset the state.
         if (this.itemRenderer && !this.itemRendererUpdating && !this.loading) {
-          this._resetState(val);
+          this._resetState(clear);
         } else {
           this.$once('itemRendererUpdated', () => {
-            this._resetState(val);
+            this._resetState(clear);
           });
         }
       },
@@ -659,20 +743,40 @@
             this.item.question.widgets,
             this.lang?.id,
           );
-          // Restore each widget's user input via the Renderer's handleUserInput callback
-          const widgetIds = this.itemRenderer.getWidgetIds();
-          for (const id of widgetIds) {
-            if (userInput[id] !== undefined) {
-              this.itemRenderer.questionRenderer.props.handleUserInput(id, userInput[id], false);
-            }
-          }
+          this.restoreUserInput(userInput);
         }
         if (answerState.hintsVisible) {
           this.hintsVisible = answerState.hintsVisible;
         }
       },
+      restoreUserInput(userInput) {
+        const widgets = this.item.question.widgets;
+        const mountWidgets = this.showCorrectAnswer ? widgets : withMountInput(widgets, userInput);
+        if (mountWidgets === widgets) {
+          this.setUserInput(userInput);
+          return;
+        }
+        this.$once('itemRendererUpdated', () => {
+          flushSync(() => this.renderItem());
+          this.setUserInput(userInput);
+        });
+        this.remountItem(withQuestionWidgets(this.item, mountWidgets));
+      },
+      setUserInput(userInput) {
+        for (const id of this.itemRenderer.getWidgetIds()) {
+          if (userInput[id] !== undefined) {
+            // Perseus's UserInputManager spreads the input of its last render into each
+            // update, so unflushed updates overwrite one another.
+            flushSync(() =>
+              this.itemRenderer.questionRenderer.props.handleUserInput(id, userInput[id], false),
+            );
+          }
+        }
+      },
       setAnswer() {
-        this.blankState = this.getAnswerState();
+        if (!this.blankState && this.renderedItem === this.item) {
+          this.blankState = this.getAnswerState();
+        }
         // If a passed in answerState has user input or old-format question/hints, restore.
         if (this.answerState && (this.answerState.userInput || this.answerState.question)) {
           this.restoreAnswerState(this.answerState);
@@ -697,9 +801,13 @@
           // ${☣ LOCALPATH} space, and image-content answers (orderer, sorter, …)
           // only score correct when rubric and userInput share one URL space.
           const rubric = restoreImageUrls(this.item.question, this.perseusFileUrl);
-          const locale = this.lang?.id || 'en';
-          const score = scoreItem(rubric, userInput, locale);
-          const emptyWidgets = emptyWidgetsFunctional(rubric.widgets, widgetIds, userInput, locale);
+          const score = scoreItem(rubric, userInput, this.locale);
+          const emptyWidgets = emptyWidgetsFunctional(
+            rubric.widgets,
+            widgetIds,
+            userInput,
+            this.locale,
+          );
           const empty = emptyWidgets.length > 0;
           const correct = score.type === 'points' && score.earned === score.total;
           const message = score.message || null;
@@ -790,13 +898,11 @@
         }
       },
       setItemData(itemData) {
-        const result = parseAndMigratePerseusItem(itemData);
+        const result = migrateItem(itemData);
         if (isFailure(result)) {
           logging.warn('Failed to migrate Perseus item data', result.detail);
-          // Fall through with original data as graceful degradation
-        } else {
-          itemData = result.value;
         }
+        itemData = result.value;
         if (this.validateItemData(itemData)) {
           this.item = itemData;
           // Don't store blank state for another item.
@@ -821,22 +927,39 @@
         const questionRenderer = this.itemRenderer.questionRenderer;
         const widgetProps = questionRenderer.state.widgetInfo;
 
-        const gradedWidgetIds = questionRenderer.widgetIds.filter(id => {
-          return widgetProps[id].graded == null || widgetProps[id].graded;
-        });
+        const renderedWidgetIds = questionRenderer.widgetIds.filter(
+          id =>
+            (isWidgetScoreable(widgetProps[id]) ||
+              GRADED_CONTAINER_TYPES.includes(widgetProps[id]?.type)) &&
+            questionRenderer.getWidgetInstance(id),
+        );
 
         try {
-          gradedWidgetIds.forEach(id => {
-            const props = widgetProps[id];
-            const widget = questionRenderer.getWidgetInstance(id);
-            if (!widget) {
-              // This can occur if the widget has not yet been rendered
-              return;
-            }
-            widgetSolver(widget, props.type, props.options);
-          });
+          const currentInput = this.itemRenderer.getUserInput();
+          const userInput = Object.fromEntries(
+            renderedWidgetIds.map(id => {
+              const solved = widgetSolver(widgetProps[id].type, widgetProps[id].options);
+              return [
+                id,
+                widgetProps[id].type === 'group' ? { ...currentInput[id], ...solved } : solved,
+              ];
+            }),
+          );
+          this.setUserInput(
+            localizeNumericResponses(userInput, this.item.question.widgets, this.lang?.id),
+          );
         } catch (e) {
+          logging.warn('Failed to show the correct answer', e);
           this.$emit('answerUnavailable');
+          return;
+        }
+        for (const id of renderedWidgetIds) {
+          try {
+            questionRenderer.getWidgetInstance(id).blurInputPath?.('');
+          } catch (e) {
+            // Perseus's table widget throws on blurring an empty path.
+            logging.debug('Failed to blur widget after showing the correct answer', e);
+          }
         }
       },
     },
@@ -968,6 +1091,13 @@
     // it just isn't clickable to zoom.
     .svg-image > button {
       display: none;
+    }
+
+    // Mafs draws axis tick labels as SVG <text> with an ASCII hyphen, which
+    // the RTL bidi algorithm moves after the digit ("9-").
+    .MafsView {
+      /* rtl:ignore */
+      direction: ltr;
     }
   }
 

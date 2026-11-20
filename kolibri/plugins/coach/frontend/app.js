@@ -10,6 +10,7 @@ import useFacilities from 'kolibri-common/composables/useFacilities';
 import useFacility from 'kolibri-common/composables/useFacility';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from './constants';
+import { isSameExerciseReport } from './modules/exerciseDetail/handlers';
 import routes from './routes';
 import store from './store';
 import HomeActivityPage from './views/home/HomeActivityPage';
@@ -63,6 +64,11 @@ class CoachToolsModule extends KolibriApp {
     router.beforeEach((to, from, next) => {
       if (get(isLearnerOnlyImport)) {
         redirectBrowser();
+        return;
+      }
+
+      if (isSameExerciseReport(to, from)) {
+        next();
         return;
       }
 

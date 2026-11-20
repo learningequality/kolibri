@@ -4,6 +4,8 @@ const moduleNameMapper = {
   '^testUtils$': path.resolve(__dirname, './testUtils'),
   '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|css|scss|sass)$':
     path.resolve(__dirname, './fileMock.js'),
+  // jsdom resolves the `browser` export condition, which is ESM-only for this package.
+  '^@preact/signals-core$': require.resolve('@preact/signals-core'),
 };
 
 module.exports = {

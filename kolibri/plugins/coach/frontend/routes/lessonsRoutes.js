@@ -17,7 +17,7 @@ import LessonLearnerPage from '../views/lessons/reports/LessonLearnerPage.vue';
 import LessonExerciseLearnersPage from '../views/lessons/reports/LessonExerciseLearnersPage.vue';
 import {
   exerciseRootRedirectHandler,
-  generateExerciseDetailHandler,
+  exerciseDetailHandler,
 } from '../modules/exerciseDetail/handlers';
 import LessonExerciseLearnerPage from '../views/lessons/reports/LessonExerciseLearnerPage.vue';
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
@@ -199,7 +199,7 @@ export default [
     name: PageNames.LESSON_EXERCISE_LEARNER_REPORT,
     path: CLASS + LESSON + EXERCISE + LEARNER + TRY + QUESTION + INTERACTION,
     component: LessonExerciseLearnerPage,
-    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
+    handler: exerciseDetailHandler,
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTIONS_REPORT,
@@ -219,7 +219,7 @@ export default [
     name: PageNames.LESSON_LEARNER_EXERCISE_REPORT,
     path: CLASS + LESSON + LEARNER + EXERCISE + TRY + QUESTION + INTERACTION,
     component: LessonLearnerExercisePage,
-    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
+    handler: exerciseDetailHandler,
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
