@@ -2573,9 +2573,6 @@ describe('contains with ordered containers (strict sub-sequence)', () => {
     expect(evaluateNode(exprNode, variables, declarations)).toBe(expected);
   });
 
-  // qti-delete has the cardinality of its container (the second
-  // sub-expression), so deleting from an ordered container is still ordered
-  //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpDelete
   it.each([
     [['B', 'X', 'C'], true],
     [['C', 'X', 'A'], false],
