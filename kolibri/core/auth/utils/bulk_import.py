@@ -63,6 +63,7 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 NON_EXISTENT_UUID = 11
 INVALID_UUID = 12
+DUPLICATED_UUID = 13
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: pgettext_lazy(
@@ -99,6 +100,7 @@ MESSAGES = {
         "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
     ),
     INVALID_UUID: _("Database ID is not valid"),
+    DUPLICATED_UUID: _("Database ID is duplicated"),
 }
 
 # Validators ###
@@ -539,22 +541,22 @@ class BulkUserImportManager(JobProgressMixin):
         user_obj = FacilityUser.all_objects.get(
             id=values["uuid"], facility=self.default_facility
         )
+        was_deleted = user_obj.date_deleted is not None
         # If user was soft-deleted, un-delete them
-        if user_obj.date_deleted is not None:
+        if was_deleted:
             user_obj.date_deleted = None
-        if user_obj.username != username:
-            # check for duplicated username in the facility
-            existing_user = FacilityUser.all_objects.get(
-                username__iexact=username, facility=self.default_facility
+        renamed = user_obj.username.lower() != username.lower()
+        holders = FacilityUser.all_objects if renamed else FacilityUser.objects
+        if (user_obj.username != username or was_deleted) and holders.filter(
+            username__iexact=username, facility=self.default_facility
+        ).exclude(id=user_obj.id).exists():
+            return user_obj, self._row_error(
+                username,
+                user_row,
+                MESSAGES[DUPLICATED_USERNAME],
+                "USERNAME",
+                username,
             )
-            if existing_user:
-                return user_obj, self._row_error(
-                    username,
-                    user_row,
-                    MESSAGES[DUPLICATED_USERNAME],
-                    "USERNAME",
-                    username,
-                )
         return user_obj, None
 
     def _new_user(self, username, user_row, values):
@@ -607,10 +609,19 @@ class BulkUserImportManager(JobProgressMixin):
 
         # creating the users takes half of the time
         progress = (100 / self.number_lines) * 0.5
+        seen_uuids = set()
         for username, user_row in users.items():
             self.progress_update(progress)
             values = self.get_field_values(user_row)
-            if values["uuid"] in existing_users:
+            if values["uuid"] in seen_uuids:
+                uuid = user_row[self.header_translation["UUID"]]
+                per_line_errors.append(
+                    self._row_error(
+                        username, user_row, MESSAGES[DUPLICATED_UUID], "UUID", uuid
+                    )
+                )
+            elif values["uuid"] in existing_users:
+                seen_uuids.add(values["uuid"])
                 user_obj, error = self._existing_user(username, user_row, values)
                 keeping_users.append(user_obj)
                 if error:
