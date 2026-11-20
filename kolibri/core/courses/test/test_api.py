@@ -193,6 +193,84 @@ class CourseSessionAPITestCase(APITestCase):
             ).exists()
         )
 
+    def post_course_session_assigned_to(self, collection):
+        return self.client.post(
+            reverse("kolibri:core:coursesession-list"),
+            {
+                "collection": self.classroom.id,
+                "course": self.course.id,
+                "assignments": [collection.id],
+            },
+            format="json",
+        )
+
+    def test_classroom_coach_course_session_create_with_own_group_assignment(self):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        group = LearnerGroup.objects.create(name="group", parent=self.classroom)
+        response = self.post_course_session_assigned_to(group)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(
+            models.CourseSessionAssignment.objects.filter(
+                course_session_id=response.data["id"], collection=group
+            ).exists()
+        )
+
+    def test_classroom_coach_course_session_create_with_other_classroom_assignment(
+        self,
+    ):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        response = self.post_course_session_assigned_to(other_classroom)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            models.CourseSessionAssignment.objects.filter(
+                collection=other_classroom
+            ).exists()
+        )
+
+    def test_classroom_coach_course_session_create_with_other_classroom_group_assignment(
+        self,
+    ):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        group = LearnerGroup.objects.create(name="group", parent=other_classroom)
+        response = self.post_course_session_assigned_to(group)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            models.CourseSessionAssignment.objects.filter(collection=group).exists()
+        )
+
+    def test_classroom_coach_course_session_update_with_other_classroom_assignment(
+        self,
+    ):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:coursesession-detail",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {"assignments": [other_classroom.id]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            models.CourseSessionAssignment.objects.filter(
+                collection=other_classroom
+            ).exists()
+        )
+
+    def test_logged_in_admin_course_session_create_with_adhoc_group_assignment(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        adhoc_group = AdHocGroup.objects.create(name="adhoc", parent=self.classroom)
+        response = self.post_course_session_assigned_to(adhoc_group)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            models.CourseSessionAssignment.objects.filter(
+                collection=adhoc_group
+            ).exists()
+        )
+
     def test_logged_in_admin_course_session_update_no_assignments(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 

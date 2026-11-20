@@ -20,6 +20,7 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions import _ensure_raw_dict
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.serializers import AssignableCollectionField
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
@@ -137,7 +138,7 @@ class LessonSerializer(ModelSerializer):
         if raw_assignments is not None:
             result["assignments"] = self._validate_list_field(
                 "assignments",
-                PrimaryKeyRelatedField(queryset=Collection.objects.all()),
+                AssignableCollectionField(),
                 raw_assignments,
             )
         if raw_learner_ids is not None:
@@ -187,11 +188,7 @@ class LessonSerializer(ModelSerializer):
         instance.resources = validated_data.get("resources", instance.resources)
 
         if "assignments" in validated_data:
-            collections = [
-                c
-                for c in validated_data.pop("assignments")
-                if c.kind != ADHOCLEARNERSGROUP
-            ]
+            collections = validated_data.pop("assignments")
             current_group_ids = set(
                 instance.lesson_assignments.exclude(
                     collection__kind=ADHOCLEARNERSGROUP

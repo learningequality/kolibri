@@ -25,12 +25,12 @@ from kolibri.core import error_constants
 from kolibri.core.api import HexUUIDField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
-from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions import _ensure_raw_dict
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.serializers import AssignableCollectionField
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
@@ -93,9 +93,7 @@ class ExamSerializer(ModelSerializer):
     # assignments, learner_ids, and draft are excluded from the DB values() query
     # via deferred_fields on ExamViewset. They are populated post-query by
     # consolidate() (for Exam) and serialize_draft() (for DraftExam).
-    assignments = ListField(
-        child=PrimaryKeyRelatedField(queryset=Collection.objects.all()),
-    )
+    assignments = ListField(child=AssignableCollectionField())
     learner_ids = ListField(
         child=PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
         required=False,
@@ -312,12 +310,6 @@ class ExamSerializer(ModelSerializer):
             if "assignments" in validated_data:
                 collections = validated_data.pop("assignments")
 
-                collections = [
-                    collection
-                    for collection in collections
-                    if collection.kind != ADHOCLEARNERSGROUP
-                ]
-
                 if instance_is_draft:
                     # If this is a draft exam, then we need to update the assignments
                     # directly on the instance
@@ -362,9 +354,12 @@ class ExamSerializer(ModelSerializer):
                 code=error_constants.INVALID,
             )
         if "assignments" not in validated_data:
-            # Silently ignores assignments for collections deleted since draft was created
-            validated_data["assignments"] = Collection.objects.filter(
-                id__in=instance.assignments
+            # Silently ignores assignments for collections deleted since draft was created,
+            # or that the user can't assign to
+            validated_data["assignments"] = (
+                self.fields["assignments"]
+                .child.get_queryset()
+                .filter(id__in=instance.assignments)
             )
         if "learner_ids" not in validated_data:
             # Silently ignores learners deleted since draft was created

@@ -37,6 +37,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.serializers import AssignableCollectionField
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -187,9 +188,7 @@ class CourseSessionSerializer(ModelSerializer):
         if assignment_ids is not None:
             instance["assignments"] = self._validate_list_field(
                 "assignments",
-                PrimaryKeyRelatedField(
-                    queryset=Collection.objects.exclude(kind=ADHOCLEARNERSGROUP)
-                ),
+                AssignableCollectionField(),
                 assignment_ids,
             )
 
