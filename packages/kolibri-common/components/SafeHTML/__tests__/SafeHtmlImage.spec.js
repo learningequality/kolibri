@@ -150,8 +150,6 @@ describe('SafeHtmlImage carries allowlisted inline styles through SafeHTML', () 
     expect(screen.getByAltText(carriedAlt)).toHaveStyle({ 'background-color': 'rgb(255, 255, 0)' });
   });
 
-  // SafeHTML is functional and positional, so a new html payload reuses the
-  // SafeHtmlImage instance already mounted at that position.
   it('applies a style that only appears on a later render of the same image', async () => {
     const { updateProps } = render(SafeHTML, {
       props: {
@@ -220,8 +218,10 @@ describe('SafeHtmlImage carries size attributes through SafeHTML', () => {
       { width: 1600, height: 1200 },
     );
     await updateProps({ html: `<img src="./pic.png" alt="${sizedAlt}" height="150">` });
+    const img = screen.getByAltText(sizedAlt);
+    await loadImage(img, { width: 200, height: 150 }, { width: 1600, height: 1200 });
 
-    expect(screen.getByAltText(sizedAlt)).toHaveAttribute('width', '200');
+    expect(img).toHaveAttribute('width', '200');
   });
 
   it.each([
