@@ -181,6 +181,7 @@
         selectedFacility,
         facilityConfig,
         osUserFormOpened,
+        fetchOSUsername,
       } = useAuthFlow();
       const { setSelectedFacilityId } = useFacilitySelect();
       const { watchForFacilityChange } = useAuthWatcher();
@@ -208,6 +209,7 @@
         facilityConfig,
         hasMultipleFacilities,
         osUserFormOpened,
+        fetchOSUsername,
         nextParam,
         backToFacilitySelectionRoute,
       };
@@ -329,16 +331,12 @@
             }
           })
           .catch(() => {});
-        if (!this.osUserFormOpened) {
-          FacilityUsernameResource.osuser()
-            .then(({ username, facility }) => {
-              if (facility === this.selectedFacility.id && !this.username && !this.busy) {
-                this.osUserFormOpened = true;
-                this.setSelectedUsername(username);
-              }
-            })
-            .catch(() => {});
-        }
+        this.fetchOSUsername().then(username => {
+          if (username && !this.username && !this.busy) {
+            this.osUserFormOpened = true;
+            this.setSelectedUsername(username);
+          }
+        });
       }
     },
     methods: {

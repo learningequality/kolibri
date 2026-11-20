@@ -9,6 +9,7 @@ const MOCK_DEFAULTS = {
   facilityConfig: ref({}),
   hasMultipleFacilities: computed(() => false),
   signInMethod: ref(OptionsForSignIn.USERNAME_PASSWORD),
+  setSignInMethodForThisVisit: jest.fn(),
   signInRoute: computed(() => ComponentMap.USERNAME_SIGN_IN),
   signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
   canSignUp: computed(() => false),
@@ -17,6 +18,7 @@ const MOCK_DEFAULTS = {
   defaultRoute: computed(() => ComponentMap.USERNAME_SIGN_IN),
   initializeFlow: jest.fn(),
   setFacilityId: jest.fn(),
+  fetchOSUsername: jest.fn().mockResolvedValue(null),
 };
 
 export function useAuthFlowMock(overrides = {}) {

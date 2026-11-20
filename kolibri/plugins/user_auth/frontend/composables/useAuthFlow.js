@@ -4,6 +4,7 @@ import { handleApiError } from 'kolibri/utils/appError';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { useFacilitySelect, useFacilityConfig } from 'kolibri-common/composables/useFacility';
+import FacilityUsernameResource from '../apiResources/FacilityUsernameResource';
 
 /**
  * Global initialization state to prevent unnecessary repeated API calls. Having all the composables
@@ -58,6 +59,8 @@ const _persistentSignInMethod = useLocalStorage('signInMethod', null, {
   serializer: StorageSerializers.string,
 });
 
+const _signInMethodForThisVisit = ref(null);
+
 /**
  * The sign-in method, either previously chosen by the user, or the default according to facility
  * settings
@@ -65,6 +68,9 @@ const _persistentSignInMethod = useLocalStorage('signInMethod', null, {
  */
 const signInMethod = computed({
   get() {
+    if (_signInMethodForThisVisit.value) {
+      return _signInMethodForThisVisit.value;
+    }
     // Previously chosen sign-in method takes precedence if enabled
     if (
       _persistentSignInMethod.value &&
@@ -80,10 +86,15 @@ const signInMethod = computed({
     return signInOptions.value[0];
   },
   set(value) {
+    _signInMethodForThisVisit.value = null;
     // Persist the sign-in method for the user in local storage
     _persistentSignInMethod.value = value;
   },
 });
+
+function setSignInMethodForThisVisit(method) {
+  _signInMethodForThisVisit.value = method;
+}
 
 /**
  * Whether a user can sign up with any facility
@@ -133,6 +144,21 @@ const picturePasswordShowIconText = computed(() => {
 });
 
 const osUserFormOpened = ref(false);
+
+/**
+ * Resolves to the username of the signed-out OS user who must sign in with a password to the
+ * active facility, or null when there is none or their form was already opened
+ * @returns {Promise<string|null>}
+ */
+async function fetchOSUsername() {
+  if (osUserFormOpened.value) return null;
+  try {
+    const { username, facility } = await FacilityUsernameResource.osuser();
+    return facility === facilityId.value ? username : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Set the active facility ID
@@ -196,6 +222,7 @@ export default function useAuthFlow() {
     facilityConfig,
     hasMultipleFacilities,
     signInMethod,
+    setSignInMethodForThisVisit,
     signInOptions,
     canSignUp,
     canSignUpWithAnyFacility,
@@ -203,6 +230,7 @@ export default function useAuthFlow() {
     picturePasswordStyle,
     picturePasswordShowIconText,
     osUserFormOpened,
+    fetchOSUsername,
     initializeFlow,
     setFacilityId,
   };

@@ -103,17 +103,19 @@
     setup() {
       const router = useRouter();
       const route = useRoute();
-      const { login } = useUser();
+      const { isAppContext, login } = useUser();
       const { createSnackbar } = useSnackbar();
       const { windowIsLandscape } = useKResponsiveWindow();
       const { wrongPicturesTryAgain$, wrongWordsTryAgain$ } = picturePasswordStrings;
-      const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
+      const { nextParam, defaultRoute, usernameSignInRoute, getFacilitySelectionRoute } =
+        useAuthRouter(route);
       const {
         hasMultipleFacilities,
         facilityId,
         signInOptions,
         picturePasswordStyle,
         picturePasswordShowIconText,
+        fetchOSUsername,
       } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
       const { setSelectedFacilityId } = useFacilitySelect();
@@ -142,6 +144,17 @@
       onMounted(() => {
         nextTick(() => passwordGridRef.value?.focusSentinel());
       });
+
+      if (isAppContext.value) {
+        fetchOSUsername().then(username => {
+          if (username && !busy.value) {
+            router.push({
+              ...usernameSignInRoute.value,
+              query: { ...usernameSignInRoute.value.query, keepSavedSignInMethod: true },
+            });
+          }
+        });
+      }
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
         // If the facility ID is unset, it could mean the facility is no longer an option

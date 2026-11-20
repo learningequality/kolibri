@@ -11,13 +11,15 @@ import NewPasswordPage from './views/SignInPage/NewPasswordPage';
 import useAuthFlow from './composables/useAuthFlow';
 import useAuthRouter from './composables/useAuthRouter';
 
-const { facilityId, signInMethod, canSignUpWithFacility } = useAuthFlow();
+const { facilityId, signInMethod, setSignInMethodForThisVisit, canSignUpWithFacility } =
+  useAuthFlow();
 
 async function signInHook(method, to, from, next) {
   const { getFacilitySelectionRoute } = useAuthRouter(to);
 
-  // Persist the sign-in method according to the route
-  if (signInMethod.value !== method) {
+  if (to.query.keepSavedSignInMethod) {
+    setSignInMethodForThisVisit(method);
+  } else if (signInMethod.value !== method) {
     signInMethod.value = method;
   }
   // If no facility has been selected, take user to facility selection
