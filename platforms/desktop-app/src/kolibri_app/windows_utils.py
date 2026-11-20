@@ -8,13 +8,13 @@ import winerror
 from kolibri.utils.server import stop as stop_kolibri_server
 from kolibri_app.constants import RUN_AS_SERVER
 from kolibri_app.constants import SERVICE_NAME
+from kolibri_app.constants import STOP_WHEN_STDIN_CLOSES
 from kolibri_app.logger import logging
 from kolibri_app.server_process_windows import WindowsKolibriProcess
+from kolibri_app.windows.service import SERVER_STOP_TIMEOUT
 from kolibri_app.windows_registry import update_tray_icon_startup
 
-# NSSM waits AppStopMethodWindow (30s, set by the installer) for a graceful stop,
-# then terminates the server; leave room for both.
-SERVICE_STOP_TIMEOUT_SECONDS = 60
+SERVICE_STOP_TIMEOUT_SECONDS = 2 * SERVER_STOP_TIMEOUT
 
 start_type_map = {
     "auto": win32service.SERVICE_AUTO_START,
@@ -146,6 +146,8 @@ def handle_windows_commands():
     # This block is the entry point for the server subprocess
     if RUN_AS_SERVER:
         logging.info("Starting in server mode...")
-        server = WindowsKolibriProcess()
+        server = WindowsKolibriProcess(
+            stop_when_stdin_closes=STOP_WHEN_STDIN_CLOSES in sys.argv
+        )
         server.run()
         sys.exit(0)

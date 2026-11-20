@@ -78,11 +78,6 @@ datas_list = [
     ('src/kolibri_app/scripts', 'kolibri_app/scripts'),
 ] + locale_datas
 
-if sys.platform == "win32":
-    datas_list.append(
-        (os.path.join('installer', 'nssm', 'nssm.exe'), 'nssm')
-    )
-
 binaries_list = []
 if sys.platform == "win32":
     dll_path = os.path.join(os.path.dirname(wx.__file__), 'WebView2Loader.dll')

@@ -103,3 +103,28 @@ class TestIpcPluginStop(unittest.TestCase):
             stop.join(TIMEOUT)
         self.assertFalse(stop.is_alive())
         self.assertEqual(pipes.open, set())
+
+
+class _FakeStdin:
+    """An anonymous pipe: reads return data until the writer closes it."""
+
+    def __init__(self):
+        self.closed = threading.Event()
+
+    def ReadFile(self, handle, size):
+        self.closed.wait()
+        raise Win32Error(server_process_windows.winerror.ERROR_BROKEN_PIPE)
+
+
+class TestStdinStopPlugin(unittest.TestCase):
+    def test_closing_stdin_exits_the_server(self):
+        stdin = _FakeStdin()
+        bus = MagicMock()
+        exited = threading.Event()
+        bus.transition.side_effect = lambda state: exited.set()
+        with patch.object(server_process_windows.win32file, "ReadFile", stdin.ReadFile):
+            server_process_windows.StdinStopPlugin(bus).START()
+            self.assertFalse(exited.wait(0.1))
+            stdin.closed.set()
+            self.assertTrue(exited.wait(TIMEOUT))
+        bus.transition.assert_called_once_with("EXITED")
