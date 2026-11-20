@@ -99,6 +99,12 @@ def _get_source_path(field: DrfField, field_name: str, prefix: str) -> Optional[
     return f"{prefix}{source_path}" if prefix else source_path
 
 
+def _optional_fields(serializer: Serializer) -> FrozenSet[str]:
+    return frozenset(
+        getattr(getattr(type(serializer), "Meta", None), "optional_fields", ())
+    )
+
+
 def _is_nested_model_serializer(field: DrfField) -> bool:
     """
     True for a nested ``ModelSerializer`` (or ``ListSerializer`` wrapping one).
@@ -637,6 +643,7 @@ def _introspect_serializer_fields(
         getattr(serializer_class, "Meta", None), "model", None
     )
     declared_fields: Dict[str, DrfField] = getattr(serializer, "_declared_fields", {})
+    optional_fields = _optional_fields(serializer)
     builder = _LevelBuilder(model)
 
     serializer_fields: Dict[str, DrfField] = cast(
@@ -650,7 +657,7 @@ def _introspect_serializer_fields(
                 *_introspect_nested_field(field_name, field, model, deferred_fields)
             )
             continue
-        if field_name in deferred_fields:
+        if field_name in deferred_fields or field_name in optional_fields:
             continue
         _classify_regular_field(
             field_name, field, declared_fields, serializer_class, model, builder
@@ -677,7 +684,8 @@ def build_validation_schema(serializer: Serializer) -> ValidationSchema:
 
     A model-backed level is assembled field by field, so every declared field must
     be present — ``read_only`` included, since DRF makes those ``required=False``
-    and they are exactly the deferred fields ``consolidate()`` must fill.
+    and they are exactly the deferred fields ``consolidate()`` must fill — except
+    those listed in ``Meta.optional_fields``.
 
     A plain ``Serializer`` level (a JSON column's schema) runs DRF's
     ``to_representation``, which drops a ``required=False`` field the stored data
@@ -697,7 +705,9 @@ def build_validation_schema(serializer: Serializer) -> ValidationSchema:
         elif isinstance(field, Serializer):
             nested_schemas[field_name] = build_validation_schema(field)
     present_fields = (
-        expected_fields if isinstance(serializer, ModelSerializer) else required_fields
+        expected_fields - _optional_fields(serializer)
+        if isinstance(serializer, ModelSerializer)
+        else required_fields
     )
     return (frozenset(expected_fields), frozenset(present_fields), nested_schemas)
 

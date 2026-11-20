@@ -5,6 +5,7 @@ from typing import Type
 from unittest.mock import MagicMock
 
 import pytz
+from django.core.exceptions import FieldError
 from django.db import connection
 from django.db.models import Model
 from django.test import override_settings
@@ -61,9 +62,17 @@ def create_mock_queryset(flat_items, model: Type[Model] = Author):
     return mock_qs
 
 
-def make_serializer(model: Type[Model] = Author, **fields):
+def make_serializer(model: Type[Model] = Author, optional_fields=(), **fields):
     """Create a ModelSerializer class dynamically. Returns a CLASS."""
-    meta = type("Meta", (), {"model": model, "fields": list(fields.keys())})
+    meta = type(
+        "Meta",
+        (),
+        {
+            "model": model,
+            "fields": list(fields.keys()),
+            "optional_fields": optional_fields,
+        },
+    )
     attrs: dict = dict(fields)
     attrs["Meta"] = meta
     return type("DynamicSerializer", (serializers.ModelSerializer,), attrs)
@@ -93,11 +102,14 @@ def make_viewset(
     model: Type[Model] = Author,
     queryset=None,
     deferred_fields=(),
+    optional_fields=(),
     **fields,
 ):
     """Create a viewset INSTANCE. Builds serializer from **fields if none provided."""
     if serializer_class is None:
-        serializer_class = make_serializer(model=model, **fields)
+        serializer_class = make_serializer(
+            model=model, optional_fields=optional_fields, **fields
+        )
     if queryset is None:
         queryset = model.objects.none()
     attrs: dict = {"queryset": queryset, "serializer_class": serializer_class}
@@ -2419,6 +2431,85 @@ class TestDevModeSafeguards(TestCase):
         )
         result = viewset.serialize(viewset.get_queryset())
         self.assertEqual(result[0]["metadata"], [{"learners_see_fixed_order": True}])
+
+    @override_settings(DEBUG=True)
+    def test_optional_field_is_not_selected_and_may_be_absent(self):
+        author = Author.objects.create(name="A", email="a@example.com")
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=author.pk),
+            optional_fields=("flagged",),
+            id=serializers.UUIDField(),
+            name=serializers.CharField(),
+            flagged=serializers.BooleanField(required=False),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(result, [{"id": author.id, "name": "A"}])
+
+    @override_settings(DEBUG=True)
+    def test_optional_field_set_by_consolidate_is_emitted(self):
+        author = Author.objects.create(name="A", email="a@example.com")
+        Ser = make_serializer(
+            optional_fields=("flagged",),
+            id=serializers.UUIDField(),
+            flagged=serializers.BooleanField(required=False),
+        )
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.filter(pk=author.pk)
+            serializer_class = Ser
+
+            def consolidate(self, items, queryset):
+                for item in items:
+                    item["flagged"] = True
+                return items
+
+        result = V().serialize(V.queryset)
+        self.assertEqual(result, [{"id": author.id, "flagged": True}])
+
+    @override_settings(DEBUG=True)
+    def test_required_false_alone_does_not_make_a_field_optional(self):
+        author = Author.objects.create(name="A", email="a@example.com")
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=author.pk),
+            id=serializers.UUIDField(),
+            flagged=serializers.BooleanField(required=False),
+        )
+        with self.assertRaises(FieldError):
+            viewset.serialize(viewset.get_queryset())
+
+    @override_settings(DEBUG=True)
+    def test_validate_catches_consolidate_omitting_a_deferred_writable_field(self):
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            extra=serializers.ListField(required=False),
+        )
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.none()
+            serializer_class = Ser
+            deferred_fields = ("extra",)
+
+            def consolidate(self, items, queryset):
+                return items
+
+        _assert_serialize_raises(self, V(), [{"id": "a1"}], "extra")
+
+    @override_settings(DEBUG=True)
+    def test_validate_catches_consolidate_omitting_read_only_non_column_field(self):
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            extra=serializers.CharField(read_only=True),
+        )
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.none()
+            serializer_class = Ser
+            deferred_fields = ("extra",)
+
+            def consolidate(self, items, queryset):
+                return items
+
+        _assert_serialize_raises(self, V(), [{"id": "a1"}], "extra")
 
     @override_settings(DEBUG=True)
     def test_validate_does_not_crash_on_listfield_child(self):

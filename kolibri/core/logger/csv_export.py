@@ -23,6 +23,7 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.viewsets.contentnode.base import resolve_content_nodes
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
 from kolibri.core.utils.csv import validate_open_csv_params
@@ -77,14 +78,20 @@ def get_cached_content_data(item):
     if title is None or ancestors is None:
         node_id = _optional_node_id(item)
         if node_id:
-            node = ContentNode.objects.filter(pk=node_id).first()
+            node = resolve_content_nodes([node_id], fields=("title", "ancestors")).get(
+                node_id
+            )
         else:
-            node = ContentNode.objects.filter(
-                content_id=item["content_id"], channel_id=item["channel_id"]
-            ).first()
+            node = (
+                ContentNode.objects.filter(
+                    content_id=item["content_id"], channel_id=item["channel_id"]
+                )
+                .values("title", "ancestors")
+                .first()
+            )
         if node:
-            title = node.title
-            ancestors = node.ancestors
+            title = node["title"]
+            ancestors = node["ancestors"]
         else:
             title = ""
             ancestors = []
