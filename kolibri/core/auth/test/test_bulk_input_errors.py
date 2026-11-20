@@ -5,17 +5,22 @@ from contextlib import suppress
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db.models import Value
 from django.test import TestCase
+from django.utils.functional import lazy
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import importusersfromcsv
+from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.utils.bulk_import import fieldnames
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -88,6 +93,63 @@ class BulkInputErrorsTest(TestCase):
     def test_unparseable_header_reports_error(self):
         with self.assertRaisesRegex(CommandError, "unexpected end of data"):
             self.run_import_with_report(self.write_csv([], raw='"UUID,USERNAME\n'))
+
+    def check_facility_error(self, command, facility):
+        provision_device(default_facility=self.facility)
+        self.addCleanup(clear_process_cache)
+        if command == "bulkimportusers":
+            args = [self.write_csv([csv_user_row()])]
+        else:
+            args = ["--output-file", self.write_csv([]), "--overwrite"]
+        with self.assertRaisesRegex(CommandError, f"Facility with ID '{facility}'"):
+            call_command(command, *args, facility=facility)
+
+    def test_unknown_facility_import_reports_error(self):
+        self.check_facility_error("bulkimportusers", uuid4().hex)
+
+    def test_malformed_facility_import_reports_error(self):
+        self.check_facility_error("bulkimportusers", "notauuid")
+
+    def test_unknown_facility_export_reports_error(self):
+        self.check_facility_error("bulkexportusers", uuid4().hex)
+
+    def test_malformed_facility_export_reports_error(self):
+        self.check_facility_error("bulkexportusers", "notauuid")
+
+    def test_empty_facility_does_not_fall_back_to_default(self):
+        provision_device(default_facility=self.facility)
+        self.addCleanup(clear_process_cache)
+        self.path.write_text(HEADER + VALID_ROW, encoding="utf-8")
+        output = self.path.with_name("export.csv")
+        for command, args in (
+            ("bulkimportusers", [str(self.path)]),
+            ("bulkexportusers", ["--output-file", str(output)]),
+        ):
+            with self.subTest(command=command), self.assertRaisesRegex(
+                CommandError, "Facility with ID ''"
+            ):
+                call_command(command, *args, "--facility", "")
+        self.assertFalse(FacilityUser.objects.filter(username="valid").exists())
+        self.assertFalse(output.exists())
+
+    def test_facility_lookup_accepts_database_expressions_and_lazy_ids(self):
+        self.path.write_text(HEADER + VALID_ROW, encoding="utf-8")
+        output = self.path.with_name("export.csv")
+        for facility in (
+            Value(self.facility.id),
+            lazy(lambda: self.facility.id, str)(),
+        ):
+            with self.subTest(facility=facility):
+                call_command("bulkimportusers", str(self.path), facility=facility)
+                self.assertTrue(
+                    self.facility.facilityuser_set.filter(username="valid").exists()
+                )
+                call_command(
+                    "bulkexportusers", "--output-file", str(output), facility=facility
+                )
+                self.assertTrue(output.is_file())
+                output.unlink()
+                self.facility.facilityuser_set.filter(username="valid").delete()
 
     def enqueue_csv_job(self, task, content=None, **kwargs):
         if content is not None:

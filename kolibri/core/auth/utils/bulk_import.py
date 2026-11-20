@@ -64,6 +64,7 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 NON_EXISTENT_UUID = 11
 INVALID_UUID = 12
+FACILITY_NOT_FOUND = _("Facility with ID {facility_id!r} does not exist")
 EMPTY_FILE_MESSAGE = gettext_noop(
     "The selected file is empty. Select a CSV file that contains users."
 )
@@ -436,6 +437,19 @@ def csv_values_validation(reader, header_translation, facility):
     )
 
 
+def get_bulk_user_facility(facility_id, error_class):
+    if facility_id is None:
+        facility = Facility.get_default_facility()
+        if not facility:
+            raise error_class(str(MESSAGES[NO_FACILITY]))
+        return facility
+
+    try:
+        return Facility.objects.get(pk=facility_id)
+    except (Facility.DoesNotExist, ValueError) as error:
+        raise error_class(FACILITY_NOT_FOUND.format(facility_id=facility_id)) from error
+
+
 class BulkUserImportManager(JobProgressMixin):
     def __init__(
         self,
@@ -692,16 +706,6 @@ class BulkUserImportManager(JobProgressMixin):
         self.progress_update(1)
         return (new_classes, update_classes, classes)
 
-    def get_facility(self):
-        if self.facility_id:
-            default_facility = Facility.objects.get(pk=self.facility_id)
-        else:
-            default_facility = Facility.get_default_facility()
-        if not default_facility:
-            raise BulkUserImportError(str(MESSAGES[NO_FACILITY]))
-
-        return default_facility
-
     def get_number_lines(self, local_filepath=None, storage_filepath=None):
         try:
             with open_csv_for_reading(
@@ -848,7 +852,14 @@ class BulkUserImportManager(JobProgressMixin):
             self._run()
 
     def _run(self):
-        self.default_facility = self.get_facility()
+        self.overall_error = []
+        try:
+            self.default_facility = get_bulk_user_facility(
+                self.facility_id, BulkUserImportError
+            )
+        except BulkUserImportError as error:
+            self.append_error(error)
+            self.exit_if_error()
 
         storage_filepath = None
         local_filepath = None
@@ -859,7 +870,6 @@ class BulkUserImportManager(JobProgressMixin):
             local_filepath = os.path.join(os.getcwd(), self.filepath)
 
         # initialize stats data structures:
-        self.overall_error = []
         db_new_classes = []
         db_update_classes = []
         classes_to_clear = []
