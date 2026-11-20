@@ -3,11 +3,14 @@ import logging
 import ntpath
 import os
 import re
+import stat
+from contextlib import ExitStack
 from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
@@ -844,30 +847,56 @@ class BulkUserImportManager(JobProgressMixin):
             else:
                 to_remove.delete()
 
-    def output_messages(
-        self, per_line_errors, classes_report, users_report, filepath, errorlines
-    ):
-        # Show output error messages on loggers, job metadata or io errorlines for testing
-        # freeze message translations:
-        for line in per_line_errors:
-            line["message"] = str(line["message"])
+    def write_error_report(self, per_line_errors, input_path):
+        output = self.errorlines
+        if not output:
+            return
+        with ExitStack() as stack:
+            report = output
+            if isinstance(output, (str, os.PathLike)):
+                report = stack.enter_context(
+                    open(
+                        output,
+                        "a",
+                        encoding="utf-8",
+                        opener=lambda path, flags: os.open(
+                            path, flags | getattr(os, "O_NONBLOCK", 0)
+                        ),
+                    )
+                )
+                report_stat = os.fstat(report.fileno())
+                if self.use_storage:
+                    try:
+                        input_path = default_storage.path(input_path)
+                    except NotImplementedError:
+                        input_path = None
+                if input_path is not None and os.path.samestat(
+                    os.stat(input_path), report_stat
+                ):
+                    self.append_error(
+                        translation.gettext(
+                            "The error output must differ from the input file."
+                        )
+                    )
+                    self.exit_if_error()
+                if stat.S_ISREG(report_stat.st_mode):
+                    report.truncate(0)
+            for line in per_line_errors:
+                report.write(f"{line}\n")
 
+    def output_messages(self, per_line_errors, classes_report, users_report):
         if self.job:
             self.job.extra_metadata["overall_error"] = self.overall_error
             self.job.extra_metadata["per_line_errors"] = per_line_errors
             self.job.extra_metadata["classes"] = classes_report
             self.job.extra_metadata["users"] = users_report
-            self.job.extra_metadata["filename"] = ntpath.basename(filepath)
+            self.job.extra_metadata["filename"] = ntpath.basename(self.filepath)
             self.job.save_meta()
         else:
             logger.info("File errors: %s", self.overall_error)
             logger.info("Data errors: %s", per_line_errors)
             logger.info("Classes report: %s", classes_report)
             logger.info("Users report: %s", users_report)
-            if errorlines:
-                for line in per_line_errors:
-                    errorlines.write(str(line))
-                    errorlines.write("\n")
 
     def run(self):
         # set language for the translation of the messages
@@ -945,6 +974,10 @@ class BulkUserImportManager(JobProgressMixin):
             per_line_errors += self.db_validate_list(db_new_classes)
             per_line_errors += self.db_validate_list(db_update_classes)
 
+            for line in per_line_errors:
+                line["message"] = str(line["message"])
+            self.write_error_report(per_line_errors, storage_filepath or local_filepath)
+
             if not self.dryrun:
                 self.delete_users(users_to_delete)
                 # clear users from classes not included in the csv:
@@ -987,6 +1020,4 @@ class BulkUserImportManager(JobProgressMixin):
                 per_line_errors,
                 classes_report,
                 users_report,
-                self.filepath,
-                self.errorlines,
             )

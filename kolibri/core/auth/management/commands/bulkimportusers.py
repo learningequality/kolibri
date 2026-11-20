@@ -70,5 +70,5 @@ class Command(BaseCommand):
                 use_storage=options["use_storage"],
                 errorlines=options["errorlines"],
             ).run()
-        except BulkUserImportError as e:
+        except (BulkUserImportError, OSError) as e:
             raise CommandError(str(e)) from e
