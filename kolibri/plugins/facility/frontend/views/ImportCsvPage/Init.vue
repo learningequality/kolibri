@@ -43,10 +43,19 @@
           type="file"
           accept="text/csv,.csv"
           name="csv-file"
+          :aria-invalid="fileIsEmpty ? 'true' : undefined"
+          :aria-describedby="fileIsEmpty ? 'csv-file-error' : undefined"
           @change="filesChanged"
         >
       </label>
     </p>
+    <p
+      id="csv-file-error"
+      data-testid="csv-file-error"
+      class="file-error"
+      aria-live="polite"
+      v-text="fileIsEmpty ? $tr('emptyFile') : ''"
+    ></p>
     <!-- Temporarily remove this functionality for MVP -->
     <p v-if="false">
       <KCheckbox
@@ -97,22 +106,25 @@
       return {
         showInfoModal: false,
         fileToImport: null,
+        fileIsEmpty: false,
         deleteUsers: false,
       };
     },
     methods: {
       filesChanged() {
-        if (this.$refs.fileInput && this.$refs.fileInput.files.length) {
-          this.fileToImport = this.$refs.fileInput.files[0];
-        } else {
-          this.fileToImport = null;
-        }
+        const file = this.$refs.fileInput?.files[0] || null;
+        this.fileIsEmpty = file !== null && file.size === 0;
+        this.fileToImport = this.fileIsEmpty ? null : file;
       },
       toggleDelete() {
         this.deleteUsers = !this.deleteUsers;
       },
     },
     $trs: {
+      emptyFile: {
+        message: 'The selected file is empty. Select a CSV file that contains users.',
+        context: 'Error shown when selecting an empty CSV file to import users.',
+      },
       introduction: {
         message:
           'When importing from a spreadsheet you can create, update, and optionally delete dozens or hundreds of facility users at a time by loading new information from comma-separated-value (CSV) files.',
@@ -178,6 +190,10 @@
 
 
 <style lang="scss" scoped>
+
+  .file-error {
+    color: var(--tokens-error);
+  }
 
   .caution {
     font-weight: bold;
