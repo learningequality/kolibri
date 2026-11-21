@@ -145,6 +145,17 @@ def _get_request_os_username(request):
     return os_user.os_user_id if os_user else None
 
 
+def get_request_os_user(request):
+    os_username = _get_request_os_username(request)
+    if not os_username:
+        return None
+    return (
+        FacilityUser.objects.select_related("os_user")
+        .filter(os_user__os_username=os_username)
+        .first()
+    )
+
+
 def can_set_unspecified_password(request, user):
     if user.password != NOT_SPECIFIED:
         return False

@@ -17,6 +17,8 @@ const MOCK_DEFAULTS = {
   defaultRoute: computed(() => ComponentMap.USERNAME_SIGN_IN),
   initializeFlow: jest.fn(),
   setFacilityId: jest.fn(),
+  saveFacilityId: jest.fn(),
+  takeOSUsername: jest.fn(() => null),
 };
 
 export function useAuthFlowMock(overrides = {}) {

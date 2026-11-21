@@ -27,9 +27,6 @@ jest.mock('kolibri-plugin-data', () => ({
     deviceUnusableReason: null,
   },
 }));
-jest.mock('kolibri-common/composables/useFacility', () => ({
-  useFacilitySelect: () => ({ setSelectedFacilityId: jest.fn() }),
-}));
 jest.mock('../../../composables/useAuthFlow');
 jest.mock('../../../composables/useAuthRouter');
 jest.mock('../../../composables/useAuthWatcher');

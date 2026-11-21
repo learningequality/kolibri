@@ -1,9 +1,11 @@
 import { computed, ref, unref } from 'vue';
 import { useLocalStorage, StorageSerializers } from '@vueuse/core';
 import { handleApiError } from 'kolibri/utils/appError';
+import useUser from 'kolibri/composables/useUser';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { useFacilitySelect, useFacilityConfig } from 'kolibri-common/composables/useFacility';
+import FacilityUsernameResource from '../apiResources/FacilityUsernameResource';
 
 /**
  * Global initialization state to prevent unnecessary repeated API calls. Having all the composables
@@ -20,25 +22,36 @@ const { facilities, hasMultipleFacilities, fetchFacilities, getFacility } = useF
 const { facilityConfig, signInOptions, picturePasswordSettings, fetchFacilityConfig } =
   useFacilityConfig(null);
 
+const _savedFacilityId = computed(() => {
+  // Previously chosen facility ID takes precedence
+  if (selectedFacilityId.value) {
+    return selectedFacilityId.value;
+  }
+  // Without a previously chosen facility, we cannot default to one if the device has multiple
+  if (hasMultipleFacilities.value) {
+    return null;
+  }
+  // Return the first facility's ID otherwise
+  return facilities.value[0]?.id || null;
+});
+
+const _facilityIdForThisVisit = ref(null);
+const _signInMethodForThisVisit = ref(null);
+
+function _endThisVisitsChoices() {
+  _facilityIdForThisVisit.value = null;
+  _signInMethodForThisVisit.value = null;
+}
+
 /**
- * The facility that should be activated for sign-in, either the previously selected or default
- * if there is only one facility
  * @type {import('vue').WritableComputedRef<string|null>}
  */
 const facilityId = computed({
   get() {
-    // Previously chosen facility ID takes precedence
-    if (selectedFacilityId.value) {
-      return selectedFacilityId.value;
-    }
-    // Without a previously chosen facility, we cannot default to one if the device has multiple
-    if (hasMultipleFacilities.value) {
-      return null;
-    }
-    // Return the first facility's ID otherwise
-    return facilities.value[0]?.id || null;
+    return _facilityIdForThisVisit.value || _savedFacilityId.value;
   },
   set(value) {
+    _endThisVisitsChoices();
     setSelectedFacilityId(value);
   },
 });
@@ -65,6 +78,9 @@ const _persistentSignInMethod = useLocalStorage('signInMethod', null, {
  */
 const signInMethod = computed({
   get() {
+    if (_signInMethodForThisVisit.value) {
+      return _signInMethodForThisVisit.value;
+    }
     // Previously chosen sign-in method takes precedence if enabled
     if (
       _persistentSignInMethod.value &&
@@ -80,6 +96,7 @@ const signInMethod = computed({
     return signInOptions.value[0];
   },
   set(value) {
+    _signInMethodForThisVisit.value = null;
     // Persist the sign-in method for the user in local storage
     _persistentSignInMethod.value = value;
   },
@@ -132,6 +149,14 @@ const picturePasswordShowIconText = computed(() => {
   return picturePasswordSettings.value?.show_icon_text;
 });
 
+let _pendingOSUsername = null;
+
+function takeOSUsername() {
+  const username = _pendingOSUsername;
+  _pendingOSUsername = null;
+  return _facilityIdForThisVisit.value ? username : null;
+}
+
 /**
  * Set the active facility ID
  * @param {import('vue').Ref<string>|string} _facilityId - The facility ID to activate.
@@ -149,6 +174,10 @@ async function setFacilityId(_facilityId) {
   facilityId.value = unref(_facilityId);
 }
 
+function saveFacilityId() {
+  setSelectedFacilityId(_savedFacilityId.value);
+}
+
 /**
  * Initializes the sign-in flow state
  * @param {boolean} [force] - Re-run initialization even if it has already run.
@@ -159,20 +188,39 @@ async function initializeFlow(force = false) {
 
   _initialized.value = true;
 
+  const osUserRequest =
+    !force && useUser().isAppContext.value
+      ? FacilityUsernameResource.osuser().catch(() => null)
+      : null;
+
   try {
     await fetchFacilities();
   } catch (error) {
     handleApiError({ error, reloadOnReconnect: true });
   }
 
+  const osUser = await osUserRequest;
+  if (osUser && getFacility(osUser.facility)) {
+    _pendingOSUsername = osUser.username;
+    _facilityIdForThisVisit.value = osUser.facility;
+    _signInMethodForThisVisit.value = OptionsForSignIn.USERNAME_ONLY;
+  }
+
+  if (_facilityIdForThisVisit.value && !getFacility(_facilityIdForThisVisit.value)) {
+    _endThisVisitsChoices();
+  }
+
   if (!facilityId.value) return;
 
   // this could occur in development, or otherwise this could occur with a removed facility and/or
   // the persisted value hasn't been set yet
-  if (!selectedFacility.value || facilityId.value !== selectedFacilityId.value) {
+  if (
+    _savedFacilityId.value &&
+    (!getFacility(_savedFacilityId.value) || _savedFacilityId.value !== selectedFacilityId.value)
+  ) {
     // double check facility exists
-    const hasFacility = Boolean(getFacility(facilityId.value));
-    setSelectedFacilityId(hasFacility ? facilityId.value : null);
+    const hasFacility = Boolean(getFacility(_savedFacilityId.value));
+    setSelectedFacilityId(hasFacility ? _savedFacilityId.value : null);
   }
 
   try {
@@ -200,7 +248,9 @@ export default function useAuthFlow() {
     canSignUpWithFacility,
     picturePasswordStyle,
     picturePasswordShowIconText,
+    takeOSUsername,
     initializeFlow,
     setFacilityId,
+    saveFacilityId,
   };
 }

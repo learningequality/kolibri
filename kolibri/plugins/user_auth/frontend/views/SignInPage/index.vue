@@ -145,7 +145,6 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed } from 'vue';
-  import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import useAuthPageTitle from '../../composables/useAuthPageTitle';
   import FacilityUsernameResource from '../../apiResources/FacilityUsernameResource';
   import { ComponentMap, MAX_USERS_FOR_LISTING_VIEW } from '../../constants';
@@ -175,8 +174,13 @@
       const route = useRoute();
       const { isAppContext, login } = useUser();
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
-      const { hasMultipleFacilities, facilityId, selectedFacility, facilityConfig } = useAuthFlow();
-      const { setSelectedFacilityId } = useFacilitySelect();
+      const {
+        hasMultipleFacilities,
+        selectedFacility,
+        facilityConfig,
+        takeOSUsername,
+        saveFacilityId,
+      } = useAuthFlow();
       const { watchForFacilityChange } = useAuthWatcher();
       useAuthPageTitle(pageTitleStrings.signInPageTitle$);
 
@@ -191,7 +195,7 @@
 
       function doLogin(sessionPayload) {
         // ensure selected facility in local storage is synchronized
-        setSelectedFacilityId(facilityId.value);
+        saveFacilityId();
         return login(sessionPayload);
       }
 
@@ -201,6 +205,7 @@
         selectedFacility,
         facilityConfig,
         hasMultipleFacilities,
+        takeOSUsername,
         nextParam,
         backToFacilitySelectionRoute,
       };
@@ -322,6 +327,8 @@
             }
           })
           .catch(() => {});
+        const osUsername = this.takeOSUsername();
+        if (osUsername) this.setSelectedUsername(osUsername);
       }
     },
     methods: {

@@ -74,7 +74,6 @@
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { useRouter, useRoute } from 'vue-router/composables';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
-  import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
@@ -114,9 +113,9 @@
         signInOptions,
         picturePasswordStyle,
         picturePasswordShowIconText,
+        saveFacilityId,
       } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
-      const { setSelectedFacilityId } = useFacilitySelect();
       useAuthPageTitle(pageTitleStrings.pictureSignInPageTitle$);
 
       const busy = ref(false);
@@ -169,7 +168,7 @@
       async function prevalidate(picturePassword) {
         busy.value = true;
         wrongPictures.value = false;
-        setSelectedFacilityId(facilityId.value);
+        saveFacilityId();
         try {
           const { data, error } = await login(
             { picture_password: picturePassword, facility: facilityId.value },
