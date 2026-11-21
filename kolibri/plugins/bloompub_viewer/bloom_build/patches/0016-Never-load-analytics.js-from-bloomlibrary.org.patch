@@ -1,0 +1,109 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Wed, 11 Nov 2026 09:05:40 -0800
+Subject: [PATCH] Never load analytics.js from bloomlibrary.org
+
+Kolibri runs the player offline and with independent=false, so it has no use for Segment's loader script.
+---
+ src/Environment.ts           |  5 ---
+ src/bloomPlayerAnalytics.tsx | 67 ------------------------------------
+ 2 files changed, 72 deletions(-)
+ delete mode 100644 src/Environment.ts
+
+diff --git a/src/Environment.ts b/src/Environment.ts
+deleted file mode 100644
+index 5f906dc..0000000
+--- a/src/Environment.ts
++++ /dev/null
+@@ -1,5 +0,0 @@
+-export enum Environment {
+-    Dev,
+-    Prod,
+-    Test,
+-}
+diff --git a/src/bloomPlayerAnalytics.tsx b/src/bloomPlayerAnalytics.tsx
+index c005fff..1710743 100644
+--- a/src/bloomPlayerAnalytics.tsx
++++ b/src/bloomPlayerAnalytics.tsx
+@@ -1,5 +1,3 @@
+-import { Environment } from "./Environment";
+-
+ // This file contains code for sending analytics information to segment.io.
+ 
+ // Important notes about analytics/session state and host lifecycle
+@@ -95,35 +93,6 @@ import { Environment } from "./Environment";
+                 analytics[t] = analytics.factory(t);
+             }
+             analytics.load = function (e: any, t: any) {
+-                var n = document.createElement("script");
+-                n.type = "text/javascript";
+-                n.async = !0;
+-                // This file would normally be obtained directly from cdn.segment.com
+-                // as in the comment below, using a URL that depends on our 'e' argument, the ID of the segment.IO
+-                // 'source' (e.g., plYUfYSopTpXkUxNpV58oGwhPNRSyBzo for bloomlibrary test).
+-                // We don't want to fetch it from there because segment's URLs seem to be blocked in various
+-                // places (e.g., PNG). So we are keeping a copy on our own server.
+-                // We need distinct files, downloaded from the appropriate place
+-                // in segment.io (see the commented out code below) for each destination (what segment.io
+-                // calls a source).
+-                // A possible ToDo is to get this asset built with a hash in its name and put it in static,
+-                // so clients can cache it indefinitely, but if we publish a new version it will have a new hash
+-                // and the new version will automatically be used. For now I'm just focusing on getting it to
+-                // work. But at 343K it would be nice to allow this asset to be cached.
+-                // Note that this version of analytics{.*}.min.js is also special (as is the one currently on
+-                // cdn.segment.com) in that, by our request, it sends data to analytics.bloomlibrary.org
+-                // which is our proxy for api.segment.io. This also helps work around segment.io being blocked.
+-                // We tried using a proxy to retrieve analytics.min.js, but it doesn't work, because
+-                // the file comes back with segment.io certificates which the browser notes are not
+-                // correct for a file supposedly coming from analytics-cdn.bloomlibrary.org. Possibly this
+-                // could be worked around with an enterprise CloudFlare subscription.
+-                n.src = getAnalyticsJsFilePath();
+-                // original version, where the current segment.io version of this lives.
+-                // "https://cdn.segment.com/analytics.js/v1/" +
+-                // e +
+-                // "/analytics.min.js";
+-                var a = document.getElementsByTagName("script")[0] as any;
+-                a.parentNode.insertBefore(n, a);
+                 analytics._loadOptions = t;
+             };
+             analytics.SNIPPET_VERSION = "4.1.0";
+@@ -199,39 +168,3 @@ export function updateBookProgress(event: string, params: object) {
+     }
+     pendingBookAnalytics.set(event, params);
+ }
+-
+-// We decided, for now, to just send to the production analytics source
+-// for sites which we don't know that represent real embedding.
+-// So, our dev site reports to the dev analytics source and localhost reports
+-// to the test analytics source.
+-function getEnvironment(): Environment {
+-    if (
+-        window.location.hostname === "dev.bloomlibrary.org" ||
+-        window.location.search.includes("dev.bloomlibrary.org")
+-    ) {
+-        return Environment.Dev;
+-    } else if (
+-        window.location.hostname === "localhost" ||
+-        window.location.search.includes("localhost")
+-    ) {
+-        return Environment.Test;
+-    }
+-    return Environment.Prod; // embedded somewhere else, it's a real site
+-}
+-
+-// Each of these are our own hosted version of https://cdn.segment.com/analytics.js/v1/X/analytics.min.js
+-// where X is the source key.
+-// Note that a Segment.io "source" is the (intermediate) destination that we send stuff TO.
+-// Development: vidljptawu, Production: a6nswpue7x, bloomlibrary_test: plYUfYSopTpXkUxNpV58oGwhPNRSyBzo
+-// See further explanation in the comment in the analytics.load function above.
+-// Todo: allow user (or developers and testers) to send analytics to dev or test.
+-function getAnalyticsJsFilePath(): string {
+-    switch (getEnvironment()) {
+-        case Environment.Prod:
+-            return "https://bloomlibrary.org/analytics.min.js";
+-        case Environment.Dev:
+-            return "https://bloomlibrary.org/analytics.dev.min.js";
+-        default:
+-            return "https://bloomlibrary.org/analytics.test.min.js";
+-    }
+-}

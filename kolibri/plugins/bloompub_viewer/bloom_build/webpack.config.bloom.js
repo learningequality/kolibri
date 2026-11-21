@@ -1,5 +1,6 @@
 const path = require('node:path');
 const fs = require('node:fs');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -13,6 +14,25 @@ class BloomPlayerManifestPlugin {
       }
       const filename = Object.keys(compilation.assets).find(name => name.endsWith('.htm'));
       fs.writeFileSync(path.resolve(__dirname, './bloom_build.json'), JSON.stringify({ filename }));
+    });
+  }
+}
+
+class HostFontsPlugin {
+  apply(compiler) {
+    const fontsFolder = path.resolve(__dirname, './vendor/fonts');
+    compiler.hooks.thisCompilation.tap('HostFontsPlugin', compilation => {
+      compilation.hooks.processAssets.tap(
+        { name: 'HostFontsPlugin', stage: compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
+        () => {
+          for (const name of fs.readdirSync(fontsFolder)) {
+            compilation.emitAsset(
+              `host/fonts/${name}`,
+              new webpack.sources.RawSource(fs.readFileSync(path.join(fontsFolder, name))),
+            );
+          }
+        },
+      );
     });
   }
 }
@@ -74,6 +94,7 @@ module.exports = {
   },
   plugins: [
     new BloomPlayerManifestPlugin(),
+    new HostFontsPlugin(),
     new HtmlWebpackPlugin({
       filename: 'bloomplayer-[contenthash].htm',
       template: path.resolve(__dirname, './bloomplayer.htm'),
