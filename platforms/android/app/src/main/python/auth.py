@@ -5,6 +5,8 @@ Provides OS user authentication via Java utilities
 
 from java import jclass
 
+from kolibri.core.device.login_tokens import OSUserInfo
+
 AuthUtils = jclass("org.learningequality.Kolibri.util.AuthUtils")
 
 
@@ -14,10 +16,7 @@ def get_os_user_auth_token():
 
 
 def os_user(auth_token):
-    """
-    Validate auth token and return OS user info.
-    Returns (username, is_valid) tuple.
-    """
     if AuthUtils.validateAuthToken(auth_token):
-        return (AuthUtils.getLocalizedUsername(), True)
-    return (None, False)
+        username = AuthUtils.getLocalizedUsername()
+        return OSUserInfo(username, username, username, True)
+    return None

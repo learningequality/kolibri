@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # These Kolibri plugins must be enabled for the application to function.
 # "kolibri_app" is this project's bundled plugin (src/kolibri_app/kolibri_plugin.py),
-# which registers GetOSUserHook + CheckIsMeteredHook. It replaces the
+# which registers CheckIsMeteredHook. It replaces the
 # kolibri.plugins.app interface, which was removed in Kolibri 0.19.
 REQUIRED_PLUGINS = [
     "kolibri_app",

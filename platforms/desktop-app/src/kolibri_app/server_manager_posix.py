@@ -1,11 +1,23 @@
 import getpass
+import pwd
 from threading import Thread
 
 from magicbus.plugins import SimplePlugin
 
-from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
+from kolibri.core.device.login_tokens import login_tokens
+from kolibri.core.device.login_tokens import OSUserInfo
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
+
+
+def current_os_user():
+    user_name = getpass.getuser()
+    try:
+        # gecos fields are comma-separated; adduser writes "Jane Doe,,,"
+        full_name = pwd.getpwnam(user_name).pw_gecos.split(",", 1)[0]
+    except KeyError:
+        full_name = ""
+    return OSUserInfo(user_name, user_name, full_name, True)
 
 
 class AppPlugin(SimplePlugin):
@@ -42,12 +54,10 @@ class PosixKolibriProcess(KolibriProcess):
 
         # Per-launch shared secret. The token round-trips through
         # InitializeAppView (URL query) -> APP_AUTH_TOKEN_COOKIE -> provisioning
-        # validator -> KolibriAppGetOSUserHook, which returns the OS user the
-        # token was issued to.
+        # validator -> GetOSUserHook, which returns the OS user the token was
+        # issued to.
         try:
-            self.auth_token = KolibriAppGetOSUserHook.login_tokens.generate_for_user(
-                getpass.getuser(), is_admin=True
-            )
+            self.auth_token = login_tokens.generate_for_user(current_os_user())
         except OSError:
             self.auth_token = None
 
