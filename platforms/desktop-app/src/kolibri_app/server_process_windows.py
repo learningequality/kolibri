@@ -5,7 +5,7 @@ It uses a MagicBus plugin (`WindowsIpcPlugin`) integrated with `KolibriProcess`
 to manage Inter-Process Communication (IPC) with the main UI process via a named pipe.
 
 Architecture Overview:
-- The main UI process spawns this module as a subprocess with the --run-as-server flag.
+- The main UI process or the Kolibri service spawns this module as a subprocess with the --run-as-server flag.
 - `run_windows_server()` creates a `KolibriProcess` and adds the Windows IPC plugin.
 - The `WindowsIpcPlugin` is subscribed to the bus. On its `START` event, it creates
   a named pipe and accepts UI process connections in a background thread, serving
@@ -17,10 +17,13 @@ Architecture Overview:
 - On the `STOP` event, the plugin cleans up its thread and handles.
 """
 
+import ctypes
 import json
 import os
 import sys
 import time
+from ctypes import wintypes
+from threading import current_thread
 from threading import Event
 from threading import Lock
 from threading import Thread
@@ -28,6 +31,7 @@ from threading import Thread
 import ntsecuritycon
 import pywintypes
 import win32api
+import win32con
 import win32file
 import win32pipe
 import win32security
@@ -43,7 +47,6 @@ from kolibri.core.device.utils import app_initialize_url
 from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
-from kolibri_app.windows.stop_window import StopWindowPlugin
 from kolibri_app.windows_users import pipe_client_user_info
 
 # Named pipe for IPC between UI process and server subprocess
@@ -52,6 +55,25 @@ PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
 # winbase.h
 FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000
 CREATE_PIPE_RETRY_DELAY = 2
+STOP_TIMEOUT = 5
+
+
+def _interrupt_pipe_thread(thread, deadline):
+    # Closing a synchronous handle waits for any call blocked on it, so the
+    # blocked call must be cancelled instead.
+    try:
+        handle = win32api.OpenThread(win32con.THREAD_TERMINATE, False, thread.native_id)
+    except pywintypes.error as e:
+        logging.warning(
+            f"Could not open pipe thread {thread.name} to interrupt it: {e}"
+        )
+        return
+    try:
+        while thread.is_alive() and time.monotonic() < deadline:
+            ctypes.windll.kernel32.CancelSynchronousIo(wintypes.HANDLE(int(handle)))
+            thread.join(timeout=0.1)
+    finally:
+        win32api.CloseHandle(handle)
 
 
 class WindowsIpcPlugin(SimplePlugin):
@@ -63,8 +85,8 @@ class WindowsIpcPlugin(SimplePlugin):
     def __init__(self, bus):
         super().__init__(bus)
         self.pipe_thread = None
-        self.pipes = []
-        self.pipes_lock = Lock()
+        self.client_threads = set()
+        self.client_threads_lock = Lock()
         self.shutdown_event = Event()
 
         self.server_ready_event = Event()
@@ -81,12 +103,13 @@ class WindowsIpcPlugin(SimplePlugin):
     def STOP(self):
         """Plugin stop method: cleans up the IPC thread."""
         self.shutdown_event.set()
-        with self.pipes_lock:
-            pipes = list(self.pipes)
-        for pipe in pipes:
-            self._close_pipe(pipe)
+        deadline = time.monotonic() + STOP_TIMEOUT
         if self.pipe_thread:
-            self.pipe_thread.join(timeout=5)
+            _interrupt_pipe_thread(self.pipe_thread, deadline)
+        with self.client_threads_lock:
+            client_threads = list(self.client_threads)
+        for thread in client_threads:
+            _interrupt_pipe_thread(thread, deadline)
         logging.info("WindowsIpcPlugin stopped.")
 
     def on_server_start(self, port):
@@ -219,14 +242,12 @@ class WindowsIpcPlugin(SimplePlugin):
             time.sleep(1)
         elif error.winerror == winerror.ERROR_BROKEN_PIPE:
             logging.info("Client disconnected.")
+        elif error.winerror == winerror.ERROR_OPERATION_ABORTED:
+            logging.debug("Pipe call cancelled for shutdown.")
         else:
             logging.error(f"Pipe server error: {error}", exc_info=True)
 
     def _close_pipe(self, pipe):
-        with self.pipes_lock:
-            if pipe not in self.pipes:
-                return
-            self.pipes.remove(pipe)
         try:
             win32file.CloseHandle(pipe)
         except pywintypes.error as e:
@@ -255,22 +276,22 @@ class WindowsIpcPlugin(SimplePlugin):
                 continue
             first_instance = False
             create_error_logged = False
-            with self.pipes_lock:
-                if self.shutdown_event.is_set():
-                    # Handle edge case where STOP was called while we created the pipe.
-                    win32file.CloseHandle(pipe)
-                    break
-                self.pipes.append(pipe)
+            if self.shutdown_event.is_set():
+                # Handle edge case where STOP was called while we created the pipe.
+                self._close_pipe(pipe)
+                break
 
             try:
                 win32pipe.ConnectNamedPipe(pipe, None)
             except pywintypes.error as e:
-                # This is expected when the handle is closed by STOP()
                 self._handle_pipe_error(e)
                 self._close_pipe(pipe)
                 continue
             logging.info("Client connected to named pipe.")
-            Thread(target=self._serve_client, args=(pipe,), daemon=True).start()
+            client_thread = Thread(target=self._serve_client, args=(pipe,), daemon=True)
+            with self.client_threads_lock:
+                self.client_threads.add(client_thread)
+                client_thread.start()
 
         logging.info("Pipe server thread finished.")
 
@@ -284,6 +305,24 @@ class WindowsIpcPlugin(SimplePlugin):
                 logging.error(f"Error serving pipe client: {e}", exc_info=True)
         finally:
             self._close_pipe(pipe)
+            with self.client_threads_lock:
+                self.client_threads.discard(current_thread())
+
+
+class StdinStopPlugin(SimplePlugin):
+    def START(self):
+        Thread(target=self._exit_when_stdin_closes, daemon=True).start()
+
+    def _exit_when_stdin_closes(self):
+        stdin = win32api.GetStdHandle(win32api.STD_INPUT_HANDLE)
+        try:
+            while True:
+                win32file.ReadFile(stdin, 4096)
+        except pywintypes.error as e:
+            if e.winerror != winerror.ERROR_BROKEN_PIPE:
+                raise
+        logging.info("Stdin closed, shutting down Kolibri.")
+        self.bus.transition("EXITED")
 
 
 class WindowsKolibriProcess(KolibriProcess):
@@ -295,10 +334,11 @@ class WindowsKolibriProcess(KolibriProcess):
     with the main UI process via named pipes.
     """
 
-    def __init__(self):
+    def __init__(self, stop_when_stdin_closes=False):
         super().__init__()
 
         self.ipc_plugin = WindowsIpcPlugin(self)
         self.ipc_plugin.subscribe()
 
-        StopWindowPlugin(self).subscribe()
+        if stop_when_stdin_closes:
+            StdinStopPlugin(self).subscribe()

@@ -28,13 +28,25 @@ class _App:
         pass
 
 
+class _ServiceFramework:
+    """Stands in for ServiceFramework, which must be a real class to subclass."""
+
+    def __init__(self, args):
+        pass
+
+    def ReportServiceStatus(self, status, waitHint=5000):
+        pass
+
+
 pywintypes = MagicMock()
 pywintypes.error = Win32Error
 win32service = MagicMock()
 win32serviceutil = MagicMock()
+win32serviceutil.ServiceFramework = _ServiceFramework
 
 _windows_modules = {
     "pywintypes": pywintypes,
+    "servicemanager": MagicMock(),
     "win32service": win32service,
     "win32serviceutil": win32serviceutil,
     "win32gui": MagicMock(),
@@ -44,9 +56,9 @@ _windows_modules = {
     "win32file": MagicMock(),
     "win32job": MagicMock(),
     "win32pipe": MagicMock(),
+    "win32security": MagicMock(),
     "winerror": MagicMock(),
     "kolibri_app.windows_registry": MagicMock(),
-    "kolibri_app.server_process_windows": MagicMock(),
 }
 
 wx = sys.modules["wx"]
@@ -58,12 +70,15 @@ try:
         patch.object(kolibri_app.constants, "WINDOWS", True),
         patch.object(wx, "App", _App),
     ):
+        server_process_windows = importlib.import_module(
+            "kolibri_app.server_process_windows"
+        )
         server_manager_windows = importlib.import_module(
             "kolibri_app.server_manager_windows"
         )
         taskbar_icon = importlib.import_module("kolibri_app.windows.taskbar_icon")
         windows_utils = importlib.import_module("kolibri_app.windows_utils")
-        stop_window = importlib.import_module("kolibri_app.windows.stop_window")
+        service = importlib.import_module("kolibri_app.windows.service")
         application = importlib.import_module("kolibri_app.application")
 finally:
     for _name in _windows_modules:

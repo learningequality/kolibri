@@ -8,9 +8,10 @@ MAC = sys.platform.startswith("darwin")
 
 WINDOWS = sys.platform.startswith("win32")
 
-# True only in the server subprocess the Windows UI process spawns; on POSIX the
-# server runs in a thread of the UI process.
+# True only in the server subprocess the Windows UI process or service spawns; on
+# POSIX the server runs in a thread of the UI process.
 RUN_AS_SERVER = "--run-as-server" in sys.argv
+STOP_WHEN_STDIN_CLOSES = "--stop-when-stdin-closes"
 
 # Every Windows user's app shares C:\ProgramData\kolibri, where a file another
 # user's app created or holds open cannot be written or rotated.

@@ -43,10 +43,6 @@ if [ ! -f "$INSTALL_DIR/KolibriApp.exe" ]; then
     ls -la "$INSTALL_DIR" || echo "Install directory not found"
     exit 1
 fi
-if [ ! -d "$INSTALL_DIR/nssm" ]; then
-    echo "ERROR: nssm directory not found at $INSTALL_DIR/nssm"
-    exit 1
-fi
 echo "✓ Installation files verified"
 
 # 3. Wait for Kolibri service to be running (installer starts it automatically)
@@ -66,7 +62,7 @@ echo "✓ Kolibri service is running"
 
 # 4. Wait for the service to log the port it is serving on
 echo "[4/6] Waiting for service logs..."
-# The service runs with --run-as-server, which logs to its own file.
+# The service runs its server with --run-as-server, which logs to its own file.
 KOLIBRI_LOG="/c/ProgramData/kolibri/logs/kolibri-app-server.txt"
 # The kolibri_app plugin sets HTTP_PORT to 0, so only the bound port is usable.
 TIMEOUT=120
