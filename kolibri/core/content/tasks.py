@@ -22,6 +22,7 @@ from kolibri.core.content.utils.content_request import incomplete_removals_query
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_content_requests
 from kolibri.core.content.utils.content_request import request_import_metadata
+from kolibri.core.content.utils.content_request import retry_due
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
@@ -406,7 +407,7 @@ def enqueue_automatic_resource_import_if_needed(instance_id=None):
     :param instance_id: UUID of the instance to filter by for preferred instance downloads
     :type instance_id: str
     """
-    reqs = ContentRequest.objects.exclude(
+    reqs = ContentRequest.objects.filter(retry_due()).exclude(
         status__in=[
             ContentRequestStatus.Completed,
             ContentRequestStatus.InProgress,

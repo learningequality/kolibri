@@ -3,8 +3,8 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 from kolibri.core.auth.models import Facility
-from kolibri.core.content.utils.content_request import create_content_download_requests
 from kolibri.core.content.utils.content_request import create_content_removal_requests
+from kolibri.core.content.utils.content_request import synchronize_download_requests
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.notifications.models import LearnerProgressNotification
 
@@ -32,17 +32,19 @@ def reorder_channels_upon_deletion(sender, instance=None, *args, **kwargs):
         )
 
 
-def add_download_requests(dataset_id, assignments):
+def add_download_requests(dataset_id, assignments, sources):
     """
     Handles the creation of download requests for the provided list of assignments.
     :param dataset_id: The dataset_id for which download requests are being added.
     :type dataset_id: str
     :param assignments: A list of assignments representing the content to be downloaded.
     :type assignments: list
+    :param sources: (source_model, source_id) tuples whose incomplete sync-initiated
+        requests that ``assignments`` does not reference are deleted
     """
     if get_device_setting("enable_automatic_download"):
         facility = Facility.objects.get(dataset_id=dataset_id)
-        create_content_download_requests(facility, assignments)
+        synchronize_download_requests(facility, sources, assignments)
 
 
 def add_removal_requests(dataset_id, assignments):
