@@ -655,6 +655,21 @@ class GetLanAddressTestCase(TestCase):
             self.assertIsNone(server.get_lan_address())
 
 
+class GetLocalOriginTestCase(TestCase):
+    def test_loads_loopback_or_the_single_listen_address(self):
+        for listen_address, port, origin in (
+            ("0.0.0.0", 8080, "http://127.0.0.1:8080"),
+            ("192.168.1.5", 8080, "http://192.168.1.5:8080"),
+            ("0.0.0.0", 80, "http://127.0.0.1"),
+        ):
+            with self.subTest(
+                listen_address=listen_address, port=port
+            ), mock.patch.dict(
+                OPTIONS["Deployment"], {"LISTEN_ADDRESS": listen_address}
+            ):
+                self.assertEqual(origin, server.get_local_origin(port))
+
+
 @mock.patch.object(server, "get_outgoing_interface_address", return_value=None)
 class GetLanAddressAdapterOrderTestCase(DjangoTestCase):
     databases = "__all__"

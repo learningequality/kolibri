@@ -1212,6 +1212,12 @@ def _get_listen_ips():
     return _get_local_ips() if listen_address == "0.0.0.0" else [listen_address]
 
 
+def get_local_origin(port):
+    listen_address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    host = "127.0.0.1" if listen_address == "0.0.0.0" else listen_address
+    return _origin(host, port)
+
+
 def _is_lan_reachable(address):
     parsed = ip_address(address)
     return (parsed.is_private or parsed.is_global) and not (
@@ -1247,9 +1253,12 @@ def _advertised_port(bind_port):
     return conf.OPTIONS["Deployment"]["ADVERTISED_HTTP_PORT"] or bind_port
 
 
+def _origin(host, port):
+    return f"http://{host}" if port == 80 else f"http://{host}:{port}"
+
+
 def _urls_on_port(hosts, port):
-    port_suffix = "" if port == 80 else f":{port}"
-    return [f"http://{host}{port_suffix}/" for host in hosts]
+    return [f"{_origin(host, port)}/" for host in hosts]
 
 
 def get_urls(listen_port=None, include_bound_port=False, advertise=True):
