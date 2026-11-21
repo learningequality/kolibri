@@ -6,7 +6,6 @@ from functools import partial
 
 from django.conf import settings
 from django.db.models import OuterRef
-from django.db.models import Subquery
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -85,6 +84,11 @@ roles_map = {
     role_kinds.COACH: "FACILITY_COACH",
     role_kinds.ASSIGNABLE_COACH: "CLASS_COACH",
 }
+ROLE_KIND_PRECEDENCE = (
+    role_kinds.ADMIN,
+    role_kinds.COACH,
+    role_kinds.ASSIGNABLE_COACH,
+)
 
 
 def not_specified(field, obj):
@@ -167,10 +171,11 @@ def csv_file_generator(
         query = (
             queryset.values("pk")
             .annotate(
-                kind=Subquery(
-                    Role.objects.filter(collection_id=facility.id)
-                    .values("kind")
-                    .filter(user_id=OuterRef("id"))
+                kind=GroupConcatSubquery(
+                    Role.objects.filter(
+                        collection_id=facility.id, user_id=OuterRef("id")
+                    ).values("kind"),
+                    field="kind",
                 )
             )
             .annotate(
@@ -192,8 +197,12 @@ def csv_file_generator(
         )
 
         for item in query.values(*db_columns):
-            if item["kind"] == role_kinds.ADMIN:
+            kinds = item["kind"].split(",") if item["kind"] else []
+            if kinds == [role_kinds.ADMIN]:
                 continue
+            item["kind"] = next(
+                (kind for kind in ROLE_KIND_PRECEDENCE if kind in kinds), None
+            )
             if item["username"] not in usernames:
                 item["password"] = "*"
                 writer.writerow(map_output(item))

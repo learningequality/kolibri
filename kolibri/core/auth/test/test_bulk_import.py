@@ -24,6 +24,9 @@ from kolibri.core.utils.csv import open_csv_for_writing
 from ..utils import bulk_import as b
 from ..utils.bulk_export import labels
 from .helpers import create_dummy_facility_data
+from .helpers import enable_picture_password
+from .helpers import limit_sqlite_variables
+from .helpers import skip_unless_sqlite_setlimit
 
 CLASSROOMS = 2
 
@@ -685,9 +688,29 @@ class ImportTestCase(TestCase):
         self.assertEqual(imported_user.username, "testuser")
         self.assertTrue(imported_user.check_password("newpassword"))
 
-    def _import_row(self, username, uuid_cell, full_name, *args, **kwargs):
+    def _import_row(
+        self,
+        username,
+        uuid_cell,
+        full_name,
+        *args,
+        user_type="LEARNER",
+        assigned_to="",
+        **kwargs,
+    ):
         _, csv_filename = tempfile.mkstemp(suffix=".csv")
-        row = [uuid_cell, username, "*", full_name, "LEARNER", "", "", "", "", ""]
+        row = [
+            uuid_cell,
+            username,
+            "*",
+            full_name,
+            user_type,
+            "",
+            "",
+            "",
+            "",
+            assigned_to,
+        ]
         self.create_csv(csv_filename, [row])
         call_command(
             "bulkimportusers", csv_filename, *args, facility=self.facility.id, **kwargs
@@ -727,6 +750,167 @@ class ImportTestCase(TestCase):
                 self.assertEqual(
                     FacilityUser.objects.get(id=user.id).full_name, full_name
                 )
+
+    def _create_user(self, username, role_kind=None):
+        user = FacilityUser.objects.create(
+            username=username,
+            full_name=username,
+            password=make_password("password"),
+            facility=self.facility,
+        )
+        if role_kind:
+            self.facility.add_role(user, role_kind)
+        return user
+
+    def _import_user_type(self, user, user_type, *args, **kwargs):
+        self._import_row(
+            user.username,
+            user.id,
+            user.full_name,
+            *args,
+            user_type=user_type,
+            **kwargs,
+        )
+
+    def _facility_role_kinds(self, user):
+        return sorted(
+            user.roles.filter(collection=self.facility).values_list("kind", flat=True)
+        )
+
+    def test_learner_user_type_removes_facility_role(self):
+        for role_kind in (role_kinds.COACH, role_kinds.ADMIN):
+            for name_suffix in ("", " renamed"):
+                with self.subTest(role_kind=role_kind, name_suffix=name_suffix):
+                    user = self._create_user(
+                        f"user_{role_kind}_{len(name_suffix)}", role_kind
+                    )
+
+                    self._import_row(
+                        user.username, user.id, user.full_name + name_suffix
+                    )
+
+                    self.assertEqual(self._facility_role_kinds(user), [])
+
+    def test_admin_user_type_replaces_coach_role(self):
+        user = self._create_user("bob", role_kinds.COACH)
+
+        self._import_user_type(user, "ADMIN")
+
+        self.assertEqual(self._facility_role_kinds(user), [role_kinds.ADMIN])
+
+    def test_coach_user_type_alone_gives_learner_coach_role(self):
+        user = self._create_user("bob")
+
+        self._import_user_type(user, "FACILITY_COACH")
+
+        self.assertEqual(self._facility_role_kinds(user), [role_kinds.COACH])
+
+    def test_class_coach_keeps_class_whatever_coaching_user_type(self):
+        classroom = Classroom.objects.create(name="Class A", parent=self.facility)
+        for user_type, role_kind in (
+            ("FACILITY_COACH", role_kinds.COACH),
+            ("CLASS_COACH", role_kinds.ASSIGNABLE_COACH),
+            ("ADMIN", role_kinds.ADMIN),
+        ):
+            with self.subTest(user_type=user_type):
+                user = self._create_user(f"user_{user_type}")
+                classroom.add_coach(user)
+
+                self._import_user_type(user, user_type, assigned_to=classroom.name)
+
+                self.assertEqual(self._facility_role_kinds(user), [role_kind])
+                self.assertIn(user, classroom.get_coaches())
+
+    def test_class_coach_made_learner_coaches_no_class(self):
+        user = self._create_user("bob")
+        classroom = Classroom.objects.create(name="Class A", parent=self.facility)
+        classroom.add_coach(user)
+
+        self._import_user_type(user, "LEARNER", assigned_to=classroom.name)
+
+        self.assertFalse(user.roles.exists())
+
+    def test_user_left_without_role_gets_picture_password(self):
+        enable_picture_password(self.facility)
+        classroom = Classroom.objects.create(name="Class A", parent=self.facility)
+        class_coach = self._create_user("class_coach")
+        classroom.add_coach(class_coach)
+        for user in (self._create_user("coach", role_kinds.COACH), class_coach):
+            with self.subTest(username=user.username):
+                self._import_user_type(user, "LEARNER")
+
+                user.refresh_from_db()
+                self.assertIsNotNone(user.picture_password)
+
+    def test_new_learner_gets_picture_password(self):
+        enable_picture_password(self.facility)
+
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        row = ["", "newlearner", "password", "New Learner", "LEARNER"] + [""] * 5
+        self.create_csv(csv_filename, [row])
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+
+        self.assertIsNotNone(
+            FacilityUser.objects.get(username="newlearner").picture_password
+        )
+
+    def test_rename_rejected_as_duplicate_changes_no_role(self):
+        renamed = self._create_user("bob", role_kinds.COACH)
+        name_owner = self._create_user("alice", role_kinds.ADMIN)
+
+        self._import_row(name_owner.username, renamed.id, renamed.full_name)
+
+        self.assertEqual(self._facility_role_kinds(renamed), [role_kinds.COACH])
+        self.assertEqual(self._facility_role_kinds(name_owner), [role_kinds.ADMIN])
+
+    def test_importing_user_keeps_own_facility_role(self):
+        admin = self._create_user("boss", role_kinds.ADMIN)
+
+        for userid in (admin.id, str(UUID(admin.id))):
+            with self.subTest(userid=userid):
+                self._import_user_type(admin, "FACILITY_COACH", userid=userid)
+
+                self.assertEqual(self._facility_role_kinds(admin), [role_kinds.ADMIN])
+
+    @skip_unless_sqlite_setlimit
+    def test_delete_with_more_classes_than_sqlite_allows_query_variables(self):
+        variable_limit = 400
+        rows = []
+        for i in range(variable_limit + 1):
+            learner = self._create_user(f"learner{i}")
+            Classroom.objects.create(
+                name=f"Class {i}", parent=self.facility
+            ).add_member(learner)
+            rows.append(
+                [
+                    learner.id,
+                    learner.username,
+                    "*",
+                    learner.full_name,
+                    "LEARNER",
+                    "",
+                    "",
+                    "",
+                    f"Class {i}",
+                    "",
+                ]
+            )
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        self.create_csv(csv_filename, rows)
+        limit_sqlite_variables(self, variable_limit)
+
+        call_command(
+            "bulkimportusers", csv_filename, "--delete", facility=self.facility.id
+        )
+
+        self.assertEqual(Classroom.objects.get(name="Class 0").get_members().count(), 1)
+
+    def test_dryrun_changes_no_role(self):
+        user = self._create_user("bob", role_kinds.COACH)
+
+        self._import_user_type(user, "LEARNER", "--dryrun")
+
+        self.assertEqual(self._facility_role_kinds(user), [role_kinds.COACH])
 
     def test_row_shorter_than_header_creates_user(self):
         _, csv_filename = tempfile.mkstemp(suffix=".csv")

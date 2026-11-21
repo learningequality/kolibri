@@ -59,8 +59,10 @@ from .helpers import DUMMY_PASSWORD
 from .helpers import enable_picture_password
 from .helpers import KolibriAPITestCase as APITestCase
 from .helpers import KolibriAPITransactionTestCase as APITransactionTestCase
+from .helpers import limit_sqlite_variables
 from .helpers import provision_device
 from .helpers import setup_device
+from .helpers import skip_unless_sqlite_setlimit
 
 
 class FacilityFactory(ModelFactory):
@@ -4776,6 +4778,33 @@ class RestorePicturePasswordTestCase(APITestCase):
         other_superuser.refresh_from_db()
         self.assertIsNone(other_superuser.date_deleted)
         self.assertIsNone(other_superuser.picture_password)
+
+    @skip_unless_sqlite_setlimit
+    def test_restores_more_learners_than_sqlite_allows_query_variables(
+        self, mock_cleanup_task
+    ):
+        variable_limit = 400
+        learners = [
+            FacilityUserFactory.create(facility=self.facility)
+            for _ in range(variable_limit + 1)
+        ]
+        learner_ids = [learner.id for learner in learners]
+        models.FacilityUser.objects.filter(id__in=learner_ids).update(
+            date_deleted=timezone.now(), picture_password=None
+        )
+        limit_sqlite_variables(self, variable_limit)
+
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-restore") + "?user_type=learner"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(
+            models.FacilityUser.objects.filter(
+                facility=self.facility, picture_password__isnull=False
+            ).count(),
+            len(learners),
+        )
 
 
 class PicturePasswordPrevalidateTestCase(APITestCase):

@@ -21,6 +21,9 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
+from kolibri.core.auth.utils.picture_passwords import (
+    assign_picture_passwords_to_learners_without_one,
+)
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.csv import open_csv_for_reading
 
@@ -446,7 +449,7 @@ class BulkUserImportManager(JobProgressMixin):
     ):
         self.filepath = filepath
         self.facility_id = facility_id
-        self.userid = userid
+        self.userid = UUID(userid).hex if userid else None
         self.locale = locale or settings.LANGUAGE_CODE
         self.dryrun = dryrun
         self.delete = delete
@@ -592,6 +595,7 @@ class BulkUserImportManager(JobProgressMixin):
     def build_users_objects(self, users):
         new_users = []
         update_users = []
+        unchanged_users = []
         keeping_users = []
         per_line_errors = []
         users_uuid = [
@@ -601,7 +605,7 @@ class BulkUserImportManager(JobProgressMixin):
         ]
         existing_users = (
             FacilityUser.all_objects.filter(facility=self.default_facility)
-            .filter(id__in=users_uuid)
+            .filter(id__inline_in=users_uuid)
             .values_list("id", flat=True)
         )
 
@@ -617,6 +621,8 @@ class BulkUserImportManager(JobProgressMixin):
                     per_line_errors.append(error)
                 elif self.compare_fields(user_obj, values):
                     update_users.append(user_obj)
+                else:
+                    unchanged_users.append(user_obj)
             else:
                 user_obj, error = self._new_user(username, user_row, values)
                 if error:
@@ -624,7 +630,13 @@ class BulkUserImportManager(JobProgressMixin):
                 else:
                     new_users.append(user_obj)
 
-        return (new_users, update_users, keeping_users, per_line_errors)
+        return (
+            new_users,
+            update_users,
+            unchanged_users,
+            keeping_users,
+            per_line_errors,
+        )
 
     def db_validate_list(self, db_list, users=False):
         errors = []
@@ -723,13 +735,13 @@ class BulkUserImportManager(JobProgressMixin):
             users_not_to_delete.append(self.userid)
         users_to_delete = FacilityUser.all_objects.filter(
             facility=self.default_facility
-        ).exclude(id__in=users_not_to_delete)
+        ).exclude(id__inline_in=users_not_to_delete)
         # Classes not included in the csv will be cleared of users,
         # but not deleted to keep possible lessons and quizzes created for them:
         classes_not_to_clear = [c.id for c in update_classes]
         classes_to_clear = (
             Classroom.objects.filter(parent=self.default_facility)
-            .exclude(id__in=classes_not_to_clear)
+            .exclude(id__inline_in=classes_not_to_clear)
             .values_list("id", flat=True)
         )
 
@@ -772,13 +784,17 @@ class BulkUserImportManager(JobProgressMixin):
                     user = self.get_user(username, users)
                     db_class.add_coach(user)
 
-    def add_roles(self, users, roles):
-        for role in roles:
-            for username in roles[role]:
-                # db validation might have rejected a csv validated user:
-                if username in users:
-                    user = self.get_user(username, users)
-                    self.default_facility.add_role(user, role)
+    def set_facility_roles(self, users, roles):
+        users_roles = reverse_dict(roles)
+        for user in users:
+            if user.id == self.userid:
+                continue
+            kinds = users_roles.get(user.username, [])
+            user.roles.filter(collection=self.default_facility).exclude(
+                kind__in=kinds
+            ).delete()
+            for kind in kinds:
+                self.default_facility.add_role(user, kind)
 
     def exit_if_error(self):
         if self.overall_error:
@@ -896,6 +912,7 @@ class BulkUserImportManager(JobProgressMixin):
             (
                 db_new_users,
                 db_update_users,
+                unchanged_users,
                 keeping_users,
                 more_line_errors,
             ) = self.build_users_objects(users)
@@ -925,8 +942,7 @@ class BulkUserImportManager(JobProgressMixin):
                 for user in db_users:
                     user.save()
                 # assign roles to users:
-                users_data = {u.username: u for u in db_users}
-                self.add_roles(users_data, roles)
+                self.set_facility_roles(db_users + unchanged_users, roles)
 
                 db_created_classes = []
                 for classroom in db_new_classes:
@@ -938,10 +954,14 @@ class BulkUserImportManager(JobProgressMixin):
                 # hack to get ids created by Morango:
                 db_new_classes = db_created_classes
 
+                users_data = {u.username: u for u in db_users}
                 self.add_classes_memberships(
                     classes, users_data, db_new_classes + db_update_classes
                 )
                 self.remove_memberships(keeping_users, classes[0], classes[1])
+                assign_picture_passwords_to_learners_without_one(
+                    [user.id for user in db_users + unchanged_users]
+                )
             classes_report = {
                 "created": len(db_new_classes),
                 "updated": len(db_update_classes),
