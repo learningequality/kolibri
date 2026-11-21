@@ -12,6 +12,8 @@ import time
 from copy import deepcopy
 from io import BytesIO
 
+from csp.decorators import csp_replace
+from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import connections
 from django.urls import get_resolver
@@ -21,6 +23,7 @@ from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.cache import get_conditional_response
 from django.utils.cache import patch_response_headers
+from django.utils.decorators import method_decorator
 from django.utils.text import compress_string
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
@@ -529,6 +532,20 @@ def cache_no_user_data(view_class):
     # Marks the class as opted in, for the resolver walk in _cached_view_targets.
     view_class._cache_no_user_data = True
     return view_class
+
+
+def connect_to_any_http_origin(view_class):
+    """
+    CSP's 'self' cannot name another port of the same host.
+    """
+    connect_src = (
+        *getattr(settings, "CSP_CONNECT_SRC", settings.CSP_DEFAULT_SRC),
+        "http:",
+        "https:",
+    )
+    return method_decorator(csp_replace(CONNECT_SRC=connect_src), name="dispatch")(
+        view_class
+    )
 
 
 def _cached_view_targets():
