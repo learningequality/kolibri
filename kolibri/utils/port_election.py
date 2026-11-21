@@ -2,6 +2,7 @@ import errno
 import logging
 import os
 import socket
+from collections import namedtuple
 
 from kolibri.utils.options import read_options_file
 from kolibri.utils.options import update_options_file
@@ -19,6 +20,22 @@ PROCFS_PATH = "/proc"
 
 # Socket state column of /proc/net/tcp{,6}: include/net/tcp_states.h TCP_LISTEN
 _TCP_LISTEN = "0A"
+
+IN_USE = "IN_USE"
+IN_USE_BY_PROCESS = "IN_USE_BY_PROCESS"
+IN_USE_BY_USER = "IN_USE_BY_USER"
+PERMISSION_DENIED = "PERMISSION_DENIED"
+UNAVAILABLE = "UNAVAILABLE"
+
+BindFailure = namedtuple("BindFailure", ["code", "detail"])
+
+
+def claim_http_port(port, ini_filename="options.ini", serving_port=None):
+    """
+    :returns: None once the port is saved, else the BindFailure that kept it unsaved
+    """
+    deployment = read_options_file(ini_filename=ini_filename)["Deployment"]
+    return _claim(deployment["LISTEN_ADDRESS"], port, ini_filename, serving_port)
 
 
 def elect_unset_http_port(ini_filename="options.ini"):
@@ -38,17 +55,24 @@ def _elect(address, preferred_port, ini_filename, serving_port=None):
     candidates = list(dict.fromkeys([preferred_port, FALLBACK_HTTP_PORT]))
 
     for port in candidates:
-        error = None if port == serving_port else _bind_error(address, port)
-        if error is None:
-            update_options_file("Deployment", "HTTP_PORT", port, ini_filename)
+        failure = _claim(address, port, ini_filename, serving_port)
+        if failure is None:
             logger.info("Elected HTTP port %s", port)
             return
-        logger.warning("Port %s is %s", port, _describe_bind_error(error, port))
+        logger.warning("Port %s is %s", port, _describe_failure(failure))
 
     logger.warning(
         "None of ports %s could be bound; HTTP_PORT unchanged",
         ", ".join(str(port) for port in candidates),
     )
+
+
+def _claim(address, port, ini_filename, serving_port):
+    error = None if port == serving_port else _bind_error(address, port)
+    if error is not None:
+        return _bind_failure(error, port)
+    update_options_file("Deployment", "HTTP_PORT", port, ini_filename)
+    return None
 
 
 def _bind_error(address, port):
@@ -66,25 +90,38 @@ def _bind_error(address, port):
     return None
 
 
-_BIND_ERROR_REASONS = {
-    errno.EADDRINUSE: "in use",
-    errno.EACCES: "unavailable: permission denied",
+_BIND_ERROR_CODES = {
+    errno.EADDRINUSE: IN_USE,
+    errno.EACCES: PERMISSION_DENIED,
 }
 # Winsock reports a refused bind as WSAEACCES, not the CRT's EACCES.
 if hasattr(errno, "WSAEACCES"):
-    _BIND_ERROR_REASONS[errno.WSAEACCES] = "unavailable: permission denied"
+    _BIND_ERROR_CODES[errno.WSAEACCES] = PERMISSION_DENIED
 
 
-def _describe_bind_error(error, port):
-    reason = _BIND_ERROR_REASONS.get(error.errno)
-    if reason is None:
-        return f"unavailable: {error.strerror}"
+def _bind_failure(error, port):
+    code = _BIND_ERROR_CODES.get(error.errno)
+    if code is None:
+        return BindFailure(UNAVAILABLE, error.strerror)
     # Linux checks bind privilege before port occupancy, so an
     # unprivileged bind to an occupied port below 1024 reports EACCES.
     listeners = _listening_sockets(port)
     if listeners:
-        return f"in use by {_describe_listener(listeners)}"
-    return reason
+        return _listener_failure(listeners)
+    return BindFailure(code, None)
+
+
+_FAILURE_LOG_TEXT = {
+    IN_USE: "in use",
+    IN_USE_BY_PROCESS: "in use by {}",
+    IN_USE_BY_USER: "in use by a process of user {}",
+    PERMISSION_DENIED: "unavailable: permission denied",
+    UNAVAILABLE: "unavailable: {}",
+}
+
+
+def _describe_failure(failure):
+    return _FAILURE_LOG_TEXT[failure.code].format(failure.detail)
 
 
 def _listening_sockets(port):
@@ -107,7 +144,7 @@ def _listening_sockets(port):
     return listeners
 
 
-def _describe_listener(listeners):
+def _listener_failure(listeners):
     targets = {f"socket:[{inode}]" for inode in listeners}
     for pid in os.listdir(PROCFS_PATH):
         if not pid.isdigit():
@@ -118,11 +155,11 @@ def _describe_listener(listeners):
                 os.readlink(os.path.join(fd_dir, fd)) in targets
                 for fd in os.listdir(fd_dir)
             ):
-                return _describe_process(pid)
+                return BindFailure(IN_USE_BY_PROCESS, _describe_process(pid))
         except (PermissionError, FileNotFoundError):
             continue
     users = sorted({_user_name(uid) for uid in listeners.values()})
-    return f"a process of user {', '.join(users)}"
+    return BindFailure(IN_USE_BY_USER, ", ".join(users))
 
 
 def _user_name(uid):

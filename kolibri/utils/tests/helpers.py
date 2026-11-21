@@ -90,3 +90,20 @@ def fake_port_binds(monkeypatch):
 
 def pinned_http_port(ini_path):
     return ConfigObj(ini_path).get("Deployment", {}).get("HTTP_PORT")
+
+
+TCP_HEADER = "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n"
+
+
+def tcp_row(port, state, inode, uid=0):
+    return f"   0: 00000000:{port:04X} 00000000:0000 {state} 00000000:00000000 00:00000000 00000000 {uid:>5}        0 {inode} 1 0000000000000000 100 0 0 10 0\n"
+
+
+def fake_nginx_on_port_80(proc, cgroup="0::/system.slice/nginx.service\n"):
+    (proc / "net").mkdir(parents=True)
+    (proc / "net" / "tcp").write_text(TCP_HEADER + tcp_row(22, "0A", 111))
+    (proc / "net" / "tcp6").write_text(TCP_HEADER + tcp_row(80, "0A", 222))
+    (proc / "20" / "fd").mkdir(parents=True)
+    os.symlink("socket:[222]", proc / "20" / "fd" / "3")
+    (proc / "20" / "comm").write_text("nginx\n")
+    (proc / "20" / "cgroup").write_text(cgroup)
