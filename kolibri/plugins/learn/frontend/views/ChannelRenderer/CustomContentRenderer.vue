@@ -163,7 +163,7 @@
         {},
         urls.zipContentUrl(this.zipFile, 'index.html'),
         this.zipFile.checksum,
-        { handlerUrl: this.handlerUrl },
+        { handlerUrl: this.handlerUrl, polyfillUrl: urls.sandboxPolyfills() },
       );
     },
     beforeDestroy() {

@@ -1,4 +1,3 @@
-const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const _ = require('lodash');
 const webpackConfigPlugin = require('../webpack.config.plugin');
@@ -178,8 +177,6 @@ describe('webpackConfigPlugin', function () {
   describe('sandbox handler bundles', function () {
     beforeEach(function () {
       data.sandbox_handler = true;
-      // Resolving core-js for the polyfill version needs a real plugin with it as a dependency.
-      data.plugin_path = 'kolibri/plugins/html5_viewer';
     });
 
     it('should exclude MessageRegistrationPlugin', function () {
@@ -192,46 +189,6 @@ describe('webpackConfigPlugin', function () {
 
     it('should exclude WebpackRTLPlugin', function () {
       expect(hasRTLPlugin(webpackConfigPlugin(data))).toBe(false);
-    });
-
-    it('should inject the polyfills they use, as they have no core bundle to rely on', function () {
-      const { env, jsc } = findJsRule(webpackConfigPlugin(data, { transpile: true })).options;
-      expect(env.targets).toEqual(require('browserslist-config-kolibri'));
-      expect(jsc).toBeDefined();
-      expect(env.mode).toEqual('usage');
-      expect(env.coreJs).toEqual(
-        require(require.resolve('core-js/package.json', { paths: [data.plugin_path] })).version,
-      );
-    });
-
-    it('should detect module type per file so CommonJS gets require() polyfill imports', function () {
-      expect(findJsRule(webpackConfigPlugin(data, { transpile: true })).options.isModule).toEqual(
-        'unknown',
-      );
-    });
-
-    it('should name the bundle and plugin when the plugin does not depend on core-js', function () {
-      // Jest's resolver finds core-js through its configured module paths whatever
-      // `paths` says, and Node also searches the NODE_PATH pnpm sets, so only a plain
-      // Node process without it sees the resolution fail.
-      const script = `
-        require(${JSON.stringify(require.resolve('../webpack.config.plugin'))})(
-          {
-            ...${JSON.stringify(data)},
-            config_path: ${JSON.stringify(path.resolve('kolibri/plugins/html5_viewer/buildConfig.js'))},
-            index: 1,
-            plugin_path: '/nonexistent/plugin',
-          },
-          { transpile: true },
-        );
-      `;
-      const { stderr } = spawnSync(process.execPath, ['-e', script], {
-        encoding: 'utf-8',
-        env: { ...process.env, NODE_PATH: '' },
-      });
-      expect(stderr).toContain(
-        `${data.name} sandbox handler bundle requires core-js as a dependency of /nonexistent/plugin`,
-      );
     });
   });
 

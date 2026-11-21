@@ -216,7 +216,7 @@ export default function useSandbox(
       userData.value,
       startUrl,
       file.checksum,
-      { handlerUrl: sandboxHandlerUrl.value },
+      { handlerUrl: sandboxHandlerUrl.value, polyfillUrl: urls.sandboxPolyfills() },
     );
 
     let shownUrl = startUrl;
