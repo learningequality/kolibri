@@ -151,7 +151,7 @@ class NetworkClient(SameHostSession):
             pass
 
         logger.info("Attempting connections to variations of the URL: %s", address)
-        _, self_urls = get_urls()
+        _, self_urls = get_urls(include_bound_port=True)
         for url in get_normalized_url_variations(address):
             if url in self_urls:
                 continue  # exclude our own URLs

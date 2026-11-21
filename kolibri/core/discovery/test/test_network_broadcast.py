@@ -64,6 +64,10 @@ class KolibriInstanceTestCase(SimpleTestCase):
         instance = KolibriInstance("abc", ip=MOCK_INTERFACE_IP, port=MOCK_PORT)
         self.assertEqual("http://111.222.111.222:555/", instance.base_url)
 
+    def test_base_url__omits_default_port(self):
+        instance = KolibriInstance("abc", ip=MOCK_INTERFACE_IP, port=80)
+        self.assertEqual("http://111.222.111.222/", instance.base_url)
+
     def test_is_broadcasting(self):
         instance = KolibriInstance("abc")
         self.assertFalse(instance.is_broadcasting)

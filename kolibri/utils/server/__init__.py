@@ -303,7 +303,7 @@ class ZeroConfPlugin(Monitor):
         )
         from kolibri.core.discovery.utils.network.search import NetworkLocationListener  # noqa: PLC0415
 
-        instance = build_broadcast_instance(self.port)
+        instance = build_broadcast_instance(_advertised_port(self.port))
 
         if self.backend is None:
             # the transport resolved via `NetworkDiscoveryHook` owns interface
@@ -1243,30 +1243,37 @@ def get_outgoing_interface_address():
         s.close()
 
 
-def get_urls(listen_port=None):
+def _advertised_port(bind_port):
+    return conf.OPTIONS["Deployment"]["ADVERTISED_HTTP_PORT"] or bind_port
+
+
+def _urls_on_port(hosts, port):
+    port_suffix = "" if port == 80 else f":{port}"
+    return [f"http://{host}{port_suffix}/" for host in hosts]
+
+
+def get_urls(listen_port=None, include_bound_port=False, advertise=True):
     """
     :param listen_port: if set, will not try to determine the listen port from
                         other running instances.
     """
     try:
-        if listen_port:
-            port = listen_port
-        else:
-            __, __, port = get_status()
-        urls = []
-        if port:
-            try:
-                listen_ips = _get_listen_ips()
-                list_hostnames = any(map(_is_lan_reachable, listen_ips))
-            except RuntimeError:
-                logger.error("Error retrieving network interface list!")
-                listen_ips = []
-                list_hostnames = True
-            for ip in listen_ips:
-                urls.append(f"http://{ip}:{port}/")
-            if list_hostnames:
-                for hostname in get_local_hostnames():
-                    urls.append(f"http://{hostname}:{port}/")
+        port = listen_port or get_status()[2]
+        if not port:
+            return STATUS_RUNNING, []
+        try:
+            hosts = _get_listen_ips()
+            list_hostnames = any(map(_is_lan_reachable, hosts))
+        except RuntimeError:
+            logger.error("Error retrieving network interface list!")
+            hosts = []
+            list_hostnames = True
+        if list_hostnames:
+            hosts += get_local_hostnames()
+        url_port = _advertised_port(port) if advertise else port
+        urls = _urls_on_port(hosts, url_port)
+        if include_bound_port and url_port != port:
+            urls += _urls_on_port(hosts, port)
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
