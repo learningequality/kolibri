@@ -24,11 +24,16 @@ logger = logging.getLogger(__name__)
 
 class DateTimeTzField(DateTimeField):
     def to_internal_value(self, data):
-        data = super().to_internal_value(data)
-        tz = timezone.get_current_timezone()
-        if not data.tzinfo:
-            data = timezone.make_aware(data, pytz.utc)
-        return data.astimezone(tz)
+        # DRF catches OverflowError only for aware values, and pytz's
+        # fixed-offset zones localize without computing UTC.
+        try:
+            data = super().to_internal_value(data)
+            tz = timezone.get_current_timezone()
+            if not data.tzinfo:
+                data = timezone.make_aware(data, pytz.utc)
+            return data.astimezone(pytz.utc).astimezone(tz)
+        except OverflowError:
+            self.fail("overflow")
 
 
 class SplitTextField(CharField):

@@ -112,6 +112,8 @@ It resolves with an array, unless the ViewSet's ``pagination_class`` paginates t
      - Set by the ViewSet, for example ``max_results`` on the content node endpoints
      - ``{ results, more }``
 
+A page size above the ViewSet's maximum, 100 unless its pagination class sets another, returns a 400.
+
 ``more`` is ``null`` on the last page. Otherwise it is the complete ``params`` object for the next page, including your filters, so passing it back to ``list(more)`` fetches that page.
 
 retrieve

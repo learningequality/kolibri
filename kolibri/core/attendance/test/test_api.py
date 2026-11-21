@@ -514,6 +514,17 @@ class AttendanceSessionAPITestCase(APITestCase):
         self.assertEqual(len(response.data["results"]), 2)
         self.assertEqual(response.data["count"], 3)
 
+    def test_pagination_page_size_above_maximum(self):
+        self._login(self.admin)
+        response = self.client.get(_session_list_url(), {"page_size": 101, "page": 1})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], "page_size")
+
+    def test_pagination_page_size_at_maximum(self):
+        self._login(self.admin)
+        response = self.client.get(_session_list_url(), {"page_size": 100, "page": 1})
+        self.assertEqual(response.status_code, 200)
+
 
 class AttendanceRecordAPITestCase(APITestCase):
     databases = "__all__"
