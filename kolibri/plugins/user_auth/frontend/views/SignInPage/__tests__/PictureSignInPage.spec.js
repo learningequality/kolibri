@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { ref } from 'vue';
+import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { LoginErrors } from 'kolibri/constants';
@@ -57,11 +58,20 @@ const PageInLayout = {
 
 const MOCK_LEARNER_NAME = 'Alice Example';
 
-function renderComponent({ inLayout = false } = {}) {
-  useRoute.mockReturnValue({ query: {} });
-  useRouter.mockReturnValue({
-    push: mockRouterPush,
+function createAppRouter() {
+  const { default: actualUseAuthFlow } = jest.requireActual('../../../composables/useAuthFlow');
+  useAuthFlow.mockImplementationOnce(actualUseAuthFlow);
+  // eslint-disable-next-line global-require
+  const routes = require('../../../routes').default;
+  return new VueRouter({
+    mode: 'abstract',
+    routes: routes.map(route => ({ ...route, name: route.component?.name })),
   });
+}
+
+function renderComponent({ inLayout = false, osUsername = null, router = null } = {}) {
+  useRoute.mockReturnValue({ query: {} });
+  useRouter.mockReturnValue(router || { push: mockRouterPush });
   useUser.mockReturnValue(
     useUserMock({
       login: mockLogin,
@@ -80,6 +90,7 @@ function renderComponent({ inLayout = false } = {}) {
     picturePasswordStyle: ref('colorful'),
     picturePasswordShowIconText: ref(true),
     canSignUp: ref(false),
+    fetchOSUsername: () => Promise.resolve(osUsername),
   });
   useAuthWatcher.mockReturnValue({
     watchForFacilityChange: jest.fn(),
@@ -87,13 +98,16 @@ function renderComponent({ inLayout = false } = {}) {
   });
   useAuthRouter.mockReturnValue({
     nextParam: ref('/next'),
-    defaultRoute: ref({ name: 'SignInPage' }),
+    defaultRoute: ref({ name: 'PictureSignInPage' }),
     pictureSignInRoute: ref({ name: 'PictureSignInPage' }),
-    usernameSignInRoute: ref({ name: 'SignInPage' }),
+    usernameSignInRoute: ref({ name: 'SignInPage', query: { next: '/next' } }),
     signUpRoute: ref({ name: 'SignUpPage' }),
     getFacilitySelectionRoute: jest.fn(),
   });
 
+  if (router) {
+    return render(PictureSignInPage, { router });
+  }
   return render(inLayout ? PageInLayout : PictureSignInPage, {
     routes: [
       { name: 'PictureSignInPage', path: '/picture' },
@@ -127,6 +141,31 @@ describe('PictureSignInPage', () => {
   afterEach(() => {
     jest.useRealTimers();
     window.matchMedia = undefined;
+  });
+
+  describe('signed-out OS user', () => {
+    afterEach(() => {
+      window.localStorage.clear();
+    });
+
+    it("routes to the OS user's password form, keeping picture sign-in saved", async () => {
+      window.localStorage.setItem('facilityId', 'facility_1');
+      window.localStorage.setItem('signInMethod', OptionsForSignIn.PICTURE_PASSWORD);
+      useUser.mockReturnValue(useUserMock({ isUserLoggedIn: false }));
+      const router = createAppRouter();
+      renderComponent({ osUsername: 'alice', router });
+
+      await waitFor(() => expect(router.currentRoute.name).toBe('SignInPage'));
+      expect(window.localStorage.getItem('signInMethod')).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+    });
+
+    it('stays on the picture grid when there is no OS user to sign in', async () => {
+      renderComponent();
+      await jest.runAllTimersAsync();
+
+      expect(mockRouterPush).not.toHaveBeenCalled();
+      expect(checkbox(bee())).toBeInTheDocument();
+    });
   });
 
   it('submitting a sequence calls login with prevalidate=true, not a real login', async () => {

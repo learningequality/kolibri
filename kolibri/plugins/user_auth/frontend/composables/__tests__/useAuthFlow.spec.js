@@ -12,6 +12,8 @@ import {
 } from 'kolibri-common/composables/useFacility';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import { handleApiError } from 'kolibri/utils/appError';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
@@ -20,6 +22,8 @@ jest.mock('@vueuse/core', () => ({
   useLocalStorage: jest.fn(),
 }));
 jest.mock('kolibri/utils/appError');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
 
 describe('useAuthFlow', () => {
   let persistentSignInMethod;
@@ -198,6 +202,38 @@ describe('useAuthFlow', () => {
       const { signInMethod } = createAuthFlow();
       signInMethod.value = OptionsForSignIn.USERNAME_ONLY;
       expect(persistentSignInMethod.value).toBe(OptionsForSignIn.USERNAME_ONLY);
+    });
+
+    it('uses the method set for this visit without persisting it', () => {
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          signInOptions: computed(() => [
+            OptionsForSignIn.PICTURE_PASSWORD,
+            OptionsForSignIn.USERNAME_ONLY,
+          ]),
+        }),
+      );
+      persistentSignInMethod.value = OptionsForSignIn.PICTURE_PASSWORD;
+      const { signInMethod, setSignInMethodForThisVisit } = createAuthFlow();
+      setSignInMethodForThisVisit(OptionsForSignIn.USERNAME_ONLY);
+      expect(signInMethod.value).toBe(OptionsForSignIn.USERNAME_ONLY);
+      expect(persistentSignInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+    });
+
+    it('replaces the method set for this visit when set', () => {
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          signInOptions: computed(() => [
+            OptionsForSignIn.PICTURE_PASSWORD,
+            OptionsForSignIn.USERNAME_ONLY,
+          ]),
+        }),
+      );
+      const { signInMethod, setSignInMethodForThisVisit } = createAuthFlow();
+      setSignInMethodForThisVisit(OptionsForSignIn.USERNAME_ONLY);
+      signInMethod.value = OptionsForSignIn.PICTURE_PASSWORD;
+      expect(signInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+      expect(persistentSignInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
     });
   });
 
@@ -517,6 +553,46 @@ describe('useAuthFlow', () => {
         error,
         reloadOnReconnect: true,
       });
+    });
+  });
+
+  describe('fetchOSUsername', () => {
+    beforeEach(() => {
+      useFacilitySelect.mockReturnValue(
+        useFacilitySelectMock({ selectedFacilityId: computed(() => 'facility_1') }),
+      );
+      urls.__echoUrls();
+    });
+
+    it("returns the OS user's username when they belong to the active facility", async () => {
+      client.__setPayload({ username: 'alice', facility: 'facility_1' });
+      const { fetchOSUsername } = createAuthFlow();
+      expect(await fetchOSUsername()).toBe('alice');
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/kolibri:kolibri.plugins.user_auth:facilityusername_osuser',
+        }),
+      );
+    });
+
+    it('returns null when the OS user belongs to another facility', async () => {
+      client.__setPayload({ username: 'alice', facility: 'facility_2' });
+      const { fetchOSUsername } = createAuthFlow();
+      expect(await fetchOSUsername()).toBeNull();
+    });
+
+    it('returns null when there is no OS user to sign in', async () => {
+      client.mockRejectedValue(new Error('404'));
+      const { fetchOSUsername } = createAuthFlow();
+      expect(await fetchOSUsername()).toBeNull();
+    });
+
+    it("returns null without a request once the OS user's form was opened", async () => {
+      client.__setPayload({ username: 'alice', facility: 'facility_1' });
+      const { fetchOSUsername, osUserFormOpened } = createAuthFlow();
+      osUserFormOpened.value = true;
+      expect(await fetchOSUsername()).toBeNull();
+      expect(client).not.toHaveBeenCalled();
     });
   });
 });

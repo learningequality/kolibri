@@ -175,7 +175,14 @@
       const route = useRoute();
       const { isAppContext, login } = useUser();
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
-      const { hasMultipleFacilities, facilityId, selectedFacility, facilityConfig } = useAuthFlow();
+      const {
+        hasMultipleFacilities,
+        facilityId,
+        selectedFacility,
+        facilityConfig,
+        osUserFormOpened,
+        fetchOSUsername,
+      } = useAuthFlow();
       const { setSelectedFacilityId } = useFacilitySelect();
       const { watchForFacilityChange } = useAuthWatcher();
       useAuthPageTitle(pageTitleStrings.signInPageTitle$);
@@ -201,6 +208,8 @@
         selectedFacility,
         facilityConfig,
         hasMultipleFacilities,
+        osUserFormOpened,
+        fetchOSUsername,
         nextParam,
         backToFacilitySelectionRoute,
       };
@@ -322,6 +331,12 @@
             }
           })
           .catch(() => {});
+        this.fetchOSUsername().then(username => {
+          if (username && !this.username && !this.busy) {
+            this.osUserFormOpened = true;
+            this.setSelectedUsername(username);
+          }
+        });
       }
     },
     methods: {

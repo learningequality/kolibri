@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
 import { ref } from 'vue';
+import VueRouter from 'vue-router';
 import client from 'kolibri/client';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import { LoginErrors } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import { MAX_USERS_FOR_LISTING_VIEW } from '../../../constants';
+import { ComponentMap, MAX_USERS_FOR_LISTING_VIEW } from '../../../constants';
 import SignInPage from '../index.vue';
 import UserAuthLayout from '../../UserAuthLayout';
 import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
@@ -36,7 +38,7 @@ jest.mock('vue-router/composables', () => ({
   useRoute: () => ({ query: {}, params: {} }),
 }));
 
-const { usernameLabel$ } = coreStrings;
+const { passwordLabel$, usernameLabel$ } = coreStrings;
 const { signInPageTitle$ } = pageTitleStrings;
 
 const TEST_FACILITY = { id: 'fac-1', name: 'Test Facility' };
@@ -44,13 +46,19 @@ const SUGGESTED_USERNAME = 'alice';
 const SEARCHED_TERM = SUGGESTED_USERNAME.slice(0, 3);
 
 // created() dereferences selectedFacility.id, and useAuthFlowMock defaults it to ref(null).
-function setupMocks({ isAppContext = false, facilityConfig = {} } = {}) {
-  useUser.mockReturnValue(useUserMock({ isAppContext, login: jest.fn() }));
+function setupMocks({
+  isAppContext = false,
+  facilityConfig = {},
+  login = jest.fn(),
+  authFlow = {},
+} = {}) {
+  useUser.mockReturnValue(useUserMock({ isAppContext, login }));
   useAuthFlow.mockReturnValue(
     useAuthFlowMock({
       selectedFacility: ref(TEST_FACILITY),
       facilityId: ref(TEST_FACILITY.id),
       facilityConfig: ref(facilityConfig),
+      ...authFlow,
     }),
   );
   useAuthRouter.mockReturnValue(useAuthRouterMock());
@@ -111,6 +119,124 @@ describe('SignInPage – FacilityUsername reads', () => {
       client.mockRejectedValue(new Error('network'));
       const { queryByTestId } = render(SignInPage);
       await waitFor(() => expect(queryByTestId('users-list')).not.toBeInTheDocument());
+    });
+
+    function renderUsersListWithLoginError(error) {
+      setupMocks({ isAppContext: true, login: jest.fn().mockResolvedValue({ error }) });
+      client.__setPayload({ results: [{ username: SUGGESTED_USERNAME }], more: null });
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [
+          { name: 'SignInPage', path: '/' },
+          { name: ComponentMap.NEW_PASSWORD, path: '/create_password' },
+        ],
+      });
+      return { router, ...render(SignInPage, { router }) };
+    }
+
+    it('asks for a password when the selected user needs one', async () => {
+      renderUsersListWithLoginError(LoginErrors.PASSWORD_MISSING);
+      await fireEvent.click(await screen.findByRole('button', { name: SUGGESTED_USERNAME }));
+
+      expect(await screen.findByLabelText(passwordLabel$())).toBeInTheDocument();
+      expect(screen.queryByTestId('users-list')).not.toBeInTheDocument();
+    });
+
+    it('sends the selected user to set a password when theirs is not specified', async () => {
+      const { router } = renderUsersListWithLoginError(LoginErrors.PASSWORD_NOT_SPECIFIED);
+      await fireEvent.click(await screen.findByRole('button', { name: SUGGESTED_USERNAME }));
+
+      await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
+      expect(router.currentRoute.query.username).toBe(SUGGESTED_USERNAME);
+    });
+  });
+
+  describe('signed-out OS user', () => {
+    const OTHER_USERNAME = 'bob';
+
+    function renderWithOSUser({ osUsername, loginError }) {
+      const login = jest.fn().mockResolvedValue({ error: loginError });
+      const osUserFormOpened = ref(false);
+      setupMocks({
+        isAppContext: true,
+        login,
+        authFlow: {
+          osUserFormOpened,
+          fetchOSUsername: () => Promise.resolve(osUserFormOpened.value ? null : osUsername),
+        },
+      });
+      client.__setPayload({
+        results: [{ username: SUGGESTED_USERNAME }, { username: OTHER_USERNAME }],
+      });
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [
+          { name: 'SignInPage', path: '/' },
+          { name: ComponentMap.NEW_PASSWORD, path: '/create_password' },
+        ],
+      });
+      return { login, router, ...render(SignInPage, { router }) };
+    }
+
+    it("opens the OS user's password form", async () => {
+      const { login } = renderWithOSUser({
+        osUsername: SUGGESTED_USERNAME,
+        loginError: LoginErrors.PASSWORD_MISSING,
+      });
+
+      expect(await screen.findByLabelText(passwordLabel$())).toBeInTheDocument();
+      expect(login).toHaveBeenCalledWith(
+        expect.objectContaining({ username: SUGGESTED_USERNAME, facility: TEST_FACILITY.id }),
+      );
+      expect(screen.queryByTestId('users-list')).not.toBeInTheDocument();
+    });
+
+    it('sends the OS user to set a password when theirs is not specified', async () => {
+      const { router } = renderWithOSUser({
+        osUsername: SUGGESTED_USERNAME,
+        loginError: LoginErrors.PASSWORD_NOT_SPECIFIED,
+      });
+
+      await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
+      expect(router.currentRoute.query.username).toBe(SUGGESTED_USERNAME);
+    });
+
+    it('shows the users list on returning from setting a password', async () => {
+      const { login, router, unmount } = renderWithOSUser({
+        osUsername: SUGGESTED_USERNAME,
+        loginError: LoginErrors.PASSWORD_NOT_SPECIFIED,
+      });
+      await waitFor(() => expect(router.currentRoute.name).toBe(ComponentMap.NEW_PASSWORD));
+      unmount();
+
+      await router.push({ name: 'SignInPage' });
+      render(SignInPage, { router });
+
+      expect(await screen.findByTestId('users-list')).toBeInTheDocument();
+      expect(login).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps a user picked before the OS user arrives', async () => {
+      let resolveOSUsername;
+      const { login } = renderWithOSUser({
+        osUsername: new Promise(resolve => (resolveOSUsername = resolve)),
+        loginError: LoginErrors.PASSWORD_MISSING,
+      });
+      await fireEvent.click(await screen.findByRole('button', { name: OTHER_USERNAME }));
+      await screen.findByLabelText(passwordLabel$());
+
+      resolveOSUsername(SUGGESTED_USERNAME);
+      await new Promise(resolve => setTimeout(resolve));
+
+      expect(login).toHaveBeenCalledTimes(1);
+      expect(login).toHaveBeenCalledWith(expect.objectContaining({ username: OTHER_USERNAME }));
+    });
+
+    it('shows the users list when there is no OS user to sign in', async () => {
+      const { login } = renderWithOSUser({ osUsername: null });
+
+      expect(await screen.findByTestId('users-list')).toBeInTheDocument();
+      expect(login).not.toHaveBeenCalled();
     });
   });
 
