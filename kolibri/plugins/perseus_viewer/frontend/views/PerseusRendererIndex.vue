@@ -6,6 +6,8 @@
     :class="{ 'perseus-mobile': isMobile }"
     role="presentation"
     @keydown.enter.prevent="answerGiven"
+    @keydown.capture="handleMathFieldKey"
+    @keyup.capture="handleMathFieldKey"
   >
     <div
       class="framework-perseus"
@@ -331,10 +333,25 @@
         registerAssessmentApi,
       } = useContentViewer(context);
 
-      const { keypadAPI, keypadContextValue } = useKeypad();
+      const { keypadAPI, keypadContextValue, handleKeyboardEvent } = useKeypad();
       // Our keypad sends DIVIDE to math-input's field, which writes `:` in Perseus's
       // `localesThatUseColon`.
       const divideLabel = computed(() => (getDivideSymbol(lang.value?.id) === ':' ? ':' : '÷'));
+
+      function handleMathFieldKey(event) {
+        if (!event.target.closest('.keypad-input')) {
+          return;
+        }
+        // MathInput also presses physical keys on keyup, even when its item is read-only.
+        // Stopping the event before React's root listener keeps it from pressing the key.
+        const handled = interactive.value
+          ? handleKeyboardEvent(event, lang.value?.id)
+          : event.type === 'keyup';
+        if (handled) {
+          event.stopPropagation();
+        }
+      }
+
       return {
         divideLabel,
         windowBreakpoint,
@@ -342,6 +359,7 @@
         contentDirection,
         keypadAPI,
         keypadContextValue,
+        handleMathFieldKey,
         itemData,
         itemId,
         answerState,
