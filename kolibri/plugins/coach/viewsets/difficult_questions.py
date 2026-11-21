@@ -14,10 +14,17 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.logger.evaluation import LOG_ORDER_BY
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 
 _ALLOWED_ROLES = [role_kinds.ADMIN, role_kinds.COACH]
+
+LATEST_ITEM_ATTEMPT = Subquery(
+    AttemptLog.objects.filter(masterylog=OuterRef("masterylog"), item=OuterRef("item"))
+    .order_by(LOG_ORDER_BY, "-id")
+    .values("id")[:1]
+)
 
 
 def _has_coach_role_for(user, group_id, **collection_filters):
@@ -140,7 +147,11 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
             collection_id = group_id
         else:
             collection_id = quiz["collection_id"]
-        data = queryset.values("item").annotate(correct=Sum("correct"))
+        data = (
+            queryset.filter(id=LATEST_ITEM_ATTEMPT)
+            .values("item")
+            .annotate(correct=Sum("correct"))
+        )
 
         # Instead of inferring the totals from the number of logs, use the total
         # number of people who submitted (if quiz is active) or started the exam
@@ -223,7 +234,11 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
             masterylog_id__in=masterylog_queryset
         )
 
-        data = attemptlog_queryset.values("item").annotate(correct=Sum("correct"))
+        data = (
+            attemptlog_queryset.filter(id=LATEST_ITEM_ATTEMPT)
+            .values("item")
+            .annotate(correct=Sum("correct"))
+        )
 
         # Instead of inferring the totals from the number of attempt logs, use the total
         # number of people who have a completed try on the practice quiz

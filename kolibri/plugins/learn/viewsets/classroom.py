@@ -1,9 +1,6 @@
-from django.db.models import Count
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models import Sum
-from django.db.models.fields import IntegerField
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 
@@ -14,8 +11,9 @@ from kolibri.core.courses.models import CourseSession
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import exam_assignment_lookup
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.evaluation import LOG_ORDER_BY
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.quiz import annotate_response_summary
 
 from . import _consolidate_courses_data
 from . import _consolidate_lessons_data
@@ -126,6 +124,12 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
             user=self.request.user
         ).values("summarylog__content_id")
 
+        user_latest_exam_try = annotate_response_summary(
+            MasteryLog.objects.filter(
+                summarylog__content_id=OuterRef("id"), user=self.request.user
+            )
+        ).order_by(LOG_ORDER_BY)
+
         exams = (
             Exam.objects.filter(
                 assignments__collection__membership__user=self.request.user,
@@ -133,35 +137,9 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
             )
             .filter(Q(active=True) | Q(id__in=user_masterylog_content_ids))
             .annotate(
-                closed=Subquery(
-                    MasteryLog.objects.filter(
-                        summarylog__content_id=OuterRef("id"), user=self.request.user
-                    ).values("complete")[:1]
-                ),
-                score=Subquery(
-                    AttemptLog.objects.filter(
-                        sessionlog__content_id=OuterRef("id"), user=self.request.user
-                    )
-                    .order_by()
-                    .values_list("item")
-                    .distinct()
-                    .values("masterylog")
-                    .annotate(total_correct=Sum("correct"))
-                    .values("total_correct"),
-                    output_field=IntegerField(),
-                ),
-                answer_count=Subquery(
-                    AttemptLog.objects.filter(
-                        sessionlog__content_id=OuterRef("id"), user=self.request.user
-                    )
-                    .order_by()
-                    .values_list("item")
-                    .distinct()
-                    .values("masterylog")
-                    .annotate(total_complete=Count("id"))
-                    .values("total_complete"),
-                    output_field=IntegerField(),
-                ),
+                closed=Subquery(user_latest_exam_try.values("complete")[:1]),
+                score=Subquery(user_latest_exam_try.values("num_correct")[:1]),
+                answer_count=Subquery(user_latest_exam_try.values("num_answered")[:1]),
             )
             .distinct()
             .values(

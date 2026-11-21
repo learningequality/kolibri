@@ -53,14 +53,12 @@ def _get_quiz_status(queryset):
     items = []
     statuses = queryset.annotate(
         last_activity=Max("attemptlogs__end_timestamp"),
-        previous_num_correct=SQCount(
-            logger_models.AttemptLog.objects.filter(
-                masterylog=OuterRef("previous_masterylog"), correct=1
-            )
-            .order_by()
-            .values_list("item")
-            .distinct(),
-            field="item",
+        previous_num_correct=Subquery(
+            annotate_response_summary(
+                logger_models.MasteryLog.objects.filter(
+                    id=OuterRef("previous_masterylog")
+                )
+            ).values("num_correct")
         ),
     ).values(
         "summarylog__content_id",
@@ -75,6 +73,7 @@ def _get_quiz_status(queryset):
     for item in statuses:
         key = (item["learner_id"], item["summarylog__content_id"])
         if key not in seen:
+            item["previous_num_correct"] = item["previous_num_correct"] or 0
             items.append(item)
             seen.add(key)
     return items
