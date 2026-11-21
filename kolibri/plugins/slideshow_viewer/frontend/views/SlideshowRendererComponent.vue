@@ -17,13 +17,13 @@
         v-if="isInFullscreen"
         icon="fullscreen_exit"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px"
+        style="top: 0; width: 24px; height: 24px;"
       />
       <KIcon
         v-else
         icon="fullscreen"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px"
+        style="top: 0; width: 24px; height: 24px;"
       />
     </UiIconButton>
     <Hooper
@@ -91,6 +91,7 @@
   } from 'hooper';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import { handleError } from 'kolibri/utils/appError';
+  import './custom-hooper.css';
 
   export default {
     name: 'SlideshowRendererComponent',
@@ -334,8 +335,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import './custom-hooper.css';
 
   .btn {
     position: absolute;

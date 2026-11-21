@@ -46,7 +46,7 @@
     >
       <div
         v-if="coreError"
-        style="padding: 16px"
+        style="padding: 16px;"
       >
         <AppError :hideParagraphs="true">
           <h2>{{ coreError }}</h2>

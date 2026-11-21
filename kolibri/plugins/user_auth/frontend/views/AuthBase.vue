@@ -88,7 +88,7 @@
                   :primary="false"
                   appearance="raised-button"
                   :disabled="busy"
-                  style="width: 100%"
+                  style="width: 100%;"
                   data-testid="createUser"
                 />
               </p>
@@ -100,7 +100,7 @@
                   :text="item.label"
                   :href="item.url"
                   :appearance="item.appearance"
-                  style="width: 100%"
+                  style="width: 100%;"
                 >
                   <template #icon>
                     <img

@@ -26,12 +26,12 @@
           v-if="contentNode.description"
           :text="contentNode.description"
           :maxLines="3"
-          style="min-height: 17px; margin-bottom: 8px"
+          style="min-height: 17px; margin-bottom: 8px;"
         />
         <MetadataChips :tags="getChannelTags()" />
         <div
           v-if="!contentNode.description"
-          style="min-height: 17px"
+          style="min-height: 17px;"
         ></div>
       </div>
     </template>

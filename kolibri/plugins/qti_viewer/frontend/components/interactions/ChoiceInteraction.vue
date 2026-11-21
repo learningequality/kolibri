@@ -230,6 +230,7 @@
       .qti-simple-choice::before {
         content: counter(qti-choice-counter, upper-alpha);
       }
+
       @each $name, $style in $qti-counter-styles {
         &.qti-labels-#{$name} .qti-simple-choice::before {
           content: counter(qti-choice-counter, $style);

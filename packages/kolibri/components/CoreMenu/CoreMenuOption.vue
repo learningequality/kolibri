@@ -249,8 +249,8 @@
     font-size: 16px;
     text-decoration: none;
     cursor: pointer;
-    border-radius: $radius;
     outline-offset: -1px; // override global styles
+    border-radius: $radius;
     transition: background-color $core-time ease;
 
     &:hover {

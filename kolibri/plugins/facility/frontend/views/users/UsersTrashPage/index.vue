@@ -26,7 +26,7 @@
           <KRouterLink
             :to="$store.getters.facilityPageLinks.UserPage"
             icon="back"
-            style="margin: 1em 0 0.25em"
+            style="margin: 1em 0 0.25em;"
             :text="backToUsers$()"
           />
 

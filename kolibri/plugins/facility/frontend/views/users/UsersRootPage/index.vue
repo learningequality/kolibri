@@ -29,7 +29,7 @@
               name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
               params: { subtopicName: 'UserPage' },
             }"
-            style="margin: 1em 0 0.25em"
+            style="margin: 1em 0 0.25em;"
             icon="back"
             :text="coreString('changeLearningFacility')"
           />
@@ -97,7 +97,7 @@
               <KButton
                 appearance="basic-link"
                 :text="coreString('clearSelectionAction')"
-                style="display: inline-block"
+                style="display: inline-block;"
                 @click="clearSelectedUsers"
               />
             </template>
