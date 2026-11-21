@@ -1,5 +1,10 @@
 import ZipFile from 'kolibri-zip';
-import { DOMMapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
+import {
+  DOMMapper,
+  defaultFilePathMappers,
+  getDOMPaths,
+  replaceDOMPaths,
+} from 'kolibri-zip/src/fileUtils';
 import playerManifest from '../../bloom_build/bloom_build.json';
 
 const domParser = new DOMParser();
@@ -60,8 +65,20 @@ function keepOriginalHrefs(dom, packageFiles) {
   }
 }
 
-function replaceBloomPaths(fileContents, packageFiles, mimeType) {
+const archiveOrigin = 'https://archive.invalid';
+
+function resolveInArchive(src, fileName) {
+  const base = new URL(fileName.split('/').map(encodeURIComponent).join('/'), `${archiveOrigin}/`);
+  const pathEnd = src.search(/[?#]/);
+  const path = pathEnd < 0 ? src : src.slice(0, pathEnd);
+  return new URL(path.replace(/%2f/gi, '/') + src.slice(path.length), base);
+}
+
+function replaceBloomPaths(fileContents, packageFiles, mimeType, iframeSources) {
   const dom = parse(fileContents, mimeType);
+  for (const [index, iframe] of Array.from(dom.querySelectorAll('iframe[src]')).entries()) {
+    iframe.setAttribute('src', iframeSources[index]);
+  }
   keepOriginalHrefs(dom, packageFiles);
   replaceAudioFiles(dom, packageFiles);
   if (mimeType === 'text/html') {
@@ -75,25 +92,53 @@ function replaceBloomPaths(fileContents, packageFiles, mimeType) {
 
 class BloomDOMMapper extends DOMMapper {
   getPaths() {
-    const paths = super.getPaths();
+    const dom = parse(this.file.toString(), this.file.mimeType);
+    for (const iframe of dom.querySelectorAll('iframe[src]')) {
+      iframe.removeAttribute('src');
+    }
+    const paths = getDOMPaths(domSerializer.serializeToString(dom), this.file.mimeType);
     return paths.concat(getAudioFiles(this.file.toString(), this.file.mimeType));
   }
 
   replacePaths(packageFiles) {
-    const newFileContents = super.replacePaths(packageFiles);
-    return replaceBloomPaths(newFileContents, packageFiles, this.file.mimeType);
+    const dom = parse(this.file.toString(), this.file.mimeType);
+    const iframeSources = Array.from(dom.querySelectorAll('iframe[src]'), iframe => {
+      const src = iframe.getAttribute('src');
+      iframe.setAttribute('src', '');
+      return src;
+    });
+    const newFileContents = replaceDOMPaths(
+      domSerializer.serializeToString(dom),
+      packageFiles,
+      this.file.mimeType,
+    );
+    return replaceBloomPaths(
+      newFileContents,
+      packageFiles,
+      this.file.mimeType,
+      iframeSources.map(src => this.resolveIframeSrc(src)),
+    );
+  }
+
+  resolveIframeSrc(src) {
+    const source = src.trim();
+    if (!source) {
+      return src;
+    }
+    try {
+      const target = resolveInArchive(source, this.file.name);
+      if (target.origin === archiveOrigin) {
+        return this.zipcontentUrl + target.pathname + target.search + target.hash;
+      }
+      return new URL(source, `${this.zipcontentUrl}/`).href;
+    } catch (error) {
+      if (error.name !== 'TypeError') {
+        throw error;
+      }
+      return src;
+    }
   }
 }
-
-// Override the default file path mappers to include our custom BloomDOMMapper
-// which handles the special audio file references.
-const filePathMappers = {
-  ...defaultFilePathMappers,
-  htm: BloomDOMMapper,
-  html: BloomDOMMapper,
-  xml: BloomDOMMapper,
-  xhtml: BloomDOMMapper,
-};
 
 /*
  * Class that manages loading, parsing, and running an Bloom file.
@@ -116,10 +161,24 @@ export default class BloomRunner {
     // This is the path to the Bloompub file which we load in its entirety.
     this.filepath = filepath;
     // A fallback URL to the zipcontent endpoint for this Bloom file
-    this.zipcontentUrl = new URL(
-      `../../zipcontent/${this.filepath.split('/').pop()}`,
-      window.location,
-    ).href;
+    const storageUrl = new URL(this.filepath, window.location);
+    const baseurl = storageUrl.searchParams.get('baseurl');
+    const archivePath = `${baseurl ? encodeURIComponent(baseurl) + '/' : ''}${storageUrl.pathname.split('/').pop()}`;
+    this.zipcontentUrl = new URL(`../../zipcontent/${archivePath}`, window.location).href;
+    const zipcontentUrl = this.zipcontentUrl;
+    class BookDOMMapper extends BloomDOMMapper {
+      constructor(file) {
+        super(file);
+        this.zipcontentUrl = zipcontentUrl;
+      }
+    }
+    const filePathMappers = {
+      ...defaultFilePathMappers,
+      htm: BookDOMMapper,
+      html: BookDOMMapper,
+      xml: BookDOMMapper,
+      xhtml: BookDOMMapper,
+    };
     const largeFileUrlGenerator = filePath => `${this.zipcontentUrl}/${filePath}`;
     this.zip = new ZipFile(this.filepath, { filePathMappers, largeFileUrlGenerator });
     await this.processFiles();
@@ -154,10 +213,9 @@ export default class BloomRunner {
    */
   processFiles() {
     return Promise.all([
-      // The htm file does not have a predictable name, so we find
-      // the first one in the zip.
-      this.zip.filesFromExtension('.htm').then(htmFile => {
-        this.contentUrl = htmFile[0].toUrl();
+      this.zip.filesFromExtension('.htm', { replacePaths: false }).then(async files => {
+        const book = files.find(file => file.name === 'index.htm') || files[0];
+        this.contentUrl = (await this.zip.file(book.name)).toUrl();
       }),
       this.zip.file('.distribution').then(distributionFile => {
         this.distributionUrl = distributionFile?.toUrl();

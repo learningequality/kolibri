@@ -1,2 +1,2 @@
 tar-ignore = ".git"
-extend-diff-ignore = "^(\.github|\.gitignore|\.tarignore|\.idea|\.vscode|test)(/|$)|\.iml$"
+extend-diff-ignore = "^(\.github|\.gitignore|\.tarignore|\.idea|\.vscode|tests?)(/|$)|\.iml$"
