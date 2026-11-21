@@ -49,26 +49,31 @@ const sidePanelRoutes = [
     name: PageNames.FILTER_USERS_SIDE_PANEL,
     path: 'filter',
     component: FilterUsersSidePanel,
+    meta: { panel: true },
   },
   {
     name: PageNames.ASSIGN_COACHES_SIDE_PANEL,
     path: 'assign-coaches',
     component: AssignCoachesSidePanel,
+    meta: { panel: true },
   },
   {
     name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
     path: 'remove-from-classes',
     component: RemoveFromClassSidePanel,
+    meta: { panel: true },
   },
   {
     name: PageNames.ENROLL_LEARNERS_SIDE_PANEL,
     path: 'enroll-learners',
     component: EnrollLearnersSidePanel,
+    meta: { panel: true },
   },
   {
     name: PageNames.ADD_NEW_USER_SIDE_PANEL,
     path: 'new',
     component: UserCreateSidePanel,
+    meta: { panel: true },
   },
 ];
 
