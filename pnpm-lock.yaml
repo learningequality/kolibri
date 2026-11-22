@@ -72,6 +72,9 @@ importers:
       '@crowdin/cli':
         specifier: ^4.14.1
         version: 4.14.1(encoding@0.1.13)
+      '@eslint-community/eslint-utils':
+        specifier: ^4.9.1
+        version: 4.9.1(eslint@9.39.4(jiti@2.6.1))
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -90,6 +93,21 @@ importers:
       concurrently:
         specifier: ^8.0.1
         version: 8.2.2
+      core-js:
+        specifier: 'catalog:'
+        version: 3.49.0
+      core-js-compat:
+        specifier: ^3.49.0
+        version: 3.50.0
+      eslint:
+        specifier: ^9.39.0
+        version: 9.39.4(jiti@2.6.1)
+      eslint-plugin-es-x:
+        specifier: ^9.7.0
+        version: 9.7.0(eslint@9.39.4(jiti@2.6.1))
+      eslint-type-tracer:
+        specifier: ^0.5.2
+        version: 0.5.2(eslint@9.39.4(jiti@2.6.1))
       jest:
         specifier: ^30.5.2
         version: 30.5.2(@types/node@26.6.2)
@@ -1838,6 +1856,9 @@ importers:
       css-minimizer-webpack-plugin:
         specifier: 8.0.0
         version: 8.0.0(webpack@5.109.2)
+      eslint:
+        specifier: ^9.39.0
+        version: 9.39.4(jiti@2.6.1)
       eslint-plugin-compat:
         specifier: ^6.0.2
         version: 6.0.2(eslint@9.39.4(jiti@2.6.1))
@@ -1934,9 +1955,6 @@ importers:
       kolibri-build:
         specifier: workspace:*
         version: link:../../packages/kolibri-build
-      kolibri-format:
-        specifier: workspace:*
-        version: link:../../packages/kolibri-format
 
 packages:
 
@@ -3445,6 +3463,7 @@ packages:
   '@khanacademy/wonder-blocks-pill@3.1.78':
     resolution: {integrity: sha512-haqq6KxWRXSnlGxk2oLda5vezuukKP7a7xbH/cGqDlx0+8j5EL1g4j/QjHrSoH0TCXOkCpOk061lLoTtSV61nA==}
     version: 3.1.78
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       aphrodite: ^1.2.5
       react: 18.2.0
@@ -5939,6 +5958,12 @@ packages:
     peerDependencies:
       eslint: '>=8'
 
+  eslint-plugin-es-x@9.7.0:
+    resolution: {integrity: sha512-BT0pUw0toxtrHulYycGiUTL++qC11opyPYMuGUR7AgmuQ/N1YN1xLupF8rGxlaGqEqkqeedJuacCxxAcYgGkvg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      eslint: '>=9.29.0'
+
   eslint-plugin-import-x@4.16.2:
     resolution: {integrity: sha512-rM9K8UBHcWKpzQzStn1YRN2T5NvdeIfSVoKu/lKF41znQXHAUcBbYXe5wd6GNjZjTrP7viQ49n1D83x/2gYgIw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -6029,6 +6054,12 @@ packages:
   eslint-scope@8.4.0:
     resolution: {integrity: sha512-sNXOfKCn74rt8RICKMvJS7XKV/Xk9kA7DyJr8mJik3S7Cwgy3qlkkmyS2uQB3jiJg6VNdZd/pDBJu0nvG2NlTg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  eslint-type-tracer@0.5.2:
+    resolution: {integrity: sha512-YiJmgk6OD1suPB4UC3M/PB+oxahf145jQQ5gFXFk9F9Y7puWwnqGYC2BtTB+FoHqdOohImeTt0rNk0lhhECNaQ==}
+    engines: {node: ^18 || >=20}
+    peerDependencies:
+      eslint: '>=8'
 
   eslint-utils@2.1.0:
     resolution: {integrity: sha512-w94dQYoauyvlDc43XnGB8lU3Zt713vNChgt4EWwhXAP2XkBvndfxF0AgIqKOOasjPIPzj9JqgwkwbCYD0/V3Zg==}
@@ -15191,6 +15222,13 @@ snapshots:
       eslint: 9.39.4(jiti@2.6.1)
       eslint-compat-utils: 0.5.1(eslint@9.39.4(jiti@2.6.1))
 
+  eslint-plugin-es-x@9.7.0(eslint@9.39.4(jiti@2.6.1)):
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.4(jiti@2.6.1))
+      '@eslint-community/regexpp': 4.12.2
+      eslint: 9.39.4(jiti@2.6.1)
+      eslint-type-tracer: 0.5.2(eslint@9.39.4(jiti@2.6.1))
+
   eslint-plugin-import-x@4.16.2(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@package-json/types': 0.0.12
@@ -15330,6 +15368,11 @@ snapshots:
     dependencies:
       esrecurse: 4.3.0
       estraverse: 5.3.0
+
+  eslint-type-tracer@0.5.2(eslint@9.39.4(jiti@2.6.1)):
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.4(jiti@2.6.1))
+      eslint: 9.39.4(jiti@2.6.1)
 
   eslint-utils@2.1.0:
     dependencies:
