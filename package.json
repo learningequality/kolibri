@@ -98,7 +98,8 @@
     ],
     "overrides": {
       "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0",
-      "@khanacademy/mathjax-renderer>mathjax-full": "catalog:"
+      "@khanacademy/mathjax-renderer>mathjax-full": "catalog:",
+      "core-js-compat": "catalog:"
     },
     "packageExtensions": {
       "@khanacademy/perseus@*": {

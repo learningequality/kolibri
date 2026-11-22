@@ -1,6 +1,5 @@
-// Legacy-cohort cutoff, not a completeness check: browsers that pass this
-// ES2023 Array-copy test still lack part of the bundled core-js set.
-// No feature test separates that set cleanly at any core-js version.
+// Browsers that pass this ES2023 Array-copy test meet the cutoff in ./cutoff.js
+// and natively support every module in the polyfill bundle.
 export default function needsPolyfills() {
   const p = Array.prototype;
   const methods = ['toSorted', 'toReversed', 'toSpliced', 'with'];

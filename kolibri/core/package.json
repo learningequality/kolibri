@@ -11,6 +11,7 @@
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "browserslist-config-kolibri": "workspace:*",
     "core-js": "catalog:",
+    "core-js-compat": "catalog:",
     "kolibri": "workspace:*",
     "kolibri-common": "workspace:*",
     "kolibri-logging": "workspace:*",

@@ -10,5 +10,8 @@
   },
   "author": "Learning Equality",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "devDependencies": {
+    "core-js-compat": "catalog:"
+  }
 }
