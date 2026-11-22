@@ -27,6 +27,11 @@ module.exports = {
     module: {
       rules: [
         {
+          test: /@preact[/\\]signals-core[/\\]dist[/\\]signals-core\.module\.js$/,
+          enforce: 'pre',
+          loader: path.resolve(__dirname, 'guardSignalsDisposal.js'),
+        },
+        {
           // Rewrite the KA CDN font URL in Perseus CSS to our local copy.
           // Runs as a pre-loader before css-loader processes url() refs.
           test: /@khanacademy[/\\]perseus[/\\]dist[/\\]index\.css$/,

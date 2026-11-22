@@ -933,6 +933,9 @@ importers:
       '@testing-library/vue':
         specifier: 'catalog:'
         version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+      acorn:
+        specifier: ^8.18.0
+        version: 8.18.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
