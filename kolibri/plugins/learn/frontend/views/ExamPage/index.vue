@@ -202,6 +202,8 @@
       <BottomAppBar :maxWidth="null">
         <KButtonGroup :class="{ spread: !windowIsLarge }">
           <KButton
+            ref="previousButton"
+            v-bind="{ 'supports-modality': 'keyboard' }"
             :disabled="questionNumber === 0"
             :primary="true"
             :dir="layoutDirReset"
@@ -219,6 +221,8 @@
             <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
           </KButton>
           <KButton
+            ref="nextButton"
+            v-bind="{ 'supports-modality': 'keyboard' }"
             :disabled="questionNumber === exam.question_count - 1"
             :primary="true"
             :dir="layoutDirReset"
@@ -329,6 +333,7 @@
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
+  import handOffQuestionNavigationFocus from '../../utils/handOffQuestionNavigationFocus';
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -542,6 +547,15 @@
       },
     },
     watch: {
+      questionNumber() {
+        const focused = document.activeElement;
+        this.$nextTick(() =>
+          handOffQuestionNavigationFocus(focused, [
+            this.$refs.previousButton?.$el,
+            this.$refs.nextButton?.$el,
+          ]),
+        );
+      },
       attemptLogItemValue(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();

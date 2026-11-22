@@ -74,6 +74,8 @@
           >
             <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
               <KButton
+                ref="nextButton"
+                v-bind="{ 'supports-modality': 'keyboard' }"
                 :disabled="questionNumber === questionsTotal - 1"
                 :primary="true"
                 :dir="layoutDirReset"
@@ -91,6 +93,8 @@
                 </template>
               </KButton>
               <KButton
+                ref="previousButton"
+                v-bind="{ 'supports-modality': 'keyboard' }"
                 :disabled="questionNumber === 0"
                 :primary="true"
                 :dir="layoutDirReset"
@@ -179,6 +183,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import shuffled from 'kolibri-common/utils/shuffled';
+  import handOffQuestionNavigationFocus from '../../utils/handOffQuestionNavigationFocus';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';
 
@@ -351,6 +356,15 @@
       },
     },
     watch: {
+      questionNumber() {
+        const focused = document.activeElement;
+        this.$nextTick(() =>
+          handOffQuestionNavigationFocus(focused, [
+            this.$refs.previousButton?.$el,
+            this.$refs.nextButton?.$el,
+          ]),
+        );
+      },
       itemId(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();

@@ -82,6 +82,7 @@
         <div class="navigation-buttons-wrapper">
           <KButton
             :disabled="questionNumber === questionsTotal - 1"
+            v-bind="{ 'supports-modality': 'keyboard' }"
             :primary="true"
             :aria-label="$tr('nextQuestion')"
             :appearanceOverrides="navigationButtonStyle"
@@ -98,6 +99,7 @@
           </KButton>
           <KButton
             :disabled="questionNumber === 0"
+            v-bind="{ 'supports-modality': 'keyboard' }"
             :primary="true"
             :appearanceOverrides="navigationButtonStyle"
             :aria-label="$tr('previousQuestion')"
@@ -162,6 +164,7 @@
   import get from 'lodash/get';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import shuffled from 'kolibri-common/utils/shuffled';
+  import handOffQuestionNavigationFocus from '../../../utils/handOffQuestionNavigationFocus';
   import ResourceLayout from '../../ResourceLayout/index.vue';
   import CourseInterstitial from '../../CourseUnitView/CourseInterstitial.vue';
   import { PRE_POST_TEST_CRITERION, TestType } from '../../../constants';
@@ -344,6 +347,14 @@
       },
     },
     watch: {
+      questionNumber() {
+        const focused = document.activeElement;
+        this.$nextTick(() =>
+          handOffQuestionNavigationFocus(focused, [
+            ...(focused?.closest('.navigation-buttons-wrapper')?.children ?? []),
+          ]),
+        );
+      },
       itemId(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();

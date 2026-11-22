@@ -21,6 +21,7 @@
     "vuex": "catalog:"
   },
   "devDependencies": {
+    "@testing-library/user-event": "catalog:",
     "@testing-library/vue": "catalog:",
     "@vue/test-utils": "catalog:",
     "flush-promises": "^1.0.2"
