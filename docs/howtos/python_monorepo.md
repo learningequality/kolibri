@@ -15,17 +15,30 @@ Kolibri's Python code is organized as a [uv workspace](https://docs.astral.sh/uv
 5. Run `uv sync --group dev --all-packages` to install the new package into the shared workspace venv. `--all-packages` is required — a plain `uv sync` (or `uv sync --package <package-name>`) scopes the sync to a single project and drops root Kolibri's own runtime dependencies (Django, Click, etc.) from the shared venv.
 6. Add a test job for it in `.github/workflows/tox.yml`, in the Stage 2 section (see "CI cascade" below), and add the job's id to `stage2_required_checks`'s `needs:` list in the same file. A job left out of that list can fail without blocking merge, since branch protection only requires `stage2_required_checks` itself to pass. Model it on an existing member job — `sync_extras_plugin_tests` for a `python_packages/*` member, or `debian_server_tests` for a `platforms/*` member (it sets its own `working-directory`, pins the `python-version` it is tested on, and installs any system packages it needs).
 7. Add the package's import name to `known-first-party` in root `pyproject.toml`'s `[tool.ruff.lint.isort]` table, so ruff sorts its own imports as first-party rather than third-party.
+8. Either set it up for publishing (see "Publishing a package" below) or keep it off PyPI (see "Keeping a package off PyPI"). A member with neither fails `scripts/pypi_publish.sh` on merge and aborts publishing of every package after it.
 
 Member package versions are independent of each other and of the main `kolibri` package — there's no enforcement linking them. Use a static `version = "x.y.z"` field, not `setuptools-scm`-derived dynamic versioning: this repo's git tags are Kolibri's own release tags, so dynamic versioning inside the workspace would report Kolibri's version instead of the package's own.
 
-## Marking a package as publishable
+## Publishing a package
 
-By default, a package under `python_packages/` is workspace-only — nothing publishes it. To publish it to PyPI:
+Packages under `python_packages/` are published to PyPI by default. To publish a new one:
 
 1. Add a `Makefile` with a `dist` target that builds the wheel: `uv build -o dist` for a backend-only package, or (for a package with a frontend bundle) `pnpm run build && pnpm run compress && uv build -o dist` — see `python_packages/kolibri-sentry-plugin/Makefile` for the frontend case. `scripts/pypi_publish.sh` calls `make -C python_packages/<name> dist` and publishes whatever lands in that member's own `dist/`.
-2. Add its `pyproject.toml` path to the `paths:` filter in `.github/workflows/pypi_packages_publish.yml`'s `push` trigger.
-3. Add its name to the `workflow_dispatch.inputs.pypi_package.options` list in the same file.
-4. Register a pending trusted publisher on PyPI and TestPyPI (see the "Python packages" section of [the release process docs](../release_process.rst)) before merging.
+2. Add its name to the `workflow_dispatch.inputs.pypi_package.options` list in `.github/workflows/pypi_packages_publish.yml`, so it can be published manually as well as on merge.
+3. Register a pending trusted publisher on PyPI and TestPyPI (see the "Python packages" section of [the release process docs](../release_process.rst)) before merging.
+
+## Keeping a package off PyPI
+
+Declare the [`Private :: Do Not Upload`](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) classifier — PyPI rejects any distribution carrying a `Private ::` classifier, and both `scripts/pypi_publish.sh` and the PR version check skip such packages:
+
+```toml
+[project]
+classifiers = [
+    "Private :: Do Not Upload",
+]
+```
+
+This is the Python equivalent of `"private": true` in an npm `package.json`.
 
 ## CI cascade
 

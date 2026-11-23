@@ -4,11 +4,7 @@ on:
     branches:
       - develop
     paths:
-      - 'python_packages/kolibri-sync-extras-plugin/pyproject.toml'
-      - 'python_packages/kolibri-sentry-plugin/pyproject.toml'
-      - 'python_packages/kolibri-oidc-client-plugin/pyproject.toml'
-      - 'python_packages/kolibri-oidc-provider-plugin/pyproject.toml'
-      - 'python_packages/kolibri-opensearch-plugin/pyproject.toml'
+      - 'python_packages/*/pyproject.toml'
   workflow_dispatch:
     inputs:
       pypi_package:
@@ -18,6 +14,8 @@ on:
         default: 'all'
         options:
           - 'all'
+          - 'kolibri-context-translation-plugin'
+          - 'kolibri-demo-server-plugin'
           - 'kolibri-sync-extras-plugin'
           - 'kolibri-sentry-plugin'
           - 'kolibri-oidc-client-plugin'
