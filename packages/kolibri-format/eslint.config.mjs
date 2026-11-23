@@ -338,6 +338,8 @@ export default [
           pathGroupsExcludedImportTypes: [],
         },
       ],
+      // Measured Nov 2026: 52s of 146s total rule time across 1822 files.
+      'import-x/namespace': OFF,
       // Disable rules not present in eslint-plugin-import or with resolver issues
       'import-x/no-rename-default': OFF,
       // import-x/default doesn't handle CJS module.exports as default exports
