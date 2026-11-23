@@ -8,6 +8,7 @@
       v-for="(paragraph, idx) in paragraphs"
       :key="idx"
       class="paragraph"
+      data-testid="welcome-paragraph"
     >
       {{ paragraph }}
     </p>
@@ -24,7 +25,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { kolibriOnboardingGuideStrings } from 'kolibri/uiText/kolibriOnboardingGuideStrings';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
 
@@ -34,14 +34,11 @@
     setup() {
       const { isLearnerOnlyImport, isLearner } = useUser();
       const { facilities } = useFacilities();
-      const { onMyOwnWelcomeMessage$, HomePageWelcomeMessage$ } = kolibriOnboardingGuideStrings;
 
       return {
         isLearnerOnlyImport,
         facilities,
         isLearner,
-        onMyOwnWelcomeMessage$,
-        HomePageWelcomeMessage$,
       };
     },
     props: {
@@ -66,11 +63,14 @@
               : this.$tr('postSyncWelcomeMessage2', { facilityName: facility.name });
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
+        // kolibriOnboardingGuideStrings.HomePageWelcomeMessage and onMyOwnWelcomeMessage
+        // are untranslated, so learners see only the modal title, and on-my-own users
+        // see an equivalent translated string. Restore them once translated (#12098).
         if (this.isLearner) {
-          return [this.HomePageWelcomeMessage$({ facilityName: '' })];
+          return [];
         }
         if (this.isOnMyOwnUser) {
-          return [this.onMyOwnWelcomeMessage$()];
+          return [this.$tr('learnOnlyDeviceWelcomeMessage1')];
         }
         if (this.importedFacility) {
           return [
