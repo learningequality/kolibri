@@ -398,14 +398,16 @@ class ListModelMixin:
 
         return Response(self.serialize(queryset))
 
-    def serialize_list(self, request, query_params=None, *args, **kwargs):
+    @classmethod
+    def serialize_list(cls, request, query_params=None):
         """
         A method to allow serialization of objects for use outside of a regular
         request/response cycle - useful for obtaining identical serialized responses
         in a composite view that returns data from multiple viewsets at once.
         """
-        self.request = _generate_request(request, query_params or {})
-        response = self.list(self.request)
+        viewset = cls()
+        viewset.request = _generate_request(request, query_params or {})
+        response = viewset.list(viewset.request)
         return response.data
 
 
