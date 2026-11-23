@@ -142,6 +142,8 @@
       margin-top: 4px;
       font-size: 12px;
       color: inherit;
+      word-break: normal;
+      overflow-wrap: normal;
     }
 
     &.show-sequence-numbers {
