@@ -48,7 +48,14 @@ def get_job():
     return job
 
 
-def start_file_transfer(filetransfer, channel_id, dest, no_upgrade, contentfolder):
+def start_file_transfer(
+    filetransfer,
+    channel_id,
+    dest,
+    no_upgrade,
+    contentfolder,
+    draft=False,
+):
     """
     Runs the file transfer and, if not in "no_upgrade" mode, imports the channel and updates metadata.
 
@@ -57,6 +64,7 @@ def start_file_transfer(filetransfer, channel_id, dest, no_upgrade, contentfolde
     :param dest: The destination file path.
     :param no_upgrade: If True, bypass the channel import.
     :param contentfolder: The content folder used during import.
+    :param draft: If True, import the channel even when the same version is already imported.
     """
     job = get_job()
     job.update_metadata(channel_id=channel_id)
@@ -100,7 +108,10 @@ def start_file_transfer(filetransfer, channel_id, dest, no_upgrade, contentfolde
                     .values_list("id", flat=True)
                 )
                 import_ran = import_channel_by_id(
-                    channel_id, job.is_cancelled, contentfolder
+                    channel_id,
+                    job.is_cancelled,
+                    contentfolder,
+                    draft=draft,
                 )
                 if import_ran:
                     if node_ids:
@@ -136,6 +147,7 @@ def transfer_channel(
     source_path=None,
     version=None,
     token=None,
+    draft=False,
 ):
     """
     Transfers a channel database either by downloading or copying
@@ -148,6 +160,7 @@ def transfer_channel(
     :param source_path: The source path (if copying).
     :param version: The channel version string (e.g. 5 or "next") to use when constructing
         the download URL. None means the standard (unversioned) URL is used.
+    :param draft: If True, import the channel even when the same version is already imported.
     :return: The destination path of the transferred channel database.
     """
     job = get_job()
@@ -171,7 +184,9 @@ def transfer_channel(
             channel_id, baseurl=baseurl, version=version
         )
         logger.debug("URL to fetch: %s", url)
-        filetransfer = transfer.FileDownload(url, dest, cancel_check=job.is_cancelled)
+        filetransfer = transfer.FileDownload(
+            url, dest, cancel_check=job.is_cancelled, overwrite=True
+        )
     elif method == COPY_METHOD:
         # If there is a new channel version DB, set that as source path.
         srcpath = (
@@ -188,7 +203,14 @@ def transfer_channel(
     logger.debug("Destination: %s", dest)
 
     try:
-        start_file_transfer(filetransfer, channel_id, dest, no_upgrade, content_dir)
+        start_file_transfer(
+            filetransfer,
+            channel_id,
+            dest,
+            no_upgrade,
+            content_dir,
+            draft=draft,
+        )
     except transfer.TransferCanceled:
         pass
 
