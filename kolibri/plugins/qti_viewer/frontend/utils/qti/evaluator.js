@@ -640,7 +640,13 @@ export function evaluateNode(node, variables, declarations = {}, testStore = nul
       //    false for any non-empty sub)
       let subCardinality = null;
       if (node.children.length >= 2) {
-        const subChild = node.children[1];
+        let subChild = node.children[1];
+        // qti-delete has the cardinality of its container, the second
+        // sub-expression
+        //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpDelete
+        while (qtiTag(subChild) === 'delete' && subChild.children.length >= 2) {
+          subChild = subChild.children[1];
+        }
         const tag = qtiTag(subChild);
         if (tag === 'variable' || tag === 'correct' || tag === 'default') {
           const id = subChild.getAttribute('identifier');
