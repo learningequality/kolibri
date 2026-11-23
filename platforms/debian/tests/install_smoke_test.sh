@@ -3,13 +3,15 @@
 # Installs /tmp/deb/*.deb inside a bare Ubuntu container and checks it runs.
 # Run by .github/workflows/platform-debian-install_test.yml; locally:
 #
-#   docker run --rm -v "$PWD/dist:/tmp/deb" -v "$PWD/tests:/tmp/tests" \
+#   docker run --rm --sysctl net.ipv4.ip_unprivileged_port_start=1024 \
+#     -v "$PWD/dist:/tmp/deb" -v "$PWD/tests:/tmp/tests" \
 #     -e EXPECT_BUNDLED=1 ubuntu:20.04 /tmp/tests/install_smoke_test.sh
 #
 # Environment:
 #   EXPECT_BUNDLED     non-empty if postinst must install /opt/kolibri/python
 #   NO_SYSTEM_PYTHON   non-empty to install with no python3 at all
 #   UPGRADE_FROM_DEB   URL of an earlier .deb to install first, then upgrade
+#   NO_AMBIENT_CAPS    non-empty if the image's setpriv cannot raise ambient caps
 
 set -e
 
@@ -111,8 +113,12 @@ wait_for_kolibri() {
   exit 1
 }
 
+server_pid() {
+  (. /etc/default/kolibri && head -1 "$KOLIBRI_HOME/server.pid")
+}
+
 check_server_interpreter() {
-  exe=$(su -s /bin/sh "$KOLIBRI_USER" -c 'readlink "/proc/$(head -1 ~/.kolibri/server.pid)/exe"' || true)
+  exe=$(run_as_kolibri_user "readlink /proc/$(server_pid)/exe" || true)
   if [ -n "$EXPECT_BUNDLED" ]; then
     expected="/opt/kolibri/python/bin/python3.*"
   else
@@ -129,15 +135,46 @@ check_server_interpreter() {
   exit 1
 }
 
+check_server_privileges() {
+  status="/proc/$(server_pid)/status"
+  uid=$(id -u "$KOLIBRI_USER")
+  uids=$(awk '/^Uid:/ {print $2, $3, $4, $5}' "$status")
+  if [ "$uids" != "$uid $uid $uid $uid" ]; then
+    echo "FAIL: Kolibri server runs with real/effective/saved/fs uids $uids, expected $KOLIBRI_USER ($uid)"
+    exit 1
+  fi
+  gid=$(id -g "$KOLIBRI_USER")
+  gids=$(awk '/^Gid:/ {print $2, $3, $4, $5}' "$status")
+  if [ "$gids" != "$gid $gid $gid $gid" ]; then
+    echo "FAIL: Kolibri server runs with real/effective/saved/fs gids $gids, expected $KOLIBRI_USER's group ($gid)"
+    exit 1
+  fi
+  echo "PASS: Kolibri server runs as $KOLIBRI_USER"
+  if [ -n "$NO_AMBIENT_CAPS" ]; then
+    echo "SKIP: setpriv on this image cannot raise ambient capabilities"
+    return
+  fi
+  cap_amb=$(awk '/^CapAmb:/ {print $2}' "$status")
+  # Bit 10 is CAP_NET_BIND_SERVICE in linux/capability.h
+  if (( (0x$cap_amb >> 10) & 1 )); then
+    echo "PASS: Kolibri server holds CAP_NET_BIND_SERVICE as an ambient capability"
+  else
+    echo "FAIL: Kolibri server lacks ambient CAP_NET_BIND_SERVICE (CapAmb: $cap_amb)"
+    exit 1
+  fi
+}
+
 KOLIBRI_USER=$(cat /etc/kolibri/username 2>/dev/null || echo "kolibri")
+. /usr/share/kolibri/run-as-kolibri-user.sh
 
 check_interpreter
 check_kolibri_cli
 
-su -s /bin/sh "$KOLIBRI_USER" -c "kolibri stop" 2>/dev/null || true
-su -s /bin/sh "$KOLIBRI_USER" -c "kolibri start"
+/etc/init.d/kolibri stop 2>/dev/null || true
+/etc/init.d/kolibri start
 wait_for_kolibri
 check_server_interpreter
+check_server_privileges
 
 # Containers run no service manager; stand in for systemd, which runs
 # kolibri.service's ExecStart/ExecStop, i.e. the init script.
@@ -165,6 +202,7 @@ if [ -n "$EXPECT_BUNDLED" ]; then
 fi
 wait_for_kolibri
 check_server_interpreter
+check_server_privileges
 
 dpkg --purge kolibri
 if [ -e /opt/kolibri ]; then
