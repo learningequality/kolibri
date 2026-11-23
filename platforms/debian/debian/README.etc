@@ -79,3 +79,54 @@ order. For more examples, see the file `/etc/kolibri/daemon.conf`.
 
 The `/etc/kolibri/daemon.conf` configuration file is the final one that will be
 loaded.
+
+## The HTTP port
+
+The service runs Kolibri with the `CAP_NET_BIND_SERVICE` capability, so it can
+serve on port 80 without running as root.
+
+When the package is first installed with the service enabled, Kolibri picks its
+port: 80 if it is free, otherwise 8080. It saves that choice as `HTTP_PORT` in
+`$KOLIBRI_HOME/options.ini`, and keeps it on later upgrades. To see the port:
+
+  `grep '^ *HTTP_PORT' "$KOLIBRI_HOME/options.ini"`
+
+No uncommented `HTTP_PORT` line means Kolibri uses 8080, as on hosts upgraded from a
+release before this one, unless `KOLIBRI_HTTP_PORT`, or the older
+`KOLIBRI_LISTEN_PORT`, is set in `/etc/kolibri/daemon.conf` or `conf.d`.
+
+To choose the port yourself, set it before installing the package, for example
+in `/etc/kolibri/conf.d/port.conf`:
+
+  KOLIBRI_HTTP_PORT=8080
+
+Kolibri then uses that port and does not pick one.
+
+## Firewall
+
+Other devices on the network reach Kolibri through these ports:
+
+- TCP 80, or the `HTTP_PORT` Kolibri uses: the Kolibri web interface.
+- UDP 5353: mDNS, used to find this device as `kolibri.local` or by its
+  device name, and to discover other Kolibri devices for syncing.
+- TCP `ZIP_CONTENT_PORT`: the server for interactive content.
+
+Kolibri picks a random free port for `ZIP_CONTENT_PORT` each time it starts,
+so pin it to open it in a firewall, for example in
+`/etc/kolibri/conf.d/zip_content_port.conf`:
+
+  KOLIBRI_ZIP_CONTENT_PORT=8081
+
+If this port is blocked, interactive content does not load on other devices.
+
+With `ufw`, open all three, replacing 80 with the port Kolibri uses:
+
+  `sudo ufw allow 80/tcp`
+
+  `sudo ufw allow 5353/udp`
+
+  `sudo ufw allow 8081/tcp`
+
+Restart the service after changing these settings:
+
+  `sudo service kolibri restart`
