@@ -326,6 +326,16 @@ export default class ZipFile {
     return files;
   }
 
+  async filenames() {
+    await this._fileLoadingPromise;
+    if (this._loadingError) {
+      throw this._loadingError;
+    }
+    return Object.values(this._entryMap)
+      .filter(entry => !entry.directory)
+      .map(entry => entry.filename);
+  }
+
   /**
    * Extract a single file by exact path.
    * @param {string} filename - Full path within the ZIP (e.g. 'assets/style.css')

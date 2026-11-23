@@ -1,6 +1,7 @@
 import ContentViewerModule from 'kolibri-viewer';
 import urls from 'kolibri/urls';
 import { createSandboxedContentViewer } from 'kolibri/components/SandboxedContentViewer';
+import shimAnswers from './kolibriApi';
 
 /**
  * Build content URL for HTML5 zip content.
@@ -20,6 +21,7 @@ function buildContentUrl(file, props) {
 const Html5ViewerComponent = createSandboxedContentViewer({
   pollProgress: true,
   urlBuilder: buildContentUrl,
+  shimAnswers,
 });
 
 class HTML5AppModule extends ContentViewerModule {
