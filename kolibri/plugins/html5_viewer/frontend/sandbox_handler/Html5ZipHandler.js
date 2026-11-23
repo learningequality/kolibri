@@ -9,11 +9,6 @@ import SCORMShim from './SCORMShim';
 import KolibriShim from './KolibriShim';
 
 export default class Html5ZipHandler extends SandboxHandler {
-  /**
-   * Shims required by HTML5 zip content.
-   * - SCORM: For SCORM-based learning content
-   * - Kolibri: the window.kolibri data API, which a custom channel's host answers
-   */
   static shims = [SCORMShim, KolibriShim];
 
   /**
