@@ -3,12 +3,21 @@ import logging
 import ntpath
 import os
 import re
+from collections import defaultdict
+from copy import copy
+from itertools import islice
 from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.core.exceptions import ValidationError
+from django.db import connection
+from django.db import transaction
+from django.db.models import Count
+from django.db.models import Q
 from django.utils import translation
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -21,10 +30,19 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
+from kolibri.core.auth.models import Role
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.csv import open_csv_for_reading
 
 logger = logging.getLogger(__name__)
+
+LOOKUP_BATCH_SIZE = 500
+
+
+def _lookup_batches(items):
+    iterator = iter(items)
+    return iter(lambda: list(islice(iterator, LOOKUP_BATCH_SIZE)), [])
+
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
@@ -138,6 +156,11 @@ def not_empty():
     return checker
 
 
+def no_nul(value):
+    if value and "\0" in value:
+        raise ValueError(value)
+
+
 def value_length(length, allow_null=False, multiple=False):
     """
     Return a value check function which raises a ValueError if the supplied
@@ -166,23 +189,6 @@ def value_length(length, allow_null=False, multiple=False):
     return checker
 
 
-def valid_uuid(allow_null=True):
-    """
-    Return a value check function which raises a ValueError if the supplied
-    value is ot a valid uuid
-    """
-
-    def checker(v):
-        if allow_null and (v is None or v == ""):
-            return
-        try:
-            UUID(v)
-        except (ValueError, TypeError) as e:
-            raise ValueError(v) from e
-
-    return checker
-
-
 def enumeration(*args):
     """
     Return a value check function which raises a ValueError if the value (case
@@ -195,11 +201,9 @@ def enumeration(*args):
         members = tuple(map(str.lower, args))
 
     def checker(value):
-        if value == DEFERRED:
-            return checker
         if value.lower() not in members:
             raise ValueError(value)
-        return None
+        return
 
     return checker
 
@@ -217,6 +221,8 @@ def valid_name(username=True, allow_null=False):
             return checker
         if v is None:
             raise ValueError(v)
+        if username:
+            no_nul(v)
         has_punc = r"[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]"
         if not username:
             has_punc = r"[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]"
@@ -244,18 +250,14 @@ def reverse_dict(original):
 
 
 class Validator:
-    """
-    Class to apply different validation checks on a CSV data reader.
-    """
-
-    def __init__(self, header_translation, facility):
+    def __init__(self, header_translation, facility=None):
         self._checks = []
-        self.classrooms = {}
-        self.coach_classrooms = {}
+        self.classes = {"ENROLLED_IN": {}, "ASSIGNED_TO": {}}
         self.users = {}
+        self._username_keys = set()
         self.header_translation = header_translation
-        self.roles = {r: [] for r in roles_map.values() if r is not None}
         self.facility = facility
+        self.roles = {r: [] for r in roles_map.values() if r is not None}
 
     def add_check(self, header_name, check, message):
         """
@@ -267,105 +269,186 @@ class Validator:
         """
         self._checks.append((header_name, check, message))
 
-    def get_username(self, row):
-        username = row.get(self.header_translation["USERNAME"])
-        uuid = row.get(self.header_translation["UUID"])
-        lowercase_username = username.lower()
+    def pending_username_is_taken(self, username):
+        return ("lowercase", username.lower()) in self._username_keys
 
-        # Check if a user with the provided username exists (case-insensitive)
-        existing_user = FacilityUser.all_objects.filter(
-            username__iexact=lowercase_username, facility=self.facility
-        ).first()
-        # Convert existing keys in self.users to lowercase
-        if existing_user and uuid == "":
-            return None  # Duplicate username
-        # Convert existing keys in self.users to lowercase
-        lowercase_users = {key.lower(): value for key, value in self.users.items()}
-        if lowercase_username in lowercase_users:
-            return None  # Duplicate username
+    @staticmethod
+    def _database_username_key(username):
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT UPPER(%s)", (username,))
+            return ("iexact", cursor.fetchone()[0])
 
-        return username
+    def check_pending_database_username(self, username):
+        if connection.vendor != "postgresql" or not self._username_keys:
+            return None, False
+        key = self._database_username_key(username)
+        return key, key in self._username_keys
 
-    def check_classroom(self, row, username):
-        def append_users(class_list, key):
-            class_list_normalized = {c.lower(): c for c in class_list}
+    def new_username_holder_ids(self, requested_username, username):
+        if not username or "\0" in username:
+            return set()
+        matches = Q()
+        for spelling in dict.fromkeys(
+            (requested_username, requested_username.lower(), username, username.lower())
+        ):
+            matches |= Q(username__iexact=spelling)
+        holders = FacilityUser.all_objects.filter(matches, facility=self.facility)
+        return set(holders.values_list("id", flat=True))
+
+    def rename_spellings(self, user, requested_username, username):
+        stored_lowercase = user.username.lower()
+        spellings = {
+            spelling: spelling.lower() == stored_lowercase
+            for spelling in (requested_username, username)
+        }
+        matches = Q()
+        aggregates = {}
+        is_user = Q(pk=user.pk)
+        is_live = Q(date_deleted__isnull=True)
+        for index, (spelling, live_only) in enumerate(spellings.items()):
+            match = Q(username__iexact=spelling)
+            matches |= match
+            aggregates[f"live_{index}"] = Count("pk", filter=match & ~is_user & is_live)
+            if not live_only:
+                aggregates[f"deleted_{index}"] = Count(
+                    "pk", filter=match & ~is_user & ~is_live
+                )
+                if connection.vendor == "postgresql":
+                    aggregates[f"self_{index}"] = Count("pk", filter=match & is_user)
+        holders = FacilityUser.all_objects.filter(matches, facility=self.facility)
+        counts = holders.aggregate(**aggregates)
+        for index, spelling in enumerate(spellings):
+            live_only = spellings[spelling] or bool(counts.get(f"self_{index}"))
+            if counts[f"live_{index}"] or (
+                not live_only and counts.get(f"deleted_{index}")
+            ):
+                return None
+            spellings[spelling] = live_only
+        return spellings
+
+    def rename_conflicts_in_roster(self, user_id, spellings):
+        for spelling, live_only in spellings.items():
+            for deleted in (False,) if live_only else (False, True):
+                ids = self._roster_ids.get((spelling.lower(), deleted))
+                if ids and ids != {user_id}:
+                    return True
+        return False
+
+    @cached_property
+    def _roster_ids(self):
+        roster = defaultdict(set)
+        holders = FacilityUser.all_objects.filter(facility=self.facility).values_list(
+            "id", "username", "date_deleted"
+        )
+        for user_id, username, date_deleted in holders.iterator():
+            roster[username.lower(), date_deleted is not None].add(user_id)
+        return roster
+
+    def validate_uuid(self, row):
+        uuid = row[self.header_translation["UUID"]]
+        if not uuid:
+            return "", None
+        try:
+            uuid = UUID(uuid).hex
+        except ValueError:
+            return None, INVALID_UUID
+        return uuid, None
+
+    def row_class_names(self, row, column):
+        cell = row[self.header_translation[column]] or ""
+        return filter(None, map(str.strip, cell.split(",")))
+
+    def row_role(self, row):
+        return roles_map.get((row[self.header_translation["USER_TYPE"]] or "").upper())
+
+    def referenced_classrooms(self, row):
+        yield from (
+            ("ENROLLED_IN", name) for name in self.row_class_names(row, "ENROLLED_IN")
+        )
+        if self.row_role(row) is not None:
+            yield from (
+                ("ASSIGNED_TO", name)
+                for name in self.row_class_names(row, "ASSIGNED_TO")
+            )
+
+    @cached_property
+    def _stored_classrooms(self):
+        classrooms = defaultdict(lambda: defaultdict(list))
+        for classroom in self.facility.get_classrooms():
+            classrooms[classroom.name.lower()][classroom.name].append(classroom)
+        return classrooms
+
+    def resolve_classroom(self, name):
+        matches = self._stored_classrooms.get(name.lower())
+        if not matches:
+            return name
+        if name not in matches:
+            if len(matches) != 1:
+                return None
+            name = next(iter(matches))
+        return name if len(matches[name]) == 1 else None
+
+    def stored_classroom(self, name):
+        matches = self._stored_classrooms.get(name.lower())
+        if matches:
+            (classroom,) = matches[name]
+            return classroom
+        return None
+
+    def add_user(self, row, username, database_key, classrooms):
+        for column, name in classrooms:
+            self.classes[column].setdefault(name, []).append(username)
+        role = self.row_role(row)
+        if role is not None:
+            self.roles[role].append(username)
+        self.users[username] = row
+        self._username_keys.add(("lowercase", username.lower()))
+        if connection.vendor == "postgresql":
+            self._username_keys.add(
+                database_key or self._database_username_key(username)
+            )
+
+    def row_errors(self, row, uuid_error=None, normalized_rename=None):
+        position = row["position"]
+        if uuid_error is not None:
+            yield {
+                "row": position,
+                "message": MESSAGES[uuid_error],
+                "field": "UUID",
+                "value": row[self.header_translation["UUID"]],
+            }
+        for header_name, check, message in self._checks:
+            value = row[self.header_translation[header_name]]
             try:
-                classes_list = [c.strip() for c in row.get(key, None).split(",")]
-                for classroom in classes_list:
-                    if not classroom:
-                        continue
-                    if classroom.lower() in class_list_normalized:
-                        classroom_real_name = class_list_normalized[classroom.lower()]
-                        class_list[classroom_real_name].append(username)
-                    else:
-                        class_list[classroom] = [username]
-                        class_list_normalized[classroom.lower()] = classroom
-            except AttributeError:
-                # there are not members of 'key'
-                pass
-
-        # enrolled learners:
-        append_users(self.classrooms, self.header_translation["ENROLLED_IN"])
-
-        # assigned coaches
-        user_role = row.get(self.header_translation["USER_TYPE"], "LEARNER").upper()
-        if user_role != "LEARNER":
-            # a student can't be assigned to coach a classroom
-            append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
-            self.roles[roles_map[user_role]].append(username)
-
-    def validate(self, data):
-        """
-        Validate `data` and return an iterator over errors found.
-        """
-        for index, row in enumerate(data):
-            error_flag = False
-            username = self.get_username(row)
-            if not username:
-                error = {
-                    "row": index + 1,
-                    "message": MESSAGES[DUPLICATED_USERNAME],
-                    "field": "USERNAME",
-                    "value": row.get(self.header_translation["USERNAME"]),
+                check(value)
+                if (
+                    header_name == "USERNAME"
+                    and normalized_rename is not None
+                    and normalized_rename != value
+                ):
+                    check(normalized_rename)
+            except ValueError:
+                yield {
+                    "row": position,
+                    "message": message,
+                    "field": header_name,
+                    "value": value,
                 }
-                error_flag = True
-                yield error
-
-            for header_name, check, message in self._checks:
-                value = row[self.header_translation[header_name]]
-                try:
-                    check(value)
-                except ValueError:
-                    error = {
-                        "row": index + 1,
-                        "message": message,
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
-                except Exception as e:
-                    error = {
-                        "row": index + 1,
-                        "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
-                            (e.__class__.__name__, e)
-                        ),
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
-            # if there aren't any errors, let's add the user and classes
-            if not error_flag:
-                self.check_classroom(row, username)
-                row["position"] = index + 1
-                self.users[username] = row
+            except Exception as e:
+                yield {
+                    "row": position,
+                    "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
+                        (e.__class__.__name__, e)
+                    ),
+                    "field": header_name,
+                    "value": value,
+                }
 
 
-def csv_values_validation(reader, header_translation, facility):
-    per_line_errors = []
+def csv_validator(header_translation, facility):
     validator = Validator(header_translation, facility)
-    validator.add_check("UUID", valid_uuid(), MESSAGES[INVALID_UUID])
+    for column in ("FULL_NAME", "IDENTIFIER", "ENROLLED_IN", "ASSIGNED_TO"):
+        validator.add_check(column, no_nul, MESSAGES[INVALID].format(column))
     validator.add_check(
         "FULL_NAME", value_length(125), MESSAGES[TOO_LONG].format("FULL_NAME")
     )
@@ -410,26 +493,7 @@ def csv_values_validation(reader, header_translation, facility):
         MESSAGES[TOO_LONG].format("Class name"),
     )
 
-    row_errors = validator.validate(reader)
-    for err in row_errors:
-        per_line_errors.append(err)
-    # cleaning classes names:
-    normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
-    coach_classrooms = list(validator.coach_classrooms)
-    for classroom in coach_classrooms:
-        normalized_name = classroom.lower()
-        if normalized_name in normalized_learner_classroooms:
-            real_name = normalized_learner_classroooms[normalized_name]
-            if classroom != real_name:
-                validator.coach_classrooms[real_name] = validator.coach_classrooms.pop(
-                    classroom
-                )
-    return (
-        per_line_errors,
-        (validator.classrooms, validator.coach_classrooms),
-        validator.users,
-        validator.roles,
-    )
+    return validator
 
 
 class BulkUserImportManager(JobProgressMixin):
@@ -484,13 +548,7 @@ class BulkUserImportManager(JobProgressMixin):
 
         return has_header
 
-    def get_field_values(self, user_row):
-        password = user_row.get(self.header_translation["PASSWORD"], None)
-        if password != "*":
-            password = make_password(password)
-        else:
-            password = None
-
+    def get_field_values(self, user_row, username):
         gender = user_row.get(self.header_translation["GENDER"], "").strip().upper()
         gender = "" if gender == DEFERRED else gender
         birth_year = (
@@ -502,195 +560,240 @@ class BulkUserImportManager(JobProgressMixin):
         )
         id_number = "" if id_number == DEFERRED else id_number
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
-        uuid = user_row.get(self.header_translation["UUID"], "")
 
         return {
-            "uuid": UUID(uuid).hex if uuid else "",
-            "username": user_row.get(self.header_translation["USERNAME"], ""),
-            "password": password,
+            "username": username,
             "gender": gender,
             "birth_year": birth_year,
             "id_number": id_number,
             "full_name": full_name,
         }
 
-    def compare_fields(self, user_obj, values):
-        changed = False
-        for field in values:
-            if field == "uuid":
-                continue  # uuid can't be updated
-            if field == "password" and values["password"] is None:
-                continue  # keep the existing password
-            if getattr(user_obj, field) != values[field]:
-                changed = True
-                setattr(user_obj, field, values[field])
-        return changed
-
-    def _row_error(self, username, user_row, message, field, value):
+    def _row_error(self, user_row, message, field, value):
         return {
             "row": user_row["position"],
-            "username": username,
+            "username": user_row[self.header_translation["USERNAME"]],
             "message": message,
             "field": field,
             "value": value,
         }
 
-    def _existing_user(self, username, user_row, values):
-        user_obj = FacilityUser.all_objects.get(
-            id=values["uuid"], facility=self.default_facility
-        )
-        # If user was soft-deleted, un-delete them
-        if user_obj.date_deleted is not None:
-            user_obj.date_deleted = None
-        if user_obj.username != username:
-            # check for duplicated username in the facility
-            existing_user = FacilityUser.all_objects.get(
-                username__iexact=username, facility=self.default_facility
-            )
-            if existing_user:
-                return user_obj, self._row_error(
-                    username,
-                    user_row,
-                    MESSAGES[DUPLICATED_USERNAME],
-                    "USERNAME",
-                    username,
-                )
-        return user_obj, None
-
-    def _new_user(self, username, user_row, values):
-        if values["uuid"] != "":
-            uuid = user_row[self.header_translation["UUID"]]
-            return None, self._row_error(
-                username,
-                user_row,
-                MESSAGES[NON_EXISTENT_UUID].format(uuid),
-                "UUID",
-                uuid,
-            )
-        # If UUID is not specified, check for a username clash
-        if FacilityUser.all_objects.filter(
-            username__iexact=username, facility=self.default_facility
-        ).exists():
-            return None, self._row_error(
-                username,
-                user_row,
-                MESSAGES[DUPLICATED_USERNAME],
-                "USERNAME",
-                username,
-            )
-        if not values["password"]:
-            return None, self._row_error(
-                username, user_row, MESSAGES[REQUIRED_PASSWORD], "PASSWORD", "*"
-            )
-        user_obj = FacilityUser(username=username, facility=self.default_facility)
-        # user_obj.id = user_obj.calculate_uuid()  # Morango does not work properly with this
-        for field in values:
-            if values[field]:
-                setattr(user_obj, field, values[field])
-        return user_obj, None
-
-    def build_users_objects(self, users):
-        new_users = []
-        update_users = []
-        keeping_users = []
-        per_line_errors = []
-        users_uuid = [
-            UUID(u[self.header_translation["UUID"]]).hex
-            for u in users.values()
-            if u[self.header_translation["UUID"]]
-        ]
-        existing_users = (
-            FacilityUser.all_objects.filter(facility=self.default_facility)
-            .filter(id__in=users_uuid)
-            .values_list("id", flat=True)
+    def _duplicate_username_error(self, row):
+        return self._row_error(
+            row,
+            MESSAGES[DUPLICATED_USERNAME],
+            "USERNAME",
+            row[self.header_translation["USERNAME"]],
         )
 
-        # creating the users takes half of the time
-        progress = (100 / self.number_lines) * 0.5
-        for username, user_row in users.items():
-            self.progress_update(progress)
-            values = self.get_field_values(user_row)
-            if values["uuid"] in existing_users:
-                user_obj, error = self._existing_user(username, user_row, values)
-                keeping_users.append(user_obj)
-                if error:
-                    per_line_errors.append(error)
-                elif self.compare_fields(user_obj, values):
-                    update_users.append(user_obj)
-            else:
-                user_obj, error = self._new_user(username, user_row, values)
-                if error:
-                    per_line_errors.append(error)
-                else:
-                    new_users.append(user_obj)
-
-        return (new_users, update_users, keeping_users, per_line_errors)
-
-    def db_validate_list(self, db_list, users=False):
+    def _validate_rows(self, reader):
+        validator = csv_validator(self.header_translation, self.default_facility)
         errors = []
-        # validating the users takes aprox 40% of the time
-        if users:
-            progress = (
-                (100 / self.number_lines) * 0.4 * (len(db_list) / self.number_lines)
-            )
-        for obj in db_list:
-            if users:
-                self.progress_update(progress)
-            try:
-                obj.full_clean()
-            except ValidationError as e:
-                for message in e.message_dict:
-                    error = {
-                        "row": str(obj),
-                        "message": e.message_dict[message][0],
-                        "field": message,
-                        "value": vars(obj)[message],
-                    }
-                    errors.append(error)
-
-        return errors
-
-    def build_classes_objects(self, classes):
-        """
-        Using current database info, builds the list of classes to be
-        updated or created.
-        It also returns an updated classes list, using the case insensitive
-        names of the classes that were already in the database
-        `classes` - Tuple containing two dictionaries: enrolled classes + assigned classes
-        Returns:
-        new_classes - List of database objects of classes to be created
-        update_classes - List of database objects of classes to be updated
-        fixed_classes - Same original classes tuple, but with the names normalized
-
-        """
-        new_classes = []
-        update_classes = []
-        total_classes = {*classes[0], *classes[1]}
-        existing_classes = (
-            Classroom.objects.filter(parent=self.default_facility)
-            # .filter(name__in=total_classes)  # can't be done if classes names are case insensitive
-            .values_list("name", flat=True)
-        )
-
-        normalized_name_existing = {c.lower(): c for c in existing_classes}
-        for classroom in total_classes:
-            if classroom.lower() in normalized_name_existing:
-                real_name = normalized_name_existing[classroom.lower()]
-                class_obj = Classroom.objects.get(
-                    name=real_name, parent=self.default_facility
+        rejected_user_ids = set()
+        rejected_class_names = set()
+        for batch in _lookup_batches(enumerate(reader, 1)):
+            validated_uuids = [validator.validate_uuid(row) for _, row in batch]
+            existing_users = FacilityUser.all_objects.filter(
+                facility=self.default_facility
+            ).in_bulk({uuid for uuid, _ in validated_uuids if uuid})
+            for (position, row), (uuid, uuid_error) in zip(batch, validated_uuids):
+                row["position"] = position
+                row_errors, matched_user_ids = self._validate_row(
+                    validator, row, uuid, uuid_error, existing_users.get(uuid)
                 )
-                update_classes.append(class_obj)
-                if real_name != classroom:
-                    if classroom in classes[0]:
-                        classes[0][real_name] = classes[0].pop(classroom)
-                    if classroom in classes[1]:
-                        classes[1][real_name] = classes[1].pop(classroom)
+                if row_errors:
+                    errors.extend(row_errors)
+                    rejected_user_ids.update(matched_user_ids)
+                    if self.delete and matched_user_ids:
+                        rejected_class_names.update(
+                            name.lower()
+                            for _, name in validator.referenced_classrooms(row)
+                        )
+        return errors, validator, rejected_user_ids, rejected_class_names
+
+    def _validate_row(self, validator, row, uuid, uuid_error, existing_user):
+        requested_username = row[self.header_translation["USERNAME"]]
+        username = requested_username or ""
+        if existing_user is None or existing_user.username != username:
+            username = FacilityUser.normalize_username(username)
+        errors = list(
+            validator.row_errors(row, uuid_error, username if existing_user else None)
+        )
+        if uuid and existing_user is None:
+            raw_uuid = row[self.header_translation["UUID"]]
+            return errors or [
+                self._row_error(
+                    row, MESSAGES[NON_EXISTENT_UUID].format(raw_uuid), "UUID", raw_uuid
+                )
+            ], set()
+        matched_user_ids = set()
+        if uuid == "":
+            matched_user_ids = validator.new_username_holder_ids(
+                requested_username, username
+            )
+        elif existing_user is not None and uuid_error is None:
+            matched_user_ids.add(existing_user.id)
+        database_key, rename_spellings = self._validate_username(
+            validator,
+            row,
+            existing_user,
+            requested_username,
+            username,
+            uuid == "" and bool(matched_user_ids),
+            errors,
+        )
+        if errors:
+            return errors, matched_user_ids
+        classrooms, errors = self._resolve_classrooms(validator, row)
+        if errors:
+            return errors, matched_user_ids
+        errors = self._prepare_user(
+            validator, row, existing_user, username, rename_spellings
+        )
+        if not errors:
+            validator.add_user(row, username, database_key, classrooms)
+        return errors, matched_user_ids
+
+    def _validate_username(
+        self,
+        validator,
+        row,
+        existing_user,
+        requested_username,
+        username,
+        stored_username_is_taken,
+        errors,
+    ):
+        if stored_username_is_taken or validator.pending_username_is_taken(username):
+            errors.insert(0, self._duplicate_username_error(row))
+        if errors:
+            return None, {}
+        rename_spellings = {}
+        if existing_user is not None and (
+            existing_user.username != requested_username
+            or existing_user.date_deleted is not None
+        ):
+            rename_spellings = validator.rename_spellings(
+                existing_user, requested_username, username
+            )
+            if rename_spellings is None:
+                errors.append(self._duplicate_username_error(row))
+                return None, {}
+        database_key, is_taken = validator.check_pending_database_username(username)
+        if is_taken:
+            errors.append(self._duplicate_username_error(row))
+        return database_key, rename_spellings
+
+    def _resolve_classrooms(self, validator, row):
+        classrooms = []
+        errors = []
+        for column, name in validator.referenced_classrooms(row):
+            resolved = validator.resolve_classroom(name)
+            if resolved is None:
+                errors.append(
+                    self._row_error(row, _("Class name is ambiguous"), column, name)
+                )
             else:
-                class_obj = Classroom(name=classroom, parent=self.default_facility)
-                class_obj.id = class_obj.calculate_uuid()
-                new_classes.append(class_obj)
-        self.progress_update(1)
-        return (new_classes, update_classes, classes)
+                classrooms.append((column, resolved))
+        return classrooms, errors
+
+    def _prepare_user(self, validator, user_row, user_obj, username, rename_spellings):
+        password = user_row[self.header_translation["PASSWORD"]]
+        self.progress_update(50 / self.number_lines)
+        if "\0" in password:
+            return [
+                self._row_error(
+                    user_row, MESSAGES[INVALID].format("PASSWORD"), "PASSWORD", None
+                )
+            ]
+        values = self.get_field_values(user_row, username)
+        replace_password = password != "*"
+        if user_obj is None:
+            if not replace_password:
+                return [
+                    self._row_error(
+                        user_row, MESSAGES[REQUIRED_PASSWORD], "PASSWORD", "*"
+                    )
+                ]
+            user_obj = FacilityUser(
+                facility=self.default_facility,
+                **{field: value for field, value in values.items() if value},
+            )
+            update_fields = None
+        else:
+            user_obj = copy(user_obj)
+            update_fields = self._apply_user_fields(user_obj, values)
+        if replace_password:
+            user_obj.password = UNUSABLE_PASSWORD_PREFIX
+            if update_fields is not None:
+                update_fields.add("password")
+        if update_fields is None or update_fields:
+            self.progress_update(40 / self.number_lines)
+            errors = self._model_errors(user_obj, user_row)
+            user_obj.username = username
+            if errors:
+                return errors
+        if rename_spellings and validator.rename_conflicts_in_roster(
+            user_obj.id, rename_spellings
+        ):
+            return [self._duplicate_username_error(user_row)]
+        user_row["user"] = user_obj
+        user_row["update_fields"] = update_fields
+        return []
+
+    @staticmethod
+    def _apply_user_fields(user, values):
+        values = {**values, "date_deleted": None}
+        update_fields = set()
+        for field, value in values.items():
+            if getattr(user, field) != value:
+                setattr(user, field, value)
+                update_fields.add(field)
+        return update_fields
+
+    def _hash_passwords(self, rows):
+        password_column = self.header_translation["PASSWORD"]
+        for row in rows:
+            password = row[password_column]
+            if password != "*":
+                row["user"].password = make_password(password)
+
+    def build_classes_objects(self, validator):
+        new_classes = {}
+        update_classes = {}
+        for column in ("ENROLLED_IN", "ASSIGNED_TO"):
+            memberships = {}
+            for name, usernames in validator.classes[column].items():
+                classroom = validator.stored_classroom(name)
+                if classroom is None:
+                    key = name.lower()
+                    if key not in new_classes:
+                        new_classes[key] = Classroom(
+                            name=name, parent=self.default_facility
+                        )
+                    name = new_classes[key].name
+                else:
+                    update_classes[name] = classroom
+                memberships.setdefault(name, []).extend(usernames)
+            validator.classes[column] = memberships
+        return list(new_classes.values()), list(update_classes.values())
+
+    def _model_errors(self, obj, user_row=None):
+        try:
+            obj.full_clean()
+        except ValidationError as error:
+            return [
+                self._row_error(user_row, messages[0], field, getattr(obj, field, None))
+                if user_row is not None
+                else {
+                    "row": str(obj),
+                    "message": messages[0],
+                    "field": field,
+                    "value": getattr(obj, field, None),
+                }
+                for field, messages in error.message_dict.items()
+            ]
+        return []
 
     def get_facility(self):
         if self.facility_id:
@@ -713,72 +816,105 @@ class BulkUserImportManager(JobProgressMixin):
             self.append_error(MESSAGES[FILE_READ_ERROR].format(e))
         return number_lines
 
-    def get_delete(self, keeping_users, update_classes):
+    def _get_users_to_delete(self, keeping_user_ids):
         if not self.delete:
-            return ([], [])
-        users_not_to_delete = [u.id for u in keeping_users]
+            return []
         admins = self.default_facility.get_admins()
-        users_not_to_delete += admins.values_list("id", flat=True)
-        if self.userid:
-            users_not_to_delete.append(self.userid)
-        users_to_delete = FacilityUser.all_objects.filter(
+        candidates = FacilityUser.all_objects.filter(
             facility=self.default_facility
-        ).exclude(id__in=users_not_to_delete)
-        # Classes not included in the csv will be cleared of users,
-        # but not deleted to keep possible lessons and quizzes created for them:
-        classes_not_to_clear = [c.id for c in update_classes]
-        classes_to_clear = (
-            Classroom.objects.filter(parent=self.default_facility)
-            .exclude(id__in=classes_not_to_clear)
-            .values_list("id", flat=True)
-        )
+        ).exclude(id__in=admins.values("id"))
+        if self.userid:
+            candidates = candidates.exclude(id=self.userid)
+        return [
+            user for user in candidates.iterator() if user.id not in keeping_user_ids
+        ]
 
-        return (users_to_delete, classes_to_clear)
+    def _get_membership_changes(
+        self,
+        update_classes,
+        rejected_class_names,
+        protected_user_ids,
+        affected_user_ids,
+    ):
+        if not self.delete and not affected_user_ids:
+            return [], 0, 0
+        covered_class_ids = {classroom.id for classroom in update_classes}
+        classrooms = self.default_facility.get_classrooms().values_list("id", "name")
+        uncovered_classes = {
+            class_id: name
+            for class_id, name in classrooms.iterator()
+            if class_id not in covered_class_ids
+        }
+        clearable_class_ids = [
+            class_id
+            for class_id, name in uncovered_classes.items()
+            if self.delete and name.lower() not in rejected_class_names
+        ]
+        changed_classes = set()
+        protected_classes = set()
+        memberships_to_clear = []
+        for class_ids in _lookup_batches(clearable_class_ids):
+            memberships = Membership.objects.filter(
+                collection_id__in=class_ids
+            ).values_list("id", "collection_id", "user_id")
+            for membership_id, class_id, user_id in memberships.iterator():
+                if user_id in protected_user_ids:
+                    protected_classes.add(class_id)
+                else:
+                    changed_classes.add(class_id)
+                    if not self.dryrun:
+                        memberships_to_clear.append(membership_id)
+        updated_classes = changed_classes & protected_classes
+        unreported_class_ids = uncovered_classes.keys() - changed_classes
+        if unreported_class_ids:
+            for user_ids in _lookup_batches(affected_user_ids):
+                for model in (Membership, Role):
+                    class_ids = (
+                        model.objects.filter(
+                            user_id__in=user_ids,
+                            collection__kind=CLASSROOM,
+                        )
+                        .values_list("collection_id", flat=True)
+                        .distinct()
+                    )
+                    updated_classes.update(
+                        unreported_class_ids.intersection(class_ids.iterator())
+                    )
+        return (
+            memberships_to_clear,
+            len(updated_classes),
+            len(changed_classes - protected_classes),
+        )
 
     def delete_users(self, users):
         for user in users:
             user.delete(hard_delete=True)
 
-    def clear_classes(self, classes):
-        for classroom in classes:
-            Membership.objects.filter(collection=classroom).delete()
-
-    def get_user(self, username, users):
-        user = users.get(username, None)
-        if not user:  # the user has not been created nor updated:
-            user = FacilityUser.all_objects.get(
-                username=username, facility=self.default_facility
-            )
-        return user
+    def clear_class_memberships(self, membership_ids):
+        for batch in _lookup_batches(membership_ids):
+            Membership.objects.filter(id__in=batch).delete()
 
     def add_classes_memberships(self, classes, users, db_classes):
-        enrolled = classes[0]
-        assigned = classes[1]
-        classes = {k.name: k for k in db_classes}
+        enrolled, assigned = classes
+        classes_by_name = {classroom.name: classroom for classroom in db_classes}
 
-        for classroom in enrolled:
-            db_class = classes[classroom]
-            for username in enrolled[classroom]:
-                # db validation might have rejected a csv validated user:
+        for name, usernames in enrolled.items():
+            classroom = classes_by_name[name]
+            for username in usernames:
+                user = users.get(username)
+                if user is not None and not user.is_member_of(classroom):
+                    classroom.add_member(user)
+        for name, usernames in assigned.items():
+            classroom = classes_by_name[name]
+            for username in usernames:
                 if username in users:
-                    user = self.get_user(username, users)
-                    if not user.is_member_of(db_class):
-                        db_class.add_member(user)
-        for classroom in assigned:
-            db_class = classes[classroom]
-            for username in assigned[classroom]:
-                # db validation might have rejected a csv validated user:
-                if username in users:
-                    user = self.get_user(username, users)
-                    db_class.add_coach(user)
+                    classroom.add_coach(users[username])
 
     def add_roles(self, users, roles):
         for role in roles:
             for username in roles[role]:
-                # db validation might have rejected a csv validated user:
                 if username in users:
-                    user = self.get_user(username, users)
-                    self.default_facility.add_role(user, role)
+                    self.default_facility.add_role(users[username], role)
 
     def exit_if_error(self):
         if self.overall_error:
@@ -858,15 +994,7 @@ class BulkUserImportManager(JobProgressMixin):
         else:
             local_filepath = os.path.join(os.getcwd(), self.filepath)
 
-        # initialize stats data structures:
         self.overall_error = []
-        db_new_classes = []
-        db_update_classes = []
-        classes_to_clear = []
-        db_new_users = []
-        db_update_users = []
-        users_to_delete = []
-        per_line_errors = []
 
         self.number_lines = self.get_number_lines(
             storage_filepath=storage_filepath, local_filepath=local_filepath
@@ -887,69 +1015,85 @@ class BulkUserImportManager(JobProgressMixin):
                     local_filepath=local_filepath, storage_filepath=storage_filepath
                 ) as f:
                     reader = csv.DictReader(f, strict=True)
-                    per_line_errors, classes, users, roles = csv_values_validation(
-                        reader, self.header_translation, self.default_facility
-                    )
+                    (
+                        per_line_errors,
+                        validator,
+                        rejected_user_ids,
+                        rejected_class_names,
+                    ) = self._validate_rows(reader)
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.append_error(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
-            (
-                db_new_users,
-                db_update_users,
-                keeping_users,
-                more_line_errors,
-            ) = self.build_users_objects(users)
-            per_line_errors += more_line_errors
-            (
-                db_new_classes,
-                db_update_classes,
-                fixed_classes,
-            ) = self.build_classes_objects(classes)
-            classes = fixed_classes
-            users_to_delete, classes_to_clear = self.get_delete(
-                keeping_users, db_update_classes
+            new_rows = []
+            update_rows = []
+            keeping_users = []
+            for row in validator.users.values():
+                if row["update_fields"] is None:
+                    new_rows.append(row)
+                else:
+                    keeping_users.append(row["user"])
+                    if row["update_fields"]:
+                        update_rows.append(row)
+            keeping_user_ids = {user.id for user in keeping_users}
+            db_new_classes, db_update_classes = self.build_classes_objects(validator)
+            db_classes = db_new_classes + db_update_classes
+            self.progress_update(1)
+            per_line_errors.extend(
+                error
+                for classroom in db_classes
+                for error in self._model_errors(classroom)
             )
-            per_line_errors += self.db_validate_list(db_new_users, users=True)
-            per_line_errors += self.db_validate_list(db_update_users, users=True)
-            # progress = 91%
-            per_line_errors += self.db_validate_list(db_new_classes)
-            per_line_errors += self.db_validate_list(db_update_classes)
+
+            protected_user_ids = rejected_user_ids - keeping_user_ids
+            users_to_delete = self._get_users_to_delete(
+                keeping_user_ids | rejected_user_ids
+            )
+            memberships_to_clear, membership_updates, cleared = (
+                self._get_membership_changes(
+                    db_update_classes,
+                    rejected_class_names,
+                    protected_user_ids,
+                    keeping_user_ids | {user.id for user in users_to_delete},
+                )
+            )
 
             if not self.dryrun:
-                self.delete_users(users_to_delete)
-                # clear users from classes not included in the csv:
-                Membership.objects.filter(collection__in=classes_to_clear).delete()
+                rows_to_save = new_rows + update_rows
+                self._hash_passwords(rows_to_save)
+                with transaction.atomic():
+                    # bulk_create and bulk_update are not possible with current Morango:
+                    users_data = {}
+                    for row in rows_to_save:
+                        user = row["user"]
+                        user.save(update_fields=row["update_fields"])
+                        users_data[user.username] = user
+                    self.add_roles(users_data, validator.roles)
 
-                # bulk_create and bulk_update are not possible with current Morango:
-                db_users = db_new_users + db_update_users
-                for user in db_users:
-                    user.save()
-                # assign roles to users:
-                users_data = {u.username: u for u in db_users}
-                self.add_roles(users_data, roles)
+                    for classroom in db_new_classes:
+                        classroom.save(force_insert=True)
 
-                db_created_classes = []
-                for classroom in db_new_classes:
-                    created_class = Classroom.objects.create(
-                        name=classroom.name, parent=classroom.parent
+                    enrolled = validator.classes["ENROLLED_IN"]
+                    assigned = validator.classes["ASSIGNED_TO"]
+                    membership_users = {
+                        username: row["user"]
+                        for username, row in validator.users.items()
+                        if username in users_data
+                        or username != row[self.header_translation["USERNAME"]]
+                    }
+                    self.add_classes_memberships(
+                        (enrolled, assigned), membership_users, db_classes
                     )
-
-                    db_created_classes.append(created_class)
-                # hack to get ids created by Morango:
-                db_new_classes = db_created_classes
-
-                self.add_classes_memberships(
-                    classes, users_data, db_new_classes + db_update_classes
-                )
-                self.remove_memberships(keeping_users, classes[0], classes[1])
+                    self.remove_memberships(keeping_users, enrolled, assigned)
+                    self.clear_class_memberships(memberships_to_clear)
+                    self.delete_users(users_to_delete)
             classes_report = {
                 "created": len(db_new_classes),
-                "updated": len(db_update_classes),
-                "cleared": len(classes_to_clear),
+                "updated": len(db_update_classes) + membership_updates,
+                "cleared": cleared,
             }
             users_report = {
-                "created": len(db_new_users),
-                "updated": len(db_update_users),
+                "created": len(new_rows),
+                "updated": len(update_rows),
                 "deleted": len(users_to_delete),
             }
 
