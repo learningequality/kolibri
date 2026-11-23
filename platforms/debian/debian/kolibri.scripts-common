@@ -290,6 +290,14 @@ kolibri_configure()
 
     if $ENABLE_INIT_D
     then
+        (
+            set -o allexport
+            . /etc/default/kolibri
+            set +o allexport
+            . /usr/share/kolibri/run-as-kolibri-user.sh
+            run_as_kolibri_user "$KOLIBRI_COMMAND configure setup"
+        ) || true
+
         # Register init script as service
         if which systemctl > /dev/null 2>&1 ; then
             # Works no matter if it's already enabled
