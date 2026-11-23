@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">课励彼</string>
     <string name="notification_channel_ticker">任务启动......</string>
+    <string name="notification_service_channel_title">重要任务正在运行</string>
     <string name="notification_service_channel_content">正在进行中</string>
     <string name="notification_service_channel_action">查看任务管理器</string>
     <string name="notification_default_channel_title">任务</string>
+    <string name="notification_task_title">Kolibri 任务正在运行</string>
+    <string name="notification_task_text">正在后台处理任务…</string>
     <string name="notification_download_complete_title">下载完成</string>
+    <string name="notification_download_failed_title">下载失败</string>
+    <string name="toast_download_started">正在下载 %1$s…</string>
+    <string name="toast_download_complete">已保存 %1$s 到下载区</string>
+    <string name="toast_download_failed">无法下载 %1$s</string>
     <string name="os_user_name">学生</string>
 </resources>

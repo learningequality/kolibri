@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 20:35+0000\n"
-"PO-Revision-Date: 2026-10-28 00:22\n"
+"PO-Revision-Date: 2026-11-19 20:56\n"
 "Last-Translator: \n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -155,7 +155,7 @@ msgstr "کوئی پہلے سے طے شدہ فیسیلیٹی موجود نہیں 
 
 #: core/auth/management/commands/bulkimportusers.py:94
 msgid "Error trying to read csv file: {}"
-msgstr "csv فائل کو پڑھنے کی کوشش میں خامی: {}"
+msgstr "Csv فائل کو پڑھنے کی کوشش میں خرابی: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
@@ -172,7 +172,7 @@ msgstr "یہ ڈیٹا بیس ID درست نہیں ہے"
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
 #: core/auth/tasks.py:64
 msgid "Data syncing in progress"
-msgstr "ڈیٹا کی Syncing (ہم آہنگی) جاری ہے"
+msgstr "ڈیٹا کی ہم آہنگی جاری ہے"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
@@ -204,7 +204,7 @@ msgstr "تلاش جاری ہے…"
 #. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:14
 msgid "Looking for other Kolibri devices"
-msgstr "کولیبری کے دیگر ڈیوائسز کی تلاش جاری ہے"
+msgstr "کولیبری کی دیگر ڈیوائسز کی تلاش جاری ہے"
 
 #: core/device/viewsets/device_settings.py:23
 msgid "Language is not supported by Kolibri"

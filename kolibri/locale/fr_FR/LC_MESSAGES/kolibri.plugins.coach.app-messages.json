@@ -25,7 +25,7 @@
   "AttendanceStrings.editPageHeading": "Modifier l'émargement : {date} ({time})",
   "AttendanceStrings.endDateLabel": "Date de fin",
   "AttendanceStrings.learnersLabel": "Apprenants:",
-  "AttendanceStrings.markAllModalTitle": "{count, plural, one {Mark # learner as present?} other {Mark all # learners as present?}}",
+  "AttendanceStrings.markAllModalTitle": "{count, plural, one {Marquer # apprenant comme présent ?} other {Marquer tous les # apprenants comme présents ?}}",
   "AttendanceStrings.markAllPresentLabel": "Marquer tous les apprenants comme présents",
   "AttendanceStrings.markAttendanceAction": "Procéder à l'émargement",
   "AttendanceStrings.nextMonthLabel": "Mois suivant",
