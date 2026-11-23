@@ -10,7 +10,9 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.helpers import receive_single_user_sync
+from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import IndividualSyncableExam
@@ -99,6 +101,49 @@ class UpdateAssignmentsFromIndividualSyncableExamsTestCase(SingleUserExamTestCas
         self._sync_deletion(self._sync_assignment(self.learner, self.classroom))
 
         self._assert_resources_freed()
+
+    def test_resource_removed_from_quiz_deletes_its_failed_download(self):
+        [section] = self.exam.question_sources
+        kept_questions = section["questions"]
+        removed_node_id = uuid.uuid4().hex
+        self.exam.question_sources = [
+            {
+                **section,
+                "questions": [
+                    *kept_questions,
+                    {
+                        "exercise_id": removed_node_id,
+                        "question_id": uuid.uuid4().hex,
+                        "title": "Removed Question",
+                        "counter_in_exercise": 0,
+                    },
+                ],
+            }
+        ]
+        self.exam.save()
+        syncable = self._sync_assignment(self.learner, self.classroom)
+        removed_request = ContentDownloadRequest.objects.filter(
+            source_model=Exam.morango_model_name,
+            contentnode_id=removed_node_id,
+        )
+        self.assertEqual(
+            removed_request.update(status=ContentRequestStatus.Failed, failure_count=1),
+            1,
+        )
+        self.exam.question_sources = [section]
+        syncable.serialized_exam = IndividualSyncableExam.serialize_exam(self.exam)
+        syncable.save()
+
+        receive_single_user_sync(self.learner, saved=[syncable])
+
+        self.assertFalse(removed_request.exists())
+        self.assertTrue(
+            ContentDownloadRequest.objects.filter(
+                source_model=Exam.morango_model_name,
+                source_id=self.exam.id,
+                contentnode_id=self.node_id,
+            ).exists()
+        )
 
     def test_learner_removed_from_group_frees_its_resources(self):
         group = LearnerGroup.objects.create(name="A", parent=self.classroom)
