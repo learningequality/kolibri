@@ -5,6 +5,7 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 import os
 import shutil
 
+from django.core.files.storage import default_storage
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import OuterRef
@@ -21,6 +22,7 @@ from kolibri.core.logger.utils.attempt_log_consolidation import (
 from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.api import quiz_completed_notification
+from kolibri.core.storage import private_storage
 from kolibri.core.upgrade import version_upgrade
 from kolibri.utils.conf import KOLIBRI_HOME
 
@@ -119,3 +121,19 @@ def cleanup_deprecated_log_export_and_temp_dir():
 
     if os.path.exists(old_temp_dir):
         shutil.rmtree(old_temp_dir)
+
+
+@version_upgrade(old_version="<0.20.0")
+def move_csv_files_to_private_storage():
+    for directory in ("log_export", "temp"):
+        try:
+            _, filenames = default_storage.listdir(directory)
+        except FileNotFoundError:
+            continue
+        for filename in filenames:
+            path = f"{directory}/{filename}"
+            if private_storage.exists(path):
+                private_storage.delete(path)
+            with default_storage.open(path, "rb") as f:
+                private_storage.save(path, f)
+            default_storage.delete(path)

@@ -1,5 +1,8 @@
+import tempfile
 from uuid import uuid4
 
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.test import TestCase
 from django.utils import timezone
 
@@ -10,6 +13,8 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.upgrade import fix_masterylog_end_timestamps
+from kolibri.core.logger.upgrade import move_csv_files_to_private_storage
+from kolibri.core.storage import private_storage
 
 
 class MasteryLogEndTimestampUpgradeTest(TestCase):
@@ -107,3 +112,48 @@ class MasteryLogEndTimestampUpgradeTest(TestCase):
         self.assertEqual(
             self.summary_only_mastery.end_timestamp, self.summary_log.end_timestamp
         )
+
+
+class MoveCSVFilesToPrivateStorageTest(TestCase):
+    def setUp(self):
+        media_root = tempfile.TemporaryDirectory()
+        self.addCleanup(media_root.cleanup)
+        private_root = tempfile.TemporaryDirectory()
+        self.addCleanup(private_root.cleanup)
+        storage_settings = self.settings(
+            MEDIA_ROOT=media_root.name,
+            PRIVATE_FILE_STORAGE={
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {"location": private_root.name},
+            },
+        )
+        storage_settings.enable()
+        self.addCleanup(storage_settings.disable)
+
+    def test_moves_exports_and_uploads_out_of_media(self):
+        filenames = ["log_export/facility_users.csv", "temp/tmpupload.upload.csv"]
+        for filename in filenames:
+            default_storage.save(filename, ContentFile(filename.encode()))
+
+        move_csv_files_to_private_storage()
+
+        for filename in filenames:
+            self.assertFalse(default_storage.exists(filename))
+            with private_storage.open(filename, "rb") as f:
+                self.assertEqual(f.read(), filename.encode())
+
+    def test_replaces_file_left_by_interrupted_move(self):
+        filename = "log_export/facility_users.csv"
+        default_storage.save(filename, ContentFile(b"media copy"))
+        private_storage.save(filename, ContentFile(b"partial copy"))
+
+        move_csv_files_to_private_storage()
+
+        self.assertEqual(
+            private_storage.listdir("log_export")[1], ["facility_users.csv"]
+        )
+        with private_storage.open(filename, "rb") as f:
+            self.assertEqual(f.read(), b"media copy")
+
+    def test_runs_when_media_has_no_csv_folders(self):
+        move_csv_files_to_private_storage()

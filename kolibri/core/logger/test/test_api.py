@@ -12,7 +12,6 @@ from typing import ClassVar
 from unittest import mock
 
 import pytz
-from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -27,6 +26,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.csv_export import labels
 from kolibri.core.logger.tasks import get_filepath
 from kolibri.core.logger.tasks import log_exports_cleanup
+from kolibri.core.storage import private_storage
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.utils.time_utils import local_now
 
@@ -211,7 +211,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         # latest should persist and the old one should be deleted
         log_exports_cleanup()
 
-        _, files_uploaded = default_storage.listdir("log_export/")
+        _, files_uploaded = private_storage.listdir("log_export/")
 
         # logs export and users csv export
         assert os.path.basename(filepath_2) in files_uploaded
@@ -395,7 +395,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         # latest csv should persist and the old one should be deleted
         log_exports_cleanup()
 
-        _, files_uploaded = default_storage.listdir("log_export/")
+        _, files_uploaded = private_storage.listdir("log_export/")
         # currently there are two file. logs export and users csv export
         assert os.path.basename(filepath_2) in files_uploaded
         assert os.path.basename(filepath) not in files_uploaded
