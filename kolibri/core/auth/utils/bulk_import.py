@@ -81,6 +81,7 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 NON_EXISTENT_UUID = 11
 INVALID_UUID = 12
+DUPLICATED_UUID = 13
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: pgettext_lazy(
@@ -117,6 +118,7 @@ MESSAGES = {
         "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
     ),
     INVALID_UUID: _("Database ID is not valid"),
+    DUPLICATED_UUID: _("Database ID is duplicated"),
 }
 
 # Validators ###
@@ -255,6 +257,7 @@ class Validator:
         self.classes = {"ENROLLED_IN": {}, "ASSIGNED_TO": {}}
         self.users = {}
         self._username_keys = set()
+        self._uuids = set()
         self.header_translation = header_translation
         self.facility = facility
         self.roles = {r: [] for r in roles_map.values() if r is not None}
@@ -352,6 +355,9 @@ class Validator:
             uuid = UUID(uuid).hex
         except ValueError:
             return None, INVALID_UUID
+        if uuid in self._uuids:
+            return uuid, DUPLICATED_UUID
+        self._uuids.add(uuid)
         return uuid, None
 
     def row_class_names(self, row, column):

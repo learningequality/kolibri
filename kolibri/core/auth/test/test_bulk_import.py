@@ -1926,6 +1926,86 @@ class ImportTestCase(TestCase):
             ["North", "South", "Unlisted"],
         )
 
+    def test_delete_clears_classrooms_named_only_by_unmatched_rejected_rows(self):
+        bob = self._create_bob()
+        admin = FacilityUser.objects.create(username="ann", facility=self.facility)
+        self.facility.add_admin(admin)
+        east = Classroom.objects.create(name="East", parent=self.facility)
+        west = Classroom.objects.create(name="West", parent=self.facility)
+        for uuid, username, role, field in (
+            ("!!!", "missing", "CLASS_COACH", "UUID"),
+            (uuid4().hex, admin.username, "CLASS_COACH", "UUID"),
+            ("", "missing", "INVALID", "USER_TYPE"),
+        ):
+            with self.subTest(uuid=uuid):
+                for classroom in (east, west):
+                    classroom.add_member(admin)
+                rejected = self._learner_row(uuid, username, "Missing")
+                rejected[2] = "password"
+                rejected[4] = role
+                rejected[8:] = [east.name, west.name]
+                accepted = self._learner_row(bob.id, bob.username, bob.full_name)
+
+                errors = self._import_rows([rejected, accepted], "--delete")
+
+                self.assertEqual(
+                    [
+                        (error["row"], error["field"], error["value"])
+                        for error in errors
+                    ],
+                    [(1, field, uuid if field == "UUID" else role)],
+                )
+                self.assertTrue(FacilityUser.objects.filter(pk=admin.pk).exists())
+                for classroom in (east, west):
+                    self.assertFalse(classroom.get_members().exists())
+
+    def test_repeated_uuid_is_a_row_error(self):
+        user = self._create_bob()
+        ann = FacilityUser.objects.create(
+            username="ann", facility=self.facility, password=user.password
+        )
+        north = Classroom.objects.create(name="North", parent=self.facility)
+        north.add_member(ann)
+        south = Classroom.objects.create(name="South", parent=self.facility)
+        south.add_member(user)
+        dashed_uuid = str(UUID(user.id))
+        errors = self._import_rows(
+            [
+                [user.id, "robert", "*", "Robert", "LEARNER", "", "", "", "North", ""],
+                [
+                    dashed_uuid,
+                    "bob2",
+                    "*",
+                    "Bob",
+                    "LEARNER",
+                    "",
+                    "",
+                    "",
+                    "Rejected",
+                    "",
+                ],
+                [ann.id, "ann", "*", "Ann", "LEARNER", "", "", "", "South", ""],
+                ["", "carol", "passwd", "Carol", "LEARNER", "", "", "", "", ""],
+            ]
+        )
+
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0]["row"], 2)
+        self.assertEqual(errors[0]["field"], "UUID")
+        self.assertEqual(errors[0]["message"], "Database ID is duplicated")
+        self.assertEqual(errors[0]["value"], dashed_uuid)
+        user.refresh_from_db()
+        self.assertEqual(user.username, "robert")
+        self.assertEqual(user.full_name, "Robert")
+        self.assertTrue(FacilityUser.objects.filter(username="carol").exists())
+        ann.refresh_from_db()
+        self.assertEqual(ann.full_name, "Ann")
+        self.assertCountEqual(north.get_members(), [user])
+        self.assertCountEqual(south.get_members(), [ann])
+        self.assertFalse(
+            Classroom.objects.filter(parent=self.facility, name="Rejected").exists()
+        )
+
     def test_invalid_user_type_after_rejected_row_does_not_stop_import(self):
         errors = self._import_rows(
             [
@@ -1994,6 +2074,51 @@ class ImportTestCase(TestCase):
                 )
         self.assertFalse(FacilityUser.all_objects.filter(pk=omitted_user.pk).exists())
 
+    def test_repeated_uuid_after_invalid_row_keeps_user_and_enrollment_with_delete(
+        self,
+    ):
+        user = self._create_bob()
+        admin = FacilityUser.objects.create(username="ann", facility=self.facility)
+        self.facility.add_admin(admin)
+        absent_user = FacilityUser.objects.create(
+            username="carol", facility=self.facility
+        )
+        classroom = Classroom.objects.create(name="North", parent=self.facility)
+        classroom.add_member(user)
+        classroom.add_member(admin)
+
+        errors = self._import_rows(
+            [
+                self._learner_row(user.id, user.username, "B" * 126),
+                [
+                    str(UUID(user.id)),
+                    "bobby",
+                    "*",
+                    "Robert",
+                    "LEARNER",
+                    "",
+                    "",
+                    "",
+                    "North",
+                    "",
+                ],
+            ],
+            "--delete",
+        )
+
+        self.assertEqual(
+            [(error["row"], error["field"]) for error in errors],
+            [(1, "FULL_NAME"), (2, "UUID")],
+        )
+        self.assertEqual(errors[1]["message"], "Database ID is duplicated")
+        user.refresh_from_db()
+        self.assertEqual(user.username, "bob")
+        self.assertIsNone(user.date_deleted)
+        self.assertEqual(user.full_name, "Bob")
+        self.assertCountEqual(classroom.get_members(), [user])
+        self.assertTrue(self.facility.get_admins().filter(pk=admin.pk).exists())
+        self.assertFalse(FacilityUser.all_objects.filter(id=absent_user.id).exists())
+
     def test_invalid_row_keeps_user_and_enrollment_with_delete(self):
         user = self._create_bob()
         classroom = Classroom.objects.create(name="North", parent=self.facility)
@@ -2011,6 +2136,31 @@ class ImportTestCase(TestCase):
         user = FacilityUser.objects.get(id=user.id)
         self.assertEqual(user.full_name, "Bob")
         self.assertIn(user, classroom.get_members())
+
+    def test_repeated_uuid_does_not_keep_other_users_in_unlisted_classroom(self):
+        bob = self._create_bob()
+        ann = FacilityUser.objects.create(username="ann", facility=self.facility)
+        self.facility.add_admin(ann)
+        north = Classroom.objects.create(name="North", parent=self.facility)
+        accepted = self._learner_row(bob.id, bob.username, bob.full_name)
+        for column, role in ((8, "LEARNER"), (9, "CLASS_COACH")):
+            with self.subTest(role=role):
+                north.add_member(ann)
+                repeated = accepted.copy()
+                repeated[4] = role
+                repeated[column] = north.name
+
+                errors = self._import_rows([accepted, repeated], "--delete")
+
+                self.assertIn(
+                    (2, "UUID", "Database ID is duplicated"),
+                    [
+                        (error["row"], error["field"], error["message"])
+                        for error in errors
+                    ],
+                )
+                self.assertTrue(self.facility.get_admins().filter(pk=ann.pk).exists())
+                self.assertFalse(north.get_members().exists())
 
     def test_normalized_username_collision_keeps_user_with_delete(self):
         user = self._create_bob()
@@ -2146,6 +2296,30 @@ class ImportTestCase(TestCase):
 
         self.assertCountEqual(classroom.get_members(), protected)
         self.assertFalse(FacilityUser.all_objects.filter(id=omitted.id).exists())
+
+    def test_model_invalid_rename_does_not_set_classroom_spelling(self):
+        bob = self._create_bob()
+        ann = FacilityUser.objects.create(
+            username="ann", password=bob.password, facility=self.facility
+        )
+
+        errors = self._import_rows(
+            [
+                [bob.id, "robert", "*", "Bob", "LEARNER", "", "3001", "", "SOUTH", ""],
+                [ann.id, "anne", "*", "Ann", "CLASS_COACH", "", "", "", "", "South"],
+                self._learner_row(bob.id, "bobby", "Bob"),
+            ]
+        )
+
+        self.assertEqual(
+            [(error["row"], error["field"]) for error in errors],
+            [(1, "birth_year"), (3, "UUID")],
+        )
+        self.assertEqual(Classroom.objects.get(parent=self.facility).name, "South")
+        bob.refresh_from_db()
+        ann.refresh_from_db()
+        self.assertEqual(bob.username, "bob")
+        self.assertEqual(ann.username, "anne")
 
     def test_model_invalid_rename_does_not_save_or_change_enrollment(self):
         user = self._create_bob()
