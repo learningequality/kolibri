@@ -13,14 +13,13 @@
     "kolibri-design-system": "catalog:",
     "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
-    "kolibri-sandbox": "workspace:*",
     "lodash": "catalog:",
-    "tinycolor2": "^1.6.0",
     "vue": "catalog:",
     "vue-router": "catalog:",
     "vuex": "catalog:"
   },
   "devDependencies": {
+    "@testing-library/user-event": "catalog:",
     "@testing-library/vue": "catalog:",
     "@vue/test-utils": "catalog:",
     "flush-promises": "^1.0.2"

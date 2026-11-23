@@ -3,35 +3,41 @@
   <Backdrop
     :transitions="true"
     class="backdrop"
-    :style="backdropStyle"
   >
     <div
       class="viewer"
-      :style="bodyStyle"
+      :class="{ 'viewer-small': windowIsSmall, 'viewer-medium': windowIsMedium }"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="contentNode.title"
     >
-      <nav>
+      <KFocusTrap
+        @shouldFocusFirstEl="focusCloseButton"
+        @shouldFocusLastEl="focusCloseButton"
+      >
         <KToolbar
           ref="toolbar"
-          :showIcon="true"
-          :style="toolbarStyle"
+          class="toolbar"
         >
           <template #icon>
             <KIconButton
+              ref="closeButton"
               icon="close"
-              :color="getThemeToken('textColor')"
+              :ariaLabel="closeAction$()"
+              :tooltip="closeAction$()"
+              :color="$themeTokens.textInverted"
               @click="$emit('close')"
             />
           </template>
 
-          <span :style="titleStyle">
-            {{ title }}
-          </span>
+          <h2 class="title">{{ contentNode.title }}</h2>
         </KToolbar>
-      </nav>
 
-      <main>
-        <ContentItem :contentNode="contentNode" />
-      </main>
+        <ContentItem
+          :key="contentNode.id"
+          :contentNode="contentNode"
+        />
+      </KFocusTrap>
     </div>
   </Backdrop>
 
@@ -40,8 +46,12 @@
 
 <script>
 
+  import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+  import { useEventListener } from '@vueuse/core';
   import KToolbar from 'kolibri-design-system/lib/KToolbar';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Backdrop from 'kolibri/components/Backdrop';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ContentItem from './ContentItem';
 
   export default {
@@ -51,55 +61,45 @@
       ContentItem,
       KToolbar,
     },
+    setup(props, { emit }) {
+      const toolbar = ref(null);
+      const closeButton = ref(null);
+      const { windowIsSmall, windowIsMedium } = useKResponsiveWindow();
+      const { closeAction$ } = coreStrings;
+      let previousFocus;
+
+      function focusCloseButton() {
+        closeButton.value.$el.focus();
+      }
+
+      useEventListener(toolbar, 'keydown', event => {
+        if (event.key === 'Escape') {
+          event.stopPropagation();
+          emit('close');
+        }
+      });
+      onMounted(() => {
+        previousFocus = document.activeElement;
+        focusCloseButton();
+      });
+      onUnmounted(async () => {
+        await nextTick();
+        previousFocus?.focus();
+      });
+
+      return {
+        closeAction$,
+        closeButton,
+        focusCloseButton,
+        toolbar,
+        windowIsSmall,
+        windowIsMedium,
+      };
+    },
     props: {
       contentNode: {
         type: Object,
         required: true,
-      },
-      channelTheme: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-    },
-    data() {
-      return {
-        title: this.contentNode.title,
-      };
-    },
-    computed: {
-      defaultTheme() {
-        return {
-          appBarColor: this.$themeTokens.primary,
-          textColor: this.$themeTokens.textInverted,
-          backdropColor: 'rgba(0, 0, 0, 0.7)',
-          backgroundColor: 'var(--tokens-surface)',
-        };
-      },
-      toolbarStyle() {
-        return {
-          backgroundColor: this.getThemeToken('appBarColor'),
-        };
-      },
-      titleStyle() {
-        return {
-          color: this.getThemeToken('textColor'),
-        };
-      },
-      bodyStyle() {
-        return {
-          backgroundColor: this.getThemeToken('backgroundColor'),
-        };
-      },
-      backdropStyle() {
-        return {
-          backgroundColor: this.getThemeToken('backdropColor'),
-        };
-      },
-    },
-    methods: {
-      getThemeToken(token) {
-        return this.channelTheme[token] || this.defaultTheme[token];
       },
     },
   };
@@ -119,23 +119,30 @@
     max-height: calc(100vh - 80px);
     margin: 40px auto;
     overflow: hidden;
+    background-color: var(--tokens-surface);
     border-radius: 4px;
   }
 
-  @media (max-width: 960px) {
-    .viewer {
-      width: 90%;
-    }
+  .viewer-medium {
+    width: 90%;
   }
 
-  @media (max-width: 600px) {
-    .viewer {
-      width: 100%;
-      height: 100vh;
-      max-height: 100vh;
-      margin: 0;
-      border-radius: 0;
-    }
+  .viewer-small {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .toolbar {
+    color: var(--tokens-textInverted);
+    background-color: var(--tokens-primary);
+  }
+
+  .title {
+    margin: 0;
+    font: inherit;
   }
 
 </style>
