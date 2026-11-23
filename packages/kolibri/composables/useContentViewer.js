@@ -30,6 +30,7 @@ import { CONTENT_VIEWER_CONTEXT_KEY } from '../components/internal/ContentViewer
  * public API (checkAnswer, takeHint, availableHints, totalHints) so the ContentViewer
  * wrapper re-exposes it to consumers via `this.$refs.contentViewer.<member>`
  * @property {Ref} itemData - Raw assessment item payload
+ * @property {Ref} hostData - Embedding host's payload, or null when omitted
  * @property {Ref<string>} itemId - Identifier of the current assessment item
  * @property {Ref<object>} answerState - Saved learner responses
  * @property {Ref<boolean>} interactive - Allows learner interaction when true
@@ -144,6 +145,7 @@ export default function useContentViewer(
     files,
     defaultItemPreset,
     itemData,
+    hostData,
     itemId,
     answerState,
     showCorrectAnswer,
@@ -225,6 +227,7 @@ export default function useContentViewer(
     reportLoadingError,
     reportError,
     itemData,
+    hostData,
     itemId,
     answerState,
     allowHints,

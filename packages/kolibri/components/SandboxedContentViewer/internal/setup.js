@@ -21,8 +21,22 @@ export const sandboxedContentViewerStrings = createTranslator('SandboxedContentV
 const { contentFrameTitle$, renderedImageLabel$ } = sandboxedContentViewerStrings;
 
 export default function sandboxedContentViewerSetup(props, context, options) {
+  const fullscreenRef = ref(null);
+  const isFullscreen = ref(false);
+
+  function toggleFullscreen() {
+    fullscreenRef.value?.toggleFullscreen();
+  }
+
+  function emit(event, ...args) {
+    if (event === 'navigateTo' && isFullscreen.value) {
+      toggleFullscreen();
+    }
+    context.emit(event, ...args);
+  }
+
   const { loading, renderedFile, fileOverlayOpen, closeFile, sandboxUrl, initializeSandbox } =
-    useSandbox(context, options);
+    useSandbox({ emit, listeners: context.listeners }, options);
 
   const renderedImage = computed(
     () => Boolean(renderedFile.value) && isImage(renderedFile.value.mimetype),
@@ -37,11 +51,9 @@ export default function sandboxedContentViewerSetup(props, context, options) {
       : null,
   );
 
-  const fullscreenRef = ref(null);
   const iframeElement = ref(null);
   const backButton = ref(null);
   const renderedFileElement = ref(null);
-  const isFullscreen = ref(false);
 
   const canGoBack = computed(() =>
     renderedFile.value ? renderedFile.value.hasPrevious : fileOverlayOpen.value,
@@ -95,10 +107,6 @@ export default function sandboxedContentViewerSetup(props, context, options) {
     }
     return {};
   });
-
-  function toggleFullscreen() {
-    fullscreenRef.value?.toggleFullscreen();
-  }
 
   watch(renderedWithOwnFullscreen, ownFullscreen => {
     if (ownFullscreen && isFullscreen.value) {

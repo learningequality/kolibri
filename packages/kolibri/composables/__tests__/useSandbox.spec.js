@@ -13,7 +13,6 @@ jest.mock('kolibri-sandbox', () =>
     this.events = {
       LOADING: 'loading',
       ERROR: 'error',
-      NAVIGATETO: 'navigateTo',
       NOW_SHOWING: 'nowshowing',
       RENDER_FILE: 'renderfile',
       FILE_OVERLAY: 'fileoverlay',
@@ -269,7 +268,7 @@ describe('useSandbox', () => {
   });
 
   describe('sandbox initialization', () => {
-    it('hands the client the content state, user data, url, checksum, handler and polyfill urls', () => {
+    it('initializes the client with the content, user data and Kolibri version', () => {
       const { init, sandbox } = renderSandbox({
         timeSpent: 30,
         duration: 300,
@@ -290,7 +289,7 @@ describe('useSandbox', () => {
         },
         FILE.storage_url,
         FILE.checksum,
-        { handlerUrl: '/handler.js', polyfillUrl: '/polyfills.js' },
+        { handlerUrl: '/handler.js', polyfillUrl: '/polyfills.js', version: __version },
       );
     });
 
@@ -464,13 +463,17 @@ describe('useSandbox', () => {
       expect(api.loading.value).toBe(false);
     });
 
-    it('relays a navigation request from the content', () => {
-      const { init, emitted, sandbox } = renderSandbox();
+    it('reports when the content has loaded', () => {
+      const { init, api, emitted, sandbox } = renderSandbox();
       init();
+      const reportLoading = sandbox().on.mock.calls.find(([name]) => name === 'loading')[1];
 
-      sandbox().on.mock.calls.find(([name]) => name === 'navigateTo')[1]({ nodeId: 'abc' });
+      reportLoading(true);
+      expect(emitted).not.toContainEqual(['loaded', undefined]);
+      reportLoading(false);
 
-      expect(emitted).toContainEqual(['navigateTo', { nodeId: 'abc' }]);
+      expect(emitted).toContainEqual(['loaded', undefined]);
+      expect(api.loading.value).toBe(false);
     });
 
     it('relays the entry the content reports it is now showing', () => {
