@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
-import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { selectKSelectOption } from 'testUtils';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coachStrings } from '../../commonCoachStrings';
 import { PageNames } from '../../../../constants';

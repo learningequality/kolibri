@@ -1,5 +1,5 @@
 import { render } from '@testing-library/vue';
-import { selectKSelectOption } from 'testUtils'; // eslint-disable-line
+import { selectKSelectOption } from 'testUtils';
 import ExtraDemographics from '../index.vue';
 
 const SIX_TO_TEN = { value: '6-10', defaultLabel: 'Six to Ten' };

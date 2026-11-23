@@ -5,16 +5,16 @@ import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { createTranslator } from 'kolibri/utils/i18n';
 import pluginData from 'kolibri-plugin-data';
+import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import AuthBase from '../AuthBase.vue';
 import { userString } from '../commonUserStrings';
-import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { AuthFlowStore } from '../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import { ComponentMap } from '../../constants';
 
 const { restrictedAccess$ } = createTranslator(AuthBase.name, AuthBase.$trs);
 
 jest.mock('kolibri/composables/useUser');
-jest.mock('../../composables/useAuthFlow');
 jest.mock('../../composables/useAuthRouter');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-plugin-data', () => ({
@@ -36,12 +36,7 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
   query,
 }));
 
-useAuthFlow.mockReturnValue(
-  useAuthFlowMock({
-    facilityConfig: ref({ learner_can_sign_up: true, is_full_facility_import: true }),
-    canSignUp: ref(true),
-  }),
-);
+AuthFlowStore.stub();
 useAuthRouter.mockReturnValue(
   useAuthRouterMock({
     signUpRoute: ref({ name: ComponentMap.SIGN_UP, params: {}, query: {} }),
@@ -58,6 +53,15 @@ function renderComponent({ allowRemoteAccess = true, isAppContext = false, login
 }
 
 describe('auth base component', () => {
+  beforeEach(() => {
+    AuthFlowStore.mock({
+      facilityConfig: { learner_can_sign_up: true, is_full_facility_import: true },
+      canSignUp: true,
+      signInOptions: [OptionsForSignIn.USERNAME_PASSWORD],
+      signInMethod: OptionsForSignIn.USERNAME_PASSWORD,
+    });
+  });
+
   it('shows restricted access message when remote access is disallowed and not app context', () => {
     renderComponent({ allowRemoteAccess: false, isAppContext: false });
     expect(screen.getByText(restrictedAccess$())).toBeInTheDocument();

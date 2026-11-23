@@ -8,6 +8,7 @@ import initializeTheme from './styles/internal/initializeTheme';
 import setupPluginMediator from './internal/pluginMediator';
 import apiSpec from './internal/apiSpec';
 import metaInfoTracker from './composables/internal/metaInfoTracker';
+import { installComposableDevtools } from './composables/internal/composableDevtools';
 
 export const logging = logger.getLogger(__filename);
 
@@ -36,5 +37,9 @@ Vue.mixin(metaInfoTracker);
 Vue.use(KThemePlugin);
 
 Vue.component('ContentViewer', ContentViewer);
+
+if (process.env.NODE_ENV === 'development') {
+  installComposableDevtools(Vue);
+}
 
 export default coreApp;

@@ -7,7 +7,7 @@ import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
 import { setUnspecifiedPassword } from '../../../api';
-import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { AuthFlowStore } from '../../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import NewPasswordPage from '../NewPasswordPage.vue';
 import UserAuthLayout from '../../UserAuthLayout';
@@ -22,8 +22,8 @@ jest.mock('kolibri-plugin-data', () => ({ allowRemoteAccess: true }));
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../api');
-jest.mock('../../../composables/useAuthFlow');
 jest.mock('../../../composables/useAuthRouter');
+AuthFlowStore.stub();
 const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
 
@@ -32,11 +32,7 @@ function setupMocks() {
     login: mockLogin,
     userFacilityId: ref(null),
   }));
-  useAuthFlow.mockReturnValue(
-    useAuthFlowMock({
-      selectedFacility: ref({ id: 'facility_1', name: 'Facility 1' }),
-    }),
-  );
+  AuthFlowStore.mock({ selectedFacility: { id: 'facility_1', name: 'Facility 1' } });
   useAuthRouter.mockReturnValue(
     useAuthRouterMock({
       nextParam: ref(''),

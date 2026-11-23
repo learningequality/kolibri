@@ -1,12 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
-import { ref } from 'vue';
 import client from 'kolibri/client';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import { MAX_USERS_FOR_LISTING_VIEW } from '../../../constants';
 import SignInPage from '../index.vue';
 import UserAuthLayout from '../../UserAuthLayout';
-import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { AuthFlowStore } from '../../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import useAuthWatcher from '../../../composables/useAuthWatcher';
 import { pageTitleStrings } from '../../pageTitleStrings';
@@ -28,13 +28,14 @@ jest.mock('kolibri-plugin-data', () => ({
 jest.mock('kolibri-common/composables/useFacility', () => ({
   useFacilitySelect: () => ({ setSelectedFacilityId: jest.fn() }),
 }));
-jest.mock('../../../composables/useAuthFlow');
 jest.mock('../../../composables/useAuthRouter');
 jest.mock('../../../composables/useAuthWatcher');
 jest.mock('vue-router/composables', () => ({
   useRouter: () => ({ push: jest.fn() }),
   useRoute: () => ({ query: {}, params: {} }),
 }));
+
+AuthFlowStore.stub();
 
 const { usernameLabel$ } = coreStrings;
 const { signInPageTitle$ } = pageTitleStrings;
@@ -43,16 +44,18 @@ const TEST_FACILITY = { id: 'fac-1', name: 'Test Facility' };
 const SUGGESTED_USERNAME = 'alice';
 const SEARCHED_TERM = SUGGESTED_USERNAME.slice(0, 3);
 
-// created() dereferences selectedFacility.id, and useAuthFlowMock defaults it to ref(null).
+// created() dereferences selectedFacility.id.
 function setupMocks({ isAppContext = false, facilityConfig = {} } = {}) {
   useUser.mockReturnValue(useUserMock({ isAppContext, login: jest.fn() }));
-  useAuthFlow.mockReturnValue(
-    useAuthFlowMock({
-      selectedFacility: ref(TEST_FACILITY),
-      facilityId: ref(TEST_FACILITY.id),
-      facilityConfig: ref(facilityConfig),
-    }),
-  );
+  AuthFlowStore.mock({
+    selectedFacility: TEST_FACILITY,
+    facilityId: TEST_FACILITY.id,
+    facilityConfig,
+    hasMultipleFacilities: false,
+    signInOptions: [OptionsForSignIn.USERNAME_PASSWORD],
+    signInMethod: OptionsForSignIn.USERNAME_PASSWORD,
+    canSignUp: false,
+  });
   useAuthRouter.mockReturnValue(useAuthRouterMock());
   useAuthWatcher.mockReturnValue({ watchForFacilityChange: jest.fn() });
 }

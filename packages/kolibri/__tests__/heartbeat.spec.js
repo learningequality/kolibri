@@ -6,9 +6,9 @@ import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; 
 import { ref } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { pageVisible } from 'kolibri/utils/browserInfo';
+import { stubWindowLocation } from 'testUtils';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';
-import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri/utils/redirectBrowser');
 jest.mock('kolibri/urls');

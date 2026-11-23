@@ -2,7 +2,8 @@ import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { ref } from 'vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
+import { AuthFlowStore } from '../../composables/useAuthFlow';
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import SignInPage from '../SignInPage';
 import { ComponentMap } from '../../constants';
@@ -11,8 +12,9 @@ const { usernameLabel$, usernameNotAlphaNumError$, requiredFieldError$ } = coreS
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri-plugin-data', () => ({ allowRemoteAccess: true }));
-jest.mock('../../composables/useAuthFlow');
 jest.mock('../../composables/useAuthRouter');
+
+AuthFlowStore.stub();
 
 function renderComponent() {
   const selectedFacility = {
@@ -23,13 +25,15 @@ function renderComponent() {
     },
     num_users: 20,
   };
-  useAuthFlow.mockImplementation(() =>
-    useAuthFlowMock({
-      selectedFacility: ref(selectedFacility),
-      facilityConfig: ref({ learner_can_login_with_no_password: false, preset: 'formal' }),
-      hasMultipleFacilities: ref(false),
-    }),
-  );
+  AuthFlowStore.mock({
+    selectedFacility,
+    facilityConfig: { learner_can_login_with_no_password: false, preset: 'formal' },
+    hasMultipleFacilities: false,
+    facilityId: null,
+    signInOptions: [OptionsForSignIn.USERNAME_PASSWORD],
+    signInMethod: OptionsForSignIn.USERNAME_PASSWORD,
+    canSignUp: false,
+  });
   useAuthRouter.mockImplementation(() =>
     useAuthRouterMock({
       defaultRoute: ref({ name: ComponentMap.USERNAME_SIGN_IN, params: {}, query: {} }),
