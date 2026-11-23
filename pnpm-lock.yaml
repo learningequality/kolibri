@@ -1811,9 +1811,6 @@ importers:
       core-js:
         specifier: 'catalog:'
         version: 3.49.0
-      uuid:
-        specifier: ^14.0.2
-        version: 14.0.2
     devDependencies:
       '@babel/core':
         specifier: ^8.0.6

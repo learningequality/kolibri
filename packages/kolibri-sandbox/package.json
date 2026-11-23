@@ -38,8 +38,7 @@
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
-    "core-js": "catalog:",
-    "uuid": "^14.0.2"
+    "core-js": "catalog:"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"

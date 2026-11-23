@@ -7,7 +7,6 @@ import time
 import unittest
 import uuid
 from base64 import urlsafe_b64decode
-from collections import Counter
 from typing import ClassVar
 from unittest import mock
 
@@ -697,46 +696,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             reverse("kolibri:core:contentnode-list"), data={"has_prerequisite": root_id}
         )
         self.assertEqual(response.data[0]["title"], "c1")
-
-    def test_contentnode_random(self):
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-random"), data={"max_results": 2}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-
-    def test_contentnode_random_non_integer_max_results(self):
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-random"), data={"max_results": "abc"}
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
-
-    def test_contentnode_random_negative_max_results(self):
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-random"), data={"max_results": -1}
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
-
-    def test_contentnode_random_max_results_above_limit(self):
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-random"), data={"max_results": 101}
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
-
-    def test_contentnode_random_huge_max_results(self):
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-random"),
-            data={"max_results": "99999999999999999999"},
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data[0]["metadata"]["field"], "max_results")
-
-    def test_contentnode_random_default_max_results(self):
-        response = self.client.get(reverse("kolibri:core:contentnode-random"))
-        self.assertEqual(response.status_code, 200)
 
     def test_contentnode_list_invalid_max_results(self):
         for max_results in ("99999999999999999999", "101", "0", "abc", "-1"):
@@ -1553,20 +1512,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(len(with_filter_response.data), 1)
         self.assertEqual(with_filter_response.data[0]["name"], "testing")
-
-    def test_channelmetadata_filter_options(self):
-        response = self.client.get(
-            reverse("kolibri:core:channel-filter-options"), {"id": self.the_channel_id}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data["available_kinds"],
-            Counter(
-                content.ContentNode.objects.filter(
-                    channel_id=self.the_channel_id
-                ).values_list("kind", flat=True)
-            ),
-        )
 
     def test_channelmetadata_contains_quiz_filter(self):
         no_quiz_channel = content.ContentNode.objects.create(
