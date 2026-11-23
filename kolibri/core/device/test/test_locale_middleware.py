@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import translation
 
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.device.utils import provision_device
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
@@ -134,6 +135,29 @@ class URLRedirectTestsBase:
         ):
             response = self.client.get(get_url("prefixed/"), follow=True)
             self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
+
+    def test_default_language_beats_accept_language_before_provisioning(self):
+        with override_option("Deployment", "DEFAULT_LANGUAGE", "fr-fr"):
+            response = self.client.get(
+                get_url("prefixed/"), HTTP_ACCEPT_LANGUAGE="en", follow=True
+            )
+            self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
+
+    def test_session_language_beats_default_language(self):
+        session = self.client.session
+        session[translation.LANGUAGE_SESSION_KEY] = "en"
+        session.save()
+        with override_option("Deployment", "DEFAULT_LANGUAGE", "fr-fr"):
+            response = self.client.get(get_url("prefixed/"), follow=True)
+            self.assertRedirects(response, get_url("en/prefixed/"), 302)
+
+    def test_provisioned_device_language_beats_default_language(self):
+        provision_device(language_id="en")
+        with override_option("Deployment", "DEFAULT_LANGUAGE", "fr-fr"):
+            response = self.client.get(
+                get_url("prefixed/"), HTTP_ACCEPT_LANGUAGE="fr-fr", follow=True
+            )
+            self.assertRedirects(response, get_url("en/prefixed/"), 302)
 
 
 @override_settings(**settings_override_dict)

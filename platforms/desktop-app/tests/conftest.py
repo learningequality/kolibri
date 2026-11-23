@@ -2,7 +2,10 @@ import logging
 import os
 import sys
 import types
+from unittest import mock
 from unittest.mock import MagicMock
+
+import pytest
 
 # kolibri_app lives under src/ and the member isn't installed (package = false);
 # put src/ on the path before collection so the tests can import it (no
@@ -32,6 +35,12 @@ sys.modules.setdefault("wx", MagicMock())
 sys.modules.setdefault("wx.adv", MagicMock())
 # dmgbuild only installs on darwin.
 sys.modules.setdefault("dmgbuild", MagicMock())
-# Mock only the leaf submodule view.py imports; mocking the top-level "django"
-# package triggers pytest-django's setup path and causes collection errors.
-sys.modules.setdefault("django.utils.translation.trans_real", MagicMock())
+
+
+@pytest.fixture
+def winreg():
+    # A process-wide winreg stand-in makes mimetypes.init() read it as the
+    # Windows registry.
+    with mock.patch.dict(sys.modules, {"winreg": MagicMock()}) as modules:
+        modules.pop("kolibri_app.windows_registry", None)
+        yield modules["winreg"]
