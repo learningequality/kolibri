@@ -132,8 +132,9 @@ describe('Mediator', () => {
       });
       it('should reject with the error answered on the port', async () => {
         const reply = withRemote.request(message);
-        replyPort().postMessage({ error: 'Resolver returned 500' });
-        await expect(reply).rejects.toThrow('Resolver returned 500');
+        replyPort().postMessage({ error: 'Not found', status: 404 });
+        await expect(reply).rejects.toThrow('Not found');
+        await expect(reply).rejects.toMatchObject({ status: 404 });
       });
     });
   });
@@ -148,25 +149,30 @@ describe('Mediator', () => {
       expect(callback).toHaveBeenCalledWith(1, port2);
       port1.close();
     });
-    it('should answer with an error when no callback on a mediator for one source handles it', async () => {
-      const sourced = new Mediator(window, { source: window });
-      const { port1, port2 } = new MessageChannel();
-      const answer = new Promise(resolve => {
-        port1.onmessage = ({ data }) => {
-          port1.close();
-          resolve(data);
-        };
-      });
+    it.each(['unanswered', 'constructor'])(
+      'should answer with 501 when no callback handles %s on a sourced mediator',
+      event => {
+        const sourced = new Mediator(window, { source: window });
+        const port = { postMessage: jest.fn() };
+        sourced.registerMessageHandler({ nameSpace: 'n', event: 'known', callback: jest.fn() });
 
-      sourced.handleMessage({
-        source: window,
-        data: { event: 'unanswered', nameSpace: 'n', data: 1 },
-        ports: [port2],
-      });
-      sourced.destroy();
-
-      await expect(answer).resolves.toEqual({ error: 'No handler for n unanswered' });
-    });
+        try {
+          expect(() => {
+            sourced.handleMessage({
+              source: window,
+              data: { event, nameSpace: 'n', data: 1 },
+              ports: [port],
+            });
+          }).not.toThrow();
+          expect(port.postMessage).toHaveBeenCalledWith({
+            error: `No handler for n ${event}`,
+            status: 501,
+          });
+        } finally {
+          sourced.destroy();
+        }
+      },
+    );
     it('should leave answering to another mediator when it hears every source', () => {
       const port = { postMessage: jest.fn() };
 

@@ -44,10 +44,12 @@ A shim in the handler's own `shims` replaces the base shim (`SandboxHandler.base
 
 Handler to host, through `SandboxHandler` methods. The content frame shares the handler's origin and can call these itself, so the host must validate what they carry before acting on it:
 
-- `requestFromHost(request)`: resolves with what the viewer's `onHandlerRequest` option answers; rejects if it throws or the viewer has none.
+- `requestFromHost(request)`: resolves with the viewer's `onHandlerRequest` result. Rejects with an `Error` carrying `status`: the responder's status, `500` for other responder errors, `501` if unbound, or `400` if the request cannot be sent. No deadline.
 - `reportShowing(page)`: the viewer emits `nowShowing` with `page`.
 - `renderFile(file)`: a viewer with the `renderFiles` option shows `{ data, mimetype, name, hasPrevious }` in place of the sandbox; `null` returns to the sandbox. Only raster images, audio and video a viewer plays, and PDF when a PDF viewer is enabled are shown; audio and video types need a plain subtype with no parameters (e.g. not `video/mp4; codecs=…`). Other types are ignored. `data` is a `Blob`, `ArrayBuffer` or `Uint8Array`; a `Blob` crosses without copying its bytes.
 - `setFileOverlay(open)`: the handler shows a file over its own content; a viewer with the `renderFiles` option offers a way back.
+
+`SandboxShim.request(event, data)` sends on the shim's namespace to `MainClient.answer(event, respond, { nameSpace })`. It uses the same error statuses and also rejects with `504` after 30 seconds or `503` if the shim is destroyed while the call is outstanding.
 
 Host to handler, by overriding `SandboxHandler` methods. The host calls them only once `init` has resolved. A throw or rejection is reported to the host as the viewer's `error`:
 

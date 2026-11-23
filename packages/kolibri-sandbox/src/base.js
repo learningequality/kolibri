@@ -38,3 +38,7 @@ export const MessageStatuses = {
 };
 
 export const nameSpace = 'sandbox';
+
+export function requestError(message, status) {
+  return Object.assign(new Error(message), { status });
+}

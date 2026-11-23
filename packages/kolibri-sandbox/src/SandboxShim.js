@@ -18,7 +18,9 @@
  *     }
  *   }
  */
-import { events, nameSpace } from './base';
+import { events, nameSpace, requestError } from './base';
+
+const REQUEST_TIMEOUT_MS = 30000;
 
 /**
  * @typedef {import('./mediator').default} Mediator
@@ -48,6 +50,7 @@ export default class SandboxShim {
     this.__mediator = mediator;
     this.events = Object.assign({}, events, this.constructor.events);
     this.__nowDiff = 0;
+    this.__pendingRequests = new Set();
 
     if (!this.constructor.shimName) {
       throw new Error(`${this.constructor.name} must define static shimName`);
@@ -75,6 +78,7 @@ export default class SandboxShim {
    * @param {Window} contentWindow - Window object to patch the shim's APIs onto
    * @param {object} options - Initialization options
    * @param {string} options.contentNamespace - Namespace for content storage
+   * @param {string} [options.version] - Kolibri version
    */
   // eslint-disable-next-line no-unused-vars
   initialize(contentWindow, options) {
@@ -129,6 +133,29 @@ export default class SandboxShim {
       throw ReferenceError(`${event} is not a valid event name for ${this.nameSpace}`);
     }
     this.__mediator.registerMessageHandler({ nameSpace: this.nameSpace, event, callback });
+  }
+
+  request(event, data) {
+    let cancelRequest;
+    let deadline;
+    return this.__mediator
+      .request({ event, data, nameSpace: this.nameSpace }, cancel => {
+        cancelRequest = cancel;
+        this.__pendingRequests.add(cancel);
+        deadline = setTimeout(() => {
+          cancel(requestError('Sandbox request timed out', 504));
+        }, REQUEST_TIMEOUT_MS);
+      })
+      .finally(() => {
+        clearTimeout(deadline);
+        this.__pendingRequests.delete(cancelRequest);
+      });
+  }
+
+  destroy() {
+    for (const cancel of this.__pendingRequests) {
+      cancel(requestError('Sandbox shim destroyed', 503));
+    }
   }
 
   /**

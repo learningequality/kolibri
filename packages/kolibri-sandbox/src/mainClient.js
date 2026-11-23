@@ -45,7 +45,7 @@ export default class MainClient {
    * @param {string} [options.polyfillUrl] - URL to the core-js polyfill bundle
    */
   initialize(contentState, userData, startUrl, contentNamespace, options = {}) {
-    const { handlerUrl = null, polyfillUrl = null } = options;
+    const { handlerUrl = null, polyfillUrl = null, version } = options;
     /*
      * userData should be an object with the following keys, all optional:
      * userId: <user ID>,
@@ -76,6 +76,7 @@ export default class MainClient {
           startUrl: this._startUrl,
           handlerUrl,
           polyfillUrl,
+          version,
           // Send current accumulated state, not the original contentState
           contentState: this._shimData,
           userData: this._userData,
@@ -136,17 +137,26 @@ export default class MainClient {
     this.mediator.registerMessageHandler({ nameSpace, event, callback });
   }
 
-  answer(event, respond) {
-    this.on(event, async (data, port) => {
+  answer(event, respond, { nameSpace: namespace = nameSpace } = {}) {
+    const callback = async (data, port) => {
       if (!port) {
         return;
       }
       try {
         port.postMessage({ result: await respond(data) });
-      } catch (e) {
-        port.postMessage({ error: String(e?.message ?? e) });
+      } catch (error) {
+        const status = error?.status;
+        port.postMessage({
+          error: String(error?.message ?? error),
+          status: Number.isInteger(status) ? status : 500,
+        });
       }
-    });
+    };
+    if (namespace === nameSpace) {
+      this.on(event, callback);
+    } else {
+      this.mediator.registerMessageHandler({ nameSpace: namespace, event, callback });
+    }
   }
 
   onStateUpdate(callback) {
