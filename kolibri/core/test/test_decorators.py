@@ -53,10 +53,15 @@ class CacheNoUserDataTestCase(SimpleTestCase):
     def setUp(self):
         process_cache.clear()
         self.factory = RequestFactory()
+        self.device_settings = {
+            "subset_of_users_device": False,
+            "cache_generation": "generation-a",
+        }
         device_setting = mock.patch(
-            "kolibri.core.decorators.get_device_setting", return_value=False
+            "kolibri.core.decorators.get_device_setting",
+            side_effect=self.device_settings.__getitem__,
         )
-        self.get_device_setting = device_setting.start()
+        device_setting.start()
         self.addCleanup(device_setting.stop)
 
     def _request(self, path="/en/learn/", **extra):
@@ -125,7 +130,7 @@ class CacheNoUserDataTestCase(SimpleTestCase):
 
     def test_a_single_user_device_re_renders_rather_than_serving_stale(self):
         view, render_count = self._view()
-        self.get_device_setting.return_value = True
+        self.device_settings["subset_of_users_device"] = True
         base = 1000.0
         stale = base + BODY_CACHE_REFRESH + 100
 
@@ -139,6 +144,29 @@ class CacheNoUserDataTestCase(SimpleTestCase):
         self.assertEqual(gzip.decompress(served.content), b"body-2")
         self.assertEqual(len(render_count), 2)
         spawn.assert_not_called()
+
+    def test_a_new_cache_generation_renders_before_the_refresh_deadline(self):
+        view, render_count = self._view()
+
+        with mock.patch("kolibri.core.decorators.time.time", return_value=1000.0):
+            view(self._request())
+            self.device_settings["cache_generation"] = "generation-b"
+            gzipped = view(self._request())
+            plain = view(self._request(HTTP_ACCEPT_ENCODING="identity"))
+
+        self.assertEqual(gzip.decompress(gzipped.content), b"body-2")
+        self.assertEqual(plain.content, b"body-2")
+        self.assertEqual(len(render_count), 2)
+
+    def test_a_previous_generation_etag_does_not_revalidate(self):
+        view, _ = self._view()
+
+        old_etag = view(self._request())["ETag"]
+        self.device_settings["cache_generation"] = "generation-b"
+        response = view(self._request(HTTP_IF_NONE_MATCH=old_etag))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(gzip.decompress(response.content), b"body-2")
 
     def test_stored_body_hard_expires_so_orphaned_entries_do_not_accumulate(self):
         view, _ = self._view()

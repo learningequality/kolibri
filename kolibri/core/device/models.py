@@ -201,6 +201,8 @@ class DeviceSettings(models.Model):
     allow_other_browsers_to_connect = models.BooleanField(default=True)
     # Is this a device that only synchronizes data about a subset of users?
     subset_of_users_device = models.BooleanField(default=False)
+    # Which server start is this? Caches of state fixed at startup key on it.
+    cache_generation = models.CharField(max_length=32, default="", blank=True)
 
     extra_settings = JSONField(
         null=False,
@@ -228,6 +230,12 @@ class DeviceSettings(models.Model):
         out = super().delete(*args, **kwargs)
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
         return out
+
+    @classmethod
+    def rotate_cache_generation(cls):
+        _device_settings_memo.clear()
+        cls.objects.update(cache_generation=uuid4().hex)
+        cache.delete(DEVICE_SETTINGS_CACHE_KEY)
 
     @property
     def primary_storage_location(self):

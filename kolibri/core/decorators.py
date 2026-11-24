@@ -332,8 +332,8 @@ BODY_CACHE_REFRESH_JITTER = 5
 # in case the elected refresher dies mid-render.
 BODY_CACHE_LOCK_TIMEOUT = 30
 # Hard expiry, far beyond the refresh window. Every refresh rewrites the entry,
-# so this only reaps keys nothing asks for any more - a prior kolibri_version, or
-# a language that stopped being served. process_cache is disk- or Redis-backed,
+# so this only reaps keys nothing asks for any more - a prior kolibri_version or
+# server start, or a language that stopped being served. process_cache is disk- or Redis-backed,
 # so those outlive the process without it.
 BODY_CACHE_TTL = 60 * 60 * 24
 
@@ -425,7 +425,10 @@ class _CachedBody:
         # One entry per path; language is carried by the path's i18n prefix.
         # The entry holds both encodings, so the key does not vary on
         # Accept-Encoding - it is negotiated at serve time instead.
-        digest = hashlib.md5(f"{kolibri_version}:{path}".encode("utf-8")).hexdigest()
+        generation = get_device_setting("cache_generation")
+        digest = hashlib.md5(
+            f"{kolibri_version}:{generation}:{path}".encode("utf-8")
+        ).hexdigest()
         return f"VIEW_BODY_CACHE_{digest}", f"VIEW_BODY_LOCK_{digest}"
 
     @staticmethod

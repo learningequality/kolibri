@@ -24,7 +24,6 @@ from kolibri.core.device.viewsets.initialize_app import NoFacilityFacilityUserSe
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import FirstProvisioning
 from kolibri.core.tasks.permissions import IsDeviceUnusable
-from kolibri.core.tasks.schedules import Enqueue
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.token_generator import TokenGenerator
@@ -36,7 +35,7 @@ PROVISION_TASK_QUEUE = "device_provision"
 DEPROVISION_TASK_QUEUE = "device_deprovision"
 
 
-@register_task(job_id="warm_cached_views", schedule=Enqueue())
+@register_task(job_id="warm_cached_views")
 def warm_cached_views():
     warm_cached_view_bodies()
 
