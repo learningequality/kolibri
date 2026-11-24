@@ -18,7 +18,6 @@ if [ -f /etc/default/kolibri ]; then
     kolibri_pythonpath=$(printf '%s\n' "$kolibri_env" | sed -n 2p)
     if [ -n "$kolibri_pythonpath" ]; then
         PYTHONPATH="$kolibri_pythonpath"
-        export PYTHONPATH
     fi
 fi
 
@@ -28,12 +27,28 @@ fi
 if [ -z "$KOLIBRI_PYTHON" ]; then
     if [ -x /opt/kolibri/python/bin/python3 ]; then
         KOLIBRI_PYTHON="/opt/kolibri/python/bin/python3"
-        PYTHONPATH="/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"
-        export PYTHONPATH
     else
         KOLIBRI_PYTHON="/usr/bin/python3"
     fi
 fi
+
+case "$KOLIBRI_PYTHON" in
+    /opt/kolibri/python/*)
+        remaining_path="${PYTHONPATH:+$PYTHONPATH:}"
+        PYTHONPATH=/usr/lib/kolibri/packages
+        while [ -n "$remaining_path" ]; do
+            entry=${remaining_path%%:*}
+            if [ "$entry" != /usr/lib/python3/dist-packages ]; then
+                PYTHONPATH="$PYTHONPATH:$entry"
+            fi
+            remaining_path=${remaining_path#*:}
+        done
+        ;;
+    *)
+        PYTHONPATH="/usr/lib/kolibri/packages${PYTHONPATH:+:$PYTHONPATH}"
+        ;;
+esac
+export PYTHONPATH
 
 # The setuptools entry point, not `-m kolibri`: -m puts the caller's working
 # directory on sys.path ahead of everything else.

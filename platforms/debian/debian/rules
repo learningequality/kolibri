@@ -10,6 +10,8 @@ export PYBUILD_SYSTEM=distutils
 # export PYBUILD_NAME=kolibri
 export PYBUILD_TEST_PYTEST=0
 
+KOLIBRI_PACKAGES := /usr/lib/kolibri/packages
+
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
@@ -29,7 +31,7 @@ override_dh_builddeb:
 override_dh_auto_install:
 	# Our own tests
 	debian/test_build_sanity.sh
-	python3 setup.py install --force --root=debian/kolibri --no-compile -O0 --install-layout=deb
+	python3 setup.py install --force --root=debian/kolibri --no-compile -O0 --install-layout=deb --install-lib=$(KOLIBRI_PACKAGES)
 	# dh_installman
 	install -D -m0755 debian/startup/kolibri.init $(CURDIR)/debian/kolibri/etc/init.d/kolibri
 	install -D -m0644 debian/startup/kolibri.default $(CURDIR)/debian/kolibri/etc/default/kolibri
@@ -53,10 +55,10 @@ override_dh_auto_install:
 		install -D -m0644 "$$tarball" "$(CURDIR)/debian/kolibri/opt/kolibri/bundled/$$(basename $$tarball)"; \
 	done
 	# remove py2only:
-	rm -Rf $(CURDIR)/debian/kolibri/usr/lib/python3/dist-packages/kolibri/dist/py2only
+	rm -Rf $(CURDIR)/debian/kolibri$(KOLIBRI_PACKAGES)/kolibri/dist/py2only
 	# remove C extensions for other platforms:
-	rm -Rf $(CURDIR)/debian/kolibri/usr/lib/python3/dist-packages/kolibri/dist/cext/cp27
-	find $(CURDIR)/debian/kolibri/usr/lib/python3/dist-packages/kolibri/dist/cext/ -path '*/cp3*/Windows' -exec 'rm -rf {}' \;
+	rm -Rf $(CURDIR)/debian/kolibri$(KOLIBRI_PACKAGES)/kolibri/dist/cext/cp27
+	find $(CURDIR)/debian/kolibri$(KOLIBRI_PACKAGES)/kolibri/dist/cext/ -type d -name Windows -prune -exec rm -rf -- {} +
 
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
 override_dh_installdeb:

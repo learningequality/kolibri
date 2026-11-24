@@ -23,6 +23,10 @@ else
   PREINSTALL="curl adduser python3"
 fi
 
+if [ -n "$SYSTEM_PSYCOPG2" ]; then
+  PREINSTALL="$PREINSTALL python3-psycopg2"
+fi
+
 apt-get update -qq
 apt-get install -y -qq $APT_OPTS $PREINSTALL
 
@@ -31,6 +35,12 @@ if [ -n "$UPGRADE_FROM_DEB" ]; then
   dpkg -i /tmp/previous.deb || true
   apt-get install -f -y $APT_OPTS
   echo "Installed kolibri $(dpkg-query -W -f='${Version}' kolibri) from $UPGRADE_FROM_DEB"
+  KOLIBRI_USER=$(cat /etc/kolibri/username 2>/dev/null || echo "kolibri")
+  su -s /bin/sh "$KOLIBRI_USER" -c 'kolibri manage provisiondevice --facility Smoke --superusername admin --superuserpassword smoke-test --preset formal --language_id en --noinput'
+  echo '# smoke-test conffile marker' >> /etc/default/kolibri
+  echo force-confold > /etc/dpkg/dpkg.cfg.d/kolibri-smoke-test
+  mkdir -p /usr/lib/python3/dist-packages/kolibri/__pycache__
+  touch /usr/lib/python3/dist-packages/kolibri/__pycache__/unowned.pyc
   GITHUB_IO_SOURCE=/etc/apt/sources.list.d/kolibri-github-io.list
   PPA_SOURCE=/etc/apt/sources.list.d/kolibri-ppa.list
   echo "deb https://learningequality.github.io/kolibri-installer-debian stable main" > "$GITHUB_IO_SOURCE"
@@ -46,6 +56,10 @@ dpkg --configure -a
 dpkg-query -s kolibri | grep -q "^Status: install ok installed$"
 
 if [ -n "$UPGRADE_FROM_DEB" ]; then
+  if ! grep -Fxq '# smoke-test conffile marker' /etc/default/kolibri; then
+    echo "FAIL: upgrade replaced the edited conffile"
+    exit 1
+  fi
   if ! grep -q "^deb https://apt.learningequality.org stable main$" "$GITHUB_IO_SOURCE"; then
     echo "FAIL: upgrade did not migrate the github.io source: $(cat "$GITHUB_IO_SOURCE")"
     exit 1
@@ -99,15 +113,16 @@ check_kolibri_cli() {
 }
 
 wait_for_kolibri() {
-  echo "Waiting for Kolibri to start on port 8080..."
+  local port=${1:-8080}
+  echo "Waiting for Kolibri to start on port $port..."
   for i in $(seq 1 60); do
-    if curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:8080 | grep -q "200\|302"; then
-      echo "PASS: Kolibri is responding on port 8080 (attempt $i)"
+    if curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:$port | grep -q "200\|302"; then
+      echo "PASS: Kolibri is responding on port $port (attempt $i)"
       return
     fi
     sleep 2
   done
-  echo "FAIL: Kolibri did not respond on port 8080 after 60 attempts"
+  echo "FAIL: Kolibri did not respond on port $port after 60 attempts"
   exit 1
 }
 
@@ -133,10 +148,40 @@ KOLIBRI_USER=$(cat /etc/kolibri/username 2>/dev/null || echo "kolibri")
 
 check_interpreter
 check_kolibri_cli
-
 su -s /bin/sh "$KOLIBRI_USER" -c "kolibri stop" 2>/dev/null || true
+if [ -n "$SYSTEM_PSYCOPG2" ]; then
+  su -s /bin/sh "$KOLIBRI_USER" -c "PYTHONPATH=/usr/lib/python3/dist-packages kolibri configure setup"
+fi
 su -s /bin/sh "$KOLIBRI_USER" -c "kolibri start"
 wait_for_kolibri
+python_path=$(su -s /bin/sh "$KOLIBRI_USER" -c "kolibri manage shell -c 'import sys; print(*sys.path, sep=chr(10))'")
+if grep -Fxq /usr/lib/python3/dist-packages <<< "$python_path"; then
+  if [ -n "$EXPECT_BUNDLED" ]; then
+    echo "FAIL: bundled Python sees system dist-packages"
+    exit 1
+  fi
+elif [ -z "$EXPECT_BUNDLED" ]; then
+  echo "FAIL: system Python cannot see dist-packages"
+  exit 1
+fi
+if compgen -G '/usr/lib/python3/dist-packages/kolibri*' >/dev/null; then
+  echo "FAIL: Kolibri remains in system dist-packages"
+  exit 1
+fi
+if [ -n "$UPGRADE_FROM_DEB" ]; then
+  redirect=$(curl -fsS --max-time 5 -o /dev/null -w '%{http_code} %{redirect_url}' http://localhost:8080/)
+  case "$redirect" in
+    "302 "*"/auth/") ;;
+    *) echo "FAIL: expected sign-in redirect, got $redirect"; exit 1 ;;
+  esac
+  sign_in=$(curl -fsS --compressed --max-time 5 -w '\n%{http_code}' "${redirect#302 }")
+  if [[ "$sign_in" != *$'\n200' ]] ||
+    ! grep -Eq '<script [^>]*src="[^"]*/kolibri\.plugins\.user_auth\.app/kolibri\.plugins\.user_auth\.app-[^"/]+\.js"' <<< "$sign_in"; then
+    echo "FAIL: expected HTTP 200 with the user-auth JavaScript entry point"
+    exit 1
+  fi
+  echo "PASS: kept 0.19.5 conffile and served sign-in"
+fi
 check_server_interpreter
 
 # Containers run no service manager; stand in for systemd, which runs
@@ -166,10 +211,29 @@ fi
 wait_for_kolibri
 check_server_interpreter
 
-dpkg --purge kolibri
-if [ -e /opt/kolibri ]; then
-  echo "FAIL: /opt/kolibri survived purge"
-  ls -R /opt/kolibri
-  exit 1
+if [ -z "$UPGRADE_FROM_DEB" ]; then
+  /etc/init.d/kolibri stop
+  mkdir -p /etc/kolibri/conf.d
+  if [ -n "$EXPECT_BUNDLED" ]; then
+    python=/opt/kolibri/python/bin/python3
+  else
+    python=/usr/bin/python3
+  fi
+  printf 'KOLIBRI_COMMAND="env KOLIBRI_HTTP_PORT=8081 %s -m kolibri"\n' "$python" > /etc/kolibri/conf.d/smoke-command.conf
+  /etc/init.d/kolibri start
+  wait_for_kolibri 8081
+  info=$(curl -fsS --max-time 5 http://localhost:8081/api/public/info/)
+  grep -Eq '"application"[[:space:]]*:[[:space:]]*"kolibri"' <<< "$info"
+  /etc/init.d/kolibri stop
+  rm /etc/kolibri/conf.d/smoke-command.conf
 fi
-echo "PASS: purge removed /opt/kolibri"
+
+dpkg --purge kolibri
+for directory in /opt/kolibri /usr/lib/kolibri; do
+  if [ -e "$directory" ]; then
+    echo "FAIL: $directory survived purge"
+    ls -R "$directory"
+    exit 1
+  fi
+done
+echo "PASS: purge removed /opt/kolibri and /usr/lib/kolibri"

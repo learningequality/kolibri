@@ -75,11 +75,7 @@ if [ -z "$KOLIBRI_PYTHON" ]; then
     fi
 fi
 
-# When using a non-system Python, the bundled Python needs access to
-# Kolibri installed in system dist-packages
-if [ "$KOLIBRI_PYTHON" != "/usr/bin/python3" ]; then
-    PYTHONPATH="/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"
-fi
+PYTHONPATH="/usr/lib/kolibri/packages${PYTHONPATH:+:$PYTHONPATH}"
 
 # Switch off the allexport behavior
 set +o allexport

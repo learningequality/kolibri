@@ -28,6 +28,12 @@ set -e
 case "$1" in
 
   configure)
+    legacy_package=/usr/lib/python3/dist-packages/kolibri
+    if [ -d "$legacy_package" ]; then
+        find "$legacy_package" -name '*.pyc' -delete
+        find "$legacy_package" -depth -type d -empty -delete
+    fi
+    rm -rf /usr/lib/python3/dist-packages/kolibri-*.egg-info
 
     # Migrate any existing self-hosted github.io Kolibri apt source onto the
     # canonical apt.learningequality.org host. No-op when no such source exists.
