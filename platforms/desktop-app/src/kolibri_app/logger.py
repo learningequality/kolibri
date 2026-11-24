@@ -1,3 +1,4 @@
+import atexit
 import logging as log
 import os
 import sys
@@ -37,3 +38,5 @@ logging.addHandler(file_handler)
 # Make sure we send all app output to logs as we have no console to view them on.
 sys.stdout = LoggerWriter(logging.debug)
 sys.stderr = LoggerWriter(logging.warning)
+atexit.register(sys.stdout.flush_partial_line)
+atexit.register(sys.stderr.flush_partial_line)

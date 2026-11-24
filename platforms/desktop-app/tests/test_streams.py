@@ -15,15 +15,36 @@ class TestLoggerWriter(unittest.TestCase):
 
         self.assertEqual(written, ["one", "two"])
 
-    def test_buffers_a_partial_line_until_flush(self):
+    def test_a_line_flushed_after_every_write_is_one_record(self):
+        # colorama, which Django initialises on import, wraps sys.stderr and
+        # flushes after every write.
+        written = []
+        stream = LoggerWriter(written.append)
+
+        for part in ("Exception in thread ", "ZeroConfPlugin", ":\n"):
+            stream.write(part)
+            stream.flush()
+
+        self.assertEqual(written, ["Exception in thread ZeroConfPlugin:"])
+
+    def test_flush_partial_line_forwards_a_trailing_partial_line(self):
         written = []
         stream = LoggerWriter(written.append)
 
         stream.write("partial")
-        self.assertEqual(written, [])
+        stream.flush_partial_line()
 
-        stream.flush()
         self.assertEqual(written, ["partial"])
+
+    def test_stays_writable_after_flushing_the_partial_line(self):
+        written = []
+        stream = LoggerWriter(written.append)
+
+        stream.flush_partial_line()
+        stream.write("later\n")
+        stream.flush()
+
+        self.assertEqual(written, ["later"])
 
     def test_partial_lines_from_two_threads_do_not_interleave(self):
         # A shared buffer would splice the other thread's line into this one.
