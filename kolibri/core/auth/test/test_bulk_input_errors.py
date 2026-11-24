@@ -313,6 +313,7 @@ class BulkInputErrorsTest(TestCase):
         (error,) = validator.validate([row])
         self.assertNotIn(candidate, error["message"])
         self.assertEqual(error["field"], "PASSWORD")
+        self.assertIsNone(error["value"])
 
     def test_invalid_csv_preserves_existing_report(self):
         output = self.path.with_name("errors.txt")
@@ -398,6 +399,31 @@ class BulkInputErrorsTest(TestCase):
             signal.signal(signal.SIGALRM, previous_handler)
         self.assertEqual(error.exception.__cause__.errno, errno.ENXIO)
         self.assertFalse(self.facility.facilityuser_set.exists())
+
+    def test_errorlines_redacts_invalid_password(self):
+        output = self.path.with_name("errors.txt")
+        too_long = "x" * 150
+        self.path.write_text(
+            HEADER + f",bob,{too_long},Bob,LEARNER,,,,,\n", encoding="utf-8"
+        )
+        call_command(
+            "bulkimportusers",
+            str(self.path),
+            "--errorlines",
+            str(output),
+            facility=self.facility.id,
+        )
+        report = output.read_text(encoding="utf-8")
+        self.assertNotIn(too_long, report)
+        self.assertEqual(
+            ast.literal_eval(report),
+            {
+                "row": 1,
+                "field": "PASSWORD",
+                "value": None,
+                "message": "Value in column 'PASSWORD' has too many characters",
+            },
+        )
 
     def test_output_alias_preserves_input(self):
         content = HEADER + VALID_ROW

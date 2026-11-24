@@ -346,7 +346,7 @@ class Validator:
                 "row": position,
                 "message": message,
                 "field": header_name,
-                "value": value,
+                "value": None if is_password else value,
             }
 
     def validate(self, data):
