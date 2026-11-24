@@ -170,6 +170,8 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     The original code is here: https://github.com/python/cpython/blob/2.7/Lib/logging/handlers.py#L162
     """
 
+    _opened_file = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dirname, basename = os.path.split(self.baseFilename)
@@ -209,6 +211,12 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         be renamed from KOLIBRI_HOME/logs/kolibri.txt.YYYY-MM-DD to
         KOLIBRI_HOME/logs/archive/KOLIBRI-YYYY-MM-DD.txt.
         """
+        if self._rotated_by_another_process():
+            if self.stream:
+                self.stream.close()
+                self.stream = None
+            self._postpone_rollover()
+            return
         try:
             super().doRollover()
         except OSError:
@@ -228,6 +236,23 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         # directory from two processes.
         os.makedirs(self.archive_dir, exist_ok=True)
         self._rotation_files(filenames, prefix)
+
+    def _open(self):
+        stream = super()._open()
+        self._opened_file = self._file_identity()
+        return stream
+
+    def _file_identity(self):
+        stat = os.stat(self.baseFilename)
+        return stat.st_dev, stat.st_ino
+
+    def _rotated_by_another_process(self):
+        if self._opened_file is None:
+            return False
+        try:
+            return self._file_identity() != self._opened_file
+        except FileNotFoundError:
+            return True
 
     def _postpone_rollover(self):
         """

@@ -166,6 +166,39 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
         with open(os.path.join(archive_dir, "kolibri-2026-10-21.txt")) as f:
             self.assertEqual(f.read(), "archived first\nrotated again\n")
 
+    def test_file_rotated_by_another_process_is_not_rotated_again(self):
+        handler, log_file = self._handler_due_for_rollover()
+        with open(log_file, "w") as f:
+            f.write("before rollover\n")
+        other_process = KolibriTimedRotatingFileHandler(log_file, when="M")
+        self.addCleanup(other_process.close)
+        other_process.rolloverAt = handler.rolloverAt
+
+        other_process.emit(make_record("other process"))
+        other_process.flush()
+        handler.emit(make_record("this process"))
+        handler.flush()
+
+        archive_dir = os.path.join(os.path.dirname(log_file), "archive")
+        (archived,) = os.listdir(archive_dir)
+        with open(os.path.join(archive_dir, archived)) as f:
+            self.assertEqual(f.read(), "before rollover\n")
+        with open(log_file) as f:
+            self.assertEqual(f.read(), "other process\nthis process\n")
+
+    def test_a_deleted_log_file_is_recreated_without_a_rollover(self):
+        handler, log_file = self._handler_due_for_rollover()
+        os.remove(log_file)
+
+        handler.emit(make_record("after deletion"))
+        handler.flush()
+
+        with open(log_file) as f:
+            self.assertEqual(f.read(), "after deletion\n")
+        self.assertFalse(
+            os.path.exists(os.path.join(os.path.dirname(log_file), "archive"))
+        )
+
 
 def test_full_queue_does_not_report_drops_to_stderr():
     # The default report for a dropped record goes to stderr, which the
