@@ -928,6 +928,13 @@ describe('SafeHTML', () => {
         jest.restoreAllMocks();
       });
 
+      it('keeps nonbreaking spaces in MathML text', () => {
+        const { container } = render(createSafeHTML(), {
+          props: { html: '<math><mi>a</mi><mtext>&#xA0;</mtext><mi>b</mi></math>' },
+        });
+        expect(container.querySelector('mtext').firstChild?.nodeValue).toBe('\u00a0');
+      });
+
       it('renders native math and no MathJax output', () => {
         const { container } = render(createSafeHTML(), {
           props: { html: '<math><mi>x</mi></math>' },
