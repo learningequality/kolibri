@@ -57,6 +57,7 @@
 
   import { computed } from 'vue';
   import { mapState } from 'vuex';
+  import { useRoute } from 'vue-router/composables';
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
@@ -87,7 +88,12 @@
       const documentTitle = computed(() =>
         pageTitleStrings.documentTitle$({ examTitle: store.state.examReportViewer.exam.title }),
       );
-      usePageTitle(documentTitle, { hasVisibleHeading: true });
+      const route = useRoute();
+      usePageTitle(
+        () =>
+          store.state.examReportViewer.exam.id === route.params.examId ? documentTitle.value : '',
+        { hasVisibleHeading: true },
+      );
       const { full_name, currentUserId } = useUser();
       const { activeClassesQuizzes } = useLearnerResources();
       return {

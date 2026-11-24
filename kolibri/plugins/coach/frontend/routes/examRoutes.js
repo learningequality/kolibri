@@ -53,11 +53,13 @@ export default [
     name: PageNames.EXAM_CREATION_ROOT,
     path: CLASS + QUIZ + '/edit/:sectionIndex',
     component: CreateExamPage,
+    meta: { keepFocus: true },
     children: [
       {
         name: PageNames.QUIZ_SECTION_SIDE_PANEL,
         path: 'details',
         component: SectionSidePanel,
+        meta: { panel: true },
         children: [
           {
             name: PageNames.QUIZ_SECTION_EDITOR,
@@ -76,6 +78,7 @@ export default [
         path: 'select-resources',
         component: QuizResourceSelection,
         redirect: 'select-resources/landing-settings',
+        meta: { panel: true },
         children: [
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
@@ -166,6 +169,7 @@ export default [
     name: PageNames.EXAM_SUMMARY,
     path: CLASS + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
+    meta: { keepFocus: true },
   },
   {
     path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER,
@@ -188,6 +192,7 @@ export default [
     path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER + TRY + QUESTION + INTERACTION,
     component: LearnerQuizPage,
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
+    meta: { keepFocus: true },
   },
   {
     name: PageNames.QUIZ_QUESTION_PAGE_ROOT,
@@ -202,5 +207,6 @@ export default [
     path: CLASS + OPTIONAL_GROUP + QUIZ + QUESTION + LEARNER + INTERACTION,
     component: QuestionLearnersPage,
     handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
+    meta: { keepFocus: true },
   },
 ];

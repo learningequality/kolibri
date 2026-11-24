@@ -15,13 +15,12 @@
       >
         <KButton
           appearance="flat-button"
+          :class="{ unavailable: isUnavailable(key) }"
           :appearanceOverrides="
             isKeyActive(key) ? { ...activityStyles, ...activityActiveStyles } : activityStyles
           "
-          :disabled="
-            searchLoading || (availableActivities && !availableActivities[key] && !isKeyActive(key))
-          "
-          @click="$emit('input', key)"
+          :aria-disabled="isUnavailable(key)"
+          @click="!isUnavailable(key) && $emit('input', key)"
         >
           <KIcon
             :icon="getLearningActivityIcon(key, true)"
@@ -106,6 +105,12 @@
       isKeyActive(key) {
         return key !== null && !!this.activeKeys.filter(k => k.includes(key)).length;
       },
+      isUnavailable(key) {
+        return (
+          this.searchLoading ||
+          (this.availableActivities && !this.availableActivities[key] && !this.isKeyActive(key))
+        );
+      },
     },
     $trs: {
       activities: {
@@ -128,6 +133,11 @@
   .activity-button-text {
     margin: auto;
     margin-top: -12px;
+  }
+
+  .unavailable {
+    pointer-events: none;
+    opacity: 0.5;
   }
 
   .wrapper {
