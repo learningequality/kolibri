@@ -19,6 +19,7 @@ from kolibri.utils.server import BaseKolibriProcessBus
 from kolibri.utils.server import KolibriServerPlugin
 from kolibri.utils.server import ZeroConfPlugin
 from kolibri.utils.server import ZipContentServerPlugin
+from kolibri.utils.server import get_local_origin
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ def get_initialize_url(next_url=None):
         raise RuntimeError("Server is not running")
     auth_token = get_os_user_auth_token()
     path = app_initialize_url(auth_token=auth_token, next_url=next_url)
-    return f"http://127.0.0.1:{_server_bus.port}" + path
+    return get_local_origin(_server_bus.port) + path
 
 
 def _resolve_server_port(port):

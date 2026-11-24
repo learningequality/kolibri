@@ -34,7 +34,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.webkit.ScriptHandler;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
 import com.chaquo.python.Python;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
@@ -68,6 +72,8 @@ public class WebViewActivity extends AppCompatActivity {
    * doUpdateVisitedHistory overwrites the saved one before onPageFinished runs.
    */
   private String pendingRestoreLocation;
+
+  private ScriptHandler restoreScript;
 
   private boolean mainFrameLoadFailed;
   private ValueCallback<Uri[]> pendingFilePickerCallback;
@@ -274,7 +280,9 @@ public class WebViewActivity extends AppCompatActivity {
           public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
             String host = uri.getHost();
-            if (LOOPBACK_IP.equals(host) || LOCALHOST.equals(host)) {
+            if (LOOPBACK_IP.equals(host)
+                || LOCALHOST.equals(host)
+                || WebViewLocation.isServedHost(host)) {
               return false;
             }
             try {
@@ -316,6 +324,10 @@ public class WebViewActivity extends AppCompatActivity {
             // Hide splash when a real localhost page finishes loading
             if (url != null && !url.startsWith("data:")) {
               hideSplash();
+            }
+            if (restoreScript != null) {
+              restoreScript.remove();
+              restoreScript = null;
             }
             String restoreUrl = WebViewLocation.restoreUrlFor(url, pendingRestoreLocation);
             pendingRestoreLocation = null;
@@ -492,9 +504,35 @@ public class WebViewActivity extends AppCompatActivity {
       return;
     }
     shouldClearHistory = true;
-    pendingRestoreLocation = restoreLocation;
     WebViewLocation.noteInitializeUrl(url);
+    armRestore(url, restoreLocation);
     webView.loadUrl(url);
+  }
+
+  /**
+   * vue-router 3.6 listens for hash changes only once its first route resolves, so a fragment put
+   * back after load can be dropped; the post-load restore is for WebViews without document-start
+   * scripts.
+   */
+  private void armRestore(String url, String restoreLocation) {
+    if (restoreScript != null) {
+      restoreScript.remove();
+      restoreScript = null;
+    }
+    pendingRestoreLocation = null;
+    if (restoreLocation == null) {
+      return;
+    }
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+      pendingRestoreLocation = restoreLocation;
+      return;
+    }
+    String origin = WebViewLocation.originOf(url);
+    restoreScript =
+        WebViewCompat.addDocumentStartJavaScript(
+            webView,
+            WebViewLocation.restoreScript(this, origin, restoreLocation),
+            Collections.singleton(origin));
   }
 
   /** Hide the splash screen */
