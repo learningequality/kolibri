@@ -23,6 +23,7 @@
         <div
           class="keypad-body"
           :style="keypadBodyStyle"
+          @keydown.enter.stop
         >
           <div
             class="keypad-grid"
@@ -113,7 +114,6 @@
             class="close-btn"
             @click="dismiss"
             @mousedown.native.prevent
-            @keydown.native.enter.stop
           />
         </div>
       </div>

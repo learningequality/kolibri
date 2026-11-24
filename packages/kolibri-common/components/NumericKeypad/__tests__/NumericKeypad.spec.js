@@ -1,5 +1,5 @@
 import { h, nextTick } from 'vue';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import useKeypad from '../../../composables/useKeypad';
 import numericKeypadStrings from '../../../strings/numericKeypadStrings';
 import NumericKeypad from '../index.vue';
@@ -24,13 +24,16 @@ const KEY_LABELS = {
 
 async function renderKeypad(langId, { buttonSets, configuration } = {}) {
   let keypadAPI;
+  const hostKeydown = jest.fn();
   const Host = {
     setup() {
       ({ keypadAPI } = useKeypad());
       return () =>
-        h(NumericKeypad, {
-          props: { lang: { id: langId }, buttonSets, keyLabels: KEY_LABELS },
-        });
+        h('div', { on: { keydown: hostKeydown } }, [
+          h(NumericKeypad, {
+            props: { lang: { id: langId }, buttonSets, keyLabels: KEY_LABELS },
+          }),
+        ]);
     },
   };
   render(Host);
@@ -41,7 +44,7 @@ async function renderKeypad(langId, { buttonSets, configuration } = {}) {
   }
   keypadAPI.activate();
   await nextTick();
-  return { keyHandler };
+  return { keyHandler, hostKeydown };
 }
 
 function renderExpressionKeypad({ buttonSets = [], extraKeys = ['PI'] } = {}) {
@@ -125,6 +128,12 @@ describe('NumericKeypad', () => {
         .map(button => button.getAttribute('aria-label'));
       expect(tabOrder.slice(0, 6)).toEqual([...names(['SIN', 'COS', 'TAN']), 'x', delete$(), '7']);
     });
+  });
+
+  it('keeps Enter on a key from reaching the page', async () => {
+    const { hostKeydown } = await renderKeypad('en');
+    await fireEvent.keyDown(screen.getByRole('button', { name: '7' }), { key: 'Enter' });
+    expect(hostKeydown).not.toHaveBeenCalled();
   });
 
   it('shows no item keys for a number field', async () => {
