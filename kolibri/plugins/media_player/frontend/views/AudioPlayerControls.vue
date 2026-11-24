@@ -143,9 +143,9 @@
     gap: 8px;
     align-items: center;
     // Media controls stay LTR in every locale, as on the video player and
-    // YouTube; rtl:ignore stops RTLCSS flipping this back.
+    // YouTube; the ignore directive stops RTLCSS flipping this back.
 
-    /* rtl:ignore */
+    /*! rtl:ignore */
     direction: ltr;
   }
 

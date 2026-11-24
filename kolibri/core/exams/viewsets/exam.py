@@ -4,7 +4,6 @@ from typing import ClassVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -26,12 +25,13 @@ from kolibri.core import error_constants
 from kolibri.core.api import HexUUIDField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
-from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.permissions import _ensure_raw_dict
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.serializers import AssignableCollectionField
+from kolibri.core.auth.serializers import consolidate_assignments
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
@@ -40,7 +40,6 @@ from kolibri.core.exams.models import DraftExam
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.logger.models import MasteryLog
-from kolibri.core.query import annotate_array_aggregate
 
 logger = logging.getLogger(__name__)
 
@@ -98,9 +97,7 @@ class ExamSerializer(ModelSerializer):
     # assignments, learner_ids, and draft are excluded from the DB values() query
     # via deferred_fields on ExamViewset. They are populated post-query by
     # consolidate() (for Exam) and serialize_draft() (for DraftExam).
-    assignments = ListField(
-        child=PrimaryKeyRelatedField(queryset=Collection.objects.all()),
-    )
+    assignments = ListField(child=AssignableCollectionField())
     learner_ids = ListField(
         child=PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
         required=False,
@@ -319,12 +316,6 @@ class ExamSerializer(ModelSerializer):
             if "assignments" in validated_data:
                 collections = validated_data.pop("assignments")
 
-                collections = [
-                    collection
-                    for collection in collections
-                    if collection.kind != ADHOCLEARNERSGROUP
-                ]
-
                 if instance_is_draft:
                     # If this is a draft exam, then we need to update the assignments
                     # directly on the instance
@@ -369,9 +360,12 @@ class ExamSerializer(ModelSerializer):
                 code=error_constants.INVALID,
             )
         if "assignments" not in validated_data:
-            # Silently ignores assignments for collections deleted since draft was created
-            validated_data["assignments"] = Collection.objects.filter(
-                id__in=instance.assignments
+            # Silently ignores assignments for collections deleted since draft was created,
+            # or that the user can't assign to
+            validated_data["assignments"] = (
+                self.fields["assignments"]
+                .child.get_queryset()
+                .filter(id__in=instance.assignments)
             )
         if "learner_ids" not in validated_data:
             # Silently ignores learners deleted since draft was created
@@ -618,32 +612,8 @@ class ExamViewset(ValuesViewset):
 
     def consolidate(self, items, queryset):
         if items:
-            exam_ids = [e["id"] for e in items]
-            all_assignments_qs = ExamAssignment.objects.filter(exam_id__in=exam_ids)
-            all_assignments = annotate_array_aggregate(
-                all_assignments_qs,
-                learner_ids="collection__membership__user_id",
-                filter=Q(collection__kind=ADHOCLEARNERSGROUP)
-                & FacilityUser.get_is_active_q("collection__membership"),
-            )
-            exam_regular = {}
-            exam_adhoc = {}
-            for a in all_assignments.values(
-                "collection", "exam", "collection__kind", "learner_ids"
-            ):
-                if a["collection__kind"] == ADHOCLEARNERSGROUP:
-                    exam_adhoc[a["exam"]] = a
-                else:
-                    exam_regular.setdefault(a["exam"], []).append(a["collection"])
-
+            consolidate_assignments(items, ExamAssignment, "exam")
             for item in items:
-                exam_id = item["id"]
-                item["assignments"] = exam_regular.get(exam_id, [])
-                item["learner_ids"] = (
-                    (exam_adhoc[exam_id]["learner_ids"] or [])
-                    if exam_id in exam_adhoc
-                    else []
-                )
                 item["draft"] = False
                 # Map NULL instant_report_visibility to True (NULL means unrestricted)
                 if item["instant_report_visibility"] is None:

@@ -8,6 +8,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from kolibri.core.content import models
+from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.cache import get_cache_key
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
@@ -114,6 +115,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 @method_decorator(etag(get_cache_key), name="retrieve")
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = ContentNodeGranularSerializer
+    permission_classes = (CanManageContent,)
 
     def get_queryset(self):
         return (

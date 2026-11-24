@@ -14,6 +14,10 @@ jest.mock('kolibri-plugin-data', () => ({
 }));
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/useContentTasks');
+jest.mock('kolibri-common/apiResources/LocalNotificationResource', () => ({
+  __esModule: true,
+  default: { list: jest.fn().mockResolvedValue([]) },
+}));
 
 const { continueAction$, channelsLabel$ } = coreStrings;
 const { documentTitle$ } = pageTitleStrings;

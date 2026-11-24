@@ -45,10 +45,23 @@
         @cancel="cancelSave"
       >
         <p>
-          {{ presentCount$({ count: form.presentCount.value }) }}
+          <span data-testid="present-count">{{
+            coreString('labelColonThenDetails', {
+              label: presentColumnHeader$(),
+              details: $formatNumber(form.presentCount.value),
+            })
+          }}</span>
           <span> · </span>
-          <span :style="{ color: 'var(--tokens-error)' }">
-            {{ absentCount$({ count: form.absentCount.value }) }}
+          <span
+            data-testid="absent-count"
+            :style="{ color: 'var(--tokens-error)' }"
+          >
+            {{
+              coreString('labelColonThenDetails', {
+                label: absentColumnHeader$(),
+                details: $formatNumber(form.absentCount.value),
+              })
+            }}
           </span>
         </p>
       </KModal>
@@ -92,8 +105,8 @@
         saveConfirmationTitle$,
         updateSuccessMessage$,
         submitErrorMessage$,
-        presentCount$,
-        absentCount$,
+        presentColumnHeader$,
+        absentColumnHeader$,
       } = attendanceStrings;
 
       const loading = ref(true);
@@ -216,8 +229,8 @@
         hasCurrentLearners,
         hasAnyLearners,
         saveConfirmationTitle$,
-        presentCount$,
-        absentCount$,
+        presentColumnHeader$,
+        absentColumnHeader$,
       };
     },
     beforeRouteLeave(to, from, next) {

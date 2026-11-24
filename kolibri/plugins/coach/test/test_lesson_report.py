@@ -1,3 +1,4 @@
+from django.urls import NoReverseMatch
 from django.urls import reverse
 
 from kolibri.core.auth.models import Classroom
@@ -108,40 +109,63 @@ class LessonReportTestCase(APITestCase):
         self.lessonreport_basename = "kolibri:kolibri.plugins.coach:lessonreport"
         # Need ContentSummaryLog
 
-    def test_anon_user_cannot_access_list(self):
-        get_response = self.client.get(reverse(self.lessonreport_basename + "-list"))
-
-        self.assertEqual(get_response.status_code, 403)
-
-    def test_learner_cannot_access_list(self):
-        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
-        get_response = self.client.get(reverse(self.lessonreport_basename + "-list"))
-
-        self.assertEqual(get_response.status_code, 403)
-
-    def test_classroom_coach_cannot_access_list(self):
-        self.client.login(
-            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+    def _create_other_facility_lesson(self):
+        other_facility = Facility.objects.create(name="Other Facility")
+        other_classroom = Classroom.objects.create(
+            name="Other Classroom", parent=other_facility
         )
-        get_response = self.client.get(reverse(self.lessonreport_basename + "-list"))
-
-        self.assertEqual(get_response.status_code, 403)
-
-    def test_facility_coach_can_access_list(self):
-        self.client.login(
-            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        other_coach = helpers.create_coach(
+            username="other_coach",
+            password=DUMMY_PASSWORD,
+            facility=other_facility,
+            classroom=other_classroom,
         )
-        get_response = self.client.get(reverse(self.lessonreport_basename + "-list"))
+        return Lesson.objects.create(
+            title="Other Facility Lesson",
+            created_by=other_coach,
+            collection=other_classroom,
+            resources=[],
+        )
 
-        self.assertEqual(get_response.status_code, 200)
+    def test_lesson_report_list_route_does_not_exist(self):
+        with self.assertRaises(NoReverseMatch):
+            reverse(self.lessonreport_basename + "-list")
 
-    def test_facility_admin_can_access_list(self):
+    def test_unknown_lesson_detail_returns_404(self):
         self.client.login(
             username=self.facility_admin.username, password=DUMMY_PASSWORD
         )
-        get_response = self.client.get(reverse(self.lessonreport_basename + "-list"))
+        get_response = self.client.get(
+            reverse(
+                self.lessonreport_basename + "-detail",
+                kwargs={"pk": "ffffffffffffffffffffffffffffffff"},
+            )
+        )
 
-        self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(get_response.status_code, 404)
+
+    def test_malformed_lesson_detail_id_returns_404(self):
+        self.client.login(
+            username=self.facility_admin.username, password=DUMMY_PASSWORD
+        )
+        get_response = self.client.get(
+            reverse(self.lessonreport_basename + "-detail", kwargs={"pk": "notauuid"})
+        )
+
+        self.assertEqual(get_response.status_code, 404)
+
+    def test_facility_admin_cannot_access_other_facility_detail(self):
+        other_lesson = self._create_other_facility_lesson()
+        self.client.login(
+            username=self.facility_admin.username, password=DUMMY_PASSWORD
+        )
+        get_response = self.client.get(
+            reverse(
+                self.lessonreport_basename + "-detail", kwargs={"pk": other_lesson.id}
+            )
+        )
+
+        self.assertEqual(get_response.status_code, 403)
 
     def test_anon_user_cannot_access_detail(self):
         get_response = self.client.get(

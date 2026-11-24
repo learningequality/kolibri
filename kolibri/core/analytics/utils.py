@@ -45,6 +45,7 @@ from kolibri.utils.time_utils import local_now
 
 from .constants import nutrition_endpoints
 from .models import PingbackNotification
+from .models import PingbackStatus
 
 logger = logging.getLogger(__name__)
 
@@ -465,6 +466,8 @@ def perform_statistics(server, pingback_id):
 def ping_once(started, server=DEFAULT_SERVER_URL):
     data = perform_ping(started, server=server)
     logger.info("Ping succeeded! (response: %s)", data)
+    with db_lock():
+        PingbackStatus.record_success()
     create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
     if "id" in data:
         stat_data = perform_statistics(server, data["id"])

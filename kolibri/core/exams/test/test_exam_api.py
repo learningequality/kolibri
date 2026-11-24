@@ -277,6 +277,61 @@ class BaseExamTest:
         self.assertEqual(patch_response.status_code, 200)
         self.assertAssignmentCollections(exam_id, group, self.facility)
 
+    def assertNotAssigned(self, exam_id, collection):
+        if self.draft:
+            assigned = models.DraftExam.objects.get(id=exam_id).assignments
+        else:
+            assigned = models.ExamAssignment.objects.filter(
+                exam_id=exam_id
+            ).values_list("collection_id", flat=True)
+        self.assertNotIn(collection.id, assigned)
+
+    def test_classroom_coach_exam_create_with_own_group_assignment(self):
+        self.login_as(self.create_classroom_coach())
+        group = LearnerGroup.objects.create(name="group", parent=self.classroom)
+        exam = self.make_basic_exam()
+        exam["assignments"] = [group.id]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 201)
+        self.assertAssignmentCollections(response.data["id"], group)
+
+    def test_classroom_coach_exam_create_with_other_classroom_assignment(self):
+        self.login_as(self.create_classroom_coach())
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        exam = self.make_basic_exam()
+        exam["assignments"] = [other_classroom.id]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertExamNotExist(title=exam["title"])
+
+    def test_classroom_coach_exam_create_with_other_classroom_group_assignment(self):
+        self.login_as(self.create_classroom_coach())
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        group = LearnerGroup.objects.create(name="group", parent=other_classroom)
+        exam = self.make_basic_exam()
+        exam["assignments"] = [group.id]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertExamNotExist(title=exam["title"])
+
+    def test_classroom_coach_exam_update_with_other_classroom_assignment(self):
+        self.login_as(self.create_classroom_coach())
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        response = self.patch_updated_exam(
+            self.exam.id, {"assignments": [other_classroom.id]}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertNotAssigned(self.exam.id, other_classroom)
+
+    def test_logged_in_admin_exam_create_with_adhoc_group_assignment(self):
+        self.login_as_admin()
+        adhoc_group = AdHocGroup.objects.create(name="adhoc", parent=self.classroom)
+        exam = self.make_basic_exam()
+        exam["assignments"] = [adhoc_group.id]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertExamNotExist(title=exam["title"])
+
     def test_logged_in_user_exam_no_create(self):
         self.login_as_learner()
         response = self.post_new_exam(self.make_basic_exam())
@@ -957,6 +1012,26 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         self.assertFalse(response.data["draft"])
         self.assertExamNotExist(id=self.exam.id)
         self.assertTrue(models.Exam.objects.filter(id=response.data["id"]).exists())
+
+    def test_classroom_coach_publish_draft_drops_stored_other_classroom_assignment(
+        self,
+    ):
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        self.exam.assignments = [self.classroom.id, other_classroom.id]
+        self.exam.save()
+        self.login_as(self.create_classroom_coach())
+        response = self.patch_updated_exam(self.exam.id, {"draft": False})
+        self.assertEqual(response.status_code, 200)
+        super().assertAssignmentCollections(response.data["id"], self.classroom)
+
+    def test_publish_draft_drops_stored_adhoc_group_assignment(self):
+        adhoc_group = AdHocGroup.objects.create(name="adhoc", parent=self.classroom)
+        self.exam.assignments = [self.classroom.id, adhoc_group.id]
+        self.exam.save()
+        self.login_as_admin()
+        response = self.patch_updated_exam(self.exam.id, {"draft": False})
+        self.assertEqual(response.status_code, 200)
+        super().assertAssignmentCollections(response.data["id"], self.classroom)
 
     def test_logged_in_admin_exam_update_can_publish(self):
         self.login_as_admin()

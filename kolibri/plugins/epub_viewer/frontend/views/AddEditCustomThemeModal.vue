@@ -5,6 +5,7 @@
        its overlay fade in from transparent while the first is removed at full
        opacity, which reads as a white flash between the two. -->
   <KModal
+    :dir="languageDirection"
     :title="modalTitle"
     :submitText="modalSubmitText"
     :cancelText="coreString('cancelAction')"
@@ -106,6 +107,7 @@
 
   import { computed, ref, onMounted, nextTick } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { languageDirection } from 'kolibri/utils/i18n';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import useCustomThemes from '../composables/useCustomThemes';
   import { DEFAULT_LINK_COLOR, MAX_THEME_NAME_LENGTH, deriveHoverColor } from './EpubConstants';
@@ -276,6 +278,7 @@
       }
 
       return {
+        languageDirection,
         coreString,
         windowIsSmall,
         maxThemeNameLength: MAX_THEME_NAME_LENGTH,
@@ -374,12 +377,16 @@
   .color-select-container-mobile .theme-option-container {
     display: flex;
     flex-direction: row-reverse;
+    justify-content: space-between;
     width: 100%;
-    margin-left: 10px;
+    padding-inline-end: 20px;
+    margin-inline-start: 10px;
   }
 
+  // KButton renders dir="auto", so an empty swatch resolves to LTR and any
+  // margin on it ignores the modal's direction.
   .color-select-container-mobile .theme-option-container .theme-color-button {
-    margin-right: 10px;
+    margin: 0;
   }
 
 </style>

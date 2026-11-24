@@ -25,6 +25,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
+from kolibri.core.utils.csv import sanitize
 from kolibri.core.utils.csv import validate_open_csv_params
 
 from .models import ContentSessionLog
@@ -190,7 +191,7 @@ def add_ancestors_info(row, ancestors, max_depth):
     ancestors = ancestors[1:]
     row.update(
         {
-            f"Folder level {level + 1}": ancestors[level]["title"]
+            f"Folder level {level + 1}": sanitize(ancestors[level]["title"])
             if level < len(ancestors)
             else ""
             for level in range(max_depth)

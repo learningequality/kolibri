@@ -11,7 +11,7 @@ from rest_framework import permissions
 from rest_framework import serializers
 from rest_framework.response import Response
 
-from kolibri.core.api import ValuesViewset
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.content.models import ContentNode
@@ -123,7 +123,7 @@ class ClassroomNotificationsQuerySerializer(serializers.Serializer):
 
 
 @query_params_required(classroom_id=str)
-class ClassroomNotificationsViewset(ValuesViewset):
+class ClassroomNotificationsViewset(ReadOnlyValuesViewset):
     permission_classes = (ClassroomNotificationsPermissions,)
 
     filter_backends = (DjangoFilterBackend,)

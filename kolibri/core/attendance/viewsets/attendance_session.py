@@ -62,6 +62,12 @@ class AttendanceSessionSerializer(ModelSerializer):
         )
         read_only_fields = ("created_by", "date_created", "date_modified")
 
+    def get_fields(self):
+        fields = super().get_fields()
+        if self.instance is not None:
+            fields["collection"].read_only = True
+        return fields
+
     def validate(self, attrs):
         if not self.instance and "request" in self.context:
             attrs["created_by"] = self.context["request"].user

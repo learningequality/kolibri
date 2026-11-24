@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-28 00:06\n"
+"PO-Revision-Date: 2026-11-19 20:56\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur\n"
@@ -24,12 +24,12 @@ msgstr "کولیبری کے بارے میں معلومات"
 #: src/kolibri_app/about_dialog.py:40
 #, python-format
 msgid "App version: %(version)s"
-msgstr "ایپ کا ورژن"
+msgstr "ایپ ورژن: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:42
 #, python-format
 msgid "Kolibri version: %(version)s"
-msgstr "کولیبری کا ورژن"
+msgstr "کولیبری کا ورژن: %(version)s"
 
 #: src/kolibri_app/about_dialog.py:45 src/kolibri_app/view.py:278
 msgid "Documentation"

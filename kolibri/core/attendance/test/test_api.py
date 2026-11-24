@@ -341,6 +341,48 @@ class AttendanceSessionAPITestCase(APITestCase):
         session.refresh_from_db()
         self.assertGreater(session.date_modified, original_modified)
 
+    def test_update_does_not_change_session_collection(self):
+        other_classroom = Classroom.objects.create(
+            name="Other Classroom", parent=self.facility
+        )
+        session = self._create_session()
+        self._login(self.coach)
+
+        response = self.client.patch(
+            _session_detail_url(session.id),
+            {"collection": other_classroom.id},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        session.refresh_from_db()
+        self.assertEqual(session.collection_id, self.classroom.id)
+
+    def test_update_checks_records_against_session_collection(self):
+        other_facility = Facility.objects.create(name="Other Update Facility")
+        other_classroom = Classroom.objects.create(
+            name="Other Update Classroom", parent=other_facility
+        )
+        other_learner = FacilityUser.objects.create(
+            username="update_other", facility=other_facility
+        )
+        session = self._create_session()
+        self._login(self.coach)
+
+        response = self.client.patch(
+            _session_detail_url(session.id),
+            {
+                "collection": other_classroom.id,
+                "attendance_records": [{"user": other_learner.id, "present": True}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(AttendanceRecord.objects.filter(user=other_learner).exists())
+        session.refresh_from_db()
+        self.assertEqual(session.collection_id, self.classroom.id)
+
     def test_learner_cannot_update_session(self):
         session = self._create_session()
         self._login(self.learner)

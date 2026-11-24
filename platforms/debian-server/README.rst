@@ -146,3 +146,5 @@ Testing
 -------
 
 The ``pr_build_kolibri.yml`` PR build builds the ``.deb`` and runs ``tests/serving_smoke_test.sh`` against it, asserting Kolibri is served behind Nginx/UWSGI after installation.
+
+The PR build also builds the source package with ``make dist``.

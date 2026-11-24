@@ -927,6 +927,34 @@ class ImportChannelTestCase(TestCase):
         self.assertIn("multiple channels", str(context.exception).lower())
 
     @patch(
+        "kolibri.core.content.management.commands.importchannel.set_channel_metadata_fields",
+        return_value=None,
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.transfer_channel",
+        return_value=None,
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.NetworkClient.discover_from_address"
+    )
+    def test_network_import_token_resolving_to_non_uuid_raises_command_error(
+        self,
+        mock_discover,
+        mock_transfer_channel,
+        mock_set_fields,
+        start_progress_mock,
+        import_channel_mock,
+    ):
+        mock_discover.return_value.get.return_value.json.return_value = [
+            {"id": "../../../outside/channel", "public": True, "version": 1}
+        ]
+        with self.assertRaises(CommandError):
+            call_command("importchannel", "network", "test-token")
+
+        mock_transfer_channel.assert_not_called()
+        mock_set_fields.assert_not_called()
+
+    @patch(
         "kolibri.core.content.management.commands.importchannel.set_channel_metadata_fields"
     )
     @patch("kolibri.core.content.management.commands.importchannel.transfer_channel")
@@ -4327,6 +4355,28 @@ class LookupChannelListingStatusTest(TestCase):
             lookup_channel_listing_status(token="multi-token")
 
         self.assertIn("multiple channels", str(context.exception).lower())
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.NetworkClient.discover_from_address"
+    )
+    def test_token_resolving_to_non_uuid_raises_location_error(self, mock_build):
+        mock_build.return_value = self._mock_client(
+            [{"id": "../../../outside/channel", "public": True, "version": 1}]
+        )
+        with self.assertRaises(LocationError):
+            lookup_channel_listing_status(token="test-token-abc")
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.NetworkClient.discover_from_address"
+    )
+    def test_channel_id_lookup_resolving_to_non_uuid_raises_location_error(
+        self, mock_build
+    ):
+        mock_build.return_value = self._mock_client(
+            [{"id": "not-a-channel-id", "public": True, "version": 1}]
+        )
+        with self.assertRaises(LocationError):
+            lookup_channel_listing_status(channel_id=self.the_channel_id)
 
 
 class ChannelMetadataLibraryFieldTest(TestCase):

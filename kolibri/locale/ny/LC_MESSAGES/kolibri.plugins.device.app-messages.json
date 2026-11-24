@@ -238,7 +238,7 @@
   "GettingStartedFormAlt.skipAction": "Dumphani",
   "ImpactStoryBanner.dismiss": "Zikaneni",
   "ImpactStoryBanner.message": "Tikutolera nkhani za aphunzitsi ndi ophunzira omwe akugwiritsa ntchito Kolibri. Tithandizireni kulimbikitsa ena pogawana momwe Kolibri yakuthandizirani inu komanso dera lanu.",
-  "ImpactStoryBanner.qrAlt": "Kodi ya QR ya WhatsApp",
+  "ImpactStoryBanner.qrAlt": "Kodi ya QR ya Watsapu",
   "ImpactStoryBanner.storyFormLine": "Fomu ya pa intaneti: {url}",
   "ImpactStoryBanner.title": "Kodi Kolibri yabweretsa phindu lanji kwa aphunzitsi kapena ophunzira anu?",
   "ImpactStoryBanner.whatsappIntroText": "Moni! Ndikufuna kugawana nanu nkhani ya Kolibri.\nTili ndi {learnerCount, number, integer} {learnerCount, plural, one {learner} other {learners}} mu {facilityName} malo.",

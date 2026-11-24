@@ -59,7 +59,7 @@ def validate_module(ctx, param, value):
         with _patch_python_path(ctx.params.get("pythonpath")):
             if not module_exists(value):
                 raise click.BadParameter(
-                    "{param} must be a valid python module import path"
+                    f"{param.name} must be a valid python module import path"
                 )
     return value
 
@@ -209,6 +209,19 @@ class KolibriDjangoCommand(click.Command):
         return super().invoke(ctx)
 
 
+class KolibriStatusCommand(KolibriDjangoCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params.remove(skip_update_option)
+
+    def invoke(self, ctx):
+        if not get_version():
+            check_debian_user(ctx.params.get(noinput_option.name))
+            _exit_with_status(server.STATUS_STOPPED)
+        ctx.params[skip_update_option.name] = True
+        return super().invoke(ctx)
+
+
 main_help = """Kolibri command-line utility
 
 Details for each main command: kolibri COMMAND --help
@@ -294,7 +307,21 @@ def stop():
     sys.exit(status)
 
 
-@main.command(cls=KolibriCommand, help="Show the status of the Kolibri process")
+def _exit_with_status(status_code, urls=()):
+    if status_code == server.STATUS_RUNNING:
+        sys.stderr.write(f"{server.status_messages[0]:s} (0)\n")
+        if urls:
+            sys.stderr.write("Kolibri running on:\n\n")
+            for addr in urls:
+                sys.stderr.write(f"\t{addr}\n")
+    else:
+        verbose_status = server.status_messages[status_code]
+        sys.stderr.write(f"{verbose_status:s} ({status_code:d})\n")
+
+    sys.exit(status_code)
+
+
+@main.command(cls=KolibriStatusCommand, help="Show the status of the Kolibri process")
 def status():
     """
     How is Kolibri doing?
@@ -310,18 +337,7 @@ def status():
 
     Exits with status_code, key has description in server.status_messages
     """
-    status_code, urls = server.get_urls()
-
-    if status_code == server.STATUS_RUNNING:
-        sys.stderr.write(f"{server.status_messages[0]:s} (0)\n")
-        if urls:
-            sys.stderr.write("Kolibri running on:\n\n")
-            for addr in urls:
-                sys.stderr.write(f"\t{addr}\n")
-    else:
-        verbose_status = server.status_messages[status_code]
-        sys.stderr.write(f"{verbose_status:s} ({status_code:d})\n")
-    sys.exit(status_code)
+    _exit_with_status(*server.get_urls())
 
 
 @main.command(cls=KolibriDjangoCommand, help="Start worker processes")

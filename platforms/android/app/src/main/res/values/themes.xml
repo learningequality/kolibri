@@ -11,14 +11,12 @@
     </style>
 
     <!--
-        WebView theme with splash screen (splash ImageView lives in the layout).
-        Render in the system window, avoiding the display cutout in both orientations.
-        Note: the edge-to-edge opt-out is ignored once targetSdk is bumped to 36.
+        Android 15+ treats cutout mode never as always for non-floating windows
+        targeting API 35+, while API 28-34 still honors never.
     -->
-    <style name="AppTheme.Fullscreen" parent="AppTheme" tools:targetApi="35">
+    <style name="AppTheme.Fullscreen" parent="AppTheme" tools:targetApi="28">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@android:color/white</item>
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">never</item>
     </style>
 </resources>

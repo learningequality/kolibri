@@ -35,6 +35,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.play.agesignals.AgeSignalsAccessRequest;
+import com.google.android.play.agesignals.AgeSignalsAccessResult;
+import com.google.android.play.agesignals.AgeSignalsManager;
+import com.google.android.play.agesignals.AgeSignalsManagerFactory;
+import com.google.android.play.agesignals.AgeSignalsRequest;
+import com.google.android.play.agesignals.AgeSignalsResult;
+import com.google.android.play.agesignals.ApplicableAgeFeaturesRequest;
+import com.google.android.play.agesignals.model.AgeSignalsStatus;
+import com.google.android.play.agesignals.model.ApplicableAgeFeature;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
@@ -58,6 +69,7 @@ public class WebViewActivity extends AppCompatActivity {
   private static final String LOCALHOST = "localhost";
 
   private WebView webView;
+  private OnBackPressedCallback backNavigationCallback;
   private KolibriJavascriptBridge bridge;
   private FrameLayout fullscreenContainer;
   private View splashContainer;
@@ -86,6 +98,7 @@ public class WebViewActivity extends AppCompatActivity {
     setupWebView();
     setupBackNavigation();
     loadKolibri();
+    requestAgeSignals();
   }
 
   @Override
@@ -127,18 +140,20 @@ public class WebViewActivity extends AppCompatActivity {
   }
 
   /**
-   * Apply system-bar + display-cutout insets as padding on the root container. Android 15+ (API
-   * 35+) enforces edge-to-edge layout when targetSdk>=35, so without this the WebView and splash
-   * draw under the status/nav bars and the yellow splash color bleeds into those zones.
+   * Android 15+ enforces edge-to-edge for targetSdk>=35. With edge-to-edge, adjustResize
+   * delivers IME insets instead of resizing the window.
    */
   private void applyEdgeToEdgeInsets() {
     View root = findViewById(R.id.root_container);
     ViewCompat.setOnApplyWindowInsetsListener(
         root,
         (v, windowInsets) -> {
-          Insets insets =
-              windowInsets.getInsets(
-                  WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+          int insetTypes =
+              WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout();
+          if (Build.VERSION.SDK_INT >= 35) {
+            insetTypes |= WindowInsetsCompat.Type.ime();
+          }
+          Insets insets = windowInsets.getInsets(insetTypes);
           v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
           return WindowInsetsCompat.CONSUMED;
         });
@@ -174,6 +189,33 @@ public class WebViewActivity extends AppCompatActivity {
     }
   }
 
+  private void requestAgeSignals() {
+    try {
+      AgeSignalsManager manager = AgeSignalsManagerFactory.create(getApplicationContext());
+      manager
+          .getApplicableAgeFeatures(ApplicableAgeFeaturesRequest.builder().build())
+          .onSuccessTask(
+              applicable ->
+                  !isDestroyed()
+                          && applicable.features().contains(ApplicableAgeFeature.MANDATORY_SHARING)
+                      ? manager.requestAgeSignalsAccess(
+                          AgeSignalsAccessRequest.builder().setActivity(this).build())
+                      : Tasks.<AgeSignalsAccessResult>forCanceled())
+          .onSuccessTask(
+              access ->
+                  Objects.equals(access.ageSignalsStatus(), AgeSignalsStatus.SHARED)
+                      ? manager.checkAgeSignals(AgeSignalsRequest.builder().build())
+                      : Tasks.<AgeSignalsResult>forCanceled())
+          .addOnFailureListener(WebViewActivity::logAgeSignalsFailure);
+    } catch (RuntimeException e) {
+      logAgeSignalsFailure(e);
+    }
+  }
+
+  private static void logAgeSignalsFailure(Exception e) {
+    Log.d(TAG, "Age signals request failed", e);
+  }
+
   /** Start the animated splash screen and set version text. */
   private void setupSplash() {
     splashContainer = findViewById(R.id.splash_container);
@@ -193,21 +235,14 @@ public class WebViewActivity extends AppCompatActivity {
    * exiting activity.
    */
   private void setupBackNavigation() {
-    getOnBackPressedDispatcher()
-        .addCallback(
-            this,
-            new OnBackPressedCallback(true) {
-              @Override
-              public void handleOnBackPressed() {
-                if (webView != null && webView.canGoBack()) {
-                  webView.goBack();
-                } else {
-                  // Disable this callback and trigger default back behavior
-                  setEnabled(false);
-                  getOnBackPressedDispatcher().onBackPressed();
-                }
-              }
-            });
+    backNavigationCallback =
+        new OnBackPressedCallback(false) {
+          @Override
+          public void handleOnBackPressed() {
+            webView.goBack();
+          }
+        };
+    getOnBackPressedDispatcher().addCallback(this, backNavigationCallback);
   }
 
   private void setupWebView() {
@@ -332,6 +367,7 @@ public class WebViewActivity extends AppCompatActivity {
               view.evaluateJavascript(
                   "if (location.href !== " + quoted + ") location.replace(" + quoted + ");", null);
             }
+            backNavigationCallback.setEnabled(view.canGoBack());
           }
 
           @Override
@@ -347,6 +383,7 @@ public class WebViewActivity extends AppCompatActivity {
             // Kolibri's router is in hash mode: route changes are same-document and never reach
             // onPageFinished.
             WebViewLocation.save(WebViewActivity.this, url);
+            backNavigationCallback.setEnabled(view.canGoBack());
           }
         });
 

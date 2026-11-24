@@ -298,6 +298,40 @@ class ClassroomNotificationsTestCase(APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["course_session_id"], session_id.hex)
 
+    def _create_notification_as_classroom_coach(self):
+        notification = LearnerProgressNotification.objects.create(
+            user_id=self.learner.id,
+            classroom_id=self.classroom.id,
+            notification_object="Resource",
+            notification_event="Started",
+        )
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+        detail_url = reverse(self.basename + "-detail", kwargs={"pk": notification.id})
+        return notification, f"{detail_url}?classroom_id={self.classroom.id}"
+
+    def test_classroom_coach_cannot_delete_notification(self):
+        notification, url = self._create_notification_as_classroom_coach()
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(
+            LearnerProgressNotification.objects.filter(id=notification.id).exists()
+        )
+
+    def test_classroom_coach_cannot_move_notification_to_another_classroom(self):
+        notification, url = self._create_notification_as_classroom_coach()
+
+        response = self.client.patch(
+            url, {"classroom_id": self.another_classroom.id}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 405)
+        notification.refresh_from_db()
+        self.assertEqual(notification.classroom_id, self.classroom.id)
+
 
 def _make_node(title, kind, parent=None, modality=None):
     return ContentNode.objects.create(

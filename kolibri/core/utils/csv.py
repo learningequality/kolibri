@@ -4,7 +4,7 @@ import re
 from contextlib import contextmanager
 from numbers import Number
 
-from django.core.files.storage import default_storage
+from kolibri.core.storage import private_storage
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +34,9 @@ def open_csv_for_writing(storage_filepath=None, local_filepath=None):
             )
             yield encoded_fh
             encoded_fh.flush()
-            if default_storage.exists(storage_filepath):
-                default_storage.delete(storage_filepath)
-            default_storage.save(storage_filepath, f)
+            if private_storage.exists(storage_filepath):
+                private_storage.delete(storage_filepath)
+            private_storage.save(storage_filepath, f)
         logger.info("CSV file %s saved", storage_filepath)
     else:
         with open(local_filepath, "w", newline="", encoding="utf-8-sig") as local_fh:
@@ -49,7 +49,7 @@ def open_csv_for_reading(storage_filepath=None, local_filepath=None):
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if storage_filepath:
-        with default_storage.open(storage_filepath, "rb") as f:
+        with private_storage.open(storage_filepath, "rb") as f:
             encoded_fh = io.TextIOWrapper(
                 f,
                 newline="",
@@ -65,7 +65,7 @@ def open_csv_for_reading(storage_filepath=None, local_filepath=None):
 
 
 negative_number_regex = re.compile("^-?[0-9,\\.]+$")
-csv_injection_chars = {"@", "+", "-", "=", "|", "%"}
+csv_injection_chars = {"@", "+", "-", "=", "|", "%", "\t", "\r"}
 
 
 def sanitize(value):
