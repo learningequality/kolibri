@@ -11,7 +11,8 @@ Homepage: https://learningequality.org/kolibri
 Package: kolibri-server
 Architecture: all
 Recommends: anacron
-Depends: kolibri (>= 0.16.0~alpha1), nginx-full, uwsgi (>= 2.0.12), uwsgi-plugin-python3, redis-server (>=4.0), python3 (>= 3.6)
+Depends: kolibri (>= 0.20.0~alpha2~), nginx-full, uwsgi (>= 2.0.12), uwsgi-plugin-python3, redis-server (>=4.0), python3 (>= 3.6)
+Breaks: kolibri (= 0.20.0a0-0ubuntu1), kolibri (= 0.20.0a1-0ubuntu1)
 Enhances: kolibri
 Description: Improve Kolibri server network configuration
  This package automates uwsgi and nginx configuration for
