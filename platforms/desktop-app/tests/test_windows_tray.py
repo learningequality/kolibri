@@ -1,3 +1,4 @@
+import time
 import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -115,6 +116,24 @@ class TestSecondInstance(unittest.TestCase):
         ):
             self.assertFalse(_app().OnInit())
         tray.assert_not_called()
+
+    def test_asks_an_instance_that_is_still_starting_to_show_the_ui(self):
+        checker = MagicMock()
+        checker.IsAnotherRunning.return_value = True
+        instance_window = 42
+        with (
+            patch.object(wx, "SingleInstanceChecker", return_value=checker),
+            patch.object(application, "WINDOWS", True),
+            patch.object(
+                application.win32gui, "FindWindow", side_effect=[0, instance_window]
+            ),
+            patch.object(application.win32gui, "PostMessage") as post,
+            patch.object(time, "sleep"),
+        ):
+            _app().OnInit()
+        post.assert_called_once_with(
+            instance_window, application.WM_SHOW_KOLIBRI_UI, 0, 0
+        )
 
 
 class TestOpenFromTray(unittest.TestCase):

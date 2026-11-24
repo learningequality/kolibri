@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-09 12:24-0400\n"
-"PO-Revision-Date: 2026-10-28 00:05\n"
+"PO-Revision-Date: 2026-11-19 20:56\n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Indonesian\n"
 "Language: id\n"
@@ -90,7 +90,7 @@ msgstr "Muat Ulang"
 
 #: src/kolibri_app/view.py:257
 msgid "Actual Size\tCtrl+0"
-msgstr "Ukuran Aktual\tCtrl+0"
+msgstr "Ukuran Sebenarnya Ctrl+0"
 
 #: src/kolibri_app/view.py:263
 msgid "Zoom In\tCtrl++"
@@ -165,11 +165,11 @@ msgstr "Buka Aplikasi Kolibri setelah masuk"
 
 #: src/kolibri_app/windows/taskbar_icon.py:361
 msgid "Run Kolibri service on Windows startup"
-msgstr "Jalankan layanan Kolibri di startup Windows"
+msgstr "Jalankan layanan Kolibri saat startup Windows"
 
 #: src/kolibri_app/windows/taskbar_icon.py:369
 msgid "Run Kolibri service on Windows startup (Unavailable)"
-msgstr "Jalankan layanan Kolibri di startup Windows (Tidak tersedia)"
+msgstr "Jalankan layanan Kolibri saat startup Windows (Tidak tersedia)"
 
 #: src/kolibri_app/windows/taskbar_icon.py:378
 msgid "Exit"
@@ -177,7 +177,7 @@ msgstr "Keluar"
 
 #: src/kolibri_app/windows/taskbar_icon.py:387
 msgid "Kolibri service is not ready yet"
-msgstr "Layanan Kolibri belum tersedia"
+msgstr "Layanan Kolibri belum siap"
 
 #: src/kolibri_app/windows/taskbar_icon.py:388
 msgid "Info"

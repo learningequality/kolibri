@@ -5,6 +5,7 @@ import win32service
 import win32serviceutil
 import winerror
 
+from kolibri.utils.server import stop as stop_kolibri_server
 from kolibri_app.constants import RUN_AS_SERVER
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
@@ -61,37 +62,63 @@ def _configure_service_start_type(service_name, start_type):
 
 
 def run_service_command(new_state):
-    """Executes sc commands to configure and optionally start the service."""
-    service_name = SERVICE_NAME
+    """Set the service start type, then stop or start the service to match."""
     logging.info(
-        f"Attempting to set service '{service_name}' start type to '{new_state}'."
+        f"Attempting to set service '{SERVICE_NAME}' start type to '{new_state}'."
     )
 
     try:
-        _configure_service_start_type(service_name, new_state)
-        update_tray_icon_startup(new_state)
-
-        logging.info("Service configuration successful.")
-        return 0
-
+        _set_start_type(new_state)
     except pywintypes.error as e:
         logging.error(f"Failed to configure the service. Win32 Error: {e}")
         return e.winerror
+
+    try:
+        if new_state == "disabled":
+            _stop_service()
+        else:
+            _replace_local_server_with_service()
+    except pywintypes.error as e:
+        logging.error(
+            f"Failed to apply the service start type, reverting it. Win32 Error: {e}"
+        )
+        _set_start_type("auto" if new_state == "disabled" else "disabled")
+        return e.winerror
+
+    logging.info("Service configuration successful.")
+    return 0
+
+
+def _set_start_type(new_state):
+    _configure_service_start_type(SERVICE_NAME, new_state)
+    update_tray_icon_startup(new_state)
+
+
+def _stop_service():
+    try:
+        win32serviceutil.StopService(SERVICE_NAME)
+    except pywintypes.error as e:
+        if e.winerror != winerror.ERROR_SERVICE_NOT_ACTIVE:
+            raise
+    # StopService returns while the service is still stopping, and
+    # RestartService gives up after 30s without reporting failure.
+    win32serviceutil.WaitForServiceStatus(
+        SERVICE_NAME, win32service.SERVICE_STOPPED, SERVICE_STOP_TIMEOUT_SECONDS
+    )
+
+
+def _replace_local_server_with_service():
+    status = win32serviceutil.QueryServiceStatus(SERVICE_NAME)[1]
+    if status in (win32service.SERVICE_RUNNING, win32service.SERVICE_START_PENDING):
+        return
+    stop_kolibri_server()
+    win32serviceutil.StartService(SERVICE_NAME)
 
 
 def restart_service():
     logging.info(f"Restarting service '{SERVICE_NAME}'.")
     try:
-        try:
-            win32serviceutil.StopService(SERVICE_NAME)
-        except pywintypes.error as e:
-            if e.winerror != winerror.ERROR_SERVICE_NOT_ACTIVE:
-                raise
-        # StopService returns while the service is still stopping, and
-        # RestartService gives up after 30s without reporting failure.
-        win32serviceutil.WaitForServiceStatus(
-            SERVICE_NAME, win32service.SERVICE_STOPPED, SERVICE_STOP_TIMEOUT_SECONDS
-        )
+        _stop_service()
         win32serviceutil.StartService(SERVICE_NAME)
         return 0
     except pywintypes.error as e:

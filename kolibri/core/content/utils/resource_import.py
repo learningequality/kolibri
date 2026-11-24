@@ -39,6 +39,7 @@ from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
 from kolibri.utils.http_session import SameHostSession
 from kolibri.utils.system import get_free_space
+from kolibri.utils.uuids import is_valid_uuid
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,11 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
                 "Use a channel ID instead."
             )
         channel_info = channels[0]
+
+    if not is_valid_uuid(channel_info.get("id")):
+        raise LocationError(
+            f"Remote {baseurl} returned an invalid channel ID for {identifier}"
+        )
 
     return {
         "id": channel_info.get("id"),

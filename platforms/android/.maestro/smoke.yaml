@@ -24,11 +24,19 @@ appId: org.learningequality.Kolibri
 - tapOn: "CONTINUE"
 # Verify we reach the main app. Kolibri shows a "Welcome to Kolibri!" modal on
 # first entry to the library — we key on its presence because the library page
-# heading varies with viewport ("Your library" on wide screens, "No resources
-# available" on the 320x640 CI emulator) and the rest of the page is marked
+# heading varies ("Your library" or "No resources available", both seen on the
+# 320x640 CI emulator) and the rest of the page is marked
 # aria-hidden by the modal.
 - extendedWaitUntil:
     visible: "Welcome to Kolibri!"
     timeout: 30000
 # Dismiss the modal so we leave the app in a clean state for follow-up flows.
 - tapOn: "CONTINUE"
+- tapOn: "Bookmarks"
+- extendedWaitUntil:
+    visible: "Bookmarked resources"
+    timeout: 30000
+- back
+- extendedWaitUntil:
+    visible: "Your library|No resources available"
+    timeout: 30000

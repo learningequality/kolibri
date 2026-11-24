@@ -1,8 +1,10 @@
 from datetime import timedelta
+from types import SimpleNamespace
 
 from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
+from rest_framework.test import APIRequestFactory
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -19,13 +21,146 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.plugins.coach.viewsets.difficult_questions import (
+    ExerciseDifficultiesPermissions,
+)
+from kolibri.plugins.coach.viewsets.difficult_questions import (
+    QuizDifficultiesPermissions,
+)
 
 from . import helpers
 
 DUMMY_PASSWORD = "password"
 
 
-class ExerciseDifficultQuestionTestCase(APITestCase):
+def create_other_classroom_group(facility):
+    other_classroom = Classroom.objects.create(name="Other Classroom", parent=facility)
+    return LearnerGroup.objects.create(name="Other Group", parent=other_classroom)
+
+
+def login_as_classroom_coach(client, facility, classroom):
+    coach = helpers.create_coach(
+        username="classroom_coach",
+        password=DUMMY_PASSWORD,
+        facility=facility,
+        classroom=classroom,
+    )
+    client.login(username=coach.username, password=DUMMY_PASSWORD)
+
+
+class ClassroomCoachCollectionAccessMixin:
+    def _get(self, **params):
+        return self.client.get(
+            reverse(
+                self.exercise_difficulties_basename + "-detail",
+                kwargs={"pk": self.content_ids[0]},
+            ),
+            data=params,
+        )
+
+    def _get_as_classroom_coach(self, **params):
+        login_as_classroom_coach(self.client, self.facility, self.classroom)
+        return self._get(**params)
+
+    def _get_as_facility_coach(self, **params):
+        self.client.login(
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
+        )
+        return self._get(**params)
+
+    def test_facility_coach_cannot_pair_classroom_with_other_classroom_group(self):
+        other_group = create_other_classroom_group(self.facility)
+        response = self._get_as_facility_coach(
+            group_id=other_group.id,
+            classroom_id=self.classroom.id,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_facility_coach_cannot_pair_classroom_with_other_classroom_lesson(self):
+        other_group = create_other_classroom_group(self.facility)
+        response = self._get_as_facility_coach(
+            lesson_id=self.lesson.id,
+            classroom_id=other_group.parent_id,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_malformed_ids_are_refused(self):
+        for params in (
+            {"classroom_id": "abc"},
+            {"classroom_id": self.classroom.id, "group_id": "abc"},
+            {"classroom_id": self.classroom.id, "lesson_id": "abc"},
+        ):
+            with self.subTest(**params):
+                response = self._get_as_facility_coach(**params)
+                self.assertEqual(response.status_code, 403)
+
+    def test_permission_check_takes_two_queries(self):
+        coach = helpers.create_coach(
+            username="classroom_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=self.classroom,
+        )
+        request = APIRequestFactory().get(
+            "/",
+            {
+                "classroom_id": self.classroom.id,
+                "group_id": self.group.id,
+                "lesson_id": self.lesson.id,
+            },
+        )
+        request.user = coach
+        self.assertFalse(coach.is_superuser)
+
+        with self.assertNumQueries(2):
+            allowed = ExerciseDifficultiesPermissions().has_permission(request, None)
+
+        self.assertTrue(allowed)
+
+    def test_classroom_coach_can_access_own_group_by_lesson_id(self):
+        response = self._get_as_classroom_coach(
+            lesson_id=self.lesson.id,
+            group_id=self.group.id,
+            classroom_id=self.classroom.id,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_classroom_coach_cannot_access_other_classroom_group_by_lesson_id(self):
+        other_group = create_other_classroom_group(self.facility)
+        response = self._get_as_classroom_coach(
+            lesson_id=self.lesson.id,
+            group_id=other_group.id,
+            classroom_id=self.classroom.id,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_classroom_coach_cannot_access_other_classroom_by_lesson_id(self):
+        other_group = create_other_classroom_group(self.facility)
+        response = self._get_as_classroom_coach(
+            lesson_id=self.lesson.id,
+            classroom_id=other_group.parent_id,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_classroom_id_excludes_other_classroom_learners(self):
+        other_group = create_other_classroom_group(self.facility)
+        other_learner = helpers.create_learner(
+            username="other_classroom_learner",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=other_group.parent,
+            learner_group=other_group,
+        )
+        self._set_one_difficult(other_learner)
+        response = self._get_as_classroom_coach(classroom_id=self.classroom.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
+
+class ExerciseDifficultQuestionTestCase(
+    ClassroomCoachCollectionAccessMixin, APITestCase
+):
     databases = "__all__"
 
     def setUp(self):
@@ -555,6 +690,64 @@ class QuizDifficultQuestionTestCase(APITestCase):
         response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 0)
 
+    def _get_as_classroom_coach(self, group_id):
+        login_as_classroom_coach(self.client, self.facility, self.classroom)
+        return self.client.get(
+            reverse(
+                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
+            ),
+            data={"group_id": group_id},
+        )
+
+    def test_classroom_coach_can_access_own_group(self):
+        response = self._get_as_classroom_coach(self.group.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_malformed_ids_are_refused(self):
+        self._login_as_coach()
+        for pk, params in (("abc", {}), (self.quiz.id, {"group_id": "abc"})):
+            with self.subTest(pk=pk, **params):
+                response = self.client.get(
+                    reverse(
+                        self.quiz_difficulties_basename + "-detail", kwargs={"pk": pk}
+                    ),
+                    data=params,
+                )
+                self.assertEqual(response.status_code, 403)
+
+    def test_facility_coach_cannot_pair_quiz_with_other_classroom_group(self):
+        other_group = create_other_classroom_group(self.facility)
+        self._login_as_coach()
+        response = self.client.get(
+            reverse(
+                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
+            ),
+            data={"group_id": other_group.id},
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_permission_check_takes_two_queries(self):
+        coach = helpers.create_coach(
+            username="classroom_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=self.classroom,
+        )
+        request = APIRequestFactory().get("/", {"group_id": self.group.id})
+        request.user = coach
+        self.assertFalse(coach.is_superuser)
+        view = SimpleNamespace(kwargs={"pk": self.quiz.id})
+
+        with self.assertNumQueries(2):
+            allowed = QuizDifficultiesPermissions().has_permission(request, view)
+
+        self.assertTrue(allowed)
+
+    def test_classroom_coach_cannot_access_other_classroom_group(self):
+        other_group = create_other_classroom_group(self.facility)
+        response = self._get_as_classroom_coach(other_group.id)
+        self.assertEqual(response.status_code, 403)
+
     def test_coach_no_progress_by_group_id(self):
         self._login_as_coach()
         response = self._get_quiz_difficulties(for_group=True)
@@ -784,7 +977,9 @@ class QuizDifficultQuestionTestCase(APITestCase):
         self.assertEqual(response.data[0]["correct"], 0)
 
 
-class PracticeQuizDifficultQuestionTestCase(APITestCase):
+class PracticeQuizDifficultQuestionTestCase(
+    ClassroomCoachCollectionAccessMixin, APITestCase
+):
     databases = "__all__"
 
     def setUp(self):

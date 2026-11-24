@@ -4,6 +4,9 @@ from datetime import timedelta
 from django.db import connection
 
 from kolibri.core.analytics.local_notifications import (
+    create_donation_notification_if_needed,
+)
+from kolibri.core.analytics.local_notifications import (
     create_impact_stories_notification_if_needed,
 )
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
@@ -96,3 +99,4 @@ COOLDOWN_DAYS = 90
 def _generate_local_notifications():
     if create_impact_stories_notification_if_needed():
         get_current_job().retry_in(timedelta(days=COOLDOWN_DAYS))
+    create_donation_notification_if_needed()

@@ -29,6 +29,8 @@ import zeroconf
 from cheroot.wsgi import Server as BaseServer
 from django.conf import settings
 from django.core.management import call_command
+from django.db import connections
+from django.db import router
 from magicbus import ProcessBus
 from magicbus.plugins import SimplePlugin
 from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
@@ -345,6 +347,9 @@ def get_local_hostnames():
     # The CLI imports this module before Django setup.
     from kolibri.core.discovery.models import LocalHostname  # noqa: PLC0415
 
+    connection = connections[router.db_for_read(LocalHostname)]
+    if LocalHostname._meta.db_table not in connection.introspection.table_names():
+        return []
     return list(LocalHostname.objects.values_list("hostname", flat=True))
 
 

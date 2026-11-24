@@ -161,8 +161,8 @@ tasks.configureEach { task ->
 
 android {
 	namespace = 'org.learningequality.Kolibri'
-	compileSdk = 35
-	buildToolsVersion = "35.0.0"
+	compileSdk = 36
+	buildToolsVersion = "36.0.0"
 
 	// Use calculated version from configuration phase
 	def code = calculatedVersionCode
@@ -174,7 +174,7 @@ android {
 	defaultConfig {
 		applicationId = "org.learningequality.Kolibri"
 		minSdk = 24  // Chaquopy requires API 24+
-		targetSdk = 35
+		targetSdk = 36
 		versionCode = code
 		versionName = name
 		multiDexEnabled = true
@@ -275,8 +275,10 @@ dependencies {
 	implementation 'androidx.work:work-multiprocess:2.11.0'
 	implementation 'androidx.lifecycle:lifecycle-service:2.10.0'
 	implementation 'androidx.multidex:multidex:2.0.1'
+	implementation 'com.google.android.play:age-signals:0.0.6'
 
 	testImplementation 'junit:junit:4.13.2'
 	testImplementation 'org.robolectric:robolectric:4.16.1'
 	testImplementation 'org.mockito:mockito-core:4.11.0'
+	testImplementation 'androidx.work:work-testing:2.11.0'
 }

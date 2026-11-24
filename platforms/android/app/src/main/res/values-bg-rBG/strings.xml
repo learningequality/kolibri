@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">Колибри</string>
     <string name="notification_channel_ticker">Задачата започна…</string>
+    <string name="notification_service_channel_title">Важни задачи в изпълнение</string>
     <string name="notification_service_channel_content">В изпълнение</string>
     <string name="notification_service_channel_action">Виж диспечера на задачите</string>
     <string name="notification_default_channel_title">Задачи</string>
+    <string name="notification_task_title">Задача на Колибри в изпълнение</string>
+    <string name="notification_task_text">Задачата се обработва във фонов режим…</string>
     <string name="notification_download_complete_title">Свалянето е завършено</string>
+    <string name="notification_download_failed_title">Неуспешно изтегляне</string>
+    <string name="toast_download_started">Изтегляне на %1$s…</string>
+    <string name="toast_download_complete">Запазено в „Изтегляния“: %1$s</string>
+    <string name="toast_download_failed">Неуспешно изтегляне на %1$s</string>
     <string name="os_user_name">Ученик</string>
 </resources>

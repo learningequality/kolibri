@@ -445,9 +445,8 @@ class MigrateFileSizeToBigintTestCase(TransactionTestCase):
         super().setUp()
 
     def tearDown(self):
-        # Restore file_size if the upgrade task dropped it.
-        self._add_file_size_col_if_absent()
         call_command("flush", interactive=False)
+        self._drop_file_size_col_if_present()
         super().tearDown()
 
     def test_copies_file_size_to_bigint_and_drops_column(self):

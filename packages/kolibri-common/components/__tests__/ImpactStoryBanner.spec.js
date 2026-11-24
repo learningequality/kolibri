@@ -1,8 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import { ref } from 'vue';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import LocalNotificationResource from 'kolibri-common/apiResources/LocalNotificationResource';
 import ImpactStoryBanner, {
   WHATSAPP_PATH,
   WHATSAPP_NUMBER_DISPLAY,
@@ -25,35 +23,21 @@ jest.mock('qrcode', () => ({
   toDataURL: jest.fn().mockResolvedValue('data:image/png;base64,FAKE_QR'),
 }));
 
-jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('kolibri-common/apiResources/LocalNotificationResource', () => ({
-  __esModule: true,
-  default: { list: jest.fn(), delete: jest.fn() },
-}));
 
 describe('ImpactStoryBanner', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useUser.mockImplementation(() => useUserMock({ isSuperuser: true }));
     useKResponsiveWindow.mockImplementation(() => ({ windowIsSmall: ref(false) }));
   });
 
-  it('renders nothing while no notification has been fetched', async () => {
-    LocalNotificationResource.list.mockResolvedValue([]);
-    render(ImpactStoryBanner);
-    await waitFor(() => expect(LocalNotificationResource.list).toHaveBeenCalled());
-    expect(screen.queryByText(title$())).not.toBeInTheDocument();
-  });
+  it('renders title, dismiss control, QR, WhatsApp number, and story-form link', async () => {
+    render(ImpactStoryBanner, { props: { notification: FAKE_ROW } });
 
-  it('renders title, dismiss control, QR, WhatsApp number, and story-form link when a notification arrives', async () => {
-    LocalNotificationResource.list.mockResolvedValue([FAKE_ROW]);
-    render(ImpactStoryBanner);
-
-    await waitFor(() => expect(screen.getByText(title$())).toBeInTheDocument());
+    expect(screen.getByRole('heading', { name: title$() })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: dismiss$() })).toBeInTheDocument();
 
-    const qr = await waitFor(() => screen.getByAltText(qrAlt$()));
+    const qr = await screen.findByAltText(qrAlt$());
     expect(qr).toHaveAttribute('src', 'data:image/png;base64,FAKE_QR');
 
     const whatsappLink = screen.getByRole('link', {
@@ -74,20 +58,19 @@ describe('ImpactStoryBanner', () => {
     expect(formLink).toHaveAttribute('href', STORY_FORM_HREF);
   });
 
-  it('dismisses by deleting the row and hides itself', async () => {
-    LocalNotificationResource.list.mockResolvedValue([FAKE_ROW]);
-    LocalNotificationResource.delete.mockResolvedValue();
-    render(ImpactStoryBanner);
-    await waitFor(() => expect(screen.getByText(title$())).toBeInTheDocument());
-    await fireEvent.click(screen.getByRole('button', { name: dismiss$() }));
-    await waitFor(() => expect(LocalNotificationResource.delete).toHaveBeenCalledWith(FAKE_ROW.id));
-    await waitFor(() => expect(screen.queryByText(title$())).not.toBeInTheDocument());
+  it('shows the QR code once a small window widens', async () => {
+    const windowIsSmall = ref(true);
+    useKResponsiveWindow.mockImplementation(() => ({ windowIsSmall }));
+    render(ImpactStoryBanner, { props: { notification: FAKE_ROW } });
+    await global.flushPromises();
+    expect(screen.queryByAltText(qrAlt$())).not.toBeInTheDocument();
+    windowIsSmall.value = false;
+    expect(await screen.findByAltText(qrAlt$())).toBeInTheDocument();
   });
 
-  it('does not fetch when the user is not a superuser', async () => {
-    useUser.mockImplementation(() => useUserMock({ isSuperuser: false }));
-    render(ImpactStoryBanner);
-    await Promise.resolve();
-    expect(LocalNotificationResource.list).not.toHaveBeenCalled();
+  it('emits dismiss when the dismiss control is clicked', async () => {
+    const { emitted } = render(ImpactStoryBanner, { props: { notification: FAKE_ROW } });
+    await fireEvent.click(screen.getByRole('button', { name: dismiss$() }));
+    expect(emitted().dismiss).toHaveLength(1);
   });
 });

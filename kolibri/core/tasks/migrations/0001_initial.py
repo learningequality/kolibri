@@ -1,10 +1,32 @@
-# Initial migration for the jobs table. This model/index creation should be
-# skipped if the table was previously created by SQLAlchemy.
 from django.db import migrations
 from django.db import models
 
 from kolibri.core.tasks.operations import AddIndexIfNotExists
 from kolibri.core.tasks.operations import CreateModelIfNotExists
+
+
+def drop_015_job_tables(apps, schema_editor):
+    connection = schema_editor.connection
+    introspection = connection.introspection
+    tables_to_drop = []
+    with connection.cursor() as cursor:
+        tables = introspection.table_names(cursor)
+        if "jobs" in tables and "func" not in {
+            column.name
+            for column in introspection.get_table_description(cursor, "jobs")
+        }:
+            tables_to_drop.append("jobs")
+        if "scheduledjobs" in tables and (
+            tables_to_drop
+            or introspection.get_constraints(cursor, "scheduledjobs")
+            .get("queue__scheduled_time", {})
+            .get("index")
+        ):
+            tables_to_drop.append("scheduledjobs")
+    for table in tables_to_drop:
+        schema_editor.execute(
+            schema_editor.sql_delete_table % {"table": schema_editor.quote_name(table)}
+        )
 
 
 class Migration(migrations.Migration):
@@ -13,6 +35,11 @@ class Migration(migrations.Migration):
     dependencies = []
 
     operations = [
+        migrations.RunPython(
+            drop_015_job_tables,
+            reverse_code=migrations.RunPython.noop,
+            hints={"model_name": "job"},
+        ),
         CreateModelIfNotExists(
             name="Job",
             fields=[

@@ -1,8 +1,9 @@
 from django.db.models import Count
-from django.http import Http404
+from rest_framework import mixins
 from rest_framework import permissions
 from rest_framework import serializers
 from rest_framework import viewsets
+from rest_framework.generics import get_object_or_404
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
@@ -56,20 +57,8 @@ class LessonReportSerializer(serializers.ModelSerializer):
 
 
 class LessonReportPermissions(permissions.BasePermission):
-    """
-    List - check if requester has coach/admin permissions on whole facility.
-    Detail - check if requester has permissions on the Classroom.
-    """
-
     def has_permission(self, request, view):
-        report_pk = view.kwargs.get("pk")
-        if report_pk is None:
-            collection_id = request.user.facility_id
-        else:
-            try:
-                collection_id = Lesson.objects.get(pk=report_pk).collection.id
-            except (Lesson.DoesNotExist, ValueError) as e:
-                raise Http404 from e
+        collection_id = get_object_or_404(Lesson, pk=view.kwargs["pk"]).collection_id
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
 
@@ -81,7 +70,7 @@ class LessonReportPermissions(permissions.BasePermission):
             return False
 
 
-class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
+class LessonReportViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.IsAuthenticated, LessonReportPermissions)
     serializer_class = LessonReportSerializer
     queryset = Lesson.objects.all()

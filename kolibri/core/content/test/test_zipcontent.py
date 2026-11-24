@@ -1,9 +1,16 @@
+import contextlib
 import hashlib
 import os
+import shutil
 import tempfile
+import uuid
 import zipfile
+from unittest import mock
+from urllib.parse import quote
 from wsgiref.util import setup_testing_defaults
 
+from django.conf import settings
+from django.core.cache import cache
 from django.test import override_settings
 from django.test import TestCase
 from django.utils.http import http_date
@@ -11,6 +18,7 @@ from django.utils.http import http_date
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.zip_wsgi import generate_zip_content_response
 from kolibri.core.content.zip_wsgi import INITIALIZE_SANDBOX_FROM_IFRAME
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.utils.tests.helpers import override_option
 
 sandbox_injection = (
@@ -395,3 +403,71 @@ class ZipContentTestCase(TestCase):
 @override_option("Deployment", "ZIP_CONTENT_URL_PATH_PREFIX", "prefix_test/")
 class UrlPrefixZipContentTestCase(ZipContentTestCase):
     pass
+
+
+@override_settings(
+    CACHES={
+        **settings.CACHES,
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    }
+)
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class PeerZipContentCacheTestCase(TestCase):
+    databases = "__all__"
+    peer_base_url = "http://peer.example:8080/"
+
+    def setUp(self):
+        cache.clear()
+        NetworkLocation.objects.create(base_url=self.peer_base_url)
+        self.filename = f"{uuid.uuid4().hex}.zip"
+        self.zip_path = get_content_storage_file_path(self.filename)
+        os.makedirs(os.path.dirname(self.zip_path), exist_ok=True)
+        self.addCleanup(self._remove_local_zip)
+
+        peer_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, peer_dir)
+        self.peer_zip_path = os.path.join(peer_dir, self.filename)
+        with zipfile.ZipFile(self.peer_zip_path, "w") as zf:
+            zf.writestr("index.html", "<html><body>peer</body></html>")
+
+    def _remove_local_zip(self):
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(self.zip_path)
+
+    def _write_local_zip(self, body="local"):
+        with zipfile.ZipFile(self.zip_path, "w") as zf:
+            zf.writestr("index.html", f"<html><body>{body}</body></html>")
+
+    def _get(self, path):
+        environ = {}
+        setup_testing_defaults(environ)
+        environ["PATH_INFO"] = path
+        return generate_zip_content_response(environ)
+
+    def _get_from_peer(self):
+        with mock.patch(
+            "kolibri.core.content.zip_wsgi.RemoteFile",
+            side_effect=lambda filepath, remote_url: self.peer_zip_path,
+        ):
+            return self._get(
+                f"/{quote(self.peer_base_url, safe='')}/{self.filename}/index.html"
+            )
+
+    def test_peer_response_not_served_for_local_request(self):
+        peer_response = self._get_from_peer()
+        self.assertIn("peer", peer_response.content.decode())
+
+        self._write_local_zip()
+        local_response = self._get(f"/{self.filename}/index.html")
+
+        self.assertIn("local", local_response.content.decode())
+        self.assertNotIn("peer", local_response.content.decode())
+
+    def test_local_response_served_from_cache(self):
+        self._write_local_zip()
+        self._get(f"/{self.filename}/index.html")
+        self._write_local_zip(body="rewritten")
+
+        response = self._get(f"/{self.filename}/index.html")
+
+        self.assertIn("local", response.content.decode())

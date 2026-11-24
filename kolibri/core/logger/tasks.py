@@ -1,4 +1,3 @@
-from django.core.files.storage import default_storage
 from django.core.management import call_command
 from rest_framework import serializers
 
@@ -8,6 +7,7 @@ from kolibri.core.auth.utils.bulk_export import (
 )
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.logger.models import GenerateCSVLogRequest
+from kolibri.core.storage import private_storage
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.validation import JobValidator
@@ -165,9 +165,9 @@ def log_exports_cleanup():
     related record in GenerateCSVLogRequest model
     """
     valid_filenames_set = get_valid_filenames()
-    _, files_in_storage = default_storage.listdir("log_export/")
+    _, files_in_storage = private_storage.listdir("log_export/")
     # Prefix the filenames with the directory name because that's what we'll
     # get from get_valid_filenames
     for filename in [f"log_export/{filename}" for filename in files_in_storage]:
         if filename not in valid_filenames_set:
-            default_storage.delete(filename)
+            private_storage.delete(filename)

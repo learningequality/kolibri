@@ -25,7 +25,7 @@
   "AttendanceStrings.editPageHeading": "ਹਾਜ਼ਰੀ ਵਿੱਚ ਸੋਧ ਕਰੋ: {date} ({time})",
   "AttendanceStrings.endDateLabel": "ਸਮਾਪਤੀ ਮਿਤੀ",
   "AttendanceStrings.learnersLabel": "ਸਿਖਿਆਰਥੀ:",
-  "AttendanceStrings.markAllModalTitle": "{count, plural, one {Mark # learner as present?} other {Mark all # learners as present?}}",
+  "AttendanceStrings.markAllModalTitle": "{count, plural, one {ਕੀ ਤੁਸੀਂ # ਸਿੱਖਿਆਰਥੀ ਨੂੰ ਹਾਜ਼ਰ ਵਜੋਂ ਚਿੰਨ੍ਹਿਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?} other {ਕੀ ਤੁਸੀਂ ਸਾਰੇ # ਸਿੱਖਿਆਰਥੀਆਂ ਨੂੰ ਹਾਜ਼ਰ ਵਜੋਂ ਚਿੰਨ੍ਹਿਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?}}",
   "AttendanceStrings.markAllPresentLabel": "ਸਾਰੇ ਸਿਖਿਆਰਥੀਆਂ ਨੂੰ ਹਾਜ਼ਰ ਦਰਜ ਕਰੋ",
   "AttendanceStrings.markAttendanceAction": "ਹਾਜ਼ਰੀ ਦਰਜ ਕਰੋ",
   "AttendanceStrings.nextMonthLabel": "ਅਗਲੇ ਮਹੀਨੇ",

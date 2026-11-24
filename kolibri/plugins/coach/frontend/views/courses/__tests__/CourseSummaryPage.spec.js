@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 import { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import { nextTick, ref } from 'vue';
@@ -596,6 +596,35 @@ describe('CourseSummaryPage', () => {
       await panel.click();
 
       expect(router.currentRoute.name).toBe('COURSE_SUMMARY_OBJECTIVES');
+    });
+  });
+
+  describe('CourseSummaryPage — making the course visible', () => {
+    const { visibleToLearnersLabel$ } = coursesStrings;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('does not start or prompt for a pending pre-test', async () => {
+      const toggleCourseActive = jest.fn().mockResolvedValue({ active: true });
+      const activateTest = jest.fn();
+      useCourseSession.mockImplementation(() =>
+        useCourseSessionMock({
+          courseSession: ref({ ...MOCK_COURSE_SESSION, active: false }),
+          unitPhase: ref(UnitPhase.PRE_TEST_PENDING),
+          toggleCourseActive,
+          activateTest,
+        }),
+      );
+      renderPage('COURSE_SUMMARY_UNITS');
+
+      await fireEvent.click(screen.getByRole('checkbox', { name: visibleToLearnersLabel$() }));
+      await waitFor(() => expect(toggleCourseActive).toHaveBeenCalled());
+      await global.flushPromises();
+
+      expect(activateTest).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 

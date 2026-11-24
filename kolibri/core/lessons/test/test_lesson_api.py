@@ -1,3 +1,5 @@
+import uuid
+
 from django.urls import reverse
 from rest_framework import status
 
@@ -97,6 +99,81 @@ class LessonAPITestCase(APITestCase):
             models.LessonAssignment.objects.get(collection=self.classroom).lesson,
             models.Lesson.objects.get(title="title next"),
         )
+
+    def login_as_classroom_coach(self):
+        coach = FacilityUser.objects.create(username="coach", facility=self.facility)
+        coach.set_password(DUMMY_PASSWORD)
+        coach.save()
+        self.classroom.add_coach(coach)
+        self.client.login(username=coach.username, password=DUMMY_PASSWORD)
+
+    def post_lesson_assigned_to(self, collection):
+        return self.client.post(
+            reverse("kolibri:core:lesson-list"),
+            {
+                "title": "title next",
+                "collection": self.classroom.id,
+                "assignments": [collection.id],
+            },
+            format="json",
+        )
+
+    def test_classroom_coach_lesson_create_with_own_group_assignment(self):
+        self.login_as_classroom_coach()
+        group = LearnerGroup.objects.create(name="group", parent=self.classroom)
+        response = self.post_lesson_assigned_to(group)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(
+            models.LessonAssignment.objects.filter(
+                lesson_id=response.data["id"], collection=group
+            ).exists()
+        )
+
+    def test_classroom_coach_lesson_create_with_other_classroom_assignment(self):
+        self.login_as_classroom_coach()
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        response = self.post_lesson_assigned_to(other_classroom)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Lesson.objects.filter(title="title next").exists())
+
+    def test_classroom_coach_lesson_create_with_other_classroom_group_assignment(self):
+        self.login_as_classroom_coach()
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        group = LearnerGroup.objects.create(name="group", parent=other_classroom)
+        response = self.post_lesson_assigned_to(group)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Lesson.objects.filter(title="title next").exists())
+
+    def test_classroom_coach_lesson_update_with_other_classroom_assignment(self):
+        self.login_as_classroom_coach()
+        other_classroom = Classroom.objects.create(name="Other", parent=self.facility)
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {"assignments": [other_classroom.id]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            models.LessonAssignment.objects.filter(collection=other_classroom).exists()
+        )
+
+    def test_logged_in_admin_lesson_create_with_group_assignment(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        group = LearnerGroup.objects.create(name="group", parent=self.classroom)
+        response = self.post_lesson_assigned_to(group)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(
+            models.LessonAssignment.objects.filter(
+                lesson_id=response.data["id"], collection=group
+            ).exists()
+        )
+
+    def test_logged_in_admin_lesson_create_with_adhoc_group_assignment(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        adhoc_group = AdHocGroup.objects.create(name="adhoc", parent=self.classroom)
+        response = self.post_lesson_assigned_to(adhoc_group)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Lesson.objects.filter(title="title next").exists())
 
     def test_logged_in_admin_lesson_update_no_assignments(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -316,6 +393,29 @@ class LessonAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 200)
+
+    def assert_lesson_update_rejects_resources(self, resources, error_field):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {"resources": resources},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["metadata"]["field"], error_field)
+        self.lesson.refresh_from_db()
+        self.assertEqual(self.lesson.resources, [])
+
+    def test_logged_in_admin_lesson_update_with_non_list_resources(self):
+        self.assert_lesson_update_rejects_resources(
+            {"contentnode_id": uuid.uuid4().hex}, "resources"
+        )
+
+    def test_logged_in_admin_lesson_update_with_resource_missing_contentnode_id(self):
+        self.assert_lesson_update_rejects_resources(
+            [{"content_id": uuid.uuid4().hex, "channel_id": uuid.uuid4().hex}],
+            "resources.contentnode_id",
+        )
 
     def test_logged_in_user_lesson_no_update(self):
         user = FacilityUser.objects.create(username="learner", facility=self.facility)

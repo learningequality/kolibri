@@ -5,7 +5,8 @@
     :appearanceOverrides="{
       width: '100%',
       height: '100%',
-      padding: '0 1em',
+      paddingLeft: '1em',
+      paddingRight: '1em',
     }"
     :loading="pageLoading"
   >
@@ -236,7 +237,7 @@
       usePreviousRoute();
       const route = useRoute();
       const router = useRouter();
-      const { currentUserId, isSuperuser, isAdmin, isAppContext } = useUser();
+      const { currentUserId, isSuperuser, isAdmin } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const { facilityId, facilityConfig } = useFacility();
       const isMoveToTrashModalOpen = ref(false);
@@ -299,17 +300,6 @@
         return maxHeight + 'px';
       }
 
-      const marginTop = computed(() => {
-        // TODO: This should refer to the actual appbar height
-        if (windowIsSmall.value) {
-          if (isAppContext.value) {
-            return 72;
-          }
-          return 112;
-        }
-        return 80;
-      });
-
       function getPageContainerStyles(pageContentHeight) {
         // If table is not cropped, add some bottom margin to prevent the table from
         // touching the bottom edge
@@ -319,7 +309,7 @@
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
-          margin: `${marginTop.value}px auto ${marginBottom}px`,
+          margin: `0 auto ${marginBottom}px`,
           maxHeight: getPageContainerMaxHeight(pageContentHeight),
         };
       }

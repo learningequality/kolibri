@@ -27,7 +27,8 @@ initialization to copy in new copies of static files that are used in the fronte
 app. These upgrades are only triggered for a subset of our CLI commands - start,
 services, manage, shell. Ones that ultimately start Django processes. In examining
 ``cli.py`` - those commands that are instantiated using the ``cls=KolibriDjangoCommand``
-keyword argument will trigger this update behaviour.
+keyword argument will trigger this update behaviour. Those instantiated using
+``cls=KolibriStatusCommand`` - status - set up Django without it.
 
 As well as database migrations, there are also sometimes additional fixes that
 are put into Kolibri in order to facilitate moving between versions. This may be

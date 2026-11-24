@@ -6,7 +6,6 @@ from uuid import uuid4
 
 import pytz
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -53,6 +52,7 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+from kolibri.core.storage import private_storage
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -507,8 +507,8 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
     def test_importusersfromcsv_validator_rejects_csvfilename_outside_temp(self):
-        target = default_storage.save("log_export/users.csv", ContentFile(b""))
-        self.addCleanup(default_storage.delete, target)
+        target = private_storage.save("log_export/users.csv", ContentFile(b""))
+        self.addCleanup(private_storage.delete, target)
         for csvfilename in (f"../{target}", "..", "."):
             with self.subTest(csvfilename=csvfilename):
                 validator = ImportUsersFromCSVValidator(
@@ -523,8 +523,8 @@ class FacilityTaskHelperTestCase(TestCase):
                 self.assertIn("csvfilename", validator.errors)
 
     def test_importusersfromcsv_validator_reads_csvfilename_from_temp(self):
-        filepath = default_storage.save("temp/users.csv", ContentFile(b""))
-        self.addCleanup(default_storage.delete, filepath)
+        filepath = private_storage.save("temp/users.csv", ContentFile(b""))
+        self.addCleanup(private_storage.delete, filepath)
         validator = ImportUsersFromCSVValidator(
             data={
                 "type": "kolibri.core.auth.tasks.importusersfromcsv",
@@ -1199,10 +1199,10 @@ class ImportUsersFromCSVTaskTestCase(TestCase):
         )
 
     def _save_csv(self, content):
-        filepath = default_storage.save(f"temp/{uuid4().hex}.csv", ContentFile(content))
+        filepath = private_storage.save(f"temp/{uuid4().hex}.csv", ContentFile(content))
         self.addCleanup(
             lambda: (
-                default_storage.exists(filepath) and default_storage.delete(filepath)
+                private_storage.exists(filepath) and private_storage.delete(filepath)
             )
         )
         return filepath
@@ -1211,13 +1211,13 @@ class ImportUsersFromCSVTaskTestCase(TestCase):
         self.filepath = self._save_csv("not,a,header\n")
         with self.assertRaises(BulkUserImportError):
             importusersfromcsv(self.filepath, facility=self.facility.id)
-        self.assertFalse(default_storage.exists(self.filepath))
+        self.assertFalse(private_storage.exists(self.filepath))
 
     def test_deletes_file_when_no_facility_exists(self):
         self.facility.delete()
         with self.assertRaises(BulkUserImportError):
             importusersfromcsv(self.filepath)
-        self.assertFalse(default_storage.exists(self.filepath))
+        self.assertFalse(private_storage.exists(self.filepath))
 
     def test_imports_users_and_deletes_file_on_wetrun(self):
         importusersfromcsv(self.filepath, facility=self.facility.id)
@@ -1226,12 +1226,12 @@ class ImportUsersFromCSVTaskTestCase(TestCase):
                 username="learner1", facility=self.facility
             ).exists()
         )
-        self.assertFalse(default_storage.exists(self.filepath))
+        self.assertFalse(private_storage.exists(self.filepath))
 
     def test_keeps_file_on_dryrun(self):
         importusersfromcsv(self.filepath, facility=self.facility.id, dryrun=True)
         self.assertFalse(FacilityUser.objects.filter(username="learner1").exists())
-        self.assertTrue(default_storage.exists(self.filepath))
+        self.assertTrue(private_storage.exists(self.filepath))
 
 
 class ExportUsersToCSVTaskTestCase(TestCase):
@@ -1241,11 +1241,11 @@ class ExportUsersToCSVTaskTestCase(TestCase):
         filename = USER_CSV_EXPORT_FILENAMES["user"].format(
             facility.name, facility.id[:4]
         )
-        self.addCleanup(default_storage.delete, filename)
+        self.addCleanup(private_storage.delete, filename)
 
         exportuserstocsv(facility=facility.id)
 
-        with default_storage.open(filename) as f:
+        with private_storage.open(filename) as f:
             self.assertIn(b"learner1", f.read())
 
 

@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kolibri</string>
-    <string name="notification_channel_ticker">Attività avviata...</string>
+    <string name="notification_channel_ticker">Attività avviata…</string>
+    <string name="notification_service_channel_title">Attività importanti in corso</string>
     <string name="notification_service_channel_content">In corso</string>
-    <string name="notification_service_channel_action">Visualizza elenco delle attività</string>
+    <string name="notification_service_channel_action">Apri Gestione attività</string>
     <string name="notification_default_channel_title">Attività</string>
-    <string name="notification_download_complete_title">Download completo</string>
+    <string name="notification_task_title">Attività di Kolibri in corso</string>
+    <string name="notification_task_text">Elaborazione dell\'attività in background…</string>
+    <string name="notification_download_complete_title">Download completato</string>
+    <string name="notification_download_failed_title">Download non riuscito</string>
+    <string name="toast_download_started">Download di %1$s in corso…</string>
+    <string name="toast_download_complete">Salvato in Download: %1$s</string>
+    <string name="toast_download_failed">Impossibile scaricare %1$s</string>
     <string name="os_user_name">Studente</string>
 </resources>

@@ -6,9 +6,14 @@
     :loading="loading"
   >
     <template #default="{ pageContentHeight, appBarHeight }">
-      <ImpactStoryBanner />
+      <div
+        ref="bannerContainer"
+        class="banner-container"
+      >
+        <LocalNotificationBanner />
+      </div>
       <slot
-        :pageContentHeight="pageContentHeight"
+        :pageContentHeight="slotContentHeight(pageContentHeight)"
         :appBarHeight="appBarHeight"
       ></slot>
     </template>
@@ -19,20 +24,36 @@
 
 <script>
 
+  import { ref } from 'vue';
+  import { useElementSize } from '@vueuse/core';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useFacility from 'kolibri-common/composables/useFacility';
-  import ImpactStoryBanner from 'kolibri-common/components/ImpactStoryBanner';
+  import LocalNotificationBanner from 'kolibri-common/components/LocalNotificationBanner';
 
   export default {
     name: 'FacilityAppBarPage',
-    components: { AppBarPage, ImpactStoryBanner },
+    components: { AppBarPage, LocalNotificationBanner },
     mixins: [commonCoreStrings],
     setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const { currentFacilityName } = useFacility();
-      return { userIsMultiFacilityAdmin, currentFacilityName };
+      const bannerContainer = ref(null);
+      const { height: bannerHeight } = useElementSize(bannerContainer, undefined, {
+        box: 'border-box',
+      });
+      function slotContentHeight(pageContentHeight) {
+        return windowIsSmall.value ? pageContentHeight : pageContentHeight - bannerHeight.value;
+      }
+      return {
+        userIsMultiFacilityAdmin,
+        currentFacilityName,
+        bannerContainer,
+        slotContentHeight,
+      };
     },
     props: {
       appBarTitle: {
@@ -73,3 +94,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .banner-container {
+    display: flow-root;
+  }
+
+</style>

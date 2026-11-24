@@ -1,6 +1,9 @@
+import os
+from contextlib import ExitStack
 from datetime import timedelta
 from unittest import mock
 
+from django.test import override_settings
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.urls import reverse
@@ -16,11 +19,17 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.worker import execute_job
+from kolibri.utils import conf
+from kolibri.utils.constants import installation_types
 from kolibri.utils.time_utils import local_now
 
+from ..local_notifications import create_donation_notification_if_needed
 from ..local_notifications import create_impact_stories_notification_if_needed
+from ..local_notifications import DONATION_KEY
 from ..local_notifications import IMPACT_STORIES_KEY
+from ..models import DonationNotificationStatus
 from ..models import LocalNotification
+from ..models import PingbackStatus
 from ..tasks import _generate_local_notifications
 from ..tasks import COOLDOWN_DAYS
 from ..tasks import LOCAL_NOTIFICATION_JOB_ID
@@ -112,6 +121,50 @@ class LocalNotificationAPITestCase(APITestCase):
         )
         self.assertTrue(LocalNotification.objects.filter(pk=notif.pk).exists())
 
+    def _list_by_key(self):
+        self._login_superuser()
+        response = self.client.get(reverse("kolibri:core:localnotification-list"))
+        return {row["key"]: row for row in response.data}
+
+    def _delete(self, notif):
+        self._login_superuser()
+        return self.client.delete(
+            reverse("kolibri:core:localnotification-detail", kwargs={"pk": notif.pk})
+        )
+
+    def test_list_carries_donation_variant(self):
+        DonationNotificationStatus.objects.create(variant="b")
+        LocalNotification.objects.create(key=DONATION_KEY)
+        LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
+        rows = self._list_by_key()
+        self.assertEqual(rows[DONATION_KEY]["variant"], "b")
+        self.assertIsNone(rows[IMPACT_STORIES_KEY]["variant"])
+
+    def test_list_does_not_write_donation_status(self):
+        LocalNotification.objects.create(key=DONATION_KEY)
+        self._list_by_key()
+        self.assertFalse(DonationNotificationStatus.objects.exists())
+
+    def test_list_omits_donation_when_option_off(self):
+        LocalNotification.objects.create(key=DONATION_KEY)
+        LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
+        with mock.patch.dict(
+            conf.OPTIONS["Deployment"], {"DONATION_NOTIFICATIONS_ENABLED": False}
+        ):
+            self.assertEqual(list(self._list_by_key()), [IMPACT_STORIES_KEY])
+        self.assertIn(DONATION_KEY, self._list_by_key())
+
+    def test_destroy_donation_records_dismissal(self):
+        notif = LocalNotification.objects.create(key=DONATION_KEY)
+        response = self._delete(notif)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertIsNotNone(DonationNotificationStatus.last_dismissed_at())
+
+    def test_destroy_impact_stories_does_not_record_dismissal(self):
+        notif = LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
+        self._delete(notif)
+        self.assertIsNone(DonationNotificationStatus.last_dismissed_at())
+
 
 class ImpactStoriesTriggerTests(TestCase):
     databases = "__all__"
@@ -173,6 +226,147 @@ class ImpactStoriesTriggerTests(TestCase):
         )
 
 
+DONATION_THRESHOLD = 5
+
+
+def _make_donation_eligible(test_case):
+    stack = ExitStack()
+    test_case.addCleanup(stack.close)
+    for context in (
+        mock.patch.dict(
+            os.environ, {"KOLIBRI_INSTALLATION_TYPE": installation_types.DOCKER}
+        ),
+        mock.patch.dict(
+            conf.OPTIONS["Deployment"], {"DONATION_NOTIFICATIONS_ENABLED": True}
+        ),
+        override_settings(TIME_ZONE="America/New_York"),
+        mock.patch(
+            "kolibri.core.analytics.local_notifications.ACTIVITY_THRESHOLD",
+            DONATION_THRESHOLD,
+        ),
+    ):
+        stack.enter_context(context)
+    PingbackStatus.record_success()
+
+
+class DonationTriggerTests(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        _make_donation_eligible(self)
+        _create_sessions(self.user, DONATION_THRESHOLD + 1, days_ago=10)
+
+    def _assert_created(self):
+        self.assertTrue(create_donation_notification_if_needed())
+        self.assertTrue(LocalNotification.objects.filter(key=DONATION_KEY).exists())
+
+    def _assert_not_created(self):
+        self.assertFalse(create_donation_notification_if_needed())
+        self.assertFalse(LocalNotification.objects.filter(key=DONATION_KEY).exists())
+
+    def _dismissed_days_ago(self, days):
+        DonationNotificationStatus.objects.update_or_create(
+            pk=1, defaults={"last_dismissed": local_now() - timedelta(days=days)}
+        )
+
+    def test_creates_row_when_conditions_met(self):
+        self._assert_created()
+
+    def test_skips_non_docker_install(self):
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_INSTALLATION_TYPE": installation_types.WHL}
+        ):
+            self._assert_not_created()
+
+    def test_skips_when_facility_is_kdp_registered(self):
+        self.facility.dataset.registered = True
+        self.facility.dataset.save()
+        self._assert_not_created()
+
+    def test_skips_when_sessions_equal_threshold(self):
+        ContentSessionLog.objects.first().delete()
+        self._assert_not_created()
+
+    def test_skips_when_sessions_outside_rolling_window(self):
+        ContentSessionLog.objects.all().delete()
+        _create_sessions(self.user, DONATION_THRESHOLD + 1, days_ago=91)
+        self._assert_not_created()
+
+    @override_settings(TIME_ZONE="Europe/London")
+    def test_skips_non_us_timezone(self):
+        self._assert_not_created()
+
+    def test_creates_row_in_utc(self):
+        for zone in ("UTC", "Etc/UTC"):
+            with self.subTest(zone=zone), override_settings(TIME_ZONE=zone):
+                LocalNotification.objects.all().delete()
+                self._assert_created()
+
+    def test_creates_row_in_legacy_us_timezone(self):
+        with override_settings(TIME_ZONE="US/Eastern"):
+            self._assert_created()
+
+    def test_skips_when_pingback_is_stale(self):
+        PingbackStatus(last_succeeded=local_now() - timedelta(hours=25)).save()
+        self._assert_not_created()
+
+    def test_skips_when_pingback_never_succeeded(self):
+        PingbackStatus.objects.all().delete()
+        self._assert_not_created()
+
+    def test_skips_when_option_off(self):
+        with mock.patch.dict(
+            conf.OPTIONS["Deployment"], {"DONATION_NOTIFICATIONS_ENABLED": False}
+        ):
+            self._assert_not_created()
+
+    def test_skips_when_row_already_exists(self):
+        LocalNotification.objects.create(key=DONATION_KEY)
+        self.assertFalse(create_donation_notification_if_needed())
+        self.assertEqual(LocalNotification.objects.filter(key=DONATION_KEY).count(), 1)
+
+    def test_skips_within_90_days_of_dismissal(self):
+        self._dismissed_days_ago(89)
+        self._assert_not_created()
+
+    def test_creates_row_90_days_after_dismissal_with_new_sessions(self):
+        self._dismissed_days_ago(91)
+        self._assert_created()
+
+    def test_skips_90_days_after_dismissal_without_new_sessions(self):
+        ContentSessionLog.objects.all().delete()
+        _create_sessions(self.user, DONATION_THRESHOLD + 1, days_ago=95)
+        self._dismissed_days_ago(91)
+        self._assert_not_created()
+
+    def test_assigns_random_variant(self):
+        for variant in DonationNotificationStatus.VARIANTS:
+            DonationNotificationStatus.objects.all().delete()
+            LocalNotification.objects.filter(key=DONATION_KEY).delete()
+            with mock.patch(
+                "kolibri.core.analytics.models.random.choice", return_value=variant
+            ):
+                self._assert_created()
+            self.assertEqual(DonationNotificationStatus.assigned_variant(), variant)
+
+    def test_variant_survives_dismissal_and_recreation(self):
+        with mock.patch(
+            "kolibri.core.analytics.models.random.choice", return_value="a"
+        ):
+            self._assert_created()
+        LocalNotification.objects.filter(key=DONATION_KEY).delete()
+        with mock.patch(
+            "kolibri.core.analytics.models.random.choice", return_value="b"
+        ):
+            DonationNotificationStatus.record_dismissal()
+            self._dismissed_days_ago(91)
+            self._assert_created()
+        self.assertEqual(DonationNotificationStatus.assigned_variant(), "a")
+
+
 class LocalNotificationTaskTests(TransactionTestCase):
     databases = "__all__"
 
@@ -213,3 +407,27 @@ class LocalNotificationTaskTests(TransactionTestCase):
             LocalNotification.objects.filter(key=IMPACT_STORIES_KEY).exists()
         )
         self._assert_next_run_in(timedelta(days=COOLDOWN_DAYS))
+
+    def test_one_run_creates_both_notifications_when_both_eligible(self):
+        _make_donation_eligible(self)
+        _create_sessions(
+            FacilityUserFactory.create(facility=FacilityFactory.create()),
+            DONATION_THRESHOLD + 1,
+        )
+        execute_job(LOCAL_NOTIFICATION_JOB_ID)
+        self.assertTrue(
+            LocalNotification.objects.filter(key=IMPACT_STORIES_KEY).exists()
+        )
+        self.assertTrue(LocalNotification.objects.filter(key=DONATION_KEY).exists())
+        self._assert_next_run_in(timedelta(days=COOLDOWN_DAYS))
+
+    def test_next_run_is_one_day_later_when_only_donation_created(self):
+        _make_donation_eligible(self)
+        LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
+        _create_sessions(
+            FacilityUserFactory.create(facility=FacilityFactory.create()),
+            DONATION_THRESHOLD + 1,
+        )
+        execute_job(LOCAL_NOTIFICATION_JOB_ID)
+        self.assertTrue(LocalNotification.objects.filter(key=DONATION_KEY).exists())
+        self._assert_next_run_in(timedelta(days=1))
