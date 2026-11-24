@@ -5,24 +5,17 @@ import sys
 import pytest
 
 from kolibri.utils import port_election
+from kolibri.utils.tests.helpers import fake_nginx_on_port_80
 from kolibri.utils.tests.helpers import fake_port_binds
 from kolibri.utils.tests.helpers import pinned_http_port
-
-TCP_HEADER = "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n"
-
-
-def _tcp_row(port, state, inode, uid=0):
-    return f"   0: 00000000:{port:04X} 00000000:0000 {state} 00000000:00000000 00:00000000 00000000 {uid:>5}        0 {inode} 1 0000000000000000 100 0 0 10 0\n"
+from kolibri.utils.tests.helpers import TCP_HEADER
+from kolibri.utils.tests.helpers import tcp_row
 
 
-def _nginx_on_port_80(proc, cgroup="0::/system.slice/nginx.service\n"):
+def _root_listener_on_port_80(proc):
     (proc / "net").mkdir(parents=True)
-    (proc / "net" / "tcp").write_text(TCP_HEADER + _tcp_row(22, "0A", 111))
-    (proc / "net" / "tcp6").write_text(TCP_HEADER + _tcp_row(80, "0A", 222))
-    (proc / "20" / "fd").mkdir(parents=True)
-    os.symlink("socket:[222]", proc / "20" / "fd" / "3")
-    (proc / "20" / "comm").write_text("nginx\n")
-    (proc / "20" / "cgroup").write_text(cgroup)
+    (proc / "net" / "tcp").write_text(TCP_HEADER + tcp_row(80, "0A", 222, uid=0))
+    (proc / "net" / "tcp6").write_text(TCP_HEADER)
 
 
 @pytest.fixture
@@ -59,7 +52,7 @@ def test_busy_port_falls_back_and_names_occupant(
     ini_path, probes, tmp_path, caplog, error
 ):
     probes.errors[80] = error
-    _nginx_on_port_80(tmp_path / "proc")
+    fake_nginx_on_port_80(tmp_path / "proc")
 
     port_election.elect_http_port(80, ini_filename=ini_path)
 
@@ -72,7 +65,7 @@ def test_busy_port_in_session_scope_names_process_only(
     ini_path, probes, tmp_path, caplog
 ):
     probes.errors[80] = errno.EADDRINUSE
-    _nginx_on_port_80(
+    fake_nginx_on_port_80(
         tmp_path / "proc",
         cgroup="0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-terminal-1234.scope\n",
     )
@@ -87,10 +80,7 @@ def test_busy_port_with_unreadable_process_names_owning_user(
     ini_path, probes, tmp_path, caplog
 ):
     probes.errors[80] = errno.EADDRINUSE
-    proc = tmp_path / "proc"
-    (proc / "net").mkdir(parents=True)
-    (proc / "net" / "tcp").write_text(TCP_HEADER + _tcp_row(80, "0A", 222, uid=0))
-    (proc / "net" / "tcp6").write_text(TCP_HEADER)
+    _root_listener_on_port_80(tmp_path / "proc")
 
     port_election.elect_http_port(80, ini_filename=ini_path)
 
@@ -152,3 +142,61 @@ def test_nothing_bindable_keeps_pinned_http_port(ini_path, probes, caplog):
     port_election.elect_http_port(80, ini_filename=ini_path)
     assert pinned_http_port(ini_path) == "9000"
     assert "None of ports 80, 8080 could be bound; HTTP_PORT unchanged" in caplog.text
+
+
+def test_claim_pins_bindable_port(ini_path, probes):
+    assert port_election.claim_http_port(8081, ini_filename=ini_path) is None
+    assert pinned_http_port(ini_path) == "8081"
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="fake procfs needs symlinks")
+def test_claim_of_busy_port_names_occupant_without_fallback(ini_path, probes, tmp_path):
+    probes.errors[80] = errno.EADDRINUSE
+    fake_nginx_on_port_80(tmp_path / "proc")
+
+    failure = port_election.claim_http_port(80, ini_filename=ini_path)
+
+    assert failure == (port_election.IN_USE_BY_PROCESS, "nginx (nginx.service)")
+    assert pinned_http_port(ini_path) is None
+    assert [port for _, port in probes.bound] == [80]
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="no pwd module")
+def test_claim_of_port_held_by_unreadable_process_names_user(
+    ini_path, probes, tmp_path
+):
+    probes.errors[80] = errno.EADDRINUSE
+    _root_listener_on_port_80(tmp_path / "proc")
+
+    failure = port_election.claim_http_port(80, ini_filename=ini_path)
+
+    assert failure == (port_election.IN_USE_BY_USER, "root")
+
+
+def test_claim_of_busy_port_without_procfs_is_unnamed(ini_path, probes):
+    probes.errors[80] = errno.EADDRINUSE
+    failure = port_election.claim_http_port(80, ini_filename=ini_path)
+    assert failure == (port_election.IN_USE, None)
+
+
+def test_claim_of_privileged_port_reports_permission(ini_path, probes):
+    probes.errors[80] = errno.EACCES
+    failure = port_election.claim_http_port(80, ini_filename=ini_path)
+    assert failure == (port_election.PERMISSION_DENIED, None)
+    assert pinned_http_port(ini_path) is None
+
+
+def test_claim_of_unbindable_port_carries_os_message(ini_path, probes):
+    probes.errors[80] = errno.EADDRNOTAVAIL
+    failure = port_election.claim_http_port(80, ini_filename=ini_path)
+    assert failure == (port_election.UNAVAILABLE, os.strerror(errno.EADDRNOTAVAIL))
+
+
+def test_claim_of_serving_port_pins_without_binding(ini_path, probes):
+    probes.errors[8081] = errno.EADDRINUSE
+    failure = port_election.claim_http_port(
+        8081, ini_filename=ini_path, serving_port=8081
+    )
+    assert failure is None
+    assert probes.bound == []
+    assert pinned_http_port(ini_path) == "8081"

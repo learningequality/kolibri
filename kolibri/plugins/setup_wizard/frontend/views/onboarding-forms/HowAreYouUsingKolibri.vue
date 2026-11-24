@@ -23,6 +23,16 @@
         :autofocus="selected === UsePresets.GROUP"
       />
     </KRadioButtonGroup>
+    <template v-if="!isAppContext">
+      <KButton
+        class="advanced-toggle"
+        appearance="flat-button"
+        :text="advancedOptionsAction$()"
+        :aria-expanded="String(advancedShown)"
+        @click="advancedShown = !advancedShown"
+      />
+      <HttpPortControl v-if="advancedShown" />
+    </template>
   </OnboardingStepBase>
 
 </template>
@@ -31,14 +41,26 @@
 <script>
 
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { ref } from 'vue';
   import { Presets } from 'kolibri/constants';
+  import useUser from 'kolibri/composables/useUser';
+  import HttpPortControl from 'kolibri-common/components/HttpPortControl';
+  import { httpPortStrings } from 'kolibri-common/strings/httpPortStrings';
   import OnboardingStepBase from '../OnboardingStepBase';
   import { UsePresets } from '../../constants';
 
   export default {
     name: 'HowAreYouUsingKolibri',
-    components: { OnboardingStepBase },
+    components: { HttpPortControl, OnboardingStepBase },
     mixins: [commonSyncElements],
+    setup() {
+      const { isAppContext } = useUser();
+      return {
+        isAppContext,
+        advancedShown: ref(false),
+        advancedOptionsAction$: httpPortStrings.advancedOptionsAction$,
+      };
+    },
     inject: ['wizardService'],
     data() {
       const selected = this.wizardService.state.context['onMyOwnOrGroup'] || Presets.PERSONAL;
@@ -77,3 +99,13 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .advanced-toggle {
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+</style>

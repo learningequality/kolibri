@@ -11,6 +11,7 @@ from .viewsets.device_settings import DeviceNameView
 from .viewsets.device_settings import DeviceSettingsView
 from .viewsets.drive_info import DriveInfoViewSet
 from .viewsets.free_space import FreeSpaceView
+from .viewsets.http_port import HttpPortViewSet
 from .viewsets.initialize_app import InitializeAppView
 from .viewsets.metered_connection import CheckMeteredConnectionView
 from .viewsets.path_permission import PathPermissionView
@@ -23,6 +24,7 @@ router.register(
 router.register(r"usersyncstatus", UserSyncStatusViewSet, basename="usersyncstatus")
 router.register(r"driveinfo", DriveInfoViewSet, basename="driveinfo")
 router.register(r"connectionurls", ConnectionUrlsViewSet, basename="connectionurls")
+router.register(r"httpport", HttpPortViewSet, basename="httpport")
 
 
 urlpatterns = [

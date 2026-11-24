@@ -1,8 +1,17 @@
-import { render, screen, fireEvent } from '@testing-library/vue';
+/*
+ * @jest-environment-options {"url": "http://kolibri.local:8080/"}
+ */
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { Store } from 'vuex';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import clientFactory from 'kolibri/utils/baseClient';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
+import useSnackbar from 'kolibri/composables/useSnackbar';
+import { httpPortStrings } from 'kolibri-common/strings/httpPortStrings';
 import DeviceSettingsPage, { pageTitleStrings } from '../index.vue';
 import usePlugins, {
   // eslint-disable-next-line import-x/named
@@ -25,10 +34,24 @@ const {
 } = createTranslator(DeviceSettingsPage.name, DeviceSettingsPage.$trs);
 
 jest.mock('../../../composables/usePlugins');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/utils/redirectBrowser');
+jest.mock('kolibri/heartbeat', () => ({
+  startPolling: jest.fn(() => Promise.resolve()),
+  stopPolling: jest.fn(),
+}));
+jest.mock('kolibri/utils/baseClient', () => {
+  const probe = jest.fn(() => new Promise(() => {}));
+  probe.interceptors = { response: { use: jest.fn() } };
+  return { __esModule: true, default: () => probe };
+});
 jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
     default: {
+      canRestart: true,
       deprecationWarnings: {},
     },
   };
@@ -120,6 +143,12 @@ describe('DeviceSettingsPage', () => {
     api.getDeviceSettings.mockResolvedValue(DeviceSettingsData);
     getFreeSpaceOnServer.mockResolvedValue({ freeSpace: 0 });
     api.saveDeviceSettings.mockResolvedValue({});
+    usePlugins.mockImplementation(() => usePluginsMock());
+    useUser.mockImplementation(() => useUserMock());
+    urls.__echoUrls();
+    client.mockImplementation(() =>
+      Promise.resolve({ data: { port: 8080, readonly_reason: null } }),
+    );
   });
 
   it('titles the tab with its visible header, the only h1', async () => {
@@ -161,6 +190,159 @@ describe('DeviceSettingsPage', () => {
       allowPeerUnlistedChannelImport: allowPeerUnlistedChannelImport,
     });
   }
+
+  describe('port section', () => {
+    const { portHeading$ } = httpPortStrings;
+
+    it('is shown to a superuser', async () => {
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true, isSuperuser: true }));
+      await makeWrapper();
+      expect(screen.getByRole('heading', { name: portHeading$() })).toBeInTheDocument();
+    });
+
+    it('is not shown to a facility admin who is not a superuser', async () => {
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true, isFacilityAdmin: true }));
+      await makeWrapper();
+      expect(screen.queryByRole('heading', { name: portHeading$() })).not.toBeInTheDocument();
+    });
+
+    it('saves unsaved settings before restarting on the new port', async () => {
+      const { changePortAction$, portLabel$ } = httpPortStrings;
+      const calls = [];
+      api.saveDeviceSettings.mockImplementation(settings => {
+        calls.push(['save', settings.landingPage]);
+        return Promise.resolve(true);
+      });
+      client.mockImplementation(({ method, data }) => {
+        if (method === 'POST') {
+          calls.push(['port', data.port]);
+          return Promise.resolve({ data: {} });
+        }
+        return Promise.resolve({ data: { port: 8080, readonly_reason: null } });
+      });
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true, isSuperuser: true }));
+      await makeWrapper();
+
+      await fireEvent.click(getButtons().learnPage);
+      const field = await screen.findByRole('spinbutton', { name: portLabel$() });
+      await fireEvent.update(field, '8081');
+      await fireEvent.click(screen.getByRole('button', { name: changePortAction$() }));
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog).toHaveTextContent(httpPortStrings.pendingSettingsSavedToo$());
+      await fireEvent.click(within(dialog).getByRole('button', { name: changePortAction$() }));
+
+      await waitFor(() =>
+        expect(calls).toEqual([
+          ['save', 'learn'],
+          ['port', 8081],
+        ]),
+      );
+    });
+
+    it('restarts to apply a saved plugin change when the port claim fails', async () => {
+      const { changePortAction$, portLabel$, portInUseByProcess$ } = httpPortStrings;
+      const plugin = { id: 'learn', name: 'Learn', enabled: false };
+      const plugins = { value: [plugin] };
+      const togglePlugin = jest.fn((id, enabled) => {
+        plugins.value = [{ ...plugin, enabled }];
+        return Promise.resolve();
+      });
+      usePlugins.mockImplementation(() =>
+        usePluginsMock({ plugins, togglePlugin, fetchPlugins: Promise.resolve() }),
+      );
+      client.mockImplementation(({ method, url }) => {
+        if (method === 'POST' && url === urls['kolibri:core:devicerestart']()) {
+          return Promise.resolve({ data: true });
+        }
+        if (method === 'POST') {
+          return Promise.reject({
+            response: {
+              status: 400,
+              data: [{ id: 'PORT_IN_USE_BY_PROCESS', metadata: { message: 'nginx' } }],
+            },
+          });
+        }
+        return Promise.resolve({ data: { port: 8080, readonly_reason: null } });
+      });
+      clientFactory().mockResolvedValueOnce({ data: false });
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true, isSuperuser: true }));
+      await makeWrapper();
+
+      await fireEvent.click(screen.getByRole('checkbox', { name: plugin.name }));
+      await fireEvent.update(await screen.findByRole('spinbutton', { name: portLabel$() }), '80');
+      await fireEvent.click(screen.getByRole('button', { name: changePortAction$() }));
+      await fireEvent.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: changePortAction$(),
+        }),
+      );
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        portInUseByProcess$({ port: 80, process: 'nginx' }),
+      );
+      expect(togglePlugin).toHaveBeenCalledWith('learn', true);
+      await waitFor(() =>
+        expect(client).toHaveBeenCalledWith(
+          expect.objectContaining({
+            method: 'POST',
+            url: urls['kolibri:core:devicerestart'](),
+          }),
+        ),
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    });
+
+    it('keeps the failure shown after the save snackbar is dismissed', async () => {
+      const { changePortAction$, portLabel$, portInUseByProcess$ } = httpPortStrings;
+      api.saveDeviceSettings.mockResolvedValue(true);
+      client.mockImplementation(({ method }) => {
+        if (method === 'POST') {
+          return Promise.reject({
+            response: {
+              status: 400,
+              data: [{ id: 'PORT_IN_USE_BY_PROCESS', metadata: { message: 'nginx' } }],
+            },
+          });
+        }
+        return Promise.resolve({ data: { port: 8080, readonly_reason: null } });
+      });
+      useUser.mockImplementation(() => useUserMock({ isAdmin: true, isSuperuser: true }));
+      await makeWrapper();
+
+      await fireEvent.click(getButtons().learnPage);
+      await fireEvent.update(await screen.findByRole('spinbutton', { name: portLabel$() }), '80');
+      await fireEvent.click(screen.getByRole('button', { name: changePortAction$() }));
+      await fireEvent.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: changePortAction$(),
+        }),
+      );
+      await screen.findByRole('alert');
+      useSnackbar().clearSnackbar();
+      await global.flushPromises();
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        portInUseByProcess$({ port: 80, process: 'nginx' }),
+      );
+    });
+  });
+
+  it('reloads the page once the save snackbar is dismissed', async () => {
+    api.saveDeviceSettings.mockResolvedValue(true);
+    await makeWrapper();
+    await fireEvent.click(getButtons().learnPage);
+    await fireEvent.click(getButtons().saveButton);
+    await global.flushPromises();
+    // jsdom reports `location.reload()` as a "Not implemented: navigation" console error.
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
+    useSnackbar().clearSnackbar();
+    await global.flushPromises();
+    const navigationErrors = consoleError.mock.calls.filter(([error]) =>
+      String(error?.message).startsWith('Not implemented: navigation'),
+    );
+    consoleError.mockRestore();
+    expect(navigationErrors).toHaveLength(1);
+  });
 
   describe('landing page section', () => {
     // These should be the inverse of the "submitting settings" tests below

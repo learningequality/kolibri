@@ -2,9 +2,11 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 
+from kolibri.core.decorators import connect_to_any_http_origin
 from kolibri.core.device.utils import device_provisioned
 
 
+@connect_to_any_http_origin
 class SetupWizardView(TemplateView):
     template_name = "setup_wizard/setup_wizard.html"
 

@@ -1,5 +1,8 @@
+import errno
 import os
+import pathlib
 import platform
+import sys
 import tempfile
 import uuid
 from collections import namedtuple
@@ -8,6 +11,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import ifaddr
+import pytest
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.core.exceptions import ValidationError
@@ -48,8 +52,14 @@ from kolibri.core.discovery.models import LocalHostname
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
+from kolibri.utils import conf
+from kolibri.utils import port_election
+from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.tests.helpers import fake_nginx_on_port_80
+from kolibri.utils.tests.helpers import fake_port_binds
 from kolibri.utils.tests.helpers import override_option
+from kolibri.utils.tests.helpers import pinned_http_port
 
 DUMMY_PASSWORD = "password"
 
@@ -505,6 +515,159 @@ class ConnectionUrlsTestCase(APITestCase):
     def test_stale_pid_file_falls_back_to_request_url(self, _mock_pid_exists):
         urls = self._get_urls([_adapter("eth0", "10.0.0.5")], http_host="10.0.0.2")
         self.assertEqual(urls, ["http://10.0.0.2/"])
+
+
+class _HttpPortTestMixin:
+    databases = "__all__"
+
+    def setUp(self):
+        clear_process_cache()
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        self.home = tmpdir.name
+        self.pid_file = os.path.join(self.home, "server.pid")
+        self._write_pid_file(os.getpid(), 8085)
+        self.flag_file = os.path.join(self.home, "process_control.flag")
+        self.proc = pathlib.Path(self.home) / "proc"
+        self.monkeypatch = monkeypatch = pytest.MonkeyPatch()
+        self.addCleanup(monkeypatch.undo)
+        monkeypatch.delenv("KOLIBRI_HTTP_PORT", raising=False)
+        monkeypatch.delenv("KOLIBRI_LISTEN_PORT", raising=False)
+        monkeypatch.setattr(server, "PID_FILE", self.pid_file)
+        monkeypatch.setattr(server, "PROCESS_CONTROL_FLAG", self.flag_file)
+        monkeypatch.setattr(conf, "KOLIBRI_HOME", self.home)
+        monkeypatch.setattr(sys, "argv", ["kolibri", "start"])
+        self.probes = fake_port_binds(monkeypatch)
+        monkeypatch.setattr(port_election, "PROCFS_PATH", str(self.proc))
+
+    def _write_pid_file(self, pid, port):
+        with open(self.pid_file, "w") as f:
+            f.write(f"{pid}\n{port}\n\n{server.STATUS_RUNNING}\n")
+
+    def _get(self):
+        return self.client.get(reverse("kolibri:core:httpport-list"))
+
+    def _post(self, port):
+        return self.client.post(
+            reverse("kolibri:core:httpport-list"), {"port": port}, format="json"
+        )
+
+    def _pinned_port(self):
+        return pinned_http_port(os.path.join(self.home, "options.ini"))
+
+    def _flag(self):
+        if not os.path.exists(self.flag_file):
+            return None
+        with open(self.flag_file) as f:
+            return f.read()
+
+
+class HttpPortTestCase(_HttpPortTestMixin, APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _readonly_reason(self):
+        response = self._get()
+        self.assertEqual(response.status_code, 200)
+        return response.data["readonly_reason"]
+
+    def test_get_reports_served_port(self):
+        self.assertEqual(self._get().data, {"port": 8085, "readonly_reason": None})
+
+    def test_get_reports_environment_variable(self):
+        self.monkeypatch.setenv("KOLIBRI_HTTP_PORT", "8085")
+        self.assertEqual(self._readonly_reason(), "ENVIRONMENT_VARIABLE")
+
+    def test_get_reports_command_line_port(self):
+        for args in (["--port", "8080"], ["--port=8080"]):
+            with self.subTest(args=args), patch.object(
+                sys, "argv", ["kolibri", "start", *args]
+            ):
+                self.assertEqual(self._readonly_reason(), "COMMAND_LINE")
+
+    def test_get_reports_advertised_port(self):
+        with override_option("Deployment", "ADVERTISED_HTTP_PORT", 80):
+            self.assertEqual(self._readonly_reason(), "ADVERTISED_HTTP_PORT")
+
+    def test_get_reports_cannot_restart_without_restart_hooks(self):
+        with override_option("Deployment", "RESTART_HOOKS", []):
+            self.assertEqual(self._readonly_reason(), "CANNOT_RESTART")
+
+    def test_get_reports_cannot_restart_without_running_server(self):
+        os.remove(self.pid_file)
+        self.assertEqual(
+            self._get().data,
+            {
+                "port": OPTIONS["Deployment"]["HTTP_PORT"],
+                "readonly_reason": "CANNOT_RESTART",
+            },
+        )
+
+    def test_get_reports_cannot_restart_when_another_process_serves(self):
+        self._write_pid_file(os.getppid(), 8085)
+        self.assertEqual(self._readonly_reason(), "CANNOT_RESTART")
+
+    def test_post_free_port_pins_it_and_restarts(self):
+        response = self._post(8081)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"port": 8081})
+        self.assertEqual(self._pinned_port(), "8081")
+        self.assertEqual(self._flag(), "restart")
+
+    def test_post_served_port_pins_it(self):
+        self.probes.errors[8085] = errno.EADDRINUSE
+        self.assertEqual(self._post(8085).status_code, 200)
+        self.assertEqual(self._pinned_port(), "8085")
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="fake procfs needs symlinks")
+    def test_post_busy_port_names_occupant(self):
+        self.probes.errors[80] = errno.EADDRINUSE
+        fake_nginx_on_port_80(self.proc)
+        response = self._post(80)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], "PORT_IN_USE_BY_PROCESS")
+        self.assertEqual(
+            response.data[0]["metadata"]["message"], "nginx (nginx.service)"
+        )
+        self.assertIsNone(self._pinned_port())
+        self.assertIsNone(self._flag())
+
+    def test_post_while_readonly_is_forbidden(self):
+        self.monkeypatch.setenv("KOLIBRI_HTTP_PORT", "8085")
+        self.assertEqual(self._post(8081).status_code, 403)
+        self.assertIsNone(self._pinned_port())
+        self.assertIsNone(self._flag())
+
+    def test_facility_admin_is_forbidden(self):
+        self.client.logout()
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self.assertEqual(self._get().status_code, 403)
+        self.assertEqual(self._post(8081).status_code, 403)
+        self.assertIsNone(self._pinned_port())
+
+
+class UnprovisionedHttpPortTestCase(_HttpPortTestMixin, APITestCase):
+    def test_anonymous_user_can_change_port(self):
+        self.assertEqual(self._get().status_code, 200)
+        self.assertEqual(self._post(8081).status_code, 200)
+        self.assertEqual(self._pinned_port(), "8081")
 
 
 class DeviceNameTestCase(APITestCase):

@@ -1013,6 +1013,11 @@ def get_status_from_pid_file():
     return status
 
 
+def get_pid():
+    pid, _, _, _ = _read_pid_file(PID_FILE)
+    return pid
+
+
 def get_port():
     """
     :return: the port in the PID file, or `None` when its process is not alive.

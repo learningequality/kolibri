@@ -22,3 +22,11 @@ def setup_test_app(package, label=None):
     apps.app_configs[app_config.label] = app_config
     app_config.import_models()
     apps.clear_cache()
+
+
+def connect_src(response):
+    for directive in response["Content-Security-Policy"].split(";"):
+        name, *sources = directive.split()
+        if name == "connect-src":
+            return sources
+    return []

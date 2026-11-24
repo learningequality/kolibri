@@ -203,6 +203,24 @@
           </KButton>
         </div>
 
+        <div
+          v-if="isSuperuser && !isAppContext"
+          class="fieldset"
+        >
+          <h2>
+            {{ portHeading$() }}
+          </h2>
+          <p class="port-description">
+            {{ portDescription$() }}
+          </p>
+          <HttpPortControl
+            requireConfirmation
+            :confirmationNote="pendingSettingsSavedToo$()"
+            :beforeChange="saveBeforePortChange"
+            @failed="handlePortChangeFailed"
+          />
+        </div>
+
         <div class="fieldset">
           <h2>
             {{ $tr('autoDownload') }}
@@ -393,6 +411,8 @@
     sortLanguages,
   } from 'kolibri/utils/i18n';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import HttpPortControl from 'kolibri-common/components/HttpPortControl';
+  import { httpPortStrings } from 'kolibri-common/strings/httpPortStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -431,6 +451,7 @@
     components: {
       DeviceAppBarPage,
       BottomAppBar,
+      HttpPortControl,
       PrimaryStorageLocationModal,
       AddStorageLocationModal,
       RemoveStorageLocationModal,
@@ -452,11 +473,11 @@
       });
 
       function checkAndTogglePlugins() {
-        dataPlugins.value.forEach((plugin, index) => {
-          if (plugin.enabled !== plugins.value[index].enabled) {
-            togglePlugin(plugin.id, plugin.enabled);
-          }
-        });
+        return Promise.all(
+          dataPlugins.value
+            .filter((plugin, index) => plugin.enabled !== plugins.value[index].enabled)
+            .map(plugin => togglePlugin(plugin.id, plugin.enabled)),
+        );
       }
 
       function checkPluginChanges() {
@@ -475,6 +496,9 @@
         isAppContext,
         isLearnerOnlyImport,
         isSuperuser,
+        portHeading$: httpPortStrings.portHeading$,
+        portDescription$: httpPortStrings.portDescription$,
+        pendingSettingsSavedToo$: httpPortStrings.pendingSettingsSavedToo$,
         canRestart,
         restart,
         restarting,
@@ -519,6 +543,7 @@
         },
         restartPath: {},
         restartSetting: null,
+        savedBeforePortChange: false,
         showRestartModal: false,
         writablePaths: 0,
         readOnlyPaths: 0,
@@ -804,16 +829,16 @@
           this.handleSave();
         }
       },
-      handleSave() {
+      savePendingSettings() {
         const { allowGuestAccess, allowLearnerUnassignedResourceAccess } =
           this.getContentSettings();
         this.getExtraSettings();
 
         const pluginsChanged = this.checkPluginChanges();
 
-        this.checkAndTogglePlugins();
+        const togglingPlugins = this.checkAndTogglePlugins();
 
-        this.saveDeviceSettings({
+        const savingSettings = this.saveDeviceSettings({
           languageId: this.language.value,
           landingPage: this.landingPage,
           allowGuestAccess,
@@ -823,9 +848,38 @@
           extraSettings: this.extraSettings,
           secondaryStorageLocations: this.secondaryStorageLocations,
           primaryStorageLocation: this.primaryStorageLocation,
-        })
+        });
+
+        return Promise.all([savingSettings, togglingPlugins]).then(
+          ([didSave]) => didSave || pluginsChanged,
+        );
+      },
+      saveBeforePortChange() {
+        this.restartSetting = this.checkPluginChanges() ? 'plugin' : null;
+        return this.savePendingSettings().then(
+          didSave => {
+            this.savedBeforePortChange = didSave;
+          },
+          err => {
+            logging.error(err);
+            this.createSnackbar(this.$tr('saveFailureNotification'));
+            throw err;
+          },
+        );
+      },
+      handleSave() {
+        this.applySavedSettings(this.savePendingSettings()).then(didSave => {
+          if (didSave) {
+            this.reloadAfterSnackbar();
+          }
+        });
+      },
+      handlePortChangeFailed() {
+        this.applySavedSettings(Promise.resolve(this.savedBeforePortChange));
+      },
+      applySavedSettings(saving) {
+        return saving
           .then(didSave => {
-            didSave = didSave || pluginsChanged;
             if (didSave) {
               this.createSnackbar({
                 text: this.$tr('saveSuccessNotification'),
@@ -840,22 +894,24 @@
             }
             return didSave;
           })
-          .then(shouldReload => {
-            if (shouldReload) {
-              if (this.snackbarIsVisible) {
-                const unwatch = watch(this.snackbarIsVisible, () => {
-                  unwatch && unwatch();
-                  window.location.reload();
-                });
-              } else {
-                window.location.reload();
-              }
-            }
-          })
           .catch(err => {
             logging.error(err);
             this.createSnackbar(this.$tr('saveFailureNotification'));
+            return false;
           });
+      },
+      reloadAfterSnackbar() {
+        if (this.snackbarIsVisible) {
+          const unwatch = watch(
+            () => this.snackbarIsVisible,
+            () => {
+              unwatch();
+              window.location.reload();
+            },
+          );
+        } else {
+          window.location.reload();
+        }
       },
       getDeviceSettings,
       saveDeviceSettings,
@@ -1164,6 +1220,10 @@
 
   .save-button {
     margin-left: 0;
+  }
+
+  .port-description {
+    color: var(--tokens-annotation);
   }
 
   .description {
