@@ -24,6 +24,8 @@
     "kolibri-logging": "workspace:*",
     "lockr": "0.8.5",
     "lodash": "catalog:",
+    "markdown-it": "catalog:",
+    "markdown-it-math": "6.0.1",
     "mathjax-full": "catalog:",
     "qrcode": "^1.5.4",
     "sortablejs": "1.15.7",
