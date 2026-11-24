@@ -17,6 +17,7 @@ from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.discovery.test.helpers import mock_response
+from kolibri.core.hooks import RoleBasedRedirectHook
 
 
 def mock_external_request(session, method, url, *args, **kwargs):
@@ -161,6 +162,45 @@ class KolibriTagNavigationTestCase(APITestCase):
     def test_class_coach_is_redirected_to_coach_plugin(self):
         self.client.login(username=self.class_coach.username, password=DUMMY_PASSWORD)
         self._assert_location_reverse_url("kolibri:kolibri.plugins.coach:coach")
+
+
+class OnMyOwnRootRedirectTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        facility = FacilityFactory.create()
+        facility.on_my_own_setup = True
+        cls.superuser = create_superuser(facility)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def test_superuser_is_redirected_to_learn_plugin(self):
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.learn:learn")
+        )
+
+    def test_superuser_is_redirected_to_device_plugin_when_learn_is_disabled(self):
+        learn_url = reverse("kolibri:kolibri.plugins.learn:learn")
+        with patch.object(
+            RoleBasedRedirectHook,
+            "_registered_hooks",
+            {
+                unique_id: hook
+                for unique_id, hook in RoleBasedRedirectHook._registered_hooks.items()
+                if hook.url != learn_url
+            },
+        ):
+            response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.device:device_management"),
+        )
 
 
 class AllUrlsTest(APITestCase):
