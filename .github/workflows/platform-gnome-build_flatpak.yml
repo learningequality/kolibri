@@ -29,7 +29,8 @@ jobs:
     timeout-minutes: 45
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
-      options: --privileged
+      # Anonymous volume moves preinstalled runtimes off overlayfs; updating them in place fails with EXDEV on some hosted runners.
+      options: --privileged -v /var/lib/flatpak
     outputs:
       flatpak-file-name: ${{ steps.bundle-name.outputs.flatpak-file-name }}
     steps:
