@@ -35,6 +35,8 @@ def _log_queue_max_size() -> int:
 
 LOG_QUEUE_MAX_SIZE = _log_queue_max_size()
 
+FILE_LOG_FORMAT = "%(levelname)s %(asctime)s %(name)s %(message)s"
+
 LOG_COLORS = {
     "DEBUG": "blue",
     "INFO": "white",
@@ -407,7 +409,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
             },
-            "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
+            "simple_date": {"format": FILE_LOG_FORMAT},
             "color": {
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(asctime)s %(message)s",

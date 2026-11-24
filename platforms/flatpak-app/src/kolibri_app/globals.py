@@ -47,6 +47,7 @@ def init_gettext():
 
 def init_logging(log_file_name: str = "kolibri-app.txt", level: int = logging.DEBUG):
     # Importing kolibri runs set_env().
+    from kolibri.utils.logger import FILE_LOG_FORMAT  # noqa: PLC0415
     from kolibri.utils.logger import KolibriTimedRotatingFileHandler  # noqa: PLC0415
 
     logging.basicConfig(level=level)
@@ -68,6 +69,7 @@ def init_logging(log_file_name: str = "kolibri-app.txt", level: int = logging.DE
     file_handler = KolibriTimedRotatingFileHandler(
         filename=log_file_path.as_posix(), when="midnight", backupCount=30
     )
+    file_handler.setFormatter(logging.Formatter(FILE_LOG_FORMAT))
 
     root_logger.addHandler(file_handler)
 
