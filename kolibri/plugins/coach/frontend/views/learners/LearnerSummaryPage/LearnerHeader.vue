@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div style="display: flex; justify-content: space-between">
+    <div style="display: flex; justify-content: space-between;">
       <p>
         <BackLink
           :to="classRoute(PageNames.LEARNERS_ROOT)"
@@ -19,7 +19,7 @@
     <KGrid>
       <KGridItem
         :layout12="{ span: 6 }"
-        style="margin-bottom: 16px"
+        style="margin-bottom: 16px;"
       >
         <HeaderTable>
           <HeaderTableRow>
@@ -75,7 +75,7 @@
             <p class="value">{{ lessonsCompleted }}</p>
             <p
               v-if="learnerLessons.length > 0"
-              style="display: inline; word-wrap: break-word"
+              style="display: inline; overflow-wrap: break-word;"
             >
               {{ $tr('totalLessons', { total: learnerLessons.length }) }}
             </p>
@@ -239,7 +239,7 @@
     margin-right: 5px;
     margin-bottom: 0;
     font-size: 32px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
 </style>

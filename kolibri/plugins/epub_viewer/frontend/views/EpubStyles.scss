@@ -17,10 +17,14 @@ $bottom-bar-height: 54px;
 @mixin epub-basic-link {
   width: 100%;
   text-align: left;
-  text-decoration: none;
-  word-break: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
+  text-decoration: none;
   transition: none;
+
+  /deep/ .link-text {
+    max-width: 100%;
+  }
 }
 
 @mixin d-t {

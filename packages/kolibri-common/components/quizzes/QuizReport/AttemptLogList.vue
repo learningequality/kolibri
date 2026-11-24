@@ -432,9 +432,9 @@
   }
 
   .attempt-item {
+    clear: both;
     display: block;
     min-width: 120px;
-    clear: both;
   }
 
   .attempt-item-anchor {

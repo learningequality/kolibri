@@ -143,9 +143,9 @@
   .learner-name {
     margin: 0;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 24px;
     font-weight: 700;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 

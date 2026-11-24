@@ -76,7 +76,7 @@
       v-if="showResourceButton"
       appearance="raised-button"
       :to="selectResourcesRoute"
-      style="margin-bottom: 1em"
+      style="margin-bottom: 1em;"
       iconAfter="forward"
     >
       {{ resourceButtonLabel }}
@@ -497,6 +497,7 @@
     padding: 1em 2em;
     margin-top: 1em;
     background-color: #ffffff;
+
     @extend %dropshadow-2dp;
   }
 

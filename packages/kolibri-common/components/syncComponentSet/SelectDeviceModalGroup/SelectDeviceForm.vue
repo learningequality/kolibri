@@ -102,7 +102,7 @@
           span="3"
           alignment="right"
         >
-          <KButtonGroup style="margin-top: 8px">
+          <KButtonGroup style="margin-top: 8px;">
             <KButton
               :text="coreString('cancelAction')"
               appearance="flat-button"

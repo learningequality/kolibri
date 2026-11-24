@@ -5,7 +5,7 @@
     :loading="loading"
   >
     <ImpactStoryBanner />
-    <DeprecationWarningBanner style="margin-bottom: 1em" />
+    <DeprecationWarningBanner style="margin-bottom: 1em;" />
 
     <div>
       <slot></slot>

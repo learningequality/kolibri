@@ -47,7 +47,7 @@
           <StatusElapsedTime
             :date="examDateOpened"
             actionType="opened"
-            style="display: block; margin-top: 8px"
+            style="display: block; margin-top: 8px;"
           />
         </KGridItem>
       </div>
@@ -72,7 +72,7 @@
         >
           <ElapsedTime
             :date="examDateArchived"
-            style="margin-top: 8px"
+            style="margin-top: 8px;"
           />
         </KGridItem>
       </div>
@@ -82,7 +82,7 @@
       >
         <KGridItem
           class="status-label"
-          style="padding-bottom: 16px"
+          style="padding-bottom: 16px;"
           :layout4="{ span: 3 }"
           :layout8="{ span: 4 }"
           :layout12="{ span: 10 }"
@@ -92,7 +92,7 @@
             v-if="exam.active"
             :date="exam.instant_report_visibility ? examDateOpened : examDateArchived"
             actionType="madeVisible"
-            style="font-weight: normal"
+            style="font-weight: normal;"
           />
         </KGridItem>
         <KGridItem
@@ -103,7 +103,7 @@
           <KSwitch
             name="toggle-quiz-visibility"
             :ariaLabelledBy="'toggle-quiz-visibility-label'"
-            style="display: inline"
+            style="display: inline;"
             :checked="exam.active"
             :value="exam.active"
             @change="handleToggleVisibility"
@@ -262,7 +262,7 @@
         >
           <ElapsedTime
             :date="examDateCreated"
-            style="margin-top: 8px"
+            style="margin-top: 8px;"
           />
         </KGridItem>
       </div>

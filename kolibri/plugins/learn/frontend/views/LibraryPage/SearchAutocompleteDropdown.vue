@@ -434,8 +434,8 @@
 
   .item-title {
     overflow: hidden;
-    font-size: 14px;
     text-overflow: ellipsis;
+    font-size: 14px;
     white-space: nowrap;
   }
 

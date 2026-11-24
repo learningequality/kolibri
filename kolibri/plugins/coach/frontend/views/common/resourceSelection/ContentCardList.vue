@@ -26,7 +26,7 @@
             v-if="contentCardMessage(content)"
             :text="contentCardMessage(content)"
             :maxLines="1"
-            style="margin-bottom: 8px"
+            style="margin-bottom: 8px;"
           />
         </template>
         <template #select>
@@ -58,7 +58,7 @@
         v-if="showButton"
         :text="coreString('viewMoreAction')"
         :primary="false"
-        style="margin-top: 2em"
+        style="margin-top: 2em;"
         @click="$emit('moreresults')"
       />
       <KCircularLoader

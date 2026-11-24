@@ -170,8 +170,8 @@
   }
 
   .kiconbutton-style {
-    flex-shrink: 0;
     float: right;
+    flex-shrink: 0;
   }
 
   .navbar-positioning {

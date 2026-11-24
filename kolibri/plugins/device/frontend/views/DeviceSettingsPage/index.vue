@@ -37,7 +37,7 @@
             :options="languageOptions"
             :disabled="language.value === undefined"
             :floatingLabel="false"
-            style="max-width: 300px"
+            style="max-width: 300px;"
             data-testid="languageSelect"
           />
         </div>
@@ -1213,6 +1213,7 @@
     height: 2px;
     margin-left: 10px;
     appearance: none;
+    outline: none;
     background: linear-gradient(
       to right,
       var(--tokens-primary) 0%,
@@ -1220,7 +1221,6 @@
       var(--tokens-fineLine) var(--slider-fill, 0%),
       var(--tokens-fineLine) 100%
     );
-    outline: none;
 
     &.window-is-small {
       width: 35vw;

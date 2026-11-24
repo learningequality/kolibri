@@ -66,7 +66,7 @@
           </span>
           <span
             v-else-if="colIndex === 2"
-            style="display: flex; justify-content: start"
+            style="display: flex; justify-content: start;"
           >
             {{ content }}
           </span>

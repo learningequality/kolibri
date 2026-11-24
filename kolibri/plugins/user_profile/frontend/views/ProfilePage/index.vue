@@ -60,7 +60,7 @@
           </tr>
 
           <tr v-if="userHasPermissions">
-            <th style="vertical-align: top">
+            <th style="vertical-align: top;">
               {{ coreString('devicePermissionsLabel') }}
             </th>
             <td>
