@@ -1,6 +1,47 @@
 import { ref, readonly, provide, inject } from 'vue';
+import { getLocaleNumberSymbols } from '../utils/localeNumbers';
+import { normalizeNumerals } from '../utils/numeralNormalization';
 
 const KeypadSymbol = Symbol('keypad');
+
+// Arabic keyboards type these for the decimal, as `readLocaleNumber` reads them.
+const ARABIC_DECIMAL_KEYS = ['،', ','];
+
+const KEYPAD_KEYS = {
+  '/': 'FRAC_INCLUSIVE',
+  '٫': 'DECIMAL',
+  '.': 'DECIMAL',
+  '+': 'PLUS',
+  '-': 'MINUS',
+  '%': 'PERCENT',
+  '=': 'EQUAL',
+  '>': 'GT',
+  '<': 'LT',
+  '^': 'EXP',
+  Backspace: 'BACKSPACE',
+  ArrowLeft: 'LEFT',
+  ArrowRight: 'RIGHT',
+  ArrowUp: 'UP',
+  ArrowDown: 'DOWN',
+};
+
+// Covers every key in @khanacademy/math-input's `domKeyToMathQuillKey`, digits included. When
+// MathInput presses one of those itself, it resets its content, which moves the cursor out of any
+// fraction or exponent.
+function keypadKeyForKeyboardKey(key, language, useTimes) {
+  if (key === '*') {
+    return useTimes ? 'TIMES' : 'CDOT';
+  }
+  if (KEYPAD_KEYS[key]) {
+    return KEYPAD_KEYS[key];
+  }
+  if (/^\p{Nd}$/u.test(key)) {
+    return `NUM_${normalizeNumerals(key)}`;
+  }
+  const { digits, decimal } = getLocaleNumberSymbols(language);
+  const decimalKeys = /[٠-٩۰-۹]/.test(digits[0]) ? [decimal, ...ARABIC_DECIMAL_KEYS] : [decimal];
+  return decimalKeys.includes(key) ? 'DECIMAL' : null;
+}
 
 /**
  * Composable that owns the keypad state and exposes the KeypadAPI interface
@@ -12,7 +53,7 @@ const KeypadSymbol = Symbol('keypad');
  *
  * Returns the keypadAPI (for passing to Perseus as keypadElement) and a
  * keypadContextValue (for bridging React's KeypadContext.Provider).
- * @returns {{ keypadAPI: object, keypadContextValue: object }}
+ * @returns {{ keypadAPI: object, keypadContextValue: object, handleKeyboardEvent: Function }}
  */
 export default function useKeypad() {
   const active = ref(false);
@@ -51,6 +92,42 @@ export default function useKeypad() {
     if (keyHandler.value) {
       cursor.value = keyHandler.value(keyId);
     }
+  }
+
+  const keydownWasShortcut = new Map();
+
+  /**
+   * On keyup, presses the keypad key a physical key types in `language`. On keydown, cancels the
+   * default action of a key it will press.
+   * @param {KeyboardEvent} event - A keydown or keyup in a math field
+   * @param {string} [language] - BCP 47 tag of the content
+   * @returns {boolean} Whether a keyup was handled, by pressing a keypad key or by ignoring a
+   * Ctrl or Cmd shortcut
+   */
+  function handleKeyboardEvent(event, language) {
+    // Windows reports AltGr as Ctrl+Alt.
+    const isShortcut = event.metaKey || (event.ctrlKey && !event.getModifierState('AltGraph'));
+    const keyId = keyHandler.value
+      ? keypadKeyForKeyboardKey(event.key, language, keypadConfig.value?.times)
+      : null;
+    if (event.type === 'keydown') {
+      keydownWasShortcut.set(event.code, isShortcut);
+      // Android WebView moves focus out of the field by spatial navigation on arrow keydowns.
+      if (keyId && !isShortcut) {
+        event.preventDefault();
+      }
+      return false;
+    }
+    const wasShortcut = keydownWasShortcut.get(event.code) ?? isShortcut;
+    keydownWasShortcut.delete(event.code);
+    if (wasShortcut) {
+      return true;
+    }
+    if (keyId) {
+      handleKeyPress(keyId);
+      return true;
+    }
+    return false;
   }
 
   // The API object passed to Perseus as keypadElement.
@@ -104,6 +181,7 @@ export default function useKeypad() {
   return {
     keypadAPI,
     keypadContextValue,
+    handleKeyboardEvent,
   };
 }
 
