@@ -52,6 +52,7 @@ from ..models import validate_username_max_length
 from ..permissions import KolibriAuthPermissions
 from ..permissions import KolibriAuthPermissionsFilter
 from ..utils.picture_passwords import assign_picture_password_if_enabled
+from ..utils.picture_passwords import assign_picture_passwords_to_learners_without_one
 
 logger = logging.getLogger(__name__)
 
@@ -546,15 +547,6 @@ class DeletedFacilityUserViewSet(
 
         restored_ids = list(users.values_list("id", flat=True))
         users.update(date_deleted=None)
-        for learner in (
-            FacilityUser.objects.filter(
-                id__in=restored_ids,
-                picture_password__isnull=True,
-                roles__isnull=True,
-            )
-            .exclude(devicepermissions__is_superuser=True)
-            .select_related("facility__dataset")
-        ):
-            assign_picture_password_if_enabled(learner, learner.facility)
+        assign_picture_passwords_to_learners_without_one(restored_ids)
 
         return Response(status=status.HTTP_204_NO_CONTENT)

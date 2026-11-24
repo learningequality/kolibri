@@ -118,8 +118,8 @@ class UserExportTestCase(TestCase):
         for row in self.csv_rows:
             assert row["password"] == "*"
 
-    def get_data_from_csv_file(self):
-        with open_csv_for_reading(local_filepath=self.filepath) as f:
+    def get_data_from_csv_file(self, filepath=None):
+        with open_csv_for_reading(local_filepath=filepath or self.filepath) as f:
             return list(csv.DictReader(f))
 
     def test_csv_file(self):
@@ -136,6 +136,34 @@ class UserExportTestCase(TestCase):
                 assert row[b.labels["kind"]] == "FACILITY_COACH"
             elif row[b.labels["username"]] in assignable_coaches:
                 assert row[b.labels["kind"]] == "CLASS_COACH"
+
+    def _exported_user_types(self, user):
+        _, filepath = tempfile.mkstemp(suffix=".csv")
+        list(b.csv_file_generator(self.facility, local_filepath=filepath))
+        return [
+            row[b.labels["kind"]]
+            for row in self.get_data_from_csv_file(filepath)
+            if row[b.labels["username"]] == user.username
+        ]
+
+    def test_admin_who_is_also_coach_is_exported_as_admin(self):
+        user = self.data["facility_coach"]
+        self.facility.add_role(user, role_kinds.ADMIN)
+
+        self.assertEqual(self._exported_user_types(user), ["ADMIN"])
+
+    def test_coach_who_is_also_assignable_coach_is_exported_as_facility_coach(self):
+        for first, second in (
+            (role_kinds.COACH, role_kinds.ASSIGNABLE_COACH),
+            (role_kinds.ASSIGNABLE_COACH, role_kinds.COACH),
+        ):
+            with self.subTest(first=first):
+                user = self.data["learners_one_group"][0][0]
+                user.roles.all().delete()
+                self.facility.add_role(user, first)
+                self.facility.add_role(user, second)
+
+                self.assertEqual(self._exported_user_types(user), ["FACILITY_COACH"])
 
     def test_failed_export_restores_language(self):
         _, existing_file = tempfile.mkstemp(suffix=".csv")
