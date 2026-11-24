@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import time
 from logging.handlers import QueueHandler
 from logging.handlers import QueueListener
@@ -261,9 +262,26 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
                 new_name = logname + "-" + rollover_time + "." + ext
                 destination_filename = os.path.join(self.archive_dir, new_name)
                 source_filename = os.path.join(self.dirname, filename)
-                os.rename(source_filename, destination_filename)
+                try:
+                    self._archive(source_filename, destination_filename)
+                except OSError:
+                    continue
 
         return result
+
+    def _archive(self, source_filename, destination_filename):
+        # Windows' os.rename refuses an existing destination
+        # (learningequality/kolibri#15934).
+        if not os.path.exists(destination_filename):
+            os.rename(source_filename, destination_filename)
+            return
+        merging_filename = destination_filename + ".merging"
+        os.replace(source_filename, merging_filename)
+        with open(merging_filename, "rb") as source, open(
+            destination_filename, "ab"
+        ) as destination:
+            shutil.copyfileobj(source, destination)
+        os.remove(merging_filename)
 
 
 class FalseFilter(logging.Filter):

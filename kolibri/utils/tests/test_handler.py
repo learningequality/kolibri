@@ -73,11 +73,11 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
             pass
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-    def _handler_due_for_rollover(self):
+    def _handler_due_for_rollover(self, when="M"):
         temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, temp_dir, ignore_errors=True)
         log_file = os.path.join(temp_dir, "kolibri.txt")
-        handler = KolibriTimedRotatingFileHandler(log_file, when="M")
+        handler = KolibriTimedRotatingFileHandler(log_file, when=when)
         self.addCleanup(handler.close)
         handler.rolloverAt = time() - 1
         return handler, log_file
@@ -105,6 +105,66 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
 
         with open(log_file) as f:
             self.assertIn("written anyway", f.read())
+
+    def test_rollover_merges_into_an_archive_file_for_the_same_date(self):
+        real_rename = os.rename
+
+        def windows_rename(source, destination):
+            if os.path.exists(destination):
+                raise FileExistsError(183, "Cannot create a file when it exists")
+            real_rename(source, destination)
+
+        handler, log_file = self._handler_due_for_rollover(when="midnight")
+        log_dir = os.path.dirname(log_file)
+        archive_dir = os.path.join(log_dir, "archive")
+        os.makedirs(archive_dir)
+        with open(os.path.join(archive_dir, "kolibri-2026-10-21.txt"), "w") as f:
+            f.write("archived first\n")
+        with open(os.path.join(log_dir, "kolibri.txt.2026-10-21"), "w") as f:
+            f.write("rotated again\n")
+
+        with patch("os.rename", side_effect=windows_rename):
+            handler.emit(make_record("after rollover"))
+        handler.flush()
+
+        self.assertEqual(sorted(os.listdir(log_dir)), ["archive", "kolibri.txt"])
+        with open(os.path.join(archive_dir, "kolibri-2026-10-21.txt")) as f:
+            self.assertEqual(f.read(), "archived first\nrotated again\n")
+        with open(log_file) as f:
+            self.assertIn("after rollover", f.read())
+
+    def test_a_rotated_file_another_process_holds_open_is_archived_once(self):
+        handler, log_file = self._handler_due_for_rollover(when="midnight")
+        log_dir = os.path.dirname(log_file)
+        archive_dir = os.path.join(log_dir, "archive")
+        os.makedirs(archive_dir)
+        with open(os.path.join(archive_dir, "kolibri-2026-10-21.txt"), "w") as f:
+            f.write("archived first\n")
+        held_open = os.path.join(log_dir, "kolibri.txt.2026-10-21")
+        with open(held_open, "w") as f:
+            f.write("rotated again\n")
+        with open(os.path.join(log_dir, "kolibri.txt.2026-10-22"), "w") as f:
+            f.write("next day\n")
+
+        def refuse_held_open(real):
+            def os_call(source, *args):
+                if os.path.abspath(source) == held_open:
+                    raise PermissionError(32, "The process cannot access the file")
+                return real(source, *args)
+
+            return os_call
+
+        with patch("os.remove", refuse_held_open(os.remove)), patch(
+            "os.rename", refuse_held_open(os.rename)
+        ), patch("os.replace", refuse_held_open(os.replace)):
+            handler.emit(make_record("while held open"))
+        with open(os.path.join(archive_dir, "kolibri-2026-10-22.txt")) as f:
+            self.assertEqual(f.read(), "next day\n")
+        handler.rolloverAt = time() - 1
+        handler.emit(make_record("after release"))
+
+        with open(os.path.join(archive_dir, "kolibri-2026-10-21.txt")) as f:
+            self.assertEqual(f.read(), "archived first\nrotated again\n")
 
 
 def test_full_queue_does_not_report_drops_to_stderr():
