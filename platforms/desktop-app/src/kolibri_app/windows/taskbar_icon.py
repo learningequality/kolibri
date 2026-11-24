@@ -607,6 +607,12 @@ class KolibriTaskBarIcon:
         - When running with background service: Does not stop the service
         - When running local server: Stops the local server
         """
+        if self.app.view:
+            self.app.save_state(self.app.view)
+        for window in self.app.windows:
+            window.view.Hide()
+        self._remove_icon()
+
         if self.app.server_manager.uses_service:
             # Running with service - don't stop the service, just exit the UI
             logging.info("Exiting tray icon (service will continue running)")
@@ -615,9 +621,6 @@ class KolibriTaskBarIcon:
             # Running local server - stop the server
             logging.info("Exiting and stopping local server")
             self.app.shutdown()
-
-        if self.app.view:
-            self.app.save_state(self.app.view)
 
         # Destroy the tray icon
         wx.CallAfter(self.Destroy)

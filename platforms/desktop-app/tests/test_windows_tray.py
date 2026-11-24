@@ -80,6 +80,25 @@ class TestTrayIconRecovery(_ShellTestCase):
         self.assertTrue(self._icon_shown())
 
 
+class TestCloseStoppingTheLocalServer(_ShellTestCase):
+    def test_nothing_is_on_screen_while_the_server_stops(self):
+        window = MagicMock()
+        self.tray.app.windows = [window]
+        self.tray.app.view = window
+        self.tray.app.server_manager.uses_service = False
+        on_screen = []
+
+        def stop_server():
+            on_screen.append(self._icon_shown())
+            on_screen.append(not window.view.Hide.called)
+
+        self.tray.app.shutdown.side_effect = stop_server
+        with patch.object(wx, "CallAfter"):
+            self.tray.on_close(None)
+
+        self.assertEqual(on_screen, [False, False])
+
+
 def _app(**attributes):
     app = application.KolibriApp.__new__(application.KolibriApp)
     app.windows = []
