@@ -1,4 +1,8 @@
 /* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
+const { browsers } = require('browserslist-config-kolibri/cutoff');
+const compat = require('core-js-compat');
+const version = require('core-js/package.json').version;
+
 module.exports = {
   presets: ['@babel/preset-env'],
   plugins: [
@@ -6,8 +10,8 @@ module.exports = {
       'babel-plugin-polyfill-corejs3',
       {
         method: 'usage-global',
-        // Our own core-js dependency is the single source of truth for the version.
-        version: require('core-js/package.json').version,
+        version,
+        exclude: [...compat({ targets: browsers, version }).list, /^esnext\./],
       },
     ],
   ],

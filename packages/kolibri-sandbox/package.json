@@ -19,7 +19,7 @@
     "build-base": "webpack --config ./webpack.config.js",
     "build": "pnpm build-base --mode=production",
     "dev": "pnpm build-base --mode=development --watch",
-    "compat": "eslint -c ./compat.js ./src/*.js"
+    "compat": "eslint -c ./compat.js \"src/**/*.{js,mjs}\""
   },
   "author": "Learning Equality",
   "license": "MIT",
@@ -29,7 +29,9 @@
     "babel-loader": "^10.1.1",
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "browserslist-config-kolibri": "workspace:*",
+    "core-js-compat": "catalog:",
     "css-minimizer-webpack-plugin": "8.0.0",
+    "eslint": "^9.39.0",
     "eslint-plugin-compat": "^6.0.2",
     "html-webpack-plugin": "5.6.5",
     "mutationobserver-shim": "^0.3.7",

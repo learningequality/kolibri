@@ -129,7 +129,7 @@ async function lintSource({ file, source }) {
   formatted = await prettierFormat(formatted, file, messages);
 
   // Run eslint on JS files and vue files.
-  if (extension === 'js' || extension === 'vue') {
+  if (['js', 'mjs', 'vue'].includes(extension)) {
     const result = await eslint(formatted, file, messages);
     formatted = result.formatted;
     errored = errored || result.errored;

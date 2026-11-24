@@ -67,6 +67,10 @@ jobs:
           key: cext-${{ hashFiles('requirements/cext.txt', 'requirements/cext_noarch.txt') }}
       - name: Build Kolibri
         run: make dist
+      - name: Lint built output
+        run: pnpm run lint-built
+      - name: Check sandbox browser compatibility
+        run: pnpm --filter kolibri-sandbox run compat
       # Collected here rather than from the installed whl at release time: the built
       # static tree is already on disk, and running it on every build means a breakage
       # surfaces in PR CI rather than mid-release.

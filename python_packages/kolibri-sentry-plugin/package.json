@@ -6,9 +6,7 @@
     "build": "kolibri-build prod --plugins kolibri_sentry_plugin",
     "clean": "kolibri-build clean --plugins kolibri_sentry_plugin",
     "compress": "kolibri-build compress 'kolibri_sentry_plugin/static/**/*.{html,js,css,svg,map,eot,ttf}'",
-    "dev": "kolibri-build dev --plugins kolibri_sentry_plugin",
-    "lint-frontend": "kolibri-format --pattern 'kolibri_sentry_plugin/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
-    "lint-frontend:format": "pnpm run lint-frontend --write"
+    "dev": "kolibri-build dev --plugins kolibri_sentry_plugin"
   },
   "dependencies": {
     "@sentry/vue": "^10.19.0",
@@ -18,8 +16,7 @@
     "vue": "catalog:"
   },
   "devDependencies": {
-    "kolibri-build": "workspace:*",
-    "kolibri-format": "workspace:*"
+    "kolibri-build": "workspace:*"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"

@@ -1,7 +1,12 @@
 // This is only used during build time, so OK to reference files outside of Kolibri src.
 const fs = require('node:fs');
 const path = require('node:path');
+const { browsers } = require('browserslist-config-kolibri/cutoff');
+const compat = require('core-js-compat');
 const { kolibriName } = require('kolibri-build');
+
+// This version must track the `core-js` catalog entry in pnpm-workspace.yaml.
+const coreJsVersion = '3.49';
 
 const mathjaxFontsSource = path.join(
   path.dirname(require.resolve('mathjax-full/package.json')),
@@ -51,9 +56,19 @@ module.exports = [
             loader: 'babel-loader',
             options: {
               presets: ['@babel/preset-env'],
-              // `version` must track the `core-js` catalog entry in pnpm-workspace.yaml.
               plugins: [
-                ['babel-plugin-polyfill-corejs3', { method: 'entry-global', version: '3.49' }],
+                [
+                  'babel-plugin-polyfill-corejs3',
+                  {
+                    method: 'entry-global',
+                    version: coreJsVersion,
+                    exclude: [
+                      ...compat({ targets: browsers, version: coreJsVersion }).list,
+                      // The Babel plugin can re-emit excluded es.* modules as esnext.* aliases.
+                      /^esnext\./,
+                    ],
+                  },
+                ],
               ],
               sourceType: 'unambiguous',
             },

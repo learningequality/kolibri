@@ -67,7 +67,7 @@ repos:
         description: This hook handles all frontend linting for Kolibri
         entry: pnpm run lint-frontend:format
         language: system
-        files: \.(js|vue|scss|css)$
+        files: \.(m?js|vue|scss|css)$
         exclude: (?x)^(kolibri/plugins/qti_viewer/frontend/components/__fixtures__/items\.js|packages/eslint-plugin-kolibri/tests/lib/rules/fixtures/malformed\.js)
   - repo: local
     hooks:
