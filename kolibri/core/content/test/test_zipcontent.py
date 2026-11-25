@@ -445,3 +445,20 @@ class PeerZipContentCacheTestCase(TestCase):
         response = self._get(f"/{self.filename}/index.html")
 
         self.assertIn("local", response.content.decode())
+
+    def test_unknown_peer_url_uses_local_archive_when_available(self):
+        NetworkLocation.objects.filter(base_url=self.peer_base_url).delete()
+        for peer in (self.peer_base_url, "http://peer.example:8080/my school/"):
+            with self.subTest(peer=peer):
+                path = f"/{quote(peer, safe='')}/{self.filename}/index.html"
+                with mock.patch(
+                    "kolibri.core.content.zip_wsgi.RemoteFile", side_effect=OSError
+                ) as remote_file:
+                    self.assertEqual(self._get(path).status_code, 404)
+                remote_file.assert_not_called()
+                self._write_local_zip()
+                response = self._get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("local", response.content.decode())
+                self._remove_local_zip()
+                cache.clear()
