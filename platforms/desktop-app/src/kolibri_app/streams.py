@@ -45,7 +45,6 @@ class LoggerWriter(io.IOBase):
         finally:
             self._state.writing = False
 
-    def flush(self):
-        # Completing the buffered line through write() reuses its guard.
+    def flush_partial_line(self):
         if self._state.msg:
             self.write("\n")

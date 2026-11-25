@@ -1,8 +1,10 @@
+import atexit
 import logging as log
 import os
 import sys
 
 from kolibri.utils.conf import LOG_ROOT
+from kolibri.utils.logger import FILE_LOG_FORMAT
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 from kolibri_app.constants import APP_USER_SUFFIX
 from kolibri_app.constants import RUN_AS_SERVER
@@ -30,8 +32,11 @@ log_filename = os.path.join(LOG_ROOT, log_basename)
 file_handler = KolibriTimedRotatingFileHandler(
     filename=log_filename, encoding="utf-8", when="midnight", backupCount=30
 )
+file_handler.setFormatter(log.Formatter(FILE_LOG_FORMAT))
 logging.addHandler(file_handler)
 
 # Make sure we send all app output to logs as we have no console to view them on.
 sys.stdout = LoggerWriter(logging.debug)
 sys.stderr = LoggerWriter(logging.warning)
+atexit.register(sys.stdout.flush_partial_line)
+atexit.register(sys.stderr.flush_partial_line)

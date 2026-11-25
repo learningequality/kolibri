@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import time
 from logging.handlers import QueueHandler
 from logging.handlers import QueueListener
@@ -33,6 +34,8 @@ def _log_queue_max_size() -> int:
 
 
 LOG_QUEUE_MAX_SIZE = _log_queue_max_size()
+
+FILE_LOG_FORMAT = "%(levelname)s %(asctime)s %(name)s %(message)s"
 
 LOG_COLORS = {
     "DEBUG": "blue",
@@ -169,6 +172,8 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     The original code is here: https://github.com/python/cpython/blob/2.7/Lib/logging/handlers.py#L162
     """
 
+    _opened_file = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dirname, basename = os.path.split(self.baseFilename)
@@ -208,6 +213,12 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         be renamed from KOLIBRI_HOME/logs/kolibri.txt.YYYY-MM-DD to
         KOLIBRI_HOME/logs/archive/KOLIBRI-YYYY-MM-DD.txt.
         """
+        if self._rotated_by_another_process():
+            if self.stream:
+                self.stream.close()
+                self.stream = None
+            self._postpone_rollover()
+            return
         try:
             super().doRollover()
         except OSError:
@@ -227,6 +238,23 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         # directory from two processes.
         os.makedirs(self.archive_dir, exist_ok=True)
         self._rotation_files(filenames, prefix)
+
+    def _open(self):
+        stream = super()._open()
+        self._opened_file = self._file_identity()
+        return stream
+
+    def _file_identity(self):
+        stat = os.stat(self.baseFilename)
+        return stat.st_dev, stat.st_ino
+
+    def _rotated_by_another_process(self):
+        if self._opened_file is None:
+            return False
+        try:
+            return self._file_identity() != self._opened_file
+        except FileNotFoundError:
+            return True
 
     def _postpone_rollover(self):
         """
@@ -261,9 +289,26 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
                 new_name = logname + "-" + rollover_time + "." + ext
                 destination_filename = os.path.join(self.archive_dir, new_name)
                 source_filename = os.path.join(self.dirname, filename)
-                os.rename(source_filename, destination_filename)
+                try:
+                    self._archive(source_filename, destination_filename)
+                except OSError:
+                    continue
 
         return result
+
+    def _archive(self, source_filename, destination_filename):
+        # Windows' os.rename refuses an existing destination
+        # (learningequality/kolibri#15934).
+        if not os.path.exists(destination_filename):
+            os.rename(source_filename, destination_filename)
+            return
+        merging_filename = destination_filename + ".merging"
+        os.replace(source_filename, merging_filename)
+        with open(merging_filename, "rb") as source, open(
+            destination_filename, "ab"
+        ) as destination:
+            shutil.copyfileobj(source, destination)
+        os.remove(merging_filename)
 
 
 class FalseFilter(logging.Filter):
@@ -364,7 +409,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
             },
-            "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
+            "simple_date": {"format": FILE_LOG_FORMAT},
             "color": {
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(asctime)s %(message)s",
