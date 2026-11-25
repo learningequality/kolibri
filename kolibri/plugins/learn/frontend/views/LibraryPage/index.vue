@@ -138,6 +138,7 @@
       <SidePanelModal
         v-if="metadataSidePanelContent && !rootNodesLoading"
         data-testid="side-panel-modal"
+        :ariaLabel="metadataSidePanelContent.title"
         alignment="right"
         @closePanel="metadataSidePanelContent = null"
         @shouldFocusFirstEl="findFirstEl()"
