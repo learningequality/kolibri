@@ -2,7 +2,7 @@
 import { TextEncoder, TextDecoder } from 'node:util';
 
 import xhrMock from 'xhr-mock';
-import { zipSync, strToU8 } from 'fflate';
+import { zipSync, strToU8, inflateSync } from 'fflate';
 import ZipFile from '../src/index';
 import { Mapper } from '../src/fileUtils';
 import { findRangeOverlaps } from './rangeOverlaps';
@@ -93,6 +93,75 @@ describe('ZipFile public API', () => {
   afterEach(() => {
     xhrMock.teardown();
     jest.restoreAllMocks();
+  });
+
+  describe('native compression streams', () => {
+    const content = 'Deflated content. '.repeat(100);
+
+    function openDeflatedZip() {
+      setupMockServer(createTestZip({ 'entry.txt': content }));
+      let IsolatedZipFile;
+      jest.isolateModules(() => {
+        // eslint-disable-next-line import-x/no-commonjs
+        IsolatedZipFile = require('../src/index').default;
+      });
+      return new IsolatedZipFile('test.zip');
+    }
+
+    beforeEach(() => {
+      global.CompressionStream = class extends TransformStream {
+        constructor() {
+          super();
+        }
+      };
+    });
+
+    afterEach(() => {
+      delete global.CompressionStream;
+      delete global.DecompressionStream;
+    });
+
+    it.each(['CompressionStream', 'DecompressionStream'])(
+      'uses the fallback when %s rejects deflate-raw',
+      async unsupportedStream => {
+        global.DecompressionStream = jest.fn(() => new TransformStream());
+        global[unsupportedStream] = jest.fn(() => {
+          throw new TypeError('Unsupported compression format');
+        });
+        const decompress = global.DecompressionStream;
+
+        const zip = openDeflatedZip();
+        decompress.mockClear();
+
+        await expect(zip.file('entry.txt').then(file => file.toString())).resolves.toBe(content);
+        expect(decompress).not.toHaveBeenCalled();
+      },
+    );
+
+    it('inflates with the native stream when both streams support deflate-raw', async () => {
+      const inflate = jest.fn(inflateSync);
+      global.DecompressionStream = class extends TransformStream {
+        constructor(format) {
+          expect(format).toBe('deflate-raw');
+          const bytes = [];
+          super({
+            transform(chunk) {
+              for (const byte of chunk) {
+                bytes.push(byte);
+              }
+            },
+            flush(controller) {
+              controller.enqueue(inflate(Uint8Array.from(bytes)));
+            },
+          });
+        }
+      };
+
+      const zip = openDeflatedZip();
+
+      await expect(zip.file('entry.txt').then(file => file.toString())).resolves.toBe(content);
+      expect(inflate).toHaveBeenCalled();
+    });
   });
 
   describe('file() - single file extraction', () => {

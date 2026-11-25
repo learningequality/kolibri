@@ -13,11 +13,20 @@ const MIMETYPE_OVERRIDES = {
 };
 
 // Feature detection for graceful degradation
-const supportsCompressionStream = typeof CompressionStream !== 'undefined';
+function supportsDeflateRawStreams() {
+  // Chromium 80–102 ship both streams without 'deflate-raw' (added in 103).
+  try {
+    new CompressionStream('deflate-raw');
+    new DecompressionStream('deflate-raw');
+    return true;
+  } catch {
+    return false;
+  }
+}
 const supportsWorkers = typeof Worker !== 'undefined';
 
 configure({
-  useCompressionStream: supportsCompressionStream,
+  useCompressionStream: supportsDeflateRawStreams(),
   useWebWorkers: supportsWorkers,
 });
 
