@@ -121,7 +121,7 @@ export default new Resource({
   cache: {},
   // A cache hit ignores `params`.
   async retrieve(id, { params } = {}) {
-    if (this.cache[id]) {
+    if (Object.hasOwn(this.cache, id)) {
       return cloneDeep(this.cache[id]);
     }
     const data = await Resource.prototype.retrieve.call(this, id, { params });
