@@ -330,16 +330,13 @@ def _zip_content_from_request(request):  # noqa: C901
     except InvalidStorageFilenameError:
         return create_error_response(f"{zipped_filename} is not a valid file name")
 
-    if remote_baseurl:
-        remote_baseurl = unquote(remote_baseurl)
-        if NetworkClient.known_location_for_address(remote_baseurl) is None:
-            return create_error_response(f"{remote_baseurl} is not a known peer")
-
     local_zip_exists = os.path.exists(zipped_path)
-    # if the zipfile does not exist on disk, return a 404
     if not local_zip_exists:
         if not remote_baseurl:
             return create_error_response(f"{zipped_filename} is not a valid zip file")
+        remote_baseurl = unquote(remote_baseurl)
+        if NetworkClient.known_location_for_address(remote_baseurl) is None:
+            return create_error_response(f"{remote_baseurl} is not a known peer")
         try:
             zipped_url = get_content_storage_remote_url(
                 zipped_filename, baseurl=remote_baseurl

@@ -201,6 +201,13 @@ importers:
       web-streams-polyfill:
         specifier: 'catalog:'
         version: 4.2.0
+    devDependencies:
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
+      xhr-mock:
+        specifier: 'catalog:'
+        version: 2.5.1
 
   kolibri/plugins/coach:
     dependencies:
@@ -500,6 +507,9 @@ importers:
       css-minimizer-webpack-plugin:
         specifier: 8.0.0
         version: 8.0.0(webpack@5.109.2)
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       html-webpack-plugin:
         specifier: 5.6.5
         version: 5.6.5(webpack@5.109.2)
@@ -524,6 +534,9 @@ importers:
       webpack-cli:
         specifier: ^7.0.2
         version: 7.0.2(webpack-dev-server@5.2.6)(webpack@5.109.2)
+      xhr-mock:
+        specifier: 'catalog:'
+        version: 2.5.1
 
   kolibri/plugins/html5_viewer:
     dependencies:

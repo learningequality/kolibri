@@ -1,5 +1,6 @@
 import ZipFile from 'kolibri-zip';
 import { DOMMapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
+import { zipcontentArchiveUrl, zipcontentEntryUrl } from 'kolibri-sandbox/zipcontent';
 
 const domParser = new DOMParser();
 
@@ -105,11 +106,8 @@ export default class BloomRunner {
     // This is the path to the Bloompub file which we load in its entirety.
     this.filepath = filepath;
     // A fallback URL to the zipcontent endpoint for this Bloom file
-    this.zipcontentUrl = new URL(
-      `../../zipcontent/${this.filepath.split('/').pop()}`,
-      window.location,
-    ).href;
-    const largeFileUrlGenerator = filePath => `${this.zipcontentUrl}/${filePath}`;
+    this.zipcontentUrl = zipcontentArchiveUrl(this.filepath);
+    const largeFileUrlGenerator = filePath => zipcontentEntryUrl(this.zipcontentUrl, filePath);
     this.zip = new ZipFile(this.filepath, { filePathMappers, largeFileUrlGenerator });
     await this.processFiles();
     this.initBloom();

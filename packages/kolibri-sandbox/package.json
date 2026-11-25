@@ -13,6 +13,7 @@
     "./SandboxHandler": "./src/SandboxHandler.js",
     "./SandboxShim": "./src/SandboxShim.js",
     "./base": "./src/base.js",
+    "./zipcontent": "./src/zipcontent.js",
     "./mediator": "./src/mediator.js"
   },
   "scripts": {
