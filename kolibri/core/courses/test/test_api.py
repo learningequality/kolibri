@@ -162,9 +162,12 @@ class CourseSessionAPITestCase(APITestCase):
             },
             format="json",
         )
-        created_by = response.data.get("created_by")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(created_by, self.admin.id)
+        self.assertNotIn("created_by", response.data)
+        self.assertEqual(
+            models.CourseSession.objects.get(pk=response.data["id"]).created_by,
+            self.admin,
+        )
 
     def test_logged_in_admin_course_session_create_with_assignments(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -763,13 +766,14 @@ class CourseSessionAPITestCase(APITestCase):
             "active",
             "collection",
             "classroom",
-            "created_by",
             "date_created",
             "assignments",
             "missing_resource",
             "learner_ids",
         ):
             self.assertIn(field, cs, msg=f"Missing field: {field}")
+
+        self.assertNotIn("created_by", cs)
 
         # 'is_active' must not appear — should be renamed to 'active'
         self.assertNotIn("is_active", cs)

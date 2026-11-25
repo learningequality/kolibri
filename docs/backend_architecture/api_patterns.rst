@@ -3,6 +3,60 @@ API Patterns
 
 This document describes common patterns and best practices for building APIs in Kolibri.
 
+API Input Validation
+--------------------
+
+Requesting-user fields
+~~~~~~~~~~~~~~~~~~~~~~
+
+Fields identifying the requesting user are server-controlled inputs. Declare
+them with ``HiddenField`` rather than assigning ``request.user`` in
+``to_internal_value()``, ``validate()``, ``create()``, or assignment helpers.
+Pass the request in the serializer context; viewsets do this automatically.
+
+Use ``CurrentUserDefault`` for a field that should receive the requesting user
+on creation and full updates, such as a pinned device's ``user`` or an
+assignment's ``assigned_by``:
+
+.. code-block:: python
+
+    from rest_framework import serializers
+
+    class PinnedDeviceSerializer(serializers.ModelSerializer):
+        user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+        class Meta:
+            model = PinnedDevice
+            fields = ("id", "instance_id", "user")
+
+For a creator that must remain unchanged on edits, wrap the default in
+``CreateOnlyDefault``:
+
+.. code-block:: python
+
+    class AttendanceSessionSerializer(serializers.ModelSerializer):
+        created_by = serializers.HiddenField(
+            default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
+        )
+
+        class Meta:
+            model = AttendanceSession
+            fields = ("id", "collection", "created_by")
+
+Both patterns ignore client-supplied values. ``HiddenField`` is write-only, so
+these fields are omitted from responses, including those derived by
+``ValuesViewset``. They remain stored on the model.
+
+DRF skips defaults during partial updates (``PATCH``). When an edit creates new
+assignment records, validate those records with their own serializer and pass
+the parent's context. Use normal creation validation for the new assignments,
+even when the parent serializer has ``partial=True``. Their ``assigned_by``
+default then identifies the editing user; existing assignments keep their
+original author.
+
+See DRF's `advanced field defaults
+<https://www.django-rest-framework.org/api-guide/validators/#advanced-field-defaults>`__.
+
 ValuesViewset Pattern
 ---------------------
 
