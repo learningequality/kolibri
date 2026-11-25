@@ -4,6 +4,7 @@ minimumReleaseAgeExclude:
   - kolibri-constants
   - kolibri-design-system
 packages:
+  - integration_testing/viewer_sandbox
   - packages/*
   - kolibri/core
   - kolibri/plugins/*
