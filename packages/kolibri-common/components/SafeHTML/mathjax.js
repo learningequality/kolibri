@@ -19,7 +19,7 @@ const mathDocument = mathjax.document('', {
 
 export function renderMathML(mml, display) {
   const element = mathDocument.convert(mml, { display });
-  // A misplaced <mtd>, <mtr> or <mprescripts> becomes an error showing its tag
+  // A misplaced <mtd>, <mtr>, <mprescripts> or <none> becomes an error showing its tag
   // name whatever `verify` says; native MathML shows its content instead.
   const error = element.querySelector('[data-mjx-message]');
   if (error) {
