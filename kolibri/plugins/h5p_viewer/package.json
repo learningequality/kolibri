@@ -29,6 +29,7 @@
     "browserslist-config-kolibri": "workspace:*",
     "css-loader": "7.1.2",
     "css-minimizer-webpack-plugin": "8.0.0",
+    "fflate": "^0.8.3",
     "html-webpack-plugin": "5.6.5",
     "jquery": "3.5.1",
     "jszip": "^3.10.1",
@@ -36,7 +37,8 @@
     "purgecss": "^6.0.0",
     "terser-webpack-plugin": "^5.3.14",
     "webpack": "^5.109.2",
-    "webpack-cli": "^7.0.2"
+    "webpack-cli": "^7.0.2",
+    "xhr-mock": "catalog:"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"

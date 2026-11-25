@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
 import ZipFile from 'kolibri-zip';
+import { zipcontentArchiveUrl, zipcontentEntryUrl } from 'kolibri-sandbox/zipcontent';
 import filenameObj from '../../h5p_build/h5p_build.json';
 import { XAPIVerbMap } from './xAPIConstants';
 
@@ -138,15 +139,12 @@ export default class H5PRunner {
     // This is the path to the H5P file which we load in its entirety.
     this.filepath = filepath;
     // A fallback URL to the zipcontent endpoint for this H5P file
-    this.zipcontentUrl = new URL(
-      `../../zipcontent/${this.filepath.split('/').pop()}`,
-      window.location,
-    ).href;
+    this.zipcontentUrl = zipcontentArchiveUrl(this.filepath);
     // Set this to a dummy value - we use this for generating the H5P ids,
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
     const start = performance.now();
-    const largeFileUrlGenerator = filePath => `${this.zipcontentUrl}/${filePath}`;
+    const largeFileUrlGenerator = filePath => zipcontentEntryUrl(this.zipcontentUrl, filePath);
     // First load the full H5P file
     // Store the zip locally for later reference
     this.zip = new ZipFile(this.filepath, { largeFileUrlGenerator });
