@@ -193,6 +193,9 @@ class KolibriView(object):
         self.webview.Bind(html2.EVT_WEBVIEW_NAVIGATING, self.OnBeforeLoad)
         self.webview.Bind(html2.EVT_WEBVIEW_LOADED, self.OnLoadComplete)
         self.webview.Bind(html2.EVT_WEBVIEW_TITLE_CHANGED, self.OnTitleChanged)
+        # wx 3.2 backends cancel target="_blank" and window.open() navigations
+        # after sending this event.
+        self.webview.Bind(html2.EVT_WEBVIEW_NEWWINDOW, self.OnNewWindow)
 
         self._print_pending = False
 
@@ -366,6 +369,11 @@ class KolibriView(object):
     def OnBeforeLoad(self, event):
         if not self.app.should_load_url(event.URL):
             event.Veto()
+
+    def OnNewWindow(self, event):
+        url = event.GetURL()
+        if url.startswith("http"):
+            webbrowser.open(url)
 
     def OnScriptMessage(self, event):
         raw = event.GetString()
