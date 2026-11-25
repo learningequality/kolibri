@@ -13,20 +13,29 @@ import ContentNodeProgressResource from 'kolibri-common/apiResources/ContentNode
 const contentNodeProgressMap = reactive({});
 const contentNodeProgressMetaDataMap = reactive({});
 
-export function setContentNodeProgress(progress) {
+const questionCountFields = [
+  'num_question_answered',
+  'num_question_answered_correctly',
+  'total_questions',
+];
+
+export function setContentNodeProgress(update) {
+  const { content_id: contentId, progress } = update;
+  const storedProgress = contentNodeProgressMap[contentId];
+
   // Avoid setting stale progress data - assume that progress increases monotonically
-  if (
-    !contentNodeProgressMap[progress.content_id] ||
-    progress.progress >= contentNodeProgressMap[progress.content_id]
-  ) {
-    set(contentNodeProgressMap, progress.content_id, progress.progress);
-    // this should have been conditional
-    set(contentNodeProgressMetaDataMap, progress.content_id, {
-      num_question_answered: progress.num_question_answered,
-      num_question_answered_correctly: progress.num_question_answered_correctly,
-      total_questions: progress.total_questions,
-    });
+  if (!storedProgress || progress >= storedProgress) {
+    set(contentNodeProgressMap, contentId, progress);
   }
+
+  const counts = { ...contentNodeProgressMetaDataMap[contentId] };
+  for (const field of questionCountFields) {
+    const count = update[field];
+    if (count !== undefined) {
+      counts[field] = count;
+    }
+  }
+  set(contentNodeProgressMetaDataMap, contentId, counts);
 }
 
 export default function useContentNodeProgress() {
