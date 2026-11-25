@@ -1,6 +1,11 @@
 // Polyfills for Node.js and older browsers
 import 'fastestsmallesttextencoderdecoder';
-import { configure, ZipReader, Uint8ArrayWriter, getMimeType } from '@zip.js/zip.js';
+import {
+  configure,
+  ZipReader,
+  Uint8ArrayWriter,
+  getMimeType,
+} from '@zip.js/zip.js/index-native.js';
 import isPlainObject from 'lodash/isPlainObject';
 import AdaptiveHttpReader from './AdaptiveHttpReader';
 import { getAbsoluteFilePath, defaultFilePathMappers } from './fileUtils';
@@ -13,11 +18,20 @@ const MIMETYPE_OVERRIDES = {
 };
 
 // Feature detection for graceful degradation
-const supportsCompressionStream = typeof CompressionStream !== 'undefined';
+function supportsDeflateRawStreams() {
+  // Chromium 80–102 ship both streams without 'deflate-raw' (added in 103).
+  try {
+    new CompressionStream('deflate-raw');
+    new DecompressionStream('deflate-raw');
+    return true;
+  } catch {
+    return false;
+  }
+}
 const supportsWorkers = typeof Worker !== 'undefined';
 
 configure({
-  useCompressionStream: supportsCompressionStream,
+  useCompressionStream: supportsDeflateRawStreams(),
   useWebWorkers: supportsWorkers,
 });
 
