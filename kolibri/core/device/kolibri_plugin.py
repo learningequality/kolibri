@@ -3,17 +3,40 @@ from typing import ClassVar
 
 from django.db.models import OuterRef
 from django.db.models import Subquery
+from magicbus.plugins import SimplePlugin
 
 from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.sync_event_hook_utils import get_dataset_id
 from kolibri.core.auth.sync_event_hook_utils import get_user_id_for_single_user_sync
 from kolibri.core.auth.sync_operations import KolibriVersionedSyncOperation
+from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import SyncQueueStatus
+from kolibri.core.device.tasks import warm_cached_views
 from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils.server.hooks import KolibriProcessHook
+
+
+class CacheGenerationPlugin(SimplePlugin):
+    def START(self):
+        DeviceSettings.rotate_cache_generation()
+
+    # Before the START handlers that serve pages.
+    START.priority = 40
+
+    def RUN(self):
+        # Pages rendered during START can carry a zip content port of 0,
+        # as the PID file holds the configured port until the zip server binds.
+        DeviceSettings.rotate_cache_generation()
+        warm_cached_views.enqueue_if_not()
+
+
+@register_hook
+class CacheGenerationProcessHook(KolibriProcessHook):
+    MagicBusPluginClass = CacheGenerationPlugin
 
 
 @register_hook

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 import kolibri.core.device.models as device_models
+from kolibri.core.device.kolibri_plugin import CacheGenerationPlugin
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import get_device_hostname
 from kolibri.core.device.utils import get_device_setting
@@ -85,6 +86,46 @@ class DeviceSettingsTestCase(TestCase):
         DeviceSettings.objects.delete()
         with self.assertRaises(DeviceSettings.DoesNotExist):
             DeviceSettings.objects.get()
+
+    def test_server_start_rotates_cache_generation(self):
+        DeviceSettings.objects.create()
+        previous = get_device_setting("cache_generation")
+
+        CacheGenerationPlugin(mock.Mock()).START()
+
+        self.assertNotEqual(get_device_setting("cache_generation"), previous)
+
+    @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
+    def test_server_run_rotates_cache_generation(self, mock_enqueue):
+        DeviceSettings.objects.create()
+        plugin = CacheGenerationPlugin(mock.Mock())
+        plugin.START()
+        started = get_device_setting("cache_generation")
+
+        plugin.RUN()
+
+        self.assertNotEqual(get_device_setting("cache_generation"), started)
+
+    def test_server_start_before_provisioning_creates_no_device_settings(self):
+        CacheGenerationPlugin(mock.Mock()).START()
+
+        self.assertFalse(DeviceSettings.objects.exists())
+
+    @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
+    def test_server_run_warms_cached_views_in_the_new_generation(self, mock_enqueue):
+        DeviceSettings.objects.create()
+        plugin = CacheGenerationPlugin(mock.Mock())
+        plugin.START()
+        generations_at_enqueue = []
+        mock_enqueue.side_effect = lambda: generations_at_enqueue.append(
+            get_device_setting("cache_generation")
+        )
+
+        plugin.RUN()
+
+        self.assertEqual(
+            generations_at_enqueue, [get_device_setting("cache_generation")]
+        )
 
     @patch("kolibri.core.device.tasks.warm_cached_views.enqueue_if_not")
     def test_language_change_warms_cached_views(self, mock_enqueue):
