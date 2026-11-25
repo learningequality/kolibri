@@ -11,7 +11,6 @@
 ; the deeply nested bundled asset paths within Windows' 260-char MAX_PATH limit.
 #define SourceDir "..\dist\" + AppName
 #define KolibriDataDir "{commonappdata}\kolibri"
-#define NssmExePath "{app}\nssm\nssm.exe"
 #define TaskkillExePath "{sys}\taskkill.exe"
 
 ; === GUID Constants ===
@@ -71,7 +70,6 @@ Source: "MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; DestDir: "{tmp}"; Flags:
 
 Source: "{#SourceDir}\{#AppName}-{#AppVersion}.exe"; DestDir: "{app}"; DestName: "{#AppExeName}"; Flags: ignoreversion
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "{#AppName}-{#AppVersion}.exe"
-Source: "nssm\nssm.exe"; DestDir: "{app}\nssm"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"
@@ -91,7 +89,7 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#AppName}}"; F
 ; 1. Stop the Kolibri service.
 Filename: "net.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated; RunOnceId: "stopservice"
 ; 2. Remove the Kolibri service definition.
-Filename: "{#NssmExePath}"; Parameters: "remove {#ServiceName} confirm"; Flags: runhidden waituntilterminated; RunOnceId: "removeservice"
+Filename: "{sys}\sc.exe"; Parameters: "delete {#ServiceName}"; Flags: runhidden waituntilterminated; RunOnceId: "removeservice"
 ; 3. Stop the UI process
 Filename: "{#TaskkillExePath}"; Parameters: "/F /IM {#AppExeName}"; Flags: runhidden waituntilterminated; RunOnceId: "killapp"
 
@@ -102,6 +100,8 @@ const
   TASKKILL_ERR_NOT_FOUND = 128;
   ICACLS_EXE_PATH = '{sys}\icacls.exe';
   SC_EXE_PATH = '{sys}\sc.exe';
+  NET_EXE_PATH = '{sys}\net.exe';
+  POWERSHELL_EXE_PATH = '{sys}\WindowsPowerShell\v1.0\powershell.exe';
 
 procedure TerminateLegacyApp();
 var
@@ -361,11 +361,12 @@ var
   ResultCode: Integer;
 begin
   Log('Setup is preparing to install. Attempting to stop the Kolibri service if it exists...');
-  Exec(ExpandConstant(SC_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  // Unlike sc stop, net stop waits for the service to reach STOPPED.
+  Exec(ExpandConstant(NET_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   if ResultCode = 0 then
     Log('Service "{#ServiceName}" stopped successfully.')
   else
-    Log(Format('Command "sc stop" finished with exit code %d. This is normal if the service was not running.', [ResultCode]));
+    Log(Format('Command "net stop" finished with exit code %d. This is normal if the service was not running.', [ResultCode]));
 
   // Force-kill any running UI processes
   Exec(ExpandConstant('{#TaskkillExePath}'),
@@ -382,6 +383,14 @@ begin
   begin
     Log(Format('Unexpected taskkill exit code: %d', [ResultCode]));
   end;
+
+  // taskkill returns before the processes exit, and Restart Manager aborts a
+  // silent install while any of them still holds a file.
+  Exec(ExpandConstant(POWERSHELL_EXE_PATH),
+       '-NoProfile -Command "Wait-Process -Name ' + ChangeFileExt('{#AppExeName}', '') + ' -Timeout 30 -ErrorAction SilentlyContinue"',
+       '',
+       SW_HIDE, ewWaitUntilTerminated,
+       ResultCode);
 
   Result := '';
 end;
@@ -404,49 +413,30 @@ end;
 // Configure service after file installation
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  AppPath, AppDir, NssmPath, Params: String;
+  SC, BinPath: String;
   ResultCode: Integer;
 begin
   // Only act after file installation is complete
   if (CurStep = ssPostInstall) then
   begin
     // Pre-expand constants for clarity
-    AppPath := ExpandConstant('{app}\{#AppExeName}');
-    AppDir := ExpandConstant('{app}');
-    NssmPath := ExpandConstant('{#NssmExePath}');
+    SC := ExpandConstant(SC_EXE_PATH);
+    BinPath := '"\"' + ExpandConstant('{app}\{#AppExeName}') + '\" --run-as-service"';
 
     Log('Post-install step: Installing or updating the Kolibri service...');
 
     // STEP 1: Install or update the service definition, but DO NOT start it yet.
-    if IsServiceInstalled('{#ServiceName}') then
+    if not IsServiceInstalled('{#ServiceName}') then
     begin
-      // Update existing service
-      Log('Service "{#ServiceName}" already exists. Updating configuration...');
-      Params := 'set "{#ServiceName}" Application "' + AppPath + '"';
-      ExecChecked(NssmPath, Params, '', 'Update Service Executable Path');
-
-      Params := 'set "{#ServiceName}" AppParameters "--run-as-server"';
-      ExecChecked(NssmPath, Params, '', 'Update Service Parameters');
-
-      Params := 'set "{#ServiceName}" AppDirectory "' + AppDir + '"';
-      ExecChecked(NssmPath, Params, '', 'Update Service Working Directory');
-    end
-    else
-    begin
-      // Install new service
       Log('Service "{#ServiceName}" not found. Performing fresh installation...');
-      Params := 'install "{#ServiceName}" "' + AppPath + '" --run-as-server';
-      ExecChecked(NssmPath, Params, '', 'Install {#ServiceName} Service');
+      ExecChecked(SC, 'create "{#ServiceName}" binPath= ' + BinPath, '', 'Install {#ServiceName} Service');
     end;
 
     // STEP 2: Apply common service configuration and directory permissions.
     // This is important so the migration step can write to the ProgramData folder.
     Log('Applying common service configuration...');
-    ExecChecked(NssmPath, 'set "{#ServiceName}" ObjectName "NT AUTHORITY\LocalService"', '', 'Set Service User to LocalService');
-    ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
-    // NSSM posts WM_CLOSE to the server's hidden stop window, then terminates it
-    // after this many ms. The 1500 ms default is too short for a graceful stop.
-    ExecChecked(NssmPath, 'set "{#ServiceName}" AppStopMethodWindow 30000', '', 'Set Service Graceful Stop Timeout');
+    ExecChecked(SC, 'config "{#ServiceName}" binPath= ' + BinPath + ' obj= "NT AUTHORITY\LocalService" password= ""', '', 'Set Service Executable and User');
+    ExecChecked(SC, 'description "{#ServiceName}" "This service runs the Kolibri server in the background"', '', 'Set Service Description');
     ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Service');
     ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
 
@@ -462,21 +452,21 @@ begin
     if (WizardIsTaskSelected('installservice')) then
     begin
       Log('User selected to enable the service. Setting to Auto-Start and starting it.');
-      ExecChecked(NssmPath, 'set "{#ServiceName}" Start SERVICE_AUTO_START', '', 'Set Service Start Type to Automatic');
-      ExecChecked(ExpandConstant(SC_EXE_PATH), 'start "{#ServiceName}"', '', 'Start {#ServiceName} Service');
+      ExecChecked(SC, 'config "{#ServiceName}" start= auto', '', 'Set Service Start Type to Automatic');
+      ExecChecked(SC, 'start "{#ServiceName}"', '', 'Start {#ServiceName} Service');
     end
     else
     begin
       Log('User did not select to enable the service. Setting to Disabled.');
       // Stop the service first, in case it was running from a previous installation.
-      Exec(ExpandConstant(SC_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Exec(SC, 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
       if ResultCode = 0 then
         Log('Service was running and has been stopped.')
       else
         Log(Format('sc stop finished with code %d. This is normal if the service was not running.', [ResultCode]));
 
       // Set the service to be disabled.
-      ExecChecked(NssmPath, 'set "{#ServiceName}" Start SERVICE_DISABLED', '', 'Set Service Start Type to Disabled');
+      ExecChecked(SC, 'config "{#ServiceName}" start= disabled', '', 'Set Service Start Type to Disabled');
     end;
     Log('Service configuration completed successfully.');
     // Add tray icon to startup if service is enabled

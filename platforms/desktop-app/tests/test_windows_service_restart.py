@@ -11,6 +11,9 @@ from windows_stubs import win32service as _win32service
 from windows_stubs import windows_utils
 from windows_stubs import wx
 
+from kolibri.utils.options import lazy_import_callback_list
+from kolibri_app.windows import server_command
+
 
 class _FakeService:
     """A service that takes a while to stop and cannot start until it has.
@@ -219,6 +222,30 @@ class TestServiceFallback(unittest.TestCase):
         manager.use_service()
         manager.finish_service_handover()
         self.assertTrue(_falls_back_to_a_local_server(manager))
+
+
+class TestLocalServerRestart(unittest.TestCase):
+    def test_restarting_the_local_server_stops_it(self):
+        _, env = server_command.server_command_and_environment()
+        hooks = lazy_import_callback_list(env["KOLIBRI_RESTART_HOOKS"])
+        with patch("kolibri.utils.server.signal_stop") as signal_stop:
+            for hook in hooks:
+                hook()
+        signal_stop.assert_called_once_with()
+
+    def test_launches_the_local_server_again_once_it_has_stopped(self):
+        manager = _local_server_manager()
+        manager.server_process = MagicMock()
+        manager.server_process.poll.return_value = 0
+        with (
+            patch.object(wx, "CallAfter", lambda f, *args: f(*args)),
+            patch.object(manager, "_launch_server_process") as launch,
+            patch.object(manager.pipe_shutdown_event, "wait", return_value=False),
+        ):
+            manager._handle_pipe_error(
+                _Win32Error(server_manager_windows.winerror.ERROR_BROKEN_PIPE)
+            )
+        launch.assert_called_once_with()
 
 
 class TestLocalServerShutdown(unittest.TestCase):
