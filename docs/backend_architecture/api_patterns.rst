@@ -6,11 +6,6 @@ This document describes common patterns and best practices for building APIs in 
 API Input Validation
 --------------------
 
-Declare and validate request inputs at the API boundary. Use a filter set for
-query parameters that filter a queryset, and a dedicated serializer for other
-query parameters or action inputs. Validate request bodies with the endpoint's
-serializer and use its ``validated_data`` when saving.
-
 Requesting-user fields
 ~~~~~~~~~~~~~~~~~~~~~~
 

@@ -143,12 +143,11 @@ class RequestUserDefaultsAPITestCase(APITestCase):
         self.assertNotIn(field, response.data)
 
     @parameterized.expand(ASSIGNMENT_CASES)
-    def test_create_assignments_ignores_supplied_author(self, name, model, parent):
+    def test_create_assignments_sets_requesting_user(self, name, model, parent):
         response = self._create(
             name,
             assignments=[self.group.id],
             learner_ids=[self.learner.id],
-            assigned_by=self.other_coach.id,
         )
         assignments = model.objects.filter(**{f"{parent}_id": response.data["id"]})
         self.assertEqual(assignments.count(), 2)
@@ -172,7 +171,7 @@ class RequestUserDefaultsAPITestCase(APITestCase):
         self.client.force_authenticate(self.other_coach)
         payload = self._payload(name)
         payload.pop("question_sources", None)
-        payload.update(assignments=[self.classroom.id], assigned_by=self.coach.id)
+        payload.update(assignments=[self.classroom.id])
         if individual:
             payload["learner_ids"] = [self.learner.id]
         else:
@@ -202,7 +201,7 @@ class RequestUserDefaultsAPITestCase(APITestCase):
         payload.pop("question_sources", None)
         if method == "put":
             payload["assignments"] = [self.group.id]
-        payload.update(creator=self.other_coach.id, assigned_by=self.coach.id)
+        payload.update(creator=self.other_coach.id)
         response = getattr(self.client, method)(
             self._url("draft", draft_id), payload, format="json"
         )
