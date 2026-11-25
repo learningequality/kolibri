@@ -188,8 +188,9 @@ class GuestRedirectView(RootURLRedirectView):
         """
         Redirects a guest user to a learner accessible page.
         """
-        if allow_guest_access():
-            return get_url_by_role(user_kinds.LEARNER)
+        learner_url = get_url_by_role(user_kinds.LEARNER)
+        if allow_guest_access() and learner_url:
+            return learner_url
         return super().get_redirect_url(*args, **kwargs)
 
 

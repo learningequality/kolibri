@@ -2,8 +2,6 @@ from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import get_device_unusable_reason
-from kolibri.core.device.utils import is_landing_page
-from kolibri.core.device.utils import LANDING_PAGE_LEARN
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
@@ -42,8 +40,12 @@ class UserAuthAsset(webpack_hooks.WebpackBundleHook):
 class LogInRedirect(RoleBasedRedirectHook):
     @property
     def roles(self):
-        if is_landing_page(LANDING_PAGE_LEARN):
-            return (None,)
+        if any(
+            ANONYMOUS in hook.roles
+            for hook in RoleBasedRedirectHook.registered_hooks
+            if hook is not self
+        ):
+            return ()
 
         return (ANONYMOUS,)
 
