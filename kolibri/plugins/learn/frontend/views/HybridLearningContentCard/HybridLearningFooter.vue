@@ -17,7 +17,7 @@
         :color="$themePalette.grey.v_700"
         :ariaLabel="coreString('downloadAction')"
         :tooltip="coreString('downloadAction')"
-        @click="handleDownloadRequest"
+        @click.stop="handleDownloadRequest"
       />
       <KIconButton
         v-if="bookmarked"
@@ -26,7 +26,7 @@
         :color="$themePalette.grey.v_700"
         :ariaLabel="coreString('removeFromBookmarks')"
         :tooltip="coreString('removeFromBookmarks')"
-        @click="$emit('removeFromBookmarks')"
+        @click.stop="$emit('removeFromBookmarks')"
       />
       <CoachContentLabel
         v-if="hasRole && contentNode.num_coach_contents"
@@ -45,7 +45,7 @@
         :color="$themePalette.grey.v_700"
         :ariaLabel="coreString('viewInformation')"
         :tooltip="coreString('viewInformation')"
-        @click="$emit('toggleInfoPanel')"
+        @click.stop="$emit('toggleInfoPanel')"
       />
       <KIconButton
         v-if="downloadedByLearner"
@@ -54,7 +54,7 @@
         icon="optionsHorizontal"
         :tooltip="coreString('moreOptions')"
         :ariaLabel="coreString('moreOptions')"
-        @click="isMenuOpen = !isMenuOpen"
+        @click.stop="isMenuOpen = !isMenuOpen"
       />
       <CoreMenu
         v-show="isMenuOpen"
@@ -63,6 +63,7 @@
         :raised="true"
         :isOpen="isMenuOpen"
         :containFocus="true"
+        @click.native.stop
         @close="isMenuOpen = false"
         @shouldFocusFirstEl="findFirstEl()"
       >
@@ -78,6 +79,7 @@
     </div>
     <KModal
       v-if="removeConfirmationModalOpen"
+      appendToOverlay
       :title="$tr('removeFromMyLibraryAction')"
       :cancelText="coreString('cancelAction')"
       :submitText="coreString('removeAction')"
