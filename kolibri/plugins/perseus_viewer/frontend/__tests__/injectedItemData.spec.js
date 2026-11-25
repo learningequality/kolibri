@@ -170,6 +170,34 @@ describe('PerseusRendererIndex embellished itemData', () => {
     expect(result).not.toBeNull();
     expect(JSON.stringify(result.answerState)).not.toContain('blob:');
   });
+
+  it('does not render or start tracking once unmounted before its stylesheet loads', async () => {
+    let loadStylesheet;
+    PerseusRendererIndex.contentModule = {
+      loadDirectionalCSS: () => new Promise(resolve => (loadStylesheet = resolve)),
+    };
+    useContentViewer.mockImplementation(() => ({
+      ...useContentViewerMock({ itemData: embellishedItemData({ sourceId: 'teardown' }) }),
+      registerAssessmentApi: () => {},
+    }));
+    const onStartTracking = jest.fn();
+    const { unmount } = render(PerseusRendererIndex, {
+      listeners: { startTracking: onStartTracking },
+    });
+    unmount();
+    const rejections = [];
+    const onRejection = reason => rejections.push(reason);
+    process.on('unhandledRejection', onRejection);
+    try {
+      loadStylesheet();
+      await global.flushPromises();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    } finally {
+      process.off('unhandledRejection', onRejection);
+    }
+    expect(rejections).toEqual([]);
+    expect(onStartTracking).not.toHaveBeenCalled();
+  });
 });
 
 function renderedHintBodies(container) {

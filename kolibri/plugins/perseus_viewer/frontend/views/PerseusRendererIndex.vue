@@ -421,6 +421,7 @@
       },
     },
     beforeDestroy() {
+      this.tornDown = true;
       this.$emit('stopTracking');
       if (this._overflowResizeHandler) {
         window.removeEventListener('resize', this._overflowResizeHandler);
@@ -477,6 +478,9 @@
       perseus.init();
       // Try to load the appropriate directional CSS for the particular content
       this.$options.contentModule.loadDirectionalCSS(this.contentDirection).then(() => {
+        if (this.tornDown) {
+          return;
+        }
         if (this.defaultFile) {
           this.loadItemData();
         } else if (this.itemData) {
