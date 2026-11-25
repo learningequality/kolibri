@@ -25,18 +25,30 @@ const KEYPAD_KEYS = {
   ArrowDown: 'DOWN',
 };
 
+const EXPRESSION_KEYS = {
+  '(': 'LEFT_PAREN',
+  ')': 'RIGHT_PAREN',
+};
+
 // Covers every key in @khanacademy/math-input's `domKeyToMathQuillKey`, digits included. When
 // MathInput presses one of those itself, it resets its content, which moves the cursor out of any
 // fraction or exponent.
-function keypadKeyForKeyboardKey(key, language, useTimes) {
+function keypadKeyForKeyboardKey(key, language, keypadConfig) {
   if (key === '*') {
-    return useTimes ? 'TIMES' : 'CDOT';
+    return keypadConfig?.times ? 'TIMES' : 'CDOT';
   }
+  const isExpression = keypadConfig?.keypadType === 'EXPRESSION';
   if (KEYPAD_KEYS[key]) {
     return KEYPAD_KEYS[key];
   }
   if (/^\p{Nd}$/u.test(key)) {
     return `NUM_${normalizeNumerals(key)}`;
+  }
+  if (isExpression && EXPRESSION_KEYS[key]) {
+    return EXPRESSION_KEYS[key];
+  }
+  if (isExpression && /^[a-zA-Z]$/.test(key)) {
+    return key;
   }
   const { digits, decimal } = getLocaleNumberSymbols(language);
   const decimalKeys = /[٠-٩۰-۹]/.test(digits[0]) ? [decimal, ...ARABIC_DECIMAL_KEYS] : [decimal];
@@ -94,40 +106,34 @@ export default function useKeypad() {
     }
   }
 
-  const keydownWasShortcut = new Map();
+  const keydownWasHandled = new Map();
 
   /**
-   * On keyup, presses the keypad key a physical key types in `language`. On keydown, cancels the
-   * default action of a key it will press.
+   * On keydown, presses the keypad key a physical key types in `language` and cancels the
+   * key's default action.
    * @param {KeyboardEvent} event - A keydown or keyup in a math field
    * @param {string} [language] - BCP 47 tag of the content
-   * @returns {boolean} Whether a keyup was handled, by pressing a keypad key or by ignoring a
-   * Ctrl or Cmd shortcut
+   * @returns {boolean} Whether a keyup's keydown pressed a keypad key or was a Ctrl or Cmd
+   * shortcut, so MathInput must not press it again
    */
   function handleKeyboardEvent(event, language) {
     // Windows reports AltGr as Ctrl+Alt.
     const isShortcut = event.metaKey || (event.ctrlKey && !event.getModifierState('AltGraph'));
     const keyId = keyHandler.value
-      ? keypadKeyForKeyboardKey(event.key, language, keypadConfig.value?.times)
+      ? keypadKeyForKeyboardKey(event.key, language, keypadConfig.value)
       : null;
     if (event.type === 'keydown') {
-      keydownWasShortcut.set(event.code, isShortcut);
-      // Android WebView moves focus out of the field by spatial navigation on arrow keydowns.
+      keydownWasHandled.set(event.code, isShortcut || Boolean(keyId));
       if (keyId && !isShortcut) {
+        // Android WebView moves focus out of the field by spatial navigation on arrow keydowns.
         event.preventDefault();
+        handleKeyPress(keyId);
       }
       return false;
     }
-    const wasShortcut = keydownWasShortcut.get(event.code) ?? isShortcut;
-    keydownWasShortcut.delete(event.code);
-    if (wasShortcut) {
-      return true;
-    }
-    if (keyId) {
-      handleKeyPress(keyId);
-      return true;
-    }
-    return false;
+    const wasHandled = keydownWasHandled.get(event.code) ?? (isShortcut || Boolean(keyId));
+    keydownWasHandled.delete(event.code);
+    return wasHandled;
   }
 
   // The API object passed to Perseus as keypadElement.

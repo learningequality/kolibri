@@ -2,7 +2,7 @@ import { h } from 'vue';
 import { render } from '@testing-library/vue';
 import useKeypad from '../useKeypad';
 
-function setUpKeypad() {
+function setUpKeypad(keypadType = 'FRACTION') {
   let keypad;
   render({
     setup() {
@@ -11,6 +11,7 @@ function setUpKeypad() {
     },
   });
   const keyHandler = jest.fn();
+  keypad.keypadAPI.configure({ keypadType });
   keypad.keypadAPI.setKeyHandler(keyHandler);
   return {
     handleKeyboardEvent: keypad.handleKeyboardEvent,
@@ -25,6 +26,11 @@ function keyup(key, modifiers = {}) {
 
 function keydown(key, modifiers = {}) {
   return new KeyboardEvent('keydown', { key, cancelable: true, ...modifiers });
+}
+
+function typeKey(handleKeyboardEvent, key, language) {
+  handleKeyboardEvent(keydown(key), language);
+  return handleKeyboardEvent(keyup(key), language);
 }
 
 describe('useKeypad handleKeyboardEvent', () => {
@@ -59,8 +65,25 @@ describe('useKeypad handleKeyboardEvent', () => {
     ['en', 'ArrowDown', 'DOWN'],
   ])('on %s content presses %s as %s', (language, key, keyId) => {
     const { handleKeyboardEvent, keyHandler } = setUpKeypad();
-    expect(handleKeyboardEvent(keyup(key), language)).toBe(true);
-    expect(keyHandler).toHaveBeenCalledWith(keyId);
+    expect(typeKey(handleKeyboardEvent, key, language)).toBe(true);
+    expect(keyHandler.mock.calls).toEqual([[keyId]]);
+  });
+
+  it('presses overlapping keys in the order they go down', () => {
+    const { handleKeyboardEvent, keyHandler } = setUpKeypad('EXPRESSION');
+    handleKeyboardEvent(keydown('s', { code: 'KeyS' }), 'en');
+    handleKeyboardEvent(keydown('e', { code: 'KeyE' }), 'en');
+    expect(handleKeyboardEvent(keyup('e', { code: 'KeyE' }), 'en')).toBe(true);
+    expect(handleKeyboardEvent(keyup('s', { code: 'KeyS' }), 'en')).toBe(true);
+    expect(keyHandler.mock.calls).toEqual([['s'], ['e']]);
+  });
+
+  it('presses a held key on every repeat', () => {
+    const { handleKeyboardEvent, keyHandler } = setUpKeypad();
+    handleKeyboardEvent(keydown('5', { code: 'Digit5' }), 'en');
+    handleKeyboardEvent(keydown('5', { code: 'Digit5', repeat: true }), 'en');
+    handleKeyboardEvent(keyup('5', { code: 'Digit5' }), 'en');
+    expect(keyHandler.mock.calls).toEqual([['NUM_5'], ['NUM_5']]);
   });
 
   it.each([
@@ -111,7 +134,7 @@ describe('useKeypad handleKeyboardEvent', () => {
     handleKeyboardEvent(keydown('-', { code: 'Minus', ctrlKey: true }), 'en');
     handleKeyboardEvent(keydown('-', { code: 'Minus' }), 'en');
     expect(handleKeyboardEvent(keyup('-', { code: 'Minus' }), 'en')).toBe(true);
-    expect(keyHandler).toHaveBeenCalledWith('MINUS');
+    expect(keyHandler.mock.calls).toEqual([['MINUS']]);
   });
 
   it('presses a key pressed before the modifier and released while it is held', () => {
@@ -119,13 +142,13 @@ describe('useKeypad handleKeyboardEvent', () => {
     handleKeyboardEvent(keydown('7', { code: 'Digit7' }), 'en');
     handleKeyboardEvent(keydown('Control', { code: 'ControlLeft', ctrlKey: true }), 'en');
     expect(handleKeyboardEvent(keyup('7', { code: 'Digit7', ctrlKey: true }), 'en')).toBe(true);
-    expect(keyHandler).toHaveBeenCalledWith('NUM_7');
+    expect(keyHandler.mock.calls).toEqual([['NUM_7']]);
   });
 
   it('presses * as TIMES when the keypad shows ×', () => {
     const { handleKeyboardEvent, configure, keyHandler } = setUpKeypad();
     configure({ times: true });
-    expect(handleKeyboardEvent(keyup('*'), 'en')).toBe(true);
+    expect(typeKey(handleKeyboardEvent, '*', 'en')).toBe(true);
     expect(keyHandler).toHaveBeenCalledWith('TIMES');
   });
 
@@ -134,18 +157,37 @@ describe('useKeypad handleKeyboardEvent', () => {
     const altGr = { ctrlKey: true, altKey: true, modifierAltGraph: true };
     expect(handleKeyboardEvent(keydown('*', { code: 'Digit8', ...altGr }), 'hu')).toBe(false);
     expect(handleKeyboardEvent(keyup('*', { code: 'Digit8', ...altGr }), 'hu')).toBe(true);
-    expect(keyHandler).toHaveBeenCalledWith('CDOT');
+    expect(keyHandler.mock.calls).toEqual([['CDOT']]);
+  });
+
+  it.each([
+    ['en', '(', 'LEFT_PAREN'],
+    ['en', ')', 'RIGHT_PAREN'],
+    ['en', 'x', 'x'],
+    ['fr', 'e', 'e'],
+    ['en', 'X', 'X'],
+  ])('in an expression field on %s content presses %s as %s', (language, key, keyId) => {
+    const { handleKeyboardEvent, keyHandler } = setUpKeypad('EXPRESSION');
+    expect(typeKey(handleKeyboardEvent, key, language)).toBe(true);
+    expect(keyHandler.mock.calls).toEqual([[keyId]]);
+  });
+
+  it.each(['x', '('])('in a number field leaves %s to Perseus', key => {
+    const { handleKeyboardEvent, keyHandler } = setUpKeypad();
+    expect(typeKey(handleKeyboardEvent, key, 'en')).toBe(false);
+    expect(keyHandler).not.toHaveBeenCalled();
   });
 
   it.each([
     ['en', ','],
     ['en', '،'],
     ['fr', '،'],
-    ['en', 'a'],
+    ['fr', 'é'],
+    ['en', 'Shift'],
     ['en', 'Enter'],
   ])('on %s content leaves %s to Perseus', (language, key) => {
     const { handleKeyboardEvent, keyHandler } = setUpKeypad();
-    expect(handleKeyboardEvent(keyup(key), language)).toBe(false);
+    expect(typeKey(handleKeyboardEvent, key, language)).toBe(false);
     expect(keyHandler).not.toHaveBeenCalled();
   });
 });

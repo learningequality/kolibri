@@ -10,125 +10,121 @@
     both the i18n of the digits and the presentation.
   -->
   <div
-    ref="anchor"
-    class="keypad-anchor"
-    :style="anchorStyle"
+    ref="root"
+    :style="spacerStyle"
   >
-    <transition name="keypad-slide">
-      <div
-        v-show="active"
-        ref="container"
-        class="numeric-keypad"
-      >
+    <div
+      ref="anchor"
+      class="keypad-anchor"
+      :style="anchorStyle"
+    >
+      <transition name="keypad-slide">
         <div
-          class="keypad-body"
-          :style="keypadBodyStyle"
+          v-show="active"
+          ref="container"
+          class="numeric-keypad"
         >
           <div
-            class="keypad-grid"
-            :class="{ 'expression-grid': isExpression }"
+            class="keypad-body"
+            :style="keypadBodyStyle"
+            @keydown.enter.stop
           >
-            <!--
-              Numbers first in DOM for tab order, then operators. Each key
-              carries its own grid placement in key.gridStyle (see keys.js).
-
-              @mousedown.native.prevent stops the button from stealing focus
-              from the math input on press. Without it the input blurs, which
-              dismisses the keypad and drops the cursor, so the key press would
-              never land in the field.
-            -->
-            <KButton
-              v-for="key in primaryKeys"
-              :key="key.id"
-              :text="key.label"
-              :aria-label="key.ariaLabel()"
-              class="key-btn"
-              :style="key.gridStyle"
-              :primary="false"
-              appearance="flat-button"
-              :appearanceOverrides="keyStyles"
-              @click="onPress(key.id)"
-              @mousedown.native.prevent
-            />
-            <KButton
-              v-for="key in secondaryKeys"
-              :key="key.id"
-              :text="key.label"
-              :aria-label="key.ariaLabel()"
-              class="key-btn secondary"
-              :style="key.gridStyle"
-              :primary="false"
-              appearance="flat-button"
-              :appearanceOverrides="keyStyles"
-              @click="onPress(key.id)"
-              @mousedown.native.prevent
-            />
-          </div>
-          <div
-            class="nav-pad"
-            :class="{ 'nav-pad-horizontal': !showVerticalNav }"
-          >
-            <KIconButton
-              v-if="showVerticalNav"
-              icon="chevronUp"
-              :ariaLabel="upArrow$()"
-              appearance="raised-button"
-              size="small"
-              class="nav-btn nav-up"
-              @click="onPress('UP')"
-              @mousedown.native.prevent
-            />
-            <KIconButton
-              icon="chevronLeft"
-              :ariaLabel="leftArrow$()"
-              appearance="raised-button"
-              size="small"
-              class="nav-btn nav-left"
-              @click="onPress('LEFT')"
-              @mousedown.native.prevent
-            />
             <div
-              v-if="showVerticalNav"
-              class="nav-spacer"
-            ></div>
+              class="keypad-grid"
+              :class="{ 'expression-grid': isExpression }"
+            >
+              <!--
+                The item's rows first in DOM for tab order, then numbers, then
+                operators. Each key carries its own grid placement in
+                key.gridStyle (see keys.js).
+
+                @mousedown.native.prevent stops the button from stealing focus
+                from the math input on press. Without it the input blurs, which
+                dismisses the keypad and drops the cursor, so the key press would
+                never land in the field.
+              -->
+              <KButton
+                v-for="key in keysInTabOrder"
+                :key="key.id"
+                :text="key.label"
+                :aria-label="key.ariaLabel()"
+                class="key-btn"
+                :class="{ secondary: key.secondary }"
+                :style="key.gridStyle"
+                :primary="false"
+                appearance="flat-button"
+                :appearanceOverrides="
+                  key.itemRow && key.label.length > 1 ? wordKeyStyles : keyStyles
+                "
+                @click="onPress(key.id)"
+                @mousedown.native.prevent
+              />
+            </div>
+            <div
+              class="nav-pad"
+              :class="{ 'nav-pad-horizontal': !showVerticalNav }"
+            >
+              <KIconButton
+                v-if="showVerticalNav"
+                icon="chevronUp"
+                :ariaLabel="upArrow$()"
+                appearance="raised-button"
+                size="small"
+                class="nav-btn nav-up"
+                @click="onPress('UP')"
+                @mousedown.native.prevent
+              />
+              <KIconButton
+                icon="chevronLeft"
+                :ariaLabel="leftArrow$()"
+                appearance="raised-button"
+                size="small"
+                class="nav-btn nav-left"
+                @click="onPress('LEFT')"
+                @mousedown.native.prevent
+              />
+              <div
+                v-if="showVerticalNav"
+                class="nav-spacer"
+              ></div>
+              <KIconButton
+                icon="chevronRight"
+                :ariaLabel="rightArrow$()"
+                appearance="raised-button"
+                size="small"
+                class="nav-btn nav-right"
+                @click="onPress('RIGHT')"
+                @mousedown.native.prevent
+              />
+              <KIconButton
+                v-if="showVerticalNav"
+                icon="chevronDown"
+                :ariaLabel="downArrow$()"
+                appearance="raised-button"
+                size="small"
+                class="nav-btn nav-down"
+                @click="onPress('DOWN')"
+                @mousedown.native.prevent
+              />
+            </div>
+            <!--
+              size="small" (32x32) rather than "mini": KIconButton forces
+              minWidth: 32px, so a 24px "mini" button renders as an oval. "small"
+              keeps width and height equal for a true circle.
+            -->
             <KIconButton
-              icon="chevronRight"
-              :ariaLabel="rightArrow$()"
-              appearance="raised-button"
+              icon="close"
+              :ariaLabel="closeLabel()"
+              appearance="flat-button"
               size="small"
-              class="nav-btn nav-right"
-              @click="onPress('RIGHT')"
-              @mousedown.native.prevent
-            />
-            <KIconButton
-              v-if="showVerticalNav"
-              icon="chevronDown"
-              :ariaLabel="downArrow$()"
-              appearance="raised-button"
-              size="small"
-              class="nav-btn nav-down"
-              @click="onPress('DOWN')"
+              class="close-btn"
+              @click="dismiss"
               @mousedown.native.prevent
             />
           </div>
-          <!--
-            size="small" (32x32) rather than "mini": KIconButton forces
-            minWidth: 32px, so a 24px "mini" button renders as an oval. "small"
-            keeps width and height equal for a true circle.
-          -->
-          <KIconButton
-            icon="close"
-            :ariaLabel="closeLabel()"
-            appearance="flat-button"
-            size="small"
-            class="close-btn"
-            @click="dismiss"
-            @mousedown.native.prevent
-            @keydown.native.enter.stop
-          />
         </div>
-      </div>
-    </transition>
+      </transition>
+    </div>
   </div>
 
 </template>
@@ -137,6 +133,7 @@
 <script>
 
   import { computed, nextTick, ref, watch } from 'vue';
+  import { useElementSize, useEventListener } from '@vueuse/core';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { injectKeypad } from '../../composables/useKeypad';
@@ -145,10 +142,14 @@
   import { getLocaleNumberSymbols } from '../../utils/localeNumbers';
   import { fractionLayout, expressionLayout } from './keys';
 
+  const FIELD_MARGIN = 16;
+  const SCROLLING_OVERFLOWS = new Set(['auto', 'scroll']);
+
   export default {
     name: 'NumericKeypad',
     setup(props) {
       const keypad = injectKeypad();
+      const root = ref(null);
       const container = ref(null);
       const anchor = ref(null);
 
@@ -167,7 +168,9 @@
       // cards (e.g. KPageContainer) that scroll within the real viewport.
       // A fixed-position bar at `window.innerHeight - rect.bottom` then sits at
       // that region's visible bottom regardless of how tall the content grows.
-      const { containerRect, updateRect } = useScrollContainer(anchor, { strategy: 'outermost' });
+      const { containerRect, updateRect } = useScrollContainer(anchor, {
+        strategy: 'outermost',
+      });
 
       const anchorStyle = computed(() => {
         const rect = containerRect.value;
@@ -185,6 +188,40 @@
         if (isActive) {
           nextTick(updateRect);
         }
+      });
+
+      const { height: keypadHeight } = useElementSize(container, undefined, {
+        box: 'border-box',
+      });
+
+      const spacerStyle = computed(() => ({ height: `${keypadHeight.value}px` }));
+
+      function revealFocusedField() {
+        const field = document.activeElement;
+        const host = root.value?.parentElement;
+        if (!keypadHeight.value || !host?.contains(field) || container.value.contains(field)) {
+          return;
+        }
+        const keypadTop = containerRect.value.bottom - keypadHeight.value;
+        let overlap = field.getBoundingClientRect().bottom + FIELD_MARGIN - keypadTop;
+        for (let el = field.parentElement; el && overlap > 0; el = el.parentElement) {
+          if (
+            el === document.scrollingElement ||
+            SCROLLING_OVERFLOWS.has(getComputedStyle(el).overflowY)
+          ) {
+            const scrollTop = el.scrollTop;
+            el.scrollTop += overlap;
+            overlap -= el.scrollTop - scrollTop;
+          }
+        }
+      }
+
+      watch(keypadHeight, () => {
+        nextTick(revealFocusedField);
+      });
+
+      useEventListener(document, 'focusin', () => {
+        nextTick(revealFocusedField);
       });
 
       const symbols = computed(() => getLocaleNumberSymbols(props.lang?.id));
@@ -214,6 +251,8 @@
         backgroundColor: 'var(--palette-grey-v100)',
       };
 
+      const wordKeyStyles = { ...keyStyles, fontSize: '14px' };
+
       const { upArrow$, downArrow$, leftArrow$, rightArrow$ } = translator;
 
       const { closeAction$ } = coreStrings;
@@ -228,16 +267,25 @@
 
       const visibleKeys = computed(() => {
         const layout = isExpression.value
-          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel)
+          ? expressionLayout(symbols.value, useTimes.value, props.divideLabel, {
+            buttonSets: props.buttonSets,
+            extraKeys: keypad.keypadConfig.value?.extraKeys || [],
+            keyLabels: props.keyLabels,
+          })
           : fractionLayout(symbols.value);
         return excludeKeys.value.length
           ? layout.filter(k => !excludeKeys.value.includes(k.id))
           : layout;
       });
 
-      const primaryKeys = computed(() => visibleKeys.value.filter(k => !k.secondary));
-
-      const secondaryKeys = computed(() => visibleKeys.value.filter(k => k.secondary));
+      const keysInTabOrder = computed(() => {
+        const keys = visibleKeys.value;
+        return [
+          ...keys.filter(k => k.itemRow),
+          ...keys.filter(k => !k.itemRow && !k.secondary),
+          ...keys.filter(k => !k.itemRow && k.secondary),
+        ];
+      });
 
       function onPress(keyId) {
         if (keyId === 'DISMISS') {
@@ -248,17 +296,19 @@
       }
 
       return {
+        root,
         container,
         anchor,
         anchorStyle,
+        spacerStyle,
         active: keypad.active,
         dismiss: keypad.dismiss,
         isExpression,
         showVerticalNav,
-        primaryKeys,
-        secondaryKeys,
+        keysInTabOrder,
         onPress,
         keyStyles,
+        wordKeyStyles,
         upArrow$,
         downArrow$,
         leftArrow$,
@@ -276,6 +326,16 @@
       divideLabel: {
         type: String,
         default: '÷',
+      },
+      // The `buttonSets` of the host's expression fields, e.g. `trig` for sin, cos and tan
+      buttonSets: {
+        type: Array,
+        default: () => [],
+      },
+      // `{ label, ariaLabel }` for the function, relation and Greek letter keys, by key id
+      keyLabels: {
+        type: Object,
+        default: () => ({}),
       },
     },
   };
@@ -331,7 +391,9 @@
   }
 
   .keypad-grid.expression-grid {
+    grid-template-rows: none;
     grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 1fr;
   }
 
   /* Navigation pad: 3×3 cross layout */
