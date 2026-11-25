@@ -1,8 +1,9 @@
-import { render, screen, within } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
 // eslint-disable-next-line import-x/named
 import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
 import { init } from '@khanacademy/perseus';
 import perseusFixtures from '../../../qti_viewer/frontend/components/__fixtures__/perseus';
+import sandboxFixtures from '../../../../../integration_testing/viewer_sandbox/frontend/__fixtures__/perseus';
 import PerseusRendererIndex from '../views/PerseusRendererIndex';
 
 jest.mock('kolibri/composables/useContentViewer');
@@ -27,6 +28,7 @@ jest.mock('kolibri-plugin-data', () => ({
 // only init() populates it (mirrors stateSerialization.spec.js:8).
 init();
 
+const OUTSIDE_BUTTON = 'Outside';
 const LOCALPATH_TOKEN = '${☣ LOCALPATH}';
 
 // A radio widget renders as plain HTML choices; input-number and friends pull in
@@ -76,11 +78,26 @@ function embellishedItemData({
   return { perseusItemString: JSON.stringify(perseusItem(imageRef)), packageFiles, sourceId };
 }
 
-async function mountRenderer(itemData) {
+async function mountRenderer(
+  itemData,
+  {
+    showCorrectAnswer = false,
+    answerState,
+    interactive = true,
+    onInteraction,
+    showAnswerOnStart = false,
+  } = {},
+) {
   let instance = null;
   let registeredApi = null;
+  const viewerProps = useContentViewerMock({
+    itemData,
+    interactive,
+    showCorrectAnswer,
+    answerState,
+  });
   useContentViewer.mockImplementation(() => ({
-    ...useContentViewerMock({ itemData, interactive: true }),
+    ...viewerProps,
     registerAssessmentApi: api => {
       registeredApi = api;
     },
@@ -92,12 +109,31 @@ async function mountRenderer(itemData) {
     mounted() {
       instance = this.$refs.renderer;
     },
-    template: `<PerseusRendererIndex ref="renderer" />`,
+    methods: {
+      onStartTracking() {
+        if (showAnswerOnStart) viewerProps.showCorrectAnswer.value = true;
+      },
+      onInteraction() {
+        onInteraction?.(registeredApi.checkAnswer());
+      },
+    },
+    template: `<div><button>${OUTSIDE_BUTTON}</button><PerseusRendererIndex ref="renderer" @interaction="onInteraction" @startTracking="onStartTracking" /></div>`,
   };
   const utils = render(Harness);
+  utils.getByRole('button', { name: OUTSIDE_BUTTON }).focus();
   await global.flushPromises();
   await global.flushPromises();
-  return { instance: () => instance, api: () => registeredApi, ...utils };
+  return {
+    instance: () => instance,
+    api: () => registeredApi,
+    setShowAnswer: value => {
+      viewerProps.showCorrectAnswer.value = value;
+    },
+    setAnswerState: value => {
+      viewerProps.answerState.value = value;
+    },
+    ...utils,
+  };
 }
 
 describe('PerseusRendererIndex embellished itemData', () => {
@@ -136,6 +172,12 @@ describe('PerseusRendererIndex embellished itemData', () => {
   });
 });
 
+function renderedHintBodies(container) {
+  return [...container.querySelectorAll('.perseus-hint-renderer > .perseus-renderer')].filter(
+    body => body.querySelector('[data-perseus-paragraph-index] > *'),
+  );
+}
+
 function embellishedFromFixture(fixture) {
   const packageFiles = Object.fromEntries(
     Object.entries(fixture.files).filter(([path]) => path !== fixture.perseusPath),
@@ -147,11 +189,11 @@ function embellishedFromFixture(fixture) {
   };
 }
 
-describe('PerseusRendererIndex with real QA-channel items', () => {
+describe('PerseusRendererIndex with fixture items', () => {
   // Perseus's graphie loader fetches each image's `-data.json` label file, which
   // jsdom cannot; its `parseDataFromJSONP` accepts an unwrapped JSON body.
   let originalFetch;
-  beforeEach(() => {
+  beforeAll(() => {
     originalFetch = global.fetch;
     global.fetch = jest.fn(() =>
       Promise.resolve({
@@ -160,8 +202,24 @@ describe('PerseusRendererIndex with real QA-channel items', () => {
       }),
     );
   });
-  afterEach(() => {
+  afterAll(() => {
     global.fetch = originalFetch;
+  });
+
+  const matchMedia = window.matchMedia;
+
+  beforeEach(() => {
+    window.matchMedia = () => ({
+      matches: false,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    });
+  });
+
+  afterEach(() => {
+    window.matchMedia = matchMedia;
   });
 
   it('resolves web+graphie image refs from the injected map, dropping LOCALPATH', async () => {
@@ -190,4 +248,288 @@ describe('PerseusRendererIndex with real QA-channel items', () => {
       expect(control).not.toHaveAttribute('tabindex', '-1');
     });
   });
+
+  it.each(sandboxFixtures)(
+    'reveals a hint, solves, and restores an answer in read-only mode for $category',
+    async fixture => {
+      const { api, instance, container, setShowAnswer, setAnswerState } = await mountRenderer(
+        { perseusItemString: fixture.item, packageFiles: fixture.files, sourceId: fixture.id },
+        { interactive: false },
+      );
+      await waitFor(() => expect(api().checkAnswer()).not.toBeNull(), { timeout: 5000 });
+      const blank = api().checkAnswer().answerState.userInput;
+      expect(api().checkAnswer().correct).toBe(false);
+      expect(instance().itemRenderer.props.apiOptions.readOnly).toBe(true);
+      expect(renderedHintBodies(container)).toHaveLength(0);
+      api().takeHint();
+      await waitFor(() => expect(renderedHintBodies(container)).toHaveLength(1), {
+        timeout: 5000,
+      });
+
+      setShowAnswer(true);
+      await waitFor(() => expect(api().checkAnswer()?.correct).toBe(true), { timeout: 5000 });
+      expect(renderedHintBodies(container)).toHaveLength(1);
+
+      const solved = api().checkAnswer().answerState.userInput;
+      setShowAnswer(false);
+      await waitFor(() => expect(api().checkAnswer()?.answerState.userInput).toEqual(blank), {
+        timeout: 5000,
+      });
+      expect(renderedHintBodies(container)).toHaveLength(1);
+      setAnswerState({ userInput: solved });
+      await waitFor(() => {
+        expect(api().checkAnswer().answerState.userInput).toEqual(solved);
+        expect(api().checkAnswer().correct).toBe(true);
+      });
+    },
+    20000,
+  );
+
+  it('selects both correct dropdown values when mounted in solution mode', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Dropdown');
+    const item = JSON.parse(fixture.item);
+    const dropdowns = Object.entries(item.question.widgets).filter(
+      ([, widget]) => widget.type === 'dropdown',
+    );
+    item.question.content = dropdowns.map(([id]) => `[[☃ ${id}]]`).join('\n\n');
+    item.hints = [];
+    const { api } = await mountRenderer(
+      { perseusItemString: JSON.stringify(item), packageFiles: {}, sourceId: fixture.id },
+      { showCorrectAnswer: true },
+    );
+    const expected = Object.fromEntries(
+      dropdowns.map(([id, widget]) => [
+        id,
+        { value: widget.options.choices.findIndex(choice => choice.correct) + 1 },
+      ]),
+    );
+    await waitFor(
+      () => {
+        const result = api().checkAnswer();
+        expect(result?.answerState.userInput).toEqual(expected);
+        expect(result.correct).toBe(true);
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it('selects every authored marker answer when showing the label-image solution', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Label image');
+    const [[id, widget]] = Object.entries(JSON.parse(fixture.item).question.widgets);
+    const { api, setShowAnswer } = await mountRenderer({
+      perseusItemString: fixture.item,
+      packageFiles: fixture.files,
+      sourceId: fixture.id,
+    });
+    await waitFor(() => expect(api().checkAnswer()?.correct).toBe(false), { timeout: 5000 });
+    setShowAnswer(true);
+    await waitFor(
+      () => {
+        const result = api().checkAnswer();
+        expect(result.answerState.userInput[id].markers.map(marker => marker.selected)).toEqual(
+          widget.options.markers.map(marker => marker.answers),
+        );
+        expect(result.correct).toBe(true);
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it("does not render a saved attempt's hints in read-only mode", async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Dropdown');
+    const totalHints = JSON.parse(fixture.item).hints.length;
+    const { api, container, setAnswerState } = await mountRenderer(
+      { perseusItemString: fixture.item, packageFiles: fixture.files, sourceId: fixture.id },
+      { interactive: false, answerState: { hintsVisible: 1 } },
+    );
+    await waitFor(() => expect(api().checkAnswer()).not.toBeNull(), { timeout: 5000 });
+    setAnswerState({ hintsVisible: 2 });
+    await global.flushPromises();
+    expect(api().availableHints.value).toBe(totalHints);
+    expect(renderedHintBodies(container)).toHaveLength(0);
+  });
+
+  it('blocks physical keys in a read-only math field', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Input number');
+    const { api, container } = await mountRenderer(
+      { perseusItemString: fixture.item, packageFiles: fixture.files, sourceId: fixture.id },
+      { interactive: false },
+    );
+    await waitFor(() => expect(api().checkAnswer()).not.toBeNull(), { timeout: 5000 });
+    const input = container.querySelector('.keypad-input');
+    const before = api().checkAnswer().answerState;
+    const onKeyUp = jest.fn();
+    input.addEventListener('keyup', onKeyUp);
+    await fireEvent.keyUp(input, { key: '8', code: 'Digit8', keyCode: 56, cancelable: true });
+    expect(onKeyUp).not.toHaveBeenCalled();
+    expect(api().checkAnswer().answerState).toEqual(before);
+  });
+
+  it('does not report programmatic changes as learner interaction by default', async () => {
+    const itemData = embellishedItemData({ packageFiles: {}, sourceId: 'radio' });
+    const rendered = await mountRenderer(itemData);
+    const onInteraction = jest.fn();
+    rendered.instance().$on('interaction', onInteraction);
+    rendered.setShowAnswer(true);
+
+    await waitFor(() => expect(rendered.api().checkAnswer()?.correct).toBe(true));
+    expect(onInteraction).not.toHaveBeenCalled();
+  });
+
+  it('reports committed programmatic answers when opted in', async () => {
+    const itemData = embellishedItemData({ packageFiles: {}, sourceId: 'radio' });
+    const onInteraction = jest.fn();
+    const rendered = await mountRenderer(
+      { ...itemData, emitProgrammaticInteractions: true },
+      { showCorrectAnswer: true, onInteraction },
+    );
+    await waitFor(() =>
+      expect(onInteraction).toHaveBeenLastCalledWith(expect.objectContaining({ correct: true })),
+    );
+    onInteraction.mockClear();
+    const userInput = { 'radio 1': { selectedChoiceIds: [] } };
+    rendered.setAnswerState({ userInput });
+    await waitFor(() =>
+      expect(onInteraction).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          correct: false,
+          answerState: expect.objectContaining({ userInput }),
+        }),
+      ),
+    );
+  });
+
+  it.each([0, 1])('preserves external focus when restoring a hint from %i', async initialCount => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Input number');
+    const rendered = await mountRenderer(
+      { perseusItemString: fixture.item, packageFiles: fixture.files, sourceId: fixture.id },
+      { answerState: { hintsVisible: initialCount } },
+    );
+    await waitFor(() =>
+      expect(rendered.instance().itemRenderer.props.hintsVisible).toBe(initialCount),
+    );
+    if (initialCount === 0) rendered.setAnswerState({ hintsVisible: 1 });
+    await waitFor(() => expect(renderedHintBodies(rendered.container)).toHaveLength(1));
+    expect(screen.getByRole('button', { name: OUTSIDE_BUTTON })).toHaveFocus();
+  });
+
+  it('keeps a taken hint across solution toggles and attempt changes in read-only mode', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Dropdown');
+    const { api, instance, container, setShowAnswer, setAnswerState } = await mountRenderer(
+      { perseusItemString: fixture.item, packageFiles: fixture.files, sourceId: fixture.id },
+      { interactive: false, showCorrectAnswer: true, answerState: { hintsVisible: 0 } },
+    );
+    await waitFor(() => expect(api().checkAnswer()?.correct).toBe(true));
+    api().takeHint();
+    await waitFor(() => expect(renderedHintBodies(container)).toHaveLength(1));
+    for (const showAnswer of [false, true, false]) {
+      setShowAnswer(showAnswer);
+      await waitFor(() => {
+        expect(instance().itemRenderer.props.reviewMode).toBe(showAnswer);
+        expect(api().checkAnswer()?.correct).toBe(showAnswer);
+        expect(renderedHintBodies(container)).toHaveLength(1);
+      });
+    }
+    setAnswerState({ hintsVisible: 0 });
+    await global.flushPromises();
+    expect(api().checkAnswer().answerState.hintsVisible).toBe(1);
+    expect(renderedHintBodies(container)).toHaveLength(1);
+  });
+
+  it('restores the blank attempt when a saved answer is cleared', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Dropdown');
+    const [id] = Object.keys(JSON.parse(fixture.item).question.widgets);
+    const { api, setAnswerState } = await mountRenderer({
+      perseusItemString: fixture.item,
+      packageFiles: {},
+      sourceId: fixture.id,
+    });
+    await waitFor(() => expect(api().checkAnswer()?.answerState.hintsVisible).toBe(0));
+    const blank = api().checkAnswer().answerState;
+    for (const value of [1, 2]) {
+      const attempt = { userInput: { [id]: { value } }, hintsVisible: value };
+      setAnswerState(attempt);
+      await waitFor(() => expect(api().checkAnswer().answerState).toMatchObject(attempt));
+    }
+    setAnswerState(null);
+    await waitFor(() => expect(api().checkAnswer().answerState).toEqual(blank));
+  });
+
+  it('restores every saved dropdown when leaving solution mode', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Dropdown');
+    const item = JSON.parse(fixture.item);
+    const ids = Object.keys(item.question.widgets);
+    item.question.content = ids.map(id => `[[☃ ${id}]]`).join('\n\n');
+    item.question.images = {};
+    item.hints = [{ content: 'Hint', images: {}, widgets: {} }];
+    const savedInput = Object.fromEntries(ids.map((id, index) => [id, { value: index + 1 }]));
+    const rendered = await mountRenderer(
+      { perseusItemString: JSON.stringify(item), packageFiles: {}, sourceId: fixture.id },
+      { showCorrectAnswer: true, answerState: { userInput: savedInput } },
+    );
+    await waitFor(() => {
+      expect(rendered.api().checkAnswer()?.answerState.userInput).toEqual(savedInput);
+    });
+    const seed = rendered.instance().itemRenderer.props.problemNum;
+    rendered.setShowAnswer(false);
+    await waitFor(() => {
+      expect(rendered.instance().itemRenderer.props.showSolutions).toBe('none');
+      expect(rendered.api().checkAnswer()?.answerState.userInput).toEqual(savedInput);
+    });
+    expect(rendered.instance().itemRenderer.props.problemNum).toBe(seed);
+    rendered.setAnswerState({ userInput: savedInput, hintsVisible: 1 });
+    await waitFor(() => expect(rendered.instance().itemRenderer.props.hintsVisible).toBe(1));
+    rendered.setShowAnswer(true);
+    await waitFor(() => expect(rendered.instance().itemRenderer.props.showSolutions).toBe('all'));
+    rendered.setShowAnswer(false);
+    await waitFor(() => expect(rendered.instance().itemRenderer.props.showSolutions).toBe('none'));
+    rendered.setAnswerState({ userInput: savedInput, hintsVisible: 0 });
+    await waitFor(() => expect(rendered.instance().itemRenderer.props.hintsVisible).toBe(0));
+    expect(rendered.instance().itemRenderer.props.problemNum).toBe(seed);
+    expect(rendered.api().checkAnswer().answerState.userInput).toEqual(savedInput);
+  });
+
+  it('clears a solution requested before the first React commit and releases the keypad', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Input number');
+    const rendered = await mountRenderer(
+      { perseusItemString: fixture.item, packageFiles: {}, sourceId: fixture.id },
+      { showAnswerOnStart: true },
+    );
+    await waitFor(() => expect(rendered.api().checkAnswer()?.correct).toBe(true));
+    const { keypadAPI, keypadContextValue } = rendered.instance();
+    const handler = jest.fn();
+    keypadAPI.setKeyHandler(handler);
+    keypadAPI.activate();
+    rendered.setShowAnswer(false);
+    await waitFor(() => expect(rendered.api().checkAnswer()?.correct).toBe(false));
+    expect(keypadContextValue.keypadActive).toBe(false);
+    const field = document.createElement('input');
+    field.className = 'keypad-input';
+    field.addEventListener('keyup', rendered.instance().handleMathFieldKey);
+    await fireEvent.keyUp(field, { key: '7' });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('restores the initial graph when leaving a solution shown at mount', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Grapher');
+    const itemData = { perseusItemString: fixture.item, packageFiles: {}, sourceId: fixture.id };
+    const [widgetId] = Object.keys(JSON.parse(fixture.item).question.widgets);
+    const initialInput = { [widgetId]: { type: 'absolute_value', coords: null, asymptote: null } };
+
+    const rendered = await mountRenderer(itemData, { showCorrectAnswer: true });
+    await waitFor(() => expect(rendered.api().checkAnswer()?.correct).toBe(true), {
+      timeout: 5000,
+    });
+    rendered.setShowAnswer(false);
+    await rendered.instance().$nextTick();
+    expect(rendered.instance().showCorrectAnswer).toBe(false);
+    await waitFor(
+      () => {
+        expect(rendered.instance().itemRenderer.props.showSolutions).toBe('none');
+        expect(rendered.api().checkAnswer()?.answerState.userInput).toEqual(initialInput);
+        expect(rendered.api().checkAnswer().correct).toBe(false);
+      },
+      { timeout: 5000 },
+    );
+  }, 15000);
 });
