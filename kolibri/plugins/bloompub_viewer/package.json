@@ -10,5 +10,9 @@
         "kolibri-viewer": "workspace:*",
         "kolibri-zip": "workspace:*",
         "web-streams-polyfill": "catalog:"
+    },
+    "devDependencies": {
+        "fflate": "^0.8.3",
+        "xhr-mock": "catalog:"
     }
 }

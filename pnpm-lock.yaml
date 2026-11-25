@@ -201,6 +201,13 @@ importers:
       web-streams-polyfill:
         specifier: 'catalog:'
         version: 4.2.0
+    devDependencies:
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
+      xhr-mock:
+        specifier: 'catalog:'
+        version: 2.5.1
 
   kolibri/plugins/coach:
     dependencies:
