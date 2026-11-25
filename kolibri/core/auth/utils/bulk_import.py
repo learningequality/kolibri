@@ -3,13 +3,17 @@ import logging
 import ntpath
 import os
 import re
+import stat
+from contextlib import ExitStack
 from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 from django.utils.translation import pgettext_lazy
 
 from kolibri.core.auth.constants import role_kinds
@@ -63,6 +67,11 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 NON_EXISTENT_UUID = 11
 INVALID_UUID = 12
+MISSING_ROW_COLUMNS = 13
+FACILITY_NOT_FOUND = _("Facility with ID {facility_id!r} does not exist")
+EMPTY_FILE_MESSAGE = gettext_noop(
+    "The selected file is empty. Select a CSV file that contains users."
+)
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: pgettext_lazy(
@@ -82,6 +91,7 @@ MESSAGES = {
         "Error message indicating that the CSV file selected for import is missing a required column",
         "The column '{}' is required",
     ),
+    MISSING_ROW_COLUMNS: _("This row is missing cells for these columns: {columns}"),
     INVALID_HEADER: pgettext_lazy(
         "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
         "Incorrect header label found in the first row",
@@ -314,56 +324,79 @@ class Validator:
             append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
             self.roles[roles_map[user_role]].append(username)
 
+    def _field_errors(self, row, position):
+        for header_name, check, message in self._checks:
+            value = row[self.header_translation[header_name]]
+            is_password = header_name == "PASSWORD"
+            try:
+                check(value)
+            except ValueError:
+                pass
+            except Exception as error:
+                message = (
+                    MESSAGES[INVALID].format(header_name)
+                    if is_password
+                    else MESSAGES[UNEXPECTED_EXCEPTION].format(
+                        error.__class__.__name__, error
+                    )
+                )
+            else:
+                continue
+            yield {
+                "row": position,
+                "message": message,
+                "field": header_name,
+                "value": None if is_password else value,
+            }
+
     def validate(self, data):
         """
         Validate `data` and return an iterator over errors found.
         """
-        for index, row in enumerate(data):
-            error_flag = False
+        optional_columns = {
+            self.header_translation[name]
+            for name in ("UUID", "ENROLLED_IN", "ASSIGNED_TO")
+        }
+        for position, row in enumerate(data, start=1):
+            missing = [
+                name
+                for name, value in row.items()
+                if value is None and name not in optional_columns
+            ]
+            if missing:
+                columns = ", ".join(missing)
+                yield {
+                    "row": position,
+                    "message": (
+                        MESSAGES[REQUIRED_COLUMN].format(columns)
+                        if len(missing) == 1
+                        else MESSAGES[MISSING_ROW_COLUMNS].format(columns=columns)
+                    ),
+                    "field": columns,
+                    "value": None,
+                }
+                continue
             username = self.get_username(row)
-            if not username:
-                error = {
-                    "row": index + 1,
+            valid = bool(username)
+            if not valid:
+                yield {
+                    "row": position,
                     "message": MESSAGES[DUPLICATED_USERNAME],
                     "field": "USERNAME",
                     "value": row.get(self.header_translation["USERNAME"]),
                 }
-                error_flag = True
+            for error in self._field_errors(row, position):
+                valid = False
                 yield error
-
-            for header_name, check, message in self._checks:
-                value = row[self.header_translation[header_name]]
-                try:
-                    check(value)
-                except ValueError:
-                    error = {
-                        "row": index + 1,
-                        "message": message,
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
-                except Exception as e:
-                    error = {
-                        "row": index + 1,
-                        "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
-                            (e.__class__.__name__, e)
-                        ),
-                        "field": header_name,
-                        "value": value,
-                    }
-                    error_flag = True
-                    yield error
+            if not valid:
+                continue
             # if there aren't any errors, let's add the user and classes
-            if not error_flag:
-                self.check_classroom(row, username)
-                row["position"] = index + 1
-                self.users[username] = row
+            self.check_classroom(row, username)
+            row["position"] = position
+            self.users[username] = row
 
 
 def csv_values_validation(reader, header_translation, facility):
-    per_line_errors = []
     validator = Validator(header_translation, facility)
     validator.add_check("UUID", valid_uuid(), MESSAGES[INVALID_UUID])
     validator.add_check(
@@ -410,9 +443,7 @@ def csv_values_validation(reader, header_translation, facility):
         MESSAGES[TOO_LONG].format("Class name"),
     )
 
-    row_errors = validator.validate(reader)
-    for err in row_errors:
-        per_line_errors.append(err)
+    per_line_errors = list(validator.validate(reader))
     # cleaning classes names:
     normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
     coach_classrooms = list(validator.coach_classrooms)
@@ -430,6 +461,19 @@ def csv_values_validation(reader, header_translation, facility):
         validator.users,
         validator.roles,
     )
+
+
+def get_bulk_user_facility(facility_id, error_class):
+    if facility_id is None:
+        facility = Facility.get_default_facility()
+        if not facility:
+            raise error_class(str(MESSAGES[NO_FACILITY]))
+        return facility
+
+    try:
+        return Facility.objects.get(pk=facility_id)
+    except (Facility.DoesNotExist, ValueError) as error:
+        raise error_class(FACILITY_NOT_FOUND.format(facility_id=facility_id)) from error
 
 
 class BulkUserImportManager(JobProgressMixin):
@@ -459,30 +503,26 @@ class BulkUserImportManager(JobProgressMixin):
         translation.activate(self.locale)
         self.overall_error.append(str(msg))
 
-    def csv_headers_validation(self, local_filepath=None, storage_filepath=None):
-        with open_csv_for_reading(
-            local_filepath=local_filepath, storage_filepath=storage_filepath
-        ) as f:
-            header = next(csv.reader(f, strict=True))
-            has_header = False
-            self.header_translation = {
-                lbl if "(" not in lbl else lbl.partition("(")[2].partition(")")[0]: lbl
-                for lbl in header
-            }
-            neutral_header = self.header_translation.keys()
-            # If every item in the first row matches an item in the fieldnames, consider it a header row
-            if all(col in fieldnames for col in neutral_header):
-                has_header = True
-
-                # If any col is missing from the header, it's an error
-                for col in fieldnames:
-                    if col not in neutral_header:
-                        self.append_error(MESSAGES[REQUIRED_COLUMN].format(col))
-
-            elif any(col in fieldnames for col in neutral_header):
-                self.append_error(MESSAGES[INVALID_HEADER])
-
-        return has_header
+    def validate_csv_header(self, header):
+        if header is None:
+            self.append_error(
+                translation.gettext(EMPTY_FILE_MESSAGE)
+                if self.job
+                else EMPTY_FILE_MESSAGE
+            )
+            return
+        self.header_translation = {
+            label
+            if "(" not in label
+            else label.partition("(")[2].partition(")")[0]: label
+            for label in header
+        }
+        if self.header_translation.keys() - fieldnames:
+            self.append_error(MESSAGES[INVALID_HEADER])
+            return
+        for column in fieldnames:
+            if column not in self.header_translation:
+                self.append_error(MESSAGES[REQUIRED_COLUMN].format(column))
 
     def get_field_values(self, user_row):
         password = user_row.get(self.header_translation["PASSWORD"], None)
@@ -692,16 +732,6 @@ class BulkUserImportManager(JobProgressMixin):
         self.progress_update(1)
         return (new_classes, update_classes, classes)
 
-    def get_facility(self):
-        if self.facility_id:
-            default_facility = Facility.objects.get(pk=self.facility_id)
-        else:
-            default_facility = Facility.get_default_facility()
-        if not default_facility:
-            raise BulkUserImportError(str(MESSAGES[NO_FACILITY]))
-
-        return default_facility
-
     def get_number_lines(self, local_filepath=None, storage_filepath=None):
         try:
             with open_csv_for_reading(
@@ -817,38 +847,85 @@ class BulkUserImportManager(JobProgressMixin):
             else:
                 to_remove.delete()
 
-    def output_messages(
-        self, per_line_errors, classes_report, users_report, filepath, errorlines
-    ):
-        # Show output error messages on loggers, job metadata or io errorlines for testing
-        # freeze message translations:
-        for line in per_line_errors:
-            line["message"] = str(line["message"])
+    def write_error_report(self, per_line_errors, input_path):
+        output = self.errorlines
+        if not output:
+            return
+        with ExitStack() as stack:
+            report = output
+            if isinstance(output, (str, os.PathLike)):
+                report = stack.enter_context(
+                    open(
+                        output,
+                        "a",
+                        encoding="utf-8",
+                        opener=lambda path, flags: os.open(
+                            path, flags | getattr(os, "O_NONBLOCK", 0)
+                        ),
+                    )
+                )
+                report_stat = os.fstat(report.fileno())
+                if self.use_storage:
+                    try:
+                        input_path = default_storage.path(input_path)
+                    except NotImplementedError:
+                        input_path = None
+                if input_path is not None and os.path.samestat(
+                    os.stat(input_path), report_stat
+                ):
+                    self.append_error(
+                        translation.gettext(
+                            "The error output must differ from the input file."
+                        )
+                    )
+                    self.exit_if_error()
+                if stat.S_ISREG(report_stat.st_mode):
+                    report.truncate(0)
+            for line in per_line_errors:
+                report.write(f"{line}\n")
 
+    def output_messages(self, per_line_errors, classes_report, users_report):
         if self.job:
             self.job.extra_metadata["overall_error"] = self.overall_error
             self.job.extra_metadata["per_line_errors"] = per_line_errors
             self.job.extra_metadata["classes"] = classes_report
             self.job.extra_metadata["users"] = users_report
-            self.job.extra_metadata["filename"] = ntpath.basename(filepath)
+            self.job.extra_metadata["filename"] = ntpath.basename(self.filepath)
             self.job.save_meta()
         else:
             logger.info("File errors: %s", self.overall_error)
             logger.info("Data errors: %s", per_line_errors)
             logger.info("Classes report: %s", classes_report)
             logger.info("Users report: %s", users_report)
-            if errorlines:
-                for line in per_line_errors:
-                    errorlines.write(str(line))
-                    errorlines.write("\n")
 
     def run(self):
         # set language for the translation of the messages
         with translation.override(self.locale):
             self._run()
 
+    def validate_options(self):
+        if self.userid is not None:
+            try:
+                self.userid = UUID(str(self.userid)).hex
+            except ValueError:
+                self.append_error(
+                    translation.gettext("Invalid user ID: {user_id!r}").format(
+                        user_id=self.userid
+                    )
+                )
+                self.exit_if_error()
+
+        try:
+            self.default_facility = get_bulk_user_facility(
+                self.facility_id, BulkUserImportError
+            )
+        except BulkUserImportError as error:
+            self.append_error(error)
+            self.exit_if_error()
+
     def _run(self):
-        self.default_facility = self.get_facility()
+        self.overall_error = []
+        self.validate_options()
 
         storage_filepath = None
         local_filepath = None
@@ -859,7 +936,6 @@ class BulkUserImportManager(JobProgressMixin):
             local_filepath = os.path.join(os.getcwd(), self.filepath)
 
         # initialize stats data structures:
-        self.overall_error = []
         db_new_classes = []
         db_update_classes = []
         classes_to_clear = []
@@ -871,22 +947,19 @@ class BulkUserImportManager(JobProgressMixin):
         self.number_lines = self.get_number_lines(
             storage_filepath=storage_filepath, local_filepath=local_filepath
         )
+        if self.number_lines == 0:
+            self.validate_csv_header(None)
         self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
-            # validate csv headers:
-            has_header = self.csv_headers_validation(
-                local_filepath=local_filepath, storage_filepath=storage_filepath
-            )
-            if not has_header:
-                self.append_error(MESSAGES[INVALID_HEADER])
-            self.exit_if_error()
-            self.progress_update(1)  # state=csv_headers
             try:
                 with open_csv_for_reading(
                     local_filepath=local_filepath, storage_filepath=storage_filepath
                 ) as f:
                     reader = csv.DictReader(f, strict=True)
+                    self.validate_csv_header(reader.fieldnames)
+                    self.exit_if_error()
+                    self.progress_update(1)
                     per_line_errors, classes, users, roles = csv_values_validation(
                         reader, self.header_translation, self.default_facility
                     )
@@ -914,6 +987,10 @@ class BulkUserImportManager(JobProgressMixin):
             # progress = 91%
             per_line_errors += self.db_validate_list(db_new_classes)
             per_line_errors += self.db_validate_list(db_update_classes)
+
+            for line in per_line_errors:
+                line["message"] = str(line["message"])
+            self.write_error_report(per_line_errors, storage_filepath or local_filepath)
 
             if not self.dryrun:
                 self.delete_users(users_to_delete)
@@ -957,6 +1034,4 @@ class BulkUserImportManager(JobProgressMixin):
                 per_line_errors,
                 classes_report,
                 users_report,
-                self.filepath,
-                self.errorlines,
             )
