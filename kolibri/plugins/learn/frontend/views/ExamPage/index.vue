@@ -322,7 +322,6 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { annotateSections } from 'kolibri-common/quizzes/utils';
-  import useUser from 'kolibri/composables/useUser';
   import usePageTitle from 'kolibri/composables/usePageTitle';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import store from '../../store';
@@ -351,7 +350,6 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
-      const { currentUserId } = useUser();
       const { windowBreakpoint, windowIsMedium, windowIsLarge, windowIsSmall } =
         useKResponsiveWindow();
       const { quizSectionsLabel$, questionsLabel$ } = enhancedQuizManagementStrings;
@@ -371,7 +369,6 @@
         windowIsLarge,
         windowIsSmall,
         windowIsMedium,
-        currentUserId,
         currentQuestionAnswered,
         handleApiError,
       };
@@ -555,11 +552,12 @@
         .catch(err => {
           if (err.response && err.response.status === 403) {
             // If exam is closed, then redirect to route for the report
-            return this.router.replace({
+            return this.$router.replace({
               name: ClassesPageNames.EXAM_REPORT_VIEWER,
               params: {
-                userId: this.currentUserId,
-                examId: this.exam.id,
+                classId: this.$route.params.classId,
+                examId: this.$route.params.examId,
+                tryIndex: 0,
                 questionNumber: 0,
                 questionInteraction: 0,
               },

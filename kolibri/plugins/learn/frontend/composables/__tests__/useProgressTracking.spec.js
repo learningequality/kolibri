@@ -1343,5 +1343,23 @@ describe('useProgressTracking composable', () => {
       await expect(updateContentSession({ progress: 1 })).rejects.toMatchObject(error);
       expect(client).toHaveBeenCalledTimes(5);
     });
+    it('saves to a new session after a save to the previous session was refused', async () => {
+      const { updateContentSession, initContentSession } = await initStore();
+      const error = { response: { status: 403 } };
+      client.mockRejectedValueOnce(error);
+      await expect(updateContentSession({ progress: 1 })).rejects.toMatchObject(error);
+      const nextNode = { ...node, id: 'next_node', content_id: 'next_content_id' };
+      client.__setPayload({
+        session_id: 'next_session_id',
+        context: { node_id: nextNode.id },
+        progress: 0,
+      });
+      await initContentSession({ node: nextNode });
+      client.__reset();
+
+      await updateContentSession({ progress: 1 });
+
+      expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
+    });
   });
 });

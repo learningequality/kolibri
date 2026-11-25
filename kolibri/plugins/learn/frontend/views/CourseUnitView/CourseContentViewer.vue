@@ -27,6 +27,7 @@
         @repeat="restartContentSession"
         @error="onError"
         @finished="onFinished"
+        @saveRejected="$emit('saveRejected')"
       />
       <ContentViewer
         v-else-if="!contentNode.assessmentmetadata"
@@ -138,7 +139,7 @@
    */
   export default {
     name: 'CourseContentViewer',
-    emits: ['finished', 'next'],
+    emits: ['finished', 'next', 'saveRejected'],
     components: {
       QuizRenderer,
       AssessmentWrapper,
