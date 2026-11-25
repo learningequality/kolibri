@@ -1,43 +1,31 @@
 <template>
 
   <KPageContainer>
-    <KGrid>
-      <KGridItem
-        :layout12="{ span: 6, alignment: 'left' }"
-        :layout8="{ span: 4, alignment: 'left' }"
-        :layout4="{ span: 2, alignment: 'left' }"
-      >
-        <p>
-          <BackLink
-            v-if="classListPageEnabled"
-            :to="classListLink"
-            :text="$tr('allClassesLabel')"
-          />
-          <BackLink
-            v-else-if="userIsMultiFacilityAdmin && !classListPageEnabled"
-            :to="{ name: 'AllFacilitiesPage' }"
-            :text="coreString('changeLearningFacility')"
-          />
-        </p>
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 6, alignment: 'right' }"
-        :layout8="{ span: 4, alignment: 'right' }"
-        :layout4="{ span: 2, alignment: 'right' }"
-      >
-        <KRouterLink
-          v-if="picture_password_settings && learnerNames.length"
-          :text="viewPasswordsAction$()"
-          appearance="raised-button"
-          :to="{
-            name: PageNames.LEARNER_PASSWORDS,
-            params: { classId },
-            query: { last: LastPages.HOME_PAGE },
-          }"
-          class="view-passwords-link"
+    <div class="top-row">
+      <p class="back-link">
+        <BackLink
+          v-if="classListPageEnabled"
+          :to="classListLink"
+          :text="$tr('allClassesLabel')"
         />
-      </KGridItem>
-    </KGrid>
+        <BackLink
+          v-else-if="userIsMultiFacilityAdmin && !classListPageEnabled"
+          :to="{ name: 'AllFacilitiesPage' }"
+          :text="coreString('changeLearningFacility')"
+        />
+      </p>
+      <KRouterLink
+        v-if="picture_password_settings && learnerNames.length"
+        :text="viewPasswordsAction$()"
+        appearance="raised-button"
+        :to="{
+          name: PageNames.LEARNER_PASSWORDS,
+          params: { classId },
+          query: { last: LastPages.HOME_PAGE },
+        }"
+        class="view-passwords-link"
+      />
+    </div>
 
     <h1>
       <KLabeledIcon
@@ -186,8 +174,22 @@
     margin-left: 24px;
   }
 
+  .top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .back-link {
+    flex: 0 0 auto;
+    max-width: 50%;
+  }
+
   .view-passwords-link {
+    flex: 0 1 auto;
     margin-top: 16px;
+    margin-left: 16px;
+    text-overflow: ellipsis;
   }
 
 </style>

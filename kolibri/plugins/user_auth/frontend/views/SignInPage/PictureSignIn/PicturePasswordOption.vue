@@ -272,9 +272,11 @@
   }
 
   .icon-label {
+    margin: 0 -8px;
     font-size: 14px;
     text-align: center;
-    word-break: break-all;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
 </style>
