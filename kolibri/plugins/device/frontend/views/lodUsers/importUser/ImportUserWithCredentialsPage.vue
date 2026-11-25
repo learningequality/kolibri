@@ -16,6 +16,7 @@
         <p>{{ enterCredentials$() }}</p>
         <p
           v-if="error && !useAdmin"
+          role="alert"
           :style="{ color: 'var(--tokens-error)' }"
         >
           {{ coreString('invalidCredentialsError') }}
@@ -37,6 +38,15 @@
           :disabled="formSubmitted"
           :value.sync="password"
           :showConfirmationInput="false"
+          autocomplete="new-password"
+        />
+        <KTextbox
+          v-else-if="passwordRefused"
+          ref="passwordTextbox"
+          v-model="password"
+          type="password"
+          :disabled="formSubmitted"
+          :label="coreString('passwordLabel')"
           autocomplete="new-password"
         />
         <p>
@@ -186,6 +196,7 @@
         full_name: '',
         roles: '',
         error: false,
+        passwordRefused: false,
         deviceLimitations: false,
         useAdmin: false,
         forceNonLearnerImport: false,
@@ -290,6 +301,7 @@
           return;
         }
         this.formSubmitted = true;
+        this.error = false;
         const task_name = TaskTypes.IMPORTLODUSER;
         const password = this.password || DemographicConstants.NOT_SPECIFIED;
         const params = {
@@ -331,6 +343,10 @@
 
           if (errorsCaught) {
             this.error = true;
+            if (this.facility.learner_can_login_with_no_password && !this.passwordRefused) {
+              this.passwordRefused = true;
+              this.$nextTick(() => this.$refs.passwordTextbox.focus());
+            }
           } else if (
             Array.isArray(errorData) &&
             errorData.find(

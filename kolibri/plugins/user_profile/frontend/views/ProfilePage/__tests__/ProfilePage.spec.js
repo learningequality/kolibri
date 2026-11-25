@@ -78,13 +78,19 @@ async function renderProfile({
   userKind = UserKinds.LEARNER,
   picturePasswordSettings = null,
   picturePassword = null,
+  userHasPermissions = false,
+  isLearnerOnlyImport = false,
+  passwordless = false,
 } = {}) {
   useUser.mockImplementation(() =>
     useUserMock({
       isLearner: userKind === UserKinds.LEARNER,
       isCoach: userKind === UserKinds.COACH,
       isAdmin: userKind === UserKinds.ADMIN || userKind === UserKinds.SUPERUSER,
+      isFacilityAdmin: userKind === UserKinds.ADMIN,
       isSuperuser: userKind === UserKinds.SUPERUSER,
+      userHasPermissions,
+      isLearnerOnlyImport,
     }),
   );
   useFacility.mockImplementation(() =>
@@ -92,6 +98,7 @@ async function renderProfile({
       facilityConfig: ref({
         picture_password_settings: picturePasswordSettings,
         learner_can_edit_password: false,
+        learner_can_login_with_no_password: passwordless,
       }),
     }),
   );
@@ -180,9 +187,60 @@ describe('rendered page', () => {
     expect(screen.queryByTestId('picture-password-empty')).not.toBeInTheDocument();
   });
 
-  it('omits the picture password row for a coach in a picture-login facility', async () => {
+  it.each([UserKinds.COACH, UserKinds.ADMIN])(
+    'omits the picture password row for a %s in a picture-login facility',
+    async userKind => {
+      await renderProfile({
+        userKind,
+        picturePasswordSettings: {
+          icon_style: PicturePasswordIconStyle.COLORFUL,
+          show_icon_text: false,
+        },
+        picturePassword: null,
+      });
+
+      await screen.findByText(fullNameLabel$());
+
+      expect(screen.queryByTestId('picture-password-display')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('picture-password-empty')).not.toBeInTheDocument();
+    },
+  );
+
+  it('omits the picture password row for a content manager in a picture-login facility', async () => {
+    await renderProfile({
+      userHasPermissions: true,
+      picturePasswordSettings: {
+        icon_style: PicturePasswordIconStyle.COLORFUL,
+        show_icon_text: false,
+      },
+      picturePassword: '3.7.12',
+    });
+
+    await screen.findByText(fullNameLabel$());
+
+    expect(screen.queryByTestId('picture-password-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('picture-password-empty')).not.toBeInTheDocument();
+  });
+
+  it('shows the picture password to a content manager on a learner-only device', async () => {
+    await renderProfile({
+      userHasPermissions: true,
+      isLearnerOnlyImport: true,
+      picturePasswordSettings: {
+        icon_style: PicturePasswordIconStyle.COLORFUL,
+        show_icon_text: false,
+      },
+      picturePassword: '3.7.12',
+    });
+
+    expect(await screen.findByTestId('picture-password-display')).toBeInTheDocument();
+  });
+
+  it('omits the picture password row for a coach on a learner-only device', async () => {
     await renderProfile({
       userKind: UserKinds.COACH,
+      userHasPermissions: true,
+      isLearnerOnlyImport: true,
       picturePasswordSettings: {
         icon_style: PicturePasswordIconStyle.COLORFUL,
         show_icon_text: false,
@@ -221,4 +279,38 @@ describe('rendered page', () => {
       expect(screen.getByText(changePasswordPrompt$())).toBeVisible();
     },
   );
+
+  it('shows the Change password button for a content manager in a passwordless facility', async () => {
+    await renderProfile({ userHasPermissions: true, passwordless: true });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.getByTestId('change-password')).toHaveTextContent(changePasswordPrompt$());
+  });
+
+  it('shows the Change password button for a content manager in a picture-login facility', async () => {
+    await renderProfile({
+      userHasPermissions: true,
+      picturePasswordSettings: {
+        icon_style: PicturePasswordIconStyle.COLORFUL,
+        show_icon_text: false,
+      },
+    });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.getByTestId('change-password')).toHaveTextContent(changePasswordPrompt$());
+  });
+
+  it('hides the Change password button for a content manager when learner_can_edit_password is false', async () => {
+    await renderProfile({ userHasPermissions: true });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.queryByTestId('change-password')).not.toBeInTheDocument();
+  });
+
+  it('hides the Change password button for a learner in a passwordless facility', async () => {
+    await renderProfile({ userKind: UserKinds.LEARNER, passwordless: true });
+
+    await screen.findByText(fullNameLabel$());
+    expect(screen.queryByTestId('change-password')).not.toBeInTheDocument();
+  });
 });

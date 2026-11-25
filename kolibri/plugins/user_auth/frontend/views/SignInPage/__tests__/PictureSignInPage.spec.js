@@ -80,6 +80,7 @@ function renderComponent({ inLayout = false } = {}) {
     picturePasswordStyle: ref('colorful'),
     picturePasswordShowIconText: ref(true),
     canSignUp: ref(false),
+    saveFacilityId: jest.fn(),
   });
   useAuthWatcher.mockReturnValue({
     watchForFacilityChange: jest.fn(),

@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
+from django.db import transaction
 from django.db.models import F
 from django.db.models import QuerySet
 from django.db.utils import IntegrityError
@@ -24,6 +25,9 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.auth.utils.picture_passwords import (
+    assign_picture_password_if_unprivileged,
+)
 from kolibri.core.content.utils.paths import using_remote_storage
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
@@ -41,8 +45,6 @@ from kolibri.utils.options import update_options_file
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 
-device_permissions_fields = ["is_superuser", "can_manage_content"]
-
 
 class DevicePermissions(models.Model):
     """
@@ -59,6 +61,19 @@ class DevicePermissions(models.Model):
     )
     is_superuser = models.BooleanField(default=False)
     can_manage_content = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            result = super().save(*args, **kwargs)
+            assign_picture_password_if_unprivileged(self.user)
+        return result
+
+    def delete(self, *args, **kwargs):
+        user = self.user
+        with transaction.atomic():
+            result = super().delete(*args, **kwargs)
+            assign_picture_password_if_unprivileged(user)
+        return result
 
 
 DEVICE_SETTINGS_CACHE_KEY = "device_settings_cache_key"

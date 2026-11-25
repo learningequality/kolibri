@@ -80,6 +80,14 @@ class LocalNotificationAPITestCase(APITestCase):
         # learner_count: regular_user counts as a learner; superuser does not.
         self.assertEqual(row["learner_count"], 1)
 
+    def test_list_learner_count_includes_content_managers_without_roles(self):
+        content_manager = FacilityUserFactory.create(facility=self.facility)
+        DevicePermissions.objects.create(user=content_manager, can_manage_content=True)
+        LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
+        self._login_superuser()
+        response = self.client.get(reverse("kolibri:core:localnotification-list"))
+        self.assertEqual(response.data[0]["learner_count"], 2)
+
     def test_list_denied_for_non_superuser(self):
         LocalNotification.objects.create(key=IMPACT_STORIES_KEY)
         self._login_regular_user()

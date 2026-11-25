@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, ref, unref } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
 // eslint-disable-next-line import-x/named
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities';
@@ -12,6 +12,9 @@ import {
 } from 'kolibri-common/composables/useFacility';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import { handleApiError } from 'kolibri/utils/appError';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 
 jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
@@ -20,6 +23,9 @@ jest.mock('@vueuse/core', () => ({
   useLocalStorage: jest.fn(),
 }));
 jest.mock('kolibri/utils/appError');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/composables/useUser');
 
 describe('useAuthFlow', () => {
   let persistentSignInMethod;
@@ -517,6 +523,122 @@ describe('useAuthFlow', () => {
         error,
         reloadOnReconnect: true,
       });
+    });
+  });
+
+  describe('signed-out OS user', () => {
+    let setSelectedFacilityId;
+    let configsFetched;
+    let facilities;
+
+    function mockOSUser(osUser) {
+      urls.__echoUrls();
+      if (osUser) {
+        client.__setPayload(osUser);
+      } else {
+        client.mockRejectedValue(new Error('404'));
+      }
+    }
+
+    beforeEach(() => {
+      useUser.mockReturnValue(useUserMock({ isAppContext: true }));
+      setSelectedFacilityId = jest.fn();
+      useFacilitySelect.mockReturnValue(
+        useFacilitySelectMock({
+          selectedFacilityId: computed(() => 'facility_1'),
+          setSelectedFacilityId,
+        }),
+      );
+      facilities = ref([{ id: 'facility_1' }, { id: 'facility_2' }]);
+      useFacilities.mockReturnValue(
+        useFacilitiesMock({
+          facilities,
+          hasMultipleFacilities: computed(() => true),
+          getFacility: jest.fn(id => facilities.value.find(f => f.id === id)),
+        }),
+      );
+      configsFetched = [];
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          signInOptions: computed(() => [
+            OptionsForSignIn.PICTURE_PASSWORD,
+            OptionsForSignIn.USERNAME_ONLY,
+          ]),
+          fetchFacilityConfig: jest.fn(id => configsFetched.push(unref(id))),
+        }),
+      );
+      persistentSignInMethod.value = OptionsForSignIn.PICTURE_PASSWORD;
+    });
+
+    it('hands over the OS username once', async () => {
+      mockOSUser({ username: 'alice', facility: 'facility_2' });
+      const { initializeFlow, takeOSUsername } = createAuthFlow();
+      await initializeFlow();
+
+      expect(takeOSUsername()).toBe('alice');
+      expect(takeOSUsername()).toBeNull();
+    });
+
+    it('withholds the OS username once another facility is selected', async () => {
+      mockOSUser({ username: 'alice', facility: 'facility_2' });
+      const { facilityId, initializeFlow, takeOSUsername } = createAuthFlow();
+      await initializeFlow();
+      facilityId.value = 'facility_1';
+
+      expect(takeOSUsername()).toBeNull();
+    });
+
+    it('ignores an OS user whose facility is not on this device', async () => {
+      mockOSUser({ username: 'alice', facility: 'missing' });
+      const { facilityId, signInMethod, initializeFlow, takeOSUsername } = createAuthFlow();
+      await initializeFlow();
+
+      expect(facilityId.value).toBe('facility_1');
+      expect(signInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+      expect(takeOSUsername()).toBeNull();
+    });
+
+    it('does not ask for the OS user outside the app', async () => {
+      useUser.mockReturnValue(useUserMock({ isAppContext: false }));
+      urls.__echoUrls();
+      const { initializeFlow } = createAuthFlow();
+      await initializeFlow();
+
+      expect(client).not.toHaveBeenCalled();
+    });
+
+    it('asks for the OS user once when the flow is reinitialized', async () => {
+      mockOSUser({ username: 'alice', facility: 'facility_2' });
+      const { facilityId, initializeFlow } = createAuthFlow();
+      await initializeFlow();
+      await initializeFlow(true);
+
+      expect(client).toHaveBeenCalledTimes(1);
+      expect(facilityId.value).toBe('facility_2');
+      expect(setSelectedFacilityId).not.toHaveBeenCalledWith('facility_2');
+    });
+
+    it("falls back to the saved choices once the OS user's facility is removed", async () => {
+      mockOSUser({ username: 'alice', facility: 'facility_2' });
+      const { facilityId, signInMethod, initializeFlow } = createAuthFlow();
+      await initializeFlow();
+      facilities.value = [{ id: 'facility_1' }];
+      await initializeFlow(true);
+
+      expect(facilityId.value).toBe('facility_1');
+      expect(signInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+      expect(configsFetched.at(-1)).toBe('facility_1');
+    });
+
+    it('gives way to a sign-in method the user chooses', async () => {
+      mockOSUser({ username: 'alice', facility: 'facility_2' });
+      persistentSignInMethod.value = null;
+      const { signInMethod, initializeFlow } = createAuthFlow();
+      await initializeFlow();
+      signInMethod.value = OptionsForSignIn.PICTURE_PASSWORD;
+
+      expect(signInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+      expect(persistentSignInMethod.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
     });
   });
 });

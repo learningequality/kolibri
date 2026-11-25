@@ -134,6 +134,7 @@
                 appearance="basic-link"
                 :text="$tr('changePasswordPrompt')"
                 class="change-password"
+                data-testid="change-password"
                 @click="showPasswordModal = true"
               />
             </td>
@@ -257,8 +258,8 @@
         userPermissions: _userPermissions,
         isCoach,
         isAdmin,
+        isFacilityAdmin,
         isSuperuser,
-        isLearner,
         userHasPermissions,
         userFacilityId,
       } = useUser();
@@ -278,8 +279,8 @@
         userPermissions,
         isCoach,
         isAdmin,
+        isFacilityAdmin,
         isSuperuser,
-        isLearner,
         userHasPermissions,
         userFacilityId,
         showLearnModal,
@@ -322,16 +323,24 @@
         if (this.facilityConfig?.picture_password_settings == null) {
           return false;
         }
-        if (this.isSuperuser && this.isLearnerOnlyImport) {
-          return true;
+        if (this.isCoach || this.isFacilityAdmin) {
+          return false;
         }
-        return this.isLearner;
+        return this.isLearnerOnlyImport || !this.userHasPermissions;
       },
       canEditPassword() {
         const learner_can_edit =
           this.facilityConfig.learner_can_edit_password &&
           !this.facilityConfig.learner_can_login_with_no_password;
-        return this.isSuperuser || this.isAdmin || this.isCoach || learner_can_edit;
+        return (
+          this.isSuperuser ||
+          this.isAdmin ||
+          this.isCoach ||
+          (this.userHasPermissions &&
+            (this.facilityConfig.learner_can_login_with_no_password ||
+              this.facilityConfig.picture_password_settings != null)) ||
+          learner_can_edit
+        );
       },
     },
     async created() {

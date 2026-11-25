@@ -10,6 +10,8 @@ from morango.deferrable_foreign_keys import MakeForeignKeysDeferrable
 
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Session
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.upgrade import version_upgrade
 from kolibri.utils import conf
@@ -85,3 +87,15 @@ def make_foreign_keys_deferrable():
     # morango takes care of itself, through its own migration
     op = MakeForeignKeysDeferrable(exclude_app_labels=["morango"])
     op.run()
+
+
+@version_upgrade(old_version="<0.21.0")
+def sign_out_privileged_os_users():
+    privileged_os_users = (
+        FacilityUser.objects.filter(os_user__isnull=False)
+        .filter(FacilityUser.get_is_privileged_q())
+        .distinct()
+    )
+    Session.delete_all_sessions(
+        [user.id for user in privileged_os_users if not user.can_sign_in_as_os_user]
+    )
