@@ -1,6 +1,6 @@
 // Polyfills for Node.js and older browsers
 import 'fastestsmallesttextencoderdecoder';
-import { Reader, getMimeType } from '@zip.js/zip.js';
+import { Reader, getMimeType } from '@zip.js/zip.js/index-native.js';
 
 const DEFAULT_MAX_FULL_LOAD_SIZE = 2.5 * 1024 * 1024; // 2.5MB
 const DEFAULT_LARGE_MEDIA_THRESHOLD = 500 * 1024; // 500KB

@@ -138,6 +138,14 @@ describe('ZipFile public API', () => {
       },
     );
 
+    it('extracts deflated content when WebAssembly is blocked', async () => {
+      jest.spyOn(WebAssembly, 'instantiate').mockRejectedValue(new WebAssembly.CompileError());
+
+      const zip = openDeflatedZip();
+
+      await expect(zip.file('entry.txt').then(file => file.toString())).resolves.toBe(content);
+    });
+
     it('inflates with the native stream when both streams support deflate-raw', async () => {
       const inflate = jest.fn(inflateSync);
       global.DecompressionStream = class extends TransformStream {

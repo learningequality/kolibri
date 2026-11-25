@@ -1,6 +1,11 @@
 // Polyfills for Node.js and older browsers
 import 'fastestsmallesttextencoderdecoder';
-import { configure, ZipReader, Uint8ArrayWriter, getMimeType } from '@zip.js/zip.js';
+import {
+  configure,
+  ZipReader,
+  Uint8ArrayWriter,
+  getMimeType,
+} from '@zip.js/zip.js/index-native.js';
 import isPlainObject from 'lodash/isPlainObject';
 import AdaptiveHttpReader from './AdaptiveHttpReader';
 import { getAbsoluteFilePath, defaultFilePathMappers } from './fileUtils';
