@@ -10,15 +10,17 @@ permissions:
   contents: read
 jobs:
   install_test:
-    name: Install test (${{ matrix.image }}${{ matrix.runner && format(', {0}', matrix.runner) || '' }}${{ matrix.no_system_python && ', no system python3' || '' }}${{ matrix.upgrade_from_deb && ', upgrade' || '' }})
+    name: Install test (${{ matrix.image }}${{ matrix.runner && format(', {0}', matrix.runner) || '' }}${{ matrix.no_system_python && ', no system python3' || '' }}${{ matrix.upgrade_from_deb && ', upgrade' || '' }}${{ matrix.no_ambient_caps && ', no ambient caps' || '' }}${{ matrix.preseed_http_port && format(', HTTP port {0}', matrix.preseed_http_port) || '' }}${{ matrix.service_disabled && ', service disabled' || '' }})
     runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         include:
+          # Ubuntu 16.04 ships no setpriv.
           - image: ubuntu:16.04
             expect_bundled: true
+            no_ambient_caps: true
           - image: ubuntu:18.04
             expect_bundled: true
           - image: ubuntu:20.04
@@ -30,6 +32,10 @@ jobs:
           - image: ubuntu:24.04
             no_system_python: true
             expect_bundled: true
+          - image: ubuntu:24.04
+            preseed_http_port: 8081
+          - image: ubuntu:24.04
+            service_disabled: true
           - image: ubuntu:20.04
             runner: ubuntu-24.04-arm
             expect_bundled: true
@@ -49,13 +55,22 @@ jobs:
           NO_SYSTEM_PYTHON: ${{ matrix.no_system_python && '1' || '' }}
           UPGRADE_FROM_DEB: ${{ matrix.upgrade_from_deb }}
           EXPECT_BUNDLED: ${{ matrix.expect_bundled && '1' || '' }}
+          NO_AMBIENT_CAPS: ${{ matrix.no_ambient_caps && '1' || '' }}
+          PRESEED_HTTP_PORT: ${{ matrix.preseed_http_port }}
+          SERVICE_DISABLED: ${{ matrix.service_disabled && '1' || '' }}
           IMAGE: ${{ matrix.image }}
+        # Docker sets net.ipv4.ip_unprivileged_port_start to 0, letting any
+        # user bind port 80; restore the kernel default of 1024.
         run: |
           docker run --rm \
+            --sysctl net.ipv4.ip_unprivileged_port_start=1024 \
             -v /tmp/deb:/tmp/deb \
             -v "$PWD/platforms/debian/tests:/tmp/tests" \
             -e NO_SYSTEM_PYTHON \
             -e UPGRADE_FROM_DEB \
             -e EXPECT_BUNDLED \
+            -e NO_AMBIENT_CAPS \
+            -e PRESEED_HTTP_PORT \
+            -e SERVICE_DISABLED \
             "$IMAGE" \
             /tmp/tests/install_smoke_test.sh

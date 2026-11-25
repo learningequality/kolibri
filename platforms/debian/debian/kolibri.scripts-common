@@ -105,7 +105,7 @@ default_user_conf() {
 #
 # KOLIBRI_USER="kolibri"  # Default is to use content of /etc/kolibri/username
 # KOLIBRI_HOME="~/.kolibri"
-# KOLIBRI_LISTEN_PORT="8080"
+# KOLIBRI_HTTP_PORT="8080"
 # KOLIBRI_COMMAND="kolibri"
 # KOLIBRI_DEBUG=1  # Switches on debug log level (noisy!)
 # DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
@@ -290,6 +290,14 @@ kolibri_configure()
 
     if $ENABLE_INIT_D
     then
+        (
+            set -o allexport
+            . /etc/default/kolibri
+            set +o allexport
+            . /usr/share/kolibri/run-as-kolibri-user.sh
+            run_as_kolibri_user "$KOLIBRI_COMMAND configure setup"
+        ) || true
+
         # Register init script as service
         if which systemctl > /dev/null 2>&1 ; then
             # Works no matter if it's already enabled

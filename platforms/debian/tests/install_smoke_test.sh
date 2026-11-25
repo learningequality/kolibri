@@ -3,13 +3,17 @@
 # Installs /tmp/deb/*.deb inside a bare Ubuntu container and checks it runs.
 # Run by .github/workflows/platform-debian-install_test.yml; locally:
 #
-#   docker run --rm -v "$PWD/dist:/tmp/deb" -v "$PWD/tests:/tmp/tests" \
+#   docker run --rm --sysctl net.ipv4.ip_unprivileged_port_start=1024 \
+#     -v "$PWD/dist:/tmp/deb" -v "$PWD/tests:/tmp/tests" \
 #     -e EXPECT_BUNDLED=1 ubuntu:20.04 /tmp/tests/install_smoke_test.sh
 #
 # Environment:
 #   EXPECT_BUNDLED     non-empty if postinst must install /opt/kolibri/python
 #   NO_SYSTEM_PYTHON   non-empty to install with no python3 at all
 #   UPGRADE_FROM_DEB   URL of an earlier .deb to install first, then upgrade
+#   NO_AMBIENT_CAPS    non-empty if the image's setpriv cannot raise ambient caps
+#   PRESEED_HTTP_PORT  KOLIBRI_HTTP_PORT to write to /etc/kolibri/conf.d before install
+#   SERVICE_DISABLED   non-empty to preseed kolibri/init false before install
 
 set -e
 
@@ -26,11 +30,20 @@ fi
 apt-get update -qq
 apt-get install -y -qq $APT_OPTS $PREINSTALL
 
+if [ -n "$PRESEED_HTTP_PORT" ]; then
+  mkdir -p /etc/kolibri/conf.d
+  echo "KOLIBRI_HTTP_PORT=$PRESEED_HTTP_PORT" > /etc/kolibri/conf.d/http-port.conf
+fi
+if [ -n "$SERVICE_DISABLED" ]; then
+  echo "kolibri kolibri/init boolean false" | debconf-set-selections
+fi
+
 if [ -n "$UPGRADE_FROM_DEB" ]; then
   curl -fsSL -o /tmp/previous.deb "$UPGRADE_FROM_DEB"
   dpkg -i /tmp/previous.deb || true
   apt-get install -f -y $APT_OPTS
   echo "Installed kolibri $(dpkg-query -W -f='${Version}' kolibri) from $UPGRADE_FROM_DEB"
+  su -s /bin/sh "$(cat /etc/kolibri/username)" -c "kolibri configure setup"
   GITHUB_IO_SOURCE=/etc/apt/sources.list.d/kolibri-github-io.list
   PPA_SOURCE=/etc/apt/sources.list.d/kolibri-ppa.list
   echo "deb https://learningequality.github.io/kolibri-installer-debian stable main" > "$GITHUB_IO_SOURCE"
@@ -99,20 +112,34 @@ check_kolibri_cli() {
 }
 
 wait_for_kolibri() {
-  echo "Waiting for Kolibri to start on port 8080..."
+  echo "Waiting for Kolibri to start on port $EXPECTED_PORT..."
   for i in $(seq 1 60); do
-    if curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:8080 | grep -q "200\|302"; then
-      echo "PASS: Kolibri is responding on port 8080 (attempt $i)"
+    if curl -s --max-time 5 -o /dev/null -w "%{http_code}" "http://localhost:$EXPECTED_PORT" | grep -q "200\|302"; then
+      echo "PASS: Kolibri is responding on port $EXPECTED_PORT (attempt $i)"
       return
     fi
     sleep 2
   done
-  echo "FAIL: Kolibri did not respond on port 8080 after 60 attempts"
+  echo "FAIL: Kolibri did not respond on port $EXPECTED_PORT after 60 attempts"
   exit 1
 }
 
+server_pid() {
+  head -1 "$KOLIBRI_HOME/server.pid"
+}
+
+check_elected_port() {
+  options="$KOLIBRI_HOME/options.ini"
+  pinned=$(sed -n 's/^[[:space:]]*HTTP_PORT[[:space:]]*=[[:space:]]*//p' "$options")
+  if [ "$pinned" != "$EXPECTED_PIN" ]; then
+    echo "FAIL: $options pins HTTP_PORT '$pinned', expected '$EXPECTED_PIN'"
+    exit 1
+  fi
+  echo "PASS: $options pins HTTP_PORT '$pinned'"
+}
+
 check_server_interpreter() {
-  exe=$(su -s /bin/sh "$KOLIBRI_USER" -c 'readlink "/proc/$(head -1 ~/.kolibri/server.pid)/exe"' || true)
+  exe=$(run_as_kolibri_user "readlink /proc/$(server_pid)/exe" || true)
   if [ -n "$EXPECT_BUNDLED" ]; then
     expected="/opt/kolibri/python/bin/python3.*"
   else
@@ -129,21 +156,76 @@ check_server_interpreter() {
   exit 1
 }
 
+check_server_privileges() {
+  status="/proc/$(server_pid)/status"
+  uid=$(id -u "$KOLIBRI_USER")
+  uids=$(awk '/^Uid:/ {print $2, $3, $4, $5}' "$status")
+  if [ "$uids" != "$uid $uid $uid $uid" ]; then
+    echo "FAIL: Kolibri server runs with real/effective/saved/fs uids $uids, expected $KOLIBRI_USER ($uid)"
+    exit 1
+  fi
+  gid=$(id -g "$KOLIBRI_USER")
+  gids=$(awk '/^Gid:/ {print $2, $3, $4, $5}' "$status")
+  if [ "$gids" != "$gid $gid $gid $gid" ]; then
+    echo "FAIL: Kolibri server runs with real/effective/saved/fs gids $gids, expected $KOLIBRI_USER's group ($gid)"
+    exit 1
+  fi
+  echo "PASS: Kolibri server runs as $KOLIBRI_USER"
+  if [ -n "$NO_AMBIENT_CAPS" ]; then
+    echo "SKIP: setpriv on this image cannot raise ambient capabilities"
+    return
+  fi
+  cap_amb=$(awk '/^CapAmb:/ {print $2}' "$status")
+  # Bit 10 is CAP_NET_BIND_SERVICE in linux/capability.h
+  if (( (0x$cap_amb >> 10) & 1 )); then
+    echo "PASS: Kolibri server holds CAP_NET_BIND_SERVICE as an ambient capability"
+  else
+    echo "FAIL: Kolibri server lacks ambient CAP_NET_BIND_SERVICE (CapAmb: $cap_amb)"
+    exit 1
+  fi
+}
+
+check_running_server() {
+  wait_for_kolibri
+  check_elected_port
+  check_server_interpreter
+  check_server_privileges
+}
+
 KOLIBRI_USER=$(cat /etc/kolibri/username 2>/dev/null || echo "kolibri")
+KOLIBRI_HOME=$(. /etc/default/kolibri && echo "$KOLIBRI_HOME")
+. /usr/share/kolibri/run-as-kolibri-user.sh
+
+if [ -n "$SERVICE_DISABLED" ]; then
+  if [ -e "$KOLIBRI_HOME/options.ini" ]; then
+    echo "FAIL: postinst ran kolibri configure setup with the service disabled"
+    exit 1
+  fi
+  echo "PASS: postinst left the Kolibri home alone with the service disabled"
+fi
+
+if [ -n "$PRESEED_HTTP_PORT$UPGRADE_FROM_DEB$SERVICE_DISABLED" ]; then
+  EXPECTED_PIN=
+elif [ -n "$NO_AMBIENT_CAPS" ]; then
+  EXPECTED_PIN=8080
+else
+  EXPECTED_PIN=80
+fi
+EXPECTED_PORT=${EXPECTED_PIN:-${PRESEED_HTTP_PORT:-8080}}
 
 check_interpreter
 check_kolibri_cli
 
-su -s /bin/sh "$KOLIBRI_USER" -c "kolibri stop" 2>/dev/null || true
-su -s /bin/sh "$KOLIBRI_USER" -c "kolibri start"
-wait_for_kolibri
-check_server_interpreter
+/etc/init.d/kolibri stop 2>/dev/null || true
+/etc/init.d/kolibri start
+check_running_server
 
 # Containers run no service manager; stand in for systemd, which runs
 # kolibri.service's ExecStart/ExecStop, i.e. the init script.
 printf '#!/bin/sh\ncase "$1" in start|stop) exec /etc/init.d/kolibri "$1" ;; esac\n' \
   > /usr/local/sbin/systemctl
 chmod +x /usr/local/sbin/systemctl
+/etc/init.d/kolibri stop
 if [ -n "$EXPECT_BUNDLED" ]; then
   echo stale > /opt/kolibri/python/.bundled-version
   ( umask 027 && dpkg-reconfigure kolibri )
@@ -163,8 +245,10 @@ if [ -n "$EXPECT_BUNDLED" ]; then
     exit 1
   fi
 fi
-wait_for_kolibri
-check_server_interpreter
+if [ -n "$SERVICE_DISABLED" ]; then
+  /etc/init.d/kolibri start
+fi
+check_running_server
 
 dpkg --purge kolibri
 if [ -e /opt/kolibri ]; then
