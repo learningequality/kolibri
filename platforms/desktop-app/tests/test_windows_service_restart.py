@@ -248,6 +248,7 @@ def _tray(uses_service):
     tray.app = MagicMock()
     tray.app.server_manager.uses_service = uses_service
     tray.frame = MagicMock()
+    tray._service_change_running = False
     return tray
 
 
@@ -400,3 +401,53 @@ class TestTrayServiceStartup(unittest.TestCase):
         manager = _local_server_manager()
         self._toggle(_FakeWindows(elevates=False), manager)
         self.assertFalse(manager.uses_service)
+
+
+class TestTrayServiceStartupInFlight(unittest.TestCase):
+    def setUp(self):
+        self.tray = _tray(uses_service=True)
+        self.tray.run_on_start_item = MagicMock()
+        self.tray.show_notification = MagicMock()
+        self.windows = _FakeWindows()
+        self.running_changes = []
+        running_changes = self.running_changes
+
+        class _HeldThread:
+            def __init__(self, target, args=(), daemon=None):
+                running_changes.append(lambda: target(*args))
+
+            def start(self):
+                pass
+
+        for patcher in (
+            patch.object(ctypes, "windll", self.windows.windll, create=True),
+            patch.object(taskbar_icon, "Thread", _HeldThread),
+            patch.object(wx, "CallAfter", lambda f, *args: f(*args)),
+            patch.object(wx, "MessageBox"),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def _toggle(self):
+        event = MagicMock()
+        event.IsChecked.return_value = True
+        self.tray.on_toggle_service_startup(event)
+
+    def _service_menu_item(self):
+        menu = MagicMock()
+        menu.AppendCheckItem.side_effect = lambda *args: MagicMock()
+        with (
+            patch.object(wx, "Menu", return_value=menu),
+            patch.object(taskbar_icon, "get_service_start_type", return_value="auto"),
+        ):
+            self.tray.CreatePopupMenu()
+        return self.tray.run_on_start_item
+
+    def test_menu_disables_the_toggle_while_a_change_is_running(self):
+        self._toggle()
+        self._service_menu_item().Enable.assert_called_with(False)
+
+    def test_menu_enables_the_toggle_once_the_change_finishes(self):
+        self._toggle()
+        self.running_changes.pop()()
+        self._service_menu_item().Enable.assert_not_called()

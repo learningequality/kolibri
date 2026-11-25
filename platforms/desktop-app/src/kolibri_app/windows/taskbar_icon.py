@@ -219,6 +219,7 @@ class KolibriTaskBarIcon:
             False  # Track if we've shown the starting notification
         )
         self._added = False
+        self._service_change_running = False
         self._old_wndproc = None
         self._tray_hicon = None
         self._balloon_hicon = None
@@ -455,6 +456,8 @@ class KolibriTaskBarIcon:
             self.run_on_start_item.SetItemLabel(
                 _("Run Kolibri service on Windows startup (Unavailable)")
             )
+        if self._service_change_running:
+            self.run_on_start_item.Enable(False)
         self.frame.Bind(
             wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item
         )
@@ -528,6 +531,7 @@ class KolibriTaskBarIcon:
             if is_auto_start_enabled:
                 self.app.server_manager.use_service()
 
+            self._service_change_running = True
             Thread(
                 target=self._wait_for_service_change,
                 args=(process, is_auto_start_enabled),
@@ -550,6 +554,7 @@ class KolibriTaskBarIcon:
         wx.CallAfter(self._finish_service_change, is_auto_start_enabled, exit_code == 0)
 
     def _finish_service_change(self, is_auto_start_enabled, succeeded):
+        self._service_change_running = False
         self.app.server_manager.finish_service_handover()
         if succeeded:
             status_translated = _("enabled") if is_auto_start_enabled else _("disabled")
@@ -602,6 +607,12 @@ class KolibriTaskBarIcon:
         - When running with background service: Does not stop the service
         - When running local server: Stops the local server
         """
+        if self.app.view:
+            self.app.save_state(self.app.view)
+        for window in self.app.windows:
+            window.view.Hide()
+        self._remove_icon()
+
         if self.app.server_manager.uses_service:
             # Running with service - don't stop the service, just exit the UI
             logging.info("Exiting tray icon (service will continue running)")
@@ -610,9 +621,6 @@ class KolibriTaskBarIcon:
             # Running local server - stop the server
             logging.info("Exiting and stopping local server")
             self.app.shutdown()
-
-        if self.app.view:
-            self.app.save_state(self.app.view)
 
         # Destroy the tray icon
         wx.CallAfter(self.Destroy)
