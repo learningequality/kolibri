@@ -1,12 +1,13 @@
 import userEvent from '@testing-library/user-event';
 import VueRouter from 'vue-router';
 import { nextTick, ref } from 'vue';
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within } from '@testing-library/vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import pluginData from 'kolibri-plugin-data';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { PageNames } from '../../constants.js';
+import CopiesModal from '../CopiesModal.vue';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import SearchResultsGrid from '../SearchResultsGrid.vue';
 import stubHttp from './stubHttp';
@@ -77,6 +78,39 @@ describe('SearchResultsGrid', () => {
   it('does not render the view more button when there are no more results', () => {
     renderComponent({ more: null });
     expect(screen.queryByText(viewMoreAction$())).not.toBeInTheDocument();
+  });
+
+  it.each(['click', 'Enter'])('opens Locations by %s and stays on results', async key => {
+    const copies = [
+      { id: 'first', title: 'First copy', ancestors: [] },
+      { id: 'second', title: 'Second copy', ancestors: [] },
+    ];
+    const { router } = renderComponent(
+      {
+        results: [
+          { id: 'other', title: 'Other resource', is_leaf: true, learning_activities: [] },
+          { ...copies[0], copies, is_leaf: true, learning_activities: [] },
+        ],
+      },
+      { windowIsSmall: true },
+    );
+    const initialRoute = router.currentRoute;
+    const { copies$ } = createTranslator(CopiesModal.name, CopiesModal.$trs);
+
+    const trigger = await screen.findByTestId('resource-copies');
+    expect(trigger).toHaveTextContent(coreStrings.copies$({ num: copies.length }));
+    if (key === 'click') {
+      await userEvent.click(trigger);
+    } else {
+      trigger.focus();
+      await userEvent.keyboard('{Enter}');
+    }
+
+    const dialog = screen.getByRole('dialog', { name: copies$() });
+    for (const copy of copies) {
+      expect(within(dialog).getByRole('link', { name: copy.title })).toBeVisible();
+    }
+    expect(router.currentRoute).toBe(initialRoute);
   });
 
   it('opens the resource from the noninteractive footer area', async () => {

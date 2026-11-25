@@ -46,8 +46,9 @@
         v-if="contentNode.copies"
         appearance="basic-link"
         class="copies"
+        data-testid="resource-copies"
         :text="coreString('copies', { num: contentNode.copies.length })"
-        @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+        @click.stop.prevent="$emit('openCopiesModal', contentNode.copies)"
       />
     </template>
     <template #footer>
