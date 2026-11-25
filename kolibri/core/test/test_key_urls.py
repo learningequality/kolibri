@@ -16,7 +16,9 @@ from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.translation import get_settings_language
+from kolibri.core.device.utils import LANDING_PAGE_LEARN
 from kolibri.core.discovery.test.helpers import mock_response
+from kolibri.core.hooks import RoleBasedRedirectHook
 
 
 def mock_external_request(session, method, url, *args, **kwargs):
@@ -35,6 +37,19 @@ def mock_external_request(session, method, url, *args, **kwargs):
     if "api/public/info" not in url:
         response.json.return_value = []
     return response
+
+
+def without_learn_redirect():
+    learn_url = reverse("kolibri:kolibri.plugins.learn:learn")
+    return patch.object(
+        RoleBasedRedirectHook,
+        "_registered_hooks",
+        {
+            unique_id: hook
+            for unique_id, hook in RoleBasedRedirectHook._registered_hooks.items()
+            if hook.url != learn_url
+        },
+    )
 
 
 class BeforeDeviceProvisionTests(APITestCase):
@@ -161,6 +176,75 @@ class KolibriTagNavigationTestCase(APITestCase):
     def test_class_coach_is_redirected_to_coach_plugin(self):
         self.client.login(username=self.class_coach.username, password=DUMMY_PASSWORD)
         self._assert_location_reverse_url("kolibri:kolibri.plugins.coach:coach")
+
+
+class OnMyOwnRootRedirectTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        facility = FacilityFactory.create()
+        facility.on_my_own_setup = True
+        cls.superuser = create_superuser(facility)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def test_superuser_is_redirected_to_learn_plugin(self):
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.learn:learn")
+        )
+
+    def test_superuser_is_redirected_to_device_plugin_when_learn_is_disabled(self):
+        with without_learn_redirect():
+            response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.device:device_management"),
+        )
+
+
+class LearnLandingPageRedirectTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device(landing_page=LANDING_PAGE_LEARN)
+        FacilityFactory.create()
+
+    def _assert_redirect(self, from_url_name, to_url_name):
+        response = self.client.get(reverse(from_url_name))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.get("location"), reverse(to_url_name))
+
+    def test_anonymous_user_is_redirected_to_learn_plugin(self):
+        self._assert_redirect(
+            "kolibri:core:root_redirect", "kolibri:kolibri.plugins.learn:learn"
+        )
+
+    def test_anonymous_user_is_redirected_to_user_plugin_when_learn_is_disabled(
+        self,
+    ):
+        with without_learn_redirect():
+            self._assert_redirect(
+                "kolibri:core:root_redirect",
+                "kolibri:kolibri.plugins.user_auth:user_auth",
+            )
+
+    def test_guest_is_redirected_to_learn_plugin(self):
+        self._assert_redirect(
+            "kolibri:core:guest", "kolibri:kolibri.plugins.learn:learn"
+        )
+
+    def test_guest_is_redirected_to_user_plugin_when_learn_is_disabled(self):
+        with without_learn_redirect():
+            self._assert_redirect(
+                "kolibri:core:guest", "kolibri:kolibri.plugins.user_auth:user_auth"
+            )
 
 
 class AllUrlsTest(APITestCase):

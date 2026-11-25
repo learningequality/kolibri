@@ -131,34 +131,13 @@ class RootURLRedirectView(RedirectView):
             return SetupHook.provision_url()
 
         if self.request.user.is_authenticated:
-            url = None
-            if self.request.user.is_superuser:
-                url = url or get_url_by_role(
-                    user_kinds.SUPERUSER,
-                    full_facility_import=self.request.user.full_facility_import,
-                    on_my_own_device=self.request.user.full_facility_on_my_own_setup,
-                )
-            roles = set(
-                Role.objects.filter(user_id=self.request.user.id)
-                .values_list("kind", flat=True)
-                .distinct()
-            )
-            if user_kinds.ADMIN in roles:
-                url = url or get_url_by_role(
-                    user_kinds.ADMIN,
-                    full_facility_import=self.request.user.full_facility_import,
-                    on_my_own_device=self.request.user.full_facility_on_my_own_setup,
-                )
-            if user_kinds.COACH in roles or user_kinds.ASSIGNABLE_COACH in roles:
-                url = url or get_url_by_role(
-                    user_kinds.COACH,
-                    full_facility_import=self.request.user.full_facility_import,
-                    on_my_own_device=self.request.user.full_facility_on_my_own_setup,
-                )
-            url = url or get_url_by_role(
-                user_kinds.LEARNER,
+            kinds = self._user_kinds_by_priority()
+            url = self._first_url_by_role(
+                kinds,
                 full_facility_import=self.request.user.full_facility_import,
                 on_my_own_device=self.request.user.full_facility_on_my_own_setup,
+            ) or self._first_url_by_role(
+                kinds, full_facility_import=True, on_my_own_device=False
             )
         else:
             url = get_url_by_role(user_kinds.ANONYMOUS)
@@ -180,6 +159,27 @@ class RootURLRedirectView(RedirectView):
             )
         )
 
+    def _user_kinds_by_priority(self):
+        kinds = []
+        if self.request.user.is_superuser:
+            kinds.append(user_kinds.SUPERUSER)
+        roles = set(
+            Role.objects.filter(user_id=self.request.user.id)
+            .values_list("kind", flat=True)
+            .distinct()
+        )
+        if user_kinds.ADMIN in roles:
+            kinds.append(user_kinds.ADMIN)
+        if user_kinds.COACH in roles or user_kinds.ASSIGNABLE_COACH in roles:
+            kinds.append(user_kinds.COACH)
+        kinds.append(user_kinds.LEARNER)
+        return kinds
+
+    @staticmethod
+    def _first_url_by_role(kinds, **constraints):
+        urls = (get_url_by_role(kind, **constraints) for kind in kinds)
+        return next((url for url in urls if url), None)
+
 
 class GuestRedirectView(RootURLRedirectView):
     permanent = False
@@ -188,8 +188,9 @@ class GuestRedirectView(RootURLRedirectView):
         """
         Redirects a guest user to a learner accessible page.
         """
-        if allow_guest_access():
-            return get_url_by_role(user_kinds.LEARNER)
+        learner_url = get_url_by_role(user_kinds.LEARNER)
+        if allow_guest_access() and learner_url:
+            return learner_url
         return super().get_redirect_url(*args, **kwargs)
 
 
