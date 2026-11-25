@@ -614,6 +614,8 @@ describe('SafeHTML', () => {
   });
 
   describe('MathML rendering', () => {
+    const ISOTOPE =
+      '<math><mmultiscripts><mi>C</mi><mprescripts/><none/><mn>14</mn></mmultiscripts></math>';
     const FIRST = 'a';
     const SECOND = 'b';
 
@@ -664,6 +666,7 @@ describe('SafeHTML', () => {
         ['an mtd outside an mtr', '<mtd><mi>x</mi></mtd>'],
         ['an mtr outside an mtable', '<mtr><mtd><mi>x</mi></mtd></mtr>'],
         ['an mprescripts outside an mmultiscripts', '<mprescripts/><mi>x</mi>'],
+        ['a none outside an mmultiscripts', '<none/><mi>x</mi>'],
       ])('falls back to native math for %s', async (_, inner) => {
         const { container } = render(createSafeHTML(), {
           props: { html: `<math>${inner}</math>` },
@@ -871,6 +874,15 @@ describe('SafeHTML', () => {
         expect(wrapper.nextElementSibling).toHaveTextContent(AFTER);
       });
 
+      it('renders the isotope mass number as a left superscript', async () => {
+        render(createSafeHTML(), { props: { html: ISOTOPE } });
+        const wrapper = await findMathJaxOutput();
+        expect(
+          wrapper.querySelector('mjx-prescripts > mjx-row:first-child mjx-mn'),
+        ).toBeInTheDocument();
+        expect(wrapper.querySelector('mjx-prescripts > mjx-row:last-child mjx-c')).toBeNull();
+      });
+
       it('renders the spacing an mspace sets', async () => {
         render(createSafeHTML(), {
           props: { html: '<math><mi>x</mi><mspace width="1em"/><mi>y</mi></math>' },
@@ -929,6 +941,11 @@ describe('SafeHTML', () => {
         // jsdom's MathML elements aren't HTMLElements, which toBeInTheDocument requires.
         expect(container.querySelector('math.safe-html')).not.toBeNull();
         expect(screen.queryByTestId('mathjax-output')).not.toBeInTheDocument();
+      });
+
+      it('keeps the empty left subscript slot in native math', () => {
+        const { container } = render(createSafeHTML(), { props: { html: ISOTOPE } });
+        expect(container.querySelector('mmultiscripts > mprescripts + none + mn')).not.toBeNull();
       });
 
       it('drops authored alttext from native math', () => {

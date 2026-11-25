@@ -24,7 +24,7 @@ const ALLOWED_STYLE_PROPS = [
   'text-decoration-color',
   'text-decoration-thickness',
 ];
-const ADD_TAGS = ['object', 'semantics'];
+const ADD_TAGS = ['object', 'semantics', 'none'];
 const ADD_ATTR = ['data'];
 const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
 const PROBE_WIDTH = 77;
