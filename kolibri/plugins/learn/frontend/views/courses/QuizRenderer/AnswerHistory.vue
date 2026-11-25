@@ -10,8 +10,8 @@
       <button
         class="clickable"
         :class="{ 'current-question': questionNumber === index }"
-        :disabled="questionNumber === index"
-        @click="$emit('goToQuestion', index)"
+        :aria-current="questionNumber === index ? 'step' : null"
+        @click="questionNumber !== index && $emit('goToQuestion', index)"
       >
         <KIcon
           class="dot"

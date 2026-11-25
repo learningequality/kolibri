@@ -76,6 +76,7 @@
             class="btn-flex"
             primary
             :disabled="questionNumber === questionsTotal - 1"
+            v-bind="{ 'supports-modality': 'keyboard' }"
             :aria-label="$tr('nextQuestion')"
             :text="displayNavigationButtonLabel ? $tr('nextQuestion') : ''"
             @click="goToQuestion(questionNumber + 1)"
@@ -91,6 +92,7 @@
           <KButton
             class="btn-flex"
             :disabled="questionNumber === 0"
+            v-bind="{ 'supports-modality': 'keyboard' }"
             :aria-label="$tr('previousQuestion')"
             :text="displayNavigationButtonLabel ? $tr('previousQuestion') : ''"
             @click="goToQuestion(questionNumber - 1)"
@@ -157,6 +159,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import shuffled from 'kolibri-common/utils/shuffled';
+  import handOffQuestionNavigationFocus from '../../../utils/handOffQuestionNavigationFocus';
   import ResourceLayout from '../../ResourceLayout/index.vue';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';
@@ -296,6 +299,14 @@
       },
     },
     watch: {
+      questionNumber() {
+        const focused = document.activeElement;
+        this.$nextTick(() =>
+          handOffQuestionNavigationFocus(focused, [
+            ...(focused?.closest('.navigation-buttons-wrapper')?.children ?? []),
+          ]),
+        );
+      },
       itemId(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();
