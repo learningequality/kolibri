@@ -45,6 +45,7 @@ const MOCK_DEFAULTS = {
   moreLoading: false,
   results: [],
   more: null,
+  searchLevel: null,
   labels: null,
   search: jest.fn(),
   searchMore: jest.fn(),
