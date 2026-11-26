@@ -3,6 +3,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 """
 
 import datetime
+import sys
 import time
 import unittest
 import uuid
@@ -17,6 +18,8 @@ from django.core.cache import cache
 from django.test import LiveServerTestCase
 from django.test import override_settings
 from django.test import TestCase
+from django.urls import path
+from django.urls import resolve
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -36,6 +39,7 @@ from kolibri.core.content import models as content
 from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
@@ -52,6 +56,10 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.utils.test.helpers import encode_cursor
 from kolibri.utils.tests.helpers import override_option
 from kolibri.utils.time_utils import local_now
+
+if sys.version_info >= (3, 8):
+    from drf_yasg import openapi
+    from drf_yasg.generators import OpenAPISchemaGenerator
 
 DUMMY_PASSWORD = "password"
 
@@ -414,6 +422,29 @@ class ContentNodeAPIBase:
         response = self._get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
+
+    def _assert_paginated_search_levels(self, get, url):
+        for params in (
+            {"search": "fractions"},
+            {"question": "fractions"},
+            {"keywords": "fractions"},
+            {"search": "", "question": "fractions"},
+            {"search": "!?,"},
+        ):
+            with self.subTest(params=params):
+                response = get(url, data={"max_results": 5, **params})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data.get("search_level"), "keyword")
+        for params in ({}, {"search": ""}):
+            with self.subTest(params=params):
+                response = get(url, data={"max_results": 5, **params})
+                self.assertEqual(response.status_code, 200)
+                self.assertNotIn("search_level", response.data)
+
+    def test_contentnode_paginated_search_levels(self):
+        self._assert_paginated_search_levels(
+            self._get, reverse("kolibri:core:contentnode-list")
+        )
 
     def test_contentnode_channel_metadata_label_absent_in_internal_api(self):
         response = self._get(
@@ -2106,6 +2137,84 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["error"], "Invalid UUID format.")
+
+    def test_publiccontentnode_paginated_search_levels(self):
+        self._assert_paginated_search_levels(
+            self.client.get, reverse("kolibri:core:publiccontentnode-list")
+        )
+
+    def test_paginated_search_preserves_results_and_more(self):
+        language = content.Language.objects.create(
+            id="sw", lang_code="sw", lang_name="Swahili"
+        )
+        language_label = {"id": language.id, "lang_name": language.lang_name}
+        for endpoint in ("contentnode-list", "publiccontentnode-list"):
+            with self.subTest(endpoint=endpoint):
+                url = reverse(f"kolibri:core:{endpoint}")
+                unpaginated = self.client.get(url, data={"search": "c2"})
+                self.assertEqual(unpaginated.status_code, 200)
+                matching_nodes = content.ContentNode.objects.filter(
+                    id__in=[node["id"] for node in unpaginated.data]
+                ).order_by("lft", "id")
+                expected_ids = list(matching_nodes.values_list("id", flat=True))
+                self.assertGreater(len(expected_ids), 2)
+                matching_nodes.filter(id=expected_ids[2]).update(lang=language)
+                expected_labels = get_available_metadata_labels(
+                    matching_nodes, endpoint == "publiccontentnode-list"
+                )
+                params = {"search": "c2", "max_results": 2}
+                for offset in range(0, len(expected_ids), 2):
+                    response = self.client.get(url, data=params)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(
+                        list(response.data),
+                        ["more", "results", "labels", "search_level"],
+                    )
+                    self.assertEqual(response.data["search_level"], "keyword")
+                    if offset == 0:
+                        self.assertIn(
+                            language_label, response.data["labels"]["languages"]
+                        )
+                    self.assertEqual(response.data["labels"], expected_labels)
+                    self.assertEqual(
+                        [node["id"] for node in response.data["results"]],
+                        expected_ids[offset : offset + 2],
+                    )
+                    params = response.data["more"]
+                    if offset + 2 < len(expected_ids):
+                        self.assertIsNotNone(params)
+                    else:
+                        self.assertIsNone(params)
+
+    @unittest.skipIf(sys.version_info < (3, 8), "drf-yasg requires Python 3.8+")
+    def test_paginated_search_level_schema(self):
+        urls = [
+            reverse(f"kolibri:core:{endpoint}")
+            for endpoint in ("contentnode-list", "publiccontentnode-list")
+        ]
+        document = OpenAPISchemaGenerator(
+            openapi.Info(title="Kolibri API", default_version="v0"),
+            patterns=[path(url.lstrip("/"), resolve(url).func) for url in urls],
+        ).get_schema(public=True)
+        for url in urls:
+            with self.subTest(url=url):
+                schema_path = url[len(document.base_path.rstrip("/")) :]
+                schema = document.paths[schema_path]["get"]["responses"]["200"][
+                    "schema"
+                ]
+                properties = schema["properties"]
+                self.assertEqual(
+                    set(properties), {"more", "results", "labels", "search_level"}
+                )
+                self.assertEqual(properties["search_level"]["type"], "string")
+                self.assertCountEqual(
+                    properties["search_level"]["enum"], ["keyword", "vector", "lm"]
+                )
+                self.assertNotIn("search_level", schema.get("required", []))
+                self.assertIn(
+                    "only if search, question, or keywords is non-empty",
+                    properties["search_level"]["description"],
+                )
 
     def test_publiccontentnode_list_search(self):
         # The search filter lives on BaseContentNodeMixin so the public endpoint
