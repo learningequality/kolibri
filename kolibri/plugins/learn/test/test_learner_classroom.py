@@ -215,6 +215,12 @@ class LearnerClassroomTestCase(APITestCase):
         )
         self.assertEqual((True, 3, 3), progress)
 
+    def test_exam_progress_adds_partial_credit(self):
+        progress = self._get_exam_progress_after_tries(
+            ((True, (("a", 0.5), ("b", 1))),)
+        )
+        self.assertEqual((True, 1.5, 2), progress)
+
     def test_exam_progress_closed_reads_latest_try_when_it_is_in_progress(self):
         progress = self._get_exam_progress_after_tries(
             (

@@ -22,7 +22,7 @@ from . import _map_contentnodes
 
 class ExamProgressSerializer(serializers.Serializer):
     closed = serializers.BooleanField(allow_null=True)
-    score = serializers.IntegerField(allow_null=True)
+    score = serializers.FloatField(allow_null=True)
     answer_count = serializers.IntegerField(allow_null=True)
     started = serializers.BooleanField()
 

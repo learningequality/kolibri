@@ -1961,6 +1961,12 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             ),
         )
 
+    def test_contentnode_progress_adds_partial_credit(self):
+        self.assertEqual(
+            (2, 1.5),
+            self._get_contentnode_question_counts([("a", 0.5), ("b", 1)]),
+        )
+
     def test_contentnode_progress_try_without_attempts_counts_zero(self):
         self.assertEqual((0, 0), self._get_contentnode_question_counts([]))
 

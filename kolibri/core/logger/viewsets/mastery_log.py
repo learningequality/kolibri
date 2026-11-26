@@ -45,9 +45,7 @@ class MasteryFilter(BaseLogFilter):
 
 
 class MasteryLogSerializer(serializers.ModelSerializer):
-    # Annotation added by annotate_queryset. output_field=IntegerField() is
-    # required for Postgres compatibility — cf2d54e5b1.
-    correct = serializers.IntegerField(read_only=True)
+    correct = serializers.FloatField(read_only=True)
 
     class Meta:
         model = MasteryLog
@@ -79,7 +77,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
     def annotate_queryset(self, queryset):
         return annotate_response_summary(queryset).annotate(
-            correct=Coalesce("num_correct", Value(0), output_field=IntegerField())
+            correct=Coalesce("num_correct", Value(0.0))
         )
 
     @action(detail=True)

@@ -1,5 +1,6 @@
 from typing import ClassVar
 
+from django.db.models import FloatField
 from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.db.models import Value
@@ -75,7 +76,9 @@ class ContentNodeProgressViewset(TreeQueryMixin, GenericViewSet, ListModelMixin)
             )
             .annotate(
                 num_question_answered=Coalesce("num_answered", Value(0)),
-                num_question_answered_correctly=Coalesce("num_correct", Value(0)),
+                num_question_answered_correctly=Coalesce(
+                    "num_correct", Value(0), output_field=FloatField()
+                ),
             )
             .order_by("-end_timestamp")
         )

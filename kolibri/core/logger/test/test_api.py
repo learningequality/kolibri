@@ -464,8 +464,7 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         self.assertGreater(len(response.data), 0)
         expected_fields = set(MasteryLogSerializer.Meta.fields)
         self.assertEqual(set(response.data[0].keys()), expected_fields)
-        # correct is an annotated aggregate — must be an integer
-        self.assertIsInstance(response.data[0]["correct"], int)
+        self.assertIsInstance(response.data[0]["correct"], float)
 
     def test_diff(self):
         for user_index, user_tries in enumerate(self.user_tries):
@@ -636,6 +635,11 @@ class MasteryLogRepeatedAttemptsQuizTestCase(EvaluationMixin, APITestCase):
         response = self._get(reverse("kolibri:core:masterylog-diff", kwargs={"pk": 0}))
         self.assertEqual(2, response.data["correct"])
         self.assertEqual(-1, response.data["diff"]["correct"])
+
+    def test_list_adds_partial_credit(self):
+        self._create_attempt_after(self.current_try, self.try_items[1], 0.5)
+        response = self._get(reverse("kolibri:core:masterylog-list"))
+        self.assertEqual(1.5, response.data[0]["correct"])
 
 
 class MasteryLogRepeatedAttemptsExerciseTestCase(
