@@ -103,6 +103,7 @@ base = [
 ]
 test = [
     {include-group = "base"},
+    "drf-yasg==1.21.7; python_version >= '3.8'",
     "setuptools<82",
     "setuptools-scm>=9,<11; python_version >= '3.8'",
     "mixer==6.0.1",
@@ -121,7 +122,6 @@ dev = [
     "ipdb; python_version >= '3.8'",
     "prek; python_version >= '3.8'",
     "django-silk; python_version >= '3.8'",
-    "drf-yasg==1.21.7; python_version >= '3.8'",
     "coreapi==2.3.3; python_version >= '3.8'",
     "nodeenv>=1.3.3",
 ]

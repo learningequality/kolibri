@@ -1,6 +1,8 @@
 import { get, set } from '@vueuse/core';
 import Vue, { nextTick, ref, defineComponent, h } from 'vue';
-import { render } from '@testing-library/vue';
+import VueRouter from 'vue-router';
+import { render, waitFor } from '@testing-library/vue';
+import client from 'kolibri/client';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { Categories, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -12,6 +14,10 @@ import useBaseSearch, { injectBaseSearch } from '../useBaseSearch';
 
 const mockSendPoliteMessage = jest.fn();
 
+jest.mock('kolibri/client');
+jest.mock('kolibri-plugin-data', () => ({
+  urls: { urls: { 'kolibri:core:contentnode_list': [['api/content/contentnode/', []]] } },
+}));
 jest.mock('kolibri/composables/useUser');
 jest.mock('vue-router/composables', () => ({
   useRoute: jest.fn(),
@@ -24,6 +30,8 @@ jest.mock('kolibri-design-system/lib/composables/useKLiveRegion', () => ({
     sendAssertiveMessage: jest.fn(),
   })),
 }));
+
+const listContentNodes = ContentNodeResource.list;
 
 const name = 'not important';
 
@@ -364,6 +372,117 @@ describe(`useBaseSearch`, () => {
       expect(get(more)).toEqual(expectedMore);
     });
   });
+  describe('searchLevel', () => {
+    async function mountLevelSearch(query, descendant = null) {
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [{ path: '/', name }],
+      });
+      await router.push({ path: '/', query });
+      let api;
+      render(
+        defineComponent({
+          setup() {
+            api = useBaseSearch({ descendant });
+            return () => h('div');
+          },
+        }),
+        { routes: router },
+      );
+      return { ...api, router };
+    }
+
+    beforeEach(() => {
+      const router = jest.requireActual('vue-router/composables');
+      useRoute.mockImplementation(router.useRoute);
+      useRouter.mockImplementation(router.useRouter);
+      useUser.mockImplementation(jest.requireActual('kolibri/composables/useUser').default);
+      ContentNodeResource.list = listContentNodes;
+      client.__setPayload({ labels: {} });
+    });
+
+    it('defaults a categories-only search to keyword', async () => {
+      const { search, searchLevel } = await mountLevelSearch({ categories: 'test1' });
+      search();
+      await waitFor(() => expect(get(searchLevel)).toBe('keyword'));
+    });
+
+    it('defaults a subsequent search with no level to keyword', async () => {
+      const { search, searchLevel, router } = await mountLevelSearch({ keywords: 'fractions' });
+      client.__setPayload({ labels: {}, search_level: 'lm' });
+      search();
+      await waitFor(() => expect(get(searchLevel)).toBe('lm'));
+      client.__setPayload({ labels: {} });
+      await router.push({ query: { keywords: 'decimals' } });
+      await waitFor(() => expect(get(searchLevel)).toBe('keyword'));
+    });
+
+    it('clears the settled level while the replacement search loads', async () => {
+      const { search, searchLevel, router } = await mountLevelSearch({ keywords: 'fractions' });
+      const responses = {};
+      client.mockImplementation(({ params }) => {
+        if (!params.question) {
+          return Promise.resolve({ data: { labels: {} } });
+        }
+        return new Promise(resolve => {
+          responses[params.question] = searchLevel => {
+            resolve({ data: { labels: {}, search_level: searchLevel } });
+          };
+        });
+      });
+      search();
+      await waitFor(() => expect(responses.fractions).toBeDefined());
+      responses.fractions('lm');
+      await waitFor(() => expect(get(searchLevel)).toBe('lm'));
+      await router.push({ query: { keywords: 'decimals' } });
+      await waitFor(() => expect(responses.decimals).toBeDefined());
+      const pendingLevel = get(searchLevel);
+      responses.decimals('vector');
+      await waitFor(() => expect(get(searchLevel)).toBe('vector'));
+      expect(pendingLevel).toBeNull();
+    });
+
+    it.each([null, ref({ tree_id: 1, lft: 1, rght: 4 })])(
+      'has no level without a search (%p)',
+      async descendant => {
+        const { search, searchLevel, searchLoading } = await mountLevelSearch({}, descendant);
+        search();
+        await waitFor(() => expect(get(searchLoading)).toBe(false));
+        expect(get(searchLevel)).toBeNull();
+      },
+    );
+
+    it('clears the level when the search is cleared', async () => {
+      const { search, searchLevel, router } = await mountLevelSearch({ keywords: 'fractions' });
+      client.__setPayload({ labels: {}, search_level: 'lm' });
+      search();
+      await waitFor(() => expect(get(searchLevel)).toBe('lm'));
+      await router.push({ query: {} });
+      await waitFor(() => expect(get(searchLevel)).toBeNull());
+    });
+
+    it('has no level after a cleared search response arrives', async () => {
+      const { search, searchLevel, searchLoading, router } = await mountLevelSearch({
+        keywords: 'fractions',
+      });
+      let resolveSearch;
+      client.mockImplementation(({ params }) =>
+        params.question === 'fractions'
+          ? new Promise(resolve => {
+              resolveSearch = resolve;
+            })
+          : Promise.resolve({ data: { labels: {} } }),
+      );
+      search();
+      await waitFor(() => expect(resolveSearch).toBeDefined());
+      await router.push({ query: {} });
+      await nextTick();
+      resolveSearch({ data: { labels: {}, search_level: 'lm' } });
+      await waitFor(() => expect(get(searchLoading)).toBe(false));
+      expect(get(searchLevel)).toBeNull();
+    });
+  });
+
   describe('searchMore method', () => {
     it('should not call anything when not displaying search terms', () => {
       const { searchMore } = prep();

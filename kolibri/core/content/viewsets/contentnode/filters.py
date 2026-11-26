@@ -1,5 +1,4 @@
 import re
-from collections import OrderedDict
 
 from django.db.models import Exists
 from django.db.models import OuterRef
@@ -19,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import CharField
 
 from kolibri.core.content import models
+from kolibri.core.content.constants import search_levels
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.cache import get_course_ids
 from kolibri.core.content.utils.search import get_available_metadata_labels
@@ -241,12 +241,20 @@ class ContentNodeSearchFilter(filters.SearchFilter):
     def get_search_fields(self, view, request):
         return ["title", "description"]
 
+    @classmethod
+    def _search_values(cls, request):
+        return (
+            request.query_params.get(param)
+            for param in search_levels.SEARCH_QUERY_PARAMS
+        )
+
+    @classmethod
+    def is_search(cls, request):
+        return any(cls._search_values(request))
+
     def get_cleaned_search_value(self, request):
-        value = request.query_params.get(
-            self.search_param,
-            request.query_params.get(
-                "question", request.query_params.get("keywords", "")
-            ),
+        value = next(
+            (value for value in self._search_values(request) if value is not None), ""
         )
         field = CharField(trim_whitespace=False, allow_blank=True)
         return field.run_validation(value)
@@ -275,20 +283,16 @@ class OptionalContentNodePagination(OptionalPagination):
     use_deprecated_channels_labels = False
 
     def get_paginated_response(self, data):
-        return Response(
-            OrderedDict(
-                [
-                    ("more", self.get_more()),
-                    ("results", data),
-                    (
-                        "labels",
-                        get_available_metadata_labels(
-                            self.queryset, self.use_deprecated_channels_labels
-                        ),
-                    ),
-                ]
-            )
-        )
+        response = {
+            "more": self.get_more(),
+            "results": data,
+            "labels": get_available_metadata_labels(
+                self.queryset, self.use_deprecated_channels_labels
+            ),
+        }
+        if ContentNodeSearchFilter.is_search(self.request):
+            response["search_level"] = search_levels.KEYWORD
+        return Response(response)
 
     def get_paginated_response_schema(self, schema):
         return {
@@ -305,6 +309,17 @@ class OptionalContentNodePagination(OptionalPagination):
                 "labels": {
                     "type": "object",
                     "example": {"accessibility_labels": ["id1", "id2"]},
+                },
+                "search_level": {
+                    "type": "string",
+                    "enum": [
+                        search_levels.KEYWORD,
+                        search_levels.VECTOR,
+                        search_levels.LM,
+                    ],
+                    "description": (
+                        "Present only if search, question, or keywords is non-empty."
+                    ),
                 },
             },
         }

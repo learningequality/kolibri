@@ -20,6 +20,7 @@ import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 
 import Modalities from 'kolibri-constants/Modalities';
+import { SearchLevels } from 'kolibri-common/constants/SearchLevels';
 import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 import { deduplicateResources } from '../utils/contentNode';
 import useFuzzyMetadataSearch from './useFuzzyMetadataSearch';
@@ -205,6 +206,7 @@ export default function useBaseSearch({
   const scopedLabelsLoading = ref(false);
   const _results = ref([]);
   const more = ref(null);
+  const responseSearchLevel = ref(null);
   const labels = ref(null);
   const autoCompleteSuggestions = ref([]);
 
@@ -266,6 +268,10 @@ export default function useBaseSearch({
     Object.values(get(searchTerms)).some(v => Object.keys(v).length),
   );
 
+  const searchLevel = computed(() =>
+    get(displayingSearchResults) ? get(responseSearchLevel) : null,
+  );
+
   function _setAvailableLabels(searchableLabels) {
     if (searchableLabels) {
       set(labels, {
@@ -314,6 +320,7 @@ export default function useBaseSearch({
   }
 
   function search() {
+    set(responseSearchLevel, null);
     const desc = descendant ? get(descendant) : null;
     set(scopedLabelsLoading, true);
     if (get(displayingSearchResults)) {
@@ -328,6 +335,7 @@ export default function useBaseSearch({
 
       ContentNodeResource.list(getParams).then(data => {
         set(_results, data.results || []);
+        set(responseSearchLevel, data.search_level ?? SearchLevels.KEYWORD);
         set(more, data.more);
         _setAvailableLabels(data.labels);
         set(searchResultsLoading, false);
@@ -748,6 +756,7 @@ export default function useBaseSearch({
     moreLoading,
     results,
     more,
+    searchLevel,
     labels,
     search,
     searchMore,
