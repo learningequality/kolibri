@@ -828,6 +828,15 @@ class QuizDifficultQuestionTestCase(APITestCase):
         self._add_attempt(1, 2)
         self.assertEqual([(1, 1)], self._get_quiz_totals_and_correct())
 
+    def test_coach_one_difficult_right_and_partial_at_equal_end_timestamp_counts_right(
+        self,
+    ):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._add_attempt(1, 1)
+        self.masterylog.attemptlogs.filter(correct=0).update(correct=0.5)
+        self.masterylog.attemptlogs.update(end_timestamp=now())
+        self.assertEqual([(1, 1)], self._get_quiz_totals_and_correct())
+
     def test_active_and_unsubmitted_quizzes_are_not_returned(self):
         self._set_one_difficult(self.classroom_group_learner)
 

@@ -1,20 +1,15 @@
 from django.db.models import Count
-from django.db.models import IntegerField
-from django.db.models import Max
 from django.db.models import OuterRef
-from django.db.models import Q
 from django.db.models import Subquery
+from django.db.models import Sum
 
 from kolibri.core.logger.models import AttemptLog
 
-
-class _LatestCorrectItemCount(Subquery):
-    template = (
-        "(SELECT CASE WHEN COUNT(*) = 0 THEN NULL"
-        " ELSE COUNT(CASE WHEN latest_correct = latest THEN 1 END) END"
-        " FROM (%(subquery)s) AS latest_items)"
-    )
-    output_field = IntegerField()
+LATEST_ITEM_ATTEMPT = Subquery(
+    AttemptLog.objects.filter(masterylog=OuterRef("masterylog"), item=OuterRef("item"))
+    .order_by("-end_timestamp", "-correct", "-id")
+    .values("id")[:1]
+)
 
 
 def annotate_response_summary(queryset):
@@ -34,12 +29,9 @@ def annotate_response_summary(queryset):
                 "total_answered"
             )
         ),
-        num_correct=_LatestCorrectItemCount(
-            try_attempts.values("item")
-            .annotate(
-                latest=Max("end_timestamp"),
-                latest_correct=Max("end_timestamp", filter=Q(correct=1)),
-            )
-            .values("latest", "latest_correct")
+        num_correct=Subquery(
+            try_attempts.filter(id=LATEST_ITEM_ATTEMPT)
+            .annotate(total_correct=Sum("correct"))
+            .values("total_correct")
         ),
     )

@@ -62,10 +62,18 @@ class AnnotateResponseSummaryQuizTryTestCase(EvaluationMixin, TestCase):
         self._create_attempt(try_log, self.try_items[0], 1, first.end_timestamp)
         self.assertSummary(try_log, 3, 3)
 
-    def test_partially_correct_latest_attempt_is_answered_not_correct(self):
+    def test_partially_correct_latest_attempt_adds_its_credit(self):
         try_log = self._create_user_try()
         self._create_attempt_after(try_log, self.try_items[0], 0.5)
-        self.assertSummary(try_log, 2, 3)
+        self.assertSummary(try_log, 2.5, 3)
+
+    def test_partial_and_wrong_attempts_with_equal_end_timestamp_count_the_higher(
+        self,
+    ):
+        try_log = self._create_user_try()
+        latest = self._create_attempt_after(try_log, self.try_items[0], 0)
+        self._create_attempt(try_log, self.try_items[0], 0.5, latest.end_timestamp)
+        self.assertSummary(try_log, 2.5, 3)
 
     def test_all_latest_attempts_wrong_counts_zero_correct(self):
         try_log = self._create_user_try()

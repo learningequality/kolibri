@@ -14,17 +14,11 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.logger.evaluation import LOG_ORDER_BY
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.quiz import LATEST_ITEM_ATTEMPT
 
 _ALLOWED_ROLES = [role_kinds.ADMIN, role_kinds.COACH]
-
-LATEST_ITEM_ATTEMPT = Subquery(
-    AttemptLog.objects.filter(masterylog=OuterRef("masterylog"), item=OuterRef("item"))
-    .order_by(LOG_ORDER_BY, "-id")
-    .values("id")[:1]
-)
 
 
 def _has_coach_role_for(user, group_id, **collection_filters):
