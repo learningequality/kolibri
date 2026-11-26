@@ -8,6 +8,11 @@ set -e
 
 case "$1" in
     remove|purge)
+        if [ -d /usr/lib/kolibri/packages/kolibri ]; then
+            find /usr/lib/kolibri/packages/kolibri -name '*.pyc' -delete
+            find /usr/lib/kolibri/packages/kolibri -depth -type d -empty -delete
+        fi
+        rmdir /usr/lib/kolibri/packages /usr/lib/kolibri 2>/dev/null || true
         # /opt/kolibri/python is extracted by install-python.sh at postinst
         # time, so dpkg does not track it and will not remove it for us.
         rm -rf /opt/kolibri/python /opt/kolibri/python.new

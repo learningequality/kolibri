@@ -124,6 +124,13 @@ jobs:
       - name: Install the Kolibri and kolibri-server debs
         run: >-
           .github/scripts/apt-install.sh "./debs/${{ needs.deb.outputs.deb-file-name }}" "./debs/${{ needs.server_deb.outputs.deb-file-name }}"
+      - name: Check kolibri-server setup helper
+        run: |
+          sudo bash -c '
+            . /etc/default/kolibri
+            sudo -u "$KOLIBRI_USER" env -u PYTHONPATH KOLIBRI_HOME="$KOLIBRI_HOME" \
+              /usr/share/kolibri-server/kolibri_server_setup.py --help >/dev/null
+          '
       - name: Start kolibri-server
         run: sudo service kolibri-server restart
       - name: Assert Kolibri is served through nginx

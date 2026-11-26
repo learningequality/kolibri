@@ -18,6 +18,7 @@ Vcs-Browser: https://github.com/learningequality/kolibri/tree/develop/platforms/
 Package: kolibri
 Architecture: all
 Depends: adduser
+Breaks: kolibri-server (<< 0.20.0~alpha2~)
 Recommends: python3 (>= 3.10),
             python3-cryptography (>= 1.2.3)
 Description: The offline app for universal education

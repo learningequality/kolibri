@@ -2,6 +2,9 @@
 import argparse
 import os
 import subprocess
+import sys
+
+sys.path.insert(0, "/usr/lib/kolibri/packages")
 
 import kolibri.utils.pskolibri as psutil
 from kolibri.core.utils.cache import process_cache

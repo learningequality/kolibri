@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   install_test:
-    name: Install test (${{ matrix.image }}${{ matrix.runner && format(', {0}', matrix.runner) || '' }}${{ matrix.no_system_python && ', no system python3' || '' }}${{ matrix.upgrade_from_deb && ', upgrade' || '' }})
+    name: Install test (${{ matrix.image }}${{ matrix.runner && format(', {0}', matrix.runner) || '' }}${{ matrix.no_system_python && ', no system python3' || '' }}${{ matrix.system_psycopg2 && ', system psycopg2' || '' }}${{ matrix.upgrade_from_deb && ', upgrade' || '' }})
     runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     timeout-minutes: 20
     strategy:
@@ -19,6 +19,9 @@ jobs:
         include:
           - image: ubuntu:16.04
             expect_bundled: true
+          - image: ubuntu:16.04
+            expect_bundled: true
+            system_psycopg2: true
           - image: ubuntu:18.04
             expect_bundled: true
           - image: ubuntu:20.04
@@ -47,6 +50,7 @@ jobs:
       - name: Run install test in Docker
         env:
           NO_SYSTEM_PYTHON: ${{ matrix.no_system_python && '1' || '' }}
+          SYSTEM_PSYCOPG2: ${{ matrix.system_psycopg2 && '1' || '' }}
           UPGRADE_FROM_DEB: ${{ matrix.upgrade_from_deb }}
           EXPECT_BUNDLED: ${{ matrix.expect_bundled && '1' || '' }}
           IMAGE: ${{ matrix.image }}
@@ -55,6 +59,7 @@ jobs:
             -v /tmp/deb:/tmp/deb \
             -v "$PWD/platforms/debian/tests:/tmp/tests" \
             -e NO_SYSTEM_PYTHON \
+            -e SYSTEM_PSYCOPG2 \
             -e UPGRADE_FROM_DEB \
             -e EXPECT_BUNDLED \
             "$IMAGE" \
