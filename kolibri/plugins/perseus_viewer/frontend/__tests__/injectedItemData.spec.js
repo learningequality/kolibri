@@ -1,28 +1,13 @@
+/*
+ * @jest-environment-options {"html":"<!doctype html><template data-plugin='testmodule'>{\"urls\":{\"__staticUrl\":\"/static/\",\"__zipContentUrl\":\"/zipcontent/\",\"__zipContentOrigin\":\"http://localhost\",\"__zipContentPort\":\"8000\"}}</template>"}
+ */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
-// eslint-disable-next-line import-x/named
-import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
+import { provide, ref } from 'vue';
+import { CONTENT_VIEWER_CONTEXT_KEY } from 'kolibri/components/internal/ContentViewer';
 import { init } from '@khanacademy/perseus';
 import perseusFixtures from '../../../qti_viewer/frontend/components/__fixtures__/perseus';
 import sandboxFixtures from '../../../../../integration_testing/viewer_sandbox/frontend/__fixtures__/perseus';
 import PerseusRendererIndex from '../views/PerseusRendererIndex';
-
-jest.mock('kolibri/composables/useContentViewer');
-
-// PerseusRendererIndex imports Tex.js, which calls urls.static() at module load;
-// that needs plugin URL data, absent in tests without a rendered Django template.
-jest.mock('kolibri-plugin-data', () => ({
-  __esModule: true,
-  default: {
-    urls: {
-      __staticUrl: '/static/',
-      __zipContentUrl: '/zipcontent/',
-      __zipContentOrigin: 'http://localhost',
-      __zipContentPort: '8000',
-      prefix: '/',
-      urls: {},
-    },
-  },
-}));
 
 // Perseus reads its widget registry when it migrates or renders an item, and
 // only init() populates it (mirrors stateSerialization.spec.js:8).
@@ -78,6 +63,26 @@ function embellishedItemData({
   return { perseusItemString: JSON.stringify(perseusItem(imageRef)), packageFiles, sourceId };
 }
 
+function viewerContext(overrides) {
+  const values = {
+    files: [],
+    options: {},
+    lang: null,
+    itemId: null,
+    answerState: null,
+    interactive: false,
+    showCorrectAnswer: false,
+    duration: null,
+    extraFields: { contentState: {} },
+    ...overrides,
+  };
+  return {
+    ...Object.fromEntries(Object.entries(values).map(([key, value]) => [key, ref(value)])),
+    setCustomExtractors: () => {},
+    registerAssessmentApi: () => {},
+  };
+}
+
 async function mountRenderer(
   itemData,
   {
@@ -90,22 +95,22 @@ async function mountRenderer(
 ) {
   let instance = null;
   let registeredApi = null;
-  const viewerProps = useContentViewerMock({
+  const viewerProps = viewerContext({
     itemData,
     interactive,
     showCorrectAnswer,
     answerState,
   });
-  useContentViewer.mockImplementation(() => ({
-    ...viewerProps,
-    registerAssessmentApi: api => {
-      registeredApi = api;
-    },
-  }));
+  viewerProps.registerAssessmentApi = api => {
+    registeredApi = api;
+  };
   // Supplied by the plugin's content module, which mounting directly bypasses.
   PerseusRendererIndex.contentModule = { loadDirectionalCSS: () => Promise.resolve() };
   const Harness = {
     components: { PerseusRendererIndex },
+    setup() {
+      provide(CONTENT_VIEWER_CONTEXT_KEY, viewerProps);
+    },
     mounted() {
       instance = this.$refs.renderer;
     },
@@ -176,12 +181,13 @@ describe('PerseusRendererIndex embellished itemData', () => {
     PerseusRendererIndex.contentModule = {
       loadDirectionalCSS: () => new Promise(resolve => (loadStylesheet = resolve)),
     };
-    useContentViewer.mockImplementation(() => ({
-      ...useContentViewerMock({ itemData: embellishedItemData({ sourceId: 'teardown' }) }),
-      registerAssessmentApi: () => {},
-    }));
     const onStartTracking = jest.fn();
     const { unmount } = render(PerseusRendererIndex, {
+      provide: {
+        [CONTENT_VIEWER_CONTEXT_KEY]: viewerContext({
+          itemData: embellishedItemData({ sourceId: 'teardown' }),
+        }),
+      },
       listeners: { startTracking: onStartTracking },
     });
     unmount();
@@ -275,6 +281,40 @@ describe('PerseusRendererIndex with fixture items', () => {
       expect(control).toHaveAccessibleName();
       expect(control).not.toHaveAttribute('tabindex', '-1');
     });
+  });
+
+  it('opens the definition from the hint word', async () => {
+    const WORD = 'polígono';
+    const DEFINITION = 'Figura con lados rectos.';
+    const RENDERING_ERROR = 'Rendering Error!';
+    const item = perseusItem('/shape.png');
+    item.hints = [
+      {
+        content: 'Un cuadrilátero es un [[☃ definition 1]] con 4 lados.',
+        images: {},
+        widgets: {
+          'definition 1': {
+            type: 'definition',
+            options: { togglePrompt: WORD, definition: DEFINITION },
+          },
+        },
+      },
+    ];
+    const { api } = await mountRenderer({
+      perseusItemString: JSON.stringify(item),
+      packageFiles: {},
+      sourceId: 'definition-hint',
+    });
+
+    api().takeHint();
+    const button = await screen.findByRole('button', { name: WORD });
+    expect(button).toHaveAttribute('aria-label', WORD);
+    expect(button).toHaveTextContent(new RegExp(`^${WORD}$`));
+    await fireEvent.click(button);
+    expect(await screen.findByRole('dialog')).toHaveTextContent(DEFINITION);
+    expect(
+      screen.queryByRole('img', { name: RENDERING_ERROR, hidden: true }),
+    ).not.toBeInTheDocument();
   });
 
   it.each(sandboxFixtures)(
