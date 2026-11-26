@@ -76,7 +76,9 @@
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
 
-  const translator = wrapPerseusMessages(perseusTranslator);
+  const translator = wrapPerseusMessages(perseusTranslator, {
+    definitionIdentifier: ({ word }) => word,
+  });
 
   const logging = logger.getLogger(__filename);
 

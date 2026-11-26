@@ -26,22 +26,27 @@ function _getTranslatedStringOrFunction(translatorObject, key) {
 }
 
 class PerseusMessageWrapper {
-  constructor(translatorObject) {
+  constructor(translatorObject, untranslatedMessages) {
+    Object.assign(this, untranslatedMessages);
     for (const key in translatorObject._defaultMessages) {
-      this[`${key}`] = _getTranslatedStringOrFunction(translatorObject, key);
+      Object.defineProperty(this, key, {
+        enumerable: true,
+        get: () =>
+          _getTranslatedStringOrFunction(translatorObject, key) ?? untranslatedMessages[key],
+      });
     }
   }
 }
 
-function wrapPerseusMessages(translatorObject) {
+function wrapPerseusMessages(translatorObject, untranslatedMessages = {}) {
   if (window.Proxy) {
     return new Proxy(translatorObject, {
       get: function (target, prop) {
-        return _getTranslatedStringOrFunction(target, prop);
+        return _getTranslatedStringOrFunction(target, prop) ?? untranslatedMessages[prop];
       },
     });
   }
-  return new PerseusMessageWrapper(translatorObject);
+  return new PerseusMessageWrapper(translatorObject, untranslatedMessages);
 }
 
 module.exports = {
