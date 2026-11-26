@@ -21,7 +21,7 @@ require_tools docker
 
 # The container builds both repos, serves them, installs the cutover release, and
 # asserts the auto-migration + upgrade.
-run_debian_container "e2e cutover" <<'EOF'
+run_container debian:trixie-slim "e2e cutover" <<'EOF'
 export DEBIAN_FRONTEND=noninteractive
 apt-get update >/dev/null
 apt-get install -y --no-install-recommends \

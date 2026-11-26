@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Install reprepro and Debian packaging tools
-        run: .github/scripts/apt-install.sh reprepro dpkg-dev debhelper build-essential
+        run: .github/scripts/apt-install.sh reprepro dpkg-dev debhelper build-essential gnupg
       - name: Import the Debian repo signing key
         id: gpg
         env:

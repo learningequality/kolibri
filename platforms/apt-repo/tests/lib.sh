@@ -167,17 +167,16 @@ EOF
   export PATH
 }
 
-# make_ephemeral_signing_key — generate an unprotected ed25519 key under
-# $WORK/gnupg; set GNUPGHOME + FPR (its fingerprint). %no-protection stops
-# reprepro's non-interactive Release signing hanging on a pinentry prompt.
+# Ubuntu 16.04's gpgv 1.4 cannot verify Ed25519 signatures. %no-protection
+# stops reprepro's non-interactive Release signing hanging on a pinentry prompt.
 make_ephemeral_signing_key() {
   export GNUPGHOME="$WORK/gnupg"
   mkdir -p "$GNUPGHOME"
   chmod 700 "$GNUPGHOME"
   cat > "$WORK/key.spec" <<'EOF'
 %no-protection
-Key-Type: eddsa
-Key-Curve: ed25519
+Key-Type: RSA
+Key-Length: 3072
 Name-Real: Kolibri Test
 Name-Email: test@example.com
 Expire-Date: 0
@@ -237,12 +236,49 @@ serve_docroot() {
   fail "http.server never served $_probe"
 }
 
-# run_debian_container <label> — run the script on stdin in debian:trixie-slim
-# with the repo bind-mounted read-only at /src, and require it to reach a PASS
-# line. Callers quote the heredoc (<<'EOF') so $VAR resolves in-container.
-run_debian_container() {
-  _out=$(docker run --rm -i -v "$REPO_ROOT:/src:ro" debian:trixie-slim sh -eu) \
-    || { printf '%s\n' "$_out" >&2; fail "$1 container run exited non-zero"; }
-  printf '%s\n' "$_out"
-  assert_output_contains "$_out" '^PASS:' "$1 did not reach its PASS assertion"
+serve_docroot_tls() {
+  docroot=$1
+  cert=$2
+  key=$3
+  probe=$4
+  shift 4
+  host=$1
+  no_proxy=${no_proxy:-${NO_PROXY:-}}
+  for name in "$@"; do
+    printf '127.0.0.1 %s\n' "$name" >> /etc/hosts
+    no_proxy=${no_proxy:+$no_proxy,}$name
+  done
+  export no_proxy
+  python3 - "$docroot" "$cert" "$key" <<'PYTHON' &
+import http.server
+import os
+import ssl
+import sys
+
+class RepoHandler(http.server.SimpleHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+os.chdir(sys.argv[1])
+server = http.server.HTTPServer(("127.0.0.1", 443), RepoHandler)
+context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+context.load_cert_chain(sys.argv[2], sys.argv[3])
+server.socket = context.wrap_socket(server.socket, server_side=True)
+server.serve_forever()
+PYTHON
+  for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    python3 -c 'import sys, urllib.request; urllib.request.urlopen(sys.argv[1], timeout=2)' \
+      "https://$host/$probe" 2>/dev/null && return
+    sleep 0.5
+  done
+  fail "HTTPS server never served $host/$probe"
 }
+
+run_container() (
+  image=$1
+  label=$2
+  shift 2
+  _out=$(docker run --rm -i -v "$REPO_ROOT:/src:ro" "$@" "$image" sh -eu) \
+    || { printf '%s\n' "$_out" >&2; fail "$label ($image) container run exited non-zero"; }
+  printf '%s\n' "$_out"
+  assert_output_contains "$_out" '^PASS:' "$label ($image) did not reach its PASS assertion"
+)
