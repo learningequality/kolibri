@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:51:17 +0000
+Subject: [PATCH 08/11] Make the page-turn buttons smaller
+
+Kolibri's fork used these values, so the buttons cover less of the page.
+---
+ src/bloom-player-ui.less | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/bloom-player-ui.less b/src/bloom-player-ui.less
+index 5aca86d..e36f1cf 100644
+--- a/src/bloom-player-ui.less
++++ b/src/bloom-player-ui.less
+@@ -108,8 +108,8 @@ We just make them follow the main content normally. */
+     }
+     .swiper-button-next,
+     .swiper-button-prev {
+-        height: 66%;
+-        top: 17%; // height at 66% leaves 34% spacing, half of that is 17%
++        height: 25%;
++        top: 37.5%; // height at 25% leaves 75% spacing, half of that is 37.5%
+         margin-top: unset; // defeat Swiper's own positioning that would throw ours off
+         background-color: transparent; // except when hovering, see below.
+         // This makes the grey buttons, which are all you can see when not hovering,

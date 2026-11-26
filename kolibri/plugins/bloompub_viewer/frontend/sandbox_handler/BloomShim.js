@@ -24,7 +24,7 @@ export default class BloomShim extends SandboxShim {
   __getProgress(data = {}) {
     let progress = this.userData.progress || 0;
     if (data.totalNumberedPages) {
-      progress = (data.audioPages + data.nonAudioPages + data.videoPages) / data.totalNumberedPages;
+      progress = (data.audioPages + data.nonAudioPages) / data.totalNumberedPages;
       if (!this._hasBeenFlaggedAsComplete && progress >= 1) {
         progress = 0.95;
       }

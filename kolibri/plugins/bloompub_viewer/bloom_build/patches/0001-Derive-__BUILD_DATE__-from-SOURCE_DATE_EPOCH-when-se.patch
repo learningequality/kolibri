@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rtibblesbot <richard+githubagent@learningequality.org>
+Date: Thu, 22 Oct 2026 04:19:14 +0000
+Subject: [PATCH 01/11] Derive __BUILD_DATE__ from SOURCE_DATE_EPOCH when set
+
+SOURCE_DATE_EPOCH is the reproducible-builds.org convention; new Date() makes every build differ.
+---
+ vite.config.ts | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/vite.config.ts b/vite.config.ts
+index 025fef8..2d5fe3e 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -39,7 +39,12 @@ export default defineConfig(({ command, mode }) => {
+     // Regular configuration for the main application
+     const config: UserConfig = {
+         define: {
+-            __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
++            __BUILD_DATE__: JSON.stringify(
++                (process.env.SOURCE_DATE_EPOCH
++                    ? new Date(Number(process.env.SOURCE_DATE_EPOCH) * 1000)
++                    : new Date()
++                ).toISOString(),
++            ),
+         },
+         build: {
+             outDir: "dist",
