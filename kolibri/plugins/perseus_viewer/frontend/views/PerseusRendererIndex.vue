@@ -54,6 +54,7 @@
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
+  import { flushSync } from 'react-dom';
   import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
   import {
@@ -380,8 +381,12 @@
       // Store a copy of the blank state of a question to clear set answers later
       blankState: null,
       hintsVisible: 0,
+      hintRestoreRevision: 0,
     }),
     computed: {
+      answerPresentation() {
+        return [this.answerState, this.showCorrectAnswer];
+      },
       isMobile() {
         return this.windowBreakpoint < 3;
       },
@@ -401,14 +406,22 @@
       itemData(newItemData) {
         this.resolveItemData(newItemData);
       },
-      answerState(newState) {
-        this.resetState(newState);
-      },
-      showCorrectAnswer(newVal) {
-        this.resetState(newVal);
+      answerPresentation([state, showSolution], [previousState, previousShowSolution]) {
+        if (showSolution !== previousShowSolution) {
+          if (state !== previousState) {
+            this.hintsVisible = this.attemptHintCount(state);
+          }
+          if (this.itemRenderer && !this.loading) {
+            this.$once('itemRendererUpdated', this.setAnswerAfterRender);
+            this.renderItem();
+          }
+        } else if (state !== previousState) {
+          this.resetState(state);
+        }
       },
     },
     beforeDestroy() {
+      this.tornDown = true;
       this.$emit('stopTracking');
       if (this._overflowResizeHandler) {
         window.removeEventListener('resize', this._overflowResizeHandler);
@@ -465,6 +478,9 @@
       perseus.init();
       // Try to load the appropriate directional CSS for the particular content
       this.$options.contentModule.loadDirectionalCSS(this.contentDirection).then(() => {
+        if (this.tornDown) {
+          return;
+        }
         if (this.defaultFile) {
           this.loadItemData();
         } else if (this.itemData) {
@@ -511,12 +527,18 @@
         /* eslint-enable no-mixed-operators */
       },
       renderItem() {
+        const renderKey = `${this.itemRenderKey}:${this.showCorrectAnswer}:${this.hintRestoreRevision}`;
+        if (this._renderKey !== renderKey) {
+          this.keypadAPI.dismiss();
+          this.keypadAPI.setKeyHandler(null);
+          this._renderKey = renderKey;
+        }
         this.itemRendererUpdating = true;
         // Data formatted in the form expected by the Server Item Renderer
         const itemRenderData = {
           hintsVisible: this.hintsVisible,
           item: this.item,
-          problemNum: Math.floor(Math.random() * 1000),
+          problemNum: this.problemNum,
           reviewMode: this.showCorrectAnswer,
           showSolutions: this.showCorrectAnswer ? 'all' : 'none',
           apiOptions: {
@@ -549,7 +571,7 @@
           // graphie cleanup) on item switch instead of reconciling imperative
           // graphie widget state in place, which crashes mid-swap. Stable
           // across hint re-renders (same key) so those still update in place.
-          key: this.itemRenderKey,
+          key: renderKey,
           ...itemRenderData,
           keypadElement: this.interactive ? this.keypadAPI : null,
         });
@@ -581,10 +603,6 @@
       renderNewItem() {
         // Clear any pending state reset calls
         this.$off('itemRendererUpdated');
-        // Dismiss the keypad
-        if (this.keypadAPI) {
-          this.keypadAPI.dismiss();
-        }
         this.$once('itemRendererUpdated', () => {
           // Blur any previously focused element once we have rendered a new item
           this.itemRenderer.blur();
@@ -593,29 +611,64 @@
           // or may be in the process of updating, and contain stale state from the previous item.
           // The first thing we do in setAnswer is read the blank state from the itemRenderer,
           // so we need to ensure that the itemRenderer is available and up to date first.
-          this.setAnswer();
+          this.setAnswerAfterRender();
         });
         // Derive a fresh key for this item so the item subtree remounts cleanly
         // rather than reconciling the previous item's graphie state. Prefer the
         // itemId; fall back to a hash of the item when driven by the itemData prop.
         this.itemRenderKey = this.itemId || quickHash(JSON.stringify(this.item));
+        this.hintsVisible = this.attemptHintCount(this.answerState);
         this.renderItem();
       },
-      _resetState(val) {
-        if (!val) {
+      attemptHintCount(state) {
+        if (!this.interactive) {
+          return this.hintsVisible;
+        }
+        return state ? (state.hintsVisible ?? this.hintsVisible) : 0;
+      },
+      _resetState(val, clear = !val, count = this.hintsVisible) {
+        if (count > this.hintsVisible) {
+          const previous = this.getAnswerState();
+          this.hintsVisible = count;
+          this.hintRestoreRevision += 1;
+          this.$once('itemRendererUpdated', () => {
+            const renderer = this.itemRenderer;
+            this.$nextTick(() => {
+              if (renderer === this.itemRenderer && val === this.answerState) {
+                this.restoreAnswerState(previous);
+                this._resetState(val);
+              }
+            });
+          });
+          this.renderItem();
+          return;
+        }
+        if (count < this.hintsVisible) {
+          this.hintsVisible = count;
+          this.renderItem();
+        }
+        this.blankState ||= this.getAnswerState();
+        if (clear) {
           this.restoreAnswerState(this.blankState);
         }
         this.setAnswer();
+        this.notifyProgrammaticInteraction();
       },
       resetState(val) {
+        const count = this.attemptHintCount(val);
         // Because resetState is called in response to watching props, we need to ensure
         // that the itemRenderer is available and not in the process of updating before
         // we try to reset the state.
         if (this.itemRenderer && !this.itemRendererUpdating && !this.loading) {
-          this._resetState(val);
+          this._resetState(val, !val, count);
         } else {
           this.$once('itemRendererUpdated', () => {
-            this._resetState(val);
+            const renderer = this.itemRenderer;
+            this.$nextTick(() => {
+              if (renderer === this.itemRenderer && val === this.answerState) {
+                this._resetState(val, !val, count);
+              }
+            });
           });
         }
       },
@@ -677,24 +730,24 @@
             this.item.question.widgets,
             this.lang?.id,
           );
-          // Restore each widget's user input via the Renderer's handleUserInput callback
-          const widgetIds = this.itemRenderer.getWidgetIds();
-          for (const id of widgetIds) {
-            if (userInput[id] !== undefined) {
-              this.itemRenderer.questionRenderer.props.handleUserInput(id, userInput[id], false);
-            }
-          }
-        }
-        if (answerState.hintsVisible) {
-          this.hintsVisible = answerState.hintsVisible;
+          this.applyUserInput(userInput);
         }
       },
+      setAnswerAfterRender() {
+        const renderer = this.itemRenderer;
+        this.$nextTick(() => {
+          if (renderer !== this.itemRenderer) return;
+          if (renderer.props.reviewMode !== this.showCorrectAnswer) {
+            this.$once('itemRendererUpdated', this.setAnswerAfterRender);
+            this.renderItem();
+            return;
+          }
+          this._resetState(this.answerState, false);
+        });
+      },
       setAnswer() {
-        this.blankState = this.getAnswerState();
-        // If a passed in answerState has user input or old-format question/hints, restore.
-        if (this.answerState && (this.answerState.userInput || this.answerState.question)) {
-          this.restoreAnswerState(this.answerState);
-        } else if (this.showCorrectAnswer) {
+        this.restoreAnswerState(this.answerState);
+        if (this.showCorrectAnswer && !this.answerState?.userInput && !this.answerState?.question) {
           this.setCorrectAnswer();
         }
       },
@@ -757,6 +810,11 @@
           this.$emit('hintTaken', { answerState: this.getAnswerState() });
         }
       },
+      notifyProgrammaticInteraction() {
+        if (this.itemData?.emitProgrammaticInteractions) {
+          this.$emit('interaction');
+        }
+      },
       interactionCallback() {
         this.$emit('interaction');
         this.dismissMessage();
@@ -817,6 +875,7 @@
         }
         if (this.validateItemData(itemData)) {
           this.item = itemData;
+          this.problemNum = Math.floor(Math.random() * 1000);
           // Don't store blank state for another item.
           this.blankState = null;
 
@@ -843,18 +902,37 @@
           return widgetProps[id].graded == null || widgetProps[id].graded;
         });
 
+        const userInput = {};
         try {
           gradedWidgetIds.forEach(id => {
-            const props = widgetProps[id];
             const widget = questionRenderer.getWidgetInstance(id);
-            if (!widget) {
-              // This can occur if the widget has not yet been rendered
-              return;
+            if (widget) {
+              widgetSolver(
+                {
+                  props: {
+                    ...widget.props,
+                    handleUserInput: input => {
+                      userInput[id] = input;
+                    },
+                  },
+                  blurInputPath: widget.blurInputPath?.bind(widget),
+                },
+                widgetProps[id].type,
+                widgetProps[id].options,
+              );
             }
-            widgetSolver(widget, props.type, props.options);
           });
         } catch (e) {
           this.$emit('answerUnavailable');
+        }
+        this.applyUserInput(userInput);
+      },
+      applyUserInput(userInput) {
+        const { questionRenderer } = this.itemRenderer;
+        for (const id of this.itemRenderer.getWidgetIds()) {
+          if (userInput[id] !== undefined) {
+            flushSync(() => questionRenderer.props.handleUserInput(id, userInput[id], false));
+          }
         }
       },
     },

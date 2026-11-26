@@ -5,6 +5,7 @@ import expression from './expression';
 import grapher from './grapher';
 import inputNumber from './inputNumber';
 import interactiveGraph from './interactiveGraph';
+import labelImage from './labelImage';
 import lightsPuzzle from './lightsPuzzle';
 import matcher from './matcher';
 import matrix from './matrix';
@@ -30,6 +31,7 @@ const widgetSolvers = {
   image: noop,
   'input-number': inputNumber,
   'interactive-graph': interactiveGraph,
+  'label-image': labelImage,
   'lights-puzzle': lightsPuzzle,
   matcher,
   matrix,

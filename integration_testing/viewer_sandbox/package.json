@@ -1,0 +1,18 @@
+{
+  "name": "kolibri-viewer-sandbox-plugin",
+  "description": "Development viewer sandbox for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "@khanacademy/perseus-core": "^28.2.0",
+    "@khanacademy/pure-markdown": "2.2.8",
+    "kolibri": "workspace:*",
+    "kolibri-app": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "catalog:",
+    "vue-router": "catalog:"
+  }
+}

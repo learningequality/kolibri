@@ -302,6 +302,8 @@ Where `<app_key>` will be a 32-digit hex string. The ``auth_token`` identifies t
 To tweak the behaviour, the plugin that controls the app integrations can be edited in `integration_testing/development_plugin`.
 
 
+The viewer sandbox at ``/viewer_sandbox/`` previews editable Perseus fixtures from ``integration_testing/viewer_sandbox/frontend/__fixtures__/``. Run ``pnpm devserver`` to build its frontend bundle and enable the plugin.
+
 Editor configuration
 --------------------
 

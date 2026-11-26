@@ -136,6 +136,34 @@ importers:
         specifier: '*'
         version: 2.3.3
 
+  integration_testing/viewer_sandbox:
+    dependencies:
+      '@khanacademy/perseus-core':
+        specifier: ^28.2.0
+        version: 28.2.0(@khanacademy/wonder-stuff-core@3.0.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(underscore@1.13.8)
+      '@khanacademy/pure-markdown':
+        specifier: 2.2.8
+        version: 2.2.8(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      kolibri:
+        specifier: workspace:*
+        version: link:../../packages/kolibri
+      kolibri-app:
+        specifier: workspace:*
+        version: link:../../packages/kolibri-app
+      kolibri-common:
+        specifier: workspace:*
+        version: link:../../packages/kolibri-common
+      vue:
+        specifier: 'catalog:'
+        version: 2.7.16
+    devDependencies:
+      '@testing-library/vue':
+        specifier: 'catalog:'
+        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
+
   kolibri/core:
     dependencies:
       '@babel/core':

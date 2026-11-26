@@ -63,6 +63,27 @@ const baseData = {
 };
 
 describe('webpackConfigPlugin', function () {
+  it('compiles the core polyfill entry from the workspace root', () => {
+    const root = path.resolve(__dirname, '../../../..');
+    const script = `
+      const { createRequire } = require('node:module');
+      const configPath = require.resolve('./kolibri/core/buildConfig.js');
+      const coreRequire = createRequire(configPath);
+      const { webpack_config } = require(configPath).find(bundle => bundle.bundle_id === 'polyfills');
+      const [{ options, include: [entry] }] = webpack_config.module.rules;
+      const babel = coreRequire('@babel/core');
+      const { code } = babel.transformFileSync(entry, { ...options, cwd: process.cwd() });
+      if (!code.includes('core-js/modules/')) process.exitCode = 1;
+    `;
+    const { status, stderr } = spawnSync(process.execPath, ['-e', script], {
+      cwd: root,
+      encoding: 'utf-8',
+      env: { ...process.env, NODE_PATH: '' },
+    });
+    expect(stderr).toBe('');
+    expect(status).toBe(0);
+  });
+
   let data;
   beforeEach(function () {
     data = _.clone(baseData);

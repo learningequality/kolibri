@@ -50,10 +50,12 @@ module.exports = [
             include: [path.resolve(__dirname, 'frontend/polyfills.js')],
             loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env'],
+              babelrc: false,
+              configFile: false,
+              presets: [require.resolve('@babel/preset-env')],
               // `version` must track the `core-js` catalog entry in pnpm-workspace.yaml.
               plugins: [
-                ['babel-plugin-polyfill-corejs3', { method: 'entry-global', version: '3.49' }],
+                [require.resolve('babel-plugin-polyfill-corejs3'), { method: 'entry-global', version: '3.49' }],
               ],
               sourceType: 'unambiguous',
             },

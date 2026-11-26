@@ -125,7 +125,11 @@ class ProvisioningErrorHandler:
         # Only redirect plugin page views, not API endpoints.
         # Page views served through i18n_patterns have 'translated' set on their callback.
         # API endpoints are not translated and are always filtered out here.
-        if not getattr(match.func, "translated", False) or device_provisioned():
+        if (
+            not getattr(match.func, "translated", False)
+            or getattr(match.func, "provisioning_exempt", False)
+            or device_provisioned()
+        ):
             return self.get_response(request)
 
         try:

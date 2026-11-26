@@ -1,0 +1,5 @@
+{% extends "kolibri/base.html" %}
+{% load webpack_tags %}
+{% block content %}
+  {% webpack_asset 'integration_testing.viewer_sandbox.app' %}
+{% endblock %}
