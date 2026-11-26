@@ -25,8 +25,75 @@ const ALLOWED_STYLE_PROPS = [
   'text-decoration-thickness',
 ];
 const ADD_TAGS = ['object', 'semantics'];
+const NON_INLINE_TAGS = new Set([
+  'address',
+  'article',
+  'aside',
+  'blockquote',
+  'body',
+  'caption',
+  'center',
+  'col',
+  'colgroup',
+  'dd',
+  'details',
+  'dialog',
+  'dir',
+  'div',
+  'dl',
+  'dt',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'head',
+  'header',
+  'hgroup',
+  'hr',
+  'html',
+  'legend',
+  'li',
+  'link',
+  'listing',
+  'main',
+  'menu',
+  'meta',
+  'nav',
+  'ol',
+  'optgroup',
+  'option',
+  'p',
+  'plaintext',
+  'pre',
+  'script',
+  'search',
+  'section',
+  'source',
+  'style',
+  'summary',
+  'table',
+  'tbody',
+  'td',
+  'template',
+  'tfoot',
+  'th',
+  'thead',
+  'title',
+  'tr',
+  'track',
+  'ul',
+  'xmp',
+]);
 const ADD_ATTR = ['data'];
 const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
+const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const PROBE_WIDTH = 77;
 const PROBE_HEIGHT = 23;
 const HTMLComponents = {
@@ -110,6 +177,46 @@ function probeNativeMathML() {
   const { width, height } = mspace.getBoundingClientRect();
   document.body.removeChild(math);
   return Math.abs(width - PROBE_WIDTH) <= 1 && Math.abs(height - PROBE_HEIGHT) <= 1;
+}
+
+function isWhitespaceText(node) {
+  return node.nodeType === Node.TEXT_NODE && /^[ \t\n\f\r]*$/.test(node.textContent);
+}
+
+function isInline(node) {
+  return (
+    node.nodeType === Node.TEXT_NODE ||
+    (node.nodeType === Node.ELEMENT_NODE && !NON_INLINE_TAGS.has(node.localName))
+  );
+}
+
+// HTML only: MathJax's SerializedMmlVisitor indents MathML children.
+function keptWhitespaceRuns(parent, childNodes) {
+  const kept = new Set();
+  if (parent.namespaceURI === MATHML_NAMESPACE) {
+    return kept;
+  }
+  const parentIsInline = parent.namespaceURI === HTML_NAMESPACE && isInline(parent);
+  let start = 0;
+  while (start < childNodes.length) {
+    if (!isWhitespaceText(childNodes[start])) {
+      start++;
+      continue;
+    }
+    let end = start;
+    while (end < childNodes.length && isWhitespaceText(childNodes[end])) {
+      end++;
+    }
+    const before = start > 0 ? isInline(childNodes[start - 1]) : parentIsInline;
+    const after = end < childNodes.length ? isInline(childNodes[end]) : parentIsInline;
+    if (before && after) {
+      for (let i = start; i < end; i++) {
+        kept.add(i);
+      }
+    }
+    start = end;
+  }
+  return kept;
 }
 
 // Factory function to create SafeHTML with custom component support
@@ -223,7 +330,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
       // `key` is the node's index among its siblings, counted before the
       // whitespace-only nodes are dropped, so patch pairs each vnode with the
       // node that held its position.
-      function mapNode(node, key) {
+      function mapNode(node, key, keepsText) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const tagName = node.tagName.toLowerCase();
 
@@ -271,7 +378,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
                 attrs,
                 on: forwardedListeners,
               },
-              mapChildren(node.childNodes),
+              mapChildren(node),
             );
             // Wrap embedded ContentViewers in a layout container
             if (component === 'ContentViewer') {
@@ -281,22 +388,32 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
           }
 
           attrs.class = attrs.class ? `${attrs.class} safe-html` : 'safe-html';
-          return h(tagName, { key, attrs }, mapChildren(node.childNodes));
+          return h(tagName, { key, attrs }, mapChildren(node));
         }
 
-        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+        if (node.nodeType === Node.TEXT_NODE && keepsText(node, key)) {
           return _v(node.textContent);
         }
         return null;
       }
 
-      function mapChildren(childNodes) {
-        return Array.from(childNodes).map(mapNode).filter(Boolean);
+      function mapChildren(parent) {
+        const childNodes = Array.from(parent.childNodes);
+        let keepsText;
+        if (customComponents[parent.tagName?.toLowerCase()]) {
+          keepsText = node => node.textContent.trim() !== '';
+        } else if (parent.localName === 'code' || parent.localName === 'pre') {
+          keepsText = () => true;
+        } else {
+          const kept = keptWhitespaceRuns(parent, childNodes);
+          keepsText = (node, index) => !isWhitespaceText(node) || kept.has(index);
+        }
+        return childNodes.map((node, index) => mapNode(node, index, keepsText)).filter(Boolean);
       }
 
       // A render function returns one root, so consumers get this wrapper in
       // place of the element they used to wrap SafeHTML in themselves.
-      return () => h('div', mapChildren(docFragment.value.childNodes));
+      return () => h('div', mapChildren(docFragment.value));
     },
   };
 }

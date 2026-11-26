@@ -7,7 +7,7 @@ module.exports = Object.assign(baseConfig, {
   // Make sure we transpile any raw vue or ES6 files
   // Pattern handles both yarn flat structure and pnpm nested structure
   transformIgnorePatterns: [
-    'node_modules/(?!(\\.pnpm/(keen-ui|epubjs|kolibri-common|kolibri|kolibri-design-system|kolibri-constants|uuid)|keen-ui|epubjs|kolibri-common|kolibri|kolibri-design-system|kolibri-constants|uuid))',
+    'node_modules/(?!(\\.pnpm/(keen-ui|epubjs|kolibri-common|kolibri|kolibri-design-system|kolibri-constants|markdown-it-math|uuid)|keen-ui|epubjs|kolibri-common|kolibri|kolibri-design-system|kolibri-constants|markdown-it-math|uuid))',
   ],
   collectCoverageFrom: [
     'kolibri/**/frontend/**/*.{js,vue}',
