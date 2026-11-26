@@ -16,6 +16,7 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.quiz import LATEST_ITEM_ATTEMPT
 
 _ALLOWED_ROLES = [role_kinds.ADMIN, role_kinds.COACH]
 
@@ -140,7 +141,11 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
             collection_id = group_id
         else:
             collection_id = quiz["collection_id"]
-        data = queryset.values("item").annotate(correct=Sum("correct"))
+        data = (
+            queryset.filter(id=LATEST_ITEM_ATTEMPT)
+            .values("item")
+            .annotate(correct=Sum("correct"))
+        )
 
         # Instead of inferring the totals from the number of logs, use the total
         # number of people who submitted (if quiz is active) or started the exam
@@ -223,7 +228,11 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
             masterylog_id__in=masterylog_queryset
         )
 
-        data = attemptlog_queryset.values("item").annotate(correct=Sum("correct"))
+        data = (
+            attemptlog_queryset.filter(id=LATEST_ITEM_ATTEMPT)
+            .values("item")
+            .annotate(correct=Sum("correct"))
+        )
 
         # Instead of inferring the totals from the number of attempt logs, use the total
         # number of people who have a completed try on the practice quiz

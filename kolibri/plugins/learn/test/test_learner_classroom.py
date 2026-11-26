@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from django.urls import reverse
@@ -19,6 +20,8 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
@@ -144,6 +147,97 @@ class LearnerClassroomTestCase(APITestCase):
             reverse(self.basename + "-detail", kwargs={"pk": self.own_classroom.id})
         )
         self.assertEqual(len(get_response.data["exams"]), 2)
+
+    def _get_exam_progress_after_tries(self, tries):
+        exam = Exam.objects.create(
+            title="Exam",
+            collection=self.own_classroom,
+            question_count=3,
+            creator=self.coach_user,
+            active=True,
+        )
+        ExamAssignment.objects.create(
+            exam=exam, collection=self.own_classroom, assigned_by=self.coach_user
+        )
+        start = now() - datetime.timedelta(days=1)
+        summarylog = ContentSummaryLog.objects.create(
+            user=self.learner_user,
+            content_id=exam.id,
+            kind=content_kinds.QUIZ,
+            progress=1.0,
+            start_timestamp=start,
+        )
+        sessionlog = ContentSessionLog.objects.create(
+            user=self.learner_user,
+            content_id=exam.id,
+            kind=content_kinds.QUIZ,
+            start_timestamp=start,
+        )
+        for try_index, (complete, attempts) in enumerate(tries):
+            try_start = start + datetime.timedelta(hours=try_index)
+            try_log = MasteryLog.objects.create(
+                user=self.learner_user,
+                summarylog=summarylog,
+                start_timestamp=try_start,
+                end_timestamp=try_start + datetime.timedelta(minutes=30),
+                mastery_level=-(try_index + 1),
+                complete=complete,
+            )
+            for attempt_index, (item, correct) in enumerate(attempts):
+                end_timestamp = try_start + datetime.timedelta(minutes=attempt_index)
+                AttemptLog.objects.create(
+                    masterylog=try_log,
+                    sessionlog=sessionlog,
+                    user=self.learner_user,
+                    item=item,
+                    start_timestamp=end_timestamp,
+                    end_timestamp=end_timestamp,
+                    completion_timestamp=end_timestamp,
+                    correct=correct,
+                )
+        self.client.login(username="learner", password="password")
+        get_response = self.client.get(
+            reverse(self.basename + "-detail", kwargs={"pk": self.own_classroom.id})
+        )
+        exam_data = get_response.data["exams"][0]
+        return (
+            exam_data["progress"]["closed"],
+            exam_data["progress"]["score"],
+            exam_data["progress"]["answer_count"],
+        )
+
+    def test_exam_progress_counts_each_item_once_in_latest_try(self):
+        progress = self._get_exam_progress_after_tries(
+            (
+                (True, (("a", 1), ("b", 1))),
+                (True, (("a", 0), ("a", 1), ("b", 1), ("c", 1), ("c", 1))),
+            )
+        )
+        self.assertEqual((True, 3, 3), progress)
+
+    def test_exam_progress_adds_partial_credit(self):
+        progress = self._get_exam_progress_after_tries(
+            ((True, (("a", 0.5), ("b", 1))),)
+        )
+        self.assertEqual((True, 1.5, 2), progress)
+
+    def test_exam_progress_closed_reads_latest_try_when_it_is_in_progress(self):
+        progress = self._get_exam_progress_after_tries(
+            (
+                (True, (("a", 1), ("b", 1), ("c", 1))),
+                (False, (("a", 0),)),
+            )
+        )
+        self.assertEqual((False, 0, 1), progress)
+
+    def test_exam_progress_closed_reads_latest_try_when_it_is_complete(self):
+        progress = self._get_exam_progress_after_tries(
+            (
+                (False, (("a", 0),)),
+                (True, (("a", 1), ("b", 1), ("c", 1))),
+            )
+        )
+        self.assertEqual((True, 3, 3), progress)
 
     def test_correct_number_of_lessons(self):
         # One active and inactive lesson

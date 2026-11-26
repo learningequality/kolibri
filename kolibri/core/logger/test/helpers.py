@@ -154,7 +154,9 @@ class EvaluationMixin:
         return tries
 
     @classmethod
-    def _create_try(cls, user_index, correct, end_timestamp, duration=30):
+    def _create_try(
+        cls, user_index, correct, end_timestamp, duration=30, mastery_level=None
+    ):
         user = cls.users[user_index]
         try_start = end_timestamp - datetime.timedelta(minutes=duration)
         try_log = MasteryLog.objects.create(
@@ -164,25 +166,54 @@ class EvaluationMixin:
             end_timestamp=end_timestamp,
             completion_timestamp=end_timestamp,
             complete=True,
-            mastery_level=randint(MIN_INTEGER, -1),
+            mastery_level=(
+                randint(MIN_INTEGER, -1) if mastery_level is None else mastery_level
+            ),
             time_spent=duration * 60,
         )
 
         for i in range(3):
-            start_offset = datetime.timedelta(minutes=5 + (i * 5))
-            end_offset = start_offset + datetime.timedelta(minutes=5)
-            AttemptLog.objects.create(
-                masterylog=try_log,
-                user=user,
-                sessionlog=cls.session_logs[user_index][user_index % 2],
-                item=cls.items[cls.content_ids[user_index % 2]][i],
-                start_timestamp=try_start + start_offset,
-                end_timestamp=try_start + end_offset,
-                completion_timestamp=try_start + end_offset,
-                correct=1 if correct else 0,
+            cls._create_attempt(
+                try_log,
+                cls.items[cls.content_ids[user_index % 2]][i],
+                1 if correct else 0,
+                try_start + datetime.timedelta(minutes=10 + (i * 5)),
             )
 
         return try_log
+
+    @classmethod
+    def _create_attempt(cls, try_log, item, correct, end_timestamp):
+        user_index = cls.users.index(try_log.user)
+        start_timestamp = end_timestamp - datetime.timedelta(minutes=5)
+        return AttemptLog.objects.create(
+            masterylog=try_log,
+            user=try_log.user,
+            sessionlog=cls.session_logs[user_index][user_index % 2],
+            item=item,
+            start_timestamp=start_timestamp,
+            end_timestamp=end_timestamp,
+            completion_timestamp=end_timestamp,
+            correct=correct,
+        )
+
+    @classmethod
+    def _create_attempt_before(cls, try_log, item, correct):
+        return cls._create_attempt(
+            try_log,
+            item,
+            correct,
+            try_log.start_timestamp + datetime.timedelta(minutes=1),
+        )
+
+    @classmethod
+    def _create_attempt_after(cls, try_log, item, correct):
+        return cls._create_attempt(
+            try_log,
+            item,
+            correct,
+            try_log.end_timestamp + datetime.timedelta(minutes=1),
+        )
 
     def assertAttemptCorrectDiff(self, user_id, diff):
         user_index = self.users.index(self.users_map[user_id])

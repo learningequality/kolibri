@@ -1,7 +1,6 @@
 from typing import ClassVar
 
 from django.db.models import IntegerField
-from django.db.models import Sum
 from django.db.models import Value
 from django.db.models.functions import Coalesce
 from django_filters.rest_framework import BooleanFilter
@@ -21,6 +20,7 @@ from ..evaluation import attempts_diff
 from ..evaluation import LOG_ORDER_BY
 from ..models import AttemptLog
 from ..models import MasteryLog
+from ..utils.quiz import annotate_response_summary
 from .attempt_log import AttemptLogDiffSerializer
 from .attempt_log import AttemptLogViewSet
 from .filters import BaseLogFilter
@@ -45,9 +45,7 @@ class MasteryFilter(BaseLogFilter):
 
 
 class MasteryLogSerializer(serializers.ModelSerializer):
-    # Annotation added by annotate_queryset. output_field=IntegerField() is
-    # required for Postgres compatibility — cf2d54e5b1.
-    correct = serializers.IntegerField(read_only=True)
+    correct = serializers.FloatField(read_only=True)
 
     class Meta:
         model = MasteryLog
@@ -78,10 +76,8 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
     serializer_class = MasteryLogSerializer
 
     def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            correct=Coalesce(
-                Sum("attemptlogs__correct"), Value(0), output_field=IntegerField()
-            )
+        return annotate_response_summary(queryset).annotate(
+            correct=Coalesce("num_correct", Value(0.0))
         )
 
     @action(detail=True)

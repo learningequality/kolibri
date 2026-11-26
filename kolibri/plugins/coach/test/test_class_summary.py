@@ -11,6 +11,8 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons import models
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
@@ -220,6 +222,73 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
                 if previous_try
                 else 0,
             )
+
+    def test_practice_quiz_summary_counts_each_item_once(self):
+        MasteryLog.objects.filter(complete=False).delete()
+        current_try, previous_try = self.user_tries[2]
+        content_id = current_try.summarylog.content_id
+        items = self.items[content_id]
+        self._create_attempt_after(previous_try, items[0], 0)
+        self._create_attempt_after(current_try, items[1], 1)
+        response = self._get_detail_response()
+        statuses = {
+            (d["learner_id"], d["content_id"]): d
+            for d in response.data["content_learner_status"]
+        }
+        for user_index, num_correct, previous_num_correct in ((2, 3, 2), (0, 3, 0)):
+            status = statuses[(self.users[user_index].id, content_id)]
+            self.assertEqual(
+                (num_correct, previous_num_correct),
+                (status["num_correct"], status["previous_num_correct"]),
+            )
+
+    def test_coach_quiz_summary_and_learner_report_agree_on_merged_try(self):
+        user = self.users[0]
+        exam = Exam.objects.create(
+            title="quiz",
+            creator=self.facility_admin,
+            collection=self.classroom,
+            question_count=3,
+            active=True,
+        )
+        ExamAssignment.objects.create(
+            exam=exam, assigned_by=self.facility_admin, collection=self.classroom
+        )
+        timestamp = local_now()
+        summarylog = ContentSummaryLog.objects.create(
+            user=user,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            content_id=exam.id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        try_log = MasteryLog.objects.create(
+            mastery_criterion={"type": "quiz", "coach_assigned": True},
+            summarylog=summarylog,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            user=user,
+            mastery_level=-1,
+            complete=True,
+        )
+        for item, correct in (("a", 1), ("a", 1), ("b", 1), ("c", 0)):
+            self._create_attempt(try_log, item, correct, local_now())
+
+        summary = self._get_detail_response()
+        exam_status = next(
+            s
+            for s in summary.data["exam_learner_status"]
+            if s["exam_id"] == exam.id and s["learner_id"] == user.id
+        )
+        report = self.client.get(
+            reverse("kolibri:core:masterylog-list"),
+            data={"content": exam.id, "user": user.id, "quiz": True},
+        )
+
+        self.assertEqual(
+            (2, 2), (exam_status["num_correct"], report.data[0]["correct"])
+        )
 
     def _get_detail_response(self):
         self.client.login(

@@ -14,6 +14,7 @@ from unittest import mock
 import pytz
 from django.core.management import call_command
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.management.commands.bulkexportusers import (
@@ -463,8 +464,7 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         self.assertGreater(len(response.data), 0)
         expected_fields = set(MasteryLogSerializer.Meta.fields)
         self.assertEqual(set(response.data[0].keys()), expected_fields)
-        # correct is an annotated aggregate — must be an integer
-        self.assertIsInstance(response.data[0]["correct"], int)
+        self.assertIsInstance(response.data[0]["correct"], float)
 
     def test_diff(self):
         for user_index, user_tries in enumerate(self.user_tries):
@@ -583,6 +583,70 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         response = self._get_diff_with_null_time_spent(null_try_index=0)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["diff"], {"correct": 0.0, "time_spent": None})
+
+
+class MasteryLogRepeatedAttemptsQuizTestCase(EvaluationMixin, APITestCase):
+    databases = "__all__"
+    QUIZ = True
+    MASTERY_LEVELS = (-1, -2)
+
+    def setUp(self):
+        self.user = self.users[0]
+        self.try_items = self.items[self.content_ids[0]]
+        now = timezone.now()
+        self.previous_try = self._create_try(
+            0,
+            True,
+            now + datetime.timedelta(hours=1),
+            mastery_level=self.MASTERY_LEVELS[0],
+        )
+        self._create_attempt_before(self.previous_try, self.try_items[0], 0)
+        self.current_try = self._create_try(
+            0,
+            True,
+            now + datetime.timedelta(hours=3),
+            mastery_level=self.MASTERY_LEVELS[1],
+        )
+        self._create_attempt_after(self.current_try, self.try_items[0], 0)
+        self.client.force_login(self.user)
+
+    def _get(self, url):
+        return self.client.get(
+            url,
+            data={
+                "content": self.content_ids[0],
+                "user": self.user.id,
+                "complete": True,
+                "quiz": self.QUIZ,
+            },
+        )
+
+    def test_list_counts_each_item_once(self):
+        response = self._get(reverse("kolibri:core:masterylog-list"))
+        self.assertEqual(
+            [
+                (self.current_try.id, 2),
+                (self.previous_try.id, 3),
+            ],
+            [(log["id"], log["correct"]) for log in response.data[:2]],
+        )
+
+    def test_diff_counts_each_item_once(self):
+        response = self._get(reverse("kolibri:core:masterylog-diff", kwargs={"pk": 0}))
+        self.assertEqual(2, response.data["correct"])
+        self.assertEqual(-1, response.data["diff"]["correct"])
+
+    def test_list_adds_partial_credit(self):
+        self._create_attempt_after(self.current_try, self.try_items[1], 0.5)
+        response = self._get(reverse("kolibri:core:masterylog-list"))
+        self.assertEqual(1.5, response.data[0]["correct"])
+
+
+class MasteryLogRepeatedAttemptsExerciseTestCase(
+    MasteryLogRepeatedAttemptsQuizTestCase
+):
+    QUIZ = False
+    MASTERY_LEVELS = (1, 2)
 
 
 class TotalContentProgressViewSetTest(APITestCase):

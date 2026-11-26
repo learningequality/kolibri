@@ -137,6 +137,28 @@ class ConsolidateAttemptLogsCoachQuizTestCase(ConsolidateBase, TestCase):
             except AttemptLog.DoesNotExist:
                 self.fail("AttemptLog was deleted when it was already unique")
 
+    def test_consolidation_keeps_right_attempt_of_equal_end_timestamp(self):
+        latest = (
+            AttemptLog.objects.filter(item=self.duplicated_item)
+            .order_by("-end_timestamp")
+            .first()
+        )
+        AttemptLog.objects.filter(item=self.duplicated_item).update(correct=0)
+        AttemptLog.objects.create(
+            item=self.duplicated_item,
+            start_timestamp=latest.start_timestamp,
+            end_timestamp=latest.end_timestamp,
+            time_spent=1.0,
+            correct=1,
+            user=self.user,
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+        )
+
+        consolidate_quiz_attempt_logs(AttemptLog.objects.all())
+
+        self.assertEqual(1, AttemptLog.objects.get(item=self.duplicated_item).correct)
+
 
 class ConsolidateAttemptLogsPracticeQuizTestCase(
     ConsolidateAttemptLogsCoachQuizTestCase

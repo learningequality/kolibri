@@ -308,6 +308,7 @@ class NotificationsAPITestCase(APITestCase):
             completion_timestamp=self.summarylog1.completion_timestamp,
             end_timestamp=self.summarylog1.end_timestamp,
             user=self.user1,
+            mastery_level=1,
             complete=True,
         )
         parse_summarylog(self.summarylog1)
@@ -319,6 +320,7 @@ class NotificationsAPITestCase(APITestCase):
             summarylog=self.summarylog1,
             start_timestamp=self.summarylog1.start_timestamp,
             user=self.user1,
+            mastery_level=2,
             complete=False,
         )
         self.summarylog1.save()
@@ -353,6 +355,7 @@ class NotificationsAPITestCase(APITestCase):
             completion_timestamp=self.summarylog1.completion_timestamp,
             end_timestamp=self.summarylog1.end_timestamp,
             user=self.user1,
+            mastery_level=1,
             complete=True,
         )
 
@@ -369,6 +372,7 @@ class NotificationsAPITestCase(APITestCase):
             completion_timestamp=self.summarylog1.completion_timestamp,
             end_timestamp=self.summarylog1.end_timestamp,
             user=self.user1,
+            mastery_level=2,
             complete=True,
         )
 
@@ -637,6 +641,44 @@ class NotificationsAPITestCase(APITestCase):
         assert notification.notification_event == NotificationEventType.Completed
         assert notification.quiz_num_answered == 3
         assert notification.quiz_num_correct == 2
+
+    def test_quiz_completed_notification_stores_partial_credit(self):
+        summarylog_quiz = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.exam.id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        sessionlog_quiz = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.exam.id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        masterylog_quiz = MasteryLog.objects.create(
+            summarylog=summarylog_quiz,
+            start_timestamp=local_now(),
+            completion_timestamp=local_now(),
+            user=self.user1,
+            mastery_level=-1,
+            complete=True,
+        )
+        for item, correct in (("test", 0.5), ("test1", 1), ("test2", 0)):
+            AttemptLog.objects.create(
+                masterylog=masterylog_quiz,
+                sessionlog=sessionlog_quiz,
+                item=item,
+                start_timestamp=local_now(),
+                end_timestamp=local_now(),
+                user=self.user1,
+                correct=correct,
+            )
+        quiz_completed_notification(masterylog_quiz, self.exam.id)
+        notification = LearnerProgressNotification.objects.get(
+            quiz_id=self.exam.id,
+            notification_event=NotificationEventType.Completed,
+        )
+        assert notification.quiz_num_correct == 1.5
 
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_quiz_started_notification(self, save_notifications):

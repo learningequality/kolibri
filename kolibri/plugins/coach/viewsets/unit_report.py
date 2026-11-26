@@ -14,6 +14,7 @@ from kolibri.core.auth.utils.delete import chunk as _chunked
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import TestType
+from kolibri.core.logger.evaluation import LATEST_ATTEMPT_ORDER_BY
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
@@ -123,10 +124,14 @@ def _fetch_mastery_logs(learner_ids, content_id_map):
     return mastery_log_to_meta, logged - seen
 
 
+def _attempt_recency(log):
+    return tuple(log[field.lstrip("-")] for field in LATEST_ATTEMPT_ORDER_BY)
+
+
 def _fetch_deduplicated_attempts(mastery_log_ids):
     """
     Fetch AttemptLogs for the given mastery log ids and deduplicate per
-    (masterylog_id, item) by keeping the attempt with the latest end_timestamp.
+    (masterylog_id, item) by keeping the latest attempt.
     Done in Python rather than via ORDER BY to avoid sensitivity to DB ordering
     behaviour (ties/NULLs).  Chunked to stay within SQLite's variable limit.
 
@@ -135,11 +140,11 @@ def _fetch_deduplicated_attempts(mastery_log_ids):
     item_latest = {}
     for chunk in _chunked(mastery_log_ids, _IN_CHUNK_SIZE):
         for log in AttemptLog.objects.filter(masterylog_id__in=chunk).values(
-            "masterylog_id", "item", "correct", "end_timestamp"
+            "masterylog_id", "item", "correct", "end_timestamp", "id"
         ):
             key = (log["masterylog_id"], log["item"])
             existing = item_latest.get(key)
-            if existing is None or log["end_timestamp"] > existing["end_timestamp"]:
+            if existing is None or _attempt_recency(log) > _attempt_recency(existing):
                 item_latest[key] = log
     return item_latest
 

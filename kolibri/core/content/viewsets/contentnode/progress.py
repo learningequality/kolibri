@@ -1,9 +1,10 @@
 from typing import ClassVar
 
+from django.db.models import FloatField
 from django.db.models import OuterRef
-from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models.aggregates import Count
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import content_kinds
 from rest_framework import filters
@@ -16,6 +17,7 @@ from kolibri.core.api import ListModelMixin
 from kolibri.core.content import models
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.quiz import annotate_response_summary
 
 from .filters import OptionalPagination
 from .tree import TreeQueryMixin
@@ -65,6 +67,21 @@ class ContentNodeProgressViewset(TreeQueryMixin, GenericViewSet, ListModelMixin)
     def generate_response(self, request, queryset):
         if request.user.is_anonymous:
             return Response([])
+        latest_try = (
+            annotate_response_summary(
+                MasteryLog.objects.filter(
+                    user=self.request.user,
+                    summarylog__content_id=OuterRef("content_id"),
+                )
+            )
+            .annotate(
+                num_question_answered=Coalesce("num_answered", Value(0)),
+                num_question_answered_correctly=Coalesce(
+                    "num_correct", Value(0), output_field=FloatField()
+                ),
+            )
+            .order_by("-end_timestamp")
+        )
         logs = list(
             ContentSummaryLog.objects.filter(
                 user=self.request.user,
@@ -74,29 +91,10 @@ class ContentNodeProgressViewset(TreeQueryMixin, GenericViewSet, ListModelMixin)
             )
             .annotate(
                 num_question_answered=Subquery(
-                    MasteryLog.objects.filter(
-                        user=self.request.user,
-                        summarylog__content_id=OuterRef("content_id"),
-                    )
-                    .annotate(
-                        num_question_answered=Count("attemptlogs"),
-                    )
-                    .values("num_question_answered")
-                    .order_by("-end_timestamp")[:1]
+                    latest_try.values("num_question_answered")[:1]
                 ),
                 num_question_answered_correctly=Subquery(
-                    MasteryLog.objects.filter(
-                        user=self.request.user,
-                        summarylog__content_id=OuterRef("content_id"),
-                    )
-                    .annotate(
-                        num_question_answered_correctly=Count(
-                            "attemptlogs",
-                            filter=Q(attemptlogs__correct=1),
-                        ),
-                    )
-                    .values("num_question_answered_correctly")
-                    .order_by("-end_timestamp")[:1]
+                    latest_try.values("num_question_answered_correctly")[:1]
                 ),
                 total_questions=Subquery(
                     models.ContentNode.objects.filter(

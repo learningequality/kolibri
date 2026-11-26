@@ -791,6 +791,24 @@ class QuizDifficultQuestionTestCase(APITestCase):
             item=f"{self.content_id}:test",
         )
 
+    def _add_attempt(self, correct, minutes):
+        attempt_timestamp = now() + timedelta(minutes=minutes)
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=attempt_timestamp,
+            end_timestamp=attempt_timestamp,
+            complete=True,
+            correct=correct,
+            user=self.masterylog.user,
+            item=f"{self.content_id}:test",
+        )
+
+    def _get_quiz_totals_and_correct(self):
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
+        return [(datum["total"], datum["correct"]) for datum in response.data]
+
     def test_coach_one_difficult(self):
         self._set_one_difficult(self.classroom_group_learner)
         self._login_as_coach()
@@ -798,6 +816,26 @@ class QuizDifficultQuestionTestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
+
+    def test_coach_one_difficult_answered_right_then_wrong_in_one_try(self):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._add_attempt(1, -1)
+        self.assertEqual([(1, 0)], self._get_quiz_totals_and_correct())
+
+    def test_coach_item_answered_right_twice_in_one_try_counts_once(self):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._add_attempt(1, 1)
+        self._add_attempt(1, 2)
+        self.assertEqual([(1, 1)], self._get_quiz_totals_and_correct())
+
+    def test_coach_one_difficult_right_and_partial_at_equal_end_timestamp_counts_right(
+        self,
+    ):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._add_attempt(1, 1)
+        self.masterylog.attemptlogs.filter(correct=0).update(correct=0.5)
+        self.masterylog.attemptlogs.update(end_timestamp=now())
+        self.assertEqual([(1, 1)], self._get_quiz_totals_and_correct())
 
     def test_active_and_unsubmitted_quizzes_are_not_returned(self):
         self._set_one_difficult(self.classroom_group_learner)
@@ -1208,6 +1246,43 @@ class PracticeQuizDifficultQuestionTestCase(
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
+
+    def _add_attempt(self, correct, seconds):
+        attempt_timestamp = self.now + timedelta(seconds=seconds)
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=attempt_timestamp,
+            end_timestamp=attempt_timestamp,
+            complete=True,
+            correct=correct,
+            user=self.masterylog.user,
+            item="test",
+        )
+
+    def _get_classroom_difficulties(self):
+        self.client.login(
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
+        )
+        response = self.client.get(
+            reverse(
+                self.exercise_difficulties_basename + "-detail",
+                kwargs={"pk": self.content_ids[0]},
+            ),
+            data={"classroom_id": self.classroom.id},
+        )
+        return [(datum["total"], datum["correct"]) for datum in response.data]
+
+    def test_coach_one_difficult_answered_right_then_wrong_in_one_try(self):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._add_attempt(1, -1)
+        self.assertEqual([(1, 0)], self._get_classroom_difficulties())
+
+    def test_coach_item_answered_right_twice_in_one_try_counts_once(self):
+        self._set_one_difficult(self.classroom_group_learner, difficult=False)
+        self._add_attempt(1, 1)
+        self.assertEqual([(1, 1)], self._get_classroom_difficulties())
 
     def test_coach_one_difficult_by_classroom_id_repeated_tries(self):
         self._set_one_difficult(self.classroom_group_learner)

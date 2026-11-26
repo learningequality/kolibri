@@ -424,6 +424,32 @@ class ComputeTestScoresTests(TestCase):
         # The most-recent attempt is correct, so LO1 should have exactly 1 (not 2).
         self.assertEqual(result[lid].get(LO1_ID, 0), 1)
 
+    def test_right_and_wrong_attempts_with_equal_end_timestamp_count_right(self):
+        mastery_log = _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=[],
+            items_incorrect=[ITEM_A1],
+        )
+        wrong_attempt = mastery_log.attemptlogs.get(item=ITEM_A1)
+        AttemptLog.objects.create(
+            masterylog=mastery_log,
+            sessionlog=wrong_attempt.sessionlog,
+            user=self.learner_a,
+            item=ITEM_A1,
+            start_timestamp=wrong_attempt.start_timestamp,
+            end_timestamp=wrong_attempt.end_timestamp,
+            correct=1,
+        )
+
+        result = self._scores(
+            [self.learner_a.id], {self.unit_id: ASSESSMENT_OBJECTIVES}
+        )[self.unit_id]["pre"]
+
+        self.assertEqual(result[str(self.learner_a.id)].get(LO1_ID, 0), 1)
+
     def test_partial_credit_not_counted(self):
         """correct=0.5 (partial credit) is excluded; only correct==1 counts."""
         # Set up a complete mastery log with ITEM_A2 correct (LO1) to confirm the

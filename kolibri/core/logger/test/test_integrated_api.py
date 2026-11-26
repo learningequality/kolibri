@@ -2729,6 +2729,34 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             },
         )
 
+    def test_items_answered_right_twice_score_once_in_mastery_log_list(self):
+        items = ["item_a", "item_b", "item_c"]
+        for item in items + items:
+            response = self._make_request(
+                {
+                    "interactions": [
+                        {
+                            "item": item,
+                            "answer": {"response": "right"},
+                            "correct": 1,
+                            "time_spent": 10,
+                        }
+                    ],
+                }
+            )
+            self.assertEqual(response.status_code, 200)
+        self.assertEqual(6, self.mastery_log.attemptlogs.count())
+
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-list"),
+            data={"content": self.content_id, "user": self.user.id},
+        )
+
+        self.assertEqual(
+            [(self.mastery_log.id, 3)],
+            [(log["id"], log["correct"]) for log in response.data],
+        )
+
     def tearDown(self):
         self.client.logout()
 

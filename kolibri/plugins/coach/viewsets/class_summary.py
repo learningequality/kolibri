@@ -1,9 +1,11 @@
 from django.db.models import Exists
 from django.db.models import F
-from django.db.models import Max
+from django.db.models import FloatField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
@@ -47,15 +49,21 @@ def _get_quiz_status(queryset):
     queryset = annotate_response_summary(queryset)
     items = []
     statuses = queryset.annotate(
-        last_activity=Max("attemptlogs__end_timestamp"),
-        previous_num_correct=SQCount(
-            logger_models.AttemptLog.objects.filter(
-                masterylog=OuterRef("previous_masterylog"), correct=1
-            )
-            .order_by()
-            .values_list("item")
-            .distinct(),
-            field="item",
+        last_activity=Subquery(
+            logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
+            .order_by("-end_timestamp")
+            .values("end_timestamp")[:1]
+        ),
+        previous_num_correct=Coalesce(
+            Subquery(
+                annotate_response_summary(
+                    logger_models.MasteryLog.objects.filter(
+                        id=OuterRef("previous_masterylog")
+                    )
+                ).values("num_correct")
+            ),
+            Value(0),
+            output_field=FloatField(),
         ),
     ).values(
         "summarylog__content_id",

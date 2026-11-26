@@ -329,6 +329,13 @@ class AttemptLog(BaseAttemptLog):
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("sessionlog")
 
+    class Meta:
+        indexes: ClassVar[list] = [
+            models.Index(
+                fields=["masterylog", "item", "end_timestamp", "correct", "id"]
+            ),
+        ]
+
 
 class ExamLog(BaseLogModel):
     """

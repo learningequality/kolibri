@@ -24,3 +24,18 @@ class EvaluationTestCase(EvaluationMixin, TestCase):
 
         for user_id, diff in results:
             self.assertAttemptCorrectDiff(user_id, diff)
+
+    def test_attempts_diff_takes_right_attempt_of_equal_end_timestamp(self):
+        current_try, previous_try = self.user_tries[3]
+        item = self.items[self.content_ids[1]][0]
+        wrong_attempt = previous_try.attemptlogs.get(item=item)
+        previous_try.attemptlogs.filter(pk=wrong_attempt.pk).update(correct=0)
+        self._create_attempt(previous_try, item, 1, wrong_attempt.end_timestamp)
+        current_try.attemptlogs.filter(item=item).update(correct=1)
+
+        diff = attempts_diff(
+            current_try.attemptlogs.filter(item=item),
+            previous_try.attemptlogs.all(),
+        ).values_list("diff__correct", flat=True)
+
+        self.assertEqual([0], list(diff))
