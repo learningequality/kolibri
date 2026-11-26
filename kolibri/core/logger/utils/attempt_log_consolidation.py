@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import Count
 
+from kolibri.core.logger.evaluation import LATEST_ATTEMPT_ORDER_BY
 from kolibri.core.logger.models import AttemptLog
 
 
@@ -25,7 +26,7 @@ def consolidate_quiz_attempt_logs(source_logs):
                 item=duplicate["item"],
                 masterylog=duplicate["masterylog"],
                 # For simplicity, we will keep the most recent attemptlog and consolidate the others into it
-            ).order_by("-end_timestamp")
+            ).order_by(*LATEST_ATTEMPT_ORDER_BY)
             attemptlog_to_keep = duplicate_objects[0]
             for attemptlog in duplicate_objects[1:]:
                 if attemptlog_to_keep.start_timestamp > attemptlog.start_timestamp:

@@ -3,11 +3,12 @@ from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.db.models import Sum
 
+from kolibri.core.logger.evaluation import LATEST_ATTEMPT_ORDER_BY
 from kolibri.core.logger.models import AttemptLog
 
 LATEST_ITEM_ATTEMPT = Subquery(
     AttemptLog.objects.filter(masterylog=OuterRef("masterylog"), item=OuterRef("item"))
-    .order_by("-end_timestamp", "-correct", "-id")
+    .order_by(*LATEST_ATTEMPT_ORDER_BY)
     .values("id")[:1]
 )
 

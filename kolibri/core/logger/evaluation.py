@@ -6,6 +6,8 @@ from django.db.models.expressions import Subquery
 
 LOG_ORDER_BY = F("end_timestamp").desc(nulls_last=True)
 
+LATEST_ATTEMPT_ORDER_BY = ("-end_timestamp", "-correct", "-id")
+
 
 def attempts_diff(target_try_attempts, previous_try_attempts):
     """
@@ -29,7 +31,7 @@ def attempts_diff(target_try_attempts, previous_try_attempts):
             F("correct"),
             "-",
             Subquery(
-                previous_try_attempts.order_by(LOG_ORDER_BY)
+                previous_try_attempts.order_by(*LATEST_ATTEMPT_ORDER_BY)
                 .filter(user_id=OuterRef("user_id"), item=OuterRef("item"))
                 .values("correct")[:1],
                 output_field=IntegerField(),
