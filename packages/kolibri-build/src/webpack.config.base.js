@@ -11,7 +11,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
   // Have to pass this option to prevent complaints about empty exports:
   // https://github.com/vuejs/vue-loader/issues/1742#issuecomment-715294278
   const cssInsertionLoader = hot
-    ? 'style-loader'
+    ? require.resolve('style-loader')
     : { loader: MiniCssExtractPlugin.loader, options: { esModule: false } };
 
   const base_dir = path.join(__dirname, '..');
@@ -125,10 +125,11 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
       minimizer: [
         new TerserPlugin({
           minify: TerserPlugin.swcMinify,
+          extractComments: false,
           terserOptions: {
             compress: true,
             mangle: true,
-            output: {
+            format: {
               comments: false,
             },
           },

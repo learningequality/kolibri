@@ -1400,7 +1400,7 @@ importers:
         version: 0.8.4
       terser-webpack-plugin:
         specifier: ^5.3.16
-        version: 5.3.16(@swc/core@1.15.24(@swc/helpers@0.5.23))(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
+        version: 5.6.1(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
       vue-loader:
         specifier: ^15.11.1
         version: 15.11.1(css-loader@7.1.2(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)))(lodash@4.18.1)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23))
@@ -9490,6 +9490,49 @@ packages:
       '@swc/core':
         optional: true
       esbuild:
+        optional: true
+      uglify-js:
+        optional: true
+
+  terser-webpack-plugin@5.6.1:
+    resolution: {integrity: sha512-201R5j+sJpK8nFWwKVyNfZot8FaJbLZDq5evriVzbV1wDtSXDjRUDRfJzHpAaxFDMEhsZL1QkeqM61wgsS3KaQ==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      '@minify-html/node': '*'
+      '@swc/core': '*'
+      '@swc/css': '*'
+      '@swc/html': '*'
+      clean-css: '*'
+      cssnano: '*'
+      csso: '*'
+      esbuild: '*'
+      html-minifier-terser: '*'
+      lightningcss: '*'
+      postcss: '*'
+      uglify-js: '*'
+      webpack: ^5.1.0
+    peerDependenciesMeta:
+      '@minify-html/node':
+        optional: true
+      '@swc/core':
+        optional: true
+      '@swc/css':
+        optional: true
+      '@swc/html':
+        optional: true
+      clean-css:
+        optional: true
+      cssnano:
+        optional: true
+      csso:
+        optional: true
+      esbuild:
+        optional: true
+      html-minifier-terser:
+        optional: true
+      lightningcss:
+        optional: true
+      postcss:
         optional: true
       uglify-js:
         optional: true
@@ -19460,17 +19503,6 @@ snapshots:
     dependencies:
       rimraf: 2.6.3
 
-  terser-webpack-plugin@5.3.16(@swc/core@1.15.24(@swc/helpers@0.5.23))(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      jest-worker: 27.5.1
-      schema-utils: 4.3.3
-      serialize-javascript: 6.0.2
-      terser: 5.46.0
-      webpack: 5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)
-    optionalDependencies:
-      '@swc/core': 1.15.24(@swc/helpers@0.5.23)
-
   terser-webpack-plugin@5.3.16(webpack@5.104.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -19488,6 +19520,17 @@ snapshots:
       serialize-javascript: 6.0.2
       terser: 5.46.0
       webpack: 5.109.2(postcss@8.5.23)(webpack-cli@7.0.2)
+
+  terser-webpack-plugin@5.6.1(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)(webpack@5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      jest-worker: 27.5.1
+      schema-utils: 4.3.3
+      terser: 5.46.0
+      webpack: 5.109.2(@swc/core@1.15.24(@swc/helpers@0.5.23))(postcss@8.5.23)
+    optionalDependencies:
+      '@swc/core': 1.15.24(@swc/helpers@0.5.23)
+      postcss: 8.5.23
 
   terser@5.46.0:
     dependencies:
