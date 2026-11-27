@@ -752,6 +752,49 @@ class ImportTestCase(TestCase):
         self.assertEqual(error["value"], unknown_uuid)
         self.assertIn(unknown_uuid, error["message"])
 
+    def test_import_csv_in_other_encodings(self):
+        for encoding in ("utf-8", "utf-16", "cp1252"):
+            with self.subTest(encoding=encoding):
+                username = "jose_" + encoding.replace("-", "_")
+                _, csv_filename = tempfile.mkstemp(suffix=".csv")
+                rows = [
+                    [
+                        "",
+                        username,
+                        "password",
+                        "José Núñez",
+                        "LEARNER",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                    ]
+                ]
+                self.create_csv(csv_filename, rows)
+                with open(csv_filename, newline="", encoding="utf-8-sig") as f:
+                    content = f.read()
+                with open(csv_filename, "w", newline="", encoding=encoding) as f:
+                    f.write(content)
+
+                call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+
+                user = FacilityUser.objects.get(
+                    username=username, facility=self.facility
+                )
+                self.assertEqual(user.full_name, "José Núñez")
+
+    def test_import_csv_with_undetectable_encoding(self):
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        with open(csv_filename, "wb") as f:
+            f.write(b"USERNAME\r\n\x81\x8d\x8f\x90\x9d\r\n")
+        manager = b.BulkUserImportManager(
+            csv_filename, facility_id=self.facility.id, locale="en"
+        )
+        with self.assertRaises(BulkUserImportError):
+            manager.run()
+        self.assertIn("UTF-8, UTF-16 and Windows-1252", " ".join(manager.overall_error))
+
     def test_failed_import_restores_language(self):
         manager = b.BulkUserImportManager(
             "nonexistent.csv", facility_id=self.facility.id, locale="fr-fr"
