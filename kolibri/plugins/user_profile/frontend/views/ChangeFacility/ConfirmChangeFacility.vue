@@ -31,11 +31,11 @@
 <script>
 
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import commonProfileStrings, { profileStrings } from '../commonProfileStrings';
+  import commonProfileStrings from '../commonProfileStrings';
 
   export default {
     name: 'ConfirmChangeFacility',
@@ -43,7 +43,7 @@
 
     mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
-      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
+      usePageTitle(coreStrings.changeLearningFacility$, { hasVisibleHeading: true });
     },
 
     inject: ['changeFacilityService', 'state'],
