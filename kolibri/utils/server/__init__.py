@@ -1259,7 +1259,13 @@ def _urls_on_port(hosts, port, prefix):
     return [f"http://{host}{port_suffix}{path}" for host in hosts]
 
 
-def get_urls(listen_port=None, include_bound_port=False, advertise=True):
+def get_urls(
+    listen_port=None,
+    include_bound_port=False,
+    advertise=True,
+    *,
+    include_origin_roots=False,
+):
     """
     :param listen_port: if set, will not try to determine the listen port from
                         other running instances.
@@ -1279,9 +1285,18 @@ def get_urls(listen_port=None, include_bound_port=False, advertise=True):
             hosts += get_local_hostnames()
         url_port = _advertised_port(port) if advertise else port
         prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"] if advertise else ""
-        urls = _urls_on_port(hosts, url_port, prefix)
+        ports = [url_port]
         if include_bound_port and url_port != port:
-            urls += _urls_on_port(hosts, port, prefix)
+            ports.append(port)
+        prefixes = [prefix]
+        if include_origin_roots and prefix not in ("", "/"):
+            prefixes.append("")
+        urls = [
+            url
+            for candidate_prefix in prefixes
+            for candidate_port in ports
+            for url in _urls_on_port(hosts, candidate_port, candidate_prefix)
+        ]
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
