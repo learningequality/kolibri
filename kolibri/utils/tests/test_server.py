@@ -16,6 +16,7 @@ from django.test import TestCase as DjangoTestCase
 
 from kolibri.core.discovery.models import LocalHostname
 from kolibri.core.tasks.worker import WorkerSupervisor
+from kolibri.utils import conf
 from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
@@ -302,6 +303,14 @@ class TestGetLocalHostnames:
 class GetUrlsTestCase(DjangoTestCase):
     databases = "__all__"
 
+    def test_get_urls_includes_url_path_prefix(self):
+        with mock.patch.dict(
+            conf.OPTIONS["Deployment"],
+            {"URL_PATH_PREFIX": "kolibri/", "LISTEN_ADDRESS": "127.0.0.1"},
+        ):
+            _, urls = server.get_urls(listen_port=8080)
+        self.assertEqual(urls, ["http://127.0.0.1:8080/kolibri/"])
+
     @mock.patch.object(server, "get_local_hostnames")
     @mock.patch.object(server, "_get_local_ips")
     def test_get_urls__includes_local_hostnames(self, mock_ips, mock_hostnames):
@@ -336,13 +345,31 @@ class GetUrlsTestCase(DjangoTestCase):
             _status, urls = server.get_urls(listen_port=8080)
         self.assertEqual(["http://10.0.0.5/"], urls)
 
-    def test_get_urls__not_advertised_keeps_listen_port(self):
+    def test_get_urls__not_advertised_keeps_bound_origin(self):
         with mock.patch.dict(
             OPTIONS["Deployment"],
-            {"LISTEN_ADDRESS": "10.0.0.5", "ADVERTISED_HTTP_PORT": 80},
+            {
+                "LISTEN_ADDRESS": "10.0.0.5",
+                "ADVERTISED_HTTP_PORT": 80,
+                "URL_PATH_PREFIX": "kolibri/",
+            },
         ):
             _status, urls = server.get_urls(listen_port=8081, advertise=False)
         self.assertEqual(["http://10.0.0.5:8081/"], urls)
+
+    def test_get_urls__includes_url_path_prefix_on_bound_port(self):
+        with running_pid_file(8080), mock.patch.dict(
+            OPTIONS["Deployment"],
+            {
+                "LISTEN_ADDRESS": "10.0.0.5",
+                "ADVERTISED_HTTP_PORT": 80,
+                "URL_PATH_PREFIX": "kolibri/",
+            },
+        ):
+            _status, urls = server.get_urls(include_bound_port=True)
+        self.assertEqual(
+            ["http://10.0.0.5/kolibri/", "http://10.0.0.5:8080/kolibri/"], urls
+        )
 
     @mock.patch.object(server, "get_local_hostnames")
     @mock.patch.object(server, "_get_local_ips")

@@ -262,9 +262,11 @@ class DeviceInfoTestCase(APITestCase):
             with patch("kolibri.utils.server.PID_FILE", pid_file), patch(
                 "kolibri.utils.server.ifaddr.get_adapters", return_value=adapters
             ), patch(
-                "kolibri.utils.server.get_outgoing_interface_address",
-                return_value=None,
-            ), override_option("Deployment", "LISTEN_ADDRESS", "0.0.0.0"):
+                "kolibri.utils.server.socket.socket"
+            ) as socket_class, override_option(
+                "Deployment", "LISTEN_ADDRESS", "0.0.0.0"
+            ):
+                socket_class.return_value.connect.side_effect = OSError
                 response = self.client.get(
                     reverse("kolibri:core:deviceinfo"), format="json"
                 )
@@ -283,6 +285,11 @@ class DeviceInfoTestCase(APITestCase):
         urls = self._get_urls_with_adapters([_adapter("lo", "127.0.0.1", prefix=8)])
         self.assertEqual(urls, ["http://127.0.0.1:8080/"])
 
+    def test_urls_include_url_path_prefix(self):
+        with override_option("Deployment", "URL_PATH_PREFIX", "kolibri/"):
+            urls = self._get_urls_with_adapters([_adapter("eth0", "10.0.0.5")])
+        self.assertEqual(urls, ["http://10.0.0.5:8080/kolibri/"])
+
     @patch("kolibri.utils.server.PID_FILE", "/nonexistent/server.pid")
     def test_no_urls_falls_back_to_request_url_with_prefix(self):
         with override_option("Deployment", "URL_PATH_PREFIX", "kolibri/"):
@@ -290,6 +297,14 @@ class DeviceInfoTestCase(APITestCase):
                 reverse("kolibri:core:deviceinfo"), SERVER_NAME="10.0.0.2"
             )
         self.assertEqual(response.data["urls"], ["http://10.0.0.2/kolibri/"])
+
+    @patch("kolibri.utils.server.PID_FILE", "/nonexistent/server.pid")
+    def test_no_urls_falls_back_to_request_url_with_encoded_prefix(self):
+        with override_option("Deployment", "URL_PATH_PREFIX", "school#lab/"):
+            response = self.client.get(
+                reverse("kolibri:core:deviceinfo"), SERVER_NAME="10.0.0.2"
+            )
+        self.assertEqual(response.data["urls"], ["http://10.0.0.2/school%23lab/"])
 
     def test_database_path(self):
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")

@@ -24,10 +24,10 @@ import kolibri
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.core.device.hooks import CheckIsMeteredHook
-from kolibri.core.utils.urls import join_url
 from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
 from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.server import encoded_mount_path
 from kolibri.utils.server import get_port
 from kolibri.utils.server import get_urls
 
@@ -576,13 +576,13 @@ def is_loopback_url(url):
 
 def get_request_url(request):
     return request.build_absolute_uri(
-        "/" + OPTIONS["Deployment"]["URL_PATH_PREFIX"].lstrip("/")
+        encoded_mount_path(OPTIONS["Deployment"]["URL_PATH_PREFIX"])
     )
 
 
 def get_server_urls(request):
     _status, urls = get_urls(listen_port=get_port())
     if urls:
-        return [join_url(url, OPTIONS["Deployment"]["URL_PATH_PREFIX"]) for url in urls]
+        return urls
     # Will not return anything when running the debug server, so at least return the current URL
     return [get_request_url(request)]

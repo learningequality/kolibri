@@ -22,6 +22,7 @@ from functools import partial
 from ipaddress import ip_address
 from subprocess import CalledProcessError
 from subprocess import check_output
+from urllib.parse import quote
 
 import ifaddr
 import requests
@@ -29,6 +30,7 @@ import zeroconf
 from cheroot.wsgi import Server as BaseServer
 from django.conf import settings
 from django.core.management import call_command
+from django.utils.http import RFC3986_SUBDELIMS
 from magicbus import ProcessBus
 from magicbus.plugins import SimplePlugin
 from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
@@ -1247,9 +1249,14 @@ def _advertised_port(bind_port):
     return conf.OPTIONS["Deployment"]["ADVERTISED_HTTP_PORT"] or bind_port
 
 
-def _urls_on_port(hosts, port):
+def encoded_mount_path(prefix):
+    return "/" + quote(prefix.lstrip("/"), safe=RFC3986_SUBDELIMS + "/~:@")
+
+
+def _urls_on_port(hosts, port, prefix):
     port_suffix = "" if port == 80 else f":{port}"
-    return [f"http://{host}{port_suffix}/" for host in hosts]
+    path = encoded_mount_path(prefix)
+    return [f"http://{host}{port_suffix}{path}" for host in hosts]
 
 
 def get_urls(listen_port=None, include_bound_port=False, advertise=True):
@@ -1271,9 +1278,10 @@ def get_urls(listen_port=None, include_bound_port=False, advertise=True):
         if list_hostnames:
             hosts += get_local_hostnames()
         url_port = _advertised_port(port) if advertise else port
-        urls = _urls_on_port(hosts, url_port)
+        prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"] if advertise else ""
+        urls = _urls_on_port(hosts, url_port, prefix)
         if include_bound_port and url_port != port:
-            urls += _urls_on_port(hosts, port)
+            urls += _urls_on_port(hosts, port, prefix)
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
