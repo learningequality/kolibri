@@ -35,12 +35,12 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import usePageTitle from 'kolibri/composables/usePageTitle';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import { computed, inject } from 'vue';
   import get from 'lodash/get';
-  import commonProfileStrings, { profileStrings } from '../commonProfileStrings';
+  import commonProfileStrings from '../commonProfileStrings';
 
   export default {
     name: 'UsernameExists',
@@ -48,7 +48,7 @@
 
     mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
-      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
+      usePageTitle(coreStrings.changeLearningFacility$, { hasVisibleHeading: true });
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
 

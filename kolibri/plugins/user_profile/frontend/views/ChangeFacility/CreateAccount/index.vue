@@ -73,7 +73,7 @@
     },
     mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
-      usePageTitle(profileStrings.mergeAccounts$, { hasVisibleHeading: true });
+      usePageTitle(profileStrings.createAccount$, { hasVisibleHeading: true });
       const { session } = useUser();
       return { session };
     },
