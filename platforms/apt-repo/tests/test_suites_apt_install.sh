@@ -12,7 +12,7 @@ HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 require_tools docker
 
-run_debian_container "suites apt install" <<'EOF'
+run_container debian:trixie-slim "suites apt install" <<'EOF'
 export DEBIAN_FRONTEND=noninteractive
 apt-get update >/dev/null
 apt-get install -y --no-install-recommends \

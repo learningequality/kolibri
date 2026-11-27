@@ -41,37 +41,44 @@ To roll `stable` back, publish the older release's `.deb`s the same way, then di
 
 ## Enabling a suite
 
-`kolibri-archive-keyring` enables `stable` in `/etc/apt/sources.list.d/kolibri.sources`:
+`kolibri-archive-keyring` 1.1 enables `stable` in `/etc/apt/sources.list.d/kolibri.sources`:
 
 ```
 Types: deb
 URIs: https://apt.learningequality.org/
 Suites: stable
 Components: main
-Signed-By: /usr/share/keyrings/kolibri-archive-keyring.asc
+Signed-By: /usr/share/keyrings/kolibri-archive-keyring.gpg
 ```
 
-To test releases before approval, add `proposed` in its own file, `/etc/apt/sources.list.d/kolibri-proposed.sources` — `kolibri.sources` is the keyring package's conffile:
+To test releases before approval, add `proposed` in `/etc/apt/sources.list.d/kolibri-proposed.sources`, separate from the package's `kolibri.sources` conffile. The `.gpg` path requires `kolibri-archive-keyring` 1.1 or later:
 
 ```
 Types: deb
 URIs: https://apt.learningequality.org/
 Suites: proposed
 Components: main
-Signed-By: /usr/share/keyrings/kolibri-archive-keyring.asc
+Signed-By: /usr/share/keyrings/kolibri-archive-keyring.gpg
 ```
+
+With keyring 1.0, use `Signed-By: /usr/share/keyrings/kolibri-archive-keyring.asc` on APT versions that support ASCII-armored keys, such as those on Ubuntu 18.04 and later. That path still works after upgrading to keyring 1.1.
 
 On a host without `kolibri-archive-keyring` — one migrated from a `github.io` source, or a Raspberry Pi image, which trusts `/etc/apt/keyrings/learningequality.asc` — set `Signed-By` to the path its existing Kolibri source names. Installing the keyring package there instead adds a second `stable` source with another `Signed-By`, which apt refuses.
 
 ## New-user install
 
-`kolibri-archive-keyring` (`keyring/`) ships the apt source file (`/etc/apt/sources.list.d/kolibri.sources`) and the signing key (`/usr/share/keyrings/kolibri-archive-keyring.asc`). The promote workflow serves it at the repo root, so a fresh host can bootstrap before it has apt configured:
+`kolibri-archive-keyring` ships `/etc/apt/sources.list.d/kolibri.sources` and both signing key formats under `/usr/share/keyrings/`.
 
 ```sh
 curl -fsSLO https://apt.learningequality.org/kolibri-archive-keyring.deb
-sudo dpkg -i kolibri-archive-keyring.deb
+sudo apt update
+sudo apt install ./kolibri-archive-keyring.deb
 sudo apt update && sudo apt install kolibri
 ```
+
+On Ubuntu 16.04 with keyring 1.0, skip the first `sudo apt update` and upgrade with `sudo apt install ./kolibri-archive-keyring.deb`. If you need to refresh the distro indexes first, move `/etc/apt/sources.list.d/kolibri.sources` out of that directory, run `sudo apt update`, then restore the source file before installing the `.deb`.
+
+If you edited `kolibri.sources`, answer dpkg's conffile prompt on upgrade or pass `-o Dpkg::Options::=--force-confold` to keep your edits. On Ubuntu 16.04, use the `.gpg` key in `Signed-By`.
 
 ## Self-migration of the installed base
 

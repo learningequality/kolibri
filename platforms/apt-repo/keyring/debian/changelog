@@ -1,3 +1,9 @@
+kolibri-archive-keyring (1.1) stable; urgency=medium
+
+  * Support HTTPS and archive signature verification on apt 1.2.
+
+ -- Learning Equality <info@learningequality.org>  Mon, 23 Nov 2026 08:50:00 +0000
+
 kolibri-archive-keyring (1.0) stable; urgency=medium
 
   * Initial release: ship the apt.learningequality.org source file and archive

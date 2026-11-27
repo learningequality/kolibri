@@ -2,3 +2,14 @@
 
 %:
 	dh $@
+
+override_dh_auto_build:
+	dh_auto_build
+	gpg --batch --yes --dearmor --output kolibri-archive-keyring.gpg kolibri-archive-keyring.asc
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f kolibri-archive-keyring.gpg
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip

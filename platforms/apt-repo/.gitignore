@@ -9,3 +9,4 @@ keyring/debian/files
 keyring/debian/kolibri-archive-keyring/
 keyring/debian/*.substvars
 keyring/debian/*debhelper*
+keyring/kolibri-archive-keyring.gpg
