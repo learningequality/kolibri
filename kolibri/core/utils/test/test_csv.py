@@ -50,3 +50,18 @@ def test_open_csv_for_reading_undetectable_storage_file():
         with pytest.raises(ValueError, match="UTF-8, UTF-16 and Windows-1252"):
             with open_csv_for_reading(storage_filepath="users.csv"):
                 pass
+
+
+UTF32_FILES = {
+    "utf-32-le": codecs.BOM_UTF32_LE + TEXT.encode("utf-32-le"),
+    "utf-32-be": codecs.BOM_UTF32_BE + TEXT.encode("utf-32-be"),
+}
+
+
+@pytest.mark.parametrize("encoding", UTF32_FILES)
+def test_open_csv_for_reading_utf32_not_supported(tmp_path, encoding):
+    path = tmp_path / "users.csv"
+    path.write_bytes(UTF32_FILES[encoding])
+    with pytest.raises(ValueError, match="UTF-8, UTF-16 and Windows-1252"):
+        with open_csv_for_reading(local_filepath=str(path)):
+            pass

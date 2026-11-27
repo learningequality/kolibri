@@ -45,12 +45,22 @@ def open_csv_for_writing(storage_filepath=None, local_filepath=None):
         logger.info("CSV file %s saved", local_filepath)
 
 
+_UNDETECTABLE_ENCODING_MESSAGE = (
+    "Unable to detect the file encoding. "
+    "Supported encodings are UTF-8, UTF-16 and Windows-1252."
+)
+
+
 def _detect_csv_encoding(raw):
     """
     Return the name of the encoding used by the CSV file contents ``raw`` (bytes).
     """
     if raw.startswith(codecs.BOM_UTF8):
         return "utf-8-sig"
+    # UTF-32 is not supported. Its little-endian BOM starts with the UTF-16
+    # little-endian BOM, so rule it out before checking for UTF-16.
+    if raw.startswith((codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE)):
+        raise ValueError(_UNDETECTABLE_ENCODING_MESSAGE)
     if raw.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
         return "utf-16"
     for encoding in ("utf-8", "cp1252"):
@@ -59,10 +69,7 @@ def _detect_csv_encoding(raw):
         except UnicodeDecodeError:
             continue
         return encoding
-    raise ValueError(
-        "Unable to detect the file encoding. "
-        "Supported encodings are UTF-8, UTF-16 and Windows-1252."
-    )
+    raise ValueError(_UNDETECTABLE_ENCODING_MESSAGE)
 
 
 @contextmanager
