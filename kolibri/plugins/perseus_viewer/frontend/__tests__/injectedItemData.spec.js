@@ -4,6 +4,7 @@ import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useC
 import { init } from '@khanacademy/perseus';
 import perseusFixtures from '../../../qti_viewer/frontend/components/__fixtures__/perseus';
 import sandboxFixtures from '../../../../../integration_testing/viewer_sandbox/frontend/__fixtures__/perseus';
+import perseusTranslator from '../translator';
 import PerseusRendererIndex from '../views/PerseusRendererIndex';
 
 jest.mock('kolibri/composables/useContentViewer');
@@ -360,6 +361,80 @@ describe('PerseusRendererIndex with fixture items', () => {
         expect(result.correct).toBe(true);
       },
       { timeout: 5000 },
+    );
+  });
+
+  describe('label-image marker names', () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Label image');
+
+    async function mountMarkers(editMarkers = () => {}) {
+      const item = JSON.parse(fixture.item);
+      const [widget] = Object.values(item.question.widgets);
+      editMarkers(widget.options.markers);
+      const rendered = await mountRenderer({
+        perseusItemString: JSON.stringify(item),
+        packageFiles: fixture.files,
+        sourceId: fixture.id,
+      });
+      await waitFor(() => expect(rendered.api().checkAnswer()?.correct).toBe(false), {
+        timeout: 5000,
+      });
+      return { markers: widget.options.markers, ...rendered };
+    }
+
+    function expectMarkerNames(expected) {
+      const comboboxes = screen.getAllByRole('combobox');
+      expect(comboboxes).toHaveLength(expected.length);
+      comboboxes.forEach((combobox, index) =>
+        expect(combobox).toHaveAccessibleName(expected[index]),
+      );
+    }
+
+    it('names each blank marker by its position', async () => {
+      const { markers } = await mountMarkers();
+
+      expectMarkerNames(markers.map((marker, index) => String(index + 1)));
+    });
+
+    it('names a marker by its authored label, and blank ones by their position', async () => {
+      const label = 'Bar A';
+      await mountMarkers(markers => {
+        markers[0].label = label;
+        markers[1].label = ' ';
+        delete markers[2].label;
+        markers[3].label = '';
+      });
+
+      expectMarkerNames([label, '2', '3', '4']);
+      expect(screen.getAllByLabelText(label)).toEqual([
+        screen.getByRole('combobox', { name: label }),
+      ]);
+    });
+
+    it('keeps marker names when showing the answer', async () => {
+      const label = 'Bar A';
+      const { api, setShowAnswer } = await mountMarkers(markers => {
+        markers[0].label = label;
+      });
+
+      setShowAnswer(true);
+      await waitFor(() => expect(api().checkAnswer()?.correct).toBe(true), { timeout: 5000 });
+
+      expectMarkerNames([label, '2', '3', '4']);
+      screen.getAllByRole('combobox').forEach(marker => {
+        expect(within(marker).getByLabelText(perseusTranslator.correctExcited$())).toBeVisible();
+      });
+    });
+
+    it.each(['2', 2])(
+      'keeps blank marker names distinct from a numeric authored label %p',
+      async label => {
+        await mountMarkers(markers => {
+          markers[0].label = label;
+        });
+
+        expectMarkerNames(['2', '6', '3', '4']);
+      },
     );
   });
 
