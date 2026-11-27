@@ -41,7 +41,10 @@ module.exports = {
           // bundled local copy so it works offline.
           test: /@khanacademy[/\\]perseus[/\\]dist[/\\](?:es[/\\])?index\.js$/,
           enforce: 'pre',
-          loader: path.resolve(__dirname, 'rewritePerseusProtractor.js'),
+          use: [
+            path.resolve(__dirname, 'rewritePerseusProtractor.js'),
+            path.resolve(__dirname, 'rewritePerseusMarkerName.js'),
+          ],
         },
         {
           // Convert rem→px in Wonder Blocks design tokens CSS.
