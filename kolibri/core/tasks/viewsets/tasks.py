@@ -134,16 +134,22 @@ class TasksViewSet(viewsets.GenericViewSet):
             try:
                 registered_task = TaskRegistry[job.func]
                 registered_task.check_job_permissions(request.user, job, self)
-                jobs_response.append(self._job_to_response(job))
             except KeyError:
                 # Note: Temporarily including unregistered tasks until we complete
                 # our transition to the new tasks API.
                 # After completing transition to the new tasks API, we won't be
                 # including unregistered tasks to the response list.
-                jobs_response.append(self._job_to_response(job))
+                pass
             except PermissionDenied:
                 # `request.user` do not have permission for this job hence
                 # we will NOT append this job to the list.
+                continue
+
+            try:
+                jobs_response.append(self._job_to_response(job))
+            except JobNotFound:
+                # The job was cleared by another request in between fetching
+                # the job list and building its response entry; omit it.
                 pass
 
         return Response(jobs_response)

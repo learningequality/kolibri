@@ -1303,6 +1303,24 @@ class TaskManagementAPITestCase(BaseAPITestCase):
             queue=None, repeating=None
         )
 
+    def test_list_omits_job_cleared_between_get_all_jobs_and_response_build(
+        self, mock_job_storage
+    ):
+        mock_job_storage.get_all_jobs.return_value = self.jobs
+        # Simulate the second job being cleared by another request after
+        # `get_all_jobs` ran but before its response entry was built.
+        mock_job_storage.get_orm_job.side_effect = [
+            dummy_orm_job_data,
+            JobNotFound(),
+            dummy_orm_job_data,
+        ]
+
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:task-list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, [self.jobs_response[0], self.jobs_response[2]])
+
     def test_can_manage_content_can_only_view_can_manage_content_jobs(
         self, mock_job_storage
     ):
