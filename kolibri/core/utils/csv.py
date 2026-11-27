@@ -45,10 +45,9 @@ def open_csv_for_writing(storage_filepath=None, local_filepath=None):
         logger.info("CSV file %s saved", local_filepath)
 
 
-def detect_csv_encoding(raw):
+def _detect_csv_encoding(raw):
     """
     Return the name of the encoding used by the CSV file contents ``raw`` (bytes).
-    Raises ValueError if the encoding is not one of UTF-8, UTF-16 or Windows-1252.
     """
     if raw.startswith(codecs.BOM_UTF8):
         return "utf-8-sig"
@@ -72,7 +71,7 @@ def open_csv_for_reading(storage_filepath=None, local_filepath=None):
 
     if storage_filepath:
         with default_storage.open(storage_filepath, "rb") as f:
-            encoding = detect_csv_encoding(f.read())
+            encoding = _detect_csv_encoding(f.read())
             f.seek(0)
             encoded_fh = io.TextIOWrapper(
                 f,
@@ -85,7 +84,7 @@ def open_csv_for_reading(storage_filepath=None, local_filepath=None):
             encoded_fh.flush()
     else:
         with open(local_filepath, "rb") as raw_fh:
-            encoding = detect_csv_encoding(raw_fh.read())
+            encoding = _detect_csv_encoding(raw_fh.read())
         with open(local_filepath, newline="", encoding=encoding) as local_fh:
             yield local_fh
 
