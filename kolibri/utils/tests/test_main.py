@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+import requests
 from django.conf import settings
 from django.db.utils import OperationalError
 from morango.models import InstanceIDModel
@@ -18,7 +19,10 @@ from kolibri.core.deviceadmin.utils import dbbackup
 from kolibri.core.deviceadmin.utils import default_backup_folder
 from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.utils import main
+from kolibri.utils import server
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.tests.helpers import running_pid_file
 from kolibri.utils.version import truncate_version
 
 # from django.conf import settings
@@ -71,6 +75,23 @@ def test_update_exits_if_running(get_version, is_initialized):
             pytest.fail("Update did not exit when Kolibri was already running")
         except SystemExit:
             pass
+
+
+def test_update_exits_if_server_still_runs_on_loopback():
+    def probe(url, **kwargs):
+        if url == "http://127.0.0.1:8080/kolibri/status/":
+            return MagicMock(status_code=200)
+        raise requests.ConnectionError(url)
+
+    with running_pid_file(8080, bind_address="10.0.0.5"), patch.dict(
+        OPTIONS["Deployment"],
+        {"LISTEN_ADDRESS": "10.0.0.5", "URL_PATH_PREFIX": "kolibri/"},
+    ), patch.dict(OPTIONS["Server"], {"CHERRYPY_START": True}), patch.object(
+        server.requests, "get", side_effect=probe
+    ):
+        with pytest.raises(SystemExit) as exit_info:
+            main.update("0.0.1", "0.0.2")
+    assert exit_info.value.code == 1
 
 
 @pytest.mark.django_db(transaction=True)

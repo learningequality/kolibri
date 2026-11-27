@@ -4,8 +4,11 @@ Tests for `kolibri.utils.server` module.
 
 import contextlib
 import os
+import subprocess
 import sys
 import threading
+from pathlib import Path
+from textwrap import dedent
 from unittest import mock
 from unittest import TestCase
 from urllib.parse import urlparse
@@ -20,7 +23,37 @@ from kolibri.utils import conf
 from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
+from kolibri.utils.tests.helpers import mock_status_listener
 from kolibri.utils.tests.helpers import running_pid_file
+
+
+@pytest.mark.parametrize(
+    "status_code, expected_status, diagnostics",
+    [
+        (200, None, False),
+        (404, server.STATUS_UNKNOWN_INSTANCE, False),
+        (500, server.STATUS_SERVER_CONFIGURATION_ERROR, True),
+    ],
+)
+def test_status_decodes_loopback_body_only_for_diagnostics(
+    status_code, expected_status, diagnostics, capsys
+):
+    response = mock.Mock(status_code=status_code)
+    body = mock.PropertyMock(return_value="configuration details")
+    type(response).text = body
+    with running_pid_file(8080), mock.patch.dict(
+        OPTIONS["Deployment"], {"LISTEN_ADDRESS": "127.0.0.1"}
+    ), mock.patch.dict(OPTIONS["Server"], {"CHERRYPY_START": True}), mock.patch.object(
+        server.requests, "get", return_value=response
+    ):
+        if expected_status is None:
+            assert server.get_status()[2] == 8080
+        else:
+            with pytest.raises(server.NotRunning) as error:
+                server.get_status()
+            assert error.value.status_code == expected_status
+    assert body.call_count == int(diagnostics)
+    assert ("configuration details" in capsys.readouterr().err) == diagnostics
 
 
 class TestServerInstallation:
@@ -143,6 +176,60 @@ class TestPIDPluginSetPidFile:
         bus.zip_port = 8081
         return bus
 
+    def test_pid_record_preserves_four_line_format(self, bus):
+        server.PIDPlugin(bus).SERVING(bus.port)
+
+        assert Path(bus.pid_file).read_text().splitlines() == [
+            str(os.getpid()),
+            str(bus.port),
+            str(bus.zip_port),
+            str(server.STATUS_RUNNING),
+        ]
+
+    def test_pid_record_is_written_when_bind_metadata_is_unwritable(self, bus):
+        Path(f"{bus.pid_file}.bind").mkdir()
+
+        plugin = server.PIDPlugin(bus)
+        assert server._read_pid_file(bus.pid_file) == (
+            os.getpid(),
+            bus.port,
+            bus.zip_port,
+            server.STATUS_STARTING_UP,
+        )
+
+        plugin.SERVING(8090)
+        assert server._read_pid_file(bus.pid_file) == (
+            os.getpid(),
+            8090,
+            bus.zip_port,
+            server.STATUS_RUNNING,
+        )
+
+    def test_status_probes_daemon_bind_address_after_fork(self, bus, monkeypatch):
+        pid = os.getpid()
+        monkeypatch.setattr(server, "PID_FILE", bus.pid_file)
+        monkeypatch.setitem(OPTIONS["Server"], "CHERRYPY_START", True)
+        monkeypatch.setitem(OPTIONS["Deployment"], "URL_PATH_PREFIX", "kolibri/")
+        monkeypatch.setitem(OPTIONS["Deployment"], "LISTEN_ADDRESS", "127.0.0.2")
+        with mock.patch.object(server.os, "getpid", return_value=pid + 1):
+            process_bus = server.BaseKolibriProcessBus(
+                port=bus.port, zip_port=bus.zip_port, pid_file=bus.pid_file
+            )
+        process_bus.publish("SERVING", bus.port)
+
+        def refuse_loopback(url, timeout):
+            assert url == f"http://127.0.0.1:{bus.port}/kolibri/status/"
+            raise server.requests.ConnectionError() from ConnectionRefusedError()
+
+        monkeypatch.setattr(server.requests, "get", refuse_loopback)
+
+        monkeypatch.setattr(
+            server.socket,
+            "create_connection",
+            mock_status_listener("127.0.0.2", bus.port, "/kolibri/status/"),
+        )
+        assert server.get_status() == (pid, "127.0.0.2", bus.port)
+
     @pytest.mark.skipif(
         sys.platform == "win32",
         reason="Windows refuses os.replace onto an open file, so the write falls back to in-place",
@@ -190,7 +277,33 @@ class TestPIDPluginSetPidFile:
             bus.zip_port,
             server.STATUS_RUNNING,
         )
-        assert os.listdir(tmp_path) == ["server.pid"]
+        assert sorted(os.listdir(tmp_path)) == ["server.pid", "server.pid.bind"]
+
+    def test_bind_replace_refusal_does_not_delay_pid_publication(
+        self, bus, monkeypatch
+    ):
+        real_replace = os.replace
+        clock = 0
+        pid_publications = []
+
+        def replace(src, dst):
+            if dst == f"{bus.pid_file}.bind":
+                raise PermissionError
+            pid_publications.append(clock)
+            real_replace(src, dst)
+
+        def sleep(seconds):
+            nonlocal clock
+            clock += seconds
+
+        monkeypatch.setattr(server.time, "monotonic", lambda: clock)
+        monkeypatch.setattr(server.time, "sleep", sleep)
+        monkeypatch.setattr(server.os, "replace", replace)
+
+        server.PIDPlugin(bus).SERVING(bus.port)
+
+        assert pid_publications == [0, 0]
+        assert server._read_pid_file(bus.pid_file)[3] == server.STATUS_RUNNING
 
     def test_briefly_refused_replace_still_replaces_pid_file(self, bus):
         plugin = server.PIDPlugin(bus)
@@ -199,7 +312,7 @@ class TestPIDPluginSetPidFile:
         refusals = [PermissionError, PermissionError]
 
         def replace_after_refusals(src, dst):
-            if refusals:
+            if dst == bus.pid_file and refusals:
                 raise refusals.pop()
             real_replace(src, dst)
 
@@ -216,7 +329,47 @@ class TestPIDPluginSetPidFile:
             with pytest.raises(OSError):
                 plugin.set_pid_file(server.STATUS_RUNNING)
 
-        assert os.listdir(tmp_path) == ["server.pid"]
+        assert sorted(os.listdir(tmp_path)) == ["server.pid", "server.pid.bind"]
+
+    def test_exit_cleans_up_pid_record_and_bind_metadata(
+        self, bus, tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(server, "PID_FILE", bus.pid_file)
+        monkeypatch.setitem(OPTIONS["Server"], "CHERRYPY_START", True)
+        monkeypatch.setitem(OPTIONS["Deployment"], "LISTEN_ADDRESS", "127.0.0.2")
+        monkeypatch.setitem(OPTIONS["Deployment"], "URL_PATH_PREFIX", "kolibri/")
+        plugin = server.PIDPlugin(bus)
+        plugin.SERVING(bus.port)
+
+        def refuse_loopback(url, timeout):
+            raise server.requests.ConnectionError() from ConnectionRefusedError()
+
+        monkeypatch.setattr(server.requests, "get", refuse_loopback)
+        monkeypatch.setattr(
+            server.socket,
+            "create_connection",
+            mock_status_listener("127.0.0.2", bus.port, "/kolibri/status/"),
+        )
+        assert server.get_status() == (os.getpid(), "127.0.0.2", bus.port)
+
+        plugin.EXIT()
+
+        assert list(tmp_path.iterdir()) == []
+
+
+def test_running_pid_file_removes_bind_metadata_when_pid_file_is_gone(
+    tmp_path, monkeypatch
+):
+    pid_file = tmp_path / "server.pid"
+    monkeypatch.setattr(server, "PID_FILE", str(pid_file))
+    monkeypatch.setitem(OPTIONS["Server"], "CHERRYPY_START", True)
+    monkeypatch.setitem(OPTIONS["Deployment"], "LISTEN_ADDRESS", "127.0.0.1")
+
+    with running_pid_file(8080, bind_address="127.0.0.2"):
+        pid_file.unlink()
+
+    with running_pid_file(8080):
+        assert server.get_status() == (os.getpid(), "127.0.0.1", 8080)
 
 
 class TestZeroConfPlugin:
@@ -300,8 +453,51 @@ class TestGetLocalHostnames:
         }
 
 
+def test_get_urls_keeps_ip_when_hostname_database_is_corrupt(tmp_path):
+    script = dedent(
+        """\
+        from pathlib import Path
+
+        import kolibri
+        import django
+        from django.db import connections
+        from kolibri.utils import server
+
+        django.setup()
+
+        database = connections[server.NETWORK_LOCATION]
+        database.close()
+        Path(database.settings_dict["NAME"]).write_bytes(b"not a SQLite database")
+
+        assert server.get_urls(listen_port=8080) == (
+            server.STATUS_RUNNING, ["http://10.0.0.5:8080/kolibri/"]
+        )
+        """
+    )
+    subprocess.run(
+        [sys.executable, "-c", script],
+        env={
+            **os.environ,
+            "DJANGO_SETTINGS_MODULE": "kolibri.deployment.default.settings.base",
+            "KOLIBRI_DATABASE_ENGINE": "sqlite",
+            "KOLIBRI_HOME": str(tmp_path),
+            "KOLIBRI_LISTEN_ADDRESS": "10.0.0.5",
+            "KOLIBRI_URL_PATH_PREFIX": "kolibri/",
+            "KOLIBRI_ADVERTISED_HTTP_PORT": "8080",
+        },
+        check=True,
+        timeout=15,
+    )
+
+
 class GetUrlsTestCase(DjangoTestCase):
     databases = "__all__"
+
+    def test_get_urls_normalizes_short_loopback_address(self):
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "127.1"}):
+            self.assertEqual(
+                server.get_urls(listen_port=8080)[1], ["http://127.0.0.1:8080/"]
+            )
 
     def test_get_urls_includes_url_path_prefix(self):
         with mock.patch.dict(
@@ -775,12 +971,13 @@ class GetOutgoingInterfaceAddressTestCase(TestCase):
 
 
 @mock.patch(
-    "kolibri.utils.server._read_pid_file", return_value=((None, None, None, None))
+    "kolibri.utils.server._read_pid_file", return_value=(None, None, None, None)
 )
 class ServerInitializationTestCase(TestCase):
     def tearDown(self):
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(server.PID_FILE)
+        for filename in (server.PID_FILE, f"{server.PID_FILE}.bind"):
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(filename)
 
     @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
@@ -813,7 +1010,12 @@ class ServerInitializationTestCase(TestCase):
     @mock.patch("kolibri.utils.server.pid_exists")
     def test_unclean_shutdown(self, pid_exists_mock, read_pid_file_mock):
         pid_exists_mock.return_value = False
-        read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
+        read_pid_file_mock.return_value = (
+            1000,
+            8000,
+            8001,
+            server.STATUS_RUNNING,
+        )
         with mock.patch.object(server.KolibriProcessBus, "run") as run_mock:
             server.start()
             run_mock.assert_called()
@@ -825,7 +1027,12 @@ class ServerInitializationTestCase(TestCase):
     ):
         wait_for_port_mock.side_effect = OSError
         pid_exists_mock.return_value = True
-        read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
+        read_pid_file_mock.return_value = (
+            1000,
+            8000,
+            8001,
+            server.STATUS_RUNNING,
+        )
         with self.assertRaises(server.PortOccupied):
             server.start(port=8000)
 

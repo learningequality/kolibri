@@ -6,7 +6,9 @@ from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
 import kolibri
+from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.tests.helpers import mock_status_listener
 from kolibri.utils.tests.helpers import running_pid_file
 
 from ..models import ConnectionStatus
@@ -488,6 +490,80 @@ class NetworkClientTestCase(TestCase):
         with self.assertRaises(ValidationError):
             NetworkLocationSerializer().validate(
                 {"base_url": "http://\u017fchool.local/"}
+            )
+
+    def test_discover_from_address__excludes_own_advertised_mount_after_lan_probe(
+        self,
+    ):
+        host = "10.0.0.5"
+        bound_url = f"http://{host}:8080/kolibri/"
+        advertised_url = f"http://{host}/kolibri/"
+        refused = requests.exceptions.ConnectionError()
+        refused.__cause__ = ConnectionRefusedError()
+        adapter = server.ifaddr.Adapter(
+            "eth0", "eth0", [server.ifaddr.IP(host, 24, "eth0")]
+        )
+
+        probe = mock_happy_request(
+            (bound_url + "api/public/info/", advertised_url + "api/public/info/"),
+            default_error=requests.ConnectionError,
+        )
+
+        with running_pid_file(8080, bind_address=host), mock.patch.dict(
+            OPTIONS["Deployment"],
+            {
+                "LISTEN_ADDRESS": host,
+                "ADVERTISED_HTTP_PORT": 80,
+                "URL_PATH_PREFIX": "kolibri/",
+            },
+        ), mock.patch.dict(
+            OPTIONS["Server"], {"CHERRYPY_START": True}
+        ), mock.patch.object(requests, "get", side_effect=refused), mock.patch.object(
+            server.ifaddr, "get_adapters", return_value=[adapter]
+        ), mock.patch.object(
+            server.socket,
+            "create_connection",
+            side_effect=mock_status_listener(host, 8080, "/kolibri/status/"),
+        ), mock.patch.object(requests.Session, "request", probe):
+            for url in (advertised_url, bound_url):
+                with self.subTest(url=url):
+                    with self.assertRaises(errors.NetworkLocationNotFound):
+                        NetworkClient.discover_from_address(url)
+
+    def test_discover_from_address__finds_peer_on_advertised_port(self):
+        refused = requests.exceptions.ConnectionError()
+        refused.__cause__ = ConnectionRefusedError()
+        self_url = "http://10.0.0.5:8000/lab%252Froom/"
+        peer_url = "http://10.0.0.5:8000/lab%2Froom/"
+        adapter = server.ifaddr.Adapter(
+            "eth0", "eth0", [server.ifaddr.IP("10.0.0.5", 24, "eth0")]
+        )
+
+        peer_info = mock_happy_request(
+            (self_url + "api/public/info/", peer_url + "api/public/info/"),
+            default_error=requests.ConnectionError,
+        )
+
+        with running_pid_file(8080, bind_address="10.0.0.5"), mock.patch.dict(
+            OPTIONS["Deployment"],
+            {
+                "LISTEN_ADDRESS": "10.0.0.5",
+                "ADVERTISED_HTTP_PORT": 8000,
+                "URL_PATH_PREFIX": "lab%2Froom/",
+            },
+        ), mock.patch.dict(
+            OPTIONS["Server"], {"CHERRYPY_START": True}
+        ), mock.patch.object(requests, "get", side_effect=refused), mock.patch.object(
+            server.ifaddr, "get_adapters", return_value=[adapter]
+        ), mock.patch.object(
+            server.socket,
+            "create_connection",
+            side_effect=mock_status_listener("10.0.0.5", 8080, "/lab%252Froom/status/"),
+        ), mock.patch.object(requests.Session, "request", peer_info):
+            with self.assertRaises(errors.NetworkLocationNotFound):
+                NetworkClient.discover_from_address(self_url)
+            self.assertEqual(
+                NetworkClient.discover_from_address(peer_url).base_url, peer_url
             )
 
     def test_discover_from_address__excludes_own_mount_at_literal_colon_path(self):
