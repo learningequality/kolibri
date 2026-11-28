@@ -20,6 +20,8 @@ TRUE = "TRUE"
 FALSE = "FALSE"
 DEFAULT_PORT = 8080
 SERVICE_TTL = 60
+# zeroconf-py2compat packs each TXT entry's length into a single byte
+TXT_ENTRY_MAX_BYTES = 255
 
 EVENT_REGISTER_INSTANCE = (
     "register_instance"  # our local instance is registered on the network
@@ -48,6 +50,18 @@ INSTANCE_EVENTS = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+def _dump_txt_value(key, val):
+    dumped = json.dumps(val, ensure_ascii=False)
+    while (
+        isinstance(val, str)
+        and val
+        and len(f"{key}={dumped}".encode("utf-8")) > TXT_ENTRY_MAX_BYTES
+    ):
+        val = val[:-1]
+        dumped = json.dumps(val, ensure_ascii=False)
+    return dumped
 
 
 class KolibriInstance:
@@ -157,8 +171,8 @@ class KolibriInstance:
                 # TODO: No longer json.dumps at all here - but this will require making the zeroconf
                 # info backwards incompatible with older versions of Kolibri
                 val = TRUE if val else FALSE
-            properties[key] = json.dumps(val)
-        properties["prefix"] = json.dumps(self.prefix)
+            properties[key] = _dump_txt_value(key, val)
+        properties["prefix"] = json.dumps(self.prefix, ensure_ascii=False)
 
         # convert to format Zeroconf wants
         address = socket.inet_aton(self.ip) if self.ip else None
