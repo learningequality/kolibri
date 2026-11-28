@@ -19,6 +19,7 @@ from kolibri.core.content import models
 from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.cache import remote_metadata_cache
 from kolibri.core.content.utils.cache import REMOTE_URL_PARAM
+from kolibri.core.content.utils.languages import build_base_language_labels
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 from kolibri.core.query import SQSum
@@ -244,6 +245,16 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
         if type(response_data) is dict:
             if "more" in response_data and "results" in response_data:
                 # This is a paginated object
+                labels = response_data.get("labels")
+                if labels is not None and "base_languages" not in labels:
+                    labels["base_languages"] = build_base_language_labels(
+                        (
+                            language["id"],
+                            language["id"].split("-", 1)[0],
+                            language.get("lang_name"),
+                        )
+                        for language in (labels.get("languages") or [])
+                    )
                 if response_data["more"] is not None:
                     if type(response_data["more"].get("params", None)) is dict:
                         response_data["more"]["params"][REMOTE_URL_PARAM] = baseurl

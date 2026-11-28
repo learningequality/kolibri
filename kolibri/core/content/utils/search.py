@@ -23,6 +23,7 @@ from le_utils.constants.labels.levels import LEVELSLIST
 from le_utils.constants.labels.needs import NEEDSLIST
 from le_utils.constants.labels.subjects import SUBJECTSLIST
 
+from kolibri.core.content.utils.languages import build_base_language_labels
 from kolibri.core.utils.cache import process_cache as cache
 
 metadata_lookup = {
@@ -36,6 +37,7 @@ metadata_lookup = {
 
 empty_labels = {
     "languages": [],
+    "base_languages": [],
     "channels": [],
     **{key: [] for key in metadata_lookup},
 }
@@ -73,7 +75,7 @@ def _get_available_languages(base_queryset):
         id__in=base_queryset.exclude(lang=None)
         .values_list("lang_id", flat=True)
         .distinct()
-    ).values("id", "lang_name")
+    ).values("id", "lang_name", "lang_code")
     return list(langs)
 
 
@@ -134,7 +136,15 @@ def get_available_metadata_labels(  # noqa: C901
                     output[value["field_name"]] = []
                 if bit_value is not None and bit_value & value["bits"]:
                     output[value["field_name"]].append(value["label"])
-        output["languages"] = _get_available_languages(base_queryset)
+        languages = _get_available_languages(base_queryset)
+        output["base_languages"] = build_base_language_labels(
+            (language["id"], language["lang_code"], language["lang_name"])
+            for language in languages
+        )
+        output["languages"] = [
+            {"id": language["id"], "lang_name": language["lang_name"]}
+            for language in languages
+        ]
         if use_deprecated_channels_labels:
             output["channels"] = _get_available_channels(base_queryset)
         cache.set(cache_key, output, timeout=None)

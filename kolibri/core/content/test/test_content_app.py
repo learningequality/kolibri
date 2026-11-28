@@ -13,6 +13,7 @@ from typing import ClassVar
 from unittest import mock
 
 import pytz
+from django.apps import apps
 from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
@@ -39,7 +40,11 @@ from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
 from kolibri.core.content.viewsets.contentnode.filters import ContentNodeFilter
+from kolibri.core.content.viewsets.contentnode.filters import (
+    OptionalContentNodePagination,
+)
 from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
@@ -53,6 +58,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.test.helpers import encode_cursor
 from kolibri.utils.tests.helpers import override_option
@@ -257,6 +263,55 @@ def infer_learning_activity(kind):
     return []
 
 
+class PeerBaseLanguageLabelsTestCase(TestCase):
+    def test_backfills_older_peer_labels(self):
+        labels = {
+            "languages": [
+                {"id": "es-MX", "lang_name": "Spanish (Mexico)"},
+                {"id": "es-419", "lang_name": "Spanish (Latin America)"},
+                {"id": "fuv", "lang_name": "Nigerian Fulfulde"},
+                {"id": "qaa-ZZ", "lang_name": "Later name"},
+                {"id": "qaa-AA", "lang_name": "First name"},
+                {"id": "qab"},
+            ]
+        }
+        data = ContentNodeViewset().update_data(
+            {"more": None, "results": [], "labels": labels}, "http://peer"
+        )
+        self.assertEqual(
+            data["labels"].get("base_languages"),
+            [
+                {"id": "es", "lang_name": "Español"},
+                {"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"},
+                {"id": "qaa", "lang_name": "First name"},
+                {"id": "qab", "lang_name": "qab"},
+            ],
+        )
+
+    def test_preserves_peer_base_language_labels(self):
+        labels = {
+            "languages": [{"id": "es-MX", "lang_name": "Spanish (Mexico)"}],
+            "base_languages": [{"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"}],
+        }
+        data = ContentNodeViewset().update_data(
+            {"more": None, "results": [], "labels": labels}, "http://peer"
+        )
+        self.assertEqual(
+            data["labels"]["base_languages"],
+            [{"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"}],
+        )
+
+    def test_bare_list_passes_through(self):
+        self.assertEqual(ContentNodeViewset().update_data([], "http://peer"), [])
+
+    def test_backfills_null_peer_languages_as_empty(self):
+        data = ContentNodeViewset().update_data(
+            {"more": None, "results": [], "labels": {"languages": None}},
+            "http://peer",
+        )
+        self.assertEqual(data["labels"], {"languages": None, "base_languages": []})
+
+
 class ContentNodeAPIBase:
     fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
@@ -419,6 +474,21 @@ class ContentNodeAPIBase:
         response = self._get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
+
+    def test_contentnode_base_language_labels(self):
+        spanish = content.Language.objects.create(id="es-MX", lang_code="es")
+        french = content.Language.objects.create(id="fr", lang_code="fr")
+        content.ContentNode.objects.filter(title="c1").update(lang=spanish)
+        content.ContentNode.objects.filter(title="c2c2").update(lang=french)
+        response = self._get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"search": "c1", "max_results": 5},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data["labels"]["base_languages"],
+            [{"id": "es", "lang_name": "Español"}],
+        )
 
     def test_contentnode_channel_metadata_label_absent_in_internal_api(self):
         response = self._get(
@@ -688,6 +758,41 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     databases = "__all__"
 
     maxDiff = None
+
+    def test_revalidates_cached_search_after_base_language_upgrade(self):
+        language = content.Language.objects.create(id="es-MX", lang_code="es")
+        content.ContentNode.objects.filter(title="c1").update(lang=language)
+        url = reverse("kolibri:core:contentnode-list")
+        params = {"search": "c1", "max_results": 5}
+        paginate = OptionalContentNodePagination.get_paginated_response
+
+        def paginate_without_base_languages(paginator, data):
+            response = paginate(paginator, data)
+            del response.data["labels"]["base_languages"]
+            return response
+
+        with mock.patch.object(
+            OptionalContentNodePagination,
+            "get_paginated_response",
+            paginate_without_base_languages,
+        ):
+            before = self.client.get(url, params)
+        self.assertEqual(before.status_code, 200)
+        self.assertNotIn("base_languages", before.data["labels"])
+        etag = before["ETag"]
+        self.assertEqual(
+            self.client.get(url, params, HTTP_IF_NONE_MATCH=etag).status_code, 304
+        )
+
+        run_upgrades("0.20.0", "0.21.0", app_configs=[apps.get_app_config("content")])
+
+        after = self.client.get(url, params, HTTP_IF_NONE_MATCH=etag)
+        self.assertEqual(after.status_code, 200)
+        self.assertNotEqual(after["ETag"], etag)
+        self.assertEqual(
+            after.data["labels"]["base_languages"],
+            [{"id": "es", "lang_name": "Español"}],
+        )
 
     def test_base_language_proxy_uses_local_import_flags_for_returned_nodes(self):
         root = content.ContentNode.objects.get(title="root")

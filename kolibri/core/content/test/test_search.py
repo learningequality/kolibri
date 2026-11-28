@@ -7,6 +7,7 @@ from le_utils.constants import modalities
 from parameterized import parameterized
 
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import Language
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.search import _build_bitmask_data
 from kolibri.core.content.utils.search import annotate_label_bitmasks
@@ -106,7 +107,7 @@ class RandomMetadataLabelsTestCase(TestCase):
     def _run_test_for_qs(self, queryset):
         metadata_labels = get_available_metadata_labels(queryset)
         for field, LIST in metadata_labels.items():
-            if field != "channels" and field != "languages":
+            if field not in ("channels", "languages", "base_languages"):
                 all_labels = metadata_lookup[field]
                 for label in all_labels:
                     if label in LIST:
@@ -158,6 +159,50 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
                 )
         annotate_label_bitmasks(ContentNode.objects.all())
 
+    def test_base_language_labels(self):
+        legacy_languages = []
+        for language_id, code, name in (
+            ("es", "es", "Spanish"),
+            ("es-MX", "es", "Spanish (Mexico)"),
+            ("es-419", "es", "Spanish (Latin America)"),
+            ("fuv", "fuv", "Nigerian Fulfulde"),
+            ("qaa-ZZ", "qaa", "Later name"),
+            ("qaa-AA", "qaa", "First name"),
+            ("qab", "qab", None),
+        ):
+            Language.objects.create(id=language_id, lang_code=code, lang_name=name)
+            ContentNode.objects.create(
+                id=uuid4().hex,
+                content_id=uuid4().hex,
+                channel_id=uuid4().hex,
+                kind=content_kinds.VIDEO,
+                lang_id=language_id,
+            )
+            legacy_languages.append({"id": language_id, "lang_name": name})
+
+        Language.objects.create(id="de", lang_code="de", lang_name="German")
+        ContentNode.objects.create(
+            id=uuid4().hex,
+            content_id=uuid4().hex,
+            channel_id=uuid4().hex,
+            kind=content_kinds.TOPIC,
+            lang_id="de",
+        )
+        legacy_languages.append({"id": "de", "lang_name": "German"})
+
+        labels = get_available_metadata_labels(ContentNode.objects.all())
+        self.assertCountEqual(labels["languages"], legacy_languages)
+        self.assertEqual(
+            labels["base_languages"],
+            [
+                {"id": "de", "lang_name": "Deutsch"},
+                {"id": "es", "lang_name": "Español"},
+                {"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"},
+                {"id": "qaa", "lang_name": "First name"},
+                {"id": "qab", "lang_name": "qab"},
+            ],
+        )
+
     @parameterized.expand(
         (field, label) for field in metadata_lookup for label in metadata_lookup[field]
     )
@@ -171,9 +216,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         ]
         self.assertEqual(set(metadata_labels[field]), set(expected), f"{field} {label}")
 
-    @parameterized.expand(
-        field for field in [*metadata_lookup.keys(), "channels", "languages"]
-    )
+    @parameterized.expand([*metadata_lookup, "channels", "languages", "base_languages"])
     def test_labels_empty_queryset(self, field):
         try:
             labels = get_available_metadata_labels(ContentNode.objects.none())
