@@ -259,3 +259,62 @@ describe.each(numericWidgets)(
     });
   },
 );
+
+describe('untyped responses saved as authored', () => {
+  it('scores a label-image selection of Persian-digit choices', () => {
+    const item = makeItem(
+      {
+        'label-image 1': {
+          type: 'label-image',
+          graded: true,
+          options: {
+            choices: ['۱۲', '۳۴'],
+            imageUrl: '',
+            imageAlt: '',
+            imageHeight: 100,
+            imageWidth: 100,
+            markers: [{ answers: ['۱۲'], label: 'Marker 1', x: 10, y: 10 }],
+            hideChoicesFromInstructions: false,
+            multipleAnswers: false,
+          },
+        },
+      },
+      '[[☃ label-image 1]]',
+    );
+    const input = { 'label-image 1': { markers: [{ label: 'Marker 1', selected: ['۱۲'] }] } };
+    const saved = readUserInput(input, item.question.widgets, 'fa');
+    expect(saved).toEqual(input);
+    expect(isCorrect(scoreItem(item.question, saved, 'fa'))).toBe(true);
+  });
+
+  const radio = { 'radio 1': { type: 'radio' } };
+
+  it.each([
+    ['sorter', { 'sorter 1': { type: 'sorter' } }, { 'sorter 1': { options: ['۱۰', '۲'] } }],
+    ['orderer', { 'orderer 1': { type: 'orderer' } }, { 'orderer 1': { current: ['۳', '۴'] } }],
+    [
+      'matcher',
+      { 'matcher 1': { type: 'matcher' } },
+      { 'matcher 1': { left: ['۱'], right: ['۲٫۵'] } },
+    ],
+    [
+      'grouped radio',
+      { 'group 1': { type: 'group', options: { widgets: radio } } },
+      { 'group 1': { 'radio 1': { selectedChoiceIds: ['radio-choice-۱'] } } },
+    ],
+    ['unknown widget', {}, { 'radio 1': { selectedChoiceIds: ['radio-choice-۰'] } }],
+  ])('leaves %s input as typed', (_, widgets, userInput) => {
+    expect(readUserInput(userInput, widgets, 'fa')).toEqual(userInput);
+  });
+});
+
+describe('other typed responses read in the content language', () => {
+  it.each([
+    ['expression', '۲x+۲٫۵', '2x+2.5'],
+    ['matrix', { answers: [['۱', '۲٫۵']] }, { answers: [['1', '2.5']] }],
+    ['table', [['۳', '۴۵']], [['3', '45']]],
+  ])('reads Persian %s digits as ASCII', (type, typed, saved) => {
+    const id = `${type} 1`;
+    expect(readUserInput({ [id]: typed }, { [id]: { type } }, 'fa')[id]).toEqual(saved);
+  });
+});

@@ -6,6 +6,9 @@ import {
 import { localizeUserInput, normalizeUserInput } from 'kolibri-common/utils/numeralNormalization';
 
 const NUMERIC_WIDGET_TYPES = new Set(['numeric-input', 'input-number']);
+// perseus-core 28.2.0's UserInputRegistry widgets with learner-typed numbers
+// (free-response is prose); recheck on a Perseus upgrade.
+const TYPED_WIDGET_TYPES = new Set([...NUMERIC_WIDGET_TYPES, 'expression', 'matrix', 'table']);
 const PERCENT = '\\%';
 
 function numericText(widgets, id, input) {
@@ -32,23 +35,30 @@ function isGroup(widgets, id, input) {
   return widgets[id]?.type === 'group' && input != null;
 }
 
-function mapResponses(userInput, widgets, language, mapResponse) {
+function mapTypedResponses(userInput, widgets, language, mapTypedResponse) {
   return Object.fromEntries(
-    Object.entries(userInput).map(([id, input]) =>
-      isGroup(widgets, id, input)
-        ? [id, mapResponses(input, widgets[id].options.widgets, language, mapResponse)]
-        : [id, mapResponse(widgets, id, input, language)],
-    ),
+    Object.entries(userInput).map(([id, input]) => {
+      if (isGroup(widgets, id, input)) {
+        return [
+          id,
+          mapTypedResponses(input, widgets[id].options.widgets, language, mapTypedResponse),
+        ];
+      }
+      const isTyped = TYPED_WIDGET_TYPES.has(widgets[id]?.type);
+      return [id, isTyped ? mapTypedResponse(widgets, id, input, language) : input];
+    }),
   );
 }
 
-function readNumericResponse(widgets, id, input, language) {
+function readTypedResponse(widgets, id, input, language) {
   const text = numericText(widgets, id, input);
-  return text === null ? input : { ...input, currentValue: readNumber(text, language) ?? text };
+  return normalizeUserInput(
+    text === null ? input : { ...input, currentValue: readNumber(text, language) ?? text },
+  );
 }
 
 export function readUserInput(userInput, widgets, language) {
-  return normalizeUserInput(mapResponses(userInput, widgets, language, readNumericResponse));
+  return mapTypedResponses(userInput, widgets, language, readTypedResponse);
 }
 
 function retypeArabicDecimal(shown, language) {
@@ -69,10 +79,10 @@ export function isReadNumericResponse(widgets, id, input) {
 }
 
 export function localizeNumericResponses(userInput, widgets, language) {
-  return mapResponses(userInput, widgets, language, localizeNumericResponse);
+  return mapTypedResponses(userInput, widgets, language, localizeTypedResponse);
 }
 
-function localizeNumericResponse(widgets, id, input, language) {
+function localizeTypedResponse(widgets, id, input, language) {
   const stored = canonicalNumericText(widgets, id, input);
   return stored === null
     ? localizeOtherResponse(widgets, id, input, language)
