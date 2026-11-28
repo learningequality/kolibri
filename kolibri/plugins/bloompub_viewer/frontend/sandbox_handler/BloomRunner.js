@@ -1,10 +1,14 @@
 import ZipFile from 'kolibri-zip';
-import { DOMMapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
+import {
+  Mapper,
+  defaultFilePathMappers,
+  getDocumentPaths,
+  replaceDocumentPaths,
+  serializeDocument,
+} from 'kolibri-zip/src/fileUtils';
 import playerManifest from '../../bloom_build/bloom_build.json';
 
 const domParser = new DOMParser();
-
-const domSerializer = new XMLSerializer();
 
 // Attributes whose value Bloom Player looks up in the book's audio folder.
 const audioFileAttributes = [
@@ -35,8 +39,8 @@ function parse(fileContents, mimeType) {
   return domParser.parseFromString(fileContents.trim(), mimeType);
 }
 
-function getAudioFiles(fileContents, mimeType) {
-  return getAudioReferences(parse(fileContents, mimeType)).map(({ path }) => path);
+function encodeArchivePath(path) {
+  return path.split('/').map(encodeURIComponent).join('/');
 }
 
 function replaceAudioFiles(dom, packageFiles) {
@@ -60,40 +64,61 @@ function keepOriginalHrefs(dom, packageFiles) {
   }
 }
 
-function replaceBloomPaths(fileContents, packageFiles, mimeType) {
-  const dom = parse(fileContents, mimeType);
-  keepOriginalHrefs(dom, packageFiles);
-  replaceAudioFiles(dom, packageFiles);
-  if (mimeType === 'text/html') {
-    // Remove the namespace attribute from the root element
-    // as serializeToString adds it by default and without this
-    // it gets repeated.
-    dom.documentElement.removeAttribute('xmlns');
+class BloomDOMMapper extends Mapper {
+  constructor(file, zipcontentUrl) {
+    super(file);
+    this.dom = parse(file.toString(), file.mimeType);
+    this.iframeSources = [];
+    if (zipcontentUrl) {
+      this.zipcontentUrl = zipcontentUrl;
+      this.archiveBase = new URL(
+        `${window.location.protocol}//archive.invalid/${encodeArchivePath(file.name)}`,
+      );
+      this.iframeSources = Array.from(this.dom.querySelectorAll('iframe[src]'), iframe => {
+        const src = iframe.getAttribute('src');
+        iframe.removeAttribute('src');
+        return [iframe, src];
+      });
+    }
   }
-  return domSerializer.serializeToString(dom);
-}
 
-class BloomDOMMapper extends DOMMapper {
   getPaths() {
-    const paths = super.getPaths();
-    return paths.concat(getAudioFiles(this.file.toString(), this.file.mimeType));
+    const audioPaths = getAudioReferences(this.dom).map(({ path }) => path);
+    return getDocumentPaths(this.dom).concat(audioPaths);
   }
 
   replacePaths(packageFiles) {
-    const newFileContents = super.replacePaths(packageFiles);
-    return replaceBloomPaths(newFileContents, packageFiles, this.file.mimeType);
+    replaceDocumentPaths(this.dom, packageFiles);
+    for (const [iframe, src] of this.iframeSources) {
+      iframe.setAttribute('src', this.resolveIframeSrc(src));
+    }
+    const dom = parse(serializeDocument(this.dom), this.file.mimeType);
+    keepOriginalHrefs(dom, packageFiles);
+    replaceAudioFiles(dom, packageFiles);
+    return serializeDocument(dom);
+  }
+
+  resolveIframeSrc(src) {
+    if (/^[\t\n\f\r ]*$/.test(src)) {
+      return src;
+    }
+    try {
+      const base = this.archiveBase;
+      const target = new URL(src, base);
+      const inheritsArchiveOrigin =
+        target.origin === base.origin &&
+        new URL(src, `${base.protocol}//relative.invalid/`).origin !== base.origin;
+      return inheritsArchiveOrigin
+        ? this.zipcontentUrl + target.href.slice(base.origin.length)
+        : target.href;
+    } catch (error) {
+      if (error.name !== 'TypeError') {
+        throw error;
+      }
+      return src;
+    }
   }
 }
-
-// Override the default file path mappers to include our custom BloomDOMMapper
-// which handles the special audio file references.
-const filePathMappers = {
-  ...defaultFilePathMappers,
-  htm: BloomDOMMapper,
-  html: BloomDOMMapper,
-  xml: BloomDOMMapper,
-  xhtml: BloomDOMMapper,
-};
 
 /*
  * Class that manages loading, parsing, and running an Bloom file.
@@ -115,14 +140,33 @@ export default class BloomRunner {
     this.iframe = iframe;
     // This is the path to the Bloompub file which we load in its entirety.
     this.filepath = filepath;
-    // A fallback URL to the zipcontent endpoint for this Bloom file
-    this.zipcontentUrl = new URL(
-      `../../zipcontent/${this.filepath.split('/').pop()}`,
-      window.location,
-    ).href;
+    const storageUrl = new URL(this.filepath, window.location);
+    const baseurl = storageUrl.searchParams.get('baseurl');
+    const archivePath = `${baseurl ? encodeURIComponent(baseurl) + '/' : ''}${storageUrl.pathname.split('/').pop()}`;
+    this.zipcontentUrl = new URL(`../../zipcontent/${archivePath}`, window.location).href;
+    const zipcontentUrl = this.zipcontentUrl;
+    class HtmDOMMapper extends BloomDOMMapper {
+      constructor(file) {
+        super(file, file.name === bookName ? zipcontentUrl : undefined);
+      }
+    }
+    const filePathMappers = {
+      ...defaultFilePathMappers,
+      htm: HtmDOMMapper,
+      html: BloomDOMMapper,
+      xml: BloomDOMMapper,
+      xhtml: BloomDOMMapper,
+    };
     const largeFileUrlGenerator = filePath => `${this.zipcontentUrl}/${filePath}`;
     this.zip = new ZipFile(this.filepath, { filePathMappers, largeFileUrlGenerator });
-    await this.processFiles();
+    const names = await this.zip.getFileNames();
+    const bookName = names.includes('index.htm')
+      ? 'index.htm'
+      : names.find(name => name.endsWith('.htm'));
+    if (!bookName) {
+      throw new Error('No .htm book found in the Bloom archive');
+    }
+    await this.processFiles(bookName);
     this.initBloom();
   }
 
@@ -152,12 +196,10 @@ export default class BloomRunner {
   /*
    * Get the htm file, distribution file, and meta.json file from the zip.
    */
-  processFiles() {
+  processFiles(bookName) {
     return Promise.all([
-      // The htm file does not have a predictable name, so we find
-      // the first one in the zip.
-      this.zip.filesFromExtension('.htm').then(htmFile => {
-        this.contentUrl = htmFile[0].toUrl();
+      this.zip.file(bookName).then(book => {
+        this.contentUrl = book.toUrl();
       }),
       this.zip.file('.distribution').then(distributionFile => {
         this.distributionUrl = distributionFile?.toUrl();
