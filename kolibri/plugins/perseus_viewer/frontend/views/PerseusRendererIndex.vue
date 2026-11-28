@@ -692,7 +692,6 @@
         if (!this.itemRenderer) {
           return {};
         }
-        // Normalize any non-Western numerals so saved state is always ASCII.
         const userInput = readUserInput(
           this.itemRenderer.getUserInput(),
           this.item.question.widgets,
@@ -760,7 +759,6 @@
        */
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
-          // getAnswerState normalizes non-Western numerals and restores image URLs.
           const answerState = this.getAnswerState();
           const userInput = answerState.userInput;
           const widgetIds = this.itemRenderer.getWidgetIds();

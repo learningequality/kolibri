@@ -86,6 +86,7 @@ async function mountRenderer(
     interactive = true,
     onInteraction,
     showAnswerOnStart = false,
+    lang = null,
   } = {},
 ) {
   let instance = null;
@@ -95,6 +96,7 @@ async function mountRenderer(
     interactive,
     showCorrectAnswer,
     answerState,
+    lang,
   });
   useContentViewer.mockImplementation(() => ({
     ...viewerProps,
@@ -536,6 +538,49 @@ describe('PerseusRendererIndex with fixture items', () => {
     field.addEventListener('keyup', rendered.instance().handleMathFieldKey);
     await fireEvent.keyUp(field, { key: '7' });
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('selects a restored radio choice in a language with its own digits', async () => {
+    const itemData = embellishedItemData({ packageFiles: {}, sourceId: 'radio' });
+    await mountRenderer(itemData, {
+      lang: { id: 'fa' },
+      answerState: { userInput: { 'radio 1': { selectedChoiceIds: ['radio-choice-1'] } } },
+    });
+    const [first, second] = screen.getAllByRole('listitem');
+    await waitFor(() =>
+      expect(within(second).getByRole('button')).toHaveAttribute('aria-pressed', 'true'),
+    );
+    expect(within(first).getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('shows restored label-image choices in a language with its own digits', async () => {
+    const fixture = sandboxFixtures.find(item => item.category === 'Label image');
+    const item = JSON.parse(fixture.item);
+    const [widget] = Object.values(item.question.widgets);
+    const choices = ['12', '34', '56', '78'];
+    widget.options.choices = choices;
+    widget.options.markers.forEach((marker, index) => {
+      marker.answers = [choices[(index + 1) % choices.length]];
+    });
+    const [id] = Object.keys(item.question.widgets);
+    const markers = widget.options.markers.map((marker, index) => ({
+      label: marker.label,
+      selected: [choices[index]],
+    }));
+    await mountRenderer(
+      {
+        perseusItemString: JSON.stringify(item),
+        packageFiles: fixture.files,
+        sourceId: fixture.id,
+      },
+      { lang: { id: 'fa' }, answerState: { userInput: { [id]: { markers } } } },
+    );
+    await waitFor(() => expect(screen.getAllByRole('combobox')).toHaveLength(markers.length), {
+      timeout: 5000,
+    });
+    screen.getAllByRole('combobox').forEach((marker, index) => {
+      expect(marker).toHaveTextContent(choices[index]);
+    });
   });
 
   it('restores the initial graph when leaving a solution shown at mount', async () => {

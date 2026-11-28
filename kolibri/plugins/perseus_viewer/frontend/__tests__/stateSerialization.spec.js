@@ -78,6 +78,7 @@ describe('state serialization', () => {
     }
 
     it.each([
+      ['fa', '12.5', '۱۲٫۵'],
       ['fr', '1234.5', '1234,5'],
       ['ar-EG', '3.5', '٣٫٥'],
       ['ar-EG', '3e8', '3e8'],
@@ -93,11 +94,67 @@ describe('state serialization', () => {
       expect(restore(stored, language)).toBe(shown);
     });
 
+    it('shows an input-number response in Persian digits', () => {
+      const restored = localizeNumericResponses(
+        { 'input-number 1': { currentValue: '12.5' } },
+        { 'input-number 1': { type: 'input-number' } },
+        'fa',
+      );
+      expect(restored['input-number 1'].currentValue).toBe('۱۲٫۵');
+    });
+
     it('shows a numeric response inside a group', () => {
       const groupWidgets = { 'group 1': { type: 'group', options: { widgets } } };
       const userInput = { 'group 1': { 'numeric-input 1': { currentValue: '1234.5' } } };
       const restored = localizeNumericResponses(userInput, groupWidgets, 'fr');
       expect(restored['group 1']['numeric-input 1'].currentValue).toBe('1234,5');
+    });
+  });
+
+  describe('other typed responses restored in the content language', () => {
+    it.each([
+      ['expression', '2x+10', '۲x+۱۰'],
+      ['matrix', { answers: [['1', '20']] }, { answers: [['۱', '۲۰']] }],
+      ['table', [['3', '45']], [['۳', '۴۵']]],
+    ])('shows %s digits in Persian', (type, stored, shown) => {
+      const restored = localizeNumericResponses(
+        { [`${type} 1`]: stored },
+        { [`${type} 1`]: { type } },
+        'fa',
+      );
+      expect(restored[`${type} 1`]).toEqual(shown);
+    });
+  });
+
+  describe('untyped responses restored unchanged', () => {
+    const radio = { 'radio 1': { type: 'radio' } };
+
+    it.each([
+      ['radio', radio, { 'radio 1': { selectedChoiceIds: ['radio-choice-0'] } }],
+      [
+        'label-image',
+        { 'label-image 1': { type: 'label-image' } },
+        { 'label-image 1': { markers: [{ label: 'Marker 1', selected: ['12'] }] } },
+      ],
+      ['sorter', { 'sorter 1': { type: 'sorter' } }, { 'sorter 1': { options: ['10', '2'] } }],
+      [
+        'orderer',
+        { 'orderer 1': { type: 'orderer' } },
+        { 'orderer 1': { current: ['![](blob:http://localhost/1234)', '3'] } },
+      ],
+      [
+        'matcher',
+        { 'matcher 1': { type: 'matcher' } },
+        { 'matcher 1': { left: ['1'], right: ['2'] } },
+      ],
+      [
+        'grouped radio',
+        { 'group 1': { type: 'group', options: { widgets: radio } } },
+        { 'group 1': { 'radio 1': { selectedChoiceIds: ['radio-choice-1'] } } },
+      ],
+      ['unknown widget', {}, { 'radio 1': { selectedChoiceIds: ['radio-choice-0'] } }],
+    ])('leaves %s input as saved', (_, widgets, userInput) => {
+      expect(localizeNumericResponses(userInput, widgets, 'fa')).toEqual(userInput);
     });
   });
 
