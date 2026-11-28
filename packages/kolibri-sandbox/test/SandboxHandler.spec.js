@@ -173,8 +173,8 @@ describe('SandboxHandler', () => {
 
     class NamespacedShim extends SandboxShim {
       static shimName = 'namespacedShim';
-      initialize(contentWindow, { contentNamespace }) {
-        contentWindow.namespacedShim = { contentNamespace };
+      initialize(contentWindow, { contentNamespace, version }) {
+        contentWindow.namespacedShim = { contentNamespace, version };
       }
     }
 
@@ -190,10 +190,11 @@ describe('SandboxHandler', () => {
       }
     }
 
-    it("hands the sandbox's content namespace to every shim", () => {
+    it("hands the sandbox's content namespace and version to its shims", () => {
       const handler = new NamespacedHandler({
         mediator: createMediator(window),
         contentNamespace: 'abc123',
+        version: '0.20.0',
       });
       const originalIndexedDB = { open: jest.fn() };
       const contentWindow = { document: {}, indexedDB: originalIndexedDB };
@@ -202,7 +203,10 @@ describe('SandboxHandler', () => {
       contentWindow.indexedDB.open('mydb', 1);
 
       expect(originalIndexedDB.open).toHaveBeenCalledWith('abc123-mydb', 1);
-      expect(contentWindow.namespacedShim).toEqual({ contentNamespace: 'abc123' });
+      expect(contentWindow.namespacedShim).toEqual({
+        contentNamespace: 'abc123',
+        version: '0.20.0',
+      });
     });
 
     it('attempts every shim and then reports the ones that failed', () => {

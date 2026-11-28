@@ -82,10 +82,6 @@ import urls from 'kolibri/urls';
 
 export default new Resource({
   name: 'contentnode',
-  async fetchRandomCollection(params) {
-    const { data } = await this.request({ action: 'random', params });
-    return data;
-  },
   async fetchDescendantsAssessments(ids) {
     const { data } = await this.request({ action: 'descendants_assessments', params: { ids } });
     return data;
@@ -125,7 +121,7 @@ export default new Resource({
   cache: {},
   // A cache hit ignores `params`.
   async retrieve(id, { params } = {}) {
-    if (this.cache[id]) {
+    if (Object.hasOwn(this.cache, id)) {
       return cloneDeep(this.cache[id]);
     }
     const data = await Resource.prototype.retrieve.call(this, id, { params });

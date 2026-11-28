@@ -120,13 +120,13 @@ export default class SandboxHandler {
    * @private
    */
   _initializeShims(contentWindow) {
-    const { contentNamespace } = this.sandbox;
+    const { contentNamespace, version } = this.sandbox;
     const fatal = new Set(this.constructor.shims.map(ShimClass => ShimClass.shimName));
     const failed = [];
     for (const shim of Object.values(this.shims)) {
       const shimName = shim.constructor.shimName;
       try {
-        shim.initialize(contentWindow, { contentNamespace });
+        shim.initialize(contentWindow, { contentNamespace, version });
       } catch (e) {
         console.error(`Failed to initialize shim ${shimName}:`, e); // eslint-disable-line no-console
         if (fatal.has(shimName)) {

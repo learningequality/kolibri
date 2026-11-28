@@ -47,6 +47,7 @@ const MOCK_DEFAULTS = {
   contentDirection: 'ltr',
   contentIsRtl: false,
   itemData: null,
+  hostData: null,
   itemId: null,
   answerState: null,
   allowHints: false,

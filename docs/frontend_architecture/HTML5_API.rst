@@ -24,210 +24,56 @@ A large number of educational web content relies on the SCORM API to log data ab
 Custom Navigation
 -----------------
 
-The purpose of the ``KolibriShim`` extension of our HTML5 API is to allow a sandboxed HTML5 app to safely request the main Kolibri application's data.
+Use ``window.kolibri`` from an embedded HTML5 app. ``version`` is the host Kolibri version string. All methods return promises.
 
-External/partner product teams can create HTML5 applications that are fully embeddable within Kolibri and can read Kolibri content data, which they otherwise wouldn't be able to access. This opens up possibilities for creative ways in which learners can engage with content, because partners can create any type of app they want. The app could be something completely new, developed for a content source that we are adding to the platform, or it could be a branded, offline recreation of a partner's existing learning app that previously would not have been able to exist on Kolibri.
+.. list-table:: Content queries
+   :header-rows: 1
 
-When a user has permissions to access a custom channel, and they click on it in the main learn tab, rather than viewing `normal Kolibri`, they will experience a full-screen HTML5 app. One `out-of-the-box` user interaction is the ``navigateTo()`` function, which opens  a modal that displays a content node. For other data fetching requests, the app, not Kolibri, has the responsibilty of determining what to do with that data.
+   * - Method on ``window.kolibri``
+     - GET endpoint
+   * - ``contentNode.list(params)``
+     - ``/api/content/contentnode/``
+   * - ``contentNode.retrieve(id, params)``
+     - ``/api/content/contentnode/<id>/``
+   * - ``contentNode.tree(id, params)``
+     - ``/api/content/contentnode_tree/<id>/``
 
+Pass endpoint query parameters as an optional plain object. Keys and responses are not renamed, and no channel filter is added. Use ``'self'`` as an ID or parameter value (for example, ``parent``, ``descendant_of`` or an item of ``ids``) to refer to the node running the app.
 
-Basic API
-~~~~~~~~~
-
-
-Access the API from within an HTML5 app by using ``window.kolibri.[function]``
-
-Functions:
+Set ``max_results`` (at most 100) to get a paginated ``{ more, results, labels }`` response. Pass ``more`` directly to ``list`` for the next page. Without ``max_results``, ``list`` returns an array.
 
 .. code-block:: javascript
 
-    /**
-    * Type definition for Language metadata
-    * @typedef {Object} Language
-    * @property {string} id - an IETF language tag
-    * @property {string} lang_code - the ISO 639‑1 language code
-    * @property {string} lang_subcode - the regional identifier
-    * @property {string} lang_name - the name of the language in that language
-    * @property {('ltr'|'rtl'|)} lang_direction - Direction of the language's script,
-    * top to bottom is not supported currently
-    */
+   const { contentNode } = window.kolibri;
+   const page = await contentNode.list({ parent: 'self', max_results: 20 });
+   if (page.more) {
+     const nextPage = await contentNode.list(page.more);
+   }
 
-    /**
-    * Type definition for ContentNode metadata
-    * @typedef {Object} ContentNode
-    * @property {string} id - unique id of the ContentNode
-    * @property {string} channel_id - unique channel_id of the channel that the ContentNode is in
-    * @property {string} content_id - identifier that is common across all instances of this resource
-    * @property {string} title - A title that summarizes this ContentNode for the user
-    * @property {string} description - detailed description of the ContentNode
-    * @property {string} author - author of the ContentNode
-    * @property {string} thumbnail_url - URL for the thumbnail for this ContentNode,
-    * this may be any valid URL format including base64 encoded or blob URL
-    * @property {boolean} available - Whether the ContentNode has all necessary files for rendering
-    * @property {boolean} coach_content - Whether the ContentNode is intended only for coach users
-    * @property {Language} lang - The primary language of the ContentNode
-    * @property {string} license_description - The description of the license, which may be localized
-    * @property {string} license_name - The human readable name of the license, localized
-    * @property {string} license_owner - The name of the person or organization that holds copyright
-    * @property {number} num_coach_contents - Number of coach contents that are descendants of this
-    * @property {string} parent - The unique id of the parent of this ContentNode
-    * @property {number} sort_order - The order of display for this node in its channel
-    * if depth recursion was not deep enough
-    */
+- ``navigateTo(nodeId)`` asks the host to open the node, rejecting with the endpoint's status if the node cannot be retrieved. The host must bind a navigation handler.
+- ``requestData()`` returns the embedding host's data, or ``null`` if it supplies none.
+- ``dependencyUrl(path)`` returns a URL for a file belonging to the calling node. It first matches ``<checksum>.<ext>`` against the node's files, returning a ``blob:`` URL of its contents, then looks for ``path`` inside its ``html5_dependency`` ZIP files.
 
-    /**
-    * Type definition for pagination more object
-    * @typedef {Object} MoreObject
-    * @property {string} cursor - the cursor object to request more
-    */
+A failed method rejects with an ``Error`` whose ``status`` indicates the failure:
 
-    /**
-    * Type definition for pagination object
-    * @typedef {Object} PageResult
-    * @property {MoreObject} more - the context object to query more
-    * @property {number} maxResults - the maximum number of nodes per request
-    * @property {ContentNode[]} results - the array of ContentNodes for this page
-    */
+.. list-table:: Error statuses
+   :header-rows: 1
 
-    /**
-    * Type definition for channel metadata object
-    * @typedef {Object} ChannelMetadata
-    * @property {string} id - the channel id
-    * @property {string} title - the channel title
-    * @property {string} description - the channel description
-    * @property {string} thumbnail - the channel thumbnail
-    */
-
-    /**
-    * Type definition for channel filter options object
-    * @typedef {Object} ChannelFilterOptions
-    * @property {string[]} availableAuthors - list of authors on this channel
-    * @property {string[]} availableTags - list of tags in this channel
-    * @property {string[]} availableKinds - list of kinds in this channel
-    */
-
-    /**
-    * Type definition for Theme options
-    * properties TBD
-    * @typedef {Object} Theme
-    */
-
-    /**
-    * Type definition for NavigationContext
-    * This can have arbitrary properties as defined
-    * by the navigating app that it uses to resume its state
-    * Should be able to be encoded down to <1600 characters using
-    * an encoding function something like 'encode context' above
-    * @typedef {Object} NavigationContext
-    * @property {string} node_id - The current node_id that is being displayed,
-    * custom apps should handle this as it may be used to
-    * generate links externally to jump to this state
-    */
-
-    /*
-    * Method to query contentnodes from Kolibri and return
-    * an array of matching metadata
-    * @param {Object} options - The different options to filter by
-    * @param {string} [options.parent] - id of the parent node to filter by, or 'self'
-    * @param {string} [options.ids] - an array of ids to filter by
-    * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
-    */
-    getContentByFilter(options)
-
-    /*
-    * Method to query the next page of contentnodes from Kolibri and return
-    * an array
-    * @param {MoreObject} options - a more object returned in a call to getContentByFilter
-    * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
-    */
-    getContentPage(options)
-
-    /*
-    * Method to query a single contentnode from Kolibri and return
-    * a metadata object
-    * @param {string} id - id of the ContentNode
-    * @return {Promise<ContentNode>} - a Promise that resolves to a ContentNode
-    */
-    getContentById(id)
-
-    /*
-    * Method to search for contentnodes on Kolibri and return
-    * an array of matching metadata
-    * @param {Object} options - The different options to search by
-    * @param {string} [options.keyword] - search term for key word search
-    * @param {string} [options.under] - id of topic to search under, or 'self'
-    * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
-    */
-    searchContent(options)
-
-    /*
-    * Method to set a default theme for any content rendering initiated by this app
-    * @param {Theme} options - The different options for custom themeing
-    * @param {string} [options.appBarColor] - Color for app bar atop the renderer
-    * @param {string} [options.textColor] - Color for the text or icon
-    * @param {string} [options.backdropColor] - Color for modal backdrop
-    * @param {string} [options.backgroundColor] - Color for modal background
-    * @return {Promise} - a Promise that resolves when the theme has been applied
-    */
-    themeRenderer(options)
-
-    /*
-    * Method to allow navigation to or rendering of a specific node
-    * has optional parameter context that can update the URL for a custom context.
-    * When this is called for a resource node in the custom navigation context
-    * this will launch a renderer overlay to maintain the current state, and update the
-    * query parameters for the URL of the custom context to indicate the change
-    * If called for a topic in a custom context or outside of a custom context
-    * this will simply prompt navigation to that node in Kolibri.
-    * @param {string} nodeId - id of the parent node to navigate to
-    * @param {NavigationContext=} context - optional context describing the state update
-    * if node_id is missing from the context, it will be automatically filled in by this method
-    * @return {Promise} - a Promise that resolves when the navigation has completed
-    */
-    navigateTo(nodeId, context)
-
-    /*
-    * Method to allow updating of stored state in the URL
-    * @param {NavigationContext} context - context describing the state update
-    * @return {Promise} - a Promise that resolves when the context has been updated
-    */
-    updateContext(context)
-
-    /*
-    * Method to request the current context state
-    * @return {Promise<NavigationContext>} - a Promise that resolves
-    * when the context has been updated
-    */
-    getContext()
-
-    /*
-    * Method to return the current version of Kolibri and hence the API available.
-    * @return {Promise<string>} - A version string
-    */
-    getVersion()
-
-    /*
-    * Method to query channel metadata from Kolibri
-    * @return {Promise<ChannelMetadata>} - a Promise that resolves to ChannelMetadata
-    */
-    getChannelMetadata()
-
-    /*
-    * Method to query channel filter options from Kolibri
-    * @return {Promise<ChannelFilterOptions>} - a Promise that resolves to ChannelFilterOptions
-    */
-    getChannelFilterOptions()
-
-    /*
-    * Method to query random contentnodes from Kolibri and return an array
-    * of matching metadata
-    * @param {Object} options - The different options to filter by
-    * @param {string} [options.parent] - id of the parent node to filter by, or 'self'
-    * @param {number} [options.maxResults=10] - the maximum number of nodes per request
-    * @param {string[]} [options.kinds] - an array of kinds to filter by
-    * @param {boolean} [options.onlyContent] - set to true to query only content nodes
-    * @param {boolean} [options.limitToChannel=true] - true to limit the
-    * results to the topic channel
-    * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
-    */
-    getRandomNodes(options)
+   * - Status
+     - Meaning
+   * - Endpoint status
+     - The content endpoint rejected the request.
+   * - ``400``
+     - Invalid arguments or a request that could not be sent. IDs and paths must be strings.
+   * - ``404``
+     - No dependency matches the path.
+   * - ``500``
+     - The request failed before receiving an HTTP response, or the handler failed without a status.
+   * - ``501``
+     - No handler is bound for the call.
+   * - ``502``
+     - No dependency matches the path, and a dependency ZIP could not be listed.
+   * - ``503``
+     - The shim was destroyed with the request still pending.
+   * - ``504``
+     - No reply within 30 seconds.

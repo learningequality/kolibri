@@ -33,6 +33,17 @@ describe('ContentNodeResource', () => {
       const stillCached = await ContentNodeResource.retrieve('node-1');
       expect(stillCached.title).toEqual('Node 1');
     });
+
+    it.each(['constructor', '__proto__', 'toString'])(
+      'requests a node whose ID is the Object property %s',
+      async id => {
+        const notFound = { response: { status: 404 } };
+        client.mockRejectedValue(notFound);
+
+        await expect(ContentNodeResource.retrieve(id)).rejects.toBe(notFound);
+        expect(client).toHaveBeenCalledTimes(1);
+      },
+    );
   });
 
   describe('list', () => {

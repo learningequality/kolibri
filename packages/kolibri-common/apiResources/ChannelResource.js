@@ -8,8 +8,4 @@ import { Resource } from 'kolibri/apiResource';
  */
 export default new Resource({
   name: 'channel',
-  async fetchFilterOptions(id) {
-    const { data } = await this.request({ action: 'filter_options', params: { id } });
-    return data;
-  },
 });

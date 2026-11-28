@@ -54,6 +54,92 @@ describe('SandboxShim', () => {
     });
   });
 
+  describe('request', () => {
+    let remote;
+    let shim;
+
+    beforeEach(() => {
+      remote = { postMessage: jest.fn() };
+      shim = new TestShim(createMediator(remote));
+    });
+
+    afterEach(() => {
+      shim.destroy();
+      jest.useRealTimers();
+      jest.restoreAllMocks();
+    });
+
+    it('should send the request on the shim namespace and return the reply', async () => {
+      remote.postMessage.mockImplementation((message, origin, [port]) => {
+        port.postMessage({ result: 'answer' });
+      });
+
+      await expect(shim.request('lookup', { id: 'abc' })).resolves.toBe('answer');
+      expect(remote.postMessage).toHaveBeenCalledWith(
+        { nameSpace: 'testShim', event: 'lookup', data: { id: 'abc' } },
+        '*',
+        [expect.any(MessagePort)],
+      );
+    });
+
+    it('should close the reply port and reject with 504 after 30 seconds', async () => {
+      jest.useFakeTimers();
+      const close = jest.spyOn(MessagePort.prototype, 'close');
+      const reply = shim.request('lookup');
+      const settled = jest.fn();
+      reply.then(settled, settled);
+
+      await jest.advanceTimersByTimeAsync(29999);
+      expect(settled).not.toHaveBeenCalled();
+
+      const [port] = remote.postMessage.mock.calls[0][2];
+      await jest.advanceTimersByTimeAsync(1);
+      port.postMessage({ result: 'late' });
+
+      await expect(reply).rejects.toMatchObject({ status: 504 });
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      { invalid: () => {} },
+      {
+        get invalid() {
+          throw null;
+        },
+      },
+    ])('should reject with 400 when the request cannot be cloned (%#)', async data => {
+      const { port1, port2 } = new MessageChannel();
+      remote.postMessage.mockImplementation((message, origin, ports) => {
+        port1.postMessage(message, ports);
+      });
+
+      try {
+        const reply = shim.request('lookup', data);
+        await expect(reply).rejects.toBeInstanceOf(Error);
+        await expect(reply).rejects.toMatchObject({ status: 400 });
+      } finally {
+        port1.close();
+        port2.close();
+      }
+    });
+
+    it('should reject every outstanding request with 503 without affecting settled requests', async () => {
+      remote.postMessage.mockImplementationOnce((message, origin, [port]) => {
+        port.postMessage({ result: 'answer' });
+      });
+      const completed = shim.request('lookup');
+      await expect(completed).resolves.toBe('answer');
+
+      const outstanding = [shim.request('lookup'), shim.request('lookup')];
+      shim.destroy();
+
+      await Promise.all(
+        outstanding.map(reply => expect(reply).rejects.toMatchObject({ status: 503 })),
+      );
+      await expect(completed).resolves.toBe('answer');
+    });
+  });
+
   describe('getProgress', () => {
     it('should return null by default', () => {
       const mockMediator = { registerMessageHandler: jest.fn() };

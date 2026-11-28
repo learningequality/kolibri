@@ -1,30 +1,26 @@
 <template>
 
   <div class="iframe-container">
-    <iframe
-      ref="iframe"
-      class="iframe"
-      sandbox="allow-scripts allow-same-origin"
-      :style="{ backgroundColor: 'var(--palette-grey-v200)' }"
-      frameBorder="0"
-      :src="rooturl"
-      :title="$tr('contentFrameTitle')"
-    >
-    </iframe>
+    <ContentViewer
+      :key="topic.id"
+      class="content-viewer"
+      :contentNode="topic"
+      @navigateTo="navigateTo"
+      @loaded="contentLoaded = true"
+      @error="onError"
+    />
     <UiAlert
-      v-if="errorMessage"
+      v-if="channelLoadFailed"
       class="error"
       type="error"
       :dismissible="false"
     >
-      {{ errorMessage }}
+      {{ channelLoadError$() }}
     </UiAlert>
     <ContentModal
-      v-if="overlayIsOpen"
-      :key="currentContent.id"
+      v-if="currentContent"
       :contentNode="currentContent"
-      :channelTheme="channelTheme"
-      @close="overlayIsOpen = false"
+      @close="currentContent = null"
     />
   </div>
 
@@ -33,395 +29,92 @@
 
 <script>
 
-  import { get } from '@vueuse/core';
+  import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+  import { useRouter } from 'vue-router/composables';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import coreApp from 'kolibri';
-  import urls from 'kolibri/urls';
-  import Sandbox from 'kolibri-sandbox';
-  import { now } from 'kolibri/utils/serverClock';
-  import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+  import logger from 'kolibri-logging';
+  import { ContentErrorConstants, ContentNodeKinds } from 'kolibri/constants';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-  import router from 'kolibri/router';
-  import { ContentNodeKinds } from 'kolibri/constants';
-  import { events, nameSpace, MessageStatuses } from 'kolibri-sandbox/base';
-  import useChannels from 'kolibri-common/composables/useChannels';
-  import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import useContentLink from '../../composables/useContentLink';
   import ContentModal from './ContentModal';
 
-  const { channelsMap } = useChannels();
+  const logging = logger.getLogger(__filename);
 
-  function createReturnMsg({ message, data, err }) {
-    // Infer status from data or err
-    const status = data ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
-    return {
-      nameSpace,
-      event: events.DATARETURNED,
-      data: {
-        message_id: message.message_id,
-        type: 'response',
-        data: data || null,
-        err: err || null,
-        status,
-      },
-    };
-  }
+  const HANDLER_ERROR = 'HANDLER_ERROR';
+
+  const { channelLoadError$ } = createTranslator('CustomContentRenderer', {
+    channelLoadError: {
+      message: 'Kolibri is unable to load this channel',
+      context: 'Error shown when a custom channel fails to load in the content viewer.',
+    },
+  });
 
   export default {
     name: 'CustomContentRenderer',
-    components: {
-      ContentModal,
-      UiAlert,
-    },
-    setup() {
+    components: { ContentModal, UiAlert },
+    setup(props) {
+      const router = useRouter();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { genContentLinkBackLinkCurrentPage };
+      const currentContent = shallowRef(null);
+      const channelLoadFailed = ref(false);
+      const contentLoaded = ref(false);
+
+      let latestNavigation = null;
+
+      watch(
+        () => props.topic.id,
+        () => {
+          channelLoadFailed.value = false;
+          contentLoaded.value = false;
+          currentContent.value = null;
+          latestNavigation = null;
+        },
+      );
+
+      onBeforeUnmount(() => {
+        latestNavigation = null;
+      });
+
+      async function navigateTo({ nodeId }) {
+        const navigation = {};
+        latestNavigation = navigation;
+        try {
+          const contentNode = await ContentNodeResource.retrieve(nodeId);
+          if (navigation !== latestNavigation) {
+            return;
+          }
+          if (contentNode.kind === ContentNodeKinds.TOPIC) {
+            await router.push(genContentLinkBackLinkCurrentPage(contentNode.id));
+          } else {
+            currentContent.value = contentNode;
+          }
+        } catch (error) {
+          logging.error(`Could not navigate to content node ${nodeId}`, error);
+        }
+      }
+
+      function onError(error) {
+        const channelError =
+          error?.error === HANDLER_ERROR || error?.error === ContentErrorConstants.LOADING_ERROR;
+        if (channelError && !contentLoaded.value) {
+          channelLoadFailed.value = true;
+        }
+      }
+
+      return {
+        currentContent,
+        navigateTo,
+        onError,
+        contentLoaded,
+        channelLoadFailed,
+        channelLoadError$,
+      };
     },
     props: {
       topic: {
         type: Object,
         required: true,
-      },
-    },
-    data() {
-      return {
-        overlayIsOpen: false,
-        channelTheme: null,
-        errorMessage: null,
-      };
-    },
-    computed: {
-      context() {
-        const fetchedEncodedContext = this.$route.query;
-        return JSON.stringify(decodeURI(fetchedEncodedContext));
-      },
-      rooturl() {
-        return urls.sandbox();
-      },
-      currentChannel() {
-        return get(channelsMap)[this.topic.channel_id];
-      },
-      zipFile() {
-        return this.topic.files.find(f => f.extension === 'zip');
-      },
-      handlerUrl() {
-        return this.zipFile ? coreApp.getSandboxHandlerUrl(this.zipFile.preset) : null;
-      },
-    },
-    mounted() {
-      if (!this.handlerUrl) {
-        this.errorMessage = this.$tr('viewerNotAvailable');
-        return;
-      }
-      this.sandbox = new Sandbox({ iframe: this.$refs.iframe, now });
-      let channelLoaded = false;
-      this.sandbox.on(events.LOADING, isLoading => {
-        channelLoaded = channelLoaded || !isLoading;
-      });
-      this.sandbox.on(events.ERROR, () => {
-        if (!channelLoaded) {
-          this.errorMessage = this.$tr('channelLoadError');
-        }
-      });
-      this.sandbox.on(events.COLLECTIONREQUESTED, message => {
-        this.fetchContentCollection(message);
-      });
-      this.sandbox.on(events.COLLECTIONPAGEREQUESTED, message => {
-        this.fetchMore(message);
-      });
-      this.sandbox.on(events.MODELREQUESTED, message => {
-        this.fetchContentModel.call(this, message);
-      });
-      this.sandbox.on(events.NAVIGATETO, message => {
-        this.navigateTo.call(this, message);
-      });
-      this.sandbox.on(events.CONTEXT, message => {
-        this.getOrUpdateContext.call(this, message);
-      });
-      this.sandbox.on(events.THEMECHANGED, message => {
-        this.updateTheme.call(this, message);
-      });
-      this.sandbox.on(events.SEARCHRESULTREQUESTED, message => {
-        this.fetchSearchResult.call(this, message);
-      });
-      this.sandbox.on(events.KOLIBRIVERSIONREQUESTED, message => {
-        this.sendKolibriVersion.call(this, message);
-      });
-      this.sandbox.on(events.CHANNELMETADATAREQUESTED, message => {
-        this.sendChannelMetadata.call(this, message);
-      });
-      this.sandbox.on(events.CHANNELFILTEROPTIONSREQUESTED, message => {
-        this.sendChannelFilterOptions.call(this, message);
-      });
-      this.sandbox.on(events.RANDOMCOLLECTIONREQUESTED, message => {
-        this.sendRandomCollection.call(this, message);
-      });
-      // A custom channel is an HTML5 zip, so it renders through the handler registered
-      // for its preset; Html5ZipHandler's Kolibri shim is what supplies window.kolibri.
-      this.sandbox.initialize(
-        {},
-        {},
-        urls.zipContentUrl(this.zipFile, 'index.html'),
-        this.zipFile.checksum,
-        { handlerUrl: this.handlerUrl, polyfillUrl: urls.sandboxPolyfills() },
-      );
-    },
-    beforeDestroy() {
-      this.sandbox?.destroy();
-    },
-    methods: {
-      // helper functions for fetching data from kolibri
-      // called in mainClient.js
-      fetchContentCollection(message) {
-        const { options } = message;
-        const { kinds, onlyContent, onlyTopics } = options;
-
-        if (onlyContent && onlyTopics) {
-          const err = new Error('onlyContent and onlyTopics can not be used at the same time');
-          return createReturnMsg({ message, err });
-        }
-        const kind = onlyContent ? 'content' : onlyTopics ? ContentNodeKinds.TOPIC : undefined;
-
-        // limit to channel, defaults to true
-        const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
-
-        return ContentNodeResource.list({
-          ids: options.ids,
-          authors: options.authors,
-          tags: options.tags,
-          parent: options.parent === 'self' ? this.topic.id : options.parent,
-          channel_id: limitToChannel ? this.topic.channel_id : undefined,
-          max_results: options.maxResults ? options.maxResults : 50,
-          kind: kind,
-          kind_in: kinds,
-          descendant_of: options.descendantOf,
-        })
-          .then(contentNodes => {
-            const { more, results } = contentNodes;
-
-            return createReturnMsg({
-              message,
-              data: {
-                maxResults: options.maxResults ? options.maxResults : 50,
-                more,
-                results,
-              },
-            });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-
-      fetchMore(message) {
-        const { options } = message;
-
-        return ContentNodeResource.list(options)
-          .then(contentNodes => {
-            const { more, results } = contentNodes;
-
-            return createReturnMsg({
-              message,
-              data: {
-                maxResults: options.max_results ? options.max_results : 50,
-                more,
-                results,
-              },
-            });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-
-      fetchContentModel(message) {
-        return ContentNodeResource.retrieve(message.id)
-          .then(contentNode => {
-            return createReturnMsg({ message, data: contentNode });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-
-      fetchSearchResult(message) {
-        let searchPromise;
-        const { options } = message;
-        const { keyword } = options;
-        if (!keyword) {
-          searchPromise = Promise.resolve({
-            maxResults: 0,
-            results: [],
-          });
-        } else {
-          // limit to channel, defaults to true
-          const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
-          searchPromise = ContentNodeResource.list({
-            search: keyword,
-            channels: limitToChannel ? this.topic.channel_id : undefined,
-            max_results: options.maxResults ? options.maxResults : 50,
-          }).then(searchResults => {
-            return {
-              maxResults: options.maxResults ? options.maxResults : 50,
-              more: searchResults.more,
-              results: searchResults.results,
-            };
-          });
-        }
-
-        return searchPromise
-          .then(pageResult => {
-            return createReturnMsg({ message, data: pageResult });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-
-      navigateTo(message) {
-        const id = message.nodeId;
-        const context = {};
-        return ContentNodeResource.retrieve(id)
-          .then(contentNode => {
-            if (contentNode && contentNode.kind === 'topic') {
-              router.push(
-                this.genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf),
-              );
-            } else if (contentNode && this.overlayIsOpen == false) {
-              // in a custom context, launch overlay
-              this.currentContent = contentNode;
-              this.overlayIsOpen = true;
-              context.node_id = contentNode.id;
-              context.customChannel = true;
-              const encodedContext = encodeURI(JSON.stringify(context));
-              router.replace({ query: { context: encodedContext } }).catch(() => {});
-            } else if (contentNode && this.overlayIsOpen == true) {
-              // in a custom context, within an overlay, switch the overlay
-              // content to the new content
-              this.currentContent = contentNode;
-              context.node_id = contentNode.id;
-              context.customChannel = true;
-              this.$forceUpdate();
-              const encodedContext = encodeURI(JSON.stringify(context));
-              router.replace({ query: { context: encodedContext } }).catch(() => {});
-            }
-            return createReturnMsg({ message, data: {} });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-      getOrUpdateContext(message) {
-        // to update context with the incoming context
-        if (message.context) {
-          message.context.customChannel = message.context.customChannel || true;
-          const encodedContext = encodeURI(JSON.stringify(message.context));
-          router.push({ query: { context: encodedContext } }).catch(() => {});
-        } else {
-          // just return the existing query
-          const urlParams = this.$route.query;
-          const fetchedEncodedContext = urlParams.context || this.context;
-          message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
-        }
-
-        const newMsg = createReturnMsg({ message, data: {} });
-        this.sandbox.mediator.sendMessage(newMsg);
-      },
-      updateTheme(message) {
-        const themeCopy = { ...message };
-        delete themeCopy.message_id;
-        this.channelTheme = validateChannelTheme(themeCopy);
-        const newMsg = createReturnMsg({ message, data: {} });
-        return this.sandbox.mediator.sendMessage(newMsg);
-      },
-      sendKolibriVersion(message) {
-        const newMsg = createReturnMsg({ message, data: __version });
-        return this.sandbox.mediator.sendMessage(newMsg);
-      },
-      sendChannelMetadata(message) {
-        const newMsg = createReturnMsg({ message, data: this.currentChannel });
-        return this.sandbox.mediator.sendMessage(newMsg);
-      },
-      sendChannelFilterOptions(message) {
-        return ChannelResource.fetchFilterOptions(this.topic.channel_id)
-          .then(filterOptions => {
-            return createReturnMsg({
-              message,
-              data: {
-                availableAuthors: filterOptions.available_authors,
-                availableTags: filterOptions.available_tags,
-                availableKinds: filterOptions.available_kinds,
-              },
-            });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-      sendRandomCollection(message) {
-        const { options } = message;
-        const { kinds, onlyContent } = options;
-
-        // limit to channel, defaults to true
-        const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
-
-        return ContentNodeResource.fetchRandomCollection({
-          parent: options.parent === 'self' ? this.topic.id : options.parent,
-          channel_id: limitToChannel ? this.topic.channel_id : undefined,
-          max_results: options.maxResults ? options.maxResults : 10,
-          kind: onlyContent ? 'content' : undefined,
-          kind_in: kinds,
-          // Time seed to avoid cache
-          seed: Date.now().toString(),
-        })
-          .then(contentNodes => {
-            return createReturnMsg({
-              message,
-              data: {
-                maxResults: options.maxResults ? options.maxResults : 10,
-                results: contentNodes.results,
-              },
-            });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.sandbox.mediator.sendMessage(newMsg);
-          });
-      },
-    },
-    $trs: {
-      contentFrameTitle: {
-        message: 'Content viewer',
-        context: 'Accessible title for the iframe that displays the content',
-      },
-      viewerNotAvailable: {
-        message: 'Kolibri cannot display this channel because no viewer is available for it',
-        context:
-          'Error shown when the plugin that renders a custom channel is missing or disabled.',
-      },
-      channelLoadError: {
-        message: 'Kolibri is unable to load this channel',
-        context: 'Error shown when a custom channel fails to load in the content viewer.',
       },
     },
   };
@@ -433,16 +126,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .html5-viewer {
-    position: relative;
-    text-align: center;
-  }
-
-  .iframe {
-    width: 100%;
-    height: 100%;
-  }
-
   .iframe-container {
     @extend %momentum-scroll;
 
@@ -452,6 +135,10 @@
     width: 100%;
     height: calc(100% - 64px);
     overflow: visible;
+  }
+
+  .content-viewer {
+    height: 100%;
   }
 
   .error {

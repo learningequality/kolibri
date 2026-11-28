@@ -88,6 +88,41 @@ describe('Utility Functions', () => {
   });
 });
 
+describe('navigation listeners', () => {
+  function renderNavigationViewer(listeners = {}) {
+    const buttonLabel = 'Next resource';
+    const Renderer = {
+      setup(props, context) {
+        return () =>
+          h(
+            'button',
+            {
+              attrs: { disabled: !context.listeners.navigateTo },
+              on: { click: () => context.emit('navigateTo', 'next-node') },
+            },
+            buttonLabel,
+          );
+      },
+    };
+    kolibri.presetViewerComponent.mockReturnValue(Renderer);
+    render(ContentViewer, { props: { preset: 'test-preset' }, listeners });
+    return screen.getByRole('button', { name: buttonLabel });
+  }
+
+  it('leaves navigation unavailable when the host does not listen', () => {
+    expect(renderNavigationViewer()).toBeDisabled();
+  });
+
+  it('forwards navigation to the host when it listens', async () => {
+    const navigateTo = jest.fn();
+    const button = renderNavigationViewer({ navigateTo });
+
+    expect(button).toBeEnabled();
+    await fireEvent.click(button);
+    expect(navigateTo).toHaveBeenCalledWith('next-node');
+  });
+});
+
 // A renderer that registers a reactive public API through useContentViewer,
 // mirroring how QTIViewer/PerseusRenderer expose checkAnswer + hints.
 const RegisteringRenderer = {

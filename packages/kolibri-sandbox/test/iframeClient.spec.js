@@ -150,6 +150,40 @@ describe('Sandbox iframeClient', () => {
     });
   });
 
+  it('should pass the version from MAINREADY to the shims', async () => {
+    let initialized;
+    const initializedShim = new Promise(resolve => {
+      initialized = resolve;
+    });
+    class VersionShim extends SandboxShim {
+      static shimName = 'versionShim';
+
+      initialize(contentWindow, options) {
+        initialized(options);
+      }
+    }
+    class VersionHandler extends TestHandler {
+      static shims = [VersionShim];
+
+      init(iframe) {
+        sandbox.initializeIframe(iframe.contentWindow);
+        return Promise.resolve();
+      }
+    }
+    loadHandlerRegistering(() => new VersionHandler(sandbox));
+    sandbox.mediator.sendMessage = jest.fn();
+
+    sandbox.mediator.handleMessage({
+      data: {
+        nameSpace,
+        event: events.MAINREADY,
+        data: { contentNamespace: 'test', handlerUrl: 'http://handler.js', version: '0.20.0' },
+      },
+    });
+
+    await expect(initializedShim).resolves.toMatchObject({ version: '0.20.0' });
+  });
+
   describe('clock propagation', () => {
     const shimClock = () => sandbox.handler.shims.localStorage.__now().getTime();
 

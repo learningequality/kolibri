@@ -3,13 +3,17 @@ import Html5ZipHandler from './Html5ZipHandler';
 
 describe('Html5ZipHandler', () => {
   let mediator;
-  let sandbox;
   let handler;
+  const version = '0.19.0';
 
   beforeEach(() => {
     mediator = new Mediator(window);
-    sandbox = { mediator, registerHandler: jest.fn(), contentNamespace: 'test' };
-    handler = new Html5ZipHandler(sandbox);
+    handler = new Html5ZipHandler({
+      mediator,
+      registerHandler: jest.fn(),
+      contentNamespace: 'test',
+      version,
+    });
   });
 
   afterEach(() => {
@@ -36,12 +40,10 @@ describe('Html5ZipHandler', () => {
     iframe.remove();
   });
 
-  it('exposes the Kolibri data API on the content window, for custom channels', () => {
-    const iframe = document.createElement('iframe');
-    document.body.appendChild(iframe);
-    handler._initializeShims(iframe.contentWindow);
-    expect(iframe.contentWindow.kolibri).toBe(handler.shims.kolibri.shim);
-    document.body.removeChild(iframe);
+  it('installs window.kolibri with the Kolibri version on the content window', () => {
+    const iframe = shimContent();
+    expect(iframe.contentWindow.kolibri.version).toBe(version);
+    iframe.remove();
   });
 
   it('exposes the same SCORM API object on the content window', () => {

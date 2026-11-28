@@ -30,6 +30,10 @@ jest.mock('kolibri-sandbox', () =>
       this.callbacks[eventName] = [...(this.callbacks[eventName] || []), callback];
     });
     this.onStateUpdate = jest.fn();
+    this.answers = {};
+    this.answer = jest.fn((event, respond) => {
+      this.answers[event] = respond;
+    });
     sandboxInstances.push(this);
   }),
 );
@@ -125,6 +129,7 @@ function renderViewer(component = SandboxedContentViewer, { listen = [] } = {}) 
           defaultFile: computed(() => FILE),
           defaultItemPreset: computed(() => 'html5_zip'),
           itemData: computed(() => null),
+          hostData: computed(() => null),
           itemId: computed(() => null),
           answerState: computed(() => ({})),
           showCorrectAnswer: computed(() => false),
@@ -217,6 +222,30 @@ describe('SandboxedContentViewer', () => {
     await nextTick();
 
     expect(sandboxInstances[0].initialize.mock.calls[0][2]).toBe('/zipcontent/abc123/index.html');
+  });
+
+  it('leaves fullscreen when the content navigates to another resource', async () => {
+    ScreenFull.isEnabled = false;
+    const nodeId = 'next-node';
+    const viewer = createSandboxedContentViewer({
+      shimAnswers: {
+        nameSpace: 'kolibri',
+        answers: { navigateTo: (data, { emit }) => emit('navigateTo', data) },
+      },
+    });
+    const { listeners } = renderViewer(viewer, { listen: ['navigateTo'] });
+    await nextTick();
+    await userEvent.click(
+      screen.getByRole('button', { name: viewerToolbarStrings.enterFullscreen$() }),
+    );
+    await screen.findByRole('button', { name: viewerToolbarStrings.exitFullscreen$() });
+
+    sandboxInstances[0].answers.navigateTo({ nodeId });
+
+    expect(
+      await screen.findByRole('button', { name: viewerToolbarStrings.enterFullscreen$() }),
+    ).toBeInTheDocument();
+    expect(listeners.navigateTo).toHaveBeenCalledWith({ nodeId });
   });
 
   describe('a file the content asks Kolibri to render', () => {

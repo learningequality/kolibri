@@ -168,11 +168,13 @@ export default class SandboxEnvironment {
    * @param {string} [options.polyfillUrl] - URL to the core-js polyfill bundle
    * @param {object} [options.contentState] - Saved state keyed by shim name
    * @param {object} [options.userData] - The learner's user data
+   * @param {string} [options.version] - Kolibri version
    * @param {number} options.now - Current server time
    * @returns {Promise<void>} Resolves when the content has loaded, or failed to
    */
   async createIframe({
     contentNamespace,
+    version,
     startUrl = '',
     handlerUrl = null,
     polyfillUrl = null,
@@ -184,6 +186,7 @@ export default class SandboxEnvironment {
       return;
     }
     this.contentNamespace = contentNamespace;
+    this.version = version;
     this.startUrl = startUrl;
     this.iframe = document.createElement('iframe');
     this.iframe.style.border = 0;

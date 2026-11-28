@@ -63,6 +63,7 @@ describe('Sandbox mainClient', () => {
         sandbox.initialize(contentState, userData, 'http://start.url', 'testns', {
           handlerUrl: 'http://handler.url',
           polyfillUrl: 'http://polyfill.url',
+          version: '0.20.0',
         });
         sandbox.on(events.IFRAMEREADY, () => {
           resolve();
@@ -77,6 +78,7 @@ describe('Sandbox mainClient', () => {
             startUrl: 'http://start.url',
             handlerUrl: 'http://handler.url',
             polyfillUrl: 'http://polyfill.url',
+            version: '0.20.0',
             contentState: { myShim: { key: 'value' } },
             userData: { userId: 'test' },
             now: 1234,
@@ -393,7 +395,10 @@ describe('Sandbox mainClient', () => {
   });
 
   describe('answer method', () => {
-    function requestFromIframe(data) {
+    function requestFromIframe(
+      data,
+      { namespace = nameSpace, event = events.HANDLER_REQUESTED } = {},
+    ) {
       const { port1, port2 } = new MessageChannel();
       const reply = new Promise(resolve => {
         port1.onmessage = ({ data }) => {
@@ -403,7 +408,7 @@ describe('Sandbox mainClient', () => {
       });
       window.dispatchEvent(
         new MessageEvent('message', {
-          data: { nameSpace, event: events.HANDLER_REQUESTED, data },
+          data: { nameSpace: namespace, event, data },
           source: window,
           ports: [port2],
         }),
@@ -418,19 +423,32 @@ describe('Sandbox mainClient', () => {
         result: { count: 2 },
       });
     });
+    it('should answer an event on a custom namespace', async () => {
+      sandbox.answer('lookup', ({ id }) => id, { nameSpace: 'custom' });
+
+      await expect(
+        requestFromIframe({ id: 'abc' }, { namespace: 'custom', event: 'lookup' }),
+      ).resolves.toEqual({ result: 'abc' });
+    });
+    it('should reject an unknown event in the sandbox namespace', () => {
+      expect(() => sandbox.answer('lookup', jest.fn())).toThrow(ReferenceError);
+    });
     it('should answer a request with the error the responder failed with', async () => {
       sandbox.answer(events.HANDLER_REQUESTED, () => {
-        throw new Error('Resolver returned 500');
+        throw Object.assign(new Error('Not found'), { status: 404 });
       });
 
-      await expect(requestFromIframe({})).resolves.toEqual({ error: 'Resolver returned 500' });
+      await expect(requestFromIframe({})).resolves.toEqual({ error: 'Not found', status: 404 });
     });
     it('should answer with what the responder threw when it is not an Error', async () => {
       sandbox.answer(events.HANDLER_REQUESTED, () => {
         throw 'Resolver returned 500';
       });
 
-      await expect(requestFromIframe({})).resolves.toEqual({ error: 'Resolver returned 500' });
+      await expect(requestFromIframe({})).resolves.toEqual({
+        error: 'Resolver returned 500',
+        status: 500,
+      });
     });
     it('should not respond to a matching message with no port to answer on', () => {
       const respond = jest.fn();

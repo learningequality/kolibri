@@ -36,8 +36,9 @@ function createTestZip(files) {
  * Setup xhr-mock to serve a zip file with range request support.
  * @param {Uint8Array} zipData - The zip bytes that should be served.
  * @param {string} [url] - URL the mock server should respond to.
+ * @param {Function} [onRange] - Receives the inclusive start and end byte offsets.
  */
-function setupMockServer(zipData, url = 'test.zip') {
+function setupMockServer(zipData, url = 'test.zip', onRange = () => {}) {
   xhrMock.reset();
   xhrMock.get(url, (req, res) => {
     const rangeHeader = req.header('Range');
@@ -55,6 +56,7 @@ function setupMockServer(zipData, url = 'test.zip') {
     // Range request - parse "bytes=start-end"
     const [start, end] = rangeHeader.replace('bytes=', '').split('-').map(Number);
     const actualEnd = isNaN(end) ? zipData.length - 1 : Math.min(end, zipData.length - 1);
+    onRange(start, actualEnd);
     const slicedData = zipData.slice(start, actualEnd + 1);
 
     return res
@@ -93,6 +95,29 @@ describe('ZipFile public API', () => {
   afterEach(() => {
     xhrMock.teardown();
     jest.restoreAllMocks();
+  });
+
+  it('lists entry names without fetching file data', async () => {
+    const archive = zipSync(
+      { 'index.html': new Uint8Array(10000), 'assets/app.js': strToU8('Runtime') },
+      { level: 0 },
+    );
+    const onRange = jest.fn();
+    setupMockServer(archive, 'test.zip', onRange);
+    const zip = new ZipFile('test.zip', { maxFullLoadSize: 0 });
+
+    await expect(zip.filenames()).resolves.toEqual(['index.html', 'assets/app.js']);
+    expect(onRange).toHaveBeenCalled();
+    expect(Math.min(...onRange.mock.calls.map(([start]) => start))).toBeGreaterThan(8000);
+    await zip.close();
+  });
+
+  it('lists files but not directory entries', async () => {
+    setupMockServer(zipSync({ lib: { 'a.js': strToU8('a') }, 'index.html': strToU8('index') }));
+    const zip = new ZipFile('test.zip', { maxFullLoadSize: 0 });
+
+    await expect(zip.filenames()).resolves.toEqual(['lib/a.js', 'index.html']);
+    await zip.close();
   });
 
   describe('file() - single file extraction', () => {

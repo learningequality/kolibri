@@ -5,10 +5,14 @@
     "version": "0.0.1",
     "dependencies": {
         "kolibri": "workspace:*",
+        "kolibri-common": "workspace:*",
         "kolibri-sandbox": "workspace:*",
-        "kolibri-viewer": "workspace:*"
+        "kolibri-viewer": "workspace:*",
+        "kolibri-zip": "workspace:*",
+        "lodash": "catalog:"
     },
     "devDependencies": {
-        "lodash": "catalog:"
+        "kolibri-plugin-data": "workspace:*",
+        "xhr-mock": "catalog:"
     }
 }

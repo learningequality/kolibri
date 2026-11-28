@@ -1,5 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
-import { events, MessageStatuses } from './base';
+import { requestError } from './base';
 
 function isUndefined(x) {
   return typeof x === 'undefined';
@@ -27,13 +26,13 @@ class Mediator {
     this.source = source;
     this.__boundHandleMessage = this.handleMessage.bind(this);
     this.local.addEventListener('message', this.__boundHandleMessage);
-    this.__messageHandlers = {};
+    this.__messageHandlers = Object.create(null);
   }
 
   // Remove the window message listener and drop all registered handlers.
   destroy() {
     this.local.removeEventListener('message', this.__boundHandleMessage);
-    this.__messageHandlers = {};
+    this.__messageHandlers = Object.create(null);
   }
 
   handleMessage(message) {
@@ -52,7 +51,7 @@ class Mediator {
   dispatch({ nameSpace, event, data, port }) {
     const handlers = this.__messageHandlers[nameSpace]?.[event];
     if (port && this.source && !handlers?.length) {
-      port.postMessage({ error: `No handler for ${nameSpace} ${event}` });
+      port.postMessage({ error: `No handler for ${nameSpace} ${event}`, status: 501 });
       return;
     }
     const args = port ? [data, port] : [data];
@@ -78,55 +77,32 @@ class Mediator {
     this.remote.postMessage({ event, data, nameSpace }, '*');
   }
 
-  request({ event, data, nameSpace }) {
+  request({ event, data, nameSpace }, registerCancel) {
     const { port1, port2 } = new MessageChannel();
     return new Promise((resolve, reject) => {
-      port1.onmessage = ({ data: answer }) => {
+      const close = () => {
+        port1.onmessage = null;
         port1.close();
+      };
+      const cancel = error => {
+        close();
+        reject(error);
+      };
+      port1.onmessage = ({ data: answer }) => {
+        close();
         if ('error' in answer) {
-          reject(new Error(answer.error));
+          reject(requestError(answer.error, answer.status));
         } else {
           resolve(answer.result);
         }
       };
-      this.remote.postMessage({ event, data, nameSpace }, '*', [port2]);
-    });
-  }
-
-  // Send a request and resolve with the DATARETURNED reply carrying its message_id.
-  sendMessageAwaitReply({ event, data, nameSpace }) {
-    return new Promise((resolve, reject) => {
-      const msgId = uuidv4();
-      const self = this;
-      function handler(message) {
-        if (message.message_id === msgId && message.type === 'response') {
-          if (message.status == MessageStatuses.SUCCESS) {
-            resolve(message.data);
-          } else if (message.status === MessageStatuses.FAILURE && message.err) {
-            reject(message.err);
-          } else {
-            // Otherwise something unspecified happened
-            reject();
-          }
-          try {
-            self.removeMessageHandler({
-              nameSpace,
-              event: events.DATARETURNED,
-              callback: handler,
-            });
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
-          }
-        }
+      registerCancel?.(cancel);
+      try {
+        this.remote.postMessage({ event, data, nameSpace }, '*', [port2]);
+      } catch {
+        port2.close();
+        cancel(requestError('Sandbox request could not be sent', 400));
       }
-      this.registerMessageHandler({
-        nameSpace,
-        event: events.DATARETURNED,
-        callback: handler,
-      });
-      data.message_id = msgId;
-      this.sendMessage({ event, data, nameSpace });
     });
   }
 
@@ -135,7 +111,7 @@ class Mediator {
       return;
     }
     if (!this.__messageHandlers[nameSpace]) {
-      this.__messageHandlers[nameSpace] = {};
+      this.__messageHandlers[nameSpace] = Object.create(null);
     }
     if (!this.__messageHandlers[nameSpace][event]) {
       this.__messageHandlers[nameSpace][event] = [];

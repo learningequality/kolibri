@@ -101,6 +101,7 @@
 
     emits: [
       'startTracking',
+      'loaded',
       'stopTracking',
       'updateProgress',
       'updateContentState',

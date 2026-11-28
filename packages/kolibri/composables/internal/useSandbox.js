@@ -13,6 +13,7 @@ const DEFAULT_DURATION = 300;
  * Composable for content viewers that render inside the Kolibri sandbox.
  * @param {object} context - The Vue component context object
  * @param {Function} context.emit - The component's emit function for emitting events
+ * @param {object} context.listeners - Live map of the host's event listeners
  * @param {object} options - Configuration options
  * @param {boolean} [options.pollProgress=false] - Poll the sandbox for progress, falling
  * back to time spent over the content's duration when the content reports none
@@ -24,6 +25,9 @@ const DEFAULT_DURATION = 300;
  * requestFromHost calls: called with the request and `{ file }`, the file the sandbox
  * loaded, returns the answer or a promise of it. The content shares the handler's origin
  * and can send any request itself: validate it before acting on the Kolibri origin
+ * @param {object|null} [options.shimAnswers=null] - `{ nameSpace, answers }`, where
+ * `answers` maps events to `(data, { contentNode, files, hostData, emit, hasListener })`
+ * responders, where `hasListener(event)` reports whether the host listens for `event`
  * @param {boolean} [options.renderFiles=false] - Render files the handler sends, of
  * the types `isRenderableFileType` accepts, in place of the sandbox, and track files
  * the handler shows over its content itself. A file is sent as `{ data, mimetype, name,
@@ -34,11 +38,19 @@ const DEFAULT_DURATION = 300;
  * initializer
  */
 export default function useSandbox(
-  { emit },
-  { pollProgress = false, urlBuilder = null, onHandlerRequest = null, renderFiles = false } = {},
+  { emit, listeners },
+  {
+    pollProgress = false,
+    urlBuilder = null,
+    onHandlerRequest = null,
+    shimAnswers = null,
+    renderFiles = false,
+  } = {},
 ) {
   const {
     contentNode,
+    files,
+    hostData,
     options: contentOptions,
     lang,
     defaultFile,
@@ -115,6 +127,12 @@ export default function useSandbox(
     sandbox?.closeFile();
   }
 
+  // Vue 2 keeps the `.passive` and `.capture` modifiers as `&` and `!` prefixes on the
+  // listener map's keys.
+  function hasListener(event) {
+    return Object.keys(listeners ?? {}).some(key => key.replace(/^[&!]+/, '') === event);
+  }
+
   function destroySandbox() {
     clearTimeout(progressPollTimeout);
     stopRetargeting?.();
@@ -183,14 +201,15 @@ export default function useSandbox(
 
     sandbox.on(sandbox.events.LOADING, isLoading => {
       loading.value = isLoading;
+      if (!isLoading) {
+        emit('loaded');
+      }
     });
 
     sandbox.on(sandbox.events.ERROR, err => {
       loading.value = false;
       reportError(err);
     });
-
-    sandbox.on(sandbox.events.NAVIGATETO, message => emit('navigateTo', message));
 
     sandbox.on(sandbox.events.NOW_SHOWING, data => emit('nowShowing', data));
 
@@ -211,12 +230,34 @@ export default function useSandbox(
       );
     }
 
+    if (shimAnswers) {
+      const { nameSpace, answers } = shimAnswers;
+      for (const [event, respond] of Object.entries(answers)) {
+        sandbox.answer(
+          event,
+          data =>
+            respond(data, {
+              contentNode: contentNode.value,
+              files: files.value,
+              hostData: hostData.value,
+              emit,
+              hasListener,
+            }),
+          { nameSpace },
+        );
+      }
+    }
+
     sandbox.initialize(
       extraFields.value?.contentState || {},
       userData.value,
       startUrl,
       file.checksum,
-      { handlerUrl: sandboxHandlerUrl.value, polyfillUrl: urls.sandboxPolyfills() },
+      {
+        handlerUrl: sandboxHandlerUrl.value,
+        polyfillUrl: urls.sandboxPolyfills(),
+        version: __version,
+      },
     );
 
     let shownUrl = startUrl;

@@ -108,7 +108,6 @@ const interactionEvents = [
   'updateProgress',
   'updateContentState',
   'startTracking',
-  'navigateTo',
   'finished',
 ];
 
@@ -164,6 +163,9 @@ export default {
       default: null,
     },
     itemData: {
+      default: null,
+    },
+    hostData: {
       default: null,
     },
     preset: {
@@ -343,6 +345,7 @@ export default {
       defaultFile,
       defaultItemPreset,
       itemData: computed(() => props.itemData),
+      hostData: computed(() => props.hostData),
       itemId: computed(() => props.itemId),
       answerState: computed(() => props.answerState),
       showCorrectAnswer: computed(() => props.showCorrectAnswer),
