@@ -19,6 +19,7 @@ from kolibri.core.content import models
 from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.cache import remote_metadata_cache
 from kolibri.core.content.utils.cache import REMOTE_URL_PARAM
+from kolibri.core.content.utils.languages import build_base_language_labels
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 from kolibri.core.query import SQSum
@@ -211,33 +212,71 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
     """
 
     serializer_class = ContentNodeSerializer
+    locally_admin_imported_ids = None
+
+    def _iter_response_node_ids(self, data):
+        if isinstance(data, list):
+            for node in data:
+                yield from self._iter_response_node_ids(node)
+        elif isinstance(data, dict):
+            if "more" in data and "results" in data:
+                yield from self._iter_response_node_ids(data["results"])
+            else:
+                yield data["id"]
+                yield from self._iter_response_node_ids(data.get("children"))
 
     def update_data(self, response_data, baseurl):
+        admin_imported_ids = self.locally_admin_imported_ids
+        if admin_imported_ids is None:
+            ids = set(self._iter_response_node_ids(response_data))
+            admin_imported_ids = (
+                set(
+                    self.get_queryset()
+                    .filter(admin_imported=True)
+                    .only("id")
+                    .in_bulk(ids)
+                )
+                if ids
+                else set()
+            )
+        return self._update_data(response_data, baseurl, admin_imported_ids)
+
+    def _update_data(self, response_data, baseurl, admin_imported_ids):
         if type(response_data) is dict:
             if "more" in response_data and "results" in response_data:
                 # This is a paginated object
+                labels = response_data.get("labels")
+                if labels is not None and "base_languages" not in labels:
+                    labels["base_languages"] = build_base_language_labels(
+                        (
+                            language["id"],
+                            language["id"].split("-", 1)[0],
+                            language.get("lang_name"),
+                        )
+                        for language in (labels.get("languages") or [])
+                    )
                 if response_data["more"] is not None:
                     if type(response_data["more"].get("params", None)) is dict:
                         response_data["more"]["params"][REMOTE_URL_PARAM] = baseurl
                     else:
                         response_data["more"][REMOTE_URL_PARAM] = baseurl
-                response_data["results"] = self.update_data(
-                    response_data["results"], baseurl
+                response_data["results"] = self._update_data(
+                    response_data["results"], baseurl, admin_imported_ids
                 )
             else:
                 response_data = self.add_base_url_to_node(response_data, baseurl)
                 response_data["admin_imported"] = (
-                    response_data["id"] in self.locally_admin_imported_ids
+                    response_data["id"] in admin_imported_ids
                 )
                 self._fill_content_previously_omitted_fields(response_data)
                 if "children" in response_data:
-                    response_data["children"] = self.update_data(
-                        response_data["children"], baseurl
+                    response_data["children"] = self._update_data(
+                        response_data["children"], baseurl, admin_imported_ids
                     )
         elif type(response_data) is list:
             data = []
             for node in response_data:
-                data.append(self.update_data(node, baseurl))
+                data.append(self._update_data(node, baseurl, admin_imported_ids))
             response_data = data
         return response_data
 
@@ -315,10 +354,10 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
             queryset, _ = self._get_list_queryset()
-            # Used in the update method for remote request retrieval
-            self.locally_admin_imported_ids = set(
-                queryset.filter(admin_imported=True).values_list("id", flat=True)
-            )
+            if not request.query_params.get("base_languages"):
+                self.locally_admin_imported_ids = set(
+                    queryset.filter(admin_imported=True).values_list("id", flat=True)
+                )
             return self._hande_proxied_request(request)
         return super().list(request, *args, **kwargs)
 

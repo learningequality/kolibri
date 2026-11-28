@@ -26,6 +26,7 @@ export const getContentLangDir = language => {
   return (language || {}).lang_direction || languageDirections.LTR;
 };
 
+// Keep in sync with kolibri/core/content/utils/languages.py.
 const contentLanguageCodes = {
   ff: ['ful', 'fuv'],
   ny: ['nya'],

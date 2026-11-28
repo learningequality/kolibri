@@ -242,13 +242,15 @@ class ContentNodeTreeViewset(
         if self._should_proxy_request(request):
             try:
                 queryset = self.get_tree_queryset(request, pk)
-                # Used in the update method for remote request retrieval
-                self.locally_admin_imported_ids = set(
-                    queryset.filter(admin_imported=True).values_list("id", flat=True)
-                )
+                if not request.query_params.get("base_languages"):
+                    self.locally_admin_imported_ids = set(
+                        queryset.filter(admin_imported=True).values_list(
+                            "id", flat=True
+                        )
+                    )
             except Http404:
-                # Used in the update method for remote request retrieval
-                self.locally_admin_imported_ids = set()
+                if not request.query_params.get("base_languages"):
+                    self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
         return super().retrieve(request, pk=pk)
 

@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from django.db.models import Exists
 from django.db.models import OuterRef
+from django.db.models import Q
 from django.utils.text import smart_split
 from django.utils.text import unescape_string_literal
 from django_filters.rest_framework import BaseInFilter
@@ -21,6 +22,7 @@ from rest_framework.serializers import CharField
 from kolibri.core.content import models
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.cache import get_course_ids
+from kolibri.core.content.utils.languages import expand_base_language_codes
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
@@ -36,6 +38,12 @@ class CharInFilter(BaseInFilter, CharFilter):
 
 class ChoiceInFilter(BaseInFilter, ChoiceFilter):
     pass
+
+
+def get_base_language_ids(base_codes):
+    return models.Language.objects.filter(
+        lang_code__in=expand_base_language_codes(base_codes)
+    ).values("id")
 
 
 contentnode_filter_fields = [
@@ -60,6 +68,7 @@ contentnode_filter_fields = [
     "learner_needs",
     "channels",
     "languages",
+    "base_languages",
     "tree_id",
     "lft__gt",
     "rght__lt",
@@ -86,6 +95,7 @@ class ContentNodeFilter(FilterSet):
     learner_needs = CharFilter(method="bitmask_contains_and")
     channels = UUIDInFilter(field_name="channel_id")
     languages = CharInFilter(field_name="lang_id")
+    base_languages = CharInFilter(method="filter_base_languages")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
     authors = CharFilter(method="filter_by_authors")
@@ -193,6 +203,23 @@ class ContentNodeFilter(FilterSet):
         if value:
             return queryset
         return queryset.filter(coach_content=False)
+
+    def filter_base_languages(self, queryset, name, value):
+        language_ids = get_base_language_ids(value)
+        descendants = ContentNode.objects.filter(
+            available=True,
+            tree_id=OuterRef("tree_id"),
+            lft__gt=OuterRef("lft"),
+            lft__lt=OuterRef("rght"),
+            lang_id__in=language_ids,
+        ).exclude(kind=content_kinds.TOPIC)
+        if self.form.cleaned_data.get("include_coach_content") is False:
+            descendants = descendants.filter(coach_content=False)
+        topic = Q(kind=content_kinds.TOPIC)
+        return queryset.alias(_has_matching_descendant=Exists(descendants)).filter(
+            (topic & Q(_has_matching_descendant=True))
+            | (~topic & Q(lang_id__in=language_ids))
+        )
 
     def filter_contains_quiz(self, queryset, name, value):
         if value:

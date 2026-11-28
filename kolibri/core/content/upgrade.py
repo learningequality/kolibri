@@ -344,3 +344,8 @@ def migrate_file_size_to_bigint():
             last_id = ids[-1]
     with connection.schema_editor() as editor:
         drop_legacy_file_size_column(editor, LocalFile)
+
+
+@version_upgrade(old_version="<0.21.0")
+def refresh_content_cache_for_base_language_labels():
+    ContentCacheKey.update_cache_key()

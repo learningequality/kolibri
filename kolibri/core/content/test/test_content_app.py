@@ -3,6 +3,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 """
 
 import datetime
+import re
 import time
 import unittest
 import uuid
@@ -12,8 +13,10 @@ from typing import ClassVar
 from unittest import mock
 
 import pytz
+from django.apps import apps
 from django.conf import settings
 from django.core.cache import cache
+from django.db import connection
 from django.test import LiveServerTestCase
 from django.test import override_settings
 from django.test import TestCase
@@ -35,7 +38,13 @@ from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models as content
 from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.viewsets.contentnode.base import ContentNodeViewset
+from kolibri.core.content.viewsets.contentnode.filters import ContentNodeFilter
+from kolibri.core.content.viewsets.contentnode.filters import (
+    OptionalContentNodePagination,
+)
 from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
@@ -49,6 +58,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.upgrade import run_upgrades
+from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.test.helpers import encode_cursor
 from kolibri.utils.tests.helpers import override_option
 from kolibri.utils.time_utils import local_now
@@ -252,6 +263,55 @@ def infer_learning_activity(kind):
     return []
 
 
+class PeerBaseLanguageLabelsTestCase(TestCase):
+    def test_backfills_older_peer_labels(self):
+        labels = {
+            "languages": [
+                {"id": "es-MX", "lang_name": "Spanish (Mexico)"},
+                {"id": "es-419", "lang_name": "Spanish (Latin America)"},
+                {"id": "fuv", "lang_name": "Nigerian Fulfulde"},
+                {"id": "qaa-ZZ", "lang_name": "Later name"},
+                {"id": "qaa-AA", "lang_name": "First name"},
+                {"id": "qab"},
+            ]
+        }
+        data = ContentNodeViewset().update_data(
+            {"more": None, "results": [], "labels": labels}, "http://peer"
+        )
+        self.assertEqual(
+            data["labels"].get("base_languages"),
+            [
+                {"id": "es", "lang_name": "Español"},
+                {"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"},
+                {"id": "qaa", "lang_name": "First name"},
+                {"id": "qab", "lang_name": "qab"},
+            ],
+        )
+
+    def test_preserves_peer_base_language_labels(self):
+        labels = {
+            "languages": [{"id": "es-MX", "lang_name": "Spanish (Mexico)"}],
+            "base_languages": [{"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"}],
+        }
+        data = ContentNodeViewset().update_data(
+            {"more": None, "results": [], "labels": labels}, "http://peer"
+        )
+        self.assertEqual(
+            data["labels"]["base_languages"],
+            [{"id": "ff", "lang_name": "Fulfulde, Pulaar, Pular"}],
+        )
+
+    def test_bare_list_passes_through(self):
+        self.assertEqual(ContentNodeViewset().update_data([], "http://peer"), [])
+
+    def test_backfills_null_peer_languages_as_empty(self):
+        data = ContentNodeViewset().update_data(
+            {"more": None, "results": [], "labels": {"languages": None}},
+            "http://peer",
+        )
+        self.assertEqual(data["labels"], {"languages": None, "base_languages": []})
+
+
 class ContentNodeAPIBase:
     fixtures: ClassVar[list] = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
@@ -414,6 +474,21 @@ class ContentNodeAPIBase:
         response = self._get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
+
+    def test_contentnode_base_language_labels(self):
+        spanish = content.Language.objects.create(id="es-MX", lang_code="es")
+        french = content.Language.objects.create(id="fr", lang_code="fr")
+        content.ContentNode.objects.filter(title="c1").update(lang=spanish)
+        content.ContentNode.objects.filter(title="c2c2").update(lang=french)
+        response = self._get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"search": "c1", "max_results": 5},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data["labels"]["base_languages"],
+            [{"id": "es", "lang_name": "Español"}],
+        )
 
     def test_contentnode_channel_metadata_label_absent_in_internal_api(self):
         response = self._get(
@@ -683,6 +758,109 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     databases = "__all__"
 
     maxDiff = None
+
+    def test_revalidates_cached_search_after_base_language_upgrade(self):
+        language = content.Language.objects.create(id="es-MX", lang_code="es")
+        content.ContentNode.objects.filter(title="c1").update(lang=language)
+        url = reverse("kolibri:core:contentnode-list")
+        params = {"search": "c1", "max_results": 5}
+        paginate = OptionalContentNodePagination.get_paginated_response
+
+        def paginate_without_base_languages(paginator, data):
+            response = paginate(paginator, data)
+            del response.data["labels"]["base_languages"]
+            return response
+
+        with mock.patch.object(
+            OptionalContentNodePagination,
+            "get_paginated_response",
+            paginate_without_base_languages,
+        ):
+            before = self.client.get(url, params)
+        self.assertEqual(before.status_code, 200)
+        self.assertNotIn("base_languages", before.data["labels"])
+        etag = before["ETag"]
+        self.assertEqual(
+            self.client.get(url, params, HTTP_IF_NONE_MATCH=etag).status_code, 304
+        )
+
+        run_upgrades("0.20.0", "0.21.0", app_configs=[apps.get_app_config("content")])
+
+        after = self.client.get(url, params, HTTP_IF_NONE_MATCH=etag)
+        self.assertEqual(after.status_code, 200)
+        self.assertNotEqual(after["ETag"], etag)
+        self.assertEqual(
+            after.data["labels"]["base_languages"],
+            [{"id": "es", "lang_name": "Español"}],
+        )
+
+    def test_base_language_proxy_uses_local_import_flags_for_returned_nodes(self):
+        root = content.ContentNode.objects.get(title="root")
+        spanish = content.Language.objects.create(id="es-MX", lang_code="es")
+        french = content.Language.objects.create(id="fr", lang_code="fr")
+        spanish_resource = content.ContentNode.objects.get(title="c1")
+        french_resource = content.ContentNode.objects.get(title="c2c2")
+        content.ContentNode.objects.filter(pk=root.pk).update(admin_imported=True)
+        content.ContentNode.objects.filter(pk=spanish_resource.pk).update(
+            lang=spanish, admin_imported=True
+        )
+        content.ContentNode.objects.filter(pk=french_resource.pk).update(
+            lang=french, admin_imported=True
+        )
+        tree_kwargs = {"pk": root.pk}
+        peer_tree = self.client.get(
+            reverse("kolibri:core:publiccontentnode_tree-detail", kwargs=tree_kwargs),
+            {"base_languages": "es"},
+        ).json()
+        peer_list = self.client.get(
+            reverse("kolibri:core:publiccontentnode-list"),
+            {"ids": f"{root.pk},{french_resource.pk}", "max_results": 5},
+        ).json()
+        content.ContentNode.objects.filter(pk=spanish_resource.pk).update(
+            available=False
+        )
+
+        with mock.patch.object(NetworkClient, "build_for_address") as build_client:
+            peer_client = build_client.return_value
+            peer_client.device_info = {
+                "application": "kolibri",
+                "kolibri_version": "0.21.0",
+            }
+            peer_response = peer_client.get.return_value
+            peer_response.status_code = 200
+            peer_response.headers = {}
+            params = {"base_languages": "es", "baseurl": "http://peer"}
+
+            peer_response.json.return_value = peer_tree
+            tree = self.client.get(
+                reverse("kolibri:core:contentnode_tree-detail", kwargs=tree_kwargs),
+                params,
+            )
+            with self.subTest(endpoint="tree"):
+                self.assertEqual(tree.status_code, 200)
+                children = tree.data["children"]["results"]
+                self.assertEqual(
+                    {
+                        node["id"]: node["admin_imported"]
+                        for node in [tree.data, *children]
+                    },
+                    {root.pk: True, spanish_resource.pk: False},
+                )
+
+            peer_client.device_info["kolibri_version"] = "0.20.0"
+            peer_response.json.return_value = peer_list
+            result = self.client.get(
+                reverse("kolibri:core:contentnode-list"), {**params, "max_results": 5}
+            )
+            with self.subTest(endpoint="list"):
+                self.assertEqual(result.status_code, 200)
+                self.assertEqual(
+                    {
+                        node["id"]: node["admin_imported"]
+                        for node in result.data["results"]
+                    },
+                    {root.pk: True, french_resource.pk: True},
+                )
 
     def test_prerequisite_for_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -1634,6 +1812,304 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         returned_ids = {ch["id"] for ch in with_filter_response.data}
         self.assertIn(quiz_channel_id, returned_ids)
 
+    def test_base_languages_partial_index(self):
+        table = content.ContentNode._meta.db_table
+        index = "contentnode_tree_lang_lft_idx"
+        with connection.cursor() as cursor:
+            constraints = connection.introspection.get_constraints(cursor, table)
+            self.assertEqual(
+                constraints[index]["columns"], ["tree_id", "lang_id", "lft"]
+            )
+            if connection.vendor == "postgresql":
+                cursor.execute(
+                    "SELECT indexdef FROM pg_indexes "
+                    "WHERE schemaname = current_schema() AND tablename = %s AND indexname = %s",
+                    [table, index],
+                )
+            else:
+                cursor.execute(
+                    "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = %s",
+                    [index],
+                )
+            (definition,) = cursor.fetchone()
+        self.assertRegex(definition, r' WHERE \(?"?available"?\)?$')
+
+    @unittest.skipUnless(connection.vendor == "sqlite", "SQLite query plans")
+    def test_base_languages_topic_index_seek(self):
+        queryset = ContentNodeFilter(
+            {"base_languages": "es"}, queryset=content.ContentNode.objects.all()
+        ).qs
+        self.assertIn(
+            "USING INDEX contentnode_tree_lang_lft_idx "
+            "(tree_id=? AND lang_id=? AND lft>? AND lft<?)",
+            queryset.explain(),
+        )
+
+    def _node_query_plan_accesses(self, url, params):
+        table = content.ContentNode._meta.db_table
+        cache.clear()
+        process_cache.clear()
+        queries = []
+
+        def capture(execute, sql, params, many, context):
+            if sql.startswith("SELECT") and f'"{table}"' in sql:
+                queries.append((sql, params))
+            return execute(sql, params, many, context)
+
+        with connection.execute_wrapper(capture):
+            response = self.client.get(url, params)
+        self.assertEqual(response.status_code, 200)
+
+        accesses = Counter()
+        with connection.cursor() as cursor:
+            for sql, params in queries:
+                if sql.startswith('SELECT "content_language".'):
+                    accesses["language_labels"] += 1
+                aliases = {table}
+                aliases.update(
+                    re.findall(rf'(?:FROM|JOIN) "{table}" ([A-Z]+[0-9]+)\b', sql)
+                )
+                cursor.execute("EXPLAIN QUERY PLAN " + sql, params)
+                for _, _, _, detail in cursor.fetchall():
+                    match = re.match(r"(SCAN|SEARCH) (?:TABLE )?(\w+)", detail)
+                    if match and match[2] in aliases:
+                        accesses[match[1]] += 1
+        return accesses
+
+    @unittest.skipUnless(connection.vendor == "sqlite", "SQLite query plans")
+    def test_base_languages_endpoint_query_plans(self):
+        language, _ = content.Language.objects.get_or_create(
+            id="es-MX", defaults={"lang_code": "es"}
+        )
+        channel_id = uuid.uuid4().hex
+        root = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            kind=content_kinds.TOPIC,
+            available=True,
+        )
+        content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            parent=root,
+            kind=content_kinds.VIDEO,
+            lang=language,
+            available=True,
+        )
+        channel = content.ChannelMetadata.objects.create(
+            id=channel_id, root=root, public=True
+        )
+        channel.included_languages.add(language)
+
+        for prefix in ("", "public"):
+            for endpoint, kwargs, params in (
+                ("contentnode-list", {}, {}),
+                ("contentnode-list", {}, {"max_results": 5}),
+                ("contentnode_tree-detail", {"pk": root.id}, {}),
+                ("channel-list", {}, {}),
+            ):
+                url = reverse(f"kolibri:core:{prefix}{endpoint}", kwargs=kwargs)
+                with self.subTest(endpoint=url, params=params):
+                    baseline = self._node_query_plan_accesses(url, params)
+                    filtered = self._node_query_plan_accesses(
+                        url, {**params, "base_languages": "es"}
+                    )
+                    self.assertLessEqual(filtered["SCAN"], baseline["SCAN"])
+                    if endpoint == "channel-list":
+                        self.assertLessEqual(filtered["SEARCH"], baseline["SEARCH"])
+                    if params:
+                        self.assertEqual(baseline["language_labels"], 1)
+                        self.assertEqual(filtered["language_labels"], 1)
+
+    def test_base_languages_endpoints(self):
+        languages = {
+            "es": "es",
+            "es-ES": "es",
+            "es-MX": "es",
+            "es-419": "es",
+            "en": "en",
+            "fr": "fr",
+            "ful": "ful",
+            "fuv": "fuv",
+            "nya": "nya",
+            "swa": "swa",
+            "yor": "yor",
+        }
+        for language_id, code in languages.items():
+            content.Language.objects.get_or_create(
+                id=language_id, defaults={"lang_code": code}
+            )
+
+        def make_node(channel_id, kind, language_id, parent=None, available=True):
+            return content.ContentNode.objects.create(
+                id=uuid.uuid4().hex,
+                channel_id=channel_id,
+                content_id=uuid.uuid4().hex,
+                title=language_id or "No language",
+                kind=kind,
+                lang_id=language_id,
+                parent=parent,
+                available=available,
+            )
+
+        channel_id = uuid.uuid4().hex
+        root = make_node(channel_id, content_kinds.TOPIC, "en")
+        channel = content.ChannelMetadata.objects.create(
+            id=channel_id, name="Language variants", root=root, public=True
+        )
+        resources = {
+            language_id: make_node(channel_id, content_kinds.VIDEO, language_id, root)
+            for language_id in (*languages, None)
+        }
+        other_id = uuid.uuid4().hex
+        other_root = make_node(other_id, content_kinds.TOPIC, "en")
+        other = content.ChannelMetadata.objects.create(
+            id=other_id, name="English resources", root=other_root, public=True
+        )
+        make_node(other_id, content_kinds.VIDEO, "en", other_root)
+        unavailable = make_node(channel_id, content_kinds.TOPIC, None, root)
+        unavailable_resource = make_node(
+            channel_id, content_kinds.VIDEO, "es", unavailable, available=False
+        )
+        for listed_channel in (channel, other):
+            calculate_included_languages(listed_channel)
+
+        spanish = ("es", "es-ES", "es-MX", "es-419")
+        for prefix in ("", "public"):
+            nodes_url = reverse(f"kolibri:core:{prefix}contentnode-list")
+            for codes, expected in (
+                ("es", spanish),
+                ("es,fr", (*spanish, "fr")),
+                ("ff", ("ful", "fuv")),
+                ("ny", ("nya",)),
+                ("sw", ("swa",)),
+                ("yo", ("yor",)),
+            ):
+                with self.subTest(endpoint=nodes_url, codes=codes):
+                    response = self.client.get(
+                        nodes_url,
+                        {
+                            "base_languages": codes,
+                            "channels": f"{channel_id},{other_id}",
+                        },
+                    )
+                    self.assertEqual(response.status_code, 200)
+                    self.assertCountEqual(
+                        [node["id"] for node in response.data],
+                        [root.id, *(resources[code].id for code in expected)],
+                    )
+            response = self.client.get(
+                nodes_url,
+                {
+                    "base_languages": "es",
+                    "channels": channel_id,
+                    "no_available_filtering": "true",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertCountEqual(
+                [node["id"] for node in response.data],
+                [
+                    root.id,
+                    unavailable_resource.id,
+                    *(resources[code].id for code in spanish),
+                ],
+            )
+
+            response = self.client.get(
+                nodes_url, {"languages": "es", "channels": channel_id}
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                [node["id"] for node in response.data], [resources["es"].id]
+            )
+
+            tree_url = reverse(
+                f"kolibri:core:{prefix}contentnode_tree-detail", kwargs={"pk": root.id}
+            )
+            with self.subTest(endpoint=tree_url):
+                response = self.client.get(tree_url, {"base_languages": "fr"})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data["id"], root.id)
+                self.assertEqual(
+                    [child["id"] for child in response.data["children"]["results"]],
+                    [resources["fr"].id],
+                )
+                response = self.client.get(tree_url, {"base_languages": "de"})
+                self.assertEqual(response.status_code, 404)
+
+            channels_url = reverse(f"kolibri:core:{prefix}channel-list")
+            with self.subTest(endpoint=channels_url):
+                response = self.client.get(channels_url, {"base_languages": "es,fr"})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual([item["id"] for item in response.data], [channel.id])
+
+    def test_base_language_channel_matches_included_languages(self):
+        root = content.ContentNode.objects.get(title="root")
+        spanish = content.Language.objects.create(id="es-MX", lang_code="es")
+        english = content.Language.objects.create(id="en", lang_code="en")
+        root.get_descendants().exclude(kind=content_kinds.TOPIC).update(lang=english)
+        content.ContentNode.objects.filter(pk=root.pk).update(lang=spanish)
+        channel = content.ChannelMetadata.objects.get(pk=root.channel_id)
+        calculate_included_languages(channel)
+        self.assertIn(spanish, channel.included_languages.all())
+
+        for prefix in ("", "public"):
+            url = reverse(f"kolibri:core:{prefix}channel-list")
+            with self.subTest(endpoint=url):
+                response = self.client.get(url, {"base_languages": "es"})
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(channel.pk, [item["id"] for item in response.data])
+
+                nodes_url = reverse(f"kolibri:core:{prefix}contentnode-list")
+                response = self.client.get(nodes_url, {"base_languages": "es"})
+                self.assertEqual(response.status_code, 200)
+                self.assertNotIn(root.pk, [item["id"] for item in response.data])
+
+    def test_proxy_validates_base_language_requests_before_contacting_peer(self):
+        for endpoint, kwargs, params in (
+            ("contentnode-list", {}, {"channels": "invalid"}),
+            ("contentnode_tree-detail", {"pk": "invalid"}, {}),
+        ):
+            with self.subTest(endpoint=endpoint), mock.patch.object(
+                NetworkClient,
+                "build_for_address",
+                side_effect=NetworkLocationConnectionFailure,
+            ) as build_client:
+                response = self.client.get(
+                    reverse(f"kolibri:core:{endpoint}", kwargs=kwargs),
+                    {
+                        **params,
+                        "baseurl": "http://example.com/",
+                        "base_languages": "es",
+                    },
+                )
+                self.assertEqual(response.status_code, 400)
+                build_client.assert_not_called()
+
+    def test_base_language_tree_excludes_coach_only_matches(self):
+        root = content.ContentNode.objects.get(title="root")
+        french = content.Language.objects.create(id="fr", lang_code="fr")
+        english = content.Language.objects.create(id="en", lang_code="en")
+        content.ContentNode.objects.filter(title="c2c2").update(lang=english)
+        content.ContentNode.objects.filter(title="c1").update(
+            lang=french, coach_content=True
+        )
+        for prefix in ("", "public"):
+            url = reverse(
+                f"kolibri:core:{prefix}contentnode_tree-detail", kwargs={"pk": root.pk}
+            )
+            with self.subTest(endpoint=url):
+                self.assertEqual(
+                    self.client.get(url, {"base_languages": "fr"}).status_code, 200
+                )
+                response = self.client.get(
+                    url, {"base_languages": "fr", "include_coach_content": "false"}
+                )
+                self.assertEqual(response.status_code, 404)
+
     def test_contentnode_contains_quiz_filter(self):
         quiz_channel_id = uuid.uuid4().hex
         quiz_root = content.ContentNode.objects.create(
@@ -2535,11 +3011,25 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         sibling = node.get_next_sibling()
         expected_content_ids = (sibling.content_id,)
-        response = self.client.get(
-            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        spanish, _ = content.Language.objects.get_or_create(
+            id="es", defaults={"lang_code": "es"}
         )
-        response_content_ids = {node["content_id"] for node in response.json()}
-        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+        content.ContentNode.objects.filter(pk=node.pk).update(lang=spanish)
+        content.ContentNode.objects.filter(pk=sibling.pk).update(
+            lang=spanish, kind=content_kinds.EXERCISE, modality=modalities.QUIZ
+        )
+        for params in ({}, {"base_languages": "es"}, {"contains_quiz": "true"}):
+            with self.subTest(params=params):
+                response = self.client.get(
+                    reverse("kolibri:core:usercontentnode-list"),
+                    data={"next_steps": True, **params},
+                )
+                self.assertEqual(response.status_code, 200)
+                if "contains_quiz" not in params:
+                    response_content_ids = {
+                        node["content_id"] for node in response.json()
+                    }
+                    self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
     def test_next_steps_sibling_in_progress(self):
         facility = Facility.objects.create(name="MyFac")
