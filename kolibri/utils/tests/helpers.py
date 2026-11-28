@@ -2,7 +2,9 @@ import os
 import socket
 import sys
 from contextlib import contextmanager
+from contextlib import suppress
 from importlib import reload
+from io import BytesIO
 from types import SimpleNamespace
 from unittest import mock
 
@@ -62,7 +64,11 @@ class override_option(TestContextDecorator):
 
 
 @contextmanager
-def running_pid_file(port):
+def running_pid_file(port, bind_address=None):
+    bind_file = f"{server.PID_FILE}.bind"
+    if bind_address is not None:
+        with open(bind_file, "w") as f:
+            f.write(f"{os.getpid()}\n{bind_address}\n")
     with open(server.PID_FILE, "w") as f:
         f.write(f"{os.getpid()}\n{port}\n\n{server.STATUS_RUNNING}\n")
     try:
@@ -71,7 +77,30 @@ def running_pid_file(port):
         ):
             yield
     finally:
-        os.remove(server.PID_FILE)
+        with suppress(FileNotFoundError):
+            os.remove(server.PID_FILE)
+        if bind_address is not None:
+            with suppress(FileNotFoundError):
+                os.remove(bind_file)
+
+
+def mock_status_listener(host, port, path):
+    def connect(address, *args, **kwargs):
+        if address != (host, port):
+            raise ConnectionRefusedError()
+        connection = mock.Mock()
+        request = bytearray()
+        connection.sendall.side_effect = request.extend
+
+        def respond(*args):
+            if request.startswith(f"GET {path} ".encode("ascii")):
+                return BytesIO(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n")
+            return BytesIO(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n")
+
+        connection.makefile.side_effect = respond
+        return connection
+
+    return connect
 
 
 def fake_port_binds(monkeypatch):

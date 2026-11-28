@@ -14,21 +14,30 @@ else:
     except AttributeError:
         epoll = None
 import socket
+import sqlite3
 import sys
 import threading
 import time
 import traceback as _traceback
 from functools import partial
+from http.client import HTTPConnection
+from http.client import HTTPException
 from ipaddress import ip_address
+from pathlib import Path
 from subprocess import CalledProcessError
 from subprocess import check_output
+from urllib.parse import quote
+from urllib.parse import unquote
 
 import ifaddr
 import requests
 import zeroconf
 from cheroot.wsgi import Server as BaseServer
+from django.apps import apps
 from django.conf import settings
 from django.core.management import call_command
+from django.db.utils import DatabaseError
+from django.utils.http import RFC3986_SUBDELIMS
 from magicbus import ProcessBus
 from magicbus.plugins import SimplePlugin
 from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
@@ -38,6 +47,7 @@ from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Monitor
 
 import kolibri
+from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
 from kolibri.utils.constants import installation_types
@@ -333,6 +343,44 @@ class ZeroConfPlugin(Monitor):
         self.backend.update_broadcast()
 
 
+def _read_local_hostnames_from_sqlite():
+    database = settings.DATABASES.get(NETWORK_LOCATION, {})
+    if database.get("ENGINE") not in (
+        "django.db.backends.sqlite3",
+        "kolibri.deployment.default.db.backends.sqlite3",
+    ):
+        return []
+    name = str(database["NAME"])
+    if name in ("", ":memory:"):
+        return []
+    if name.startswith("file:"):
+        path, _, query = name.split("#", 1)[0].partition("?")
+        if unquote(path) == "file::memory:":
+            return []
+        options = []
+        for option in filter(None, query.split("&")):
+            key, _, value = option.partition("=")
+            if unquote(key) != "mode":
+                options.append(option)
+            elif unquote(value) == "memory":
+                return []
+    else:
+        path = Path(name).absolute().as_uri()
+        options = []
+    options.append("mode=ro")
+    uri = path + "?" + "&".join(options)
+    try:
+        with contextlib.closing(
+            sqlite3.connect(uri, uri=True, timeout=0)
+        ) as connection:
+            rows = connection.execute(
+                "SELECT hostname FROM discovery_localhostname ORDER BY hostname"
+            )
+            return [hostname for (hostname,) in rows]
+    except sqlite3.DatabaseError:
+        return []
+
+
 def get_local_hostnames():
     """
     Returns the `.local` hostnames (e.g. ["kolibri.local", "tonyslaptop.local"])
@@ -342,10 +390,15 @@ def get_local_hostnames():
     Returns an empty list when zeroconf isn't broadcasting (disabled or not
     yet started).
     """
-    # The CLI imports this module before Django setup.
-    from kolibri.core.discovery.models import LocalHostname  # noqa: PLC0415
+    if not apps.ready:
+        return _read_local_hostnames_from_sqlite()
+    hostname_model = apps.get_model("discovery", "LocalHostname")
 
-    return list(LocalHostname.objects.values_list("hostname", flat=True))
+    try:
+        return list(hostname_model.objects.values_list("hostname", flat=True))
+    except DatabaseError as error:
+        logger.warning("Could not read local hostnames: %s", error)
+        return []
 
 
 status_map = {
@@ -365,9 +418,32 @@ IS_RUNNING = {STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN}
 PID_FILE_REPLACE_TIMEOUT = 1
 
 
+def _write_pid_metadata(filename, contents, *, replace_timeout):
+    temporary_file = f"{filename}.{os.getpid()}.{threading.get_ident()}.tmp"
+    try:
+        with open(temporary_file, "w") as f:
+            f.write(contents)
+        deadline = time.monotonic() + replace_timeout
+        while True:
+            try:
+                os.replace(temporary_file, filename)
+                break
+            except PermissionError:
+                # Windows refuses os.replace onto a file another handle holds open.
+                if time.monotonic() >= deadline:
+                    with open(filename, "w") as f:
+                        f.write(contents)
+                    break
+                time.sleep(0.01)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(temporary_file)
+
+
 class PIDPlugin(SimplePlugin):
     def __init__(self, bus):
         self.bus = bus
+        self.listen_address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
 
         # Do this during initialization to set a startup lock
         self.set_pid_file(STATUS_STARTING_UP)
@@ -384,26 +460,18 @@ class PIDPlugin(SimplePlugin):
         """
         if status is None:
             _, _, _, status = _read_pid_file(self.bus.pid_file)
-        contents = f"{os.getpid()}\n{self.bus.port}\n{self.bus.zip_port}\n{status}\n"
-        tmp_pid_file = f"{self.bus.pid_file}.{os.getpid()}.{threading.get_ident()}.tmp"
-        try:
-            with open(tmp_pid_file, "w") as f:
-                f.write(contents)
-            deadline = time.monotonic() + PID_FILE_REPLACE_TIMEOUT
-            while True:
-                try:
-                    os.replace(tmp_pid_file, self.bus.pid_file)
-                    break
-                except PermissionError:
-                    # Windows refuses os.replace onto a file another handle holds open.
-                    if time.monotonic() >= deadline:
-                        with open(self.bus.pid_file, "w") as f:
-                            f.write(contents)
-                        break
-                    time.sleep(0.01)
-        finally:
-            with contextlib.suppress(FileNotFoundError):
-                os.unlink(tmp_pid_file)
+        pid = os.getpid()
+        _write_pid_metadata(
+            self.bus.pid_file,
+            f"{pid}\n{self.bus.port}\n{self.bus.zip_port}\n{status}\n",
+            replace_timeout=PID_FILE_REPLACE_TIMEOUT,
+        )
+        with contextlib.suppress(OSError):
+            _write_pid_metadata(
+                f"{self.bus.pid_file}.bind",
+                f"{pid}\n{self.listen_address}\n",
+                replace_timeout=0,
+            )
 
     def SERVING(self, port):
         self.bus.port = port or self.bus.port
@@ -414,10 +482,10 @@ class PIDPlugin(SimplePlugin):
         self.set_pid_file(None)
 
     def EXIT(self):
-        try:
+        with contextlib.suppress(OSError):
+            os.unlink(f"{self.bus.pid_file}.bind")
+        with contextlib.suppress(OSError):
             os.unlink(self.bus.pid_file)
-        except OSError:
-            pass
 
 
 class SystemdNotifyPlugin(SimplePlugin):
@@ -690,7 +758,7 @@ def stop():
     Stops the kolibri server
     :raises: NotRunning
     """
-    pid, __, __, status = _read_pid_file(PID_FILE)
+    pid, _, _, status = _read_pid_file(PID_FILE)
 
     if not pid:
         return status
@@ -976,18 +1044,6 @@ def update_zeroconf_broadcast():
 
 
 def _read_pid_file(filename):
-    """
-    Reads a pid file and returns the contents. PID files have 1 or 2 lines;
-     - first line is always the pid
-     - second line is the port the server is listening on.
-     - third line is the port the alternate origin server is listening on
-     - fourth line is the status of the server process
-
-    :param filename: Path of PID to read
-    :return: (pid, port, zip_port, status): with the PID in the file, the port numbers
-                          if they exist. If the port number doesn't exist, then
-                          port is None. Lastly, the status code is returned.
-    """
     if not os.path.isfile(filename):
         return None, None, None, STATUS_STOPPED
 
@@ -1003,6 +1059,17 @@ def _read_pid_file(filename):
     except (TypeError, ValueError, OSError):
         pass
     return None, None, None, STATUS_PID_FILE_INVALID
+
+
+def _read_bind_address(filename, pid):
+    try:
+        with open(f"{filename}.bind") as f:
+            owner, address = f.read().splitlines()
+        if int(owner) == pid:
+            return socket.inet_ntoa(socket.inet_aton(address))
+    except (OSError, ValueError):
+        pass
+    return None
 
 
 def get_status_from_pid_file():
@@ -1026,17 +1093,130 @@ def get_zip_port():
     return zip_port
 
 
-def get_status():  # noqa: C901
+def _was_connection_refused(error):
+    cause = error.__cause__ or error.__context__
+    while cause is not None:
+        if isinstance(cause, ConnectionRefusedError):
+            return True
+        cause = cause.__cause__ or cause.__context__
+    return False
+
+
+def _has_local_alternate_listener(address):
+    if address is None:
+        return False
+    host = str(address)
+    if address.is_unspecified or host == "127.0.0.1":
+        return False
+    if address.is_loopback:
+        return True
+    try:
+        adapters = ifaddr.get_adapters()
+    except (OSError, UnicodeDecodeError):
+        return False
+    return any(
+        addr.is_IPv4 and addr.ip == host for adapter in adapters for addr in adapter.ips
+    )
+
+
+def _shutdown_status_socket(sock):
+    with contextlib.suppress(OSError):
+        sock.shutdown(socket.SHUT_RDWR)
+
+
+def _get_alternate_status_code(host, port, path, deadline):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise requests.exceptions.ReadTimeout()
+    try:
+        with contextlib.closing(
+            HTTPConnection(host, port, timeout=remaining)
+        ) as connection:
+            connection.connect()
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise requests.exceptions.ReadTimeout()
+            timer = threading.Timer(
+                remaining, _shutdown_status_socket, args=(connection.sock,)
+            )
+            timer.start()
+            try:
+                connection.request("GET", path)
+                with connection.getresponse() as response:
+                    if time.monotonic() >= deadline:
+                        raise requests.exceptions.ReadTimeout()
+                    return response.status
+            finally:
+                timer.cancel()
+    except socket.timeout as error:
+        raise requests.exceptions.ReadTimeout() from error
+    except (OSError, HTTPException) as error:
+        if time.monotonic() >= deadline:
+            raise requests.exceptions.ReadTimeout() from error
+        raise requests.exceptions.ConnectionError() from error
+
+
+def _get_cherrypy_status_response(loopback_url, listen_address, port, mount_path):
+    address = ip_address(listen_address) if listen_address is not None else None
+
+    deadline = time.monotonic() + 3
+    response = None
+    try:
+        response = requests.get(loopback_url, timeout=3)
+    except requests.exceptions.ConnectionError as error:
+        if (
+            isinstance(error, requests.exceptions.ProxyError)
+            or (error.request is not None and error.request.url != loopback_url)
+            or not _was_connection_refused(error)
+            or not _has_local_alternate_listener(address)
+        ):
+            raise
+    else:
+        if response.status_code == 200 or not _has_local_alternate_listener(address):
+            return response.status_code, response
+
+    try:
+        status_code = _get_alternate_status_code(
+            str(address), port, f"{mount_path}status/", deadline
+        )
+    except requests.exceptions.RequestException:
+        if response is not None:
+            return response.status_code, response
+        raise
+
+    if status_code != 200 and response is not None and response.status_code != 404:
+        return response.status_code, response
+    return status_code, None
+
+
+def _check_cherrypy_status(check_url, listen_address, listen_port, mount_path):
+    try:
+        status_code, response = _get_cherrypy_status_response(
+            check_url, listen_address, listen_port, mount_path
+        )
+    except (
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.ConnectionError,
+    ) as e:
+        raise NotRunning(STATUS_NOT_RESPONDING) from e
+    except requests.exceptions.RequestException as e:
+        raise NotRunning(STATUS_UNCLEAN_SHUTDOWN) from e
+
+    if status_code == 404:
+        raise NotRunning(STATUS_UNKNOWN_INSTANCE)
+
+    if status_code != 200:
+        sys.stderr.write("---Debug information---\n")
+        sys.stderr.write(
+            response.text if response is not None else f"HTTP {status_code}"
+        )
+        sys.stderr.write("\n-----------------------\n")
+        raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
+
+
+def get_status():
     """
-    Tries to get the PID of a running server.
-
-    The behavior is also quite redundant given that `kolibri start` should
-    always create a PID file, and if its been started directly with the
-    runserver command, then its up to the developer to know what's happening.
-
-    :returns: (PID, address, port), where address is not currently detected in
-        a valid way because it's not configurable, and we might be
-        listening on several IPs.
+    :returns: (PID, address, port); a wildcard address denotes all interfaces.
     :raises: NotRunning
     """
     # PID file exists and startup has finished, check if it is running
@@ -1064,39 +1244,15 @@ def get_status():  # noqa: C901
 
     listen_port = port
 
-    prefix = (
-        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-        if conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"] == "/"
-        else "/" + conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-    )
+    mount_path = encoded_mount_path(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"])
+    listen_address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    cherrypy_start = conf.OPTIONS["Server"]["CHERRYPY_START"]
+    check_url = f"http://127.0.0.1:{listen_port}{mount_path}status/"
 
-    check_url = "http://{}:{}{}status/".format("127.0.0.1", listen_port, prefix)
-
-    if conf.OPTIONS["Server"]["CHERRYPY_START"]:
-        try:
-            # Timeout is 3 seconds, we don't want the status command to be slow
-            # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
-            # be configurable
-            # TODO: HTTP might not be the protocol if server has SSL
-            response = requests.get(check_url, timeout=3)
-        except (
-            requests.exceptions.ReadTimeout,
-            requests.exceptions.ConnectionError,
-        ) as e:
-            raise NotRunning(STATUS_NOT_RESPONDING) from e
-        except requests.exceptions.RequestException as e:
-            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN) from e
-
-        if response.status_code == 404:
-            raise NotRunning(STATUS_UNKNOWN_INSTANCE)  # Unknown HTTP server
-
-        if response.status_code != 200:
-            # Probably a mis-configured kolibri
-            sys.stderr.write("---Debug information---\n")
-            sys.stderr.write(response.text)
-            sys.stderr.write("\n-----------------------\n")
-            raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
-
+    if cherrypy_start:
+        bind_address = _read_bind_address(PID_FILE, pid)
+        _check_cherrypy_status(check_url, bind_address, listen_port, mount_path)
+        listen_address = bind_address or listen_address
     else:
         try:
             requests.get(check_url, timeout=3)
@@ -1108,11 +1264,7 @@ def get_status():  # noqa: C901
         except requests.exceptions.RequestException:
             return pid, "", ""
 
-    return (
-        pid,
-        conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"],
-        listen_port,
-    )  # Correct PID !
+    return pid, listen_address, listen_port
     # We don't detect this at present:
     # Could be detected because we fetch the PID directly via HTTP, but this
     # is dumb because kolibri could be running in a worker pool with different
@@ -1207,8 +1359,10 @@ def _get_local_ips():
     )
 
 
-def _get_listen_ips():
-    listen_address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+def _get_listen_ips(listen_address=None):
+    if listen_address is None:
+        listen_address = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    listen_address = socket.inet_ntoa(socket.inet_aton(listen_address))
     return _get_local_ips() if listen_address == "0.0.0.0" else [listen_address]
 
 
@@ -1247,22 +1401,36 @@ def _advertised_port(bind_port):
     return conf.OPTIONS["Deployment"]["ADVERTISED_HTTP_PORT"] or bind_port
 
 
-def _urls_on_port(hosts, port):
+def encoded_mount_path(prefix):
+    return "/" + quote(prefix.lstrip("/"), safe=RFC3986_SUBDELIMS + "/~:@")
+
+
+def _urls_on_port(hosts, port, prefix):
     port_suffix = "" if port == 80 else f":{port}"
-    return [f"http://{host}{port_suffix}/" for host in hosts]
+    path = encoded_mount_path(prefix)
+    return [f"http://{host}{port_suffix}{path}" for host in hosts]
 
 
-def get_urls(listen_port=None, include_bound_port=False, advertise=True):
+def get_urls(
+    listen_port=None,
+    include_bound_port=False,
+    advertise=True,
+    *,
+    include_origin_roots=False,
+):
     """
     :param listen_port: if set, will not try to determine the listen port from
                         other running instances.
     """
     try:
-        port = listen_port or get_status()[2]
+        if listen_port:
+            listen_address, port = None, listen_port
+        else:
+            _, listen_address, port = get_status()
         if not port:
             return STATUS_RUNNING, []
         try:
-            hosts = _get_listen_ips()
+            hosts = _get_listen_ips(listen_address)
             list_hostnames = any(map(_is_lan_reachable, hosts))
         except RuntimeError:
             logger.error("Error retrieving network interface list!")
@@ -1271,9 +1439,19 @@ def get_urls(listen_port=None, include_bound_port=False, advertise=True):
         if list_hostnames:
             hosts += get_local_hostnames()
         url_port = _advertised_port(port) if advertise else port
-        urls = _urls_on_port(hosts, url_port)
+        prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"] if advertise else ""
+        ports = [url_port]
         if include_bound_port and url_port != port:
-            urls += _urls_on_port(hosts, port)
+            ports.append(port)
+        prefixes = [prefix]
+        if include_origin_roots and prefix not in ("", "/"):
+            prefixes.append("")
+        urls = [
+            url
+            for candidate_prefix in prefixes
+            for candidate_port in ports
+            for url in _urls_on_port(hosts, candidate_port, candidate_prefix)
+        ]
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

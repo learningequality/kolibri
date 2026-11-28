@@ -1,9 +1,12 @@
 import logging
 from datetime import timedelta
+from urllib.parse import unquote_to_bytes
 from urllib.parse import urlparse
 
 import requests
 from django.utils import timezone
+from urllib3.exceptions import LocationParseError
+from urllib3.util import parse_url
 
 import kolibri
 from kolibri.core.device.utils import device_info_keys
@@ -13,7 +16,9 @@ from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.http_session import SameHostSession
+from kolibri.utils.server import get_port
 from kolibri.utils.server import get_urls
 
 from . import errors
@@ -22,6 +27,18 @@ from .urls import HTTP_PORTS
 from .urls import HTTPS_PORTS
 
 logger = logging.getLogger(__name__)
+
+
+def _self_url_key(url, cherrypy_port):
+    parts = parse_url(join_url(url, "api/public/info/"))
+    port = parts.port
+    if port is None:
+        port = 443 if parts.scheme == "https" else 80
+    path = requests.utils.requote_uri(parts.path)
+    if parts.scheme == "http" and port == cherrypy_port:
+        path = b"%2F".join(unquote_to_bytes(part) for part in path.split("%2F"))
+    return parts.scheme, parts.host, port, path
+
 
 device_info_defaults = {
     "subset_of_users_device": False,
@@ -151,9 +168,19 @@ class NetworkClient(SameHostSession):
             pass
 
         logger.info("Attempting connections to variations of the URL: %s", address)
-        _, self_urls = get_urls(include_bound_port=True)
+        _, self_urls = get_urls(include_bound_port=True, include_origin_roots=True)
+        cherrypy_port = (
+            get_port() if self_urls and OPTIONS["Server"]["CHERRYPY_START"] else None
+        )
+        self_url_keys = {
+            _self_url_key(self_url, cherrypy_port) for self_url in self_urls
+        }
         for url in get_normalized_url_variations(address):
-            if url in self_urls:
+            try:
+                url_key = _self_url_key(url, cherrypy_port)
+            except LocationParseError:
+                continue
+            if url_key in self_url_keys:
                 continue  # exclude our own URLs
             with cls(url, timeout=timeout) as client:
                 if client.connect(raise_if_unavailable=False):
@@ -293,7 +320,7 @@ class NetworkClient(SameHostSession):
             self.base_url = "{}://{}{}".format(
                 parsed_url.scheme,
                 parsed_url.netloc,
-                parsed_url.path.rstrip("/").replace("api/public/info", ""),
+                parsed_url.path.rpartition("api/public/info")[0],
             )
         except requests.exceptions.JSONDecodeError as e:
             logger.info(
