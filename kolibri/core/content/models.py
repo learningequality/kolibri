@@ -25,6 +25,7 @@ from django.db.models import Exists
 from django.db.models import F
 from django.db.models import Min
 from django.db.models import OuterRef
+from django.db.models import Q
 from django.db.models import QuerySet
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
@@ -228,6 +229,11 @@ class ContentNode(base_models.ContentNode):
         ]
         indexes: ClassVar[list] = [
             models.Index(fields=["modality"]),
+            models.Index(
+                fields=["tree_id", "lang", "lft"],
+                condition=Q(available=True),
+                name="contentnode_tree_lang_lft_idx",
+            ),
         ]
 
     def __str__(self):

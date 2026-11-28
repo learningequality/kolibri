@@ -3,6 +3,7 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 """
 
 import datetime
+import re
 import time
 import unittest
 import uuid
@@ -14,6 +15,7 @@ from unittest import mock
 import pytz
 from django.conf import settings
 from django.core.cache import cache
+from django.db import connection
 from django.test import LiveServerTestCase
 from django.test import override_settings
 from django.test import TestCase
@@ -37,6 +39,7 @@ from kolibri.core.content.test.helpers import CHANNEL_METADATA_FIELDS
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
+from kolibri.core.content.viewsets.contentnode.filters import ContentNodeFilter
 from kolibri.core.content.viewsets.contentnode.tree import NUM_CHILDREN
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
@@ -50,6 +53,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.test.helpers import encode_cursor
 from kolibri.utils.tests.helpers import override_option
 from kolibri.utils.time_utils import local_now
@@ -1702,6 +1706,117 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(with_filter_response.data), 1)
         returned_ids = {ch["id"] for ch in with_filter_response.data}
         self.assertIn(quiz_channel_id, returned_ids)
+
+    def test_base_languages_partial_index(self):
+        table = content.ContentNode._meta.db_table
+        index = "contentnode_tree_lang_lft_idx"
+        with connection.cursor() as cursor:
+            constraints = connection.introspection.get_constraints(cursor, table)
+            self.assertEqual(
+                constraints[index]["columns"], ["tree_id", "lang_id", "lft"]
+            )
+            if connection.vendor == "postgresql":
+                cursor.execute(
+                    "SELECT indexdef FROM pg_indexes "
+                    "WHERE schemaname = current_schema() AND tablename = %s AND indexname = %s",
+                    [table, index],
+                )
+            else:
+                cursor.execute(
+                    "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = %s",
+                    [index],
+                )
+            (definition,) = cursor.fetchone()
+        self.assertRegex(definition, r' WHERE \(?"?available"?\)?$')
+
+    @unittest.skipUnless(connection.vendor == "sqlite", "SQLite query plans")
+    def test_base_languages_topic_index_seek(self):
+        queryset = ContentNodeFilter(
+            {"base_languages": "es"}, queryset=content.ContentNode.objects.all()
+        ).qs
+        self.assertIn(
+            "USING INDEX contentnode_tree_lang_lft_idx "
+            "(tree_id=? AND lang_id=? AND lft>? AND lft<?)",
+            queryset.explain(),
+        )
+
+    def _node_query_plan_accesses(self, url, params):
+        table = content.ContentNode._meta.db_table
+        cache.clear()
+        process_cache.clear()
+        queries = []
+
+        def capture(execute, sql, params, many, context):
+            if sql.startswith("SELECT") and f'"{table}"' in sql:
+                queries.append((sql, params))
+            return execute(sql, params, many, context)
+
+        with connection.execute_wrapper(capture):
+            response = self.client.get(url, params)
+        self.assertEqual(response.status_code, 200)
+
+        accesses = Counter()
+        with connection.cursor() as cursor:
+            for sql, params in queries:
+                if sql.startswith('SELECT "content_language".'):
+                    accesses["language_labels"] += 1
+                aliases = {table}
+                aliases.update(
+                    re.findall(rf'(?:FROM|JOIN) "{table}" ([A-Z]+[0-9]+)\b', sql)
+                )
+                cursor.execute("EXPLAIN QUERY PLAN " + sql, params)
+                for _, _, _, detail in cursor.fetchall():
+                    match = re.match(r"(SCAN|SEARCH) (?:TABLE )?(\w+)", detail)
+                    if match and match[2] in aliases:
+                        accesses[match[1]] += 1
+        return accesses
+
+    @unittest.skipUnless(connection.vendor == "sqlite", "SQLite query plans")
+    def test_base_languages_endpoint_query_plans(self):
+        language, _ = content.Language.objects.get_or_create(
+            id="es-MX", defaults={"lang_code": "es"}
+        )
+        channel_id = uuid.uuid4().hex
+        root = content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            kind=content_kinds.TOPIC,
+            available=True,
+        )
+        content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            parent=root,
+            kind=content_kinds.VIDEO,
+            lang=language,
+            available=True,
+        )
+        channel = content.ChannelMetadata.objects.create(
+            id=channel_id, root=root, public=True
+        )
+        channel.included_languages.add(language)
+
+        for prefix in ("", "public"):
+            for endpoint, kwargs, params in (
+                ("contentnode-list", {}, {}),
+                ("contentnode-list", {}, {"max_results": 5}),
+                ("contentnode_tree-detail", {"pk": root.id}, {}),
+                ("channel-list", {}, {}),
+            ):
+                url = reverse(f"kolibri:core:{prefix}{endpoint}", kwargs=kwargs)
+                with self.subTest(endpoint=url, params=params):
+                    baseline = self._node_query_plan_accesses(url, params)
+                    filtered = self._node_query_plan_accesses(
+                        url, {**params, "base_languages": "es"}
+                    )
+                    self.assertLessEqual(filtered["SCAN"], baseline["SCAN"])
+                    if endpoint == "channel-list":
+                        self.assertLessEqual(filtered["SEARCH"], baseline["SEARCH"])
+                    if params:
+                        self.assertEqual(baseline["language_labels"], 1)
+                        self.assertEqual(filtered["language_labels"], 1)
 
     def test_base_languages_endpoints(self):
         languages = {
