@@ -225,14 +225,21 @@ const queryParamRegex = /([^?)]+)?(\?.*)/g;
  */
 export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  return getDocumentPaths(dom);
+}
+
+function getUrlAttributePath(element, attribute) {
+  return decodeURIComponent(element.getAttribute(attribute).replace(queryParamRegex, '$1'));
+}
+
+export function getDocumentPaths(dom) {
   // Get paths from URL attributes (src, href)
   const urlPaths = flatten(
-    urlAttributes.map(attr => {
-      const elementsWithUrl = Array.from(dom.querySelectorAll(`[${attr}]`));
-      return elementsWithUrl.map(element =>
-        decodeURIComponent(element.getAttribute(attr).replace(queryParamRegex, '$1')),
-      );
-    }),
+    urlAttributes.map(attribute =>
+      Array.from(dom.querySelectorAll(`[${attribute}]`), element =>
+        getUrlAttributePath(element, attribute),
+      ),
+    ),
   );
 
   // Get paths from style attributes
@@ -300,13 +307,16 @@ function replaceSrcsetUrls(srcset, packageFiles) {
  */
 export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  replaceDocumentPaths(dom, packageFiles);
+  return serializeDocument(dom);
+}
 
+export function replaceDocumentPaths(dom, packageFiles) {
   // Replace URL attributes
   for (const attr of urlAttributes) {
     const urlElements = Array.from(dom.querySelectorAll(`[${attr}]`));
     for (const element of urlElements) {
-      const value = element.getAttribute(attr);
-      const newUrl = packageFiles[decodeURIComponent(value.replace(queryParamRegex, '$1'))];
+      const newUrl = packageFiles[getUrlAttributePath(element, attr)];
       if (newUrl) {
         element.setAttribute(attr, newUrl);
       }
@@ -336,8 +346,10 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
     const newContent = replaceCSSPaths(originalContent, packageFiles);
     style.textContent = newContent;
   }
+}
 
-  if (mimeType === 'text/html') {
+export function serializeDocument(dom) {
+  if (dom.contentType === 'text/html') {
     // Remove the namespace attribute from the root element
     // as serializeToString adds it by default and without this
     // it gets repeated.

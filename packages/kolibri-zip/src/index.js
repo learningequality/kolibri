@@ -378,6 +378,16 @@ export default class ZipFile {
     return this._getFiles(entry => entry.filename.endsWith(extension));
   }
 
+  async getFileNames() {
+    await this._fileLoadingPromise;
+
+    if (this._loadingError) {
+      throw this._loadingError;
+    }
+
+    return Object.keys(this._entryMap);
+  }
+
   /**
    * Revoke all blob URLs and release resources.
    */
