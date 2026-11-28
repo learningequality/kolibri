@@ -90,6 +90,7 @@ export default function useProgressTracking() {
 
   let lastElapsedTimeCheck;
   let timeCheckIntervalTimer;
+  let unmounting = false;
 
   function getNewTimeElapsed() {
     // Timer has not been started
@@ -618,6 +619,9 @@ export default function useProgressTracking() {
    * Start interval timer and set start time
    */
   function startTrackingProgress() {
+    if (unmounting) {
+      return;
+    }
     timeCheckIntervalTimer = setInterval(updateContentSession, intervalTime);
     lastElapsedTimeCheck = new Date();
   }
@@ -647,7 +651,10 @@ export default function useProgressTracking() {
     return Promise.resolve();
   }
 
-  onBeforeUnmount(stopTrackingProgress);
+  onBeforeUnmount(() => {
+    unmounting = true;
+    return stopTrackingProgress();
+  });
 
   return {
     initContentSession,
