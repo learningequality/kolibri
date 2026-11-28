@@ -4,6 +4,10 @@ from unittest import mock
 import pytest
 from django.test import SimpleTestCase
 from magicbus import Bus
+from zeroconf import _CLASS_IN
+from zeroconf import _TYPE_TXT
+from zeroconf import current_time_millis
+from zeroconf import DNSText
 from zeroconf import ServiceInfo
 
 from ..utils.network.broadcast import INSTANCE_EVENTS
@@ -11,6 +15,7 @@ from ..utils.network.broadcast import KolibriInstance
 from ..utils.network.broadcast import KolibriInstanceListener
 from ..utils.network.broadcast import LOCAL_DOMAIN
 from ..utils.network.broadcast import NetworkDiscoveryBackend
+from ..utils.network.broadcast import SERVICE_TTL
 from ..utils.network.broadcast import SERVICE_TYPE
 
 MOCK_INTERFACE_IP = "111.222.111.222"
@@ -168,6 +173,40 @@ class KolibriInstanceTestCase(SimpleTestCase):
         instance = KolibriInstance(MOCK_ID, device_info={"good": []})
         with self.assertRaises(TypeError):
             instance.to_service_info()
+
+    def _advertised_device_name(self, device_name):
+        info = KolibriInstance(
+            MOCK_ID,
+            ip=MOCK_INTERFACE_IP,
+            port=MOCK_PORT,
+            device_info={"device_name": device_name},
+        ).to_service_info()
+        received = build_service_info(zeroconf_id=MOCK_ID)
+        received.update_record(
+            None,
+            current_time_millis(),
+            DNSText(received.name, _TYPE_TXT, _CLASS_IN, SERVICE_TTL, info.text),
+        )
+        return KolibriInstance.from_service_info(received).device_info["device_name"]
+
+    def test_to_service_info__non_ascii_name_at_model_limit_advertised_in_full(self):
+        device_name = "व" * 50
+        self.assertEqual(self._advertised_device_name(device_name), device_name)
+
+    def test_to_service_info__escaped_name_truncated_to_whole_escapes(self):
+        self.assertEqual(self._advertised_device_name("\x01" * 50), "\x01" * 40)
+
+    def test_to_service_info__entry_of_exactly_255_bytes_kept(self):
+        self.assertEqual(self._advertised_device_name("a" * 242), "a" * 241)
+
+    def test_to_service_info__truncation_counts_encoded_bytes(self):
+        self.assertEqual(self._advertised_device_name("व" * 100), "व" * 80)
+
+    def test_to_service_info__device_info_kept_whole(self):
+        device_name = "व" * 100
+        instance = KolibriInstance(MOCK_ID, device_info={"device_name": device_name})
+        instance.to_service_info()
+        self.assertEqual(instance.device_info["device_name"], device_name)
 
 
 class KolibriTestInstanceListener(KolibriInstanceListener):
