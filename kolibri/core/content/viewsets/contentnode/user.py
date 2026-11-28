@@ -91,7 +91,7 @@ class UserContentNodeFilter(ContentNodeFilter):
                 validate=False,
             )
             .filter(
-                Q(has_prerequisite__in=completed_content_nodes)
+                Q(has_prerequisite__in=completed_content_nodes.values("id"))
                 | Q(
                     lft__in=[
                         rght + 1

@@ -23,6 +23,8 @@ from kolibri.core.api import ValuesMethodField
 from kolibri.core.content import models
 from kolibri.core.content.utils.cache import public_metadata_cache
 from kolibri.core.content.utils.cache import remote_metadata_cache
+from kolibri.core.content.viewsets.contentnode.filters import CharInFilter
+from kolibri.core.content.viewsets.contentnode.filters import get_base_language_ids
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 from kolibri.core.serializers import DateTimeTzField
 from kolibri.core.serializers import KolibriModelSerializer
@@ -32,6 +34,7 @@ from .remote import RemoteViewSet
 
 
 class ChannelMetadataFilter(FilterSet):
+    base_languages = CharInFilter(method="filter_base_languages")
     available = BooleanFilter(method="filter_available", label="Available")
     contains_exercise = BooleanFilter(
         method="filter_contains_exercise", label="Has exercises"
@@ -44,7 +47,13 @@ class ChannelMetadataFilter(FilterSet):
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ("available", "contains_exercise", "has_exercise", "contains_quiz")
+        fields = (
+            "available",
+            "base_languages",
+            "contains_exercise",
+            "has_exercise",
+            "contains_quiz",
+        )
 
     def filter_contains_exercise(self, queryset, name, value):
         queryset = queryset.annotate(
@@ -58,6 +67,17 @@ class ChannelMetadataFilter(FilterSet):
         )
 
         return queryset.filter(contains_exercise=True)
+
+    def filter_base_languages(self, queryset, name, value):
+        channel_languages = models.ChannelMetadata.included_languages.through
+        return queryset.filter(
+            Exists(
+                channel_languages.objects.filter(
+                    channelmetadata_id=OuterRef("id"),
+                    language_id__in=get_base_language_ids(value),
+                )
+            ),
+        )
 
     def filter_contains_quiz(self, queryset, name, value):
         if value:
